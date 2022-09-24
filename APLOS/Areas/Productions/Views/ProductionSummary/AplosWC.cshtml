@@ -88,7 +88,7 @@
     }
 
     .modellgModify {
-        width: 1200px;
+        width: 1400px;
     }
 </style>
 <h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Production Booking</h3>
@@ -241,8 +241,7 @@
             <div class="select-style">
                 <select class="form-control" ng-model="data.ProductionGrade" name="ProductionGrade" required
                         ng-options="item.Value as item.Text for item in $parent.gradeList">
-                    <option value="">Select</option>
-
+                    @*<option value="">Select</option>*@
                 </select>
             </div>
         </script>
@@ -352,8 +351,8 @@
                                 <div e-column e-field="ResponsiblePersonId" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="200" e-visible="false"></div>
                                 <div e-column e-template="#Department" e-headertext="Department" e-width="200"></div>
-                                <div e-column e-template="#DetentionTypeId" e-headertext="Detention Type" e-width="100"></div>
-                                <div e-column e-template="#DetentionId" e-headertext="Detention" e-width="100"></div>
+                                <div e-column e-template="#DetentionTypeId" e-headertext="Detention Type" e-width="200"></div>
+                                <div e-column e-template="#DetentionId" e-headertext="Detention" e-width="200"></div>
                                 <div e-column e-template="#fromtime" e-headertext="From Time" e-width="120"></div>
                                 <div e-column e-template="#totime" e-headertext="To Time" e-width="120"></div>
                                 <div e-column e-template="#ResponsiblePersonD" e-headertext="Responsible Person" e-width="200"></div>

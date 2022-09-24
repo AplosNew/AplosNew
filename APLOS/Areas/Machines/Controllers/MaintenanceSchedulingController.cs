@@ -103,7 +103,7 @@ namespace Aplos.Areas.Machines.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaintenanceSchedule);
 
-                return Json(new { Error = false, Data = ScheduleData, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = ScheduleData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -152,6 +152,24 @@ namespace Aplos.Areas.Machines.Controllers
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+
+        [Authorize, HttpPost]
+        public ActionResult ScheduleDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from TRN.MaintenanceScheduling where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         private double GetSequence()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM  dbo.Rack ");
@@ -185,9 +203,21 @@ namespace Aplos.Areas.Machines.Controllers
         public ActionResult GetMachine()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select MM.Id MachineMasterId,MM.Sequence,MM.Code,MM.ShortName 
-						                ,MM.StandardName,MM.UserName MachineMaster
-						                from mst.MachineMaster MM";
+            string str = @"select MM.Id MachineMasterId,C.UserName as Category,SC.UserName as Subcategroy,MM.Code,MM.UserName MachineMaster,MM.MachineMake as Make,MM.MachineModel as Model,MM.MachinePerticulars as Particulars
+						                from mst.MachineMaster MM
+										left join HKP.MachineCategory C ON C.Id=MM.MachineCategoryId
+										left join HKP.MachineSubCategory SC ON SC.Id=MM.MachineSubCategoryId";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public ActionResult GetBudgetCode()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select MP.Id ManPowerBudgetId, MP.Code, E.UserName Entity, P.UserName Position from MST.ManpowerBudget MP
+                            left join ORG.Entity E on E.Id = MP.EntityId
+                            left join ORG.Position P on P.Id = MP.PositionId
+                            where MP.Active = 1";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -330,9 +360,10 @@ namespace Aplos.Areas.Machines.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"select *,(select EmployeeName from EmployeeInformation where SystemId=MS.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
-                            (select UserName from MST.MachineMaster where Id=MS.MachineMasterId) as MachineName
-                            FROM [Trn].[MaintenanceScheduling] MS where MS.Id='" + ScheduleID + @"'";
+            string sql = @"select *,(select MP.Code from MST.ManpowerBudget MP where MP.Id=MS.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
+                            MM.UserName as MachineName,MM.MachineMake as Make,MM.MachineModel as Model,MM.MachinePerticulars  as Particulars
+                            FROM [Trn].[MaintenanceScheduling] MS
+							left join MST.MachineMaster MM ON MM.Id=MS.MachineMasterId where MS.Id='" + ScheduleID + @"'";
             return Json(new { schedule = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
@@ -483,27 +514,30 @@ namespace Aplos.Areas.Machines.Controllers
         public ActionResult LoadMaintenanceMasterList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * ,(select EmployeeName from EmployeeInformation where SystemId=MS.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
+            string sql = @"SELECT * ,(select MP.Code from MST.ManpowerBudget MP where MP.Id=MS.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
                             (select UserName from MST.MachineMaster where Id=MS.MachineMasterId) as MachineName
                             FROM [Trn].[MaintenanceScheduling] MS";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+        //[Authorize, HttpGet]
+        //public ActionResult LoadMaintenanceList(string ScheduleID)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    string sql = @"SELECT * ,(select MP.Code from MST.ManpowerBudget MP where MP.Id=MS.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
+        //                    (select UserName from MST.MachineMaster where Id=MS.MachineMasterId) as MachineName
+        //                    FROM [Trn].[MaintenanceScheduling] MS where MS.Id='" + ScheduleID + @"'";
+        //    return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        //}
         [Authorize, HttpGet]
-        public ActionResult LoadMaintenanceList(string ScheduleID)
+        public ActionResult LoadMachineDetails(string Id)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * ,(select EmployeeName from EmployeeInformation where SystemId=MS.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
-                            (select UserName from MST.MachineMaster where Id=MS.MachineMasterId) as MachineName
-                            FROM [Trn].[MaintenanceScheduling] MS where MS.Id='" + ScheduleID + @"'";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-        [Authorize, HttpGet]
-        public ActionResult LoadMachineDetails()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,CASE IsAvoidable WHEN 1 THEN 'Yes' ELSE 'No' END Avoidable,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson,
-                            (select UserName from [HKP].[DetentionType] where Id=DetentionTypeId) as DetentionType
-                            FROM DetentionMaster";
+            string sql = @"select CAST (CASE WHEN MMA.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMA.Id,MMA.SNO,MMA.AssetGroup,MMA.Remarks,MMA.MaintenanceSchedulingId,
+MA.Id as AssetId,MA.AssetName,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA.MachineMasterId,MM.UserName as MachineName
+ from MachineMasterAsset MA
+ left Join SCS.WorkCenterMaster WC On WC.id=MA.WorkCenterMasterId
+ left Join MST.MachineMaster MM ON MM.Id=MA.MachineMasterId
+ left Join [TRN].[MaintenanceMachineAsset] MMA ON MMA.AssetId=MA.Id where MA.MachineMasterId='"+ Id +"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
@@ -532,6 +566,50 @@ namespace Aplos.Areas.Machines.Controllers
                             (select UserName from [HKP].[DetentionType] where Id=DetentionTypeId) as DetentionType
                             FROM DetentionMaster";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public ActionResult CreateAsset(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[MaintenanceMachineAsset]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "MMA" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
         }
         [HttpPost]
         public JsonResult CreateDepartment(List<Dictionary<string, object>> data, string DetentionMasterId)

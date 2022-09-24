@@ -93,9 +93,9 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetStopageInformation()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select s.Id as StopagePrimaryId,s.CityId,s.Sequence,S.Code,S.ShortName,S.StandardName,S.UserName,S.[Description],s.Active
-                            from [HKP].[Stoppage] s 
-                                where s.CompanyId='" + identity.CompanyId + "' and s.CompanyGroupId='" + identity.CompanyGroupId + "'";
+            string sql = @"SELECT null Id,s.Id as StopagePrimaryId,s.CityId,s.Sequence,S.Code,S.ShortName,S.StandardName,S.UserName,S.[Description],s.Active
+                            FROM [HKP].[Stoppage] s 
+                                WHERE s.CompanyId='" + identity.CompanyId + "' and s.CompanyGroupId='" + identity.CompanyGroupId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
@@ -110,14 +110,16 @@ namespace Aplos.Areas.Employees.Controllers
 
 
         [HttpPost]
-        public ActionResult Save(RouteModel Route, List<StopageListModel> StopageList)
+        public ActionResult Save(RouteModel data, List<Dictionary<string, object>> StopageList)
         {
             try
             {
                 string RouteId = string.Empty;
-                RouteId = SaveRoute(Route);
-                SaveStopageList(Route, StopageList, RouteId, out DataSet dsDelete);
-                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                //RouteId = SaveRoute(Route);
+                //SaveStopageList(Route, StopageList, RouteId, out DataSet dsDelete);
+                SaveData(data, out string Id, StopageList);
+                data.Id = Id;
+                return Json(new { Route = data, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
             {
@@ -203,7 +205,133 @@ namespace Aplos.Areas.Employees.Controllers
             }
         }
 
+        private void SaveData(RouteModel data, out string Id, List<Dictionary<string, object>> StopageList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsChild;
+            string contId = string.Empty;
+            string id = string.Empty;
+            try
+            {
 
+                string sql = "SELECT * FROM [MST].[Route] WHERE ID='" + data.Id + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                
+
+                objCon.OpenDataSetThroughAdapter("select * from [MST].[Route] where Code='" + data.Code + "' AND  Id<>'" + data.Id + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                objCon.OpenDataSetThroughAdapter("select * from [MST].[Route] where UserName='" + data.UserName + "' AND  Id<>'" + data.Id + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    string sID = string.Empty;
+                    bplib.clsGenID objGenID = new bplib.clsGenID();
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "Route", out sID);
+                    Id = "R" + sID;
+                    dr["Id"] = Id;
+                    dr["PlantId"] = identity.PlantId;
+                    dr["CompanyId"] = identity.CompanyId;
+
+                    dr["Code"] = data.Code;
+                    dr["UserName"] = data.UserName;
+                    dr["StandardName"] = data.StandardName;
+                    dr["ShortName"] = data.ShortName;
+                    dr["Description"] = data.Description;
+                    dr["Remarks"] = data.Remarks;
+                    dr["Totalkm"] = data.Totalkm;
+                    dr["Active"] = data.Active;
+                    dr["From"] = data.From;
+                    dr["To"] = data.To;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                    dr.BeginEdit();
+
+                    Id = dr["Id"].ToString();
+
+                    dr["PlantId"] = identity.PlantId;
+                    dr["CompanyId"] = identity.CompanyId;
+
+                    dr["Code"] = data.Code;
+                    dr["UserName"] = data.UserName;
+                    dr["StandardName"] = data.StandardName;
+                    dr["ShortName"] = data.ShortName;
+                    dr["Description"] = data.Description;
+                    dr["Remarks"] = data.Remarks;
+                    dr["Totalkm"] = data.Totalkm;
+                    dr["Active"] = data.Active;
+                    dr["From"] = data.From;
+                    dr["To"] = data.To;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dr.EndEdit();
+                }
+                Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #region StopageList 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [MST].[RouteStoppage] where  RouteId='" + Id + "'", out dsChild, false, "1");
+                if (StopageList != null)
+                {
+                    int _Count = 0;
+                    foreach (var item in StopageList)
+                    {
+                        _Count++;
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "StoppageId='" + item["StoppageId"] + "'";
+
+                       
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = GetStopagePK();
+                            item["RouteId"] = Id;
+                            item["Sequence"] = _Count;
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            item["Id"] = dv[0].Row["Id"].ToString();
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsChild);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private string GetStopagePK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "RouteStoppage", out sID);
+            return sID;
+        }
         public void SaveStopageList(RouteModel Route, List<StopageListModel> StopageList, string RouteId, out DataSet dsDelete)
         {
             int _Count = 0;

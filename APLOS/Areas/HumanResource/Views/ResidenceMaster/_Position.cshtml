@@ -1,0 +1,88 @@
+﻿<div class="form-elements form-horizontal" ng-form name="ModalNewPositionForm">
+    <div class="row">
+        <input type="hidden" name="Id" ng-model="ModalNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <select class="form-control" id="PlantId" ng-model="ModalNew.PlantId" required name="PlantId" tabindex="4">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in PlantList" value="{{option.value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Budget Code<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <select ng-change="getPosition();" class="form-control" id="BudgetCode" ng-model="ModalNew.MPBudgetCodeId" required name="MPBudgetCodeId" tabindex="4">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in MPBudgetList" value="{{option.value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <select ng-change="getBudgetCode();" class="form-control" id="EntityId" ng-model="ModalNew.EntityId" required name="EntityId" tabindex="4">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EntityList" value="{{option.value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Position<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <select class="form-control" id="Position" ng-model="ModalNew.PositionId" required name="PositionList" tabindex="4">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in PositionList" value="{{option.value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*<div class="row">
+                <div id="GridEdit" ej-grid e-datasource="PositionTabgridList" e-load="loadGridEdit"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="7"></div>
+                        <div e-column e-field="PositionCode" e-headertext="PositionCode" e-type="Number" e-width="30" e-isprimarykey="true"></div>
+                        <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="30" e-isprimarykey="true"></div>
+                        <div e-column e-headertext="Sum" e-template="#sumofManPower" e-textalign="center" e-width="30"></div>
+                        <div e-column e-headertext="Remarks" e-template="#remarks" e-textalign="center" e-width="30"></div>
+
+                    </div>
+                </div>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
+                </script>
+
+                <script type="text/template" id="sumofManPower">
+                    <input type="number" name="sumofManPower" class="form-control" maxlength="200" tabindex="5">
+                </script>
+
+                <script type="text/template" id="remarks">
+                    <textarea class="form-control" rows="2" maxlength="250" tabindex="6"></textarea>
+                </script>
+            </div>*@
+    </div>
+</div>

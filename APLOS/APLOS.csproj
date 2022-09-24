@@ -738,6 +738,7 @@
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSchedulingController.cs" />
+    <Compile Include="Areas\Materials\Controllers\DetentionLogoutController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
     <Compile Include="Areas\Materials\Controllers\ProcessWiseMaterialAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\StockRegisterController.cs" />
@@ -2150,6 +2151,7 @@
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogController.js" />
+    <Content Include="Areas\Materials\Scripts\DetentionLogoutController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
     <Content Include="Areas\Materials\Scripts\ProcessWiseMaterialAllocationController.js" />
@@ -4283,7 +4285,6 @@
     <Content Include="Areas\HumanResource\Views\SurveyandFeedback\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionSummary\Report.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionLog\Aplos.cshtml" />
-    <Content Include="Areas\OrderManagements\Views\PackingType\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\MaintenanceScheduling\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

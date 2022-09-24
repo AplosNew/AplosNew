@@ -1,16 +1,5 @@
 ﻿<togglable name="{{title}}"></togglable>
-<div class="form-elements form-horizontal" ng-form name="ModalNewForm">
-    <div class="tab-design" id="tab_show">
-        <div class="site-tab">
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Residence Master</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Position</a></li>
-
-            </ul>
-
-        </div>
-        <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="form-elements form-horizontal" ng-form name="ModalNewForm">
                 <div class="row">
                     <input type="hidden" name="Id" ng-model="ModalNew.Id">
                     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -27,9 +16,9 @@
 
                                 </div>
                                 @*<input type="text" name="Plant" ng-model="Plant" class="form-control" maxlength="200" tabindex="5" ng-disabled="true">
-                    <div class="col-sm-2">
-                        <button ng-click="openPlantPop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                    </div>*@
+                                <div class="col-sm-2">
+                                    <button ng-click="openPlantPop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </div>*@
                             </div>
                         </div>
                         <div class="form-group">
@@ -141,7 +130,6 @@
                         </div>
 
 
-
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
                             <div class="col-sm-6">
@@ -208,210 +196,178 @@
                 </div>
             </div>
 
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div class="row">
-                    <div id="GridEdit" ej-grid e-datasource="PositionTabgridList" e-load="loadGridEdit"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="7"></div>
-                            <div e-column e-field="PositionCode" e-headertext="PositionCode" e-type="Number" e-width="30" e-isprimarykey="true"></div>
-                            <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="30" e-isprimarykey="true"></div>
-                            <div e-column e-headertext="Sum" e-template="#sumofManPower" e-textalign="center" e-width="30"></div>
-                            <div e-column e-headertext="Remarks" e-template="#remarks" e-textalign="center" e-width="30"></div>
+            <div class="table-responsive aplos-grid-toggle" id="EGSGrid" style="margin-top:20px;">
+                <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
 
-                        </div>
-                    </div>
-                    <script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
-                    </script>
-                    <script type="text/template" id="checkboxTemplate">
-                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
-                    </script>
-
-                    <script type="text/template" id="sumofManPower">
-                        <input type="number" name="sumofManPower" class="form-control" maxlength="200" tabindex="5">
-                    </script>
-
-                    <script type="text/template" id="remarks">
-                        <textarea class="form-control" rows="2" maxlength="250" tabindex="6"></textarea>
-                    </script>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</div>
-<div class="table-responsive aplos-grid-toggle" id="EGSGrid" style="margin-top:20px;">
-    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-        <div e-columns>
-
-            <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
-            @*<div e-column e-field="Plant" e-headertext="Plant" e-width="50"></div>*@
-            <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="100"></div>
-            <div e-column e-field="ResidenceGroup" e-headertext="Residence Group" e-width="100"></div>
-            <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
-            @* <div e-column e-field="ResidenceSubCategory" e-headertext="Residence Sub Category" e-width="100"></div>*@
-            <div e-column e-field="EmpServiceType" e-headertext="Emp Service Type" e-width="100"></div>
-            <div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="100"></div>
-            <div e-column e-field="Block" e-headertext="Block" e-width="50"></div>
-            <div e-column e-field="Floor" e-headertext="Floor" e-width="50"></div>
-            <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="50"></div>
-            <div e-column e-field="Rooms" e-headertext="Rooms" e-width="50"></div>
-            <div e-column e-field="ResidentType" e-headertext="Residence Type" e-width="50"></div>
-            <div e-column e-field="Vacancy" e-headertext="Vacancy" e-width="50"></div>
-            <div e-column e-field="AssetName" e-headertext="Asset Name" e-width="50"></div>
-            @*<div e-column e-field="Remarks" e-headertext="Remarks" e-width="50"></div>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                        @*<div e-column e-field="Plant" e-headertext="Plant" e-width="50"></div>*@
+                        <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="100"></div>
+                        <div e-column e-field="ResidenceGroup" e-headertext="Residence Group" e-width="100"></div>
+                        <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
+                        @* <div e-column e-field="ResidenceSubCategory" e-headertext="Residence Sub Category" e-width="100"></div>*@
+                        <div e-column e-field="EmpServiceType" e-headertext="Emp Service Type" e-width="100"></div>
+                        <div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="100"></div>
+                        <div e-column e-field="Block" e-headertext="Block" e-width="50"></div>
+                        <div e-column e-field="Floor" e-headertext="Floor" e-width="50"></div>
+                        <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="50"></div>
+                        <div e-column e-field="Rooms" e-headertext="Rooms" e-width="50"></div>
+                        <div e-column e-field="ResidentType" e-headertext="Residence Type" e-width="50"></div>
+                        <div e-column e-field="Vacancy" e-headertext="Vacancy" e-width="50"></div>
+                        <div e-column e-field="AssetName" e-headertext="Asset Name" e-width="50"></div>
+                        @*<div e-column e-field="Remarks" e-headertext="Remarks" e-width="50"></div>
                 <div e-column e-field="AddedBy" e-headertext="Added By" e-width="80"></div>
                 <div e-column e-field="AddedDate" e-headertext="Added Date" e-width="80"></div>*@
 
-        </div>
-    </div>
-</div>
-@*</div>*@
+                    </div>
+                </div>
+            </div>
+        
+   
+    @*</div>*@
 
-<!--POP UP SCREEN  FOR PLANT   -->
-<div class="modal fade site-modal in" id="PlantPop" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify ">
-        <div class="modal-content">
-            <div class="modal-header">Plant Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Please Select Plant Detail .</p>
-                        <div style="color:black;" id="GridPlant" ej-grid e-datasource="PlantList" e-recorddoubleclick="selectPlant"
-                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
-                            <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
-                                <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
-                                <div e-column e-field="ShortName" e-headertext="ShortName" e-width="70"></div>
-                                <div e-column e-field="StandardName" e-headertext="UserName" e-width="100"></div>
+    <!--POP UP SCREEN  FOR PLANT   -->
+    <div class="modal fade site-modal in" id="PlantPop" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg modellgModify ">
+            <div class="modal-content">
+                <div class="modal-header">Plant Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body form-elements form-horizontal">
+                    <div class="col-md-12">
+                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                            <p>Please Select Plant Detail .</p>
+                            <div style="color:black;" id="GridPlant" ej-grid e-datasource="PlantList" e-recorddoubleclick="selectPlant"
+                                 e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
+                                    <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                                    <div e-column e-field="ShortName" e-headertext="ShortName" e-width="70"></div>
+                                    <div e-column e-field="StandardName" e-headertext="UserName" e-width="100"></div>
 
-                                <div e-column e-field="Active" e-headertext="Active" e-width="30"></div>
+                                    <div e-column e-field="Active" e-headertext="Active" e-width="30"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li>
+                                <button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>
+                            </li>
+                        </ul>
 
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!--POP UP SCREEN  FOR Residence   -->
-<div class="modal fade site-modal in" id="ResidenceGroupPop" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify ">
-        <div class="modal-content">
-            <div class="modal-header">Residence Group Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Please Select Residence Group Detail .</p>
-                        <div style="color:black;" id="GridResidence" ej-grid e-datasource="ResidenceGroupList" e-recorddoubleclick="selectResidenceGroup"
-                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
-                            <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
-                                <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
-                                <div e-column e-field="ShortName" e-headertext="ShortName" e-width="70"></div>
-                                <div e-column e-field="StandardName" e-headertext="StandardName" e-width="100"></div>
-                                <div e-column e-field="UserName" e-headertext="UserName" e-width="100"></div>
-                                <div e-column e-field="Active" e-headertext="Active" e-width="30"></div>
+    <!--POP UP SCREEN  FOR Residence   -->
+    <div class="modal fade site-modal in" id="ResidenceGroupPop" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg modellgModify ">
+            <div class="modal-content">
+                <div class="modal-header">Residence Group Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body form-elements form-horizontal">
+                    <div class="col-md-12">
+                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                            <p>Please Select Residence Group Detail .</p>
+                            <div style="color:black;" id="GridResidence" ej-grid e-datasource="ResidenceGroupList" e-recorddoubleclick="selectResidenceGroup"
+                                 e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
+                                    <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                                    <div e-column e-field="ShortName" e-headertext="ShortName" e-width="70"></div>
+                                    <div e-column e-field="StandardName" e-headertext="StandardName" e-width="100"></div>
+                                    <div e-column e-field="UserName" e-headertext="UserName" e-width="100"></div>
+                                    <div e-column e-field="Active" e-headertext="Active" e-width="30"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li>
+                                <button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>
+                            </li>
+                        </ul>
 
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 
-<!--POP UP SCREEN  FOR Employee   -->
-<div class="modal fade site-modal in" id="EmpCatPop" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify ">
-        <div class="modal-content">
-            <div class="modal-header">Employee Category Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Please Select Employee Category Detail .</p>
-                        <div style="color:black;" id="GridResidence" ej-grid e-datasource="EmployeeCategoryList" e-recorddoubleclick="selectEmployeeCategory"
-                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
-                            <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
-                                <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
-                                <div e-column e-field="ShortName" e-headertext="ShortName" e-width="70"></div>
-                                <div e-column e-field="StandardName" e-headertext="StandardName" e-width="100"></div>
-                                <div e-column e-field="UserName" e-headertext="UserName" e-width="100"></div>
-                                <div e-column e-field="Active" e-headertext="Active" e-width="30"></div>
+    <!--POP UP SCREEN  FOR Employee   -->
+    <div class="modal fade site-modal in" id="EmpCatPop" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg modellgModify ">
+            <div class="modal-content">
+                <div class="modal-header">Employee Category Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body form-elements form-horizontal">
+                    <div class="col-md-12">
+                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                            <p>Please Select Employee Category Detail .</p>
+                            <div style="color:black;" id="GridResidence" ej-grid e-datasource="EmployeeCategoryList" e-recorddoubleclick="selectEmployeeCategory"
+                                 e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
+                                    <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                                    <div e-column e-field="ShortName" e-headertext="ShortName" e-width="70"></div>
+                                    <div e-column e-field="StandardName" e-headertext="StandardName" e-width="100"></div>
+                                    <div e-column e-field="UserName" e-headertext="UserName" e-width="100"></div>
+                                    <div e-column e-field="Active" e-headertext="Active" e-width="30"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li>
+                                <button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>
+                            </li>
+                        </ul>
 
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 
-<!--POP UP SCREEN  FOR EMP SERVICE TYPE   -->
-<div class="modal fade site-modal in" id="EmpServiceType" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify ">
-        <div class="modal-content">
-            <div class="modal-header">Employee Service Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Please Select Employee Service Detail .</p>
-                        <div style="color:black;" id="GridResidence" ej-grid e-datasource="EmpServiceTypeList" e-recorddoubleclick="selectServiceType"
-                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
-                            <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
-                                <div e-column e-field="Service" e-headertext="Service" e-width="50"></div>
-                                <div e-column e-field="Form" e-headertext="From" e-width="70"></div>
+    <!--POP UP SCREEN  FOR EMP SERVICE TYPE   -->
+    <div class="modal fade site-modal in" id="EmpServiceType" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg modellgModify ">
+            <div class="modal-content">
+                <div class="modal-header">Employee Service Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body form-elements form-horizontal">
+                    <div class="col-md-12">
+                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                            <p>Please Select Employee Service Detail .</p>
+                            <div style="color:black;" id="GridResidence" ej-grid e-datasource="EmpServiceTypeList" e-recorddoubleclick="selectServiceType"
+                                 e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
+                                    <div e-column e-field="Service" e-headertext="Service" e-width="50"></div>
+                                    <div e-column e-field="Form" e-headertext="From" e-width="70"></div>
 
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="closeEmpServiceType();" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li>
+                                <button ng-click="closeEmpServiceType();" class="btn"><i class=""></i> Close</button>
+                            </li>
+                        </ul>
 
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>

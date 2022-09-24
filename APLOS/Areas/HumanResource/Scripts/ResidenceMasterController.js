@@ -330,6 +330,49 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
 
     //  #region  Position Tab
 
+    $scope.ModalTempP = {
+        Id: null,
+        PlantId: null,
+        EntityId: null,
+        MPBudgetCodeId: null,
+        PositionId: null,
+    };
+    $scope.ModalNewPosition = Object.assign({}, $scope.ModalTempP);
+
+    // Lists
+    $scope.BudgetCodeList = [];
+    $scope.EntityList = [];
+    $scope.PositionList = [];
+
+    $scope.getEntity = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getEntity'
+        }).then(function successCallback(response) {
+            $scope.EntityList = response.data;
+        })
+    }
+    $scope.getEntity();
+    $scope.getPosition = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getPosition',
+            data: { 'MPBudgetId': $scope.ModalNewPosition.MPBudgetCodeId },
+        }).then(function successCallback(response) {
+            $scope.PositionList = response.data;
+        })
+    }
+
+    $scope.getBudgetCode = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getBudgetCode',
+            data: { 'entityId': $scope.ModalNewPosition.EntityId },
+        }).then(function successCallback(response) {
+            $scope.BudgetCodeList = response.data;
+        })
+    }
+
     $scope.PositionTabgridList = [];
     $scope.getPositionTabGridData = function () {
         $http({

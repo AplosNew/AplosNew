@@ -209,6 +209,7 @@ namespace Aplos
                   "~/Areas/HumanResource/Scripts/FuguaiTransactionController.js",
                   "~/Areas/HumanResource/Scripts/FuguaiReportController.js",
                   "~/Areas/Materials/Scripts/DetentionLogController.js",
+                  "~/Areas/Materials/Scripts/DetentionLogoutController.js",
                  
                   "~/Scripts/MyApp/epanelApp.js"
                   ));
