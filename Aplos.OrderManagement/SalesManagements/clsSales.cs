@@ -784,7 +784,7 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                 colBuyerTradeName = xlsCol;
                 sheet1.Range[xlsRow, colBuyerTradeName].Text = "Buyer Trade Name";
                 sheet1.Range[xlsRow, colBuyerTradeName].ColumnWidth = 25;
-               
+
                 xlsCol += 1;
                 colBuyerPOS = xlsCol;
                 sheet1.Range[xlsRow, colBuyerPOS].Text = "Buyer POS";
@@ -1038,11 +1038,11 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                 sheet1.Range[xlsRow, colWarrantyDt].ColumnWidth = 14;
                 xlsCol += 1;
                 colTotalInvoicevalue = xlsCol;
-                sheet1.Range[xlsRow, colTotalInvoicevalue].Text = "Total Invoice value";
+                sheet1.Range[xlsRow, colTotalInvoicevalue].Text = "Total Taxable value";
                 sheet1.Range[xlsRow, colTotalInvoicevalue].ColumnWidth = 14;
 
                 xlsCol += 1;
-               int colSgstAmts = xlsCol;
+                int colSgstAmts = xlsCol;
                 sheet1.Range[xlsRow, colSgstAmts].Text = "Sgst Amt";
                 sheet1.Range[xlsRow, colSgstAmts].ColumnWidth = 14;
 
@@ -1189,9 +1189,25 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                 fontRegular.Size = 6f;
 
                 int StartRow = xlsRow;
+                int slCount = 0;
+                double TotalInvoicevalue = 0;
+                double Taxablevalue = 0;
+                double IgstAmt = 0;
+                string pd = "";
                 #region ----------------------Data-----------------------
                 for (int i = 0; i < dtdata.Rows.Count; i++)
                 {
+
+                    if (pd == dtdata.Rows[i]["DocumentNumber"].ToString())
+                    {
+                        slCount++;
+                    }
+                    else
+                    {
+                        slCount = 1;
+                    }
+                    pd = dtdata.Rows[i]["DocumentNumber"].ToString();
+
 
                     sheet1.Range[xlsRow, colSupplyTypeCode].Text = dtdata.Rows[i]["SupplyTypeCode"].ToString();
                     sheet1.Range[xlsRow, colReverseCharge].Text = dtdata.Rows[i]["ReverseCharge"].ToString();
@@ -1226,9 +1242,9 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                     sheet1.Range[xlsRow, colShippingLocation].Text = dtdata.Rows[i]["ShippingLocation"].ToString();
                     sheet1.Range[xlsRow, colShippingPinCode].Text = dtdata.Rows[i]["ShippingPinCode"].ToString();
                     sheet1.Range[xlsRow, colShippingState].Text = dtdata.Rows[i]["ShippingState"].ToString();
-                    sheet1.Range[xlsRow, colSlNo].Text = dtdata.Rows[i]["SlNo"].ToString();
+                    sheet1.Range[xlsRow, colSlNo].Text = slCount.ToString();
                     sheet1.Range[xlsRow, colProductDescription].Text = dtdata.Rows[i]["ProductDescription"].ToString();
-                    sheet1.Range[xlsRow, colIsService].Text = dtdata.Rows[i]["IsService"].ToString();
+                    sheet1.Range[xlsRow, colIsService].Text = "NO";
                     sheet1.Range[xlsRow, colHSNcode].Text = dtdata.Rows[i]["HSNcode"].ToString();
                     sheet1.Range[xlsRow, colBarcode].Text = dtdata.Rows[i]["Barcode"].ToString();
                     sheet1.Range[xlsRow, colQuantity].Text = dtdata.Rows[i]["Quantity"].ToString();
@@ -1248,12 +1264,13 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                     //sheet1.Range[xlsRow, colTaxablevalue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet1.Range[xlsRow, colGSTRate].Text = dtdata.Rows[i]["GSTRate"].ToString();
                     //sheet1.Range[xlsRow, colGSTRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet1.Range[xlsRow, colIgstAmt].Text =dtdata.Rows[i]["IgstAmt"].ToString();
-                    sheet1.Range[xlsRow, colIgstAmts].Text = dtdata.Rows[i]["IgstAmt"].ToString();
+                    sheet1.Range[xlsRow, colIgstAmt].Text = dtdata.Rows[i]["IgstAmt"].ToString();
+                    IgstAmt = clsStaticInfo.dbl(dtdata.Compute("SUM(IgstAmt)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'"));
+                    sheet1.Range[xlsRow, colIgstAmts].Text = Convert.ToString(IgstAmt);
                     sheet1.Range[xlsRow, colSgstAmt].Text = dtdata.Rows[i]["SgstAmt"].ToString();
-                    sheet1.Range[xlsRow, colSgstAmts].Text = dtdata.Rows[i]["SgstAmt"].ToString();
+                    sheet1.Range[xlsRow, colSgstAmts].Text = Convert.ToString(clsStaticInfo.dbl(dtdata.Compute("SUM(SgstAmt)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'")));
                     sheet1.Range[xlsRow, colCgstAmt].Text = dtdata.Rows[i]["CgstAmt"].ToString();
-                    sheet1.Range[xlsRow, colCgstAmts].Text = dtdata.Rows[i]["CgstAmt"].ToString();
+                    sheet1.Range[xlsRow, colCgstAmts].Text = Convert.ToString(clsStaticInfo.dbl(dtdata.Compute("SUM(CgstAmt)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'")));
                     sheet1.Range[xlsRow, colCessRate].Text = dtdata.Rows[i]["CessRate"].ToString();
                     sheet1.Range[xlsRow, colCessAmtAdval].Text = dtdata.Rows[i]["CessAmtAdval"].ToString();
                     sheet1.Range[xlsRow, colCessAmt].Text = dtdata.Rows[i]["CessAmtAdval"].ToString();
@@ -1265,11 +1282,11 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                     sheet1.Range[xlsRow, colOtherCharges].Text = dtdata.Rows[i]["OtherCharges"].ToString();
                     sheet1.Range[xlsRow, colOtherChargess].Text = dtdata.Rows[i]["OtherCharges"].ToString();
                     sheet1.Range[xlsRow, colItemTotal].Text = dtdata.Rows[i]["ItemTotal"].ToString();
-                    sheet1.Range[xlsRow, colTotalInvoicevalues].Text = dtdata.Rows[i]["ItemTotal"].ToString();
+                    sheet1.Range[xlsRow, colTotalInvoicevalues].Text = Convert.ToString(clsStaticInfo.dbl(dtdata.Compute("SUM(ItemTotal)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'")));
                     sheet1.Range[xlsRow, colBatchName].Text = dtdata.Rows[i]["BatchName"].ToString();
                     sheet1.Range[xlsRow, colBatchExpiryDt].Text = dtdata.Rows[i]["BatchExpiryDt"].ToString();
                     sheet1.Range[xlsRow, colWarrantyDt].Text = dtdata.Rows[i]["WarrantyDt"].ToString();
-                    sheet1.Range[xlsRow, colTotalInvoicevalue].Text = dtdata.Rows[i]["TotalInvoicevalue"].ToString();
+                    sheet1.Range[xlsRow, colTotalInvoicevalue].Text = Convert.ToString(clsStaticInfo.dbl(dtdata.Compute("SUM(Taxablevalue)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'"))); 
                     //sheet1.Range[xlsRow, colTotalInvoicevalue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet1.Range[xlsRow, colShippingBillNo].Text = dtdata.Rows[i]["ShippingBillNo"].ToString();
                     sheet1.Range[xlsRow, colShippingBillDt].Text = dtdata.Rows[i]["ShippingBillDt"].ToString();
@@ -1295,7 +1312,7 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                 sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
                 sheet1.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
                 sheet1.Range[StartRow, 1, xlsRow - 1, endXlsCol].CellStyle.Font.Size = 8f;
-               // sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
+                // sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
                 #endregion ----------------------Data-----------------------
 
                 #region ******************Report Header******************
