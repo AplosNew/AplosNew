@@ -725,7 +725,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
                 else if ($scope.voucher.ExchangeType == 'ExchangeGain')
                     $scope.voucher.BankBookAmount = Math.round((($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) - $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
                 else
-                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000
+                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
                     $scope.voucher.BankAmount = $scope.voucher.Amount;
             }
             if ($scope.voucher.CurrencyId != $scope.voucher.BankCurrencyId) {
@@ -734,7 +734,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
                 else if ($scope.voucher.ExchangeType == 'ExchangeGain')
                     $scope.voucher.BankBookAmount = Math.round((($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) - $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
                 else
-                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000
+                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
                 $scope.voucher.BankAmount = $scope.voucher.BankBookAmount;
             }
         }
@@ -825,7 +825,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
             $scope.BaseAmountObj = {};
         }
     }
-
+    var CurrencyDifferentRate = 0.0000;
     $scope.exchangeGainLossAmount = function (data) {
         var balance = parseFloat(data.Balance), dramount = parseFloat(data.Amount);
         if (dramount > balance) {
@@ -836,13 +836,17 @@ function vendorPaymentController(bankService, accountService, cboService, common
             CloseShowResult();
         }
         if (data.CompanyCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.round((data.Amount * ($scope.voucher.CompanyCurrencyRate - data.CompanyCurrencyRate)) * 1000 + Number.EPSILON) / 1000;
+            CurrencyDifferentRate = ($scope.voucher.CompanyCurrencyRate - data.CompanyCurrencyRate).toFixed(2);
+            //data.ExchangeAmount = Math.round((data.Amount * ($scope.voucher.CompanyCurrencyRate - data.CompanyCurrencyRate)) * 1000 + Number.EPSILON) / 1000;
+            data.ExchangeAmount = Math.round((data.Amount * CurrencyDifferentRate) * 1000 + Number.EPSILON) / 1000;
             data.ExchangeType = "ExchangeLoss";
             data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
 
         }
         else if (data.CompanyCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.round((data.Amount * (data.CompanyCurrencyRate - $scope.voucher.CompanyCurrencyRate)) * 1000 + Number.EPSILON) / 1000;
+            CurrencyDifferentRate = (data.CompanyCurrencyRate - $scope.voucher.CompanyCurrencyRate).toFixed(2);
+            //data.ExchangeAmount = Math.round((data.Amount * (data.CompanyCurrencyRate - $scope.voucher.CompanyCurrencyRate)) * 1000 + Number.EPSILON) / 1000;
+            data.ExchangeAmount = Math.round((data.Amount * CurrencyDifferentRate) * 1000 + Number.EPSILON) / 1000;
             data.ExchangeType = "ExchangeGain";
             data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
         }
@@ -857,11 +861,15 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.exchangeGainLossCal = function (rate) {
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {
             if ($scope.voucherDetailList[i].CompanyCurrencyRate < rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = Math.round($scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
+                CurrencyDifferentRate = (rate - $scope.voucherDetailList[i].CompanyCurrencyRate).toFixed(2);
+                //$scope.voucherDetailList[i].ExchangeAmount = Math.round($scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
+                $scope.voucherDetailList[i].ExchangeAmount = Math.round(($scope.voucherDetailList[i].Amount * CurrencyDifferentRate) * 1000 + Number.EPSILON) / 1000;
                 $scope.voucherDetailList[i].ExchangeType = "ExchangeLoss";
             }
             else if ($scope.voucherDetailList[i].CompanyCurrencyRate > rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = Math.round($scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate) * 1000 + Number.EPSILON) / 1000;
+                CurrencyDifferentRate = ($scope.voucherDetailList[i].CompanyCurrencyRate - rate).toFixed(2);
+                //$scope.voucherDetailList[i].ExchangeAmount = Math.round($scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate) * 1000 + Number.EPSILON) / 1000;
+                $scope.voucherDetailList[i].ExchangeAmount = Math.round(($scope.voucherDetailList[i].Amount * CurrencyDifferentRate) * 1000 + Number.EPSILON) / 1000;
                 $scope.voucherDetailList[i].ExchangeType = "ExchangeGain";
             }
             else {
