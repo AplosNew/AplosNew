@@ -3653,6 +3653,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		try {
 			$scope.check();
 			$scope.GetListForMasterOrdernew = [];
+			$scope.tempList = [];
 			if ($scope.ActionPOBOQ === 'Save') {
 				for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
 					if ((baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionQty) || $scope.GetListForMasterOrder[i].TransactionQty === 0) && $scope.GetListForMasterOrder[i].CheckedStatus === true) {
@@ -3748,9 +3749,9 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 			}
 
 
-			for (var j = 0; j < $scope.GetListForMasterOrdernew.length; j++) {
-				if ($scope.GetListForMasterOrdernew[j].CheckedStatus === true) {
-					$scope.tempList.push($scope.GetListForMasterOrdernew[j]);
+			for (var j = 0; j < $scope.GetListForMasterOrder.length; j++) {
+				if ($scope.GetListForMasterOrder[j].CheckedStatus === true) {
+					$scope.tempList.push($scope.GetListForMasterOrder[j]);
 				}
 			}
 
@@ -3769,10 +3770,10 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 
 			$scope.UOMValidation();
 			$scope.groupList = [];
-			$scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
-			for (var i = 0; i < $scope.GetListForMasterOrdernew.length; i++) {
-				$scope.GetListForMasterOrdernew[i].Tolerance = $scope.productNew.Tolerance;
-				$scope.GetListForMasterOrdernew[i].MaterialStorageId = $scope.productNew.MaterialStorageId;
+			$scope.processgroupList($scope.GetListForMasterOrder, $scope.groupList);
+			for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
+				$scope.GetListForMasterOrder[i].Tolerance = $scope.productNew.Tolerance;
+				$scope.GetListForMasterOrder[i].MaterialStorageId = $scope.productNew.MaterialStorageId;
 			}
 			for (var i = 0; i < $scope.groupList.length; i++) {
 				$scope.groupList[i].Tolerance = $scope.productNew.Tolerance;

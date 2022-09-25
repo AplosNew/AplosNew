@@ -239,30 +239,32 @@ namespace Aplos.Areas.Materials.Controllers
             try
             {
 				var str = @"SELECT * FROM (select RM.ReqEmpId,ReqStatus=case when MM.IsRegular=1 then 'Regular' else 'Irregular' end,format(RM.RequisitionDate,'dd-MMM-yyy')RequisitionDate,MM.IsRegular,RM.Id,RMD.Id ROWId,MM.UserName Material,ART.StandardName Article,TUoM.UserName UOM,ISNULL(RMD.TransactionQty,0) ReqQty
-                                            ,ISNULL(POD.POQty,0)POQty,ISNULL(POD.GRNQty,0)GRNQty,ISNULL(POD.IssueQty,0) IssueQty
-                                            ,ISNULL(POD.SalesQty,0) SalesQty,BalancePOQty=RMD.TransactionQty-POD.POQty,RM.Remarks
+                                            ,ISNULL(POD.POQty,0)POQty,ISNULL(GRM.GRNQty,0)GRNQty,ISNULL(GRM.IssueQty,0) IssueQty
+                                            ,0 SalesQty
+											,BalancePOQty=RMD.TransactionQty-POD.POQty,RM.Remarks
 
                                             from  TRN.MaterialRequsitionMaster RM 
                                             LEFT JOIN TRN.MaterialRequsitionDetails RMD ON RMD.MaterialReqqusitionMasterId=RM.Id
                                             LEFT JOIN (
-	                                            select pd.RequisitionDetailId,sum(ISNULL(pd.TransactionQty,0)) POQty,sum(ISNULL(ird.GRNQty,0)) GRNQty,SUM(ISNULL(ird.IssueQty,0)) IssueQty,SUM(ISNULL(ird.SalesQty,0)) SalesQty
-		                                            from TRN.PurchaseOrderDetail pd
-		                                            LEFT JOIN (select ird.PODetailsId,sum(ird.TransactionQty) GRNQty ,SUM(II.Qty) IssueQty,SUM(ISD.SalesQty) SalesQty
-					                                            FROM TRN.InventoryReceiveDetail ird
-					                                            LEFT JOIN (SELECT iih.InventoryReceiveDetailId,sum(ISNULL(iih.Qty,0)) Qty 
-							                                            FROM trn.InventoryIssueHistory iih GROUP BY iih.InventoryReceiveDetailId) II ON II.InventoryReceiveDetailId=ird.Id
-					                                            LEFT JOIN (SELECT iih.InventoryReceiveDetailId,sum(ISNULL(iih.TransactionQty,0)) SalesQty 
-							                                            FROM trn.InventorySalesDetail iih GROUP BY iih.InventoryReceiveDetailId) ISD ON ISD.InventoryReceiveDetailId=ird.Id
-					                                            GROUP BY ird.PODetailsId
-					                                            ) IRD ON IRD.PODetailsId=pd.Id
-		                                            group by pd.RequisitionDetailId
+	                                            select poRD.RequisitionDetailId ,sum(ISNULL(poRD.TransactionQty,0)) POQty
+		                                            from TRN.PoRequisitionDetail poRD 
+													JOIN TRN.PurchaseOrderDetail pd ON pd.Id=poRD.PODetailId
+		                                            group by poRD.RequisitionDetailId
 
                                             ) POD ON POD.RequisitionDetailId=RMD.Id
-
+											LEFT JOIN (
+												SELECT GRM.ReqDetailId,SUM(ISNULL(GRM.TransactionQty,0)) GRNQty ,SUM(ISNULL(II.IssueQty,0)) IssueQty
+												FROM TRN.GRNPORequisitionMap GRM 
+												LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=GRM.InventoryReceiveDetailId
+												LEFT JOIN (SELECT IIH.InventoryReceiveDetailId,SUM(ISNULL(IIH.Qty,0)) IssueQty 
+													FROM TRN.InventoryIssueHistory IIH GROUP BY IIH.InventoryReceiveDetailId) II ON II.InventoryReceiveDetailId=IRD.Id
+													GROUP BY GRM.ReqDetailId
+											) GRM ON GRM.ReqDetailId=RMD.Id
                                             LEFT JOIN MST.MaterialMaster AS MM ON RMD.MaterialMasterId=MM.Id
                                             LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                                             LEFT JOIN MST.MaterialMasterArticle AS ART ON RMD.ArticleId=ART.Id
                                             LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON RMD.TransactionUoMId=TUoM.Id	
+                
                                             where RMD.Id is not null AND RM.ReqEmpId= '" + employeeId + @"' 
                                             AND RM.RequisitionDate < '" + requisitionBeforeDate + "') x where x.ReqStatus='" + requisitionStatus + @"'";
                 return _sqlRepository.GetDataTable(str);
