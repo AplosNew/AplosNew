@@ -1189,9 +1189,25 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                 fontRegular.Size = 6f;
 
                 int StartRow = xlsRow;
+                int slCount = 0;
+                decimal TotalInvoicevalue = 0;
+                decimal Taxablevalue = 0;
+                decimal IgstAmt = 0;
+                string pd = "";
                 #region ----------------------Data-----------------------
                 for (int i = 0; i < dtdata.Rows.Count; i++)
                 {
+                    
+                    if (pd == dtdata.Rows[i]["DocumentNumber"].ToString())
+                    {
+                        slCount++;
+                    }
+                    else
+                    {
+                        slCount = 1;
+                    }
+                    pd = dtdata.Rows[i]["DocumentNumber"].ToString();
+
 
                     sheet1.Range[xlsRow, colSupplyTypeCode].Text = dtdata.Rows[i]["SupplyTypeCode"].ToString();
                     sheet1.Range[xlsRow, colReverseCharge].Text = dtdata.Rows[i]["ReverseCharge"].ToString();
@@ -1226,9 +1242,9 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                     sheet1.Range[xlsRow, colShippingLocation].Text = dtdata.Rows[i]["ShippingLocation"].ToString();
                     sheet1.Range[xlsRow, colShippingPinCode].Text = dtdata.Rows[i]["ShippingPinCode"].ToString();
                     sheet1.Range[xlsRow, colShippingState].Text = dtdata.Rows[i]["ShippingState"].ToString();
-                    sheet1.Range[xlsRow, colSlNo].Text = dtdata.Rows[i]["SlNo"].ToString();
+                    sheet1.Range[xlsRow, colSlNo].Text = slCount.ToString();
                     sheet1.Range[xlsRow, colProductDescription].Text = dtdata.Rows[i]["ProductDescription"].ToString();
-                    sheet1.Range[xlsRow, colIsService].Text = dtdata.Rows[i]["IsService"].ToString();
+                    sheet1.Range[xlsRow, colIsService].Text = "NO";
                     sheet1.Range[xlsRow, colHSNcode].Text = dtdata.Rows[i]["HSNcode"].ToString();
                     sheet1.Range[xlsRow, colBarcode].Text = dtdata.Rows[i]["Barcode"].ToString();
                     sheet1.Range[xlsRow, colQuantity].Text = dtdata.Rows[i]["Quantity"].ToString();
