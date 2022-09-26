@@ -482,17 +482,22 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     ShowResult("Please select quality statusin PORowId" + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
                     return true;
                 }
+                if ($scope.requisitionListByPo.length > 0) {
+                    $scope.ReqAllocation($scope.inventoryMaterialListPO[i]);
+                    $scope.RowLength = $filter("filter")($scope.requisitionListByPoForSave, { PODetailId: $scope.inventoryMaterialListPO[i].PODetailsID });
 
-                $scope.ReqAllocation($scope.inventoryMaterialListPO[i]);
-                $scope.RowLength = $filter("filter")($scope.requisitionListByPoForSave, { PODetailId: $scope.inventoryMaterialListPO[i].PODetailsID });
-
-                if ($scope.RowLength.length > 0) {
-                    $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
+                    if ($scope.RowLength.length > 0) {
+                        $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
+                    }
+                    else {
+                        return true;
+                        break;
+                    }
                 }
                 else {
-                    return true;
-                    break;
+                    $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
                 }
+                
                 
             }
         }
