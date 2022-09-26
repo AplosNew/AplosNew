@@ -4625,8 +4625,23 @@ namespace Library.MaterialManagement.Inventory
                             _gRNPOAllocationRepository.Delete(item);
                         }
                     }
-
                     base.DeleteGraph(data);
+
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT * from trn.GRNPORequisitionMap where InventoryReceiveDetailId = '" + receiveDetailId + "'";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+
+                        var grnPOreqSql = @"DELETE trn.GRNPORequisitionMap where InventoryReceiveDetailId ='" + receiveDetailId + "'";
+                        rdBuilder.Append(grnPOreqSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+
+                    }
 
                     _unitOfWork.SaveChanges();
                     flag = false;

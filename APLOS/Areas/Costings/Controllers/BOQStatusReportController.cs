@@ -191,6 +191,16 @@ namespace Aplos.Areas.Costings.Controllers
             sheet[report.GetColumnNameForXls(5) + ROW + ":" + report.GetColumnNameForXls(6) + ROW].Merge();
             //sheet[ROW, 5].ColumnWidth = 25;
             sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+            ROW++;
+
+            report.SetMasterHeaderText(ref sheet, ROW, 1, "SO Quantity");
+            //sheet[ROW, 1].ColumnWidth = 20;
+            sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            report.SetText(ref sheet, ROW, 2, headerData["SOQty"].ToString());
+            sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(3) + ROW].Merge();
+            sheet[ROW, 2].ColumnWidth = 20;
+            sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
             ROW++;
             ROW++;
@@ -514,7 +524,9 @@ namespace Aplos.Areas.Costings.Controllers
             try
             {
                 var sql = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article,BOM.Id BOMId
-                ,cv1.UserName AS SKU1,cv2.UserName AS SKU2,boq.SKUDesc,boq.POCriteria,boq.Consumption
+                ,cv1.UserName AS SKU1,cv2.UserName AS SKU2,boq.SKUDesc,boq.POCriteria
+				--,boq.Consumption
+				,isnull(OPCD.GrossConsumption,0) Consumption
                 ,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty
 				,boq.Rate*BOQ.BOMQty AS BOMAmount
 				, poboq.POBOQQty,poboq.POUOM,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty
@@ -542,6 +554,9 @@ namespace Aplos.Areas.Costings.Controllers
                 left join HKP.Party PC on PC.Id = MO.PartyId
                left join TRN.SalesOrder SO on SO.CostingBOQMasterId = BOM.Id
 			   left join [TRN].[CustomerPO] CPO on CPO.MasterOrderId = MO.Id and CPO.Id=SO.CustomerPOId
+			   --new add
+			   LEFT JOIN (Select DISTINCT SalesOrderId,CostingBOQMasterId,CostingItemId,OrderProcurementCostingDirectMaterialId from CostingBOQItems )CBI on CBI.CostingBOQMasterId=boq.CostingBOQMasterId AND CBI.CostingItemId=boq.CostingItemId --AND so.Id=CBI.SalesOrderId
+				LEFT JOIN OrderProcurementCostingDirectMaterial OPCD on OPCD.Id=CBI.OrderProcurementCostingDirectMaterialId AND CBI.CostingItemId=OPCD.CostingItemId AND boq.CostingItemId=OPCD.CostingItemId
 
                 left join(SELECT pomap.BOQDetailId,sum(pomap.POBOQQty) POBOQQty,sum(pomap.TransactionQty) POTrnBOQQty,UOM.UserName POUOM,SUM(pod.BaseAmount) POAmount 
                 			FROM  trn.POBOQMAP pomap 
@@ -618,7 +633,17 @@ namespace Aplos.Areas.Costings.Controllers
 										,MO.Id MasterOrderId
                                         , moi.BuyerReferenceNo,moi.OwnReferenceNo,moi.Id LineItemId
                                          , PAR.UserName PartyName, B.UserName BuyerName, mma.StandardName Product
-                                        ,CPO.PONumber,SO.Id SOId
+                                        --,CPO.PONumber,SO.Id SOId
+										,PONumber=STUFF((SELECT distinct ','+  CPO.PONumber
+										from [TRN].[CustomerPO] CPO
+										left join [TRN].[SalesOrder] AS SO on SO.CustomerPOId=CPO.Id
+										where SO.CostingBOQMasterId=BOM.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+										,SOId=STUFF((SELECT distinct ','+  XITM.Id
+										from trn.SalesOrder AS XITM
+										where XITM.CostingBOQMasterId=BOM.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,SOI.SOQty 
+                                    
 
                                         FROM BOQ  boq
                                         LEFT JOIN hkp.CostingItem AS ci ON ci.Id = boq.CostingItemId
@@ -631,6 +656,7 @@ namespace Aplos.Areas.Costings.Controllers
                                         left join[TRN].[CustomerPO] CPO on CPO.MasterOrderId = MO.Id
                                         left join HKP.Party PAR on PAR.Id = MO.PartyId
                                         left join HKP.Buyer B on B.Id = MO.BuyerId
+										left join (SELECT sum(Qty) SOQty,CostingBOQMasterId from trn.SalesOrder group by CostingBOQMasterId) SOI on SO.CostingBOQMasterId=BOM.Id
                                     
                                         where PAR.Id in(" + parameters["PartyId"] + @")
                                         AND moi.BuyerReferenceNo in(" + parameters["BuyerReferenceNo"] + @")
