@@ -3435,7 +3435,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
+			url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyId + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
 		}).then(function successCallback(response) { //datagatefun			
 			$scope.GetListForMasterOrder = [];
 			$scope.GetListForMasterOrder = response.data;
