@@ -148,6 +148,7 @@ namespace Library.MaterialManagement.Material
                 var sql = @"select distinct DT.UserName As Text, DT.Id As Value from DetentionMasterDepartment DD
                         left join DetentionMaster DM ON DM.Id=DD.DetentionMasterId
                         left join hkp.DetentionType DT ON DT.id=DM.DetentionTypeId
+                        order by Text
             --where DepartmentId='" + departmentid + "'";
 
                 return _sqlRepository.GetDataCollection(sql);
