@@ -112,6 +112,7 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         AttendanceGroupId: null,
         ResponsiblePerson: null,
         Email: null,
+        Deployment:0,
         AccountsGroupId: null,
         IsRosterApplicable: false,
         IsScattedWeekOffApplicable:false,
