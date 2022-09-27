@@ -21,7 +21,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
         IssueByNo: null,
         Remarks: null,
         LoginTime: LogTime,
-        isClose: 0,
+        isClose: false,
         isUpdate: 0
     };
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
@@ -216,6 +216,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
                 $scope.ModalNew.Id = response.data.Data.Id;
                 $scope.SaveResponsiblePerson();
                 ShowResult(response.data.Message, 'success');
+                $scope.Clear();
                 
             }
         }), function errorCallBack(response) {

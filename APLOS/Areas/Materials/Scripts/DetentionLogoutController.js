@@ -31,6 +31,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
             url: $scope.path + 'getDetentionLogGrid',
         }).then(function successCallback(response) {
             $scope.DetentionLogGridList = response.data;
+            
         })
     }
     $scope.getDetentionLogGrid();
@@ -61,8 +62,8 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
         Remarks: null,
         LoginTime: LogTime,
         EmployeeName: null,
-        isUpdate: 0,
-        isClose: 0,
+        isUpdate: false,
+        isClose: false,
         LogoutTime: LogTime,
         ByWhom:null,
     };

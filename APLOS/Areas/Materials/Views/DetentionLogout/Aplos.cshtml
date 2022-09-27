@@ -46,7 +46,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Log Time<sup>*</sup></label>
                             <div class="col-sm-6">
-                                <input type="text" ej-timepicker e-value="ModalNew.LoginTime" e-width="100%" />
+                                <input type="text" ej-timepicker e-value="ModalNew.LoginTime" e-width="100%" e-enabled="false" />
                             </div>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                             <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
                             <div class="col-sm-6">
                                 <div class="select-style">
-                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNew.DetentionTypeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNew.DetentionTypeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-enabled="false"/>
                                 </div>
                             </div>
                         </div>
@@ -78,14 +78,14 @@
                         </div>
 
 
-                        <div class="common-btn">
+                        @*<div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
 
                             </ul>
 
-                        </div>
+                        </div>*@
                     </div>
 
                 </div>
@@ -148,6 +148,8 @@
                                     <li>
                                         <button ng-click="Save();" class="btn"><i class=""></i> Save</button>
                                     </li>
+                                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+
                                 </ul>
 
                             </div>

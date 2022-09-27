@@ -370,7 +370,7 @@ namespace Library.MaterialManagement.Material
                                 left join EmployeeInformation EI on EI.SystemId = DL.ResponsiblePersonId";*/
 
                 string sql = @"select DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, DL.LoginTime, DL.IssueByNo, DL.Remarks , 
-WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.LogoutTime,  DL.[isUpdate ], DL.[isClose ]
+WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.LogoutTime,  DL.[isUpdate], DL.[isClose]
 from TRN.DetentionLog DL
 left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                                 left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
@@ -484,14 +484,14 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
 
                     // data["Id"] = "DL" + _Id;
                     data["Id"] = detentionLogId;
-                    data["isClose"] = 0;
+                    data["isClose"] = false;
 
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     data["Id"] = detentionLogId;
-                    data["isClose"] = 1;
+                    data["isClose"] = true;
                     //data["DetentionLogId"] = detentionLogId;
 
                     EditRow(dsMaster.Tables[0].Rows[0], data);
