@@ -4286,6 +4286,7 @@
     <Content Include="Areas\Productions\Views\ProductionSummary\Report.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionLog\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\MaintenanceScheduling\Aplos.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\PackingType\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
