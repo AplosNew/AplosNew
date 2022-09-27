@@ -53,7 +53,7 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
                 <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="general" role="tab" data-toggle="tab">Machine Data</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Asset</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Machine/Asset</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Entity wise Machine Capacity</a></li>
             </ul>
         </div>
@@ -103,6 +103,30 @@
                                     <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <input type="text" name="User Name" ng-model="modelNew.UserName" class="form-control" required maxlength="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Machine Make<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
+                                        <input type="text" name="Machine Make" ng-model="modelNew.MachineMake" class="form-control" maxlength="250">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Machine Model<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
+                                        <input type="text" name="Machine Model" ng-model="modelNew.MachineModel" class="form-control" maxlength="250">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Machine Perticulars<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
+                                        <input type="text" name="Machine Perticulars" ng-model="modelNew.MachinePerticulars" class="form-control" maxlength="250">
                                     </div>
                                 </div>
                             </div>
@@ -232,7 +256,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
 
                         <div class="common-btn">

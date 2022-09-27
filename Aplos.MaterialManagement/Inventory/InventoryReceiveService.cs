@@ -4963,28 +4963,25 @@ namespace Library.MaterialManagement.Inventory
                             left join [SEC].[User] U on U.UserId=IR.AddedBy
                             LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
 							LEFT JOIN(
-									select PDAMAP.GRNId--, REPLACE(Convert(VARCHAR(11), IR.PODate, 106), ' ', '-') AS PODate 
+									select PDAMAP.InventoryReceiveId GRNId--, REPLACE(Convert(VARCHAR(11), IR.PODate, 106), ' ', '-') AS PODate 
 									,PoId=STUFF((select distinct ','+xpo.Id from
 									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									,PODate=STUFF(
-									(select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
-									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									
+									INNER JOin TRN.InventoryReceiveDetail xPDAMAP on xpo.Id=xPDAMAP.PoId
+									where xPDAMAP.InventoryReceiveId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 									,ContractNO=STUFF(
 									(select distinct ','+CNO.ContractNO from
 									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
+									INNER JOin TRN.InventoryReceiveDetail xPDAMAP on xpo.Id=xPDAMAP.PoId
 									LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = xpo.ContractId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-									from TRN.POGGRNMap PDAMAP
+									where xPDAMAP.InventoryReceiveId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,PODate=STUFF(
+									(select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
+									trn.PurchaseOrder xpo
+									INNER JOin TRN.InventoryReceiveDetail xPDAMAP on xpo.Id=xPDAMAP.PoId
+									where xPDAMAP.InventoryReceiveId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									from TRN.InventoryReceiveDetail PDAMAP
 									LEFT JOIN [TRN].PurchaseOrder IR ON IR.Id = PDAMAP.PoId
-									--where PDAMAP.GRNId='2020463'
-									group by PDAMAP.GRNId--, IR.podate
+									group by PDAMAP.InventoryReceiveId--, IR.podate
 
 									)PO1 ON PO1.GRNId = IRD.InventoryReceiveId
 							LEFT JOIN [TRN].[GateEntry] GTE  ON GTE.ID= IR.GateEntryNo
@@ -5148,20 +5145,21 @@ namespace Library.MaterialManagement.Inventory
                             left join [SEC].[User] U on U.UserId=IR.AddedBy
                             LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
 		              LEFT JOIN(
-									select PDAMAP.GRNId--, REPLACE(Convert(VARCHAR(11), IR.PODate, 106), ' ', '-') AS PODate 
+									select PDAMAP.InventoryReceiveId GRNId--, REPLACE(Convert(VARCHAR(11), IR.PODate, 106), ' ', '-') AS PODate 
 									,PoId=STUFF((select distinct ','+xpo.Id from
 									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									INNER JOin TRN.InventoryReceiveDetail xPDAMAP on xpo.Id=xPDAMAP.PoId
+									where xPDAMAP.InventoryReceiveId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									
 									,PODate=STUFF(
 									(select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
 									trn.PurchaseOrder xpo
 									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									from TRN.POGGRNMap PDAMAP
+									where xPDAMAP.GRNId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									from TRN.InventoryReceiveDetail PDAMAP
 									LEFT JOIN [TRN].PurchaseOrder IR ON IR.Id = PDAMAP.PoId
 									--where PDAMAP.GRNId='2020463'
-									group by PDAMAP.GRNId--, IR.podate
+									group by PDAMAP.InventoryReceiveId--, IR.podate
 
 									)PO1 ON PO1.GRNId = IRD.InventoryReceiveId
 							LEFT JOIN [TRN].[GateEntry] GTE  ON GTE.ID= IR.GateEntryNo

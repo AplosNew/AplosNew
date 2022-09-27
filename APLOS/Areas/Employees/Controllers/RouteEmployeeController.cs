@@ -228,8 +228,8 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 var sql = @"select O.TransportGroup,O.Stoppage,R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo
 											,TD.Capacity Vacancy,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
-											,O.EmployeeCode,O.EmployeeName,O.EmployeeStatus, O.EmployeeCurrentStatus,O.DOJ,O.Skill,O.GivenDesignation
-											,O.Section,O.SubSection,O.Department,O.EntityName,O.Plant,O.InTime
+											,O.EmployeeCode,O.EmployeeName,O.EmployeeStatus, O.EmployeeCurrentStatus,O.InTime,O.DOJ,O.Skill,O.GivenDesignation
+											,O.Section,O.SubSection,O.Department,O.EntityName,O.Plant
 
 					                        from RouteSchedule RS
 					                        left join [MST].[Route] R on R.Id=RS.RouteId 

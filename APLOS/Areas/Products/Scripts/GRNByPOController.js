@@ -12,7 +12,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
     $scope.saveUrl = $scope.path + 'createGRNBYPO';
     $scope.updateUrl1 = $scope.path + 'UpdateGRNBYPOMaster';
-   // $scope.updateUrl1 = $scope.path + 'UpdateGRNBYPO';
+    // $scope.updateUrl1 = $scope.path + 'UpdateGRNBYPO';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'deleteGRNBYPO/';
     $scope.detailSaveUrl = $scope.path + 'detailcreate';
@@ -393,21 +393,23 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     };
     $scope.ReqAllocation = function (podetail) {
         $scope.RowLength = $filter("filter")($scope.requisitionListByPo, { PODetailId: podetail.PODetailsID });
-        
-            for (var i = 0; i < $scope.requisitionListByPo.length; i++) {
-                if ($scope.requisitionListByPo[i].PODetailId == podetail.PODetailsID) {
-                    if ($scope.RowLength.length == 1) {
-                        $scope.requisitionListByPo[i].TransactionQty = podetail.TransactionQty;
-                        $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[i]);
+
+        for (var j = 0; j < $scope.requisitionListByPo.length; j++) {
+            if ($scope.requisitionListByPo[j].PODetailId == podetail.PODetailsID) {
+                if ($scope.RowLength.length == 1) {
+                    $scope.requisitionListByPo[j].TransactionQty = podetail.TransactionQty;
+                    $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[j]);
+                }
+                else {
+                    if (baseService.isUndefinedOrNull($scope.requisitionListByPo[j].TransactionQty) || $scope.requisitionListByPo[j].TransactionQty == 0) {
+                        ShowResult("Please input Requsition Qty of RowId" + $scope.inventoryMaterialListPO[j].InventoryReceiveDetailId, 'failure');
+                        return true;
+                        break;
+                    } else {
+
+                        $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[j]);
                     }
-                    else {
-                        if (baseService.isUndefinedOrNull($scope.requisitionListByPo[i].TransactionQty) || $scope.requisitionListByPo[i].TransactionQty==0) {
-                            ShowResult("Please input Requsition Qty of RowId" + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
-                            return true;
-                            break;
-                        }
-                        $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[i]);
-                    }
+                }
             }
         }
         return false;
@@ -476,13 +478,27 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             }
             if ($scope.inventoryMaterialListPO[i].check == true) {
                 $scope.inventoryMaterialListPO[i].MaterialStorageId = $scope.productNew.MaterialStorageId;
-                 if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].QualityStatus)) {
+                if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].QualityStatus)) {
                     ShowResult("Please select quality statusin PORowId" + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
                     return true;
                 }
+                if ($scope.requisitionListByPo.length > 0) {
+                    $scope.ReqAllocation($scope.inventoryMaterialListPO[i]);
+                    $scope.RowLength = $filter("filter")($scope.requisitionListByPoForSave, { PODetailId: $scope.inventoryMaterialListPO[i].PODetailsID });
 
-                $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
-                $scope.ReqAllocation($scope.inventoryMaterialListPO[i]);
+                    if ($scope.RowLength.length > 0) {
+                        $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
+                    }
+                    else {
+                        return true;
+                        break;
+                    }
+                }
+                else {
+                    $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
+                }
+                
+                
             }
         }
         if ($scope.chargesListPO.length > 0) {
@@ -496,7 +512,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 }
             }
         }
-       
+
 
         return false;
     }
@@ -505,6 +521,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
         //debugger;
         //$scope.detailModel.BaseUOMId = $filter("filter")($scope.inventoryMaterialListPO, { check: 1 })[0].Value;
+        $scope.product = {};
         if ($scope.Action === 'Save') {
             if (!$scope.checkValidation()) {
 
@@ -604,13 +621,13 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
 
                         }
-                       
+
                     }
                 } catch (e) {
                     throw e;
                 }
             }
-           
+
 
 
         }
@@ -1841,15 +1858,28 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     }
 
     $scope.requisitionDetailList = [];
-    $scope.ViewRequisitionDetail = function (poDatailId) {
+    $scope.tempPoDetailId = null;
+    $scope.ViewRequisitionDetail = function (poDatailId,poqty) {
         $scope.requisitionDetailList = [];
         $scope.requisitionDetailList = $filter("filter")($scope.requisitionListByPo, { 'PODetailId': poDatailId });
+        $scope.tempPoDetailId = poDatailId;
+        $scope.tempPoqty = poqty;
         angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('show');
 
     }
     $scope.CloseRequisitionPopUP = function () {
-        angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('hide');
 
+
+        var qty = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.requisitionListByPo, { 'PODetailId': $scope.tempPoDetailId })), "TransactionQty") * 1000 + Number.EPSILON) / 1000;
+
+        if ($scope.tempPoqty != qty) {
+            ShowResult('Requisition Allocation Qty is not equal with GRN Qty?', 'failure', 'ListOfRequisitionPopUP');
+        } else {
+            angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('hide');
+            $scope.tempPoDetailId = null;
+            $scope.tempPoqty = null;
+        }
+     
     }
 
     $scope.requisitionListByPo = [];
@@ -1884,8 +1914,8 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     PartyId = $scope.Griddata[i].PartyId;
                     //PartyCode = $scope.Griddata[i].PartyCode;
                     $scope.productNew.PartyName = $scope.Griddata[i].PartyName;
-                    $scope.productNew.DocRefNo = '';//$scope.Griddata[i].DocRefNo;
-                    $scope.productNew.DocDate = '';//$scope.Griddata[i].DocDate;
+                    //$scope.productNew.DocRefNo = '';//$scope.Griddata[i].DocRefNo;
+                    //$scope.productNew.DocDate = '';//$scope.Griddata[i].DocDate;
                     $scope.productNew.CurrencyId = $scope.Griddata[i].CurrencyId;
                     $scope.productNew.ToCurrencyRate = $scope.Griddata[i].ToCurrencyRate;
                     $scope.productNew.IsNonCreditable = $scope.Griddata[i].IsNonCreditable;
@@ -2787,7 +2817,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         }
         var TotalServiceTaxAmount = Math.round($filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount') * 100 + Number.EPSILON) / 100;
         $scope.recalculateMaterialByServiceAmount();
-       
+
     };
 
 
@@ -3287,7 +3317,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     };
 
 
- 
+
     $scope.isSetApprovedNP = function (tabNum) {
         return $scope.tab === tabNum;
         $scope.GRN = 5;
@@ -3819,13 +3849,13 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         }
     };
 
-    $scope.GRNAllowcationForRequisition = function (x,  InventoryReceiveDetailId) {
+    $scope.GRNAllowcationForRequisition = function (x, InventoryReceiveDetailId) {
         $scope.Action1 = 'Update'
-        GRNAllowcationForRequisitionList(x,  InventoryReceiveDetailId);
+        GRNAllowcationForRequisitionList(x, InventoryReceiveDetailId);
         angular.element(document.querySelector('#ListOfRequisition')).modal('show');
     };
     $scope.GRNAllowcationForRequisitionLst = [];
-    function GRNAllowcationForRequisitionList(data,  InventoryReceiveDetailId) {
+    function GRNAllowcationForRequisitionList(data, InventoryReceiveDetailId) {
         $scope.totalGRNVal = '';
         $scope.RejectionQty = '';
         $scope.Action1 = 'Save';
