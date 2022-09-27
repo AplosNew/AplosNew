@@ -369,8 +369,8 @@ namespace Library.MaterialManagement.Material
                                 left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
                                 left join EmployeeInformation EI on EI.SystemId = DL.ResponsiblePersonId";*/
 
-                string sql = @"select DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, DL.LoginTime, DL.IssueByNo, DL.Remarks , 
-WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.LogoutTime,  DL.[isUpdate], ISNULL(DL.isClose,0) isClose
+                string sql = @"select DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.LoginTime, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
+WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose
 from TRN.DetentionLog DL
 left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                                 left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
@@ -432,7 +432,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 {
                     genid.GenID(TableName, out _Id);
 
-                    // data["Id"] = "DL" + _Id;
+                    
                     data["Id"] = detentionLogId;
                     data["isUpdate"] = 0;
 
@@ -442,7 +442,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 {
                     data["Id"] = detentionLogId;
                     data["isUpdate"] = 1;
-                    //data["DetentionLogId"] = detentionLogId;
+                   
 
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
@@ -461,7 +461,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
         #endregion update
 
         #region save detention log out
-        public Dictionary<string, object> saveDtentionLogout(Dictionary<string, object> data, string detentionLogId)
+        public Dictionary<string, object> saveDtentionLogout(Dictionary<string, object> data, string detentionLogId, string logouttime)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -491,17 +491,13 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 }
                 else
                 {
-                    //data["Id"] = detentionLogId;
-                    //data["isClose"] = true;
-                    ////data["DetentionLogId"] = detentionLogId;
-
-                    //EditRow(dsMaster.Tables[0].Rows[0], data);
+                    
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
                     dr.BeginEdit();
 
                     dr["isClose"] = true;
-
+                    dr["LogoutTime"] = logouttime;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
