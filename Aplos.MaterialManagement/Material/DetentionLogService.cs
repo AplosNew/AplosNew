@@ -56,7 +56,7 @@ namespace Library.MaterialManagement.Material
                            -- where WM.Active = 'true'";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -71,7 +71,7 @@ namespace Library.MaterialManagement.Material
                               left outer join ORG.Department D on D.id = DD.DepartmentId";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -94,7 +94,7 @@ namespace Library.MaterialManagement.Material
 
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -111,7 +111,7 @@ namespace Library.MaterialManagement.Material
                             LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
 							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
-							where E.SystemId = '"+ ResponsiblePersonId + "'";
+							where E.SystemId = '" + ResponsiblePersonId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -128,7 +128,7 @@ namespace Library.MaterialManagement.Material
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string str = @"select E.CellPhnNo IssueByNo from EmployeeInformation E
-                                where E.SystemId = '"+ identity.EmployeeId + "'";
+                                where E.SystemId = '" + identity.EmployeeId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -153,7 +153,7 @@ namespace Library.MaterialManagement.Material
 
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -168,11 +168,11 @@ namespace Library.MaterialManagement.Material
                             from DetentionMaster DM
                             LEFT JOIN DetentionMasterProcess DMP on DMP.DetentionMasterId = DM.Id
                             LEFT JOIN HKp.Process P on P.Id = DMP.ProcessId
-                            where P.Id = '"+ processId + "' order by Text ASC";
+                            where P.Id = '" + processId + "' order by Text ASC";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -273,7 +273,7 @@ namespace Library.MaterialManagement.Material
 
                         item["Id"] = "DLRP-" + _Id;
                         item["DetentionLogId"] = detentionLogId;
-                        
+
 
                         AddNewRow(dsMasterOrder.Tables[0], item);
                     }
@@ -307,7 +307,7 @@ namespace Library.MaterialManagement.Material
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-            
+
             dt.Rows.Add(dr);
         }
 
@@ -352,7 +352,7 @@ namespace Library.MaterialManagement.Material
                 var sql = @"select EmployeeName ByWhom from EmployeeInformation Where SystemId = '" + identity.EmployeeId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -370,7 +370,7 @@ namespace Library.MaterialManagement.Material
                                 left join EmployeeInformation EI on EI.SystemId = DL.ResponsiblePersonId";*/
 
                 string sql = @"select DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, DL.LoginTime, DL.IssueByNo, DL.Remarks , 
-WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.LogoutTime,  DL.[isUpdate], DL.[isClose]
+WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.LogoutTime,  DL.[isUpdate], ISNULL(DL.isClose,0) isClose
 from TRN.DetentionLog DL
 left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                                 left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
@@ -378,7 +378,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                                 left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -401,13 +401,14 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 return _sqlRepository.GetDataCollection(sql);
 
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 throw ex;
             }
         }
 
-        
-        
+
+
 
         #region update
         public Dictionary<string, object> Update(Dictionary<string, object> data, string detentionLogId)
@@ -420,7 +421,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + detentionLogId+ "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + detentionLogId + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -431,7 +432,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 {
                     genid.GenID(TableName, out _Id);
 
-                   // data["Id"] = "DL" + _Id;
+                    // data["Id"] = "DL" + _Id;
                     data["Id"] = detentionLogId;
                     data["isUpdate"] = 0;
 
@@ -463,7 +464,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
         public Dictionary<string, object> saveDtentionLogout(Dictionary<string, object> data, string detentionLogId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            
+
             try
             {
                 string TableName = "TRN.DetentionLog";
@@ -477,7 +478,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 #region data Master update
 
                 bplib.clsGenID genid = new bplib.clsGenID();
-               
+
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     genid.GenID(TableName, out _Id);
@@ -490,11 +491,23 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 }
                 else
                 {
-                    data["Id"] = detentionLogId;
-                    data["isClose"] = true;
-                    //data["DetentionLogId"] = detentionLogId;
+                    //data["Id"] = detentionLogId;
+                    //data["isClose"] = true;
+                    ////data["DetentionLogId"] = detentionLogId;
 
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                    //EditRow(dsMaster.Tables[0].Rows[0], data);
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                    dr.BeginEdit();
+
+                    dr["isClose"] = true;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                    dr.EndEdit();
+
                 }
                 #endregion data Master update
 
@@ -502,13 +515,16 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 _info.SaveDataSets(dsMaster);
 
                 return data;
-            
+
             }
             catch (Exception ex)
             {
                 throw (ex);
             }
         }
+
+       
+
         #endregion save detention log out
 
         #region Add & Edit Row
@@ -527,13 +543,12 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 {
                 }
             }
+
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-
             dt.Rows.Add(dr);
         }
-
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -545,13 +560,16 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 {
                     dr[item] = sourceData[item];
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                 }
             }
+
+
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
+
             dr.EndEdit();
         }
         #endregion Add & Edit Row
