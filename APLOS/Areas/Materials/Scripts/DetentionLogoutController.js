@@ -11,7 +11,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'Delete';
-
+    $scope.DepartmentList = [];
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
