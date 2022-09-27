@@ -148,6 +148,7 @@ namespace Library.MaterialManagement.Material
                 var sql = @"select distinct DT.UserName As Text, DT.Id As Value from DetentionMasterDepartment DD
                         left join DetentionMaster DM ON DM.Id=DD.DetentionMasterId
                         left join hkp.DetentionType DT ON DT.id=DM.DetentionTypeId
+                        order by Text
             --where DepartmentId='" + departmentid + "'";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -214,14 +215,17 @@ namespace Library.MaterialManagement.Material
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = "DL" + _Id;
-                   
+                    data["isUpdate"] = 0;
+                    data["isClose"] = 0;
 
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
-                    
+                    data["isUpdate"] = 1;
+                    data["isClose"] = 1;
+
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data Master update
@@ -340,6 +344,19 @@ namespace Library.MaterialManagement.Material
             _sqlRepository = new SqlRepository();
         }
 
+        public IEnumerable<object> getByWhom()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"select EmployeeName ByWhom from EmployeeInformation Where SystemId = '" + identity.EmployeeId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<object> getDetentionLogGrid()
         {
             try
@@ -352,22 +369,13 @@ namespace Library.MaterialManagement.Material
                                 left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
                                 left join EmployeeInformation EI on EI.SystemId = DL.ResponsiblePersonId";*/
 
-                string sql = @"select DL.Id,  DL.IssueByNo, WM.UserName WorkCenter, WM.Id WorkCenterId ,DT.UserName DetentionType, DT.Id DetentionTypeId 
-,EI.EmployeeName, DL.Remarks, GETUTCDATE()   AS LogoutTime, EI.EmployeeName ByWhom, DL.LogInTime
+                string sql = @"select DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, DL.LoginTime, DL.IssueByNo, DL.Remarks , 
+WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.LogoutTime,  DL.[isUpdate], DL.[isClose]
 from TRN.DetentionLog DL
-                                left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
-                                left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
-								left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
-                                left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-
-								union all
-select DL.Id,  DL.IssueByNo, WM.UserName WorkCenter, WM.Id WorkCenterId ,DT.UserName DetentionType, DT.Id DetentionTypeId 
-,EI.EmployeeName, DL.Remarks, GETUTCDATE()   AS LogoutTime, EI.EmployeeName ByWhom, DL.LogInTime from TRN.DetentionLog DL
 left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                                 left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
-                                left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
-                                left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-where EI.SystemId = '" + identity.EmployeeId+"'";
+								left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                                left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
@@ -380,9 +388,16 @@ where EI.SystemId = '" + identity.EmployeeId+"'";
         {
             try
             {
-                string sql = @"select * from TRN.DetentionLogResponsiblePerson DLRP
+                string sql = @"select DLRP.Id, EI.EmployeeCode, EI.SystemId ResponsiblePersonId ,EI.EmployeeName, EI.CellPhnNo, DEP.UserName as Department, S.UserName Section, SS.UserName SubSection,
+                                DEG.UserName as LegalDesignation
+                                from TRN.DetentionLogResponsiblePerson DLRP
                                 LEFT JOIN TRN.DetentionLog DL on DL.Id = DLRP.DetentionLogId
-                                where DLRP.DetentionLogId = '"+ detentionLogId + "'";
+								LEFT JOIN EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+								LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+								LEFT JOIN ORG.Department AS DEP ON DEP.id=EI.DepartmentId
+								LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+								LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                                where DLRP.DetentionLogId  = '" + detentionLogId + "'";
                 return _sqlRepository.GetDataCollection(sql);
 
             }
@@ -391,6 +406,9 @@ where EI.SystemId = '" + identity.EmployeeId+"'";
             }
         }
 
+        
+        
+
         #region update
         public Dictionary<string, object> Update(Dictionary<string, object> data, string detentionLogId)
         {
@@ -398,11 +416,11 @@ where EI.SystemId = '" + identity.EmployeeId+"'";
             try
             {
                 //Master Table - PMSMaster
-                string TableName = "TRN.DetentionLogUpdate";
+                string TableName = "TRN.DetentionLog";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + detentionLogId+ "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -413,15 +431,17 @@ where EI.SystemId = '" + identity.EmployeeId+"'";
                 {
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "DL" + _Id;
-                    data["DetentionLogId"] = detentionLogId;
+                   // data["Id"] = "DL" + _Id;
+                    data["Id"] = detentionLogId;
+                    data["isUpdate"] = 0;
 
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
-                    data["DetentionLogId"] = detentionLogId;
+                    data["Id"] = detentionLogId;
+                    data["isUpdate"] = 1;
+                    //data["DetentionLogId"] = detentionLogId;
 
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
@@ -440,44 +460,49 @@ where EI.SystemId = '" + identity.EmployeeId+"'";
         #endregion update
 
         #region save detention log out
-        public List<Dictionary<string, object>> saveDtentionLogout(List<Dictionary<string, object>> data, string detentionLogId)
+        public Dictionary<string, object> saveDtentionLogout(Dictionary<string, object> data, string detentionLogId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMasterOrder;
-            string id = string.Empty;
+            
             try
             {
-                string mosql = "SELECT * FROM DetentionLogout WHERE DetentionLogId ='" + detentionLogId + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+                string TableName = "TRN.DetentionLog";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                string cId = string.Empty;
-                //string DetentionMasterDepartmentId = "";
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + detentionLogId + "'", out dsMaster, false, "1");
 
-                int count = 0;
-                foreach (var item in data)
+                string _Id = "";
+
+                #region data Master update
+
+                bplib.clsGenID genid = new bplib.clsGenID();
+               
+                if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    count++;
+                    genid.GenID(TableName, out _Id);
 
-                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    // data["Id"] = "DL" + _Id;
+                    data["Id"] = detentionLogId;
+                    data["isClose"] = false;
 
-                    if (dv.Count == 0)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                       // genid.GenID("DetentionMasterDepartment", out DetentionMasterDepartmentId);
-
-                        item["Id"] = "DLRP-" + count;
-                        item["DetentionLogId"] = detentionLogId;
-
-                        AddNewRow(dsMasterOrder.Tables[0], item);
-                    }
-
+                    AddNewRow(dsMaster.Tables[0], data);
                 }
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMasterOrder);
+                else
+                {
+                    data["Id"] = detentionLogId;
+                    data["isClose"] = true;
+                    //data["DetentionLogId"] = detentionLogId;
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data Master update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
                 return data;
+            
             }
             catch (Exception ex)
             {

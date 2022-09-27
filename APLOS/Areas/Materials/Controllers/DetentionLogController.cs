@@ -94,11 +94,11 @@ namespace Aplos.Areas.Materials.Controllers
 
             try
             {
-                return Json(new { Error = "No", Data = dl.Save(data), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Data = dl.Save(data), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -108,11 +108,11 @@ namespace Aplos.Areas.Materials.Controllers
 
             try
             {
-                return Json(new { Error = "No", Data = dl.saveDtentionLogResPerson(data, detentionLogId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Data = dl.saveDtentionLogResPerson(data, detentionLogId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
-                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
             }
         }
         #endregion Save Operations

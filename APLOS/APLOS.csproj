@@ -4289,8 +4289,13 @@
     <Content Include="Areas\Productions\Views\ProductionSummary\Report.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionLog\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\MaintenanceScheduling\Aplos.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\PackingType\Aplos.cshtml" />
     <Content Include="Areas\Banks\Views\BankReconciliationDataUploadReconciled.cshtml" />
     <Content Include="Areas\Organizations\Views\PositionWiseMPStatus\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLogout\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLogout\_DetentionLogout.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLogout\_MachineUnderStoppage.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLogout\_Update.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
