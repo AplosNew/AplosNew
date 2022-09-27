@@ -11,7 +11,7 @@
             <label class="col-sm-4 control-label">Workcenter<sup>*</sup></label>
             <div class="col-sm-6">
                 <div class="select-style">
-                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="WorkCenterList" e-value="ModalNew.WorkCenterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="WorkCenterList" e-value="ModalNew.WorkCenterId" e-fields-value="Value" e-fields-text="Text" e-enabled="false" e-width="100%" />
                 </div>
             </div>
         </div>
@@ -20,7 +20,7 @@
             <label class="col-sm-4 control-label">Logout Time<sup>*</sup></label>
             <div class="col-sm-6">
                 <div class="select-style">
-                    <input type="text" ej-timepicker e-value="ModalNew.LogoutTime" e-width="100%" />
+                    <input type="text" ej-timepicker e-value="ModalNew.LogoutTime" e-enabled="false" e-width="100%" />
                 </div>
             </div>
         </div>
@@ -40,7 +40,7 @@
             <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
             <div class="col-sm-6">
                 <div class="select-style">
-                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNew.DetentionTypeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNew.DetentionTypeId" e-enabled="false" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                 </div>
             </div>
         </div>
@@ -70,7 +70,7 @@
 
         <div class="common-btn">
             <ul class="list-inline text-right">
-                <li> <button onclick="openModal()" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Submit</button></li>
+                @*<li> <button onclick="openModal()" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Submit</button></li>*@
                 @*<li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
 
             </ul>
@@ -78,6 +78,58 @@
         </div>
     </div>
 
+</div>
+<div class="row">
+
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="table-responsive modal-table" ng-show="DetLogResPersonList.length>0">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>CellPhnNo</th>
+                        <th>Department</th>
+                        <th>Section</th>
+                        <th>Sub Section</th>
+                        <th>Legal Designation</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in DetLogResPersonList" ng-class="{selected : x.Id==null}">
+                        <td>{{x.EmployeeCode}}</td>
+                        <td>{{x.EmployeeName}}</td>
+                        <td>{{x.CellPhnNo}}</td>
+                        <td>{{x.Department}}</td>
+                        <td>{{x.Section}}</td>
+                        <td>{{x.SubSection}}</td>
+                        <td>{{x.LegalDesignation}}</td>
+                        <td class="text-right table-td">
+                            <ul class="list-inline action-list">
+                                <li>
+                                    <button ng-click="removeDetentionLResPerson(x.EmployeeName, $index, 'DetLogResPersonList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li>
+                        <button ng-click="Submit();" class="btn"><i class=""></i> Save</button>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+
+        @*</div>
+            </div>*@
+    </div>
 </div>
 
 

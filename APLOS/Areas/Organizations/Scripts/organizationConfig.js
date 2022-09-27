@@ -261,5 +261,9 @@ function OrganizationConfig($routeProvider, $locationProvider) {
             templateUrl: 'Organizations/DesignationBudget/aplos',
             controller: 'DesignationBudgetController'
         })
+        .when('/position-wise-mpstatus', {
+            templateUrl: 'Organizations/PositionWiseMPStatus/Aplos',
+            controller: 'PositionWiseMPStatusController'
+        })
         ;
 }

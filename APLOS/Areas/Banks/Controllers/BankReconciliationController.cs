@@ -54,6 +54,10 @@ namespace Aplos.Areas.Banks.Controllers
         {
             return View("~/Areas/Banks/Views/BankReconciliationDataUpload.cshtml");
         }
+        public ActionResult BankReconciliationDataUploadReconciled()
+        {
+            return View("~/Areas/Banks/Views/BankReconciliationDataUploadReconciled.cshtml");
+        }
 
         #endregion Aplos
 
