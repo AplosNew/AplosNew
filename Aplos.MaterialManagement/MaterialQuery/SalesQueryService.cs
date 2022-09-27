@@ -3120,7 +3120,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
 									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
 									LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
-									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'  AND CP.PlantId=SA.PlantId
 									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
 									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
@@ -3223,7 +3223,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
 								left Join hkp.Party P On p.id=II.CustomerId
-								LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+								LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'  AND CP.PlantId=II.PlantId
 									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
 									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
@@ -3891,7 +3891,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 									left outer join HKP.Party CNfA on CNfA.Id=SA.PartyId
 									left outer join HKP.Party TA on TA.Id=SA.PartyId
-									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=TA.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=TA.Id AND CP.PartyType='Customer' AND CP.PlantId=SA.PlantId
 									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
 									LEFT JOIN HKP.PartyCategory PC on PC.Id=TA.PartyCategoryId
 									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=TA.PartySubCategoryId
@@ -4058,7 +4058,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									left outer join HKP.Party CNfA on CNfA.Id=IR.PartyId
 									left outer join HKP.Party TA on TA.Id=IR.PartyId
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
-						LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+						LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' AND CP.PlantId=IR.PlantId
 									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
 									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
@@ -4195,7 +4195,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 						LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId 
 						left Join hkp.Party P On p.id=II.CustomerId
-						LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+						LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' AND CP.PlantId=II.PlantId
 						LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
 						LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 						LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
@@ -4342,7 +4342,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						left join ORG.Company COMP on COMP.Id=IR.CompanyId
 						LEFT JOIN SCS.Currency AS CURRE ON CURRE.Id=COMP.BaseCurrencyId
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.CustomerId
-						LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+						LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' AND CP.PlantId=IR.PlantId
 						LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
 						LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 						LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
