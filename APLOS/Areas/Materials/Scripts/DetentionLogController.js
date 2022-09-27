@@ -21,7 +21,8 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
         IssueByNo: null,
         Remarks: null,
         LoginTime: LogTime,
-        
+        isClose: 0,
+        isUpdate: 0
     };
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
@@ -198,6 +199,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
     $scope.getIssueByNo();
 
     $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
         $http({
             method: 'POST',
             url: 'Materials/DetentionLog/Save',
