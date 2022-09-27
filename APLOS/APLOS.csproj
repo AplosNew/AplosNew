@@ -755,6 +755,7 @@
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Costings\Controllers\OrderLineCostingItemController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\PackingTypeController.cs" />
+    <Compile Include="Areas\Organizations\Controllers\PositionWiseMPStatusController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxProcessController.cs" />
@@ -2172,6 +2173,7 @@
     <Content Include="Areas\MeetingManagement\Scripts\meetingManagementConfig.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemController.js" />
     <Content Include="Areas\OrderManagements\Scripts\PackingTypeController.js" />
+    <Content Include="Areas\Organizations\Scripts\PositionWiseMPStatusController.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
@@ -4288,6 +4290,7 @@
     <Content Include="Areas\Materials\Views\DetentionLog\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\MaintenanceScheduling\Aplos.cshtml" />
     <Content Include="Areas\Banks\Views\BankReconciliationDataUploadReconciled.cshtml" />
+    <Content Include="Areas\Organizations\Views\PositionWiseMPStatus\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
