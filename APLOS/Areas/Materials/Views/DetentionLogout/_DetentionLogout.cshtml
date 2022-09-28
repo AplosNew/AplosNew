@@ -20,7 +20,7 @@
             <label class="col-sm-4 control-label">Logout Time<sup>*</sup></label>
             <div class="col-sm-6">
                 <div class="select-style">
-                    <input type="text" ej-timepicker e-value="ModalNew.LogoutTime" e-enabled="false" e-width="100%" />
+                    <input type="text" ej-timepicker e-value="LogoutTime" e-enabled="false" e-width="100%" />
                 </div>
             </div>
         </div>
@@ -49,9 +49,9 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
             <div class="col-sm-6">
-                <div class="col-sm-10" style="padding:0px;">
+                @*<div class="col-sm-10" style="padding:0px;">
                     <input type="text" name="ResponsiblePersonD" ng-model="ModalNew.EmployeeName" ng-disabled="true" class="form-control" readonly>
-                </div>
+                </div>*@
                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                     <button ng-click="openEmployeePopUp();" class="btn single-small-btn" ng-disabled="true" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                 </div>
@@ -120,7 +120,7 @@
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li>
-                        <button ng-click="Submit();" class="btn"><i class=""></i> Save</button>
+                        <button onclick="openModal()" class="btn"><i class=""></i> Save</button>
                     </li>
                 </ul>
 
@@ -247,7 +247,7 @@
                 </div>
                 <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button class="btn btn-danger" ng-click="Save();">Yes</button>
+                    <button class="btn btn-danger" ng-click="Submit();">Yes</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
 
                 </div>

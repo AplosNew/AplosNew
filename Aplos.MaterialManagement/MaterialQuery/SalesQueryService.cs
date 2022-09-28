@@ -1,20 +1,11 @@
-﻿using Library.Core;
-using Library.Crosscutting.Security;
-using Library.Data;
+﻿using Library.Crosscutting.Security;
 using Library.Data.Sql;
-using Library.Model.Inventory;
-using Library.Model.Parties;
-using Library.Model.Taxations;
-using Library.Service.Enums;
 using Library.Service.Extension;
 using Library.Service.Helpers;
-using Library.Service.Logs;
 using Syncfusion.XlsIO;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 
 namespace Aplos.MaterialManagement.MaterialQuery
@@ -40,15 +31,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				if(Type== "ForThePeriod")
                 {
 					temp = "BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
-
 				}
                 else
                 {
 					temp = "<= '" + toDate + @"'";
 
 				}
-				
-					
 						sql = @" SELECT 
 								ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
 								,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
