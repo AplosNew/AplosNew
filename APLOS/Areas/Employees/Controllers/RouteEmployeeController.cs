@@ -229,7 +229,7 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 var sql = @"select O.TransportGroup,O.Stoppage,R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo
 											,TD.Capacity Vacancy,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
-											,O.EmployeeCode,O.EmployeeName,O.EmployeeStatus, O.EmployeeCurrentStatus,O.InTime,O.DOJ,O.Skill,O.GivenDesignation
+											,O.EmployeeCode,O.EmployeeName,O.EmployeeStatus,O.EmployeeCurrentStatus,o.BudgatedShift,O.AssignedShift,O.InTime,O.DOJ,O.Skill,O.GivenDesignation
 											,O.Section,O.SubSection,O.Department,O.EntityName,O.Plant
 
 					                        from RouteSchedule RS
@@ -241,10 +241,14 @@ namespace Aplos.Areas.Employees.Controllers
 															,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName EntityName
 															,PL.UserName Plant,TG.UserName TransportGroup,A.AssignStatus,ST.UserName Stoppage
 															,FORMAT(apd.InTime,'hh:mm:tt') InTime
+															,MSD.UserName BudgatedShift,ESD.UserName AssignedShift
 															from dbo.EmployeeTransportAllocation A
 															left join EmployeeInformation EMP on EMP.SystemId=A.EmployeeSystemId
 															LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
 															LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+															LEFT JOIN ShiftDefination MSD on MSD.SystemID=PMB.ShiftDefinationId 
+															LEFT JOIN [dbo].[EmployeeShiftAssign] ESA on ESA.EmpSystemID=EMP.SystemId 
+															LEFT JOIN ShiftDefination ESD on ESD.SystemID=ESA.FixSystemID 
 															LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 															LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
 															LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
@@ -258,7 +262,8 @@ namespace Aplos.Areas.Employees.Controllers
 															,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
 															,emp.DOJ,PR.PaymentLink,DEG.UserName
 															,S.UserName,SS.UserName,DEPT.UserName,E.UserName
-															,PL.UserName,TG.UserName,A.AssignStatus,ST.UserName,apd.InTime) O ON O.TripId=RS.Id
+															,PL.UserName,TG.UserName,A.AssignStatus,ST.UserName,apd.InTime
+															,MSD.UserName,ESD.UserName) O ON O.TripId=RS.Id
 															where O.AssignStatus=1 ";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
