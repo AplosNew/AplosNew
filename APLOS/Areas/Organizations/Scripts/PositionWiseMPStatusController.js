@@ -56,24 +56,24 @@ function PositionWiseMPStatusController(cboService, commonMessage, $scope, $root
     }
     $scope.getPostionWMPStatusFilters();
 
-    $scope.parameters = [];
-    $scope.filterComplete = function () {
 
+    $scope.PositionParameters = [];
+    $scope.filterComplete = function () {
         var g = $("#filters").data("ejGrid");
         var fl = g.getFilteredRecords();
         if (fl.length == 0) {
             fl = $scope.filters;
         }
-
         var parameters = [];
-        parameters.push({ "Key": "IsDirect", "Value": getString(fl, "IsDirect") });
-        parameters.push({ "Key": "EmpoyeeCategoryId", "Value": getString(fl, "EmpoyeeCategoryId") });
-        //parameters.push({ "Key": "CriticalityLevel", "Value": getString(fl, "CriticalityLevel") });
-        parameters.push({ "Key": "UserReportGroup", "Value": getString(fl, "UserReportGroup") });
+
         parameters.push({ "Key": "PlantId", "Value": getString(fl, "PlantId") });
         parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        parameters.push({ "Key": "UserReportGroup", "Value": getString(fl, "UserReportGroup") });
+        parameters.push({ "Key": "CriticalityLevel", "Value": getString(fl, "CriticalityLevel") });
+        parameters.push({ "Key": "IsDirect", "Value": getString(fl, "IsDirect") });
+        parameters.push({ "Key": "EmpoyeeCategoryId", "Value": getString(fl, "EmpoyeeCategoryId") });
 
-        $scope.parameters = parameters;
+        $scope.PositionParameters = parameters;
     }
 
     var getString = function (data, column) {
@@ -91,11 +91,11 @@ function PositionWiseMPStatusController(cboService, commonMessage, $scope, $root
 
     $scope.ModelList = [];
     $scope.getData = function () {
-        $scope.filterComplete();
+      $scope.filterComplete();
         $http({
             method: 'POST',
             url: $scope.path + "getPostionWMPSSqlData",
-            data: {'parameters': $scope.parameters },
+            data: { 'parameters': $scope.PositionParameters },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
@@ -106,30 +106,26 @@ function PositionWiseMPStatusController(cboService, commonMessage, $scope, $root
                     $scope.ModelList[i].Age = 0;
                 }
             }
-
         });
     }
-    $scope.getData();
-
+    
+   
    
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.getPositionWiseMPStatusReport = function () {
-        $scope.filterComplete();
-        //var dataList = [];
-        //var g = $("#filters").data("ejGrid");
-        //dataList = g.getFilteredRecords();
+        var dataList = [];
+        var g = $("#PositionEditList").data("ejGrid");
+        dataList = g.getFilteredRecords();
 
-        //if (dataList.length == 0) {
-        //    dataList = $scope.parameters;
-        //}
+        if (dataList.length == 0) {
+            dataList = $scope.ModelList;
+        }
         $scope.fileName = 'Position Wise MP Status';
 
         $http({
             method: 'POST',
             url: $scope.exportgriddataUrl,
-            //url: $scope.path + "GetPositionWiseMPStatusReport",
-            //data: { 'parameters': dataList },
-            data: { 'data': $scope.parameters, 'reportFileName': $scope.fileName, },
+            data: { 'data': dataList, 'reportFileName': $scope.fileName, },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
