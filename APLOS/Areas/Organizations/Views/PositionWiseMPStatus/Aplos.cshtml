@@ -1,14 +1,15 @@
 ﻿@*<togglable name="{{title}}">Costing Template</togglable>*@
-<h3 class="site-heading">{{title}}</h3>
-<div id="costingMain"></div>
+@*<h3 class="site-heading">{{title}}</h3>*@
+<h3 class="site-heading">Position Wise MP Status Report</h3>
+<div id="PositionMain"></div>
 
 <div class="row">
-        <div id="filters">
-        </div>
-            <div class="col-md-1 text-right" style="margin-top:20px;">
-                <button type="button" class="btn single-btn" ng-click="getData()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Load</button>
-            </div>
-       
+    <div id="filters">
+    </div>
+    <div class="col-md-1 text-right" style="margin-top:20px;">
+        <button type="button" class="btn single-btn" ng-click="getData()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Load</button>
+    </div>
+
     <div class="col-xs-12 col-sm-12 col-sm-12 ">
         <div id="PositionEditList" ej-grid e-datasource="ModelList" e-allowfiltering="true" e-allowscrolling="true" style="color:black;" e-allowsorting="true"
              e-allowResizing="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true"
