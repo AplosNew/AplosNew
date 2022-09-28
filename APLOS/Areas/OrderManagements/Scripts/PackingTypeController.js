@@ -35,11 +35,17 @@ function PackingTypeController(cboService, commonMessage, $scope, $rootScope, ba
         ShortName: null,
         StandardName: null,
         UserName: null,
+        PackingType:null,
         Description: null,
         Remarks: null,
         Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.PackingTypesList = [];
+    cboService.getEnumCbo('Enum/GetPackingTypesEnumCbo/', function (result) {
+        $scope.PackingTypesList = result;
+    });
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
