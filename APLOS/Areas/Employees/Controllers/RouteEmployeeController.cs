@@ -170,7 +170,7 @@ namespace Aplos.Areas.Employees.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select RS.Id TripId,RS.TripNo,R.Id RouteId,R.StandardName Route,TD.Id TransportId,TD.TransportUserName Transport 
+                var sql = @"select RS.Id TripId,RS.TripNo,R.Id RouteId,R.StandardName Route,TD.Id TransportId,TD.TransportUserName+'-'+TD.TransportNo Transport 
 					                        --,RSD.UpDown
 											,REPLACE(REPLACE(
                                                     STUFF((select distinct ','+A.UpDown +':'+ISNULL(format(A.StartTime,'hh:mm tt'),'')StartTime from
@@ -199,6 +199,7 @@ namespace Aplos.Areas.Employees.Controllers
 															from dbo.EmployeeTransportAllocation A
 															where A.AssignStatus=1
 									                        Group BY TripId) O ON O.TripId=RS.Id
+
 											Where R.PlantId ='" + identity.PlantId+"'";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

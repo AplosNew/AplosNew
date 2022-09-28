@@ -834,7 +834,7 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetTransport()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select Id,TransportUserName as UserName from TransportDetail";
+            string str = @"select Id,TransportUserName+'-'+TransportNo  as UserName from TransportDetail order by TransportNo";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -853,7 +853,7 @@ namespace Aplos.Areas.Employees.Controllers
         [Authorize, HttpPost]
         public ActionResult GetRouteSchedule()
         {
-            string sql = @"select RS.Id,RS.ShiftId,SD.UserName [Shift],RS.TripNo,R.Id RouteId,R.UserName [Route],TD.Id TransportId,TD.TransportUserName Transport
+            string sql = @"select RS.Id,RS.ShiftId,SD.UserName [Shift],RS.TripNo,R.Id RouteId,R.UserName [Route],TD.Id TransportId,TD.TransportUserName+'-'+TD.TransportNo Transport
 										
                                         from RouteSchedule RS
                                         left join mst.[Route] R on R.Id=RS.RouteId
