@@ -40,26 +40,6 @@ namespace Aplos.Areas.Machines.Controllers
         #endregion -- Pages
 
         #region -- Operations
-        public JsonResult StorageSql()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_sqlRepository.GetDataCollection("select s.Id,s.PlantId,s.UserName as Storage from HKP.MaterialStorage s where s.plantId = '" + identity.PlantId + @"'"), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
-        {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult GetList(string plantId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * FROM dbo.Rack where PlantId='" + plantId + "' order by sequence";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
 
 
         [HttpPost, Authorize]
@@ -69,12 +49,10 @@ namespace Aplos.Areas.Machines.Controllers
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [Trn].[MaintenanceScheduling] where Id<>'" + ScheduleData["Id"] + "'", out DataSet dsMaintenanceScheduleValidation, false, "1");
-
-                //if (dsDetentionMaster.Tables[0].Rows.Count>0)
-                //{
-                //    throw new Exception("Code Already Exist.");
-                //}
+                conRack.OpenDataSetThroughAdapter("select * from [Trn].[MaintenanceScheduling] where ScheduleCode='" + ScheduleData["ScheduleCode"] + "'", out DataSet dsMaintenanceScheduleCodeValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [Trn].[MaintenanceScheduling] where StandaredName='" + ScheduleData["StandaredName"] + "'", out DataSet dsMaintenanceScheduleSNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [Trn].[MaintenanceScheduling] where UserName='" + ScheduleData["UserName"] + "'", out DataSet dsMaintenanceScheduleUNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [Trn].[MaintenanceScheduling] where MachineMasterId='" + ScheduleData["MachineMasterId"] + "'", out DataSet dsMaintenanceScheduleMNameValidation, false, "1");
 
                 DataSet dsMaintenanceSchedule;
 
@@ -85,11 +63,30 @@ namespace Aplos.Areas.Machines.Controllers
                 #region data update
                 if (dsMaintenanceSchedule.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("MaintenanceScheduling", out _Id);
-                    _Id = "MS" + _Id;
-                    ScheduleData["Id"] = _Id;
-                    AddNewRow(dsMaintenanceSchedule.Tables[0], ScheduleData);
+                    if (dsMaintenanceScheduleCodeValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Schedule Code Already Exist.");
+                    }
+                    else if (dsMaintenanceScheduleSNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Standared Name Already Exist.");
+                    }
+                    else if (dsMaintenanceScheduleUNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("User Name Already Exist.");
+                    }
+                    else if (dsMaintenanceScheduleMNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Machine Name Already Exist.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("MaintenanceScheduling", out _Id);
+                        _Id = "MS" + _Id;
+                        ScheduleData["Id"] = _Id;
+                        AddNewRow(dsMaintenanceSchedule.Tables[0], ScheduleData);
+                    }
                 }
                 else
                 {
@@ -104,7 +101,6 @@ namespace Aplos.Areas.Machines.Controllers
                 _info.SaveDataSets(dsMaintenanceSchedule);
 
                 return Json(new { Error = false, Data = ScheduleData, Message = AplosMessage.Insert });
-
             }
             catch (Exception ex)
             {
@@ -159,8 +155,42 @@ namespace Aplos.Areas.Machines.Controllers
             try
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                DataSet AssetCount, ItemCount, StoresCount, BudgetCount;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceMachineAsset] where MaintenanceSchedulingId='" + id + "'", out AssetCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceItem] where MaintenanceSchedulingId ='" + id + "'", out ItemCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceStoresConsumable] where MaintenanceSchedulingId ='" + id + "'", out StoresCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenancePersonBudgetCode] where MaintenanceSchedulingId ='" + id + "'", out BudgetCount, false, "1");
+
+                if (AssetCount.Tables[0].Rows.Count == 0 || ItemCount.Tables[0].Rows.Count == 0 || StoresCount.Tables[0].Rows.Count == 0 || BudgetCount.Tables[0].Rows.Count == 0)
+                {
+
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from TRN.MaintenanceScheduling where Id ='" + id + @"'");
+                    conC.CommitTransaction();
+                }
+                else
+                {
+                    throw new Exception("Transaction are Exists!");
+                }
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult ItemDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
-                conC.executeQuery("delete from TRN.MaintenanceScheduling where Id ='" + id + @"'");
+                conC.executeQuery("delete from [TRN].[MaintenanceItem] where Id ='" + id + @"'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -170,35 +200,43 @@ namespace Aplos.Areas.Machines.Controllers
                 throw ex;
             }
         }
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM  dbo.Rack ");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-            return 1;
-        }
-        [Authorize, HttpPost]
-        public ActionResult getProcess(string DetentionMasterId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select DMP.Id,P.Sequence,P.Code,P.ShortName,P.StandardName,P.Id ProcessId,P.UserName Process
-			                            from DetentionMasterProcess DMP
-			                            left join HKP.Process P on P.Id=DMP.ProcessId
-										where DMP.DetentionMasterId='" + DetentionMasterId + @"'";
 
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
-        }
         [Authorize, HttpPost]
-        public ActionResult getDepartment(string DetentionMasterId)
+        public ActionResult StoresDelete(string id)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select dmd.Id,d.Sequence,d.Code,d.ShortName,d.StandardName,d.Id DepartmentId,d.UserName Department
-			                            from DetentionMasterDepartment AS dmd
-			                            left join org.Department AS d ON d.Id=dmd.DepartmentId
-										where dmd.DetentionMasterId='" + DetentionMasterId + @"'";
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [TRN].[MaintenanceStoresConsumable] where Id ='" + id + @"'");
+                conC.CommitTransaction();
 
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+
+        [Authorize, HttpPost]
+        public ActionResult BudgetCodeDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [TRN].[MaintenancePersonBudgetCode] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         [Authorize, HttpPost]
         public ActionResult GetMachine()
         {
@@ -214,147 +252,75 @@ namespace Aplos.Areas.Machines.Controllers
         public ActionResult GetBudgetCode()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select MP.Id ManPowerBudgetId, MP.Code, E.UserName Entity, P.UserName Position from MST.ManpowerBudget MP
+            string str = @"select MP.Id ManPowerBudgetId, MP.Code, E.UserName Entity, P.UserName Position,P.Activity,
+DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.UserName AS [LegalDesignation] from MST.ManpowerBudget MP
                             left join ORG.Entity E on E.Id = MP.EntityId
                             left join ORG.Position P on P.Id = MP.PositionId
+							left join EmployeeInformation EI on EI.BudgetCode=MP.Id and EI.EmployeeStatus='Active'
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             where MP.Active = 1";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
-
         [Authorize, HttpPost]
-        public ActionResult getResponsible(string DetentionMasterId)
+        public ActionResult GetPersonBudgetCode()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select DMR.Id,E.EmployeeCode,E.EmployeeName,DEP.UserName AS Department,S.UserName as Section,
-  SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],E.SystemId ResponsibleMasterId,DMR.DetentionMasterId
-  from DetentionMasterResponsible AS DMR
-			                left join EmployeeInformation AS E ON E.SystemId=DMR.ResponsibleMasterId
-							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=E.DepartmentId
-							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
-							where DMR.DetentionMasterId='" + DetentionMasterId + @"'";
+            string str = @"select MP.Id ManPowerBudgetId, MP.Code, E.UserName Entity, P.UserName Position,P.Activity,
+DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.UserName AS [LegalDesignation] from MST.ManpowerBudget MP
+                            left join ORG.Entity E on E.Id = MP.EntityId
+                            left join ORG.Position P on P.Id = MP.PositionId
+							left join EmployeeInformation EI on EI.BudgetCode=MP.Id and EI.EmployeeStatus='Active'
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            where MP.Active = 1";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
-
         [Authorize, HttpPost]
-        public ActionResult ProcessDelete(string id)
-        {
-            try
-            {
-                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                conC.BeginTransaction();
-                conC.executeQuery("delete from DetentionMasterProcess where Id ='" + id + @"'");
-                conC.CommitTransaction();
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-
-            }
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult DepartmentDelete(string id)
-        {
-            try
-            {
-                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                conC.BeginTransaction();
-                conC.executeQuery("delete from DetentionMasterDepartment where Id ='" + id + @"'");
-                conC.CommitTransaction();
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult MachineDelete(string id)
-        {
-            try
-            {
-                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                conC.BeginTransaction();
-                conC.executeQuery("delete from DetentionMasterMachine where Id ='" + id + @"'");
-                conC.CommitTransaction();
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult ResponsibleDelete(string id)
-        {
-            try
-            {
-                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                conC.BeginTransaction();
-                conC.executeQuery("delete from DetentionMasterResponsible where Id ='" + id + @"'");
-                conC.CommitTransaction();
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadDetentionList()
+        public ActionResult GetEmployee()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,CASE IsAvoidable WHEN 1 THEN 'Yes' ELSE 'No' END Avoidable,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson,
-                            (select UserName from [HKP].[DetentionType] where Id=DetentionTypeId) as DetentionType
-                            FROM DetentionMaster";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadDepartmentList()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,convert(bit,0) AS chk FROM [ORG].[Department]";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadMachineList()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,convert(bit,0) AS chk FROM mst.MachineMaster";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadResponsibleList()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT convert(bit,0) AS chk,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,DEP.UserName AS Department,S.UserName as Section,
-                            SS.UserName as SubSection,DEG.UserName AS [LegalDesignation]
+            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
                             FROM dbo.EmployeeInformation AS EI
                             LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-							LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            WHERE EI.EmployeeStatus='Active' and EI.DepartmentId in (select distinct DepartmentId from DetentionMasterDepartment)";
+                            WHERE EI.EmployeeStatus='Active'";
 
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpPost]
+        public ActionResult GetUOM()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select UM.Id UOMId, UM.Code,UM.StandardName, UM.UserName UOM from scs.UnitOfMeasurement UM where UM.Active = 1";
 
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public ActionResult GetArticle()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select MA.Id as ArticleId,MA.StandardName as ArticleName,MM.UserName as MaterialName,
+MT.UserName as MaterialType from MST.MaterialMasterArticle MA
+left join MST.MaterialMaster MM on MM.Id=MA.MaterialMasterId
+left join MST.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
+left join HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpGet]
         public ActionResult LoadScheduleEditData(string ScheduleID)
         {
@@ -376,139 +342,52 @@ namespace Aplos.Areas.Machines.Controllers
             return Json(new { detention = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public ActionResult LoadItemEditData(string ScheduleID)
+        public ActionResult LoadItemEditData(string ItemId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"select *,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson
-                            FROM DetentionMaster where Id='" + ScheduleID + @"'";
-            return Json(new { detention = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+            string sql = @"SELECT *,
+(select EmployeeName from EmployeeInformation where SystemId=ByWhomId) as ByWhom
+FROM [TRN].[MaintenanceItem] where Id='" + ItemId + @"'";
+            return Json(new { item = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public ActionResult LoadStoresEditData(string ScheduleID)
+        public ActionResult LoadParameterEditData(string ParameterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"select *,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson
-                            FROM DetentionMaster where Id='" + ScheduleID + @"'";
-            return Json(new { detention = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+            string sql = @"select * from ItemParameterDetails where Id='" + ParameterId + @"'";
+            return Json(new { Parameter = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
-        //[HttpGet, Authorize]
-        //public JsonResult GetList(GridParameter parameters, string processId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_processService.Query(parameters, identity.CompanyGroupId, new JavaScriptSerializer().Deserialize<string[]>(processId)), JsonRequestBehavior.AllowGet);
-        //}
-        //public ActionResult Delete(string RackID)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    string Deletesql = @"delete from Bin where RackId ='" + RackID + @"'";
-        //    string Deletesql1 = @"delete from Rack where Id='" + RackID + @"'";
-        //    return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-        //   // return Json(new { rack = _sqlRepository.GetDataCollection(Deletesql1, null), bin = _sqlRepository.GetDataCollection(Deletesql, null) }, JsonRequestBehavior.AllowGet);
-        //}
-
-        [HttpPost]
-        public JsonResult Delete(string Id)
-        {
-            DeleteData(Id);
-            return Json(new { Message = AplosMessage.Deleted });
-        }
-
-        public void DeleteData(string RackID)
-        {
-            string strSQL, strCSQL;
-            ConnectionManager.DAL.ConManager objCon = null;
-            try
-            {
-                strCSQL = @"delete from Bin where RackId ='" + RackID + @"'";
-                strSQL = @"delete from Rack where Id='" + RackID + @"'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-                objCon.ExecuteNonQueryWrapper(strCSQL, true, "1");
-                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
-                objCon.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    objCon.RollBack();
-                    objCon.CloseConnection();
-                    throw (ex);
-                }
-                catch (Exception)
-                {
-                    throw ex;
-                }
-            }
-            finally
-            {
-
-                objCon = null;
-            }
-        }//End of function
-
-        [HttpPost]
-        public JsonResult CreateProcess(List<Dictionary<string, object>> data, string DetentionMasterId)
-        {
-            try
-            {
-                SaveData(data, DetentionMasterId);
-
-                return Json(new { Message = AplosMessage.Insert });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, ex.Message });
-            }
-
-        }
-        private void SaveData(List<Dictionary<string, object>> data, string DetentionMasterId)
+        [Authorize, HttpGet]
+        public ActionResult LoadStoresEditData(string StoresId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMasterOrder;
-            string id = string.Empty;
-            try
-            {
-                string mosql = "SELECT * FROM DetentionMasterProcess WHERE DetentionMasterId ='" + DetentionMasterId + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
 
-                string cId = string.Empty;
-                string DetentionMasterProcessId = "";
-
-
-                foreach (var item in data)
-                {
-
-                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                    if (dv.Count == 0)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("DetentionMasterProcess", out DetentionMasterProcessId);
-
-                        item["Id"] = "DMP-" + DetentionMasterProcessId + "-" + (1);
-                        item["DetentionMasterId"] = DetentionMasterId;
-                        item["ProcessId"] = item["ProcessId"];
-
-                        AddNewRow(dsMasterOrder.Tables[0], item);
-                    }
-
-                }
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMasterOrder);
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
+            string sql = @"SELECT *,
+(select UserName from SCS.UnitOfMeasurement where Active=1 and Id=UOMId) as UOM,
+(select StandardName from MST.MaterialMasterArticle where Id=ArticleId) as Article
+FROM [TRN].[MaintenanceStoresConsumable] where Id ='" + StoresId + "'";
+            return Json(new { Stores = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
-        #endregion -- Operations
+        [Authorize, HttpGet]
+        public ActionResult LoadBudgetCodeEditData(string BudgetCodeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select MPB.Id,MPB.SNO,MPB.PersonBudgetCodeId,MPB.[Group],MPB.AddedBy,MPB.AddedDate,MPB.AddedFromIP,MPB.UpdatedBy,MPB.UpdatedDate,MPB.UpdatedFromIP,MP.Id ManPowerBudgetId, MP.Code as PersonBudgetCode, E.UserName Entity, P.UserName Position,P.Activity,
+DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.UserName AS [LegalDesignation] from [TRN].[MaintenancePersonBudgetCode] MPB
+                            left join MST.ManpowerBudget MP on MP.Id=MPB.PersonBudgetCodeId
+						    left join ORG.Entity E on E.Id = MP.EntityId
+                            left join ORG.Position P on P.Id = MP.PositionId
+							left join EmployeeInformation EI on EI.BudgetCode=MP.Id and EI.EmployeeStatus='Active'
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            where MP.Active = 1 and  MPB.Id ='" + BudgetCodeId + "'";
+            return Json(new { PersonBudget = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpGet]
         public ActionResult LoadMaintenanceMasterList()
@@ -519,43 +398,61 @@ namespace Aplos.Areas.Machines.Controllers
                             FROM [Trn].[MaintenanceScheduling] MS";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
-        //[Authorize, HttpGet]
-        //public ActionResult LoadMaintenanceList(string ScheduleID)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    string sql = @"SELECT * ,(select MP.Code from MST.ManpowerBudget MP where MP.Id=MS.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
-        //                    (select UserName from MST.MachineMaster where Id=MS.MachineMasterId) as MachineName
-        //                    FROM [Trn].[MaintenanceScheduling] MS where MS.Id='" + ScheduleID + @"'";
-        //    return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        //}
         [Authorize, HttpGet]
-        public ActionResult LoadMachineDetails(string Id)
+        public ActionResult LoadMachineDetails(string MachineId, string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN MMA.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMA.Id,MMA.SNO,MMA.AssetGroup,MMA.Remarks,MMA.MaintenanceSchedulingId,
-MA.Id as AssetId,MA.AssetName,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA.MachineMasterId,MM.UserName as MachineName
+MA.Id as AssetId,MA.AssetName,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA.MachineMasterId,
+MM.UserName as MachineName,MA.AssetCode,E.UserName as Entity,MA.EntityId
  from MachineMasterAsset MA
  left Join SCS.WorkCenterMaster WC On WC.id=MA.WorkCenterMasterId
  left Join MST.MachineMaster MM ON MM.Id=MA.MachineMasterId
- left Join [TRN].[MaintenanceMachineAsset] MMA ON MMA.AssetId=MA.Id where MA.MachineMasterId='"+ Id +"'";
+ left Join ORG.Entity E on E.Id=MA.EntityId
+ left Join [TRN].[MaintenanceMachineAsset] MMA ON MMA.AssetId=MA.Id where MA.MachineMasterId='" + MachineId + "' and MMA.MaintenanceSchedulingId='" + ScheduleId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public ActionResult LoadItemDetails()
+        public ActionResult LoadItemDetails(string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,CASE IsAvoidable WHEN 1 THEN 'Yes' ELSE 'No' END Avoidable,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson,
-                            (select UserName from [HKP].[DetentionType] where Id=DetentionTypeId) as DetentionType
-                            FROM DetentionMaster";
+            string sql = @"SELECT *,
+(select EmployeeName from EmployeeInformation where SystemId=ByWhomId) as ByWhom
+FROM [TRN].[MaintenanceItem] where MaintenanceSchedulingId ='" + ScheduleId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public ActionResult LoadStoresDetails()
+        public ActionResult getParameterData(string ItemId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,CASE IsAvoidable WHEN 1 THEN 'Yes' ELSE 'No' END Avoidable,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson,
-                            (select UserName from [HKP].[DetentionType] where Id=DetentionTypeId) as DetentionType
-                            FROM DetentionMaster";
+            string sql = @"SELECT * FROM ItemParameterDetails where ItemId ='" + ItemId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public ActionResult LoadStoresDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT *,
+(select UserName from SCS.UnitOfMeasurement where Active=1 and Id=UOMId) as UOM,
+(select StandardName from MST.MaterialMasterArticle where Id=ArticleId) as Article
+FROM [TRN].[MaintenanceStoresConsumable] where MaintenanceSchedulingId ='" + ScheduleId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public ActionResult LoadBudgetCodeDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select MPB.Id,MPB.SNO,MPB.PersonBudgetCodeId,MPB.[Group],MPB.AddedBy,MPB.AddedDate,MPB.AddedFromIP,MPB.UpdatedBy,MPB.UpdatedDate,MPB.UpdatedFromIP,MP.Id ManPowerBudgetId, MP.Code as PersonBudgetCode, E.UserName Entity, P.UserName Position,P.Activity,
+DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.UserName AS [LegalDesignation] from [TRN].[MaintenancePersonBudgetCode] MPB
+                            left join MST.ManpowerBudget MP on MP.Id=MPB.PersonBudgetCodeId
+						    left join ORG.Entity E on E.Id = MP.EntityId
+                            left join ORG.Position P on P.Id = MP.PositionId
+							left join EmployeeInformation EI on EI.BudgetCode=MP.Id and EI.EmployeeStatus='Active'
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            where MP.Active = 1 and MPB.MaintenanceSchedulingId ='" + ScheduleId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
@@ -611,341 +508,218 @@ MA.Id as AssetId,MA.AssetName,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA
                 throw (ex);
             }
         }
-        [HttpPost]
-        public JsonResult CreateDepartment(List<Dictionary<string, object>> data, string DetentionMasterId)
+        [HttpPost, Authorize]
+        public JsonResult CreateItem(Dictionary<string, object> ItemData, string Pid)
         {
             try
             {
-                SaveDepartmentData(data, DetentionMasterId);
 
-                return Json(new { Message = AplosMessage.Insert });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, ex.Message });
-            }
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceItem] where Id<>'" + ItemData["Id"] + "'", out DataSet dsMaintenanceItemValidation, false, "1");
 
-        }
-        private void SaveDepartmentData(List<Dictionary<string, object>> data, string DetentionMasterId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMasterOrder;
-            string id = string.Empty;
-            try
-            {
-                string mosql = "SELECT * FROM DetentionMasterDepartment WHERE DetentionMasterId ='" + DetentionMasterId + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+                //if (dsDetentionMaster.Tables[0].Rows.Count>0)
+                //{
+                //    throw new Exception("Code Already Exist.");
+                //}
 
-                string cId = string.Empty;
-                string DetentionMasterDepartmentId = "";
+                DataSet dsMaintenanceItem;
 
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceItem] where Id='" + ItemData["Id"] + "'", out dsMaintenanceItem, false, "1");
+                string _Id = "";
 
-                foreach (var item in data)
+                #region data update
+                if (dsMaintenanceItem.Tables[0].Rows.Count == 0)
                 {
-
-                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                    if (dv.Count == 0)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("DetentionMasterDepartment", out DetentionMasterDepartmentId);
-
-                        item["Id"] = "DMD-" + DetentionMasterDepartmentId + "-" + (1);
-                        item["DetentionMasterId"] = DetentionMasterId;
-                        item["DepartmentId"] = item["DepartmentId"];
-
-                        AddNewRow(dsMasterOrder.Tables[0], item);
-                    }
-
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("MaintenanceItem", out _Id);
+                    _Id = "MI" + _Id;
+                    ItemData["Id"] = _Id;
+                    ItemData["MaintenanceSchedulingId"] = Pid;
+                    AddNewRow(dsMaintenanceItem.Tables[0], ItemData);
                 }
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMasterOrder);
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        [HttpPost]
-        public JsonResult CreateMachine(List<Dictionary<string, object>> data, string DetentionMasterId)
-        {
-            try
-            {
-                SaveMachineData(data, DetentionMasterId);
-
-                return Json(new { Message = AplosMessage.Insert });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, ex.Message });
-            }
-
-        }
-
-        [HttpPost]
-        public JsonResult CreateResponsible(List<Dictionary<string, object>> data, string DetentionMasterId)
-        {
-            try
-            {
-                SaveResponsibleData(data, DetentionMasterId);
-
-                return Json(new { Message = AplosMessage.Insert });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, ex.Message });
-            }
-
-        }
-        private void SaveMachineData(List<Dictionary<string, object>> data, string DetentionMasterId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMasterOrder;
-            string id = string.Empty;
-            try
-            {
-                string mosql = "SELECT * FROM DetentionMasterMachine WHERE DetentionMasterId ='" + DetentionMasterId + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
-
-                string cId = string.Empty;
-                string DetentionMasterMachineId = "";
-
-                foreach (var item in data)
+                else
                 {
-                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                    if (dv.Count == 0)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("DetentionMasterMachine", out DetentionMasterMachineId);
-
-                        item["Id"] = "DMM-" + DetentionMasterMachineId + "-" + (1);
-                        item["DetentionMasterId"] = DetentionMasterId;
-                        item["MachineMasterId"] = item["MachineMasterId"];
-
-                        AddNewRow(dsMasterOrder.Tables[0], item);
-                    }
-
+                    _Id = ItemData["Id"].ToString();
+                    ItemData["MaintenanceSchedulingId"] = Pid;
+                    EditRow(dsMaintenanceItem.Tables[0].Rows[0], ItemData);
                 }
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMasterOrder);
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
+                #endregion data update
 
-        private void SaveResponsibleData(List<Dictionary<string, object>> data, string DetentionMasterId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMasterOrder;
-            string id = string.Empty;
-            try
-            {
-                string mosql = "SELECT * FROM DetentionMasterResponsible WHERE DetentionMasterId ='" + DetentionMasterId + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
 
-                string cId = string.Empty;
-                string DetentionMasterResponsibleId = "";
 
-                foreach (var item in data)
-                {
-                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaintenanceItem);
 
-                    if (dv.Count == 0)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("DetentionMasterResponsible", out DetentionMasterResponsibleId);
+                return Json(new { Error = false, Data = ItemData, Message = AplosMessage.Insert });
 
-                        item["Id"] = "DMR-" + DetentionMasterResponsibleId + "-" + (1);
-                        item["DetentionMasterId"] = DetentionMasterId;
-                        item["ResponsibleMasterId"] = item["ResponsibleMasterId"];
-
-                        AddNewRow(dsMasterOrder.Tables[0], item);
-                    }
-
-                }
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMasterOrder);
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        [Authorize, HttpGet]
-        public JsonResult GetEmployeeListInChargePerson(GridParameter parameters)
-        {
-            try
-            {
-                parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
-                                    , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
-                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
-                            FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
-                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.Section SS ON SS.Id=EI.SubSectionId
-                            WHERE EI.EmployeeStatus='Active'";
-
-                return Json(_sqlRepository.GetGridData(parameters), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        [Authorize, HttpGet]
-        public JsonResult GetDetentionTypeList()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"Select  UserName As Text, Id As Value from [HKP].[DetentionType]";
-
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost]
-        public JsonResult CreateProcessParameter(Dictionary<string, object> data, IEnumerable<DetentionMasterMachineParameterFormulaDetail> details)
-        {
-            try
-            {
-                SaveCostingSOTemplateData(data, details);
-                return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
 
                 return Json(new { Error = true, Message = ex.Message });
+
             }
-
         }
-
-        private void SaveCostingSOTemplateData(Dictionary<string, object> data, IEnumerable<DetentionMasterMachineParameterFormulaDetail> details)
+        [HttpPost, Authorize]
+        public JsonResult CreateParameter(Dictionary<string, object> ParameterData, string Pid)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
             try
             {
-                if (data != null)
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from ItemParameterDetails where Id<>'" + ParameterData["Id"] + "'", out DataSet dsItemParameterDetailsValidation, false, "1");
+
+                //if (dsDetentionMaster.Tables[0].Rows.Count>0)
+                //{
+                //    throw new Exception("Code Already Exist.");
+                //}
+
+                DataSet dsItemParameterDetails;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from ItemParameterDetails where Id='" + ParameterData["Id"] + "'", out dsItemParameterDetails, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsItemParameterDetails.Tables[0].Rows.Count == 0)
                 {
-                    string _Id = "";
-
-                    DataSet dsMaster, dsDestination = null;
-                    DataRow drF;
-                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                    con.OpenDataSetThroughAdapter("select * from DetentionMasterMachineParameter where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "' AND DetentionMasterId='" + data["DetentionMasterId"] + "'", out dsMaster, false, "1");
-                    if (dsMaster.Tables[0].Rows.Count > 0)
-                        throw new Exception("UserName already exists!!!");
-
-
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DetentionMasterMachineParameter WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where DetentionMasterMachineParameterId='" + data["Id"] + "'", out dsDestination, false, "1");
-
-                    if (data["EntryState"].ToString() == "Entry")
-                    {
-                        data["Formula"] = DBNull.Value;
-                        data["FormulaId"] = DBNull.Value;
-
-
-                        while (dsDestination.Tables[0].DefaultView.Count > 0)
-                            dsDestination.Tables[0].DefaultView[0].Delete();
-                    }
-
-
-                    if (dsMaster.Tables[0].Rows.Count == 0)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(DetentionMasterMachineParameter), out _Id);
-
-                        data["Id"] = _Id;
-                        AddNewRow(dsMaster.Tables[0], data);
-                    }
-                    else
-                    {
-                        _Id = data["Id"].ToString();
-                        EditRow(dsMaster.Tables[0].Rows[0], data);
-                    }
-
-                    string Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-                    #region NoticePeriodFormulaDetail 
-
-                    if (data["EntryState"].ToString() == "Calculate")
-                    {
-                        while (dsDestination.Tables[0].DefaultView.Count > 0)
-                            dsDestination.Tables[0].DefaultView[0].Delete();
-                        int count = 0;
-                        if (details != null)
-                        {
-
-                            foreach (var item in details)
-                            {
-                                drF = dsDestination.Tables[0].NewRow();
-                                count++;
-                                string pk = _Id + "_" + count;
-                                drF["Id"] = pk;
-                                drF["DetentionMasterMachineParameterId"] = _Id;
-                                drF["Sequence"] = item.Sequence;
-                                drF["DetentionMasterMachineParameterHeadId"] = item.DetentionMasterMachineParameterHeadId;
-                                drF["Component"] = item.Component;
-
-                                dsDestination.Tables[0].Rows.Add(drF);
-                            }
-
-                        }
-                    }
-                    #endregion NoticePeriodFormulaDetail 
-
-                    clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster, dsDestination);
-
-
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("ItemParameterDetails", out _Id);
+                    _Id = "IPD" + _Id;
+                    ParameterData["Id"] = _Id;
+                    ParameterData["ItemId"] = Pid;
+                    AddNewRow(dsItemParameterDetails.Tables[0], ParameterData);
                 }
+                else
+                {
+                    _Id = ParameterData["Id"].ToString();
+                    ParameterData["ItemId"] = Pid;
+                    EditRow(dsItemParameterDetails.Tables[0].Rows[0], ParameterData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsItemParameterDetails);
+
+                return Json(new { Error = false, Data = ParameterData, Message = AplosMessage.Insert });
+
             }
             catch (Exception ex)
             {
-                throw (ex);
+
+                return Json(new { Error = true, Message = ex.Message });
+
             }
         }
-
-
-        public class DetentionMasterMachineParameter
+        [HttpPost, Authorize]
+        public JsonResult CreateStores(Dictionary<string, object> StoresData, string Pid)
         {
-            public string Id { get; set; }
-            public string FormulaDes { get; set; }
-            public string FormulaDesID { get; set; }
-            public string AddedBy { get; set; }
-            public DateTime AddedDate { get; set; }
-            public string AddedFromIP { get; set; }
-            public string UpdatedBy { get; set; }
-            public DateTime UpdatedDate { get; set; }
-            public string UpdatedFromIP { get; set; }
+            try
+            {
 
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceStoresConsumable] where Id<>'" + StoresData["Id"] + "'", out DataSet dsMaintenanceStoresConsumableValidation, false, "1");
+
+                //if (dsDetentionMaster.Tables[0].Rows.Count>0)
+                //{
+                //    throw new Exception("Code Already Exist.");
+                //}
+
+                DataSet dsMaintenanceStoresConsumable;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceStoresConsumable] where Id='" + StoresData["Id"] + "'", out dsMaintenanceStoresConsumable, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsMaintenanceStoresConsumable.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("MaintenanceStoresConsumable", out _Id);
+                    _Id = "MSC" + _Id;
+                    StoresData["Id"] = _Id;
+                    StoresData["MaintenanceSchedulingId"] = Pid;
+                    AddNewRow(dsMaintenanceStoresConsumable.Tables[0], StoresData);
+                }
+                else
+                {
+                    _Id = StoresData["Id"].ToString();
+                    StoresData["MaintenanceSchedulingId"] = Pid;
+                    EditRow(dsMaintenanceStoresConsumable.Tables[0].Rows[0], StoresData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaintenanceStoresConsumable);
+
+                return Json(new { Error = false, Data = StoresData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
         }
-
-        public class DetentionMasterMachineParameterFormulaDetail
+        [HttpPost, Authorize]
+        public JsonResult createBudgetCode(Dictionary<string, object> BudgetCodeData, string Pid)
         {
-            public string Id { get; set; }
-            public decimal Sequence { get; set; }
-            public string Component { get; set; }
-            public string DetentionMasterMachineParameterId { get; set; }
-            public string DetentionMasterMachineParameterHeadId { get; set; }
+            try
+            {
 
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenancePersonBudgetCode] where Id<>'" + BudgetCodeData["Id"] + "'", out DataSet dsMaintenancePersonBudgetCodeValidation, false, "1");
+
+                //if (dsDetentionMaster.Tables[0].Rows.Count>0)
+                //{
+                //    throw new Exception("Code Already Exist.");
+                //}
+
+                DataSet dsMaintenancePersonBudgetCode;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenancePersonBudgetCode] where Id='" + BudgetCodeData["Id"] + "'", out dsMaintenancePersonBudgetCode, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsMaintenancePersonBudgetCode.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("MaintenancePersonBudgetCode", out _Id);
+                    _Id = "MPB" + _Id;
+                    BudgetCodeData["Id"] = _Id;
+                    BudgetCodeData["MaintenanceSchedulingId"] = Pid;
+                    AddNewRow(dsMaintenancePersonBudgetCode.Tables[0], BudgetCodeData);
+                }
+                else
+                {
+                    _Id = BudgetCodeData["Id"].ToString();
+                    BudgetCodeData["MaintenanceSchedulingId"] = Pid;
+                    EditRow(dsMaintenancePersonBudgetCode.Tables[0].Rows[0], BudgetCodeData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaintenancePersonBudgetCode);
+
+                return Json(new { Error = false, Data = BudgetCodeData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
         }
+        #endregion -- Operations
     }
 }
