@@ -96,22 +96,6 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
         return string;
     }
 
-    //$scope.getData = function () {
-    //    $scope.filterComplete();
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + "GetList",
-    //        data: { column: $scope.searchBy, value: $scope.search, 'parameters': $scope.parameters },
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-
-    //        $scope.ModelList = response.data;
-    //    });
-    //}
-    // $scope.getData();
-
-    //#endregion
-
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.getBOQStatusReport = function () {
         $scope.filterComplete();
