@@ -388,7 +388,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         try {
             $http({
                 method: 'GET',
-                url: 'Productions/PlanningTypesNew/GetWorkCenterList?processId=' + $scope.planningTypesNew.BaseProcessId + '&subprocessId=' + $scope.planningTypesNew.SubProcessId
+                url: 'Productions/PlanningTypesNew/GetWorkCenterList?processId=' + $scope.planningTypesNew.BaseProcessId + '&subprocessId=' + $scope.planningTypesNew.SubProcessId + '&PlantId=' + $scope.planningTypesNew.PlantId + '&PlanningTypesId=' + $scope.planningTypesNew.Id
             }).then(function successCallback(res) {
                 $scope.workCenterList = res.data;
             });
@@ -398,6 +398,10 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    }
+
+    $scope.EditPlanWC = function (obj) {
+        $scope.modelWCNew = Object.assign({}, obj.data);
     }
 
     //$scope.refreshTemplateWC = function (args) {

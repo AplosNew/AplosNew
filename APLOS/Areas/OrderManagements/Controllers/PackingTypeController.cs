@@ -105,6 +105,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PackingType='" + data["PackingType"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same PackingType already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 

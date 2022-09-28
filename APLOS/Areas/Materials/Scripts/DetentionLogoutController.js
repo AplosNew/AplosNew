@@ -11,11 +11,10 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'Delete';
-
+    $scope.DepartmentList = [];
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
-
 
     };
     $scope.isSet = function (tabNum) {
@@ -32,11 +31,25 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
             url: $scope.path + 'getDetentionLogGrid',
         }).then(function successCallback(response) {
             $scope.DetentionLogGridList = response.data;
+            
         })
     }
     $scope.getDetentionLogGrid();
 
+    $scope.DetLogResPersonList = [];
+    $scope.getDetentionLogResponsiblePerson = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getDetentionLogResponsiblePerson',
+            data: {
+                'detentionLogId': $scope.ModalNew.Id,
+            }
+        }).then(function successCallback(response) {
+            $scope.DetLogResPersonList = [];
+            $scope.DetLogResPersonList = response.data;
 
+        })
+    }
 
     // #region Detention Log update
     var LogTime = new Date();
@@ -47,11 +60,24 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
         CellPhnNo: null,
         IssueByNo: null,
         Remarks: null,
-        LogTime: LogTime,
-        EmployeeName:null,
+        LoginTime: LogTime,
+        EmployeeName: null,
+        isUpdate: false,
+        isClose: false,
+        LogoutTime: LogTime,
+        ByWhom:null,
     };
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
+    $scope.getByWhom = function () {
+        $http({
+            method: "POST",
+            url: $scope.path + 'getByWhom',
+        }).then(function successCallBack(response) {
+            $scope.ModalNew.ByWhom = response.data[0].ByWhom;
+        })
+    }
+    //$scope.getByWhom();
 
     //-------------------------------------------------------------------
 
@@ -75,16 +101,6 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
         });
     }
 
-
-    //$scope.ResponsiblePersonId = null;
-    //$scope.ResponsiblePersonName = null;
-
-    //$scope.doubleResponsible = function (e) {
-    //    $scope.ResponsiblePersonId = e.data.ResponsiblePersonId;
-    //    $scope.ResponsiblePersonName = e.data.ResponsiblePerson;
-    //    angular.element(document.querySelector('#ResponiblePersonPop')).modal('hide');
-    //    //$scope.getRespPersonContactNo();
-    //}
 
     $scope.closeResponsiblePopUp = function () {
         angular.element(document.querySelector('#ResponiblePersonPop')).modal('hide');
@@ -133,13 +149,19 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getIssueByNo();
 
-
+    $scope.LogoutTime = null;
+    $scope.UpdateTime = null;
     $scope.Get = function (args) {
 
         $scope.ModalNew = Object.assign({}, args.data);
         $scope.ModalNew.EmployeeName = args.data.EmployeeName;
+        $scope.LogoutTime = LogTime;
+        $scope.UpdateTime = LogTime;
+        $scope.ModalNew.Id = args.data.Id;
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
+            $scope.getDetentionLogResponsiblePerson();
+            $scope.getByWhom();
             $rootScope.toggle();
            
         }
@@ -148,10 +170,11 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     $scope.Save = function () {
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLog/Save',
+            url: 'Materials/DetentionLogout/Save',
             data: {
                 'data': $scope.ModalNew,
                 'ResponsiblePersonId': $scope.ResponsiblePersonId,
+                'detentionLogId': $scope.ModalNew.Id
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -159,6 +182,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
                 ShowResult(response.data.Message, 'failure');
             }
             else {
+                $scope.SaveResponsiblePerson();
                 ShowResult(response.data.Message, 'success');
 
             }
@@ -168,8 +192,226 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     }
     // #endregion Detention Log update
 
+    $scope.Submit = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/DetentionLogout/saveDtentionLogout',
+            data: {
+                'data': $scope.ModalNew,
+                'ResponsiblePersonId': $scope.ResponsiblePersonId,
+                'detentionLogId': $scope.ModalNew.Id,
+                'logouttime': $scope.LogoutTime
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+               // $scope.SaveResponsiblePerson();
+                angular.element(document.querySelector('#myModal')).modal('hide');
+                ShowResult(response.data.Message, 'success');
 
-   
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    }
+
+    $scope.removeDetentionLResPerson = function (name, index, listName, tempId, listId) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.listName = listName;
+            $scope.tempDeptId = tempId;
+            $scope.listId = listId;
+            $scope.message_confirmation = "Are you sure you want to delete [" + name + "] permanently ?";
+            angular.element(document.querySelector('#confirmRemoveDetentionLRPersonPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.removeDetentiontRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/DetentionLogout/DetentionLogRespPerDelete?Id=' + $scope.tempDeptId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getDetentionLogResponsiblePerson();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    // Check Responsible Person and in anothore grid
+    //-------------------------------------------------------------------------
+    $scope.chkdResponsiblePersonList = [];
+    $scope.ResponsiblePersonGridAllCheck = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        for (var i = 0; i < $scope.ResponsibleList.length; i++) {
+            $scope.ResponsibleList[i].chk = ChkOrUnchk;
+            $scope.chkdResponsiblePersonList = $scope.ResponsibleList[i].chk;
+        }
+
+        var gridObj = $("#GridResponsible").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+
+    function checkResponsiblePersonExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Id === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    $scope.SendResponsiblePerson = function () {
+        if (baseService.arrayLength($scope.ResponsibleList) > 0) {
+            angular.forEach($scope.ResponsibleList, function (a) {
+                
+                if (a.chk) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.ResponsiblePersonId = a.ResponsiblePersonId;
+                    ob.EmployeeCode = a.EmployeeCode;
+                    ob.EmployeeName = a.ResponsiblePerson;
+                    ob.CellPhnNo = a.CellPhnNo;
+                    ob.Department = a.Department;
+                    ob.Section = a.Section;
+                    ob.SubSection = a.SubSection;
+                    ob.LegalDesignation = a.LegalDesignation;
+                    
+                    $scope.userResponsiblePersonList.push(ob);
+                    ob = {};
+                }
+                //}
+
+            });
+        }
+
+        $scope.$broadcast('show-errors-check-validity');
+
+
+
+        $scope.closeResponsiblePopUp();
+
+    };
+
+
+    //-------------------------------------------------------------------------
+    //$scope.chkdResponsiblePersonList = [];
+    //$scope.ResponsiblePersonGridAllCheck = function (args) {
+    //    $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    //};
+
+    //function CheckBoxSelectAll(e) {
+
+
+    //    var ChkOrUnchk = false;
+    //    if (e.model.checkState === "check") {
+    //        ChkOrUnchk = true;
+    //    }
+
+    //    for (var i = 0; i < $scope.ResponsibleList.length; i++) {
+    //        $scope.ResponsibleList[i].chk = ChkOrUnchk;
+    //        $scope.chkdResponsiblePersonList = $scope.ResponsibleList[i].chk;
+    //    }
+
+    //    var gridObj = $("#GridResponsible").data("ejGrid");
+    //    gridObj.refreshContent();
+    //};
+
+
+
+    //function checkResponsiblePersonExist(list, Id) {
+    //    for (var i = 0; i < list.length; i++) {
+    //        if (list[i].Id === Id) {
+    //            return true;
+    //        }
+    //    }
+    //    return false;
+    //}
+
+
+    $scope.SaveResponsiblePerson = function () {
+        try {
+
+            if (baseService.arrayLength($scope.BudgetCodeList) > 0) {
+                angular.forEach($scope.ResponsibleList, function (a) {
+                    if (checkResponsiblePersonExist($scope.userResponsiblePersonList, a.Id) === false) {
+                        if (a.chk) {
+                            var ob = {};
+                            ob.Id = null;
+                            //ob.EmployeeCode = a.EmployeeCode;
+                            //ob.EmployeeName = a.ResponsiblePerson;
+                            //ob.Department = a.Department;
+                            //ob.Section = a.Section;
+                            //ob.SubSection = a.SubSection;
+                            //ob.LegalDesignation = a.LegalDesignation;
+
+                            $scope.userResponsiblePersonList.push(ob);
+                            ob = {};
+                        }
+                    }
+
+                });
+            }
+
+            $scope.$broadcast('show-errors-check-validity');
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'saveDtentionLogResPerson',
+                data: {
+                    'data': $scope.userResponsiblePersonList,
+                    'detentionLogId': $scope.ModalNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+        $scope.closeResponsiblePopUp();
+    };
+    //-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+
+
+
 }
 //-----------------------------------------------------------------------------------
 

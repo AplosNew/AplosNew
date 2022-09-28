@@ -40,6 +40,17 @@
                 <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
             </div>
         </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Packing Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select submit-="true" ng-model="ModelNew.PackingType" class="form-control" name="Packing Type"
+                            ng-options="item.Value as item.Text for item in PackingTypesList" tabindex="10" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">

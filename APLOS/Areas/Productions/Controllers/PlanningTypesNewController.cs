@@ -276,16 +276,19 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetWorkCenterList(string processId, string subprocessId)
+        public ActionResult GetWorkCenterList(string processId, string subprocessId, string PlantId,string PlanningTypesId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT WCM.Id AS WorkCenterMasterId,e.UserName AS Entity,p.UserName AS Plant
-	                             , WCM.EntityId, WCM.Code, WCM.UserName,WCM.Capacity,WCM.UoMId,uom.Code UOM
-                            FROM SCS.WorkCenterMaster AS WCM
-                            INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
-                            INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
-                            LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = WCM.UoMId
-                            WHERE WCM.Active=1 AND WCM.PlantId='" + identity.PlantId + "' AND WCM.ProcessId='" + processId + "'  AND ISNULL(WCM.Id,'') IN(SELECT WorkCenterMasterId FROM [SCS].[WorkCenterMasterSubProcess] WHERE SubProcessId='"+ subprocessId + "') order by p.userName, e.UserName,WCM.sequence";
+, WCM.EntityId, WCM.Code, WCM.UserName,WCM.Capacity,WCM.UoMId,uom.Code UOM
+FROM SCS.WorkCenterMaster AS WCM
+INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
+INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
+LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = WCM.UoMId
+WHERE WCM.Active=1 AND WCM.PlantId='"+ PlantId + @"' AND WCM.ProcessId='"+ processId + @"'  
+AND ISNULL(WCM.Id,'') IN
+(SELECT WorkCenterMasterId FROM [SCS].[WorkCenterMasterSubProcess] WHERE SubProcessId='"+ subprocessId + @"') 
+AND WCM.Id NOT IN(Select WorkCenterMasterId from [dbo].[PlanningTypesWorkCenter] Where PlanningTypesId='"+ PlanningTypesId + @"')
+order by p.userName, e.UserName,WCM.sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
