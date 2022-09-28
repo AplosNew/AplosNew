@@ -50,9 +50,29 @@ namespace Aplos.Areas.Organizations.Controllers
         {
             return View();
         }
-
         [HttpGet, Authorize]
-        public ActionResult getPostionWMPSFilters()
+        public ActionResult getPostionWMPSData()
+        {
+            try
+            {
+                var sql = @"select P.IsDirect,EC.Id EmpoyeeCategoryId,EC.UserName EmpoyeeCategory,'' CriticalityLevel,P.UserReportGroup
+							,EN.Id EntityId,EN.UserName Entity,PL.Id PlantId,PL.UserName Plant
+							from ORG.Position P
+							left join MST.DesignationMaster DGM on DGM.DesignationId=P.DesignationId
+							left join [HKP].[EmployeeCategory] EC on EC.Id=DGM.EmployeeCategoryId
+							left join [MST].[ManpowerBudget] MB on MB.PositionId=P.Id
+							LEFT JOIN ORG.Entity EN on EN.Id=MB.EntityId
+							LEFT JOIN [ORG].[Plant] PL on PL.Id=EN.PlantId";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        [HttpPost, Authorize]
+        public ActionResult getPostionWMPSSqlData(Dictionary<string,string> parameters)
         {
             try
             {
@@ -101,6 +121,12 @@ namespace Aplos.Areas.Organizations.Controllers
 										LEFT JOIN [ORG].[Section] Sec on Sec.Id=P.SectionId
 										LEFT JOIN [ORG].[SubSection] SubS on SubS.Id=P.SubSectionId";
 
+
+                                        // where P.IsDirect in(" + parameters["IsDirect"] + @")
+                                        //AND EC.EmpoyeeCategoryId in(" + parameters["EmpoyeeCategoryId"] + @")
+                                        //AND P.UserReportGroup in(" + parameters["UserReportGroup"] + @")
+                                        //AND EN.EntityId in(" + parameters["EntityId"] + @")
+                                        //AND PL.PlantId in(" + parameters["PlantId"] + @")";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
