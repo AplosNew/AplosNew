@@ -149,12 +149,14 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getIssueByNo();
 
-
+    $scope.LogoutTime = null;
+    $scope.UpdateTime = null;
     $scope.Get = function (args) {
 
         $scope.ModalNew = Object.assign({}, args.data);
         $scope.ModalNew.EmployeeName = args.data.EmployeeName;
-        $scope.ModalNew.LogoutTime = LogTime;
+        $scope.LogoutTime = LogTime;
+        $scope.UpdateTime = LogTime;
         $scope.ModalNew.Id = args.data.Id;
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -197,7 +199,8 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
             data: {
                 'data': $scope.ModalNew,
                 'ResponsiblePersonId': $scope.ResponsiblePersonId,
-                'detentionLogId': $scope.ModalNew.Id
+                'detentionLogId': $scope.ModalNew.Id,
+                'logouttime': $scope.LogoutTime
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -205,7 +208,8 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $scope.SaveResponsiblePerson();
+               // $scope.SaveResponsiblePerson();
+                angular.element(document.querySelector('#myModal')).modal('hide');
                 ShowResult(response.data.Message, 'success');
 
             }

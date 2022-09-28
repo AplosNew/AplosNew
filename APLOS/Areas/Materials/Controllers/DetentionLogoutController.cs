@@ -92,12 +92,12 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult saveDtentionLogout(Dictionary<string, object> data, string detentionLogId)
+        public JsonResult saveDtentionLogout(Dictionary<string, object> data, string detentionLogId, string logouttime)
         {
 
             try
             {
-                return Json(new { Error = "No", Data = dl.saveDtentionLogout(data, detentionLogId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = dl.saveDtentionLogout(data, detentionLogId, logouttime), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

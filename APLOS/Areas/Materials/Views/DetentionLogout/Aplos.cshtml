@@ -44,9 +44,9 @@
 
 
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Log Time<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Update Time<sup>*</sup></label>
                             <div class="col-sm-6">
-                                <input type="text" ej-timepicker e-value="ModalNew.LoginTime" e-width="100%" e-enabled="false" />
+                                <input type="text" ej-timepicker e-value="UpdateTime" e-width="100%" e-enabled="false" />
                             </div>
                         </div>
                     </div>
@@ -143,16 +143,17 @@
                                 </tbody>
 
                             </table>
-                            <div class="common-btn">
-                                <ul class="list-inline text-right">
-                                    <li>
-                                        <button ng-click="Save();" class="btn"><i class=""></i> Save</button>
-                                    </li>
-                                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
 
-                                </ul>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li>
+                                    <button ng-click="Save();" class="btn"><i class=""></i> Save</button>
+                                </li>
+                                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
 
-                            </div>
+                            </ul>
+
                         </div>
                     </div>
                 </div>
@@ -222,9 +223,9 @@
 
             <div e-column e-field="IssueByNo" e-headertext="Issue By No." e-width="100"></div>
             <div e-column e-field="LoginTime" e-headertext="Log Time" e-width="100"></div>
-            <div e-column e-field="LogoutTime" e-headertext="Logout Time" e-width="100"></div>
+            <div e-column e-field="CloseTime" e-headertext="Logout Time" e-width="100"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
-            <div e-column e-field="isUpdate" e-headertext="isUpdate" e-width="100"></div>
+            <div e-column e-field="isClose" e-headertext="is Close" e-width="100"></div>
         </div>
     </div>
 

@@ -1230,7 +1230,7 @@ WHERE po.Id='" + POID+@"'";
                 document.Replace("{AfterDiscountTotal}", ((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
                 document.Replace("{TotalInWords}", ru.InWord(((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
-                //document.Replace("{TotalInWords}", ru.InWord(dsOrderMaster.Rows[0]["TrnAmount"].ToString()) + dsOrderMaster.Rows[0]["CurrencyId"].ToString(), true, true);
+                document.Replace("{TrnAmount}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
                 TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));

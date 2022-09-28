@@ -3,14 +3,14 @@
 <div id="costingMain"></div>
 
 <div class="row">
-    <div class="col-xs-12 col-sm-12 col-sm-12 ">
-        @*<div id="filters">
-        </div>*@
-        @*<div class="col-md-1 text-right" style="margin-top:20px;">
-            <button type="button" class="btn single-btn" ng-click="getData()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Go</button>
-        </div>*@
+        <div id="filters">
+        </div>
+            <div class="col-md-1 text-right" style="margin-top:20px;">
+                <button type="button" class="btn single-btn" ng-click="getData()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Load</button>
+            </div>
        
-        <div id="PositionEditList" ej-grid e-datasource="filters" e-allowfiltering="true" e-allowscrolling="true" style="color:black;" e-allowsorting="true"
+    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+        <div id="PositionEditList" ej-grid e-datasource="ModelList" e-allowfiltering="true" e-allowscrolling="true" style="color:black;" e-allowsorting="true"
              e-allowResizing="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true"
              e-allowpaging="true" e-enabletouch="true" e-responsive="true" e-allowselection="true" e-filtersettings-filterType="excel">
             <div e-columns>
