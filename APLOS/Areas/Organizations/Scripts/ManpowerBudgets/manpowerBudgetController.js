@@ -1148,6 +1148,16 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
             if (baseService.isUndefinedOrNull($scope.ManpowerBudgetAdditionalPlanNew.ManpowerBudgetId)) {
                 throw "Manpower Budget is required.";
             }
+            if (baseService.isUndefinedOrNull($scope.ManpowerBudgetAdditionalPlanNew.FromDate)) {
+                throw "From Date is required.";
+            }
+
+            if (baseService.isUndefinedOrNull($scope.ManpowerBudgetAdditionalPlanNew.ToDate)) {
+                throw "ToDate is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ManpowerBudgetAdditionalPlanNew.AdditionalPlan)) {
+                throw "Additional Plan is required.";
+            }
             $http({
                 method: 'POST',
                 url: '/Organizations/ManpowerBudget/CreateAdditional',
