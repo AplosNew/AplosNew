@@ -737,6 +737,7 @@
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
+    <Compile Include="Areas\Machines\Controllers\MaintenanceStatusDetailsController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSchedulingController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogoutController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
@@ -2151,6 +2152,7 @@
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
+    <Content Include="Areas\Machines\Scripts\maintenanceStatusDetailsController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogoutController.js" />
@@ -4296,6 +4298,7 @@
     <Content Include="Areas\Materials\Views\DetentionLogout\_DetentionLogout.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionLogout\_MachineUnderStoppage.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionLogout\_Update.cshtml" />
+    <Content Include="Areas\Machines\Views\MaintenanceStatusDetails\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
