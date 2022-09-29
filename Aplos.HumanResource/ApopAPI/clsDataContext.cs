@@ -262,6 +262,7 @@ namespace HRService
                 objCon = null;
             }
         }
+
         // Written by Nitesh end
 
         public void getEmployeeInfo(string EmployeeCode, string CompanyID, out List<EmployeeInfo> DataList)
