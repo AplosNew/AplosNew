@@ -326,16 +326,13 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.StopageList = [];
     $scope.GetStopageInformation = function () {
         try {
-            var eDialog = $("#StoppageInfo").data("ejDialog");
-            eDialog.open();
-
             $http({
                 method: 'GET',
                 url: 'employees/route/GetStopageInformation'
             }).then(function successCallback(response) {
                 $scope.StopageList = response.data;
             });
-
+            angular.element(document.querySelector('#StoppageInfo')).modal('show');
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -384,9 +381,9 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
                 }
             }
 
-            var eDialog = $("#StoppageInfo").data("ejDialog");
-            eDialog.close();
-
+            //var eDialog = $("#StoppageInfo").data("ejDialog");
+            //eDialog.close();
+            angular.element(document.querySelector('#StoppageInfo')).modal('hide');
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -611,7 +608,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     //Stoppage Start By om@r
 
-    $rootScope.title = 'Stoppage';
+    
     $scope.index = -1;
     $scope.path2 = 'employees/Stoppage/';
     $scope.getSeqUrl = 'employees/Stoppage/getautosequence';
