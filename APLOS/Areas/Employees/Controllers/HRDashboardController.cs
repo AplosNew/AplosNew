@@ -27,8 +27,6 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         #endregion Constructor
-
-        
         public ActionResult Aplos()
         {
             return View();

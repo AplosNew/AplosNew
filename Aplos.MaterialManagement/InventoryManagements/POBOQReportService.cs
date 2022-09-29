@@ -1228,9 +1228,9 @@ WHERE po.Id='" + POID+@"'";
                 document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
                 document.Replace("{DiscountAmount}", (DiscountAmount).ToString() + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
                 document.Replace("{AfterDiscountTotal}", ((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
-                //document.Replace("{TotalInWords}", ru.InWord(((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+                document.Replace("{TotalInWords}", ru.InWord(((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
-                //document.Replace("{TotalInWords}", ru.InWord(dsOrderMaster.Rows[0]["TrnAmount"].ToString()) + dsOrderMaster.Rows[0]["CurrencyId"].ToString(), true, true);
+                document.Replace("{TrnAmount}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
                 TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
@@ -1964,9 +1964,9 @@ WHERE po.Id='" + POID+@"'";
             #endregion Total
             ROW++;
             #region Sub Total
-            double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(TrnAmount)", "").ToString())
+            double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(TrnAmount)", "").ToString());
                 //- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
-                + clsStdLib.dbl(dsTax.Compute("SUM(TaxAmount)", "").ToString());
+                //+ clsStdLib.dbl(dsTax.Compute("SUM(TaxAmount)", "").ToString());
             #endregion Total
             ROW++;
             #region Total Payable
@@ -2140,7 +2140,7 @@ WHERE po.Id='" + POID+@"'";
                     ,PO.PartyType
                     ,PO.PartyId
                     ,POD.RefferenceNo
-                    ,isnull(PO.DiscountAmount,0) DiscountAmount
+                    ,isnull(convert(numeric(10,2),PO.DiscountAmount),0) DiscountAmount
                     ,ISNULL(PO.DeliveryInstruction,'') DeliveryInstruction
                     ,ISNULL(PO.SpecialInstruction,'') SpecialInstruction
                     ,Party.UserName VendorName
@@ -2149,7 +2149,7 @@ WHERE po.Id='" + POID+@"'";
                     ,Case When PO.IsNonCreditable = 1 then 'NonCreditable' when Po.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
                     ,PO.CurrencyId
                     ,CRNC.Code AS CurrencyName
-                    ,PO.ToCurrencyRate
+					,isnull(CONVERT(numeric(10,4),PO.ToCurrencyRate),0) ToCurrencyRate
                     ,BASECRNC.Code AS BaseCurrencyName
                     ,PayTerm.UserName PaymentTerm
                     ,MM.UserName MaterialMaster
@@ -2169,24 +2169,24 @@ WHERE po.Id='" + POID+@"'";
                     ,SC.UserName SecondChar
                     ,TC.Id ThirdCharId
                     ,TC.UserName ThirdChar
-                    ,ROUND(POD.TransactionQty, 2) POTransactionQty
-                    ,ROUND(POD.TransactionRate, 4) TransactionRate
-                    ,ROUND((POD.TransactionQty * POD.TransactionRate), 2) AS TrnAmount
-                    ,POD.BaseAmount
-                    ,POD.TotalTaxAmount AS BaseTaxAmount
+                    ,isnull(convert(numeric(10,2),ROUND(POD.TransactionQty,2)),0) POTransactionQty
+                    ,isnull(convert(numeric(10,2),ROUND(POD.TransactionRate,4)),0) TransactionRate
+                    ,isnull(convert(numeric(10,2),ROUND((POD.TransactionQty * POD.TransactionRate),2)),0) AS TrnAmount
+                    ,isnull(convert(numeric(10,2),POD.BaseAmount),0) BaseAmount
+                    ,isnull(convert(numeric(10,2),POD.TotalTaxAmount),0) AS BaseTaxAmount
                     ,REPLACE(Convert(VARCHAR(11), POD.DeliveryDate, 106), ' ', '-') AS DeliveryDate
-                    ,TaxAmount = (
+                    ,TaxAmount =convert(numeric(10,2), (
                     SELECT SUM(TaxAmount)
                     FROM [TRN].[PurchaseOrderTax]
                     WHERE InventoryReceiveDetailId = POD.Id
-                    )
-                    ,ServiceTaxAmount = (
+                    ))
+                    ,ServiceTaxAmount =isnull(convert(numeric(10,2),(
                     SELECT SUM(TotalTaxAmount)
                     FROM [TRN].[POService]
                     WHERE InventoryReceiveId = POD.InventoryReceiveId
-                    )
+                    )),0)
                     ,POD.Description
-                    ,POD.ChargesAmount
+                    ,isnull(convert(numeric(10,2),POD.ChargesAmount),0) ChargesAmount
                     ,POD.CountryId
                     ,POCountry.UserName CountryOfOrigin
                     ,POD.Id PurchaseOrderDetailId

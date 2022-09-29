@@ -167,8 +167,6 @@
                     </ul>
                 </div>
             </div>
-
-            @*<div class="row">*@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class="form-horizontal form-elements" ng-form="routeNewForm">
                     <fieldset class="scheduler-border">
@@ -254,13 +252,12 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Transport Id</th>
+                                            @*<th>Transport Id</th>*@
                                             <th>Transport User Name</th>
-                                            <th>Transport No</th>
-                                            <th>Driver Name</th>
                                             <th>Transport Category</th>
-
+                                            <th>Transport No</th>
                                             <th>Transport Port</th>
+                                            <th>Driver Name</th>
                                             <th>Capacity</th>
                                             <th>Plan Capacity</th>
                                             <th>Speed Per km(In Minute)</th>
@@ -269,13 +266,13 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr ng-repeat="x in transportDetailsList" ng-click="TransportDetailsdoubleclick(x);" ng-class="{selected : x.Id==null}">
-                                            <td>{{x.Id}}</td>
+                                        <tr ng-repeat="x in transportDetailsList" ng-dblclick="TransportDetailsdoubleclick(x);" ng-class="{selected : x.Id==null}">
+                                            @*<td>{{x.Id}}</td>*@
                                             <td>{{x.TransportUserName}}</td>
-                                            <td>{{x.TransportNo}}</td>
-                                            <td>{{x.DriverName}}</td>
                                             <td>{{x.TransportCategory}}</td>
+                                            <td>{{x.TransportNo}}</td>
                                             <td>{{x.TransportPort}}</td>
+                                            <td>{{x.DriverName}}</td>
                                             <td>{{x.Capacity}}</td>
                                             <td>{{x.PlanCapacity}}</td>
                                             <td>{{x.SpeedPerkm}}</td>
@@ -296,9 +293,6 @@
 
                 </div>
             </div>
-
-
-
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 <div class="form-horizontal form-elements" ng-form="routeNewForm">
                     <fieldset class="scheduler-border">
@@ -402,9 +396,6 @@
 
                 </div>
             </div>
-
-
-
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                 <div class="form-horizontal form-elements" ng-form="stoppageNewForm">
                     <fieldset class="scheduler-border">
@@ -530,10 +521,8 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
-
 <div class="modal fade site-modal in" id="ShiftPop" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
@@ -578,11 +567,8 @@
         </div>
     </div>
 </div>
-
 <confirm-archive-generic modalid="confirmTransportDetailsRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeTransportDetailsRow();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmRouteScheduleRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRouteScheduleRow();"></confirm-archive-generic>
-
-
 <div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
         <div class="search-form" ng-show="$root.total_count>0">
@@ -604,12 +590,8 @@
         </div>
     </div>
 </div>
-
 <confirm-modal></confirm-modal>
-
 <confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
-
-
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridM" ng-init="chkinit2()" ej-grid e-datasource="ModelList" e-recorddoubleclick="recorddoubleclick" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -619,60 +601,47 @@
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="4"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="4"></div>
-            <div e-column e-field="Description" e-headertext="Description" e-width="4"></div>
             <div e-column e-field="From" e-headertext="From" e-width="4"></div>
             <div e-column e-field="To" e-headertext="To" e-width="4"></div>
             <div e-column e-field="Totalkm" e-headertext="Total km" e-width="4"></div>
+            <div e-column e-field="Description" e-headertext="Description" e-width="4"></div>
         </div>
     </div>
 </div>
-
 <confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteRow()"></confirm-archive-generic>
 
-<ej-dialog id="StoppageInfo"
-           title="Stoppage Information"
-           e-enablemodal="true"
-           e-position-y="0"
-           e-showoninit="false"
-           @*e-target=".site-heading"*@
-           e-close="onDialogClose"
-           e-minwidth="75%"
-           e-minheight="400" e-open="enableBtn">
-    <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-12">
-
-            <div id="empInfoGrid" ej-grid e-datasource="StopageList" e-gridlines="vertical"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel">
-
-                <div e-columns>
-                    <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                    <div e-column e-field="Code" e-headertext="Code" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="Sequence" e-headertext="Sequence" e-allowediting="false" e-width="50"></div>
-                    <div e-column e-field="ShortName" e-headertext="Short Name" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="StandardName" e-headertext="Standard Name" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="UserName" e-headertext="User Name" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="Active" e-headertext="Active" e-allowediting="false" e-width="80"></div>
-
+<div class="modal fade site-modal in" id="StoppageInfo" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Stoppage Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div id="empInfoGrid" ej-grid e-datasource="StopageList" e-gridlines="vertical"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-allowediting="false" e-width="50"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Active" e-headertext="Active" e-allowediting="false" e-width="80"></div>
+                    </div>
                 </div>
-
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                </script>
             </div>
-
-            <script type="text/template" id="checkboxTemplate">
-                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
-            </script>
-
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right" ng-show="true">
+                        <li><button ng-click="OK();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
-
-    <div class="common-btn">
-        <ul class="list-inline text-right" ng-show="true">
-            <li><button ng-click="OK();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
-        </ul>
-    </div>
-
-
-</ej-dialog>
+</div>
 
 <div class="modal fade site-modal in" id="RouteScheduleChilPopUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
     <div class="modal-dialog modal-lg">
@@ -766,56 +735,9 @@
     </div>
 </div>
 <confirm-archive-generic modalid="confirmRouteScheduleChildRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRouteScheduleChildRow();"></confirm-archive-generic>
-
-@*<ej-dialog id="RouteSheduleChildInfo"
-               title="Route Shedule Child Information"
-               e-enablemodal="true"
-               e-position-y="0"
-               e-showoninit="false"
-               e-close="onDialogClose"
-               e-minwidth="75%"
-               e-minheight="400" e-open="enableBtn">
-        <div class="row">
-            <div class="col-xs-12 col-sm-6 col-md-12">
-
-                <div id="routeSheduleChildGrid" ej-grid e-datasource="RouteSheduleChildList" e-gridlines="vertical"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="true" e-filtersettings-filterType="excel">
-
-                    <div e-columns>
-                        <div e-column e-field="StartTime" e-headertext="Start Time" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="Sequence" e-headertext="Sequence" e-allowediting="false" e-width="50"></div>
-                        <div e-column e-field="ShortName" e-headertext="Short Name" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="UserName" e-headertext="User Name" e-allowediting="false" e-width="80"></div>
-                        <div e-column e-field="Active" e-headertext="Active" e-allowediting="false" e-width="80"></div>
-
-                    </div>
-
-                </div>
-
-                <script type="text/template" id="checkboxTemplate">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
-                </script>
-
-            </div>
-        </div>
-
-        <div class="common-btn">
-            <ul class="list-inline text-right" ng-show="true">
-                <li><button ng-click="OK();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
-            </ul>
-        </div>
-    </ej-dialog>*@
-
-
-<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation"
-                         message={{message_confirmation}} data-ng-click-right-button="DeleteRow()">
-</confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation"message={{message_confirmation}} data-ng-click-right-button="DeleteRow()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPopUps" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteStoppage();"></confirm-archive-generic>
-@*<confirm-archive-generic modalid="confirmStoppageRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteStoppage();"></confirm-archive-generic>*@
-
 <script type="text/javascript">
     $('[id*=StartTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
         var hours = e.time.hours, //Returns a string

@@ -1457,7 +1457,7 @@ namespace Library.OrderManagement.Costing
                 ROW++;
 
                 report.SetMasterHeaderText(ref sheet, ROW, 1, "Master Order Id");
-                sheet[ROW, 1].ColumnWidth = 15;
+                sheet[ROW, 1].ColumnWidth = 16;
                 sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 report.SetText(ref sheet, ROW, 2, headerData["MasterOrderId"].ToString());
@@ -1544,7 +1544,7 @@ namespace Library.OrderManagement.Costing
                 int colItemRefNo = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Item";
-                //sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].ColumnWidth = 20;
                 int colItemDesc = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Criteria";
@@ -1592,12 +1592,13 @@ namespace Library.OrderManagement.Costing
                 COL++;
 
                 sheet[ROW, COL].Text = "UOM";
-                sheet[ROW, COL].ColumnWidth = 8;
+                //sheet[ROW, COL].ColumnWidth = 8;
                 int colUOM = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "SO Qty";
-                sheet[ROW, COL].ColumnWidth = 18;
+                sheet[ROW, COL].ColumnWidth = 18; 
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colSOQty = COL;
                 COL++;
 
@@ -1619,6 +1620,7 @@ namespace Library.OrderManagement.Costing
                 COL++;
 
                 sheet[ROW, COL].Text = "Unit Rate";
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet[ROW, COL].ColumnWidth = 18;
                 int colUnitRate = COL;
                 COL++;
@@ -1786,6 +1788,7 @@ namespace Library.OrderManagement.Costing
 
 
                 sheet[ROW, COL].Text = "Unit Rate";
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 //int colUnitRate = COL;
                 COL++;
 

@@ -30,16 +30,16 @@ using System.Web.Script.Serialization;
 
 #endregion Using
 
-namespace Aplos.Areas.Costings.Controllers
+namespace Aplos.Areas.Organizations.Controllers
 {
-    public class BOQStatusReportController : BaseController
+    public class PositionWiseMPStatusController : BaseController
     {
 
 
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        public BOQStatusReportController(ISqlRepository R)
+        public PositionWiseMPStatusController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -50,25 +50,89 @@ namespace Aplos.Areas.Costings.Controllers
         {
             return View();
         }
-
         [HttpGet, Authorize]
-        public ActionResult getBOQFilters()
-        
+        public ActionResult getPostionWMPSData()
         {
             try
             {
-                var sql = @"SELECT distinct BOM.CustomerId PartyId,PC.UserName Customer,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.Id MasterOrderId,MOI.Id LineItemId
-							,SO.Id SOId,CPO.PONumber PONo
-                             FROM BOQ  boq
-							  left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
-							  left join trn.SalesOrder SO on SO.CostingBOQMasterId=BOM.Id
-							  left join HKP.Party PC on PC.Id=BOM.CustomerId
-							 left join TRN.MasterOrder MO on MO.PartyId=PC.Id
-                             left  join [TRN].[CustomerPO] CPO on CPO.MasterOrderId=MO.Id
-                             left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId
-                             where BOM.CustomerId <>''  
-							  and moi.OrderCostingMasterTemplateId<>''";
+                var sql = @"select P.IsDirect,EC.Id EmpoyeeCategoryId,EC.UserName EmpoyeeCategory,'' CriticalityLevel,P.UserReportGroup
+							,EN.Id EntityId,EN.UserName Entity,PL.Id PlantId,PL.UserName Plant
+							from ORG.Position P
+							left join MST.DesignationMaster DGM on DGM.DesignationId=P.DesignationId
+							left join [HKP].[EmployeeCategory] EC on EC.Id=DGM.EmployeeCategoryId
+							left join [MST].[ManpowerBudget] MB on MB.PositionId=P.Id
+							LEFT JOIN ORG.Entity EN on EN.Id=MB.EntityId
+							LEFT JOIN [ORG].[Plant] PL on PL.Id=EN.PlantId";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        [HttpPost, Authorize]
+        public ActionResult getPostionWMPSSqlData(Dictionary<string,string> parameters)
+        {
+            try
+            {
+                string urg = "";
+                if (parameters["UserReportGroup"] != "'','null'")
+                {
+                    urg = "AND P.UserReportGroup in(" + parameters["UserReportGroup"] + @")";
+                }
+                
 
+                var sql = @"Select ROW_NUMBER() OVER(ORDER BY B.Id) SlNO,B.Plant,B.Entity,DV.UserName Division,DPT.UserName Department,Sec.UserName Section,SubS.UserName SubSection
+										,DG.UserName Designation,P.Activity,PR.UserName Process,'' Criticality
+                                        ,P.Code PositionCode,B.Deployment,B.MPBgt,B.OnRoll,B.TBS,B.LAbs
+										--,Age=CONVERT(int,((ISNULL(B.MPBgt,0)-NULLIF(B.Deployment,0))/NULLIF(B.Deployment,1))*100)
+										,CurrentAvailable=(ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))
+										,Excess=CASE WHEN (ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))>ISNULL(B.MPBgt,0) THEN (ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))-ISNULL(B.MPBgt,0) ELSE 0 END
+										,Short=CASE WHEN (ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))<ISNULL(B.MPBgt,0) THEN ISNULL(B.MPBgt,0)-(ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0)) ELSE 0 END
+										,B.AdditionalPlan
+										,CurrentPlan=ISNULL(CASE WHEN ISNULL(B.AdditionalPlan,0)=0 THEN ISNULL(B.MPBgt,0) ELSE ISNULL(B.MPBgt,0)+ISNULL(B.AdditionalPlan,0) END,0)
+										,ToReallocate=CASE WHEN (ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))>ISNULL(CASE WHEN ISNULL(B.AdditionalPlan,0)=0 THEN ISNULL(B.MPBgt,0) ELSE ISNULL(B.MPBgt,0)+ISNULL(B.AdditionalPlan,0) END,0)
+															THEN (ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))-ISNULL(CASE WHEN ISNULL(B.AdditionalPlan,0)=0 THEN ISNULL(B.MPBgt,0) ELSE ISNULL(B.MPBgt,0)+ISNULL(B.AdditionalPlan,0) END,0)
+															ELSE 0 END
+										,ToRecurit=CASE WHEN (ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))>ISNULL(CASE WHEN ISNULL(B.AdditionalPlan,0)=0 THEN ISNULL(B.MPBgt,0) ELSE ISNULL(B.MPBgt,0)+ISNULL(B.AdditionalPlan,0) END,0)
+															THEN 0
+															ELSE (ISNULL(CASE WHEN ISNULL(B.AdditionalPlan,0)=0 THEN ISNULL(B.MPBgt,0) ELSE ISNULL(B.MPBgt,0)+ISNULL(B.AdditionalPlan,0) END,0))-(ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0)) END
+
+										from(
+										Select DISTINCT A.Id,MB.PositionId
+										,ISNULL(MB.Deployment,0)Deployment,ISNULL(MBD.TotalNumber,0)MPBgt
+										,ISNULL(EMP.BudgetedManPower,0)OnRoll,ISNULL(TE.TBSEmp,0) TBS,ISNULL(LA.LONGEmp,0) LAbs,ISNULL(MBA.AdditionalPlan,0)AdditionalPlan
+										,EN.UserName Entity,P.UserName Plant,EN.Id EntityId,P.Id PlantId
+
+										FROM (
+										Select MB.Id from MST.ManpowerBudget MB Where MB.Active=1 AND MB.Id IS NOT NULL
+										UNION ALL
+										Select DISTINCT E.BudgetCode Id from EmployeeInformation E Where E.EmployeeStatus='Active' AND E.BudgetCode IS NOT NULL
+										) A 
+										LEFT JOIN MST.ManpowerBudget MB ON MB.Id=A.Id
+										LEFT JOIN ORG.Entity EN on EN.Id=MB.EntityId
+										LEFT JOIN [ORG].[Plant] P on P.Id=EN.PlantId
+
+										LEFT JOIN (Select SUM(TotalNumber)TotalNumber, ManpowerBudgetId from MST.ManpowerBudgetDetail Group BY ManpowerBudgetId) MBD ON MBD.ManpowerBudgetId=A.Id
+										LEFT JOIN (Select SUM(AdditionalPlan)AdditionalPlan, ManpowerBudgetId from [MST].[ManpowerBudgetAdditionalPlan] Group BY ManpowerBudgetId) MBA ON MBA.ManpowerBudgetId=A.Id
+										LEFT JOIN (SELECT Count(BudgetCode)BudgetedManPower,BudgetCode From EmployeeInformation Where EmployeeStatus='Active' Group BY BudgetCode) EMP ON EMP.BudgetCode=A.Id
+										LEFT JOIN (SELECT COUNT(SystemId) TBSEmp,BudgetCode From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='TBS' AND BudgetCode IS NOT NULL GROUP BY BudgetCode) TE ON TE.BudgetCode=A.Id
+										LEFT JOIN (SELECT COUNT(SystemId) LONGEmp,BudgetCode From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='LONG ABSENTEEISM' AND BudgetCode IS NOT NULL GROUP BY BudgetCode) LA ON LA.BudgetCode=A.Id
+										)B
+										LEFT JOIN ORG.Position P ON P.Id=B.PositionId
+										LEFT JOIN ORG.Department DPT ON DPT.Id=P.DepartmentId
+										LEFT JOIN [HKP].[Designation] DG on DG.Id=P.DesignationId
+										LEFT JOIN ORG.Division DV ON DV.Id=P.DivisionId
+										LEFT JOIN [HKP].[Process] PR on PR.Id=P.ProcessId
+										LEFT JOIN [ORG].[Section] Sec on Sec.Id=P.SectionId
+										LEFT JOIN [ORG].[SubSection] SubS on SubS.Id=P.SubSectionId
+                                        left join MST.DesignationMaster DGM on DGM.DesignationId = P.DesignationId
+
+                                         where P.IsDirect in(" + parameters["IsDirect"] + @")
+                                        AND DGM.EmployeeCategoryId in(" + parameters["EmpoyeeCategoryId"] + @")
+                                        " + urg + @"
+                                        AND B.PlantId in(" + parameters["PlantId"] + @")
+                                        AND B.EntityId in(" + parameters["EntityId"] + @")";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -79,14 +143,14 @@ namespace Aplos.Areas.Costings.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetBOQStatusReport(Dictionary<string, string> parameters)
+        public ActionResult GetPositionWiseMPStatusReport(Dictionary<string, string> parameters)
         {
 
             try
             {
-                var workbook = GetBOQStatusReportForm(parameters);
+                var workbook = GetPositionWiseMPStatusReportForm(parameters);
 
-                var strFileName = "BOQ Status Report.xlsx";
+                var strFileName = "Position Wise MP Status Report.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
                 workbook.SaveAs(fullPath);
 
@@ -99,7 +163,7 @@ namespace Aplos.Areas.Costings.Controllers
             }
         }
 
-        private IWorkbook GetBOQStatusReportForm(Dictionary<string, string> parameters)
+        private IWorkbook GetPositionWiseMPStatusReportForm(Dictionary<string, string> parameters)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -589,7 +653,7 @@ namespace Aplos.Areas.Costings.Controllers
                                               AND SO.Id in(" + parameters["SOId"] + @")                                       
                                         AND CPO.PONumber in(" + parameters["PONo"] + @")";
 
-                
+
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
@@ -598,7 +662,7 @@ namespace Aplos.Areas.Costings.Controllers
             }
         }
 
-        public Dictionary<string,object> getBOQStatusReportHeaderSql(Dictionary<string, string> parameters)
+        public Dictionary<string, object> getBOQStatusReportHeaderSql(Dictionary<string, string> parameters)
         {
             try
             {

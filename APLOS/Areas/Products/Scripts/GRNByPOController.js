@@ -394,20 +394,20 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     $scope.ReqAllocation = function (podetail) {
         $scope.RowLength = $filter("filter")($scope.requisitionListByPo, { PODetailId: podetail.PODetailsID });
 
-        for (var i = 0; i < $scope.requisitionListByPo.length; i++) {
-            if ($scope.requisitionListByPo[i].PODetailId == podetail.PODetailsID) {
+        for (var j = 0; j < $scope.requisitionListByPo.length; j++) {
+            if ($scope.requisitionListByPo[j].PODetailId == podetail.PODetailsID) {
                 if ($scope.RowLength.length == 1) {
-                    $scope.requisitionListByPo[i].TransactionQty = podetail.TransactionQty;
-                    $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[i]);
+                    $scope.requisitionListByPo[j].TransactionQty = podetail.TransactionQty;
+                    $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[j]);
                 }
                 else {
-                    if (baseService.isUndefinedOrNull($scope.requisitionListByPo[i].TransactionQty) || $scope.requisitionListByPo[i].TransactionQty == 0) {
-                        ShowResult("Please input Requsition Qty of RowId" + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
+                    if (baseService.isUndefinedOrNull($scope.requisitionListByPo[j].TransactionQty) || $scope.requisitionListByPo[j].TransactionQty == 0) {
+                        ShowResult("Please input Requsition Qty of RowId" + $scope.inventoryMaterialListPO[j].InventoryReceiveDetailId, 'failure');
                         return true;
                         break;
                     } else {
 
-                        $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[i]);
+                        $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[j]);
                     }
                 }
             }
@@ -1858,15 +1858,28 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     }
 
     $scope.requisitionDetailList = [];
-    $scope.ViewRequisitionDetail = function (poDatailId) {
+    $scope.tempPoDetailId = null;
+    $scope.ViewRequisitionDetail = function (poDatailId,poqty) {
         $scope.requisitionDetailList = [];
         $scope.requisitionDetailList = $filter("filter")($scope.requisitionListByPo, { 'PODetailId': poDatailId });
+        $scope.tempPoDetailId = poDatailId;
+        $scope.tempPoqty = poqty;
         angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('show');
 
     }
     $scope.CloseRequisitionPopUP = function () {
-        angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('hide');
 
+
+        var qty = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.requisitionListByPo, { 'PODetailId': $scope.tempPoDetailId })), "TransactionQty") * 1000 + Number.EPSILON) / 1000;
+
+        if ($scope.tempPoqty != qty) {
+            ShowResult('Requisition Allocation Qty is not equal with GRN Qty?', 'failure', 'ListOfRequisitionPopUP');
+        } else {
+            angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('hide');
+            $scope.tempPoDetailId = null;
+            $scope.tempPoqty = null;
+        }
+     
     }
 
     $scope.requisitionListByPo = [];

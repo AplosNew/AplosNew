@@ -27,17 +27,12 @@
                 </div>
             </div>
 
-            @*<div class="form-group">
-                <label class="col-sm-4 control-label">Responsible Per. No.<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Workcenter" ng-model="ModalNew.CellPhnNo" class="form-control" maxlength="200" tabindex="5">
-                </div>
-            </div>*@
+           
 
             <div class="form-group">
                 <label class="col-sm-4 control-label">Log Time<sup>*</sup></label>
                 <div class="col-sm-6">
-                    <input type="text" ej-timepicker e-value="ModalNew.LoginTime" e-width="100%" />
+                    <input type="text" ej-timepicker e-value="ModalNew.LoginTime" e-width="100%" e-enabled="false" />
                 </div>
             </div>
         </div>
@@ -64,19 +59,19 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">Issue By No.<sup>*</sup></label>
                 <div class="col-sm-6">
-                    <input type="text" name="Workcenter" ng-model="ModalNew.IssueByNo" class="form-control" maxlength="200" tabindex="5">
+                    <input type="text" name="Workcenter" ng-model="ModalNew.IssueByNo" ng-disabled="true" class="form-control" maxlength="200" tabindex="5">
                 </div>
             </div>
 
 
-            <div class="common-btn">
+            @*<div class="common-btn">
                 <ul class="list-inline text-right">
                     
                     <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
 
                 </ul>
 
-            </div>
+            </div>*@
         </div>
         
     </div>
@@ -101,9 +96,10 @@
 
     <div class="common-btn">
         <ul class="list-inline text-right">
-           
+
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+
         </ul>
 
     </div>

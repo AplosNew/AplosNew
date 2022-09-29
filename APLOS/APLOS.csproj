@@ -737,6 +737,7 @@
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
+    <Compile Include="Areas\Machines\Controllers\MaintenanceStatusDetailsController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSchedulingController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogoutController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
@@ -755,6 +756,7 @@
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Costings\Controllers\OrderLineCostingItemController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\PackingTypeController.cs" />
+    <Compile Include="Areas\Organizations\Controllers\PositionWiseMPStatusController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxProcessController.cs" />
@@ -2150,6 +2152,7 @@
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
+    <Content Include="Areas\Machines\Scripts\maintenanceStatusDetailsController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogoutController.js" />
@@ -2172,6 +2175,7 @@
     <Content Include="Areas\MeetingManagement\Scripts\meetingManagementConfig.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemController.js" />
     <Content Include="Areas\OrderManagements\Scripts\PackingTypeController.js" />
+    <Content Include="Areas\Organizations\Scripts\PositionWiseMPStatusController.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
@@ -4287,7 +4291,14 @@
     <Content Include="Areas\Productions\Views\ProductionSummary\Report.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionLog\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\MaintenanceScheduling\Aplos.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\PackingType\Aplos.cshtml" />
     <Content Include="Areas\Banks\Views\BankReconciliationDataUploadReconciled.cshtml" />
+    <Content Include="Areas\Organizations\Views\PositionWiseMPStatus\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLogout\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLogout\_DetentionLogout.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLogout\_MachineUnderStoppage.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLogout\_Update.cshtml" />
+    <Content Include="Areas\Machines\Views\MaintenanceStatusDetails\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
