@@ -326,6 +326,9 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.StopageList = [];
     $scope.GetStopageInformation = function () {
         try {
+            if (baseService.isUndefinedOrNull($scope.routeNew.Id)) {
+                throw "Select Route.";
+            }
             $http({
                 method: 'GET',
                 url: 'employees/route/GetStopageInformation'

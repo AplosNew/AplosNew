@@ -376,7 +376,7 @@ namespace Aplos.Areas.Organizations.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from dbo.ManpowerBudgetAdditionalPlan where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from MST.ManpowerBudgetAdditionalPlan where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -425,7 +425,7 @@ namespace Aplos.Areas.Organizations.Controllers
         {
             try
             {
-                string CmdText = @"SELECT * FROM [MST].[ManpowerBudgetAdditionalPlan] WHERE ManpowerBudgetId='" + masterId + "'";
+                string CmdText = @"SELECT A.*,FORMAT(A.FromDate,'dd-MMM-yyyy')FD,FORMAT(A.ToDate,'dd-MMM-yyyy')TD FROM [MST].[ManpowerBudgetAdditionalPlan] A WHERE A.ManpowerBudgetId='" + masterId + "'";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)

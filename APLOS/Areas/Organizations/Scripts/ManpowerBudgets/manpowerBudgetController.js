@@ -1039,6 +1039,7 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         $scope.IsScattedWeekOffApplicable = false;
         $scope.clearPosition();
         $scope.clearEntity();
+        $scope.SavedAdditionalPlanList = [];
     }
 
     $scope.selectMessage = '';
@@ -1192,6 +1193,8 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
     }
 
     $scope.EditPlanAdditionalPlan = function (obj) {
+        obj.data.FromDate = $filter('dateFiltering')(new Date(obj.data.FromDate), 'dd-MM-yyyy');
+        obj.data.ToDate = $filter('dateFiltering')(new Date(obj.data.ToDate), 'dd-MM-yyyy');
         $scope.ManpowerBudgetAdditionalPlanNew = Object.assign({}, obj.data);
     }
 
