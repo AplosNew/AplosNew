@@ -1189,6 +1189,7 @@
     <Compile Include="Controllers\APIAuthenticationForRawData.cs" />
     <Compile Include="Controllers\APIAuthentication.cs" />
     <Compile Include="Controllers\ApopAPIHR\ApopAPIHRController.cs" />
+    <Compile Include="Controllers\ApopAPIHR\DetentionAPIController.cs" />
     <Compile Include="Controllers\AttendanceController.cs" />
     <Compile Include="Controllers\AplosConnectivityController.cs" />
     <Compile Include="Controllers\BookingSaudaController.cs" />

@@ -191,6 +191,79 @@ namespace HRService
                 objCon = null;
             }
         }
+
+        // Written by Nitesh
+        public void getWorkcenter(out List<WorkCenterList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<WorkCenterList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select WM.StandardName, WM.Id from SCS.WorkCenterMaster WM
+                            order by StandardName";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new WorkCenterList
+                    {
+                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void getDetentionType(out List<DetentionTypeList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<DetentionTypeList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct DD.DepartmentId, D.StandardName  from DetentionMasterDepartment DD
+                              left outer join ORG.Department D on D.id = DD.DepartmentId";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new DetentionTypeList
+                    {
+                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
+                        DepartmentId = dsRef.Tables[0].Rows[i]["DepartmentId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        // Written by Nitesh end
+
         public void getEmployeeInfo(string EmployeeCode, string CompanyID, out List<EmployeeInfo> DataList)
         {
             clsConnectionManager objCon = null;
@@ -766,5 +839,21 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string OutTime { get; set; } = "";
         public string DayStatus { get; set; } = "";
     }
+
+    #region Written by Nitesh
+
+    
+    public class WorkCenterList
+    {
+        public string Id { get; set; } = "";
+        public string StandardName { get; set; } = "";
+    }
+
+    public class DetentionTypeList
+    {
+        public string DepartmentId { get; set; } = "";
+        public string StandardName { get; set; } = "";
+    }
+    #endregion Written by Nitesh
 
 }
