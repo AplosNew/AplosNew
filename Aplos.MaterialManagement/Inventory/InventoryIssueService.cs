@@ -1983,6 +1983,58 @@ namespace Library.MaterialManagement.Inventory
                 }
             }
         }
+
+        public void DeleteIssueDetailBOQ(string issueDetailId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                if (voucherId != "null")
+                {
+                    throw new CustomException("Posted voucher  have to delete first!");
+                }
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var builder = new System.Text.StringBuilder();
+                var sql = "";
+                sql = @"UPDATE A SET A.TotalQty=A.TotalQty+B.TransactionQty FROM [TRN].[InventoryMaterial] AS A JOIN [TRN].[InventoryIssueDetail] AS B ON B.InventoryMaterialId=A.Id WHERE B.Id='" + issueDetailId + "'";
+                builder.Append(sql);
+                //sql = @"UPDATE A SET A.IssueQty=A.IssueQty-B.Qty FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryIssueHistory] AS B ON B.InventoryReceiveDetailId=A.Id WHERE B.InventoryIssueDetailId='" + issueDetailId + "'";
+                //builder.Append(sql);
+                sql = @"UPDATE A SET  A.BaseIssueQty=A.BaseIssueQty-B.Qty FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryIssueHistory] AS B ON B.InventoryReceiveDetailId=A.Id WHERE B.InventoryIssueDetailId='" + issueDetailId + "'";
+                builder.Append(sql);
+                sql = @"DELETE [TRN].[InventoryIssueHistoryBOQ] WHERE  InventoryIssueHistoryId in ( select id from trn.InventoryIssueHistory where InventoryIssueDetailId='" + issueDetailId + "')";
+                builder.Append(sql);
+                sql = @"DELETE [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='" + issueDetailId + "'";
+                builder.Append(sql);
+                sql = @"DELETE [TRN].[IssueDetailAndIssueRequestMap] WHERE InventoryIssueDetailId='" + issueDetailId + "'";
+                builder.Append(sql);
+                sql = @"DELETE [TRN].[InventoryIssueDetail]  WHERE Id='" + issueDetailId + "'";
+                builder.Append(sql);
+                _sqlRepository.ExecuteSqlCommand(builder.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
+        }
         public void DeleteSalesDetail(string issueDetailId)
         {
             var flag = false;
@@ -2124,7 +2176,7 @@ namespace Library.MaterialManagement.Inventory
 							,IIh.TotalAmount Amount
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
-							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
+							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo,II.VoucherId
 							FROM[TRN].[InventoryIssue] AS II
 							left join (
 									SELECT IID.InventoryIssueId,IID.IsAsset,IIH.IssueRequestDetailId,SUM(IIH.Qty) Qty, SUM(IIH.TotalAmount) TotalAmount
