@@ -388,7 +388,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         try {
             $http({
                 method: 'GET',
-                url: 'Productions/PlanningTypesNew/GetWorkCenterList?processId=' + $scope.planningTypesNew.BaseProcessId + '&subprocessId=' + $scope.planningTypesNew.SubProcessId
+                url: 'Productions/PlanningTypesNew/GetWorkCenterList?processId=' + $scope.planningTypesNew.BaseProcessId + '&subprocessId=' + $scope.planningTypesNew.SubProcessId + '&PlantId=' + $scope.planningTypesNew.PlantId + '&PlanningTypesId=' + $scope.planningTypesNew.Id
             }).then(function successCallback(res) {
                 $scope.workCenterList = res.data;
             });
@@ -398,6 +398,10 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    }
+
+    $scope.EditPlanWC = function (obj) {
+        $scope.modelWCNew = Object.assign({}, obj.data);
     }
 
     //$scope.refreshTemplateWC = function (args) {
@@ -565,7 +569,6 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         return JSON.stringify($scope.ShiftDefinationIDs);
     }
 
-
     $scope.tempList = [];
     $scope.pushInTempList = function (event, data) {
         try {
@@ -597,7 +600,6 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
             ShowResult(e, "failure");
         }
     }
-
 
     $scope.SetShift = function (data) {
         $scope.modelShiftNew.Shift = data.ShiftDefinationName;
@@ -673,6 +675,9 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         $scope.GetSavedWeekData();
     }
 
+    $scope.EditPlanShift = function (obj) {
+        $scope.modelShiftNew = Object.assign({}, obj.data);
+    }
 
     //#endregion
 
@@ -753,6 +758,11 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
                 }
             });
     }
+
+    $scope.EditPlanWK = function (obj) {
+        $scope.modelWeekNew = Object.assign({}, obj.data);
+    }
+
     //#endregion
 
     //#region Holiday
@@ -801,6 +811,11 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
                 }
             });
     }
+
+    $scope.EditPlanHoliday = function (obj) {
+        $scope.modelHolidayNew = Object.assign({}, obj.data);
+    }
+
     //#endregion
 
     //#region Date

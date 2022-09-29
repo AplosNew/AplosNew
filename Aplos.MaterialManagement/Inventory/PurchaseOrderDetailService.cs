@@ -1172,7 +1172,7 @@ namespace Library.MaterialManagement.Inventory
                                     PoDetailId = NewId1,
                                     RequisitionDetailId = POReqDetail.RequisitionDetailId,
                                     TransactionQty = POReqDetail.TransactionQty,
-                                    BaseQty = Convert.ToDecimal(itemDetail.BaseQty),
+                                    BaseQty = Convert.ToDecimal(POReqDetail.BaseQty),
 
                                 };
                                 AuditService.AddedLog(PoReqDetail);
@@ -1528,7 +1528,7 @@ namespace Library.MaterialManagement.Inventory
                                     PoDetailId = NewId1,
                                     RequisitionDetailId = POReqDetail.RequisitionDetailId,
                                     TransactionQty = POReqDetail.TransactionQty,
-                                    BaseQty = Convert.ToDecimal(itemDetail.BaseQty),
+                                    BaseQty = Convert.ToDecimal(POReqDetail.BaseQty),
 
                                 };
                                 AuditService.AddedLog(PoReqDetail);
@@ -1542,7 +1542,7 @@ namespace Library.MaterialManagement.Inventory
                                     PoDetailId = Val.PoDetailId,
                                     RequisitionDetailId = Val.RequisitionDetailId,
                                     TransactionQty = POReqDetail.TransactionQty,
-                                    BaseQty = Convert.ToDecimal(itemDetail.BaseQty),
+                                    BaseQty = Convert.ToDecimal(POReqDetail.BaseQty),
 
                                 };
                                 AuditService.AddedLog(PoReqDetail);
@@ -1609,24 +1609,19 @@ namespace Library.MaterialManagement.Inventory
                         throw new CustomException("Already Received In PO");
 
                     }
-                    var invMaterial = _reqDetailRepository.SqlQuery<MaterialRequsitionDetails>(@"select * from trn.MaterialRequsitionDetails where id='" + data.RequisitionDetailId + "'").FirstOrDefault();
-
-                    string _sql = "Update trn.MaterialRequsitionDetails set PORcvQty='" + Convert.ToDecimal(invMaterial.PORcvQty - data.TransactionQty) + "' where id='" + data.RequisitionDetailId + "'";
-                    _sqlRepository.ExecuteSqlCommand(_sql);
-                    var invMaterial1 = _reqDetailRepository.SqlQuery<MaterialRequsitionDetails>(@"select * from trn.MaterialRequsitionDetails where id='" + data.RequisitionDetailId + "'").FirstOrDefault();
-
-                    if (invMaterial1.TransactionQty != invMaterial1.PORcvQty)
-                    {
-                        string _sql1 = "Update trn.MaterialRequsitionDetails set POQtyStatus='" + 0 + "' where id='" + data.RequisitionDetailId + "'";
-                        _sqlRepository.ExecuteSqlCommand(_sql1);
+                  
+                   var poRequisitionData= _poRequisitionDetailRepository.Query(r=>r.PoDetailId==data.Id).Select().ToList();
+                    if (poRequisitionData.Count > 0) {
+                        foreach (var item in poRequisitionData)
+                        {
+                            var invMaterial = _reqDetailRepository.SqlQuery<MaterialRequsitionDetails>(@"select * from trn.MaterialRequsitionDetails where id='" + item.RequisitionDetailId + "'").FirstOrDefault();
+                            string _sql = "Update trn.MaterialRequsitionDetails set PORcvQty='" + Convert.ToDecimal(invMaterial.PORcvQty - item.TransactionQty) + "',POQtyStatus=0 where id='" + item.RequisitionDetailId + "'";
+                            
+                            _sqlRepository.ExecuteSqlCommand(_sql);
+                            _poRequisitionDetailRepository.Delete(item);
+                        }
                     }
-                    else
-                    {
-                        string _sql2 = "Update trn.MaterialRequsitionDetails set POQtyStatus='" + 1 + "' where id='" + data.RequisitionDetailId + "'";
-                        _sqlRepository.ExecuteSqlCommand(_sql2);
-                    }
-                   var poRequisitionData= _poRequisitionDetailRepository.Query(r=>r.PoDetailId==data.Id).Select().FirstOrDefault();
-                    _poRequisitionDetailRepository.Delete(poRequisitionData);
+                    
                     base.DeleteGraph(data);
                     _unitOfWork.SaveChanges();
                     flag = false;
@@ -1634,10 +1629,6 @@ namespace Library.MaterialManagement.Inventory
                 }
                 else
                     throw new CustomException("Data not found");
-            }
-            catch (CustomException)
-            {
-                throw;
             }
             catch (Exception ex)
             {

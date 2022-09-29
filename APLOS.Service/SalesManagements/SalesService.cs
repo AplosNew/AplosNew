@@ -2916,6 +2916,7 @@ namespace Library.Service.SalesManagements
                 var vendorAdWrsql = "";
                 vendorAdWrsql = @"update trn.SalesMaterial set VoucherDetailId=null where SalesId='" + salesId + "' ";
                 vendorAdWr.Append(vendorAdWrsql);
+
                 vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
                 vendorAdWr.Append(vendorAdWrsql);
                 
@@ -2940,10 +2941,7 @@ namespace Library.Service.SalesManagements
                 _unitOfWork.Commit();
 
             }
-            catch (CustomException)
-            {
-                throw;
-            }
+          
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message, ex,

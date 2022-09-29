@@ -209,7 +209,8 @@ namespace Aplos.Areas.Setups.Controllers
         [HttpPost, Authorize]
         public JsonResult SendTNAReportMail()
         {
-            _mailSenderService.SendTNAReportMail("TS", "TS", "10215");
+            //_mailSenderService.SendTNAReportMail("TS", "TS", "10215");
+            _mailSenderService.RunTNAScheduler("TS", "TS", "10215");
             return Json(new { Message = AplosMessage.Success });
         }//SendLateAttendancePosting 
         [HttpPost, Authorize]

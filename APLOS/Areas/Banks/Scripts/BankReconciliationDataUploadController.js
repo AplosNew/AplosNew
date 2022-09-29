@@ -236,17 +236,6 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
         }
     };
 
-
-    //$scope.onrowdatabound = function (e) {
-    //    if (e.data.Remarks !== '') {
-    //        if (e.data.Remarks == 'Salary has been locked')
-    //            e.row.css("background-color", "yellow");
-    //        else
-    //            e.row.css("background-color", "red");
-    //    }
-
-    //};
-
     $scope.invalidDocDate = false;
     $scope.checkDocDate = function () {
         var msg = "";

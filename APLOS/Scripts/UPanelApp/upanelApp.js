@@ -1079,6 +1079,7 @@ upanelApp.controller("SurveyandFeedbackController", SurveyandFeedbackController)
 upanelApp.controller("ProductionSummaryReportController", ProductionSummaryReportController)
 upanelApp.controller("maintenanceSchedulingController", maintenanceSchedulingController)
 upanelApp.controller("DetentionTypeController", DetentionTypeController)
+upanelApp.controller("maintenanceStatusDetailsController", maintenanceStatusDetailsController)
 upanelApp.controller("PositionWiseMPStatusController", PositionWiseMPStatusController)
 
 

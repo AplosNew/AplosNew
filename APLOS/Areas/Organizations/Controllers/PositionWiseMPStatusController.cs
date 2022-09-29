@@ -50,16 +50,42 @@ namespace Aplos.Areas.Organizations.Controllers
         {
             return View();
         }
-
         [HttpGet, Authorize]
-        public ActionResult getPostionWMPSFilters()
+        public ActionResult getPostionWMPSData()
         {
             try
             {
+                var sql = @"select P.IsDirect,EC.Id EmpoyeeCategoryId,EC.UserName EmpoyeeCategory,'' CriticalityLevel,P.UserReportGroup
+							,EN.Id EntityId,EN.UserName Entity,PL.Id PlantId,PL.UserName Plant
+							from ORG.Position P
+							left join MST.DesignationMaster DGM on DGM.DesignationId=P.DesignationId
+							left join [HKP].[EmployeeCategory] EC on EC.Id=DGM.EmployeeCategoryId
+							left join [MST].[ManpowerBudget] MB on MB.PositionId=P.Id
+							LEFT JOIN ORG.Entity EN on EN.Id=MB.EntityId
+							LEFT JOIN [ORG].[Plant] PL on PL.Id=EN.PlantId";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        [HttpPost, Authorize]
+        public ActionResult getPostionWMPSSqlData(Dictionary<string,string> parameters)
+        {
+            try
+            {
+                string urg = "";
+                if (parameters["UserReportGroup"] != "'','null'")
+                {
+                    urg = "AND P.UserReportGroup in(" + parameters["UserReportGroup"] + @")";
+                }
+                
+
                 var sql = @"Select ROW_NUMBER() OVER(ORDER BY B.Id) SlNO,B.Plant,B.Entity,DV.UserName Division,DPT.UserName Department,Sec.UserName Section,SubS.UserName SubSection
-										,DG.UserName Designation,P.Activity,PR.UserName Process,'' Criticality,P.Code PositionCode,B.Deployment,B.MPBgt
+										,DG.UserName Designation,P.Activity,PR.UserName Process,'' Criticality
+                                        ,P.Code PositionCode,B.Deployment,B.MPBgt,B.OnRoll,B.TBS,B.LAbs
 										--,Age=CONVERT(int,((ISNULL(B.MPBgt,0)-NULLIF(B.Deployment,0))/NULLIF(B.Deployment,1))*100)
-										,B.OnRoll,B.TBS,B.LAbs
 										,CurrentAvailable=(ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))
 										,Excess=CASE WHEN (ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))>ISNULL(B.MPBgt,0) THEN (ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))-ISNULL(B.MPBgt,0) ELSE 0 END
 										,Short=CASE WHEN (ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))<ISNULL(B.MPBgt,0) THEN ISNULL(B.MPBgt,0)-(ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0)) ELSE 0 END
@@ -76,7 +102,7 @@ namespace Aplos.Areas.Organizations.Controllers
 										Select DISTINCT A.Id,MB.PositionId
 										,ISNULL(MB.Deployment,0)Deployment,ISNULL(MBD.TotalNumber,0)MPBgt
 										,ISNULL(EMP.BudgetedManPower,0)OnRoll,ISNULL(TE.TBSEmp,0) TBS,ISNULL(LA.LONGEmp,0) LAbs,ISNULL(MBA.AdditionalPlan,0)AdditionalPlan
-										,EN.UserName Entity,P.UserName Plant--,D.UserName Division,DP.UserName Department
+										,EN.UserName Entity,P.UserName Plant,EN.Id EntityId,P.Id PlantId
 
 										FROM (
 										Select MB.Id from MST.ManpowerBudget MB Where MB.Active=1 AND MB.Id IS NOT NULL
@@ -99,8 +125,14 @@ namespace Aplos.Areas.Organizations.Controllers
 										LEFT JOIN ORG.Division DV ON DV.Id=P.DivisionId
 										LEFT JOIN [HKP].[Process] PR on PR.Id=P.ProcessId
 										LEFT JOIN [ORG].[Section] Sec on Sec.Id=P.SectionId
-										LEFT JOIN [ORG].[SubSection] SubS on SubS.Id=P.SubSectionId";
+										LEFT JOIN [ORG].[SubSection] SubS on SubS.Id=P.SubSectionId
+                                        left join MST.DesignationMaster DGM on DGM.DesignationId = P.DesignationId
 
+                                         where P.IsDirect in(" + parameters["IsDirect"] + @")
+                                        AND DGM.EmployeeCategoryId in(" + parameters["EmpoyeeCategoryId"] + @")
+                                        " + urg + @"
+                                        AND B.PlantId in(" + parameters["PlantId"] + @")
+                                        AND B.EntityId in(" + parameters["EntityId"] + @")";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)

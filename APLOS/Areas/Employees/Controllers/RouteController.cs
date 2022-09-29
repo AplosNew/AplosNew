@@ -57,9 +57,7 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select r.Code,r.ShortName,r.StandardName,r.UserName,r.Active,r.[Description],r.Remarks,R.Id,r.[From],r.[To],r.Totalkm
-                            from [MST].[Route] r
-                            where r.PlantId='" + identity.PlantId + "' and r.CompanyId='" + identity.CompanyId + "' ";
+            string sql = @"select r.* from [MST].[Route] r where r.PlantId='" + identity.PlantId + "' and r.CompanyId='" + identity.CompanyId + "' order by r.code";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
@@ -103,7 +101,7 @@ namespace Aplos.Areas.Employees.Controllers
         [Authorize, HttpPost]
         public ActionResult GetTransportDetails()
         {
-            string sql = @"select * from TransportDetail";
+            string sql = @"select * from TransportDetail Order By TransportNo";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -544,6 +542,8 @@ namespace Aplos.Areas.Employees.Controllers
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Trip No already exists!!!");
 
+                con.OpenDataSetThroughAdapter("select * from RouteSchedule where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
                 string _Id = "";
 
                 #region data update
@@ -568,33 +568,6 @@ namespace Aplos.Areas.Employees.Controllers
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update
-
-                //#region Route Schedule Child 
-
-                //while (dsRouteShChild.Tables[0].DefaultView.Count > 0)
-                //    dsRouteShChild.Tables[0].DefaultView[0].Delete();
-                //int count = 0;
-               
-                //        dr = dsRouteShChild.Tables[0].NewRow();
-                //        count++;
-                //        string pk = _Id + "_" + count;
-                //        dr["Id"] = pk;
-                //        dr["RouteScheduleId"] = _Id;
-                //        dr["StartTime"] = RouteShChild["StartTime"];
-                //        dr["EndTime"] = RouteShChild["EndTime"];
-                //        dr["UpDown"] = RouteShChild["UpDown"];
-                //        dr["Remarks"] = RouteShChild["Remarks"];
-
-                //        dr["AddedBy"] = identity.Name;
-                //        dr["AddedDate"] = System.DateTime.Now.ToString();
-                //        dr["AddedFromIP"] = identity.IPAddress;
-                //        dr["UpdatedBy"] = identity.Name;
-                //        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                //        dr["UpdatedFromIP"] = identity.IPAddress;
-
-                //        dsRouteShChild.Tables[0].Rows.Add(dr);
-
-                //#endregion Route Schedule Child 
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
@@ -834,7 +807,7 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetTransport()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select Id,TransportUserName as UserName from TransportDetail";
+            string str = @"select Id,TransportUserName+'-'+TransportNo  as UserName from TransportDetail order by TransportNo";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -853,12 +826,12 @@ namespace Aplos.Areas.Employees.Controllers
         [Authorize, HttpPost]
         public ActionResult GetRouteSchedule()
         {
-            string sql = @"select RS.Id,RS.ShiftId,SD.UserName [Shift],RS.TripNo,R.Id RouteId,R.UserName [Route],TD.Id TransportId,TD.TransportUserName Transport
-										
-                                        from RouteSchedule RS
-                                        left join mst.[Route] R on R.Id=RS.RouteId
-                                        left join TransportDetail TD on TD.Id=RS.TransportId
-										left join ShiftDefination SD on SD.SystemID=RS.ShiftId";
+            string sql = @"SELECT RS.*,SD.UserName [Shift],R.UserName [Route],TD.TransportUserName+'-'+TD.TransportNo Transport										
+FROM RouteSchedule RS
+LEFT JOIN mst.[Route] R on R.Id=RS.RouteId
+LEFT JOIN TransportDetail TD on TD.Id=RS.TransportId
+LEFT JOIN ShiftDefination SD on SD.SystemID=RS.ShiftId
+Order By RS.TripNo";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
