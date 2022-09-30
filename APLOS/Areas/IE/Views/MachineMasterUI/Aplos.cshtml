@@ -856,16 +856,18 @@
 </ej-dialog>
 
 <ej-dialog id="ArticleListPopUp" title="Article" e-enablemodal="true" e-position-y="0" e-showoninit="false"
-           e-width="550" e-target="#tarekcontainer" e-open="enableBtn">
-    <div class="row" style="width:540px">
+           e-width="800" e-target="#tarekcontainer" e-open="enableBtn">
+    <div class="row" style="width:800px">
         <div class="col-xs-12 col-sm-12">
             <div id="GridSelectWC" ej-grid e-datasource="articleList" e-recorddoubleclick="SetArticle"
                  e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
                  e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
                 <div e-columns>
+                    <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="2"></div>
                     <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
                     <div e-column e-field="ShortName" e-headertext="Short Name" e-width="3"></div>
                     <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="2"></div>
+                    <div e-column e-field="IsAsset" e-headertext="Is Asset" e-width="2"></div>
                 </div>
 
             </div>
