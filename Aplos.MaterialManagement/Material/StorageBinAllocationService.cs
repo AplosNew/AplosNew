@@ -269,8 +269,8 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where NOT EXISTS (SELECT * FROM TRN.MaterialAlocation M where M.MaterialMasterArticleId = mma.Id) and
-                            mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
+                            where NOT EXISTS (SELECT * FROM TRN.MaterialAlocation M where M.MaterialMasterId = mm.Id) and
+                            mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' --or mm.Id = '" + material + "'";
                 }
                 else if (storagelevel == "Article")
                 {
@@ -282,7 +282,7 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where NOT EXISTS (SELECT * FROM TRN.MaterialAlocation M where M.MaterialMasterId = mm.Id) and 
+                            where NOT EXISTS (SELECT * FROM TRN.MaterialAlocation M where M.MaterialMasterArticleId = mma.Id) and 
 mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
                 }
                 
@@ -386,7 +386,7 @@ mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = 
         }
         #region Material Allocation
         // MATERIAL ALLOCATION SAVE FUNCTION
-        public List<Dictionary<string, object>> SaveMaterialAllocation(List<Dictionary<string, object>> BinHead, string headerId, string storagelevel)
+        public List<Dictionary<string, object>> SaveMaterialAllocation(List<Dictionary<string, object>> material, string headerId, string storagelevel)
         {
             try
             {
@@ -403,7 +403,7 @@ mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = 
                 #region data Master update
                 int count = 0;
                
-                    foreach (var item in BinHead)
+                    foreach (var item in material)
                     {
                         count++;
                         DataView dv = new DataView(dsMaster.Tables[0]);
@@ -446,7 +446,7 @@ mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = 
                
                 #endregion data update
 
-                return BinHead;
+                return material;
             }
             catch (Exception ex) 
             {
@@ -528,9 +528,9 @@ mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = 
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
+            //dr["UpdatedBy"] = identity.Name;
+            //dr["UpdatedDate"] = DateTime.Now.ToString();
+            //dr["UpdatedFromIP"] = identity.IPAddress;
 
             dt.Rows.Add(dr);
         }

@@ -4617,10 +4617,6 @@ namespace Library.Service.Invoices
                 flag = false;
                 _unitOfWork.Commit();
             }
-            catch (CustomException)
-            {
-                throw;
-            }
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message, ex,
