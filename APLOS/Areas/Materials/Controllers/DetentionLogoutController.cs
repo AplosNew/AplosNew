@@ -27,6 +27,13 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetDetentionResponsible(string detentionId)
+        {
+
+            return Json(dl.GetDetentionResponsible(detentionId), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, AllowAnonymous]
         public JsonResult getDetentionLogGrid()
         {
@@ -52,10 +59,10 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
-                conC.executeQuery("delete from TRN.DetentionLogResponsiblePerson where Id ='" + Id + @"'");
+                conC.executeQuery("update TRN.DetentionLogResponsiblePerson set  isActive = 0  where Id ='" + Id + @"'");
                 conC.CommitTransaction();
 
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Message = AplosMessage.Updated }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

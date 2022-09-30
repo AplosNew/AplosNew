@@ -84,12 +84,15 @@ namespace Library.MaterialManagement.Material
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string str = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
-                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId from DetentionMasterResponsible DR
+                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId
+						  
+						   from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
 							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+							
                             --where DetentionMasterId='" + detentionId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
@@ -193,6 +196,19 @@ namespace Library.MaterialManagement.Material
             }
         }
 
+        public IEnumerable<object> getMachineMasterAsset()
+        {
+            try
+            {
+                var sql = @"select Id Value, UserName Text from MST.MachineMaster";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public Dictionary<string, object> Save(Dictionary<string, object> data)
         {
 
@@ -273,9 +289,24 @@ namespace Library.MaterialManagement.Material
 
                         item["Id"] = "DLRP-" + _Id;
                         item["DetentionLogId"] = detentionLogId;
-
+                        if(item["chk"] == item["chk"])
+                        {
+                            item["isActive"] = true;
+                        }
+                        else
+                        {
+                            item["isActive"] = false;
+                        }
+                        
 
                         AddNewRow(dsMasterOrder.Tables[0], item);
+                    }
+                    else
+                    {
+                        item["Id"] = "DLRP-" + _Id;
+                        item["DetentionLogId"] = detentionLogId;
+                        item["isActive"] = false;
+
                     }
 
                 }
@@ -344,6 +375,31 @@ namespace Library.MaterialManagement.Material
             _sqlRepository = new SqlRepository();
         }
 
+        public IEnumerable<object> GetDetentionResponsible(string detentionId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string str = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
+                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId,
+						  CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
+						   from DetentionMasterResponsible DR
+                           left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
+							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+							Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
+                            --where DetentionMasterId='" + detentionId + "'";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> getByWhom()
         {
             try
@@ -370,12 +426,14 @@ namespace Library.MaterialManagement.Material
                                 left join EmployeeInformation EI on EI.SystemId = DL.ResponsiblePersonId";*/
 
                 string sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.AddedDate, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
-WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose
+WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose,
+MM.UserName MachineMaster,  MM.Id MachineMasterId
 from TRN.DetentionLog DL
 left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                                 left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
 								left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                                 left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+								left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
                                 where isClose = 0";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -390,7 +448,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
             try
             {
                 string sql = @"select DLRP.Id, EI.EmployeeCode, EI.SystemId ResponsiblePersonId ,EI.EmployeeName, EI.CellPhnNo, DEP.UserName as Department, S.UserName Section, SS.UserName SubSection,
-                                DEG.UserName as LegalDesignation
+                                DEG.UserName as LegalDesignation, DLRP.isActive
                                 from TRN.DetentionLogResponsiblePerson DLRP
                                 LEFT JOIN TRN.DetentionLog DL on DL.Id = DLRP.DetentionLogId
 								LEFT JOIN EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
@@ -398,7 +456,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
 								LEFT JOIN ORG.Department AS DEP ON DEP.id=EI.DepartmentId
 								LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
 								LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                                where DLRP.DetentionLogId  = '" + detentionLogId + "'";
+                                where DLRP.DetentionLogId  = '" + detentionLogId + "' and DLRP.isActive = 1";
                 return _sqlRepository.GetDataCollection(sql);
 
             }
@@ -444,6 +502,54 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                     data["Id"] = detentionLogId;
                     data["isUpdate"] = 1;
                    
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data Master update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Dictionary<string, object> UpdateResponsiblePerson(Dictionary<string, object> data, string detentionLogId)
+        {
+
+            try
+            {
+                //Master Table - PMSMaster
+                string TableName = "TRN.DetentionLog";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("update TRN.DetentionLogResponsiblePerson set  isActive = 0 where Id ='" + detentionLogId + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                bplib.clsGenID genid = new bplib.clsGenID();
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    genid.GenID(TableName, out _Id);
+
+
+                    data["Id"] = detentionLogId;
+                    data["isUpdate"] = 0;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = detentionLogId;
+                    data["isUpdate"] = 1;
+
 
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }

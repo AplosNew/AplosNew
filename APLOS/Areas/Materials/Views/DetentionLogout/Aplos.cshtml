@@ -31,11 +31,20 @@
                         </div>
 
                         <div class="form-group">
+                            <label class="col-sm-4 control-label">Machine Item</label>
+                            <div class="col-sm-6">
+                                <div class="select-style">
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="MachineMasterAssetList" e-value="ModalNew.MachineMasterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                             <div class="col-sm-6">
                                 @*<div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="ResponsiblePersonD" ng-model="ModalNew.EmployeeName" ng-disabled="true" class="form-control" readonly>
-                                </div>*@
+                <input type="text" name="ResponsiblePersonD" ng-model="ModalNew.EmployeeName" ng-disabled="true" class="form-control" readonly>
+                        </div>*@
                                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                                     <button ng-click="openEmployeePopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                 </div>
@@ -78,33 +87,17 @@
                         </div>
 
 
-                        @*<div class="common-btn">
+                        <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-
+                                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
+                               
                             </ul>
 
-                        </div>*@
+                        </div>
                     </div>
 
                 </div>
-                <div style="color:black; margin-top:20px" id="GridEmployee" ej-grid e-datasource="userResponsiblePersonList"
-                     e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
-                     e-recorddoubleclick="doubleDepartment">
-                    <div e-columns>
-
-                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
-                        <div e-column e-field="EmployeeName" e-headertext="Responsible Person" e-width="100"></div>
-                        <div e-column e-field="CellPhnNo" e-headertext="Responsible Ctc. No." e-width="100"></div>
-                        <div e-column e-field="Department" e-headertext="Department" e-width="120"></div>
-                        <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
-                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
-                        <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
-                    </div>
-
-                </div>
+                
                 <div class="row">
 
                     <div class="col-xs-12 col-sm-12 col-md-12">
@@ -119,7 +112,8 @@
                                         <th>Section</th>
                                         <th>Sub Section</th>
                                         <th>Legal Designation</th>
-                                        <th>Remove</th>
+                                        <th>is Active</th>
+                                        <th>Update</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -131,10 +125,11 @@
                                         <td>{{x.Section}}</td>
                                         <td>{{x.SubSection}}</td>
                                         <td>{{x.LegalDesignation}}</td>
+                                        <td>{{x.isActive}}</td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 <li>
-                                                    <button ng-click="removeDetentionLResPerson(x.EmployeeName, $index, 'DetLogResPersonList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                    <button ng-click="removeDetentionLResPerson(x.EmployeeName, $index, 'DetLogResPersonList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Update"><i class="glyphicon glyphicon-remove"></i></button>
                                                 </li>
                                             </ul>
                                         </td>
@@ -145,16 +140,7 @@
                             </table>
 
                         </div>
-                        <div class="common-btn">
-                            <ul class="list-inline text-right">
-                                <li>
-                                    <button ng-click="Save();" class="btn"><i class=""></i> Save</button>
-                                </li>
-                                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-
-                            </ul>
-
-                        </div>
+                        
                     </div>
                 </div>
                 <div class="modal fade site-modal in" id="ResponiblePersonPop" role="dialog" data-backdrop="static">
@@ -164,7 +150,7 @@
                             <div class="modal-body form-elements form-horizontal">
                                 <div class="col-md-12">
                                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                                        <p>Double click to Select an Responible Person</p>
+
                                         <div style="color:black;" id="GridResponsible" ej-grid e-datasource="ResponsibleList"
                                              e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
                                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
@@ -177,6 +163,9 @@
                                                 <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
                                                 <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
                                                 <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                                                
+
+                                                @*<div e-column e-template="#isActive" e-field="isActive" e-headertext="isActive" e-width="70"></div>*@
 
                                             </div>
                                         </div>
@@ -186,6 +175,12 @@
                                         <script type="text/template" id="checkboxTemplate">
                                             <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
                                         </script>
+
+                                        @*<script type="text/template" id="isActive">
+                                            <div class="text-left" style="width:100%">
+                                                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.AvailablePopUpData(this);">{{data.isActive}}</a>
+                                            </div>
+                                        </script>*@
                                     </div>
                                 </div>
                                 <div class="common-btn">
@@ -220,10 +215,11 @@
             <div e-column e-field="Id" e-headertext="Id" e-width="40" e-isprimarykey="true"></div>
             <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
             <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="100"></div>
+            <div e-column e-field="MachineMaster" e-headertext="Machine Master" e-width="100"></div>
 
             <div e-column e-field="IssueByNo" e-headertext="Issue By No." e-width="100"></div>
             <div e-column e-field="LoginTime" e-headertext="Log Time" e-width="100"></div>
-            @*<div e-column e-field="CloseTime" e-headertext="Logout Time" e-width="100"></div>*@
+           
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
             <div e-column e-field="isClose" e-headertext="is Close" e-width="100"></div>
         </div>
