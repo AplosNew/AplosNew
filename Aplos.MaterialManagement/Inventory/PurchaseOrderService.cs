@@ -11908,26 +11908,26 @@ ORDER BY IR.ID DESC";
                 DataTable dsMaterialItems = ServiceAcknowledgementDetail(SurviceAckId);
                 var dsInventoryReceiveAdditionalTax = loadInventoryReceiveAdditionalTax(SurviceAckId);
                 var dsAdditionalServiceItems = loadAdditionalServiceAckMaster(SurviceAckId);
+                //var InventoryReceiveAdditionalTax = 0.00;
+                //if (dsInventoryReceiveAdditionalTax.Rows.Count > 0)
+
+                //{
+                //    InventoryReceiveAdditionalTax = makeInventoryReceiveAdditionalTaxTable(document, dsInventoryReceiveAdditionalTax, SurviceAckId);//Service Details 
+                //}
+                var materialTotal = MakeServiceAckDetailsTable(document, dsMaterialItems, SurviceAckId);//Material Details 
+                                                                                                        //document.Replace("{GrandTotal}", (materialTotal).ToString("#,##0.00") + " " + dsMaterialItems.Rows[0]["CurrencyName"].ToString(), true, true);
+                                                                                                        //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
                 var additionalserviceTotal = 0.00;
                 if (dsAdditionalServiceItems.Rows.Count > 0)
 
                 {
                     additionalserviceTotal = additionalServiceAckTable(document, dsAdditionalServiceItems, SurviceAckId);//Service Details 
-                    document.Replace("{ServiceDetails}", "Service Details", true, true);
+                    //document.Replace("{ServiceAdditionalTax}", "Service Details", true, true);
 
                     //{TotalInWords}
                 }
-                var InventoryReceiveAdditionalTax = 0.00;
-                if (dsInventoryReceiveAdditionalTax.Rows.Count > 0)
-
-                {
-                    InventoryReceiveAdditionalTax = makeInventoryReceiveAdditionalTaxTable(document, dsInventoryReceiveAdditionalTax, SurviceAckId);//Service Details 
-                }
-                var materialTotal = MakeServiceAckDetailsTable(document, dsMaterialItems, SurviceAckId);//Material Details 
-                                                                                                        //document.Replace("{GrandTotal}", (materialTotal).ToString("#,##0.00") + " " + dsMaterialItems.Rows[0]["CurrencyName"].ToString(), true, true);
-                                                                                                        //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
-                document.Replace("{GrandTotal}", ((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
-                document.Replace("{TotalInWords}", ru.InWord(((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+                document.Replace("{GrandTotal}", ((materialTotal + serviceTotal) + additionalserviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{TotalInWords}", ru.InWord(((materialTotal + serviceTotal) + additionalserviceTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
                 //document.Replace("{TotalInWords}", ru.InWord((clsStaticInfo.dbl(materialTotal + serviceTotal)), dsMaterialItems.Rows[0]["CurrencyId"].ToString()), true, true);
                 TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
@@ -12532,12 +12532,12 @@ ORDER BY IR.ID DESC";
             string strSQL;
             try
             {
-                strSQL = @"select IRT.ServiceAcknowledgementMasterId InventoryServiceId,IR.Id PurchaseOrderId,tg.Code AS TaxCode,IRT.Percentage, IRT.TaxAmount
+                strSQL = @"select ISER.Id InventoryServiceId,IR.Id PurchaseOrderId,tg.Code AS TaxCode,IRT.Percentage, IRT.TaxAmount
 							from TRN.ServiceAcknowledgementMaster IR
                               INNER JOIN trn.ServiceAcknowledgementCharge ISER ON ISER.ServiceAcknowledgementMasterId = IR.Id
                               INNER join trn.ServicePOAckTax IRT ON IRT.ServiceAcknowledgementMasterId = IR.Id and IRT.ServiceAcknowledgementChargeId = ISER.Id
                                LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
-                                WHERE IR.Id='"+ serviceAckId + @"'
+                                WHERE IR.Id='" + serviceAckId + @"'
 								and ServiceAcknowledgementChargeId  is not null and ServiceAcknowledgementDetailId is null
 								 ORDER BY tg.[Sequence]";
                 return _sqlRepository.GetDataTable(strSQL);
@@ -12554,7 +12554,7 @@ ORDER BY IR.ID DESC";
         }
         public double additionalServiceAckTable(WordDocument document, DataTable dsOrderMaster, string grnId)
         {
-            string replaceString = "{ServiceItems}";
+            string replaceString = "{additionalserviceTotal}";
 
             ReportUtility ru = new ReportUtility();
 

@@ -52,7 +52,7 @@ namespace Library.MaterialManagement.Material
             try
             {
                 var sql = @"select WM.StandardName Text, WM.Id Value from SCS.WorkCenterMaster WM
-                            
+                            order by Text
                            -- where WM.Active = 'true'";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -369,13 +369,14 @@ namespace Library.MaterialManagement.Material
                                 left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
                                 left join EmployeeInformation EI on EI.SystemId = DL.ResponsiblePersonId";*/
 
-                string sql = @"select DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.LoginTime, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
+                string sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.AddedDate, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
 WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose
 from TRN.DetentionLog DL
 left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                                 left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
 								left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
-                                left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId";
+                                left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                                where isClose = 0";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
