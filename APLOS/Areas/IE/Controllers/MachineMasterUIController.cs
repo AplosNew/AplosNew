@@ -431,7 +431,8 @@ namespace Aplos.Areas.IE.Controllers
         [HttpGet, Authorize]
         public ActionResult GetArticleList()
         {
-            string sql = @"SELECT MA.Id as ArticleId,MA.Code,MA.ShortName,MA.StandardName,MT.UserName as MaterialType,Case when MM.IsAsset = 0 then 'No' else 'Yes' end IsAsset FROM MST.MaterialMasterArticle MA
+            string sql = @"SELECT MA.Id,MA.Code,MA.ShortName,MA.StandardName,MT.UserName as MaterialType,
+Case when MM.IsAsset = 0 then 'No' else 'Yes' end IsAsset FROM MST.MaterialMasterArticle MA
 left join MST.MaterialMaster MM on MM.Id=MA.MaterialMasterId
 left join MST.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
 left join HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId";
