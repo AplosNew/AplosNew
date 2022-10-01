@@ -418,7 +418,6 @@
                         <div e-column e-field="PlanMinute" e-template="#PlanMinute" e-headertext="PlanMinute" e-width="3"></div>
                         <div e-column e-field="Remark" e-headertext="Remark" e-width="3"></div>
                         <div e-column e-field="Capacity" e-headertext="Capacity" e-width="3"></div>
-                        <div e-column e-field="CapacityInMinute"e-template="#CapacityInMinute" e-headertext="CapacityInMinute" e-width="3"></div>
                         <div e-column e-field="CapacityInVolume" e-template="#CapacityInVolume"  e-headertext="CapacityInVolume" e-width="3"></div>
                     </div>
                 </div>
@@ -432,11 +431,7 @@
                         <input type="text" ej-numerictextbox e-decimalplaces="0" e-value="data.PlanMinute" e-width="80" />
                     </div>
                 </script>
-                <script type="text/template" id="CapacityInMinute">
-                    <div class="col-sm-10" style="padding:0px; width:70px;">
-                        <input type="text" ej-numerictextbox e-decimalplaces="0" e-value="data.CapacityInMinute" e-width="80" />
-                    </div>
-                </script>
+                
                 <script type="text/template" id="CapacityInVolume">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
                         <input type="text" ej-numerictextbox e-decimalplaces="0" e-value="data.CapacityInVolume" e-width="80" />

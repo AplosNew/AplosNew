@@ -83,7 +83,7 @@ namespace Aplos.Areas.Organizations.Controllers
                 
 
                 var sql = @"Select ROW_NUMBER() OVER(ORDER BY B.Id) SlNO,B.Plant,B.Entity,DV.UserName Division,DPT.UserName Department,Sec.UserName Section,SubS.UserName SubSection
-										,DG.UserName Designation,P.Activity,PR.UserName Process,'' Criticality
+										,DG.UserName Designation,P.Activity,PR.UserName Process,P.UserDefineGroup2 Criticality
                                         ,P.Code PositionCode,B.Deployment,B.MPBgt,B.OnRoll,B.TBS,B.LAbs
 										--,Age=CONVERT(int,((ISNULL(B.MPBgt,0)-NULLIF(B.Deployment,0))/NULLIF(B.Deployment,1))*100)
 										,CurrentAvailable=(ISNULL(B.MPBgt,0)-ISNULL(B.TBS,0) -ISNULL(B.LAbs,0))
