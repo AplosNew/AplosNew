@@ -5,40 +5,47 @@
     <div class="row">
         <input type="hidden" name="Id" ng-model="ModalNew.Id">
         <div class="col-xs-12 col-sm-6 col-md-6">
-            
+
             <div class="form-group">
                 <label class="col-sm-4 control-label">Workcenter<sup>*</sup></label>
                 <div class="col-sm-6">
                     <div class="select-style">
-                        <input ej-dropdownlist e-enablefiltersearch="true"  e-datasource="WorkCenterList" e-value="ModalNew.WorkCenterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="WorkCenterList" e-value="ModalNew.WorkCenterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                     </div>
                 </div>
             </div>
-
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Machine Item</label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="MachineMasterAssetList" e-value="ModalNew.MachineMasterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                    </div>
+                </div>
+            </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                 <div class="col-sm-6">
                     @*<div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="ResponsiblePersonD" ng-model="ResponsiblePersonName" ng-disabled="true" class="form-control" readonly>
-                    </div>*@
+                    <input type="text" name="ResponsiblePersonD" ng-model="ResponsiblePersonName" ng-disabled="true" class="form-control" readonly>
+                </div>*@
                     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                         <button ng-click="openEmployeePopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                     </div>
                 </div>
             </div>
 
-           
+
 
             <div class="form-group">
                 <label class="col-sm-4 control-label">Log Time<sup>*</sup></label>
                 <div class="col-sm-6">
-                    <input type="text" ej-timepicker e-value="ModalNew.LoginTime" e-width="100%" e-enabled="false" />
+                    <input type="text" id="clock" onload="currentTime();" ej-timepicker e-value="ModalNew.LoginTime" e-width="100%" e-enabled="false" />
                 </div>
             </div>
         </div>
 
         <div class="col-xs-12 col-sm-6 col-md-6">
-
+            
 
             <div class="form-group">
                 <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
@@ -65,13 +72,13 @@
 
 
             @*<div class="common-btn">
-                <ul class="list-inline text-right">
-                    
-                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <ul class="list-inline text-right">
 
-                </ul>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
 
-            </div>*@
+            </ul>
+
+        </div>*@
         </div>
         
     </div>

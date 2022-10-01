@@ -65,7 +65,8 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
         isUpdate: false,
         isClose: false,
         LogoutTime: LogTime,
-        ByWhom:null,
+        ByWhom: null,
+        MachineMasterId:null
     };
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
@@ -92,7 +93,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     $scope.getsR = function () {
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLog/GetDetentionResponsible',
+            url: 'Materials/DetentionLogout/GetDetentionResponsible',
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.ResponsibleList = resp.data;
@@ -182,7 +183,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $scope.SaveResponsiblePerson();
+                //$scope.SaveResponsiblePerson();
                 ShowResult(response.data.Message, 'success');
 
             }
@@ -224,7 +225,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
             $scope.listName = listName;
             $scope.tempDeptId = tempId;
             $scope.listId = listId;
-            $scope.message_confirmation = "Are you sure you want to delete [" + name + "] permanently ?";
+            $scope.message_confirmation = "Are you sure you want to update [" + name + "]  ?";
             angular.element(document.querySelector('#confirmRemoveDetentionLRPersonPopUp')).modal('show');
         }
         catch (e) {
@@ -232,7 +233,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
         }
     };
 
-    $scope.removeDetentiontRow = function () {
+    $scope.removeDetentiontRow = function (e) {
         $http({
             method: 'POST',
             url: 'Materials/DetentionLogout/DetentionLogRespPerDelete?Id=' + $scope.tempDeptId,
@@ -302,6 +303,8 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
                     ob.Section = a.Section;
                     ob.SubSection = a.SubSection;
                     ob.LegalDesignation = a.LegalDesignation;
+                    ob.isActive = a.isActive
+                    ob.chk = a.chk;
                     
                     $scope.userResponsiblePersonList.push(ob);
                     ob = {};
@@ -312,7 +315,29 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
         }
 
         $scope.$broadcast('show-errors-check-validity');
+        $scope.$broadcast('show-errors-check-validity');
 
+        $http({
+            method: 'POST',
+            url: $scope.path + 'saveDtentionLogResPerson',
+            data: {
+                'data': $scope.userResponsiblePersonList,
+                'detentionLogId': $scope.ModalNew.Id,
+                'flag': $scope.userResponsiblePersonList.chk,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
 
 
         $scope.closeResponsiblePopUp();
@@ -410,8 +435,18 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     //-------------------------------------------------------------------------
     //-------------------------------------------------------------------------
 
-
-
+    // Get Machine Master Asset
+    $scope.MachineMasterAssetList = [];
+    $scope.getMachineMasterAsset = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/DetentionLog/getMachineMasterAsset',
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.MachineMasterAssetList = response.data;
+        });
+    }
+    $scope.getMachineMasterAsset();
 }
 //-----------------------------------------------------------------------------------
 

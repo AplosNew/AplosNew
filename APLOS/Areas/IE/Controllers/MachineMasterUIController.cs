@@ -383,7 +383,7 @@ namespace Aplos.Areas.IE.Controllers
                 }
                 else
                 {
-                    data["Id"] = MachineMasterAssetId;
+                    //data["Id"] = MachineMasterAssetId;
                     data["MachineMasterId"] = machineMasterId;
                     EditAssetRow(dsMasterOrder.Tables[0].Rows[0], data);
                 }
@@ -431,7 +431,11 @@ namespace Aplos.Areas.IE.Controllers
         [HttpGet, Authorize]
         public ActionResult GetArticleList()
         {
-            string sql = @"SELECT * FROM MST.MaterialMasterArticle";
+            string sql = @"SELECT MA.Id,MA.Code,MA.ShortName,MA.StandardName,MT.UserName as MaterialType,
+Case when MM.IsAsset = 0 then 'No' else 'Yes' end IsAsset FROM MST.MaterialMasterArticle MA
+left join MST.MaterialMaster MM on MM.Id=MA.MaterialMasterId
+left join MST.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
+left join HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId";
             var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;

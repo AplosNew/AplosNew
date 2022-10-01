@@ -199,27 +199,33 @@
                     <div id="GridEdit"
                          ej-grid e-datasource="BinHeadList"
                          e-load="loadGridEdit"
-                         e-allowfiltering="true" 
-                         e-allowpaging="true" 
-                         e-allowsorting="true" 
-                         e-enabletouch="false" 
+                         e-allowfiltering="true"
+                         e-allowpaging="true"
+                         e-allowsorting="true"
+                         e-enabletouch="false"
                          e-responsive="true"
-                         e-allowselection="true" 
-                         e-filtersettings-filterType="excel" 
+                         e-allowselection="true"
+                         e-filtersettings-filterType="excel"
+                         e-templaterefresh="MaterialAllocationGridAllCheck"
                          e-allowtextwrap="true">
+
                         <div e-columns>
                             <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
 
-                           
+
                             <div e-column e-field="ArticleName" e-headertext="Material Article" e-width="80"></div>
-                          
-                            <div e-column e-headertext="Estimated Capacity" e-headertemplateid="#headerTemplate" e-template="#EstimatedCapacity" e-textalign="center" e-width="50"></div>
+
+                            <div e-column e-headertext="Estimated Capacity"  e-template="#EstimatedCapacity" e-textalign="center" e-width="50"></div>
                         </div>
                     </div>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
                     <script type="text/template" id="checkboxTemplate">
 
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
                     </script>
+
                     <script type="text/template" id="EstimatedCapacity">
                         <input type="text" name="User Name" ng-model="data.EstimatedCapacity" class="form-control" required tabindex="5" maxlength="30">
                     </script>
@@ -239,31 +245,32 @@
                 <div class="table-responsive aplos-grid-toggle">
                     <div id="GridEditB" ej-grid e-datasource="BinAllocationChildList" e-load="loadGridEdit"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true"  e-templaterefresh="BinAllocationGridAllCheck">
                         <div e-columns>
-                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateB" e-textalign="center" e-width="20"></div>
+                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplateB" e-template="#checkboxTemplateB" e-textalign="center" e-width="20"></div>
 
-                            @*<div e-column e-field="Id" e-headertext="Id" e-width="50" e-isprimarykey="true"></div>*@
-
-
-                            @*<div e-column e-field="StorageSubLocation" e-headertext="Storage Sub Location" e-width="120"></div>*@
+                           
                             <div e-column e-field="AreaRackCode" e-headertext="Area Rack Code" e-width="70"></div>
 
                             <div e-column e-field="ColumnNo" e-headertext="Column No" e-width="80"></div>
                             <div e-column e-field="RowNo" e-headertext="RowNo" e-width="80"></div>
                             <div e-column e-field="BinReference" e-headertext="Bin Reference" e-width="100"></div>
                             <div e-column e-field="BinCode" e-headertext="Bin Code" e-width="80"></div>
-                            @*<div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>*@
+                            
                             <div e-column e-field="CapacityValue" e-headertext="Capacity Value " e-width="80"></div>
-                            @*<div e-column e-field="AccessType" e-headertext="Access Type" e-width="100"></div>*@
+                            
                             <div e-column e-field="UserLocationType" e-headertext="User Location Type" e-width="100"></div>
-                            @*<div e-column e-field="EmployeeName" e-headertext="Responsible Person" e-width="100"></div>*@
+                           
 
                         </div>
                     </div>
+                    <script type="text/x-jsrender" id="headerTemplateB">
+                        <input type="checkbox" id="headchkB" />
+                    </script>
+
                     <script type="text/template" id="checkboxTemplateB">
 
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
                     </script>
                 </div>
                 <div class="common-btn" style="margin-top:10px">
@@ -282,7 +289,7 @@
             <ul class="list-inline text-right">
                 <li> <button ng-click="Save();" class="btn cmn-btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
                 @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-                <li> <button ng-click="Clear();" class="btn cmn-btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                @*<li> <button ng-click="Clear();" class="btn cmn-btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
             </ul>
         </div>
     </div>
