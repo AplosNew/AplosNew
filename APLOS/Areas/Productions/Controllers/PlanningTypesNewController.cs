@@ -771,7 +771,7 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
 ,PlanMinute=(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)-(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)
 ,'' Remark
 ,Capacity=WCM.Capacity* ((CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)-(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)) 
-,0 CapacityInMinute,0 CapacityInVolume
+,0 CapacityInVolume
   FROM dbo.PlanningTypesWorkCenter AS PW
 LEFT JOIN [SCS].[WorkCenterMaster] WCM ON WCM.Id = PW.WorkCenterMasterId
 LEFT JOIN [SCS].[WorkCenterMasterEffectiveDate] WCD ON PW.WorkCenterMasterId=WCD.WorkCenterMasterId
