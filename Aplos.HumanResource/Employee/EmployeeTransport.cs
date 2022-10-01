@@ -84,8 +84,8 @@ namespace Aplos.HumanResource
                                         left join [dbo].[TransportGroup] TG on TG.Id=EMP.TransportGroupId
 										LEFT JOIN dbo.AttdnProcessData apd on apd.EmpSystemID=EMP.SystemId AND apd.WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy')
 										LEFT JOIN ShiftDefination ESD on ESD.SystemID=apd.ShiftSystemID
-										LEFT JOIN [MST].[OperationVariation] OV on OV.Id=EMP.OperationVariat
-
+										LEFT JOIN [MST].[OperationVariation] OV on OV.Id=EMP.OperationVariationId
+                                        LEFT JOIN [MST].[OperationMaster] OM on OM.Id=EMP.OperationMasterId
                               Where EMP.PlantId ='" + plantId + @"' AND EMP.EmployeeStatus='Active' 
 							   and TG.IsTransportApplicable=1 and EMP.SystemId not in (select EmployeeSystemId from EmployeeTransportAllocation where AssignStatus=1)
                               ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
