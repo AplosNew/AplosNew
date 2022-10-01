@@ -467,7 +467,22 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
         {
             try
             {
-                string CmdText = @"SELECT PWC.*,WCM.UserName Shift,ISNULL(format(PWC.ProductionShiftStartTime,'hh:mm tt'),'')StartTime,ISNULL(format(PWC.ProductionShiftEndTime,'hh:mm tt'),'') EndTime FROM [dbo].[PlanningTypesShift] PWC 
+                string CmdText = @"SELECT PWC.[Id]
+      ,PWC.[ShiftId]
+      ,PWC.[PlanningTypesId]
+      ,ISNULL(format(PWC.ProductionShiftStartTime,'hh:mm tt'),'') ProductionShiftStartTime
+	  ,ISNULL(format(PWC.ProductionShiftEndTime,'hh:mm tt'),'') ProductionShiftEndTime
+      ,PWC.[ProductionTime]
+      ,PWC.[Remark]
+      ,PWC.[IsExceptionApplicable]
+      ,PWC.[AddedBy]
+      ,PWC.[AddedDate]
+      ,PWC.[AddedFromIP]
+      ,PWC.[UpdatedBy]
+      ,PWC.[UpdatedDate]
+      ,PWC.[UpdatedFromIP]
+	  ,WCM.UserName Shift
+  FROM [dbo].[PlanningTypesShift] PWC 
 LEFT JOIN dbo.ShiftDefination AS wcm ON wcm.SystemId=PWC.ShiftId
 WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
                 return _sqlRepository.GetDataCollection(CmdText);
@@ -756,7 +771,7 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
 ,PlanMinute=(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)-(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)
 ,'' Remark
 ,Capacity=WCM.Capacity* ((CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)-(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)) 
-,0 CapacityInMinute,0 CapacityInVolume
+,0 CapacityInVolume
   FROM dbo.PlanningTypesWorkCenter AS PW
 LEFT JOIN [SCS].[WorkCenterMaster] WCM ON WCM.Id = PW.WorkCenterMasterId
 LEFT JOIN [SCS].[WorkCenterMasterEffectiveDate] WCD ON PW.WorkCenterMasterId=WCD.WorkCenterMasterId
