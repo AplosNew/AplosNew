@@ -342,6 +342,12 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Remarks" ng-model="StoresNew.Remarks" class="form-control" required maxlength="100" autocomplete="off">
+                    </div>
+                </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group" show-errors>
@@ -401,6 +407,7 @@
                         <div e-column e-field="Article" e-headertext="Article" e-width="3"></div>
                         <div e-column e-field="CostType" e-headertext="Cost Type" e-width="3"></div>
                         <div e-column e-field="EstimationLevel" e-headertext="Estimation Level" e-width="3"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                     </div>
                 </div>
             </div>
