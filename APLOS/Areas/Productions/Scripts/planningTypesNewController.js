@@ -894,7 +894,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
 
     //#endregion
 
-    //#region     
+    //#region  CapacityPlan   
 
     $scope.PlanCapacityList = [];
     $scope.GetPlanCapacityData = function () {
@@ -908,6 +908,32 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         }
     }
 
+    $scope.SavePlanCapacity = function () {
+        try {
+            for (var i = 0; i < $scope.PlanCapacityList.length; i++) {
+                $scope.PlanCapacityList[i].PlanningTypesId = $scope.planningTypesNew.Id;
+            }
+
+            $http({
+                method: 'POST',
+                url: 'Productions/PlanningTypesNew/CreateCapacityPlanning',
+                data: { "data": $scope.PlanCapacityList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetPlanCapacityData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
 
     //#endregion
 

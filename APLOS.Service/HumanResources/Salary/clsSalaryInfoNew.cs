@@ -3178,10 +3178,7 @@ FixedValue, SequenceNo,
 
             try
             {
-                strSql = @"SELECT * FROM SalaryInfoDefine 
-                              WHERE SalaryID IN (SELECT SystemID FROM SalaryInfoDefineMaster
-                                                WHERE EmpInfoSystemID IN ('" + strEmpSysID + @"')
-                                                      AND IsApproved=1)";
+                strSql = @"SELECT * FROM SalaryInfoDefine WHERE SalaryID IN (SELECT SystemID FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID IN ('" + strEmpSysID + @"') AND IsApproved=1)";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
@@ -3202,9 +3199,7 @@ FixedValue, SequenceNo,
 
             try
             {
-                strSql = @"SELECT * FROM SalaryInfoDefine 
-                            WHERE SalaryID IN (SELECT SystemID FROM SalaryInfoDefineMaster
-                                                WHERE EmpInfoSystemID = '" + strEmpSysID + @"')";
+                strSql = @"SELECT * FROM SalaryInfoDefine WHERE SalaryID IN (SELECT SystemID FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID = '" + strEmpSysID + @"')";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
@@ -3301,9 +3296,7 @@ FixedValue, SequenceNo,
 
             try
             {
-                strSql = @"SELECT * FROM SalaryInfoDefineMaster 
-                            WHERE EmpInfoSystemID = '" + sEmpSysID + @"' 
-                                  AND SystemID = '" + sSysID + @"'";
+                strSql = @"SELECT * FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID = '" + sEmpSysID + @"' AND SystemID = '" + sSysID + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
@@ -3460,9 +3453,7 @@ FixedValue, SequenceNo,
 
             try
             {
-                strSql = @"SELECT * FROM SalaryInfoBackMaster 
-                            WHERE EmpInfoSystemID = '" + sEmpSysID + @"' 
-                                  AND SystemID IS NULL";
+                strSql = @"SELECT * FROM SalaryInfoBackMaster WHERE EmpInfoSystemID = '" + sEmpSysID + @"' AND SystemID IS NULL";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
@@ -3483,10 +3474,7 @@ FixedValue, SequenceNo,
 
             try
             {
-                strSql = @"SELECT * FROM SalaryInfoBack 
-                            WHERE SalaryID IN (SELECT SystemID FROM SalaryInfoDefineMaster
-                                                WHERE EmpInfoSystemID = '" + sEmpSysID + @"'
-                                                       AND SystemID IS NULL)";
+                strSql = @"SELECT * FROM SalaryInfoBack WHERE SalaryID IN (SELECT SystemID FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID = '" + sEmpSysID + @"' AND SystemID IS NULL)";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
