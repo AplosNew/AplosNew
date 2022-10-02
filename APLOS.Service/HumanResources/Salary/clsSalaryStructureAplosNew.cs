@@ -18685,8 +18685,8 @@ public class clsSalaryStructureAplosNew
                     {
                         drSlDefMasterBack = dtSlDefMasterBack.NewRow();
                         #region Fields
-                        pk_back_master = dsSlDefMasterApproved.Tables[0].Rows[i]["SystemID"].ToString().Trim();
-                        drSlDefMasterBack["SystemID"] = bplib.clsWebLib.RetValidLen(dsSlDefMasterApproved.Tables[0].Rows[i]["SystemID"].ToString().Trim())+i.ToString();
+                        pk_back_master = "BM" + dsSlDefMasterApproved.Tables[0].Rows[i]["SystemID"].ToString().Trim();
+                        drSlDefMasterBack["SystemID"] = pk_back_master;//bplib.clsWebLib.RetValidLen(dsSlDefMasterApproved.Tables[0].Rows[i]["SystemID"].ToString().Trim());
                         drSlDefMasterBack["EmpInfoSystemID"] = bplib.clsWebLib.RetValidLen(dsSlDefMasterApproved.Tables[0].Rows[i]["EmpInfoSystemID"].ToString().Trim());
                         drSlDefMasterBack["EffectiveDate"] = dsSlDefMasterApproved.Tables[0].Rows[i]["EffectiveDate"].ToString().Trim();
 
