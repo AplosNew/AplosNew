@@ -2342,7 +2342,12 @@ WHERE po.Id='" + POID+@"'";
                     ,POD.Id PurchaseOrderDetailId
                     ,POD.TransactionUoMId
                      ,TUoM.ShortName AS TransactionUoM
-                    ,MRMD.MaterialDetail MaterialDetail
+                    ,MaterialDetail=REPLACE(REPLACE(
+										STUFF((select distinct ', '+b.RMDescription
+										FROM BOQ B 
+										JOIN trn.POBOQMAP AS PB ON PB.BOQDetailId=B.Id 
+                                       WHERE PB.PODetailId=POD.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')
                     ,CheckStatus= CASE when PO.CheckedByStatus='pending' Then 'To be checked'
                     when PO.CheckedByStatus='Hold' Then 'Hold'
                     when PO.CheckedByStatus='Reject' Then 'Reject'

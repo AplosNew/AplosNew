@@ -764,14 +764,19 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
 ,ApplicableShift=CASE WHEN PD.PlanningDate>=WCD.StartDate THEN 0 ELSE 1 END
 ,WeekOff= CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END,PWD.WeekDays
 ,NetWorkingShift=CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END
-,[From]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END
-,[To]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END
-,NetWorkingMinute=(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)-(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)
+,[From]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
+,[To]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END
+,NetWorkingMinute=DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
+,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END)
 ,PlanShift=(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)
-,PlanMinute=(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)-(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)
+,PlanMinute=(DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
+,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END))
+*(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)
 ,'' Remark
-,Capacity=WCM.Capacity* ((CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)-(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)) 
-,0 CapacityInVolume
+,Capacity=PW.PlanCapacity * ((DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
+,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END)))
+,CapacityInVolume=(PW.PlanCapacity * ((DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
+,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END))))*PW.AverageLoadFactor
   FROM dbo.PlanningTypesWorkCenter AS PW
 LEFT JOIN [SCS].[WorkCenterMaster] WCM ON WCM.Id = PW.WorkCenterMasterId
 LEFT JOIN [SCS].[WorkCenterMasterEffectiveDate] WCD ON PW.WorkCenterMasterId=WCD.WorkCenterMasterId
@@ -782,7 +787,10 @@ LEFT JOIN [dbo].[PlanningTypesWeekDays] PWD ON PWD.PlanningTypesId=PW.PlanningTy
 --LEFT JOIN [dbo].[PlanningTypesHoliday] PHD ON PHD.PlanningTypesId=PW.PlanningTypesId
 LEFT JOIN [dbo].[CapacityPlanning] CP ON CP.PlanningTypesId=PW.PlanningTypesId
 WHERE PW.PlanningTypesId='" + PlanningTypesId + "'";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
             }
             catch (Exception ex)
             {
@@ -790,7 +798,60 @@ WHERE PW.PlanningTypesId='" + PlanningTypesId + "'";
             }
         }
 
-     
+        [HttpPost, Authorize]
+        public JsonResult CreateCapacityPlanning(List<Dictionary<string, object>> data)
+
+        {
+            SaveCapacityPlanningData(data);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+
+        private void SaveCapacityPlanningData(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                string _Id = null;
+                if (data != null)
+                {
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.CapacityPlanning", out dsMaster, false, "1");
+
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapacityPlanning", out _Id);
+                    int c = 0;
+                    foreach (var item in data)
+                    {
+                        c++;
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _Id+"-"+c;
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         #endregion
     }
