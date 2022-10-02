@@ -1908,7 +1908,7 @@ WHERE po.Id='" + POID+@"'";
                 //TROW.Cells[colHSNCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colMatDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialDetail"].ToString());
                 //TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
-                TROW.Cells[colRefferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["RefferenceNo"].ToString());
+                TROW.Cells[colRefferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyerReferenceNo"].ToString());
                 TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());
                 //TROW.Cells[colOriginCountry].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CountryOfOrigin"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
@@ -2198,7 +2198,7 @@ WHERE po.Id='" + POID+@"'";
 										INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
 										LEFT JOIN CostingBOQItems xboqI on xboqI.CostingItemId=boq.CostingItemId
                             			WHERE xpod.Id=pod.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                    ,BuyerPO=STUFF((SELECT DISTINCT ','+PO.PONumber from
+                    ,BuyerPONumber=STUFF((SELECT DISTINCT ','+PO.PONumber from
                             			BOQ boq
                             			INNER JOin trn.POBOQMAP xboqMap on boq.Id=xboqMap.BOQDetailId
 										INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
