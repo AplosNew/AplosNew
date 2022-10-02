@@ -23,10 +23,11 @@ using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using Aplos.Controllers;
 
 namespace Aplos.Areas.Products.Controllers
 {
-    public class MaterialBudgetController : Controller
+    public class MaterialBudgetController : BaseController
     {
         #region Constructor
 
