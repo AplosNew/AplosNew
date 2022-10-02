@@ -178,7 +178,8 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         , Article: null
         , CostType: null
         , EstimationLevel: null
-        , MaintenanceSchedulingId:null
+        , MaintenanceSchedulingId: null
+        , Remarks: null
     };
     $scope.StoresNew = Object.assign({}, $scope.Stores);
 

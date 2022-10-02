@@ -2255,7 +2255,12 @@ WHERE po.Id='" + POID+@"'";
                     ,HSNC.Code HSNCode
  	                ,CNO.ContractNo
  	                ,CNO.Id ContractId
-                    ,mo.BuyerReferenceNo 
+          //          ,BuyerReferenceNo=STUFF((SELECT DISTINCT ','+moi.BuyerReferenceNo from
+          //                  			BOQ boq
+          //                  			INNER JOin trn.POBOQMAP xboqMap on boq.Id=xboqMap.BOQDetailId
+										//INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
+										//LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=boq.MasterOrderItemId
+          //                  			WHERE xpod.Id=pod.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 					,PLC.LCRef LCNumber 
                     ,PLC.BenificiaryBank BeneficiaryBank
                     ,PLC.BenificiaryBank OpeningBank
@@ -2266,7 +2271,7 @@ WHERE po.Id='" + POID+@"'";
                     ,Plant.GSTIN
 	                ,REPLACE(Convert(VARCHAR(11), PLC.LCDate, 106), ' ', '-') AS LCODate
                     ,REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
-                    ,POType=CASE WHEN PO.POType='PO' then 'PO Without Requisition' ELSE 'PO With Requisition' END
+                    ,POType=CASE WHEN PO.POType='PO' then 'PO Without Requisition' when PO.POType='POBOQ' then 'PO BOQ' ELSE 'PO With Requisition' END
                     ,REPLACE(Convert(VARCHAR(11), PO.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
                     ,REPLACE(Convert(VARCHAR(11), PO.MatureDate, 106), ' ', '-') AS MatureDate
                     ,PO.InvoicingPartyPlantId
@@ -2289,7 +2294,7 @@ WHERE po.Id='" + POID+@"'";
                     ,PO.IsApproved
                     ,PO.PartyType
                     ,PO.PartyId
-                    ,POD.RefferenceNo
+                    ,POD.RefferenceNo BuyerReferenceNo
                     ,isnull(PO.DiscountAmount,0) DiscountAmount
                     ,ISNULL(PO.DeliveryInstruction,'') DeliveryInstruction
                     ,ISNULL(PO.SpecialInstruction,'') SpecialInstruction
@@ -2342,12 +2347,20 @@ WHERE po.Id='" + POID+@"'";
                     ,POD.Id PurchaseOrderDetailId
                     ,POD.TransactionUoMId
                      ,TUoM.ShortName AS TransactionUoM
-                    ,MaterialDetail=REPLACE(REPLACE(
-										STUFF((select distinct ', '+b.RMDescription
-										FROM BOQ B 
-										JOIN trn.POBOQMAP AS PB ON PB.BOQDetailId=B.Id 
-                                       WHERE PB.PODetailId=POD.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-										,'&amp;','&'), 'amp;', '')
+                    --,MRMD.MaterialDetail MaterialDetail
+                     ,MaterialDetail=STUFF((SELECT DISTINCT ','+boq.RMDescription from
+                            			BOQ boq
+                            			INNER JOin trn.POBOQMAP xboqMap on boq.Id=xboqMap.BOQDetailId
+										INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
+										LEFT JOIN CostingBOQItems xboqI on xboqI.CostingItemId=boq.CostingItemId
+                            			WHERE xpod.Id=pod.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,BuyerPO=STUFF((SELECT DISTINCT ','+PO.PONumber from
+                            			BOQ boq
+                            			INNER JOin trn.POBOQMAP xboqMap on boq.Id=xboqMap.BOQDetailId
+										INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
+										LEFT OUTER JOIN [TRN].[SalesOrder] AS so ON so.MasterOrderItemId=boq.MasterOrderItemId
+										LEFT OUTER JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                            			WHERE xpod.Id=pod.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                     ,CheckStatus= CASE when PO.CheckedByStatus='pending' Then 'To be checked'
                     when PO.CheckedByStatus='Hold' Then 'Hold'
                     when PO.CheckedByStatus='Reject' Then 'Reject'
