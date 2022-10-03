@@ -189,16 +189,28 @@ namespace Aplos.Areas.Employees.Controllers
 											,R.[From],R.[To],SD.UserName [Shift],TD.Capacity Vacancy,TD.PlanCapacity
 					                        ,isnull(O.Alloted,0)Alloted,R.PlantId
 					                        ,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
+											,O.InTimeCount
+											,o.TBS
+											,O.LAbs
 					                        ,R.Remarks
-											
+
 					                        from RouteSchedule RS
 					                        left join [MST].[Route] R on R.Id=RS.RouteId 
 					                        left join TransportDetail TD on TD.Id=RS.TransportId
 					                        left join ShiftDefination SD on SD.SystemID=RS.ShiftId
 					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId
+															,count(FORMAT(apd.InTime,'hh:mm:tt')) InTimeCount
+															,ISNULL(TE.TBSEmp,0) TBS
+															,ISNULL(LA.LONGEmp,0) LAbs
+
 															from dbo.EmployeeTransportAllocation A
+														
+															LEFT JOIN (SELECT COUNT(SystemId) TBSEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='TBS' AND BudgetCode IS NOT NULL GROUP BY SystemId) TE ON TE.SystemId=A.EmployeeSystemId
+															LEFT JOIN (SELECT COUNT(SystemId) LONGEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='LONG ABSENTEEISM' AND BudgetCode IS NOT NULL GROUP BY SystemId) LA ON LA.SystemId=A.EmployeeSystemId
+															LEFT JOIN dbo.AttdnProcessData apd on apd.EmpSystemID=A.EmployeeSystemId AND apd.WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy')
+															
 															where A.AssignStatus=1
-									                        Group BY TripId) O ON O.TripId=RS.Id
+									                        Group BY TripId,TE.TBSEmp,LA.LONGEmp) O ON O.TripId=RS.Id
 
 											Where R.PlantId ='" + identity.PlantId+"'";
 
@@ -229,7 +241,9 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 var sql = @"select O.TransportGroup,O.Stoppage,R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo
 											,TD.Capacity Vacancy,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
-											,O.EmployeeCode,O.EmployeeName,O.EmployeeStatus,O.EmployeeCurrentStatus,o.BudgatedShift,O.AssignedShift,O.InTime,O.DOJ
+											,O.EmployeeCode,O.EmployeeName,O.EmployeeStatus,O.EmployeeCurrentStatus,o.BudgatedShift,O.AssignedShift
+											,O.InTime,O.TBS,O.LAbs
+											,O.DOJ
                                             ,Skill =isnull(O.OperationMaster,O.OperationVariation),O.GivenDesignation
 											,O.Section,O.SubSection,O.Department,O.EntityName,O.Plant,O.EID
 
@@ -244,6 +258,8 @@ namespace Aplos.Areas.Employees.Controllers
 															,FORMAT(apd.InTime,'hh:mm:tt') InTime
 															,MSD.UserName BudgatedShift,ESD.UserName AssignedShift
 															,OV.UserName OperationVariation,OM.UserName OperationMaster
+															,ISNULL(TE.TBSEmp,0) TBS,ISNULL(LA.LONGEmp,0) LAbs
+
 															from dbo.EmployeeTransportAllocation A
 															left join EmployeeInformation EMP on EMP.SystemId=A.EmployeeSystemId
 															LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
@@ -262,6 +278,8 @@ namespace Aplos.Areas.Employees.Controllers
 															LEFT JOIN ShiftDefination ESD on ESD.SystemID=apd.ShiftSystemID 
 															LEFT JOIN MST.OperationVariation OV on OV.Id=EMP.OperationVariationId
 															LEFT JOIN MST.OperationMaster OM on OM.Id=EMP.OperationMasterID 
+															LEFT JOIN (SELECT COUNT(SystemId) TBSEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='TBS' AND BudgetCode IS NOT NULL GROUP BY SystemId) TE ON TE.SystemId=A.EmployeeSystemId
+															LEFT JOIN (SELECT COUNT(SystemId) LONGEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='LONG ABSENTEEISM' AND BudgetCode IS NOT NULL GROUP BY SystemId) LA ON LA.SystemId=A.EmployeeSystemId
 
 									                        Group BY TripId,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode
 															,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
@@ -269,7 +287,7 @@ namespace Aplos.Areas.Employees.Controllers
 															,S.UserName,SS.UserName,DEPT.UserName,E.UserName
 															,PL.UserName,TG.UserName,A.AssignStatus,ST.UserName,apd.InTime
 															,MSD.UserName,ESD.UserName
-															,OV.UserName,OM.UserName) O ON O.TripId=RS.Id
+															,OV.UserName,OM.UserName,TE.TBSEmp,LA.LONGEmp) O ON O.TripId=RS.Id
 															where O.AssignStatus=1";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

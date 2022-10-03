@@ -89,17 +89,17 @@ MS.Remarks
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadMaintenanceStatusPlannedList(string ToDate,string MaintenanceId)
+        public ActionResult LoadMaintenanceStatusPlannedList(string ToDate,string MaintenanceId,string Value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,
 WC.UserName WorkCenter,MS.ScheduleDays,MS.LastMaintenanceDate,
-Case when isnull(MS.LastMaintenanceDate,'')='' then convert(varchar(20),GETDATE(),103) else convert(varchar(20),(MS.ScheduleDays+GETDATE()),103) end CurrentMaintanceDate,
+Case when isnull(MS.LastMaintenanceDate,'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
 Case when isnull(MS.LastMaintenanceDate,'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
 Case when isnull(MS.LastMaintenanceDate,'')='' then Case when GETDATE()<GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())<GETDATE() then 1 else 0 end end OverDue,
 Case when isnull(MS.LastMaintenanceDate,'')='' then Case when GETDATE()=GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())=GETDATE() then 1 else 0 end end DueToday,
 Case when isnull(MS.LastMaintenanceDate,'')='' then Case when (GETDATE()>GETDATE() and GETDATE()!=GETDATE()) then 1 else 0 end else Case when ((MS.ScheduleDays+GETDATE())>GETDATE() and (MS.ScheduleDays+GETDATE())!=GETDATE()) then 1 else 0 end end FutureDue,
-MS.StandardScheduleMinutes,APD.PlannedDate,isnull(APD.[Status],1) as [Status],APD.ActualDate,APD.Remarks
+MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,isnull(APD.[Status],1) as [Status],APD.ActualDate,APD.Remarks
  from TRN.Maintenancescheduling MS
  left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
@@ -107,7 +107,7 @@ MS.StandardScheduleMinutes,APD.PlannedDate,isnull(APD.[Status],1) as [Status],AP
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and MS.Id='" + MaintenanceId + "' and (Case when isnull(MS.LastMaintenanceDate,'')='' then convert(varchar(20),GETDATE(),106) else convert(varchar(20),(MS.ScheduleDays+GETDATE()),106) end)=(select replace('" + ToDate + "','-',' '))";
+ where MMA.Id is not null and MS.Id='" + MaintenanceId + "' and (Case when isnull(MS.LastMaintenanceDate,'')='' then convert(varchar(20),GETDATE(),106) else convert(varchar(20),(MS.ScheduleDays+GETDATE()),106) end)=(select replace('" + ToDate + "','-',' ')) and 1='"+Value+"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -115,19 +115,20 @@ MS.StandardScheduleMinutes,APD.PlannedDate,isnull(APD.[Status],1) as [Status],AP
         public ActionResult LoadReponsiblePersonList(string Id)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT CAST (CASE WHEN RPD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,RPD.Id,EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+            string str = @"select RPD.IsActive,RPD.Id,EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
-                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
-                            FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId=EI.SystemId and RPD.PlannedId='"+Id+ @"'
-                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
-                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            WHERE EI.EmployeeStatus='Active'";
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection 
+									from TRN.MaintenancePersonBudgetCode PBC
+left Join [MST].[ManpowerBudget] AS MB ON MB.Id=PBC.PersonBudgetCodeId
+left join dbo.EmployeeInformation AS EI ON EI.BudgetCode=PBC.PersonBudgetCodeId
+LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId=EI.SystemId and RPD.PlannedId='" + Id + @"'
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+WHERE EI.EmployeeStatus='Active'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }

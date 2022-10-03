@@ -409,7 +409,8 @@ MM.UserName as MachineName,MA.AssetCode,E.UserName as Entity,MA.EntityId
  left Join SCS.WorkCenterMaster WC On WC.id=MA.WorkCenterMasterId
  left Join MST.MachineMaster MM ON MM.Id=MA.MachineMasterId
  left Join ORG.Entity E on E.Id=MA.EntityId
- left Join [TRN].[MaintenanceMachineAsset] MMA ON MMA.AssetId=MA.Id where MA.MachineMasterId='" + MachineId + "' and MMA.MaintenanceSchedulingId='" + ScheduleId + "'";
+ left Join [TRN].[MaintenanceMachineAsset] MMA ON MMA.AssetId=MA.Id and MMA.MaintenanceSchedulingId='" + ScheduleId + @"'
+ where MA.MachineMasterId = '"+ MachineId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
