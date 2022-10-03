@@ -811,5 +811,15 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/SurveyandFeedback/Aplos',
             controller: 'SurveyandFeedbackController'
         })
+
+        .when('/medicine-master', {
+            templateUrl: 'humanResource/MedicineMaster/Aplos',
+            controller: 'MedicineMasterController'
+        })
+
+        .when('/sickness-type', {
+            templateUrl: 'humanResource/SicknessType/Aplos',
+            controller: 'SicknessTypeController'
+        })
         ;
 }

@@ -1081,6 +1081,8 @@ upanelApp.controller("maintenanceSchedulingController", maintenanceSchedulingCon
 upanelApp.controller("DetentionTypeController", DetentionTypeController)
 upanelApp.controller("maintenanceStatusDetailsController", maintenanceStatusDetailsController)
 upanelApp.controller("PositionWiseMPStatusController", PositionWiseMPStatusController)
+upanelApp.controller("MedicineMasterController", MedicineMasterController)
+upanelApp.controller("SicknessTypeController", SicknessTypeController)
 
 
 upanelApp.config(AccessControllerConfig);

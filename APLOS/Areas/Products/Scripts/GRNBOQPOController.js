@@ -400,22 +400,23 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     }
     $scope.getDetailsData = function () {
         try {
-            var eDialog = $("#GRnBOQPoo").data("ejDialog");
-            $("#GRnBOQPoo").ejDialog("setTitle", " BOQ List");
-            eDialog.open();
+            //var eDialog = $("#GRnBOQPoo").data("ejDialog");
+            //$("#GRnBOQPoo").ejDialog("setTitle", " BOQ List");
+            //eDialog.open();
             $scope.getDetailsDataNew();
            
         } catch (e) {
             ShowResult(e, 'info')
         }
     }
+    $scope.MasterListNew = [];
     $scope.getDetailsDataNew = function () {
         try {
             var parameters = [];
             var filteredRecords = [];
             var currencyStatus = true;
             var temCurrency = null;
-
+            $scope.MasterListNew = [];
             for (var i = 0; i < $scope.DetailList.length; i++) {
                 if ($scope.DetailList[i].IsActives) {
                     filteredRecords.push($scope.DetailList[i]);
@@ -457,16 +458,19 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                     //console.log($scope.MasterListNew);
                 });
             }
-            else {
-                var eDialog = $("#GRnBOQPoo").data("ejDialog");
-                $("#GRnBOQPoo").ejDialog("setTitle", " BOQ List");
-                eDialog.close();
-                throw ('Please select at least one PO!!!');
-            }
-            
+            //else {
+            //    var eDialog = $("#GRnBOQPoo").data("ejDialog");
+            //    $("#GRnBOQPoo").ejDialog("setTitle", " BOQ List");
+            //    eDialog.close();
+            //    throw ('Please select at least one PO!!!');
+            //}
+            angular.element(document.querySelector('#GRnBOQPoo')).modal('show');
         } catch (e) {
             ShowResult(e, 'info')
         }
+    }
+    $scope.boqPopClose = function () {
+        angular.element(document.querySelector('#GRnBOQPoo')).modal('hide');
     }
     $http({
         method: 'GET',
@@ -1960,13 +1964,11 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         }
                     }
                 }
-                //}
             }
-            if ($scope.MasterList.length == 0) {
-                throw "Noting selected";
-            }
-            var eDialog = $("#GRnBOQPoo").data("ejDialog");
-            eDialog.close();
+            //if ($scope.MasterList.length == 0) {
+            //    throw "Noting selected";
+            //}
+            $scope.POPopUpCloseGateEntry();
         } catch (e) {
             ShowResult(e, 'failure')
         }

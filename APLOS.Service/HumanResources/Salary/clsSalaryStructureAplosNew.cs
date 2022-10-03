@@ -18685,8 +18685,8 @@ public class clsSalaryStructureAplosNew
                     {
                         drSlDefMasterBack = dtSlDefMasterBack.NewRow();
                         #region Fields
-                        pk_back_master = dsSlDefMasterApproved.Tables[0].Rows[i]["SystemID"].ToString().Trim();
-                        drSlDefMasterBack["SystemID"] = bplib.clsWebLib.RetValidLen(dsSlDefMasterApproved.Tables[0].Rows[i]["SystemID"].ToString().Trim());
+                        pk_back_master = "BM" + dsSlDefMasterApproved.Tables[0].Rows[i]["SystemID"].ToString().Trim();
+                        drSlDefMasterBack["SystemID"] = pk_back_master;//bplib.clsWebLib.RetValidLen(dsSlDefMasterApproved.Tables[0].Rows[i]["SystemID"].ToString().Trim());
                         drSlDefMasterBack["EmpInfoSystemID"] = bplib.clsWebLib.RetValidLen(dsSlDefMasterApproved.Tables[0].Rows[i]["EmpInfoSystemID"].ToString().Trim());
                         drSlDefMasterBack["EffectiveDate"] = dsSlDefMasterApproved.Tables[0].Rows[i]["EffectiveDate"].ToString().Trim();
 
@@ -18741,8 +18741,8 @@ public class clsSalaryStructureAplosNew
                         _count_back_child++;
 
                         drSlDefBack = dtSlDefBack.NewRow();
-                        drSlDefBack["SystemID"] = sSDSystemID + "_" + _count_back_child;// bplib.clsWebLib.RetValidLen(dsSlDefApproved.Tables[0].Rows[i]["SalaryHeadID"].ToString().Trim());
-                                                                                        //drSlDefBack["SystemID"] = "BC" + pk_back_child_seed + "_" + _count_back_child;
+                        //drSlDefBack["SystemID"] = sSDSystemID + "_" + _count_back_child;// bplib.clsWebLib.RetValidLen(dsSlDefApproved.Tables[0].Rows[i]["SalaryHeadID"].ToString().Trim());
+                         drSlDefBack["SystemID"] = "BC" + pk_back_child_seed + "_" + _count_back_child;
                         drSlDefBack["SalaryID"] = bplib.clsWebLib.RetValidLen(pk_back_master);
 
                         drSlDefBack["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(dsSlDefApproved.Tables[0].Rows[i]["SalaryHeadID"].ToString().Trim());
