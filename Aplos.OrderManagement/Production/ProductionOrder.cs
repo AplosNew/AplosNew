@@ -140,7 +140,7 @@ from
                                     where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								,BOMList=STUFF((SELECT distinct ','+cbx.CostingBOQMasterId FROM CostingBOQSalesOrder AS cbx
                                     where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-,Approved=CASE WHEN OCMT.isPreCostingApproved=0 THEN 'Yes' WHEN OCMT.isQuickCostingApproved=1 THEN 'Yes' WHEN OCMT.isProcurementCostingApproved=1 THEN 'Yes' ELSE 'No' END
+,Approved=CASE WHEN OCMT.isPreCostingApproved=0 THEN 'Yes' WHEN OCMT.isQuickCostingApproved=1 THEN 'Yes' WHEN OCMT.isProcurementCostingApproved=1 THEN 'Yes' ELSE 'No' END,OCMT.CostingStage
                        FROM [TRN].[SalesOrder] AS SO 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        LEFT JOIN dbo.OrderCostingMasterTemplate OCMT ON OCMT.Id=MOI.OrderCostingMasterTemplateId
