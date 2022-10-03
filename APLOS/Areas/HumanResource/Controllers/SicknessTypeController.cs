@@ -15,7 +15,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class SicknessTypeController : BaseController
     {
-        MedicineMasterService mms = new MedicineMasterService();
+        
         SicknessTypeService st = new SicknessTypeService();
 
         #region const
@@ -38,7 +38,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                var _master = mms.Get(Id);
+                var _master = st.Get(Id);
 
 
                 return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
@@ -53,36 +53,13 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #endregion GET
 
-        #region GET SEQUENCE
-        [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
-        {
-            try
-            {
-                return Json(mms.GetSequence(), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-        #endregion GET SEQUENCE
-
-        #region SEARCH SAVED DATA IN GRID 
-        [HttpPost, Authorize]
-        public ActionResult GetList(string column, string value)
-        {
-            return Json(mms.GetList(column, value), JsonRequestBehavior.AllowGet);
-        }
-        #endregion SEARCH SAVED DATA IN GRID
-
         #region SAVE
         [HttpPost, Authorize]
         public ActionResult Save(Dictionary<string, object> data)
         {
             try
             {
-                return Json(new { Error = false, Data = mms.Save(data), Message = AplosMessage.Success });
+                return Json(new { Error = false, Data = st.Save(data), Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
@@ -98,11 +75,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
 
-                string ret = mms.Delete(id);
+                string ret = st.Delete(id);
 
                 if (ret == "Success")
                 {
-                    return Json(new { Error = false, Sequence = GetAutoSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {

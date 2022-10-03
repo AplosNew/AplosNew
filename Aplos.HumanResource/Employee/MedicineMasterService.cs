@@ -100,7 +100,7 @@ namespace Library.HumanResource.Employee
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableNameHead, out _Id);
 
-                    data["Id"] = "MdcnMstr" + _Id;
+                    data["Id"] = "MM" + _Id;
                     
                     AddNewRow(dsMaster.Tables[0], data);
                 }

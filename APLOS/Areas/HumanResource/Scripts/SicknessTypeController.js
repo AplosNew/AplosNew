@@ -33,7 +33,7 @@ function SicknessTypeController(cboService, commonMessage, $scope, $rootScope, b
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
             //ClearFields(response.data.Sequence);
-            $scope.GetSequence();
+            
         });
     }
    // $scope.getData();
@@ -42,17 +42,7 @@ function SicknessTypeController(cboService, commonMessage, $scope, $rootScope, b
     // ================================================FORM OBJECT DECLARATION & INITIALIZATION====================================
     $scope.ModelTemp = {
         Id: null,
-        Sequence: 0,
-        ShortName: null,
-        StandardName: null,
-        UserName:null,
-        Category: null,
-        SubCategory: null,
-        ItemName: null,
-        Rate: null,
-        Purpose:null,
-        Remarks: null,
-        IsActive: true
+        
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     // ================================================FORM OBJECT DECLARATION & INITIALIZATION=====================================
@@ -127,21 +117,8 @@ function SicknessTypeController(cboService, commonMessage, $scope, $rootScope, b
     };
     function ClearFields() {
         $scope.Action = 'Save';
-
-       
-            $scope.ModelTemp = {
-            Id: null,
-            Sequence: 0,
-            ShortName: null,
-            StandardName: null,
-            UserName: null,
-            Category: null,
-            SubCategory: null,
-            ItemName: null,
-            Rate: 0.00,
-            Purpose: null,
-            Remarks: null,
-            IsActive: true
+        $scope.ModelTemp = {
+            Id: null
             };
 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
