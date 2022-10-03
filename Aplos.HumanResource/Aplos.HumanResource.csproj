@@ -176,6 +176,8 @@
     <Compile Include="Employee\FactoryVisitorService.cs" />
     <Compile Include="Employee\FiveSZoneService.cs" />
     <Compile Include="Employee\FurniturePolicyService.cs" />
+    <Compile Include="Employee\MedicineMasterService.cs" />
+    <Compile Include="Employee\SicknessTypeService.cs" />
     <Compile Include="Employee\StorageBinMasterService.cs" />
     <Compile Include="Employee\SurveyAndFeedbackService.cs" />
     <Compile Include="Employee\ZoneMasterService.cs" />
