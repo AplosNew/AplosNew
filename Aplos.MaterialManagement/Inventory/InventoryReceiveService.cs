@@ -18344,7 +18344,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 ,TC.UserName ThirdChar
                 ,ISD.Qty POTransactionQty
                 ,ISD.TotalAmount AS TotalAmount
-                ,IRD.SalesRate TransactionRate
+                ,IRD.PolicyRate TransactionRate
                 ,null BaseAmount
                 ,null AS BaseTaxAmount
                 ,TaxAmount = (
