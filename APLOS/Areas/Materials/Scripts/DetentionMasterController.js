@@ -358,7 +358,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             $scope.ResponsibleDataList = response.data;
             for (var i = 0; i < $scope.userResponsibleList.length; i++) {
                 for (var j = 0; j < $scope.ResponsibleDataList.length; j++) {
-                    if ($scope.userResponsibleList[i].ResponsibleMasterId === $scope.ResponsibleDataList[j].Id) {
+                    if ($scope.userResponsibleList[i].ResponsibleMasterId === $scope.ResponsibleDataList[j].SystemId) {
                         $scope.ResponsibleDataList[j].chk = true;
                     }
                 }
@@ -535,7 +535,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
 
             if (baseService.arrayLength($scope.ResponsibleDataList) > 0) {
                 angular.forEach($scope.ResponsibleDataList, function (a) {
-                    if (checkResponsibleExist($scope.userResponsibleList, a.Id) === false) {
+                    if (checkResponsibleExist($scope.userResponsibleList, a.SystemId) === false) {
                         if (a.chk) {
                             var ob = {};
                             ob.Id = null;
@@ -607,9 +607,9 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         return false;
     }
 
-    function checkResponsibleExist(list, Id) {
+    function checkResponsibleExist(list, SystemId) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].ResPonsibleMasterId === Id) {
+            if (list[i].ResponsibleMasterId === SystemId) {
                 return true;
             }
         }
@@ -792,6 +792,25 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         }
 
         var gridObj = $("#GridDetentionMasterMachine").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.ResponsiblePersonGridAllCheck = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        for (var i = 0; i < $scope.ResponsibleDataList.length; i++) {
+            $scope.ResponsibleDataList[i].chk = ChkOrUnchk;
+        }
+
+        var gridObj = $("#GridDetentionMasterResponsible").data("ejGrid");
         gridObj.refreshContent();
     };
 
