@@ -298,6 +298,7 @@
                                         <th>Section</th>
                                         <th>SubSection</th>
                                         <th>LegalDesignation</th>
+                                        <th>Remove</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -693,7 +694,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div style="color:black;" id="GridDetentionMasterMachine" ej-grid e-datasource="MachineDataList"
-                         e-templaterefresh="DepartmentGridAllCheck"
+                         e-templaterefresh="MachineGridAllCheck"
                          e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true"
                          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
@@ -729,11 +730,11 @@
             <div class="modal-body">
                 <div class="row">
                     <div style="color:black;" id="GridDetentionMasterResponsible" ej-grid e-datasource="ResponsibleDataList"
-                         e-templaterefresh="DepartmentGridAllCheck"
+                         e-templaterefresh="ResponsiblePersonGridAllCheck"
                          e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true"
                          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateResponsible" e-template="#checkboxTemplateResponsible" e-textalign="center" e-width="7"></div>
+                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplateResponsible" e-template="#checkboxTemplateResponsible" e-textalign="center" e-width="7"></div>
                             <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
                             <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
                             <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="50"></div>
@@ -746,7 +747,7 @@
                         <input type="checkbox" id="headchk" />
                     </script>
                     <script type="text/template" id="checkboxTemplateResponsible">
-                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" />
                     </script>
                     <div class="common-btn">
                         <ul class="list-inline text-right">

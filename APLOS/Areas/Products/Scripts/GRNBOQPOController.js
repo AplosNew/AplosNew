@@ -197,7 +197,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.productNew.PartyId = party.Id;
         $scope.productNew.PaymentTermId = party.PaymentTermId;
         $scope.productNew.CurrencyId = party.CurrencyId;
-       
+
         getPartyPlantListBOQ();
         $scope.GetCurrencyExchangeRateList();
         $scope.hidePartyPopUp();
@@ -404,69 +404,63 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             //$("#GRnBOQPoo").ejDialog("setTitle", " BOQ List");
             //eDialog.open();
             $scope.getDetailsDataNew();
-           
+
         } catch (e) {
             ShowResult(e, 'info')
         }
     }
     $scope.MasterListNew = [];
     $scope.getDetailsDataNew = function () {
-        try {
-            var parameters = [];
-            var filteredRecords = [];
-            var currencyStatus = true;
-            var temCurrency = null;
-            $scope.MasterListNew = [];
-            for (var i = 0; i < $scope.DetailList.length; i++) {
-                if ($scope.DetailList[i].IsActives) {
-                    filteredRecords.push($scope.DetailList[i]);
-                    if (temCurrency == null) {
-                        temCurrency = $scope.DetailList[i].CurrencyId;
-                    }
-                    else if (temCurrency != $scope.DetailList[i].CurrencyId) {
-                        currencyStatus = false;
-                        throw ('PO must be same currency!!!');
-                    }
+        var parameters = [];
+        var filteredRecords = [];
+        var currencyStatus = true;
+        var temCurrency = null;
+        $scope.MasterListNew = [];
+        for (var i = 0; i < $scope.DetailList.length; i++) {
+            if ($scope.DetailList[i].IsActives) {
+                filteredRecords.push($scope.DetailList[i]);
+                if (temCurrency == null) {
+                    temCurrency = $scope.DetailList[i].CurrencyId;
+                }
+                else if (temCurrency != $scope.DetailList[i].CurrencyId) {
+                    currencyStatus = false;
+                    throw ('PO must be same currency!!!');
                 }
             }
-            $scope.productNew.CurrencyId = temCurrency;
-            $scope.getToCurrencyRate();
+        }
+        $scope.productNew.CurrencyId = temCurrency;
+        $scope.getToCurrencyRate();
 
-            parameters.push({ "Key": "POId", "Value": getString(filteredRecords, "POId") });
-            parameters.push({ "Key": "ContractId", "Value": getString(filteredRecords, "ContractId") });
-            parameters.push({ "Key": "SalesOrderIds", "Value": getString(filteredRecords, "SalesOrderId") });
+        parameters.push({ "Key": "POId", "Value": getString(filteredRecords, "POId") });
+        parameters.push({ "Key": "ContractId", "Value": getString(filteredRecords, "ContractId") });
+        parameters.push({ "Key": "SalesOrderIds", "Value": getString(filteredRecords, "SalesOrderId") });
 
-            var POId = parameters[0].Value;
-            var ContractId = parameters[1].Value;
-            var SalesOrderId = parameters[2].Value;
-            var masterOrderitemId = parameters[2].Value;
-            if (POId != "" && currencyStatus) {
-                $http({
-                    method: "POST",
-                    dataType: 'JSON',
-                    url: 'Products/GoodsReceiveNote/GetPOBOQItemForGRN',
-                    data: {
-                        'POId': POId,
-                        'ContractId': ContractId,
-                        'masterOrderitemId': masterOrderitemId,
-                        'SalesOrderId': SalesOrderId,
-                        'MaterialMasterId': $scope.MaterialMasterId,
-                        'ArticleId': $scope.ArticleId,
-                    }
-                }).then(function successCallback(response) {
-                    $scope.MasterListNew = response.data;
-                    //console.log($scope.MasterListNew);
-                });
-            }
-            //else {
-            //    var eDialog = $("#GRnBOQPoo").data("ejDialog");
-            //    $("#GRnBOQPoo").ejDialog("setTitle", " BOQ List");
-            //    eDialog.close();
-            //    throw ('Please select at least one PO!!!');
-            //}
+        var POId = parameters[0].Value;
+        var ContractId = parameters[1].Value;
+        var SalesOrderId = parameters[2].Value;
+        var masterOrderitemId = parameters[2].Value;
+        if (POId != "" && currencyStatus) {
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: 'Products/GoodsReceiveNote/GetPOBOQItemForGRN',
+                data: {
+                    'POId': POId,
+                    'ContractId': ContractId,
+                    'masterOrderitemId': masterOrderitemId,
+                    'SalesOrderId': SalesOrderId,
+                    'MaterialMasterId': $scope.MaterialMasterId,
+                    'ArticleId': $scope.ArticleId,
+                }
+            }).then(function successCallback(response) {
+                $scope.MasterListNew = response.data;
+                //console.log($scope.MasterListNew);
+            });
             angular.element(document.querySelector('#GRnBOQPoo')).modal('show');
-        } catch (e) {
-            ShowResult(e, 'info')
+        }
+        else {
+            if (POId == '')
+                ShowResult('Please select at least one PO!!!');
         }
     }
     $scope.boqPopClose = function () {
@@ -483,17 +477,17 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     });
     $scope.AcceptanceId = null;
     $scope.getToCurrencyRate = function () {
-            if (baseService.isUndefinedOrNull($scope.productNew.GRNDate)) {
-                $scope.productNew.ToCurrencyRate = 1;
-                return;
-            }
-            $http.get($scope.path + 'GetToCurrencyRate?currencyId=' + $scope.productNew.CurrencyId + '&baseCurrencyId=' + $scope.productNew.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.productNew.GRNDate))
-                .then(function (response) {
-                    if (parseFloat(response.data) === 0)
-                        $scope.productNew.ToCurrencyRate = 1;
-                    else
-                        $scope.productNew.ToCurrencyRate = response.data;
-                });
+        if (baseService.isUndefinedOrNull($scope.productNew.GRNDate)) {
+            $scope.productNew.ToCurrencyRate = 1;
+            return;
+        }
+        $http.get($scope.path + 'GetToCurrencyRate?currencyId=' + $scope.productNew.CurrencyId + '&baseCurrencyId=' + $scope.productNew.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.productNew.GRNDate))
+            .then(function (response) {
+                if (parseFloat(response.data) === 0)
+                    $scope.productNew.ToCurrencyRate = 1;
+                else
+                    $scope.productNew.ToCurrencyRate = response.data;
+            });
     };
     $scope.checkedByList = [];
     $scope.GetSupervisorCboList = function () {
@@ -713,7 +707,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                     ShowResult(response.data.Message, 'success');
                                     $scope.SaveButtonDisable = true;
                                     $scope.setTabGRNList(1);
-                                   
+
                                     $scope.productId = response.data.Id;
                                     $scope.productNew.Id = response.data.Id;
                                     $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
@@ -1162,7 +1156,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
         }
     };
-    $scope.calculateAmounts = function (data, index) {
+    $scope.calculateAmounts = function (data) {
         if (baseService.isUndefinedOrNull(data.PurchaseDocumentAcceptanceId)) {
 
             var count = 0;
@@ -1382,7 +1376,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         });
     };
     //$scope.GetListForGRNBYPO();
-   
+
     $scope.detailTemp = "#tabGridContents";
     $scope.detailgrid = function detailGridData(e) {
         //debugger;
@@ -1441,7 +1435,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.GRN = 3;
     };
 
-   
+
     $scope.setTabApprovedHR = function (newTab) {
         $scope.GRNbyPOApprovedStatus = "ApprovedHoldReject";
         $scope.tab = newTab;
@@ -1973,7 +1967,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             ShowResult(e, 'failure')
         }
     }
-    
+
     $scope.GetgrnBOQPO = function (z) {
         //debugger;
         var x = "#" + z;

@@ -18280,7 +18280,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 							--from  TRN.InventorySalesHistory 
 							--group by InventorySalesDetailId
 							--)  ISH ON ISH.InventorySalesDetailId=IRD.Id
-				LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 4) SalesRate,ROUND(sum(PolicyAmount), 2) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IRD.Id
+				LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 4) SalesRate,ROUND(sum(TransactionQty*SalesRate), 2)  TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IRD.Id
 
                 LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
                 INNER JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
