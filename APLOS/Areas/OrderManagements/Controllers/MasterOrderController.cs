@@ -29,6 +29,8 @@ using Library.Service.Enums;
 using Aplos.Helpers;
 using System.Web;
 using System.Linq;
+using Library.Model.Materials;
+using Library.Service.Materials;
 #endregion
 
 namespace Aplos.Areas.OrderManagements.Controllers
@@ -43,12 +45,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
         private readonly IPartyService _partyService;
         private readonly ICustomerPOService _customerPOService;
         private readonly ISqlRepository _sqlRepository;
-        public MasterOrderController(IMasterOrderService masterOrderService, IPartyService partyService, ICustomerPOService customerPOService, ISqlRepository R)
+        private readonly ICharacteristicsValueService _characteristicsValueService;
+        public MasterOrderController(IMasterOrderService masterOrderService, IPartyService partyService, ICustomerPOService customerPOService, ISqlRepository R, ICharacteristicsValueService characteristicsValueService)
         {
             _masterOrderService = masterOrderService;
             _partyService = partyService;
             _customerPOService = customerPOService;
             _sqlRepository = R;
+            _characteristicsValueService = characteristicsValueService;
         }
 
         #endregion
@@ -1917,6 +1921,25 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         #endregion
+
+        [HttpPost,Authorize]
+        public JsonResult CreateCharacteristicsValue(CharacteristicsValue entity, string MaterialMasterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                entity.CompanyGroupId = identity.CompanyGroupId;
+                _characteristicsValueService.InsertBOMSKU(entity);
+
+                return Json(new { CharacteristicsValue = entity, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
     }
 
     public class OpenHeadModelNew

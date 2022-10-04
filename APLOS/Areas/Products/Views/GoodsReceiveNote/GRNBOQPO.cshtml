@@ -388,6 +388,7 @@
                                     <tr ng-show="MasterList.length">
                                         <th>
                                         </th>
+                                        <th>QualityStatus</th>
                                         <th ng-show="x.POID !='null' && x.POID!='null'">PO Id</th>
                                         <th ng-show="x.InventoryReceiveDetailId !='null' && x.InventoryReceiveDetailId!='null'">PORowId</th>
                                         <th ng-hide="GriddataSelected.length===0 || GriddataSelected.length>0">AcceptanceId</th>
@@ -427,7 +428,7 @@
                                         <th>MaterialLotNumber </th>
                                         <th>MaterialDiameter</th>
                                         <th>MaterialType</th>
-                                        <th>QualityStatus</th>
+
                                         <th class="col-sm-1" colspan="2"></th>
                                     </tr>
                                   
@@ -441,6 +442,16 @@
                                                     <input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.TransactionQty===0 || x.TransactionQty==='' || x.TransactionQty===null">
                                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                                 </label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="select-style">
+                                                <select name="Quality Status" style="height:30px;" ng-model="x.QualityStatus" class="form-control">
+                                                    <option value=""></option>
+                                                    <option value="Approved">Approved</option>
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Reject">Reject</option>
+                                                </select>
                                             </div>
                                         </td>
                                         <td ng-show="x.POID !='null' && x.POID!='null'">{{x.POID}}</td>
@@ -493,18 +504,7 @@
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
-                                        <td>
-                                            <div class="select-style">
-                                                <select name="Quality Status" style="height:30px;" ng-model="x.QualityStatus" class="form-control">
-                                                    <option value=""></option>
-                                                    <option value="Approved">Approved</option>
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="Reject">Reject</option>
-                                                </select>
-                                            </div>
 
-
-                                        </td>
 
                                         <td class="text-right">
                                             <ul class="list-inline action-list">
@@ -1907,8 +1907,9 @@
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>
                                 <div e-column e-template="#checkBOQboxList" e-textalign="center" e-width="30"></div>
-                                <div e-column e-field="BOQDetailId" e-headertext="BOQDetailId" e-width="200"></div>
-                                <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="200"></div>
+                                <div e-column e-field="BOQDetailId" e-headertext="BOQDetailId" e-width="80"></div>
+                                <div e-column e-field="RefferenceNo" e-headertext="Style" e-width="100"></div>
+                                <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="120"></div>
                                 <div e-column e-field="UserName" e-headertext="Material" e-width="150"></div>
                                 <div e-column e-field="StandardName" e-headertext="Article" e-width="100"></div>
                                 <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
@@ -1937,9 +1938,7 @@
                                 <div e-column e-field="ShortageValue" e-headertext="ShortageValue" e-width="80"></div>
                                 <div e-column e-field="RejectionRate" e-headertext="RejectionRate" e-width="80"></div>
                                 <div e-column e-field="RejectionClamRate" e-headertext="RejectionClamRate" e-width="80"></div>
-                                <div e-column e-field="RefferenceNo" e-headertext="RefferenceNo" e-width="80"></div>
                                 <div e-column e-field="MaterialDetail" e-headertext="MaterialDetail" e-width="80"></div>
-
                             </div>
 
                         </div>
@@ -1953,7 +1952,7 @@
                             <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmounts(data);" width="200" ng-model="data.GRNRcvQty" ng-disabled="true">
                         </script>
                         <script type="text/template" id="CurrentTextTRNQty">
-                            <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmounts(data,$index);" width="200" ng-model="data.TransactionQty">
+                            <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="$parent.calculateAmounts(data);" width="200" ng-model="data.TransactionQty">
                         </script>
                         <script type="text/template" id="CurrentTextShortQty">
                             <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmounts(data,$index);" width="200" ng-model="data.ShortageQty" ng-disabled="false">

@@ -314,14 +314,15 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult LoadResponsibleList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT convert(bit,0) AS chk,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,DEP.UserName AS Department,S.UserName as Section,
+            string sql = @"SELECT distinct convert(bit,0) AS chk,DMR.Id,DMR.ResponsibleMasterId,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,DEP.UserName AS Department,S.UserName as Section,
                             SS.UserName as SubSection,DEG.UserName AS [LegalDesignation]
                             FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN DetentionMasterResponsible DMR ON DMR.ResponsibleMasterId=EI.SystemId
                             LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
 							LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            WHERE EI.EmployeeStatus='Active' and EI.DepartmentId in (select distinct DepartmentId from DetentionMasterDepartment)";
+                            WHERE EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and EI.DepartmentId in (select distinct DepartmentId from DetentionMasterDepartment)";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

@@ -2720,6 +2720,15 @@ namespace Library.MaterialManagement.Inventory
                             else ''
                             END
 							,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount
+                            ,BuyerPONumber=STUFF((SELECT DISTINCT ','+PO.PONumber from
+                            			BOQ boq
+                            			INNER JOin trn.POBOQMAP xboqMap on boq.Id=xboqMap.BOQDetailId
+										INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
+										LEFT OUTER JOIN [TRN].[SalesOrder] AS so ON so.MasterOrderItemId=boq.MasterOrderItemId
+										LEFT OUTER JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+										left join trn.GRNPORequisitionAllocation pogrnmap on pogrnmap.BOQDetailId=boq.Id
+                            			WHERE pogrnmap.InventoryReceiveDetailId=IRD.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -2913,6 +2922,7 @@ namespace Library.MaterialManagement.Inventory
                             else ''
                             END
 							,Null LotNo , Null QualityStatus , Null GrossAmount ,Null DiscountAmount
+                            ,'' BuyerPONumber
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -18395,7 +18405,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 							--from  TRN.InventorySalesHistory 
 							--group by InventorySalesDetailId
 							--)  ISH ON ISH.InventorySalesDetailId=IRD.Id
-				LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 4) SalesRate,ROUND(sum(PolicyAmount), 2) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IRD.Id
+				LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 4) SalesRate,ROUND(sum(TransactionQty*SalesRate), 2)  TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IRD.Id
 
                 LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
                 INNER JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId

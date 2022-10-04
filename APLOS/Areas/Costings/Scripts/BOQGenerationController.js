@@ -195,7 +195,7 @@ function BOQGenerationController(cboService, commonMessage, $scope, $rootScope, 
         }
         
         //var CheckedData = ej.DataManager($scope.MaterialList).executeLocal(ej.Query().where("Selected", "equal", true));
-        var _SalesOrderData = ej.DataManager($scope.SelectedSalesOrderList).executeLocal(ej.Query().select(["SalesOrderId", "RN"]));
+        var _SalesOrderData = ej.DataManager($scope.SelectedSalesOrderList).executeLocal(ej.Query().select(["SalesOrderId", "RN","CostingStage"]));
         $http({
             method: 'POST',
             url: $scope.path + "Save",

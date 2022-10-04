@@ -124,8 +124,8 @@ namespace Library.OrderManagement.Costing
         public List<Dictionary<string, object>> GetAllCostingDirectMaterialForQuantityEdit(string CostingBOQMasterId)
         {
 
-            string sql = @"SELECT convert(bit,isnull(mm.WithSKU,0)) AS WithSKU,BOQ.CostingItemId,boq.SalesOrderId,d.UserName AS Destination,
-                            cv1.UserName AS SKU1,cv2.UserName AS SKU2,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
+            string sql = @"SELECT convert(bit,isnull(mm.WithSKU,0)) AS WithSKU,BOQ.CostingItemId,boq.SalesOrderId--,d.UserName AS Destination,
+                            ,cv1.UserName AS SKU1,cv2.UserName AS SKU2,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
                                     BOQ.Id, ci.Sequence,ci.UserName AS CostingItem,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
                                     mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,
                                     boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,boq.rate*boq.RequiredQty AS BOMAmount,boq.Rate,BOQ.BOQCriteria,c.Code AS Currency,
@@ -135,8 +135,14 @@ namespace Library.OrderManagement.Costing
  CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
  BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria
 ,SONumber=STUFF((select distinct ','+XSO.Id 
-                                         from   trn.SalesOrder XSO 	                                    
-							             where XSO.Id=boq.SalesOrderId     	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                         from trn.SalesOrder XSO
+										 LEFT JOIN dbo.CostingBOQMaster CBM ON CBM.Id=XSO.CostingBOQMasterId
+							             where CBM.Id=boq.CostingBOQMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+,Destination=STUFF((select distinct ','+d.UserName 
+                                         from mst.Destination D
+										 LEFT JOIN trn.SalesOrder XSO ON XSO.DestinationId=D.Id
+										 LEFT JOIN dbo.CostingBOQMaster CBM ON CBM.Id=XSO.CostingBOQMasterId
+							             where CBM.Id=boq.CostingBOQMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
                                     LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
@@ -329,6 +335,7 @@ namespace Library.OrderManagement.Costing
         {
             try
             {
+                string costingStage = "";
                 if (MasterData == null)
                     throw new Exception("Please select parameters");
 
@@ -350,6 +357,9 @@ namespace Library.OrderManagement.Costing
                 string CostingItemIds = "''";
                 for (int i = 0; i < ItemData.Count; i++)
                     CostingItemIds += ",'" + ItemData[i]["CostingItemId"].ToString() + "'";
+
+
+                costingStage = SalesOrderData[0]["CostingStage"].ToString();
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -507,7 +517,7 @@ namespace Library.OrderManagement.Costing
                     }
                 }
                 #endregion BOQ Items
-                BOQ(_masterId, SOIds, CostingItemIds, ItemData[0]["OrderCostingMasterTemplateId"].ToString(), out DataSet dsBOQ, out DataSet dsBOQCompact);
+                BOQ(_masterId, SOIds, CostingItemIds, ItemData[0]["OrderCostingMasterTemplateId"].ToString(), costingStage, out DataSet dsBOQ, out DataSet dsBOQCompact);
 
                 //for (int i = 0; i < dsItems.Tables[0].DefaultView.Count; i++)
                 //{
@@ -652,9 +662,46 @@ namespace Library.OrderManagement.Costing
         }
 
 
-        private void BOQQuery(string CostingBOQMasterId, string SalesOrderIds, string ProcurementCostingItemIds, string CostingTemplateId, out DataTable dt, out Dictionary<string, DataRow> dicNewBOQ)
+        private void BOQQuery(string CostingBOQMasterId, string SalesOrderIds, string ProcurementCostingItemIds, string CostingTemplateId, string costingStage, out DataTable dt, out Dictionary<string, DataRow> dicNewBOQ)
         {
-            string _sql = @"SELECT so.Id AS SalesOrderId,ocs.CostingItemId,ocs.MaterialMasterId,ocs.ArticleId,ocs.VendorId,so.DestinationId,ci.Sequence,
+            string _sql = "";
+            if (costingStage== "PreCosting")
+            {
+                _sql = @"SELECT so.Id AS SalesOrderId,ocs.CostingItemId,ocs.MaterialMasterId,ocs.ArticleId,ocs.VendorId,so.DestinationId,ci.Sequence,
+                                OCS.Id AS OrderProcurementCostingDirectMaterialId,OCS.BOQCriteria,OCS.POCriteria,
+                                fc.CharacteristicsValueId AS FGFirstCharacteristicsValueId,sc.CharacteristicsValueId FGSecondCharacteristicsValueId,tc.CharacteristicsValueId FGThirdCharacteristicsValueId,
+                                ocs.GrossConsumption,ci.UnitOfMeasurementId AS UoMId, ocs.GrossAmount,cmt.CurrencyId,
+                                CASE WHEN isnull(tc.Id,'')<>'' THEN tc.Qty ELSE 
+                                CASE WHEN ISNULL(sc.Id,'')<>'' THEN sc.Qty ELSE
+                                CASE WHEN ISNULL(fc.Id,'')<>'' THEN fc.Qty ELSE so.Qty END END END AS OrderQty
+   
+                                   from trn.SalesOrder so
+                                                            LEFT JOIN OrderPreCostingDirectMaterial OCS ON 1=1
+                                                            JOIN OrderCostingMasterTemplate AS cmt ON cmt.Id=ocs.OrderCostingMasterTemplateId
+                                                            JOIN hkp.CostingItem AS ci ON ci.Id=OCS.CostingItemId
+
+                                                            LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id
+                                                            LEFT JOIN trn.SecondCharacteristics AS sc ON sc.FirstCharacteristicsId=fc.Id AND sc.SalesOrderId=so.Id
+                                                            LEFT JOIN trn.ThirdCharacteristics AS tc ON tc.SecondCharacteristicsId=sc.Id AND tc.SalesOrderId=so.Id
+
+                       
+							                                LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=fc.CharacteristicsValueId
+							                                LEFT JOIN hkp.Characteristics AS c1 ON c1.Id=cv1.CharacteristicsId
+							
+							                                LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=sc.CharacteristicsValueId
+							                                LEFT JOIN hkp.Characteristics AS c2 ON c2.Id=cv2.CharacteristicsId
+							
+							                                LEFT JOIN hkp.CharacteristicsValue AS cv3 ON cv3.Id=tc.CharacteristicsValueId
+							                                LEFT JOIN hkp.Characteristics AS c3 ON c3.Id=cv3.CharacteristicsId
+							
+							
+                                    WHERE so.Id IN (" + SalesOrderIds + @") AND Ci.Id  IN (" + ProcurementCostingItemIds + @") AND ocs.OrderCostingMasterTemplateId='" + CostingTemplateId + @"'
+                                          and isnull(CONCAT(SO.Id,'-',OCS.Id),'') NOT IN (select isnull(CONCAT(SalesOrderId,'-',OrderProcurementCostingDirectMaterialId),'') AS Id from CostingBOQItems where CostingBOQMasterId<>'" + CostingBOQMasterId + @"')
+                                    ORDER BY so.Id,fc.CharacteristicsValueId,sc.CharacteristicsValueId,tc.CharacteristicsValueId,ci.Id";
+            }
+            else
+            {
+                _sql = @"SELECT so.Id AS SalesOrderId,ocs.CostingItemId,ocs.MaterialMasterId,ocs.ArticleId,ocs.VendorId,so.DestinationId,ci.Sequence,
                                 OCS.Id AS OrderProcurementCostingDirectMaterialId,OCS.BOQCriteria,OCS.POCriteria,
                                 fc.CharacteristicsValueId AS FGFirstCharacteristicsValueId,sc.CharacteristicsValueId FGSecondCharacteristicsValueId,tc.CharacteristicsValueId FGThirdCharacteristicsValueId,
                                 ocs.GrossConsumption,ci.UnitOfMeasurementId AS UoMId, ocs.GrossAmount,cmt.CurrencyId,
@@ -685,6 +732,7 @@ namespace Library.OrderManagement.Costing
                                     WHERE so.Id IN (" + SalesOrderIds + @") AND Ci.Id  IN (" + ProcurementCostingItemIds + @") AND ocs.OrderCostingMasterTemplateId='" + CostingTemplateId + @"'
                                           and isnull(CONCAT(SO.Id,'-',OCS.Id),'') NOT IN (select isnull(CONCAT(SalesOrderId,'-',OrderProcurementCostingDirectMaterialId),'') AS Id from CostingBOQItems where CostingBOQMasterId<>'" + CostingBOQMasterId + @"')
                                     ORDER BY so.Id,fc.CharacteristicsValueId,sc.CharacteristicsValueId,tc.CharacteristicsValueId,ci.Id";
+            }
 
 
             dt = _sqlRepository.GetDataTable(_sql);
@@ -808,10 +856,10 @@ namespace Library.OrderManagement.Costing
 
         }
 
-        public void BOQ(string CostingBOQMasterId, string SalesOrderIds, string CostingItemIds, string CostingTemplateId, out DataSet dsExistingBOQ, out DataSet CompactBOQData)
+        public void BOQ(string CostingBOQMasterId, string SalesOrderIds, string CostingItemIds, string CostingTemplateId,string costingStage, out DataSet dsExistingBOQ, out DataSet CompactBOQData)
         {
             DataSet dsMISO;
-            BOQQuery(CostingBOQMasterId, SalesOrderIds, CostingItemIds, CostingTemplateId, out DataTable dtNewBOQ, out Dictionary<string, DataRow> dicNewData);
+            BOQQuery(CostingBOQMasterId, SalesOrderIds, CostingItemIds, CostingTemplateId, costingStage, out DataTable dtNewBOQ, out Dictionary<string, DataRow> dicNewData);
 
             ConnectionManager.clsConnectionManager ConManager = new ConnectionManager.clsConnectionManager();
             ConManager.getDataSet("select * from CostingBOQ where SalesOrderId IN (" + SalesOrderIds + ") AND CostingItemId IN (" + CostingItemIds + ")", out dsExistingBOQ);
@@ -1385,9 +1433,53 @@ namespace Library.OrderManagement.Costing
                                     
                                     ORDER BY ci.Sequence";
 
+            string sql = @"SELECT distinct BOQ.Id, boq.CostingBOQMasterId, convert(bit,isnull(mm.WithSKU,0)) AS WithSKU
+                            ,cv1.UserName AS SKU1,cv2.UserName AS SKU2,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
+                                    ci.Sequence,ci.UserName AS ItemDesc,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
+                                    mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson
+                                    ,isnull(boq.OrderQty,0) SOQty,boq.BOMQty
+									,isnull(SCBI.SQty*OPCD.GrossConsumption,0) RequiredQty
+									,isnull(OPCD.Rate,0) UnitRate,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,boq.rate*boq.RequiredQty AS BOMAmount,boq.Rate,BOQ.BOQCriteria,c.Code AS Currency
+									,OPCD.GrossConsumption,isnull(boq.BOMQty*OPCD.Rate,0) PlanAmount,isnull((SCBI.SQty*OPCD.GrossConsumption)*OPCD.Rate,0) AS RequiredAmount
+                                    ,BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc,ci.Id CostingItemId
+  --boq.Rate*BOQ.RequiredQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount 
+  ,BOQ.OwnReferenceNo,BOQ.Remark,
+  SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+ CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+ BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria
+,SalesOrderId=STUFF((select distinct ','+XSO.Id 
+                                         from trn.SalesOrder XSO
+										 LEFT JOIN dbo.CostingBOQMaster CBM ON CBM.Id=XSO.CostingBOQMasterId
+							             where CBM.Id=boq.CostingBOQMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+,Destination=STUFF((select distinct ','+d.UserName 
+                                         from mst.Destination D
+										 LEFT JOIN trn.SalesOrder XSO ON XSO.DestinationId=D.Id
+										 LEFT JOIN dbo.CostingBOQMaster CBM ON CBM.Id=XSO.CostingBOQMasterId
+							             where CBM.Id=boq.CostingBOQMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
+                                    FROM BOQ
+                                    LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
+                                    LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
+                                    LEFT JOIN employeeinformation emp ON emp.SystemId=cb.EmployeeSystemId
+									LEFT JOIN (Select DISTINCT SalesOrderId,CostingBOQMasterId,CostingItemId,OrderProcurementCostingDirectMaterialId from CostingBOQItems )CBI on CBI.CostingBOQMasterId=boq.CostingBOQMasterId AND CBI.CostingItemId=boq.CostingItemId 
+									LEFT JOIN OrderProcurementCostingDirectMaterial OPCD on OPCD.Id=CBI.OrderProcurementCostingDirectMaterialId AND CBI.CostingItemId=OPCD.CostingItemId AND boq.CostingItemId=OPCD.CostingItemId
+									LEFT JOIN (Select SUM(S.Qty)SQty, C.CostingBOQMasterId,C.CostingItemId from CostingBOQItems C
+									JOIN TRN.SalesOrder S ON S.Id=C.SalesOrderId GROUP BY C.CostingBOQMasterId,C.CostingItemId
+									)SCBI on SCBI.CostingBOQMasterId=boq.CostingBOQMasterId AND SCBI.CostingItemId=boq.CostingItemId 
+                                    LEFT JOIN trn.SalesOrder AS so ON so.Id=boq.SalesOrderId
+                                    LEFT JOIN mst.Destination AS d ON d.Id=so.DestinationId
+                                    LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
+                                    LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
+                                    LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=boq.ArticleId
+                                    LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=boq.UoMId
+                                    LEFT JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
 
-            DataTable dtData = _sqlRepository.GetDataTable(MainQtuery);
+                                    LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
+                                    LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
+                                    WHERE BOQ.CostingBOQMasterId='" + CostingBOQMasterId + @"'                                     
+                                    ORDER BY ci.Sequence";
+
+            DataTable dtData = _sqlRepository.GetDataTable(sql);
 
             return dtData;
 
