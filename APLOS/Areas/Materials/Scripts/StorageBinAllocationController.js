@@ -194,8 +194,6 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
                 $scope.ModelNew.MaterialMasterId = response.data.Data.MaterialMasterId
                 $scope.SaveMaterialAllocation();
                 $scope.SaveBinAllocation();
-                //$scope.viewBinHead();
-                //$scope.selectBinIDs();
                 
             }
         }), function errorCallBack(response) {
@@ -229,6 +227,8 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
 
 
             };
+        $scope.BinHeadList = [];
+        $scope.BinAllocationChildList = [];
         $scope.StorageLocation = null;
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
@@ -238,6 +238,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     // ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
 
     */
+    $scope.userMaterialList = [];
     $scope.selectIDs = function () {
         $http({
             method: 'POST',
@@ -266,6 +267,13 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
                 throw 'Invalid Request';
             }
             $scope.BinHeadList = response.data;
+            for (var i = 0; i < $scope.userMaterialList.length; i++) {
+                for (var j = 0; j < $scope.BinHeadList.length; j++) {
+                    if ($scope.userMaterialList[i].Id === $scope.BinHeadList[j].Id) {
+                        $scope.BinHeadList[j].chk = true;
+                    }
+                }
+            }
             $scope.selectBinIDs();
         })
     }
@@ -276,6 +284,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
 
     */
     $scope.BinAllocationChildList = [];
+    $scope.userBinAllocationList = [];
     $scope.selectBinIDs = function () {
         $http({
             method: 'POST',
@@ -297,6 +306,14 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
                 throw 'Invalid Request';
             }
             $scope.BinAllocationChildList = response.data;
+
+            for (var i = 0; i < $scope.userBinAllocationList.length; i++) {
+                for (var j = 0; j < $scope.BinAllocationChildList.length; j++) {
+                    if ($scope.userBinAllocationList[i].Id === $scope.BinAllocationChildList[j].Id) {
+                        $scope.BinAllocationChildList[j].chk = true;
+                    }
+                }
+            }
         })
     }
 
@@ -306,7 +323,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     $scope.selheaderBin = function () {
         
         for (var i = 0; i < $scope.BinHeadList.length; i++) {
-            if ($scope.BinHeadList[i].isSelected == true) {
+            if ($scope.BinHeadList[i].chk == true) {
                 $scope.headerBinId.push($scope.BinHeadList[i].Id);
                 $scope.selHeaderBinList.push($scope.BinHeadList[i]);
             }
@@ -327,7 +344,29 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     }
 
     $scope.SaveMaterialAllocation = function () {
-        $scope.selheaderBin();
+        //$scope.selheaderBin();
+
+        if (baseService.arrayLength($scope.BinHeadList) > 0) {
+            angular.forEach($scope.BinHeadList, function (a) {
+                
+                    if (a.chk) {
+                        var ob = {};
+                        ob.Id = null;
+                        ob.ArticleName = a.ArticleName;
+                        ob.MaterialGroupMasterId = a.MaterialGroupMasterId;
+                        ob.MaterialMaster = a.MaterialMaster;
+                        ob.MaterialMasterId = a.MaterialMasterId;
+                        ob.MaterialType = a.MaterialType;
+                        ob.MaterialTypeId = a.MaterialTypeId;
+                        ob.MaterialgroupName = a.MaterialgroupName;
+
+                        $scope.userMaterialList.push(ob);
+                        ob = {};
+                    }
+                
+
+            });
+        }
         
         $scope.$broadcast('show-errors-check-validity');
 
@@ -336,7 +375,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             url: $scope.path + 'SaveMaterialAllocation',
             data: {
                 'headerId': $scope.ModelNew.Id,
-                'BinHead': $scope.selHeaderBinList,
+                'material': $scope.userMaterialList,
                 'storagelevel': $scope.ModelNew.StorageLevel,
             },
             dataType: 'JSON'
@@ -354,8 +393,33 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
 
     };
 
+    // Bin allocation
     $scope.SaveBinAllocation = function () {
-        $scope.selBinAllocation();
+        //$scope.selBinAllocation();
+        if (baseService.arrayLength($scope.BinAllocationChildList) > 0) {
+            angular.forEach($scope.BinAllocationChildList, function (a) {
+
+                if (a.chk) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.AccessType = a.AccessType;
+                    ob.AreaRackCode = a.AreaRackCode;
+                    ob.BinCode = a.BinCode;
+                    ob.BinReference = a.BinReference;
+                    ob.CapacityValue = a.CapacityValue;
+                    ob.ColumnNo = a.ColumnNo;
+                    ob.Remarks = a.Remarks;
+                    ob.RowNo = a.RowNo;
+                    ob.StorageBinMasterId = a.StorageBinMasterId;
+                    ob.UserLocationType = a.UserLocationType;
+
+                    $scope.userBinAllocationList.push(ob);
+                    ob = {};
+                }
+
+
+            });
+        }
         $scope.$broadcast('show-errors-check-validity');
 
         $http({
@@ -363,7 +427,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             url: $scope.path + 'SaveBinAllocation',
             data: {
                 'headerId': $scope.ModelNew.Id,
-                'BinHead': $scope.SelectedBinAllocationList,
+                'BinHead': $scope.userBinAllocationList,
                 'MaterialId': $scope.ModelNew.MaterialMasterId
             },
             dataType: 'JSON'
@@ -373,7 +437,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             }
             else {
                 ShowResult(response.data.Message, 'success');
-
+                $scope.Clear();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -382,28 +446,15 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     };
 
     // TAB CHANGE
+   
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
-    };
 
+
+    };
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
-    };
-
-    $scope.redirectTab = function () {
-        if ($scope.tabForm1.$invalid) {
-            $scope.setTab(1);
-        }
-        else if ($scope.tabForm2.$invalid) {
-            $scope.setTab(2);
-        }
-        else if ($scope.tabForm3.$invalid) {
-            $scope.setTab(3);
-        }
-        else if ($scope.tabForm4.$invalid) {
-            $scope.setTab(4);
-        }
     };
 
     // Enable Disable
@@ -423,6 +474,53 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
 
     }
 
+    // SELECT UNSELECT ALL
+
+   // Materiall Allocation
+    $scope.chkdMaterialAllocation = [];
+    $scope.MaterialAllocationGridAllCheck = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        for (var i = 0; i < $scope.BinHeadList.length; i++) {
+            $scope.BinHeadList[i].chk = ChkOrUnchk;
+            $scope.chkdMaterialAllocation = $scope.BinHeadList[i].chk;
+        }
+
+        var gridObj = $("#GridEdit").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // Bin Allocation
+    $scope.chkdBinAllocation = [];
+    $scope.BinAllocationGridAllCheck = function (args) {
+        $("#headchkB").ejCheckBox({ "change": BinAllCheckBoxSelectAll });
+    };
+
+    function BinAllCheckBoxSelectAll(e) {
+
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        for (var i = 0; i < $scope.BinAllocationChildList.length; i++) {
+            $scope.BinAllocationChildList[i].chk = ChkOrUnchk;
+            $scope.chkdBinAllocation = $scope.BinAllocationChildList[i].chk;
+        }
+
+        var gridObj = $("#GridEditB").data("ejGrid");
+        gridObj.refreshContent();
+    };
 
 }
 

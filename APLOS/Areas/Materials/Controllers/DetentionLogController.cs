@@ -115,6 +115,20 @@ namespace Aplos.Areas.Materials.Controllers
                 return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [Authorize, HttpPost]
+        public JsonResult getMachineMasterAsset()
+        {
+
+            try
+            {
+                return Json(dl.getMachineMasterAsset(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         #endregion Save Operations
     }
 }

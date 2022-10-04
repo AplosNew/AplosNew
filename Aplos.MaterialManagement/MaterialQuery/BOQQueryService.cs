@@ -135,7 +135,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
 						, IR.Id AS GRNNo, IRD.POId AS PONo, TUoM.UserName AS TUoM, BUoM.UserName AS BUoM, IRD.TransactionUoMId,  IRD.BaseUOMId, IRD.BaseUoMFactor,IRD.BaseUoMFactor GRNBaseUoMFactor, 1 TempBaseUoMFactor
-                        , round(IRD.MaterialTranRate,4) MaterialTranRate,  TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
+                        , round(IRD.MaterialTranRate,4) MaterialTranRate, round(IRD.MaterialTranRate,4) Rate,  TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
                         --, BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.MaterialTranAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END
 						, IRD.TrnCurrencyBaseRate BaseRate
                         , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS ReceiveDate, 0 AS RequisitionQty
@@ -158,8 +158,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						,MM.UserName MaterialMasterName
 						,IM.ArticleId
 						,MMA.StandardName ArticleName
-						,IM.FirstCharacteristicsValueId
+                        ,IM.FirstCharacteristicsValueId
+						,FC.UserName SKU1
 						,IM.SecondCharacteristicsValueId
+						,SC.UserName SKU2
 						,IM.ThirdCharacteristicsValueId
 						
 						,IM.FirstCharacteristicsId
@@ -172,6 +174,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
                     FROM TRN.GRNPORequisitionAllocation grnmap
 					join [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+                    LEFT JOIN HKP.CharacteristicsValue FC ON FC.Id=IM.FirstCharacteristicsValueId
+					LEFT JOIN HKP.CharacteristicsValue SC ON SC.Id=IM.SecondCharacteristicsValueId
 					LEFT JOIN mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
 					LEFT JOIN mst.MaterialMasterArticle MMA ON MMA.Id=Im.ArticleId
                     left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id

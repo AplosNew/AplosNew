@@ -65,7 +65,8 @@ namespace Aplos.HumanResource
             try
             {
                 string CmdText = @"select Emp.EmployeeCode,Emp.EmployeeName,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,MSD.UserName BudgatedShift,ESD.UserName AssignedShift
-									,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,PR.PaymentLink Skill,DEG.UserName GivenDesignation
+									,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ
+									,Skill =isnull(OM.UserName,OV.UserName),DEG.UserName GivenDesignation
 									,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName EntityName
 									,PL.UserName Plant,TG.UserName TransportGroup,'' StoppageId
                                         FROM EmployeeInformation EMP
@@ -83,7 +84,8 @@ namespace Aplos.HumanResource
                                         left join [dbo].[TransportGroup] TG on TG.Id=EMP.TransportGroupId
 										LEFT JOIN dbo.AttdnProcessData apd on apd.EmpSystemID=EMP.SystemId AND apd.WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy')
 										LEFT JOIN ShiftDefination ESD on ESD.SystemID=apd.ShiftSystemID
-
+										LEFT JOIN [MST].[OperationVariation] OV on OV.Id=EMP.OperationVariationId
+                                        LEFT JOIN [MST].[OperationMaster] OM on OM.Id=EMP.OperationMasterId
                               Where EMP.PlantId ='" + plantId + @"' AND EMP.EmployeeStatus='Active' 
 							   and TG.IsTransportApplicable=1 and EMP.SystemId not in (select EmployeeSystemId from EmployeeTransportAllocation where AssignStatus=1)
                               ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
@@ -102,12 +104,13 @@ namespace Aplos.HumanResource
         {
             try
             {
-                string CmdText = @"select ETA.Id,EI.EmployeeCode,EI.EmployeeName,EI.EmployeeStatus,EI.EmployeeCurrentStatus,MSD.UserName BudgatedShift,ESD.UserName AssignedShift
-                                                ,format(EI.DOJ,'dd-MMM-yyyy') DOJ,EI.DOS,R.StandardName [Route],TD.TransportUserName Transport,SD.UserName [Shift]
-							                    ,R.[From],R.[To],RS.Id TripId,RS.TripNo,PR.PaymentLink Skill,DEG.UserName GivenDesignation,S.UserName Section,SS.UserName SubSection
-							                    ,DEPT.UserName Department,E.UserName Entity,PL.UserName Plant,ST.Id StoppageId,ST.UserName Stoppage,ETA.AssignStatus
-												,format(ETA.UnassignDate,'dd-MMM-yyyy') UnassignDate,format(ETA.AssignDate,'dd-MMM-yyyy') AssignDate,TG.UserName TransportGroup
-												
+                string CmdText = @"select ETA.Id,EI.EmployeeCode,EI.EmployeeName,EI.EmployeeStatus,EI.EmployeeCurrentStatus,format(EI.DOJ,'dd-MMM-yyyy') DOJ,EI.DOS,R.StandardName [Route]
+							                    ,TD.TransportUserName Transport,SD.UserName [Shift],R.[From],R.[To],RS.Id TripId,RS.TripNo
+												,Skill =isnull(OM.UserName,OV.UserName)
+							                    ,DEG.UserName GivenDesignation,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName Entity,PL.UserName Plant
+												,ST.Id StoppageId,ST.UserName Stoppage,ETA.AssignStatus,format(ETA.UnassignDate,'dd-MMM-yyyy') UnassignDate
+												,format(ETA.AssignDate,'dd-MMM-yyyy') AssignDate,TG.UserName TransportGroup
+												,MSD.UserName BudgatedShift,ESD.UserName AssignedShift
 							                    from EmployeeTransportAllocation ETA
 							                    left join EmployeeInformation EI on EI.SystemId = ETA.EmployeeSystemId
 							                    LEFT JOIN MST.ManpowerBudget PMB ON PMB.Id=EI.BudgetCode
@@ -126,7 +129,9 @@ namespace Aplos.HumanResource
 							                    left join HKP.Stoppage ST on ST.Id=ETA.StoppageId
                                                 left join [dbo].[TransportGroup] TG on TG.Id=EI.TransportGroupId
                                                 LEFT JOIN dbo.AttdnProcessData apd on apd.EmpSystemID=EI.SystemId AND apd.WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy')
-												LEFT JOIN ShiftDefination ESD on ESD.SystemID=apd.ShiftSystemID 
+												LEFT JOIN ShiftDefination ESD on ESD.SystemID=apd.ShiftSystemID
+												LEFT JOIN MST.OperationVariation OV on OV.Id=EI.OperationVariationId
+												LEFT JOIN MST.OperationMaster OM on OM.Id=EI.OperationMasterID 
                                 
                                 Where EI.PlantId='" + plantId + @"' and ETA.AssignStatus = 1 ";
 

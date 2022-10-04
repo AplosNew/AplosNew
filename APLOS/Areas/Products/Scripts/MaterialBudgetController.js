@@ -255,7 +255,7 @@ function MaterialBudgetController(accountService, addressService, $window, facto
                             //$scope.productNew.PartyName = $scope.product.PartyName;
 
                             $scope.Action = "Update";
-                            //$scope.getDataList();
+                            $scope.Clear();
                             $scope.getalldata();
                         }
                     }), function (response) {
@@ -275,7 +275,7 @@ function MaterialBudgetController(accountService, addressService, $window, facto
                         }
                         else {
                             ShowResult(response.data.Message, 'success');
-                            //$scope.getDataList();
+                            $scope.Clear();
                             $scope.getalldata();
 
                         }
@@ -325,55 +325,7 @@ function MaterialBudgetController(accountService, addressService, $window, facto
         data.TaxAmount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
     };
     $scope.receiveTaxList = [];
-    //$scope.closeReceiveTaxPopUp = function () {
-
-    //    //var materialData = $scope.salesMaterialList[$scope.currentMaterialRow];
-    //    $scope.inventoryMaterialList[$scope.currentMaterialRow].TaxAmount = null;
-    //    angular.forEach($scope.receiveTaxList, function (item) {
-    //        $scope.inventoryMaterialList[$scope.currentMaterialRow].BaseTaxAmount += item.TotalAmount;
-    //    });     
-
-    //    $scope.inventoryMaterialList[$scope.currentMaterialRow].BaseAmount = parseFloat($scope.inventoryMaterialList[$scope.currentMaterialRow].TrnAmount) + parseFloat($scope.inventoryMaterialList[$scope.currentMaterialRow].BaseTaxAmount);
-    //    $scope.materialMaster = {};
-    //    //$scope.receiveTaxList = [];
-    //    $scope.isService = false;
-    //    //Extra Tax Will add here  shakawat
-
-    //   // $scope.detailModel = $scope.currentInventoryReceiveDetailIdRow;
-    //   // $scope.detailModel[0].InventoryReceiveDetailId = $scope.currentInventoryReceiveDetailIdRow;
-
-
-    //   // //if ($scope.TAction === "OK") {
-    //   //     $http({
-    //   //         method: 'POST',
-    //   //         //url: $scope.saveUrl,
-    //   //         url: '/Products/Requisition/InsertExtraTax',
-    //   //         //data: $scope.receiveTaxList,
-    //   //         data: {
-    //   //               entity: $scope.detailModel
-    //   //             , taxCategoryList: $scope.receiveTaxList
-    //   //         },
-    //   //         dataType: 'JSON'
-    //   //     }).then(function (response) {
-    //   //         if (response.data.Error === true) {
-    //   //             ShowResult(response.data.Message, 'failure');
-    //   //         }
-    //   //         else {
-    //   //             ShowResult(response.data.Message, 'success');
-    //   //             //$scope.productNew.Id = response.data.entity.Id;
-    //   //            // $scope.productNew.PartyName = $scope.product.PartyName;
-    //   //            // $scope.Action = "Update";
-    //   //             //$scope.getDataList();
-    //   //         }
-    //   //     }), function (response) {
-    //   //         ShowResult(response.data.Message, 'failure');
-    //   //     };
-    //   //// }
-
-
-
-    //   //angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
-    //};
+   
     $scope.LoadTaxButtonClick = function () {
         accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
             $scope.taxCategoryList = result;
@@ -424,8 +376,6 @@ function MaterialBudgetController(accountService, addressService, $window, facto
 
     $scope.Clear = function () {
         ClearFields();
-        if (!$rootScope.isCollapsed) $rootScope.toggle();
-        return true;
     };
 
     function ClearFields() {
@@ -449,7 +399,30 @@ function MaterialBudgetController(accountService, addressService, $window, facto
         $scope.chargesList = [];
         $scope.grossTotal = 0;
         baseService.removeErrorClasses();
-        //$scope.getToCurrencyRate();
+        $scope.detailModel = {
+            Id: null,
+            CompanyGroupId: null,
+            EntityId: null,
+            EmployeeId: null,
+            EmployeeName: null,
+            ActivityId: null,
+            BudgetMasterId: null,
+            GLGeneralInfoId: null,
+
+            MaterialMasterId: null,
+            ArticleId: null,
+            FirstCharacteristicsId: null,
+            FirstCharacteristicsValueId: null,
+            SecondCharacteristicsId: null,
+            SecondCharacteristicsValueId: null,
+            ThirdCharacteristicsId: null,
+            ThirdCharacteristicsValueId: null,
+            BudgetPeriod: null,
+            BudgetQty: null,
+            ProcurementFrequencyCategory: null,
+            ProcurementsPlanDay: null,
+            Remarks: null
+        };
     }
 
     $scope.changeAllInvoice = function () {
@@ -528,11 +501,7 @@ function MaterialBudgetController(accountService, addressService, $window, facto
         }
     };
     $scope.getToCurrencyRate = function () {
-        //debugger;
-        //if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
-        //    $scope.productNew.ToCurrencyRate = 1;
-        //    return;
-        //}
+     
         $http.get($scope.path + 'GetToCurrencyRate?currencyId=' + $scope.detailModel.CurrencyId)
             .then(function (response) {
                 if (parseFloat(response.data) === 0) {
@@ -715,115 +684,6 @@ function MaterialBudgetController(accountService, addressService, $window, facto
     //$scope.MAction = "Edit";
     //InventoryReceiveDetailId, TransactionQty, TransactionRate, TrnAmount, BaseTaxAmount, BaseAmount, index
     $scope.detailPopUpEdit = function () {
-        ////debugger;
-        //if ($scope.MAction == "Edit") {
-        //    $scope.index = index;
-        //    $http({
-        //        method: 'GET',
-        //        url: $scope.path + 'GetReceiveTaxList?receiveDetailId=' + InventoryReceiveDetailId
-        //    }).then(function (response) {
-        //        $scope.receiveTaxList = response.data;
-        //        //$scope.HSNCode = response.data[0]['HSNCode'];
-        //        //angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
-        //    });
-        //    $scope.enable = false;
-        //    $scope.MAction = "Update";
-
-        //}
-        //else if ($scope.MAction == "Update") {
-        //    $http({
-        //        method: 'POST',
-        //        url: '/Products/Requisition/UpdateMaterial',
-        //        data: {
-        //            InventoryReceiveDetailId: InventoryReceiveDetailId,
-        //            TransactionQty: TransactionQty,
-        //            TransactionRate: TransactionRate,
-        //            TrnAmount: TrnAmount,
-        //            BaseAmount: BaseAmount,
-        //            BaseTaxAmount: BaseTaxAmount,
-        //            receiveTaxList:$scope.receiveTaxList
-        //        },
-        //        dataType: 'JSON'
-        //    }).then(function (response) {
-        //        if (response.data.Error === true) {
-        //            ShowResult(response.data.Message, 'failure');
-        //        }
-        //        else {
-        //            ShowResult(response.data.Message, 'success');
-        //            //$scope.productNew.Id = response.data.entity.Id;
-        //            //$scope.productNew.PartyName = $scope.product.PartyName;
-        //            //$scope.Action = "Update";
-        //            //getInventoryMaterialList($scope.detailModel.Id);
-
-        //        }
-        //    }), function (response) {
-        //        ShowResult(response.data.Message, 'failure');
-        //    };
-        //    $scope.enable = true;
-        //    $scope.MAction = "Edit";
-
-        //}
-        //else {
-        //}
-        //$scope.detailModel = {
-        //    Id: data.InventoryReceiveDetailId
-        //    //, CountryId: null
-        //    , InventoryReceiveId: $scope.productNew.Id
-        //    , MaterialStorageId: $scope.productNew.MaterialStorageId//$scope.productNew.MaterialStorageId
-        //    , CurrencyName: angular.element("#currency :selected").text()
-        //    , CurrencyId: $scope.productNew.CurrencyId
-        //    , BaseCurrencyId: $scope.baseCurrencyId
-        //    , DocDate: $scope.productNew.DocDate
-        //    , InventoryMaterialId: data.Id
-        //    //, MaterialMasterId: null
-        //    , MaterialMasterName: data.UserName
-        //    , ArticleId: null
-        //    , ArticleName: data.StandardName
-        //    , MaterialType: null
-        //    , OurStyleName: null
-        //    , Description: null
-        //    , MaterialGroupMasterName: data.MaterialGroupMasterName
-        //    , ProductMasterName: null
-        //    , IsOurStyleRequired: false
-        //    , IsProductMstRequired: false
-
-        //    , FirstCharacteristicsId: null
-        //    , FirstCharacteristicsValueId: null
-
-        //    , SecondCharacteristicsId: null
-        //    , SecondCharacteristicsValueId: null
-
-        //    , ThirdCharacteristicsId: null
-        //    , ThirdCharacteristicsValueId: null
-
-        //    , TransactionQty: data.TransactionQty
-        //    , TransactionUoMId: data.TransactionUoMId
-        //    , TransactionRate: data.TransactionRate
-        //    , TransactionAmount: data.TrnAmount
-        //    , BaseQty: data.TransactionQty
-        //    , BaseUOMId: data.TransactionUoMId
-        //    , BaseUoM: data.BaseUoM
-        //    , BaseUoMFactor: data.TransactionQty
-
-
-        //    , TotalQty: null
-        //    , TotalAmount: 0
-        //    , TotalTaxAmount: 0
-        //    , AvgRate: null
-        //    , ToCurrencyRate: $scope.productNew.ToCurrencyRate
-        //    , IsNonCreditable: $scope.productNew.IsNonCreditable
-        //    , IsOriginApplicable: false
-        //    , PartyCode: null
-        //};
-
-        //for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-        //    for (var t = 0; t < $scope.inventoryMaterialList[i].TaxList.length; t++) {
-        //        $scope.receiveTaxList.push($scope.inventoryMaterialList[i].TaxList[t]);
-        //    }
-
-        //}
-        //$scope.enable = false;
-        //$scope.MAction = "Update"; 
         $http({
             method: 'POST',
             url: 'Products/Requisition/UpdateMaterial',
@@ -848,38 +708,7 @@ function MaterialBudgetController(accountService, addressService, $window, facto
             ShowResult(response.data.Message, 'failure');
         };
 
-
-
-
-        //$scope.detailModel.MaterialStorageId = data.MaterialStorageId
-
-
-
-        // data.TransactionQty=
-        // $scope.clearCharNames();
-        // angular.element(document.querySelector('#detailPopUpEdit')).modal('show');
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     $scope.MaterilaUpdate = function () {
 
@@ -1858,20 +1687,6 @@ function MaterialBudgetController(accountService, addressService, $window, facto
     };
     $scope.getApprovaldata();
 
-    //$scope.GriddataAUth = [];
-    //$scope.getApprovaldataAUth = function () {
-    //    $http({
-    //        method: "GET",
-    //        dataType: 'JSON',
-    //        //url: $scope.getSearchListUrl,
-    //        url: 'Products/Requisition/GetListForPOApprovalAuthorized',
-    //    }).then(function successCallback(response) {
-    //        $scope.GriddataAUth = response.data;
-    //        //entrydata = copy(searchdata);
-    //    });
-    //};
-    //$scope.getApprovaldataAUth();
-
     $scope.GriddataAUth1 = [];
     $scope.getApprovaldataAUth1 = function () {
         $http({
@@ -1885,13 +1700,6 @@ function MaterialBudgetController(accountService, addressService, $window, facto
         });
     };
     $scope.getApprovaldataAUth1();
-
-
-
-
-
-
-
 
     $scope.GriddataVendor = [];
     $scope.getalldataVendor = function () {
@@ -2235,22 +2043,7 @@ function MaterialBudgetController(accountService, addressService, $window, facto
 
     //#endregion
 
-    //Compare with Todays Date
-    //$scope.checkDocDate = function () {
-    //    var msg = "";
-    //    if (new Date($scope.voucher.InvoiceDate) > new Date()) {
-    //        $scope.invalidDocDate = true;
-    //        msg = "Doc date must be below or equal to current Date!";
-    //    }
-    //    else if (baseService.isUndefinedOrNull($scope.voucher.InvoiceDate)) {
-    //        msg = "Doc Date is required.";
-    //        $scope.invalidDocDate = true;
-    //    }
-    //    else {
-    //        $scope.invalidDocDate = false;
-    //    }
-    //    return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
-    //};
+   
     $scope.invalidDocDate = false;
     $scope.checkDocDate = function () {
         var msg = "";
@@ -2824,15 +2617,6 @@ function MaterialBudgetController(accountService, addressService, $window, facto
     // #endregion
 
 
-
-
-
-
-
-
-
-
-
     //#region FGForMasterOrder(Finishing Goods For Master Order) 22-Jun-2019
 
     $scope.MasterOrderList = function () {
@@ -3232,7 +3016,6 @@ function MaterialBudgetController(accountService, addressService, $window, facto
 
     //#endregion
 
-
     $scope.checkedByList = [];
     $scope.GetSupervisorCboList = function () {
         //debugger;
@@ -3244,25 +3027,6 @@ function MaterialBudgetController(accountService, addressService, $window, facto
         });
     }
     $scope.GetSupervisorCboList();
-
-
-
-
-
-
-    //$scope.EntityList = [];
-    //$scope.GetEntity = function () {
-    //    //debugger;
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Products/Requisition/GetEntity'
-    //    }).then(function successCallback(response) {
-    //        $scope.EntityList = response.data;
-    //    });
-    //}
-    //$scope.GetEntity();
-
-
 
 
     baseService.getCompanyConfiguration(function (result) {
@@ -3283,8 +3047,6 @@ function MaterialBudgetController(accountService, addressService, $window, facto
     }
     $scope.GetReq();
 
-
-
     $scope.EmployeeList = [];
     $scope.GetEmployee = function () {
         //debugger;
@@ -3296,10 +3058,6 @@ function MaterialBudgetController(accountService, addressService, $window, facto
         });
     }
     $scope.GetEmployee();
-
-
-
-
 
     $scope.searchglByList = [
         {

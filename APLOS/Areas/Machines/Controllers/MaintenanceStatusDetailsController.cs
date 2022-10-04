@@ -88,6 +88,181 @@ MS.Remarks
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult LoadMaintenanceStatusPlannedList(string ToDate,string MaintenanceId,string Value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,
+WC.UserName WorkCenter,MS.ScheduleDays,MS.LastMaintenanceDate,
+Case when isnull(MS.LastMaintenanceDate,'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
+Case when isnull(MS.LastMaintenanceDate,'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
+Case when isnull(MS.LastMaintenanceDate,'')='' then Case when GETDATE()<GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())<GETDATE() then 1 else 0 end end OverDue,
+Case when isnull(MS.LastMaintenanceDate,'')='' then Case when GETDATE()=GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())=GETDATE() then 1 else 0 end end DueToday,
+Case when isnull(MS.LastMaintenanceDate,'')='' then Case when (GETDATE()>GETDATE() and GETDATE()!=GETDATE()) then 1 else 0 end else Case when ((MS.ScheduleDays+GETDATE())>GETDATE() and (MS.ScheduleDays+GETDATE())!=GETDATE()) then 1 else 0 end end FutureDue,
+MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,isnull(APD.[Status],1) as [Status],APD.ActualDate,APD.Remarks
+ from TRN.Maintenancescheduling MS
+ left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
+ left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
+ left join ORG.Entity E ON E.Id=MMA.EntityId
+ left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
+ where MMA.Id is not null and MS.Id='" + MaintenanceId + "' and (Case when isnull(MS.LastMaintenanceDate,'')='' then convert(varchar(20),GETDATE(),106) else convert(varchar(20),(MS.ScheduleDays+GETDATE()),106) end)=(select replace('" + ToDate + "','-',' ')) and 1='"+Value+"'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadReponsiblePersonList(string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select RPD.IsActive,RPD.Id,EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection 
+									from TRN.MaintenancePersonBudgetCode PBC
+left Join [MST].[ManpowerBudget] AS MB ON MB.Id=PBC.PersonBudgetCodeId
+left join dbo.EmployeeInformation AS EI ON EI.BudgetCode=PBC.PersonBudgetCodeId
+LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId=EI.SystemId and RPD.PlannedId='" + Id + @"'
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+WHERE EI.EmployeeStatus='Active'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult createPlanned(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[MachineAssetPlannedDetails]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "APD" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                           
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult createResponsible(List<Dictionary<string, object>> DataList,string PId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[ResponsiblePlannedDetails]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "RPD" + _Id;
+                            item["PlannedId"] = PId;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            item["PlannedId"] = PId;
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
         #endregion -- Operations
     }
 }

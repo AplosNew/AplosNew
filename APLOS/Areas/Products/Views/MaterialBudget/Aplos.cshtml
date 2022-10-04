@@ -1,5 +1,4 @@
-﻿
-<style>
+﻿<style>
     .e-filterset:before {
         /*content: "";*/
         color: white;
@@ -20,9 +19,7 @@
         height: 20px;
         width: 50px;
     }
-</style>
 
-<style>
     body {
         color: #000000;
         font-family: Sans-Serif;
@@ -125,9 +122,7 @@
         box-sizing: border-box;
     }
 </style>
-
 <togglable name="Material Budget"></togglable>
-
 @*Index Grid*@
 <div class="aplos-grid-toggle">
     <div class="row text-right" hidden>
@@ -151,9 +146,6 @@
             </div>
         </div>
     </div>
-
-
-
     <fieldset class="scheduler-border">
         <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
         <div>
@@ -167,10 +159,10 @@
 
                         @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
                         @*<div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="80"></div>
-        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
 
-        <div e-column e-field="ShortName" e-headertext="ShortName" e-width="80"></div>
-        <div e-column e-field="StandardName" e-headertext="StandardName" e-width="80"></div>*@
+                            <div e-column e-field="ShortName" e-headertext="ShortName" e-width="80"></div>
+                            <div e-column e-field="StandardName" e-headertext="StandardName" e-width="80"></div>*@
 
                         <div e-column e-field="Id" e-headertext="M.BudgetNo" e-width="80"></div>
                         <div e-column e-field="EntityName" e-headertext="EntityName" e-width="80"></div>
@@ -197,25 +189,11 @@
             </div>
         </div>
     </fieldset>
-
-
-
-
-
-
-
 </div>
-
-
-
-
-@*@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")*@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
-
-
 <div class="form-horizontal form-elements" ng-form="productNewForm">
     <div class="modal-body form-elements form-horizontal">
         <fieldset class="scheduler-border">
@@ -611,217 +589,9 @@
             </ul>
         </div>
     </div>
-
-
-
-    @*<fieldset class="scheduler-border">
-            <legend class="scheduler-border"></legend>
-
-            <div class="col-md-12">
-                <div class="col-md-4">
-                    <div class="form-group" id="" show-errors>
-                        <label class="col-sm-4 control-label">EntityId <sup>*</sup></label>
-                        <div class="col-sm-8 show-message ">
-                            <div class="select-style">
-                                <select class="form-control" id="MachineCategory" name="Machine Category" ng-model="modelNew.MachineCategoryId" ng-options="item.Value as item.Text for item in MachineCategoryList" tabindex="3" required>
-
-                                    <option value="">---Please Select---</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group" id="" show-errors>
-                        <label class="col-sm-4 control-label">EmployeeId <sup>*</sup></label>
-                        <div class="col-sm-8 show-message ">
-                            <div class="select-style">
-                                <select class="form-control" id="MachineSubCategory" name="MachineSub Category" ng-model="modelNew.MachineSubCategoryId" ng-options="item.Value as item.Text for item in MachineSuvCategoryList" tabindex="3" required>
-
-                                    <option value="">---Please Select---</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-
-                    <div class="form-group" id="" show-errors>
-                        <label class="col-sm-4 control-label">BudgetActivityId<sup>*</sup></label>
-                        <div class="col-sm-8 show-message ">
-                            <div class="select-style">
-                                <select class="form-control" id="Skill" name="Skill" ng-model="modelNew.SkillId" ng-options="item.Value as item.Text for item in SkillList"
-                                        tabindex="6">
-                                    <option value="">---Please Select---</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-
-            <div class="clearfix"></div>
-            <div class="clearfix"></div>
-            <div class="col-md-12">
-
-                <div class="col-md-4">
-                    <div class="form-group" id="" show-errors>
-                        <label class="col-sm-4 control-label">Budget Qty  <sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Budget Qty" ng-model="modelNew.BudgetQty" class="form-control" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-group" id="" show-errors>
-                        <label class="col-sm-4 control-label">Procurement Frequency Category <sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Procurement Frequency Category   " ng-model="modelNew.ProcurementFrequencyCategory   " class="form-control" required>
-                        </div>
-                    </div>
-                </div>
-
-
-
-
-
-                <div class="col-md-4">
-                    <div class="form-group" id="" show-errors>
-                        <label class="col-sm-4 control-label">ProcurementsPlanDay<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="ProcurementsPlanDay  " ng-model="modelNew.ProcurementsPlanDay" class="form-control" required>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-            <div class="clearfix"></div>
-            <div class="col-md-12">
-
-                <div class="col-md-4">
-                    <div class="form-group" id="" show-errors>
-                        <label class="col-sm-4 control-label">BudgetId <sup>*</sup></label>
-                        <div class="col-sm-8 show-message ">
-                            <div class="select-style">
-                                <select class="form-control" id="MachineCategory" name="Machine Category" ng-model="modelNew.MachineCategoryId" ng-options="item.Value as item.Text for item in MachineCategoryList" tabindex="3" required>
-
-                                    <option value="">---Please Select---</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-
-
-
-
-
-                <div class="col-md-4">
-                    <div class="form-group" id="" show-errors>
-                        <label class="col-sm-4 control-label">Budget Period  <sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Budget Period" ng-model="modelNew.BudgetPeriod" class="form-control" required>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-            <div class="clearfix"></div>
-            <div class="col-md-12">
-
-                <div class="col-md-4">
-
-                    <div class="form-group" id="div_mm">
-                        <label class="col-sm-4 control-label">Material</label>
-                        <div class="col-sm-8 show-message">
-                            <div class="input-group">
-                                <input type="text" ng-model="detailModel.MaterialMasterName" class="form-control" readonly>
-                                <span class="input-group-btn">
-                                    <button tabindex="1" ng-click="getMaterialMasterbyTypePopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-
-
-                <div class="col-md-4">
-
-
-
-                    <div class="form-group" id="div_mm">
-                        <label class="col-sm-4 control-label">Article</label>
-                        <div class="col-sm-8 show-message">
-                            <div class="input-group">
-                                <input type="text" ng-model="detailModel.MaterialMasterName" class="form-control" readonly>
-                                <span class="input-group-btn">
-                                    <button tabindex="1" ng-click="getMaterialMasterbyTypePopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-4">
-                    <div class="form-group" id="">
-                        <label class="col-sm-4 control-label">Remarks</label>
-                        <div class="col-sm-8 show-message ">
-                            <textarea class="form-control" rows="3" ng-model="modelNew.Remarks" maxlength="500" tabindex="6"></textarea>
-
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-            <div class="clearfix"></div>
-            <div class="clearfix"></div>
-            <div class="col-md-12">
-                <div class="col-md-4" show-errors>
-                    <div class="form-group" id="">
-                        <label class="col-sm-4 control-label">Active<sup>*</sup></label>
-                        <div class="col-sm-8 show-message ">
-                            <input type="checkbox" name="Active" ng-model="modelNew.Active" checked="checked" />
-
-                        </div>
-                    </div>
-                </div>
-
-
-
-
-            </div>
-            <div class="col-md-12 text-right" style="padding-top: 17px;">
-
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>
-        </fieldset>*@
 </div>
-
 <div class="clearfix"></div>
-
-
-
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
-
-
-
-
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteManpower();"></confirm-archive-generic>
 

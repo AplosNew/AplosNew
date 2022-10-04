@@ -5025,7 +5025,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             if ($scope.skuForm.$valid) {
                 $http({
                     method: 'POST',
-                    url: 'OrderManagements/BOMMaster/CreateCharacteristicsValue',
+                    url: 'OrderManagements/MasterOrder/CreateCharacteristicsValue',
                     data: { 'entity': $scope.characteristicsvalueNew },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {

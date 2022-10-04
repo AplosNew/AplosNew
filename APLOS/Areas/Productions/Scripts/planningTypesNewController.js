@@ -894,7 +894,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
 
     //#endregion
 
-    //#region     
+    //#region  CapacityPlan   
 
     $scope.PlanCapacityList = [];
     $scope.GetPlanCapacityData = function () {
@@ -908,7 +908,60 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         }
     }
 
+    $scope.SavePlanCapacity = function () {
+        try {
+            for (var i = 0; i < $scope.PlanCapacityList.length; i++) {
+                $scope.PlanCapacityList[i].PlanningTypesId = $scope.planningTypesNew.Id;
+            }
+
+            $http({
+                method: 'POST',
+                url: 'Productions/PlanningTypesNew/CreateCapacityPlanning',
+                data: { "data": $scope.PlanCapacityList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetPlanCapacityData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
 
     //#endregion
+
+
+    document.addEventListener('keydown', function () {
+        if (event.keyCode == 123) {
+            alert("You Can not Do This!");
+            return false;
+        } else if (event.ctrlKey && event.shiftKey && event.keyCode == 73) {
+            alert("You Can not Do This!");
+            event.preventDefault();
+            return false;
+        } else if (event.ctrlKey && event.keyCode == 85) {
+            alert("You Can not Do This!");
+            return false;
+        }
+    }, false);
+
+    if (document.addEventListener) {
+        document.addEventListener('contextmenu', function (e) {
+            alert("You Can not Do This!");
+            e.preventDefault();
+        }, false);
+    } else {
+        document.attachEvent('oncontextmenu', function () {
+            alert("You Can not Do This!");
+            window.event.returnValue = false;
+        });
+    }
 
 }

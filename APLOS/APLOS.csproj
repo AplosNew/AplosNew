@@ -585,6 +585,8 @@
     <Compile Include="Areas\HumanResource\Controllers\FurnitureMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\SicknessTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\MedicineMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTCompensatoryAllocationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTControlLimitController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeSkillMatrixController.cs" />
@@ -755,6 +757,7 @@
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingTypeController.cs" />
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Costings\Controllers\OrderLineCostingItemController.cs" />
+    <Compile Include="Areas\OrderManagements\Controllers\SalesOrderApprovalController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\PackingTypeController.cs" />
     <Compile Include="Areas\Organizations\Controllers\PositionWiseMPStatusController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
@@ -1190,6 +1193,7 @@
     <Compile Include="Controllers\APIAuthenticationForRawData.cs" />
     <Compile Include="Controllers\APIAuthentication.cs" />
     <Compile Include="Controllers\ApopAPIHR\ApopAPIHRController.cs" />
+    <Compile Include="Controllers\ApopAPIHR\DetentionAPIController.cs" />
     <Compile Include="Controllers\AttendanceController.cs" />
     <Compile Include="Controllers\AplosConnectivityController.cs" />
     <Compile Include="Controllers\BookingSaudaController.cs" />
@@ -2035,6 +2039,8 @@
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
+    <Content Include="Areas\HumanResource\Scripts\MedicineMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\SicknessTypeController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTCompensatoryAllocationController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTControlLimitReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTControlLimitController.js" />
@@ -2174,6 +2180,7 @@
     <Content Include="Areas\MeetingManagement\Scripts\MeetingTypeController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\meetingManagementConfig.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\SalesOrderApprovalController.js" />
     <Content Include="Areas\OrderManagements\Scripts\PackingTypeController.js" />
     <Content Include="Areas\Organizations\Scripts\PositionWiseMPStatusController.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
@@ -4299,6 +4306,9 @@
     <Content Include="Areas\Materials\Views\DetentionLogout\_MachineUnderStoppage.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionLogout\_Update.cshtml" />
     <Content Include="Areas\Machines\Views\MaintenanceStatusDetails\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicineMaster\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\SicknessType\Aplos.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\SalaesOrderApproval\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -1906,9 +1906,9 @@ WHERE po.Id='" + POID+@"'";
                 TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
                 TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
                 //TROW.Cells[colHSNCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
-                TROW.Cells[colMatDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialDescription"].ToString());
+                TROW.Cells[colMatDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialDetail"].ToString());
                 //TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
-                TROW.Cells[colRefferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["RefferenceNo"].ToString());
+                TROW.Cells[colRefferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyerReferenceNo"].ToString());
                 TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());
                 //TROW.Cells[colOriginCountry].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CountryOfOrigin"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
@@ -2094,18 +2094,17 @@ WHERE po.Id='" + POID+@"'";
             string strSQL;
             try
             {
-                strSQL = @"SELECT PO.Id PONumber
+    
+     strSQL= @"SELECT PO.Id PONumber
                     ,HSNC.Code HSNCode
  	                ,CNO.ContractNo
  	                ,CNO.Id ContractId
-                    --,mo.BuyerReferenceNo 
-					,BuyerReferenceNo=REPLACE(REPLACE(
-										STUFF((select distinct ', '+mo.BuyerReferenceNo 
-										FROM trn.MasterOrder mo 
-										JOIN trn.MasterOrderItem AS moit ON moit.MasterOrderId=mo.Id
-                                        WHERE CNO.Id=moit.ContractId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-										,'&amp;','&'), 'amp;', '')
-
+                    --,BuyerReferenceNo=STUFF((SELECT DISTINCT ','+moi.BuyerReferenceNo from
+                    --   BOQ boq
+                    --   INNER JOin trn.POBOQMAP xboqMap on boq.Id=xboqMap.BOQDetailId
+		            --   INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
+		            --   LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=boq.MasterOrderItemId
+                    --           WHERE xpod.Id=pod.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 					,PLC.LCRef LCNumber 
                     ,PLC.BenificiaryBank BeneficiaryBank
                     ,PLC.BenificiaryBank OpeningBank
@@ -2116,7 +2115,7 @@ WHERE po.Id='" + POID+@"'";
                     ,Plant.GSTIN
 	                ,REPLACE(Convert(VARCHAR(11), PLC.LCDate, 106), ' ', '-') AS LCODate
                     ,REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
-                    ,POType=CASE WHEN PO.POType='POBOQ' then 'PO BOQ' ELSE 'PO BOQ' END
+                    ,POType=CASE WHEN PO.POType='PO' then 'PO Without Requisition' when PO.POType='POBOQ' then 'PO BOQ' ELSE 'PO With Requisition' END
                     ,REPLACE(Convert(VARCHAR(11), PO.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
                     ,REPLACE(Convert(VARCHAR(11), PO.MatureDate, 106), ' ', '-') AS MatureDate
                     ,PO.InvoicingPartyPlantId
@@ -2139,8 +2138,8 @@ WHERE po.Id='" + POID+@"'";
                     ,PO.IsApproved
                     ,PO.PartyType
                     ,PO.PartyId
-                    ,POD.RefferenceNo
-                    ,isnull(convert(numeric(10,2),PO.DiscountAmount),0) DiscountAmount
+                    ,POD.RefferenceNo BuyerReferenceNo
+                    ,isnull(PO.DiscountAmount,0) DiscountAmount
                     ,ISNULL(PO.DeliveryInstruction,'') DeliveryInstruction
                     ,ISNULL(PO.SpecialInstruction,'') SpecialInstruction
                     ,Party.UserName VendorName
@@ -2149,7 +2148,7 @@ WHERE po.Id='" + POID+@"'";
                     ,Case When PO.IsNonCreditable = 1 then 'NonCreditable' when Po.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
                     ,PO.CurrencyId
                     ,CRNC.Code AS CurrencyName
-					,isnull(CONVERT(numeric(10,4),PO.ToCurrencyRate),0) ToCurrencyRate
+                    ,PO.ToCurrencyRate
                     ,BASECRNC.Code AS BaseCurrencyName
                     ,PayTerm.UserName PaymentTerm
                     ,MM.UserName MaterialMaster
@@ -2169,30 +2168,43 @@ WHERE po.Id='" + POID+@"'";
                     ,SC.UserName SecondChar
                     ,TC.Id ThirdCharId
                     ,TC.UserName ThirdChar
-                    ,isnull(convert(numeric(10,2),ROUND(POD.TransactionQty,2)),0) POTransactionQty
-                    ,isnull(convert(numeric(10,2),ROUND(POD.TransactionRate,4)),0) TransactionRate
-                    ,isnull(convert(numeric(10,2),ROUND((POD.TransactionQty * POD.TransactionRate),2)),0) AS TrnAmount
-                    ,isnull(convert(numeric(10,2),POD.BaseAmount),0) BaseAmount
-                    ,isnull(convert(numeric(10,2),POD.TotalTaxAmount),0) AS BaseTaxAmount
+                    ,ROUND(POD.TransactionQty, 2) POTransactionQty
+                    ,ROUND(POD.TransactionRate, 4) TransactionRate
+                    ,ROUND((POD.TransactionQty * POD.TransactionRate), 2) AS TrnAmount
+                    ,POD.BaseAmount
+                    ,POD.TotalTaxAmount AS BaseTaxAmount
                     ,REPLACE(Convert(VARCHAR(11), POD.DeliveryDate, 106), ' ', '-') AS DeliveryDate
-                    ,TaxAmount =convert(numeric(10,2), (
+                    ,TaxAmount = (
                     SELECT SUM(TaxAmount)
                     FROM [TRN].[PurchaseOrderTax]
                     WHERE InventoryReceiveDetailId = POD.Id
-                    ))
-                    ,ServiceTaxAmount =isnull(convert(numeric(10,2),(
+                    )
+                    ,ServiceTaxAmount = (
                     SELECT SUM(TotalTaxAmount)
                     FROM [TRN].[POService]
                     WHERE InventoryReceiveId = POD.InventoryReceiveId
-                    )),0)
+                    )
                     ,POD.Description
-                    ,isnull(convert(numeric(10,2),POD.ChargesAmount),0) ChargesAmount
+                    ,POD.ChargesAmount
                     ,POD.CountryId
                     ,POCountry.UserName CountryOfOrigin
                     ,POD.Id PurchaseOrderDetailId
                     ,POD.TransactionUoMId
                      ,TUoM.ShortName AS TransactionUoM
-                    ,MRMD.MaterialDetail MaterialDetail
+                    --,MRMD.MaterialDetail MaterialDetail
+                     ,MaterialDetail=STUFF((SELECT DISTINCT ','+boq.RMDescription from
+                            			BOQ boq
+                            			INNER JOin trn.POBOQMAP xboqMap on boq.Id=xboqMap.BOQDetailId
+										INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
+										LEFT JOIN CostingBOQItems xboqI on xboqI.CostingItemId=boq.CostingItemId
+                            			WHERE xpod.Id=pod.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,BuyerPONumber=STUFF((SELECT DISTINCT ','+PO.PONumber from
+                            			BOQ boq
+                            			INNER JOin trn.POBOQMAP xboqMap on boq.Id=xboqMap.BOQDetailId
+										INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
+										LEFT OUTER JOIN [TRN].[SalesOrder] AS so ON so.MasterOrderItemId=boq.MasterOrderItemId
+										LEFT OUTER JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                            			WHERE xpod.Id=pod.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                     ,CheckStatus= CASE when PO.CheckedByStatus='pending' Then 'To be checked'
                     when PO.CheckedByStatus='Hold' Then 'Hold'
                     when PO.CheckedByStatus='Reject' Then 'Reject'
@@ -2206,16 +2218,6 @@ WHERE po.Id='" + POID+@"'";
                     when PO.AuthorizedByStatus='Approved' Then 'Approved'
                     else ''
                     END
-					,boq.RMDescription MaterialDescription,boq.SKUDesc
-                    ,MLC.LCRef MasterLCNo,MLC.LCDate MasterLCDate
-					--,CPO.PONumber BuyerPONumber
-					,BuyerPONumber=REPLACE(REPLACE(
-										STUFF((select distinct ', '+CPO.PONumber 
-										FROM [TRN].[CustomerPO] CPO 
-										JOIN trn.SalesOrder AS so ON so.CustomerPOId=CPO.Id
-                                        WHERE so.CostingBOQMasterId=boq.CostingBOQMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-										,'&amp;','&'), 'amp;', '')
-
                     FROM TRN.PurchaseOrder PO
                     LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = PO.CompanyGroupId
                     LEFT JOIN ORG.Company Cmp ON Cmp.Id = PO.CompanyId
@@ -2227,8 +2229,9 @@ WHERE po.Id='" + POID+@"'";
                     LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = PO.DeliveryPartyPlantId
                     LEFT JOIN TRN.PurchaseOrderDetail POD ON PO.Id = POD.InventoryReceiveId
 					LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
-                    LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id = CNO.MasterLCId
+                    LEFT JOIN trn.MasterOrder AS mo ON mo.Id=cno.MasterOrderId
 					LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
+	               -- LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
                     LEFT JOIN SCS.Country POCountry ON POD.CountryId = POCountry.Id
                     LEFT JOIN HKP.Party Party ON Party.Id = PO.PartyId
                     LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = POD.InventoryMaterialId
@@ -2247,9 +2250,6 @@ WHERE po.Id='" + POID+@"'";
                     LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=PO.AuthorizedBy
                     left join [SEC].[User] U on U.UserId=PO.AddedBy
                     LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
-					left join TRN.POBOQMAP poqm on poqm.PODetailId=POD.Id
-					left join BOQ boq on boq.Id=poqm.BOQDetailId
-
                 WHERE PO.Id = '" + purchaseOrderBOQId + @"' order by MM.UserName";
                 return _sqlRepository.GetDataTable(strSQL);
 

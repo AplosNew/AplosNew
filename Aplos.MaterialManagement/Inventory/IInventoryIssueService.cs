@@ -56,8 +56,8 @@ namespace Library.MaterialManagement.Inventory
 
 
         void DeleteIssueDetail(string issueDetailId, string voucherId);
-        void DeleteSalesDetail(string issueDetailId); 
-        
+        void DeleteSalesDetail(string issueDetailId);
+        void DeleteIssueDetailBOQ(string issueDetailId, string voucherId);
         void RequisitionIssueInsert(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList
             , InventoryIssue inventoryIssue, IEnumerable<RequisitionIssueDetailViewModel> requisitionIssueDetails);
         void RequisitionIssueUpdate(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList
