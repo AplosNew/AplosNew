@@ -1341,14 +1341,15 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var sql = @"select EC.UserName EmpCategory,  RM.[Location], RM.Block, RM.ResidentType,
-sum(rm.vacancy)Capacity, sum(rm.Rooms)Rooms ,sum(cast(rae.Occupied as INT)) as Allotted, 
-case when isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0) = 0 then '0' else isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0) end  Balance
-
+                var sql = @"select EC.UserName EmpCategory,  RM.[Location], RM.Block, RM.ResidentType, sum(rm.vacancy)Capacity,
+sum(rm.Rooms)Rooms, sum(cast(rae.Occupied as INT)) as Allotted,
+case when isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0) = 0 then '0' else isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0)
+end  Balance
 from ResidenceMaster RM
 left join (select distinct rae.ResidenceId, count(rae.EmployeeSystemId) Occupied from dbo.ResidenceAllocatedEmployees rae
 LEFT JOIN EmployeeInformation E on E.SystemId = rae.EmployeeSystemId
-where rae.isOccupied = 1 group by rae.ResidenceId)
+where rae.isOccupied = 1
+group by rae.ResidenceId) rae on rae.ResidenceId = RM.Id
 left join HKP.EmployeeCategory EC on EC.Id = RM.EmployeeCategoryId
 group by EC.UserName,  RM.[Location], RM.Block, RM.ResidentType";
                 return _sqlRepository.GetDataTable(sql);
@@ -1640,13 +1641,15 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var sql = @"select EC.UserName EmpCategory,  RM.[Location], RM.Block, RM.ResidentType,
-sum(rm.vacancy)Capacity, sum(rm.Rooms)Rooms ,sum(cast(rae.Occupied as INT)) as Allotted, 
-case when isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0) = 0 then '0' else isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0) end  Balance
+                var sql = @"select EC.UserName EmpCategory,  RM.[Location], RM.Block, RM.ResidentType, sum(rm.vacancy)Capacity,
+sum(rm.Rooms)Rooms, sum(cast(rae.Occupied as INT)) as Allotted,
+case when isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0) = 0 then '0' else isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0)
+end  Balance
 from ResidenceMaster RM
 left join (select distinct rae.ResidenceId, count(rae.EmployeeSystemId) Occupied from dbo.ResidenceAllocatedEmployees rae
 LEFT JOIN EmployeeInformation E on E.SystemId = rae.EmployeeSystemId
-where rae.isOccupied = 1 group by rae.ResidenceId)
+where rae.isOccupied = 1
+group by rae.ResidenceId) rae on rae.ResidenceId = RM.Id
 left join HKP.EmployeeCategory EC on EC.Id = RM.EmployeeCategoryId
 group by EC.UserName,  RM.[Location], RM.Block, RM.ResidentType";
                 return _sqlRepository.GetDataCollection(sql);
