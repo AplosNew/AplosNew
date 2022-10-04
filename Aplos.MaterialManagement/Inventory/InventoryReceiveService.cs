@@ -3188,7 +3188,7 @@ namespace Library.MaterialManagement.Inventory
                
             }
 
-            //ROW++;
+            ROW++;
             #region Total
             int TotalRow = ROW;
             wTable.AddRow();
@@ -3197,11 +3197,13 @@ namespace Library.MaterialManagement.Inventory
 
 
 
+            
+
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                if (C == colRowId || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colHSNCode || C == colLotNo || C == colRate || C == colRate || C == colUoM || C == colQualityStatus || dicTaxes.ContainsValue(C))
+             
+                if (C == colRowId || C == colMaterialGroup || C == colRate || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colHSNCode || C == colLotNo || C == colUoM || C == colQualityStatus|| dicTaxes.ContainsValue(C))
                     continue;
-
 
                 double value = 0;
                 for (int i = startRow; i < TotalRow; i++)
@@ -3215,6 +3217,7 @@ namespace Library.MaterialManagement.Inventory
                 _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
 
             }
+
 
             #endregion Total
             ROW++;
