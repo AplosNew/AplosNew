@@ -348,6 +348,7 @@ namespace Library.Accounting.Accounts
                 var sql = @"SELECT V.Id AS VoucherId
 	                                         ,VD.Id AS VoucherDetailId
                                              ,VD.Id AS VoucherDetail
+                                             ,GLT.Id AS GLTransactionDetailId
 	                                         ,V.VoucherNo
 	                                         ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
 	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
@@ -361,7 +362,8 @@ namespace Library.Accounting.Accounts
                                        WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' )
                                        AND V.CompanyGroupId='" + companyGroupId + @"' AND V.CompanyId='" + companyId + @"' AND V.IsPark=0
                                        AND VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate BETWEEN CONVERT(DATE,'" + fromDate + @"') AND CONVERT(DATE,'" + toDate + @"')
-                                       AND VD.DrAmount<>0.0000"; 
+                                       AND VD.DrAmount<>0.0000 
+                                       AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) "; 
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -511,7 +513,32 @@ namespace Library.Accounting.Accounts
                                 FROM TRN.BankReconciliationUploadedData  BRUD
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                                 WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
-                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND DrAmount>0 ";
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND DrAmount>0 
+                                AND BRUD.Id NOT IN(select BankReconciliationUploadedDataId from TRN.BankReconciliationMap)";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public IEnumerable<object> GetBankDrReconciledList(string companyGroupId, string companyId, string plantId, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+
+                var sql = @"SELECT BRM.Id BankReconciliationMapId,BRM.VoucherDetailId,BRM.BankReconciliationUploadedDataId
+								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, BRUD.DrAmount UploadedAmount
+								,V.VoucherNo,VD.DocRefNo,VD.DrAmount VoucherAmount
+                                FROM TRN.BankReconciliationMap BRM
+								INNER JOIN TRN.BankReconciliationUploadedData  BRUD ON BRUD.Id=BRM.BankReconciliationUploadedDataId
+                                INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
+                                INNER JOIN TRN.VoucherDetail AS VD ON VD.Id=BRM.VoucherDetailId
+								INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND BRUD.DrAmount>0  ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
