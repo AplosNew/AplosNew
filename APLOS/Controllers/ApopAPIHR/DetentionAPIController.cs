@@ -44,5 +44,33 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.getDetentionType(out List<DetentionTypeList> detentionTypeIdLst);
             return detentionTypeIdLst;
         }
+
+        public List<DetentionResponsiblePersonList> GetDetentionResponsible()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetDetentionResponsible(out List<DetentionResponsiblePersonList> detResPList);
+            return detResPList;
+        }
+
+        public List<DetentionIssueByNo> GetIssueByNo(string EmployeeId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetIssueByNo(out List<DetentionIssueByNo> detentionIssueByNo, EmployeeId);
+            return detentionIssueByNo;
+        }
+
+        public List<MachineMasterList> GetMachineMastersAsset()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetMachineMasterAsset(out List<MachineMasterList> machinemstrlst);
+            return machinemstrlst;
+        }
+
+        //public List<MachineMasterList> GetDetentionLogGrid()
+        //{
+        //    clsDataContext clsData = new clsDataContext();
+        //    clsData.GetDetentionLogGrid(out List<DetentionLogGridList> dtLogGrid);
+        //    return dtLogGrid;
+        //}
     }
 }

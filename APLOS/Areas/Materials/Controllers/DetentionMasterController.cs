@@ -322,7 +322,7 @@ namespace Aplos.Areas.Materials.Controllers
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
 							LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            WHERE EI.EmployeeStatus='Active' and EI.DepartmentId in (select distinct DepartmentId from DetentionMasterDepartment)";
+                            WHERE EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and EI.DepartmentId in (select distinct DepartmentId from DetentionMasterDepartment)";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

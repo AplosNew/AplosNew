@@ -269,7 +269,7 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where NOT EXISTS (SELECT * FROM TRN.MaterialAlocation M where M.MaterialMasterId = mm.Id) and
+                            where mm.Id not in (SELECT M.MaterialMasterId FROM TRN.MaterialAlocation M) and
                             mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' --or mm.Id = '" + material + "'";
                 }
                 else if (storagelevel == "Article")
@@ -282,7 +282,7 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where NOT EXISTS (SELECT * FROM TRN.MaterialAlocation M where M.MaterialMasterArticleId = mma.Id) and 
+                            where mma.Id NOT in (SELECT M.MaterialMasterArticleId FROM TRN.MaterialAlocation M) and 
 mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
                 }
                 

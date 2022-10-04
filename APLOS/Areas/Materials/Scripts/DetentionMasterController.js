@@ -805,11 +805,17 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
         }
-
-        for (var i = 0; i < $scope.ResponsibleDataList.length; i++) {
-            $scope.ResponsibleDataList[i].chk = ChkOrUnchk;
+        var filtered = $("#GridDetentionMasterResponsible").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ResponsibleDataList.length; i++) {
+                $scope.ResponsibleDataList[i].chk = ChkOrUnchk;
+            }
         }
-
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].chk = ChkOrUnchk;
+            }
+        }
         var gridObj = $("#GridDetentionMasterResponsible").data("ejGrid");
         gridObj.refreshContent();
     };

@@ -285,10 +285,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.RemainQty = 0;
 
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
-                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionOrderId)) {
-                    $scope.productionSummaryNew.ProductionOrderId = $scope.ProductionOrderId;
+                if (baseService.isUndefinedOrNull($scope.NewObject.ProductionOrderId)) {
+                    $scope.NewObject.ProductionOrderId = $scope.ProductionOrderId;
                 }
-                $http.get('Productions/Productionsummary/GetTotalPOQty?productionOrderId=' + $scope.productionSummaryNew.ProductionOrderId + '&processId=' + $scope.productionSummaryNew.ProcessId)
+                $http.get('Productions/Productionsummary/GetTotalPOQty?productionOrderId=' + $scope.NewObject.ProductionOrderId + '&processId=' + $scope.productionSummaryNew.ProcessId)
                     .then(function (response) {
                         if (baseService.arrayLength(response.data) > 0) {
                             $scope.TotalSalesOrderQty = parseFloat(response.data[0].PlannedQty).toFixed(2);
@@ -546,7 +546,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.SetPrOData = function ($event) {
         $scope.NewObject.ProductionOrderId = $event.data.POId;
-       
+        $scope.GetTotalProductionBookingQty();
         var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
         
@@ -1076,6 +1076,63 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.SaveMaster = function () {
         try {
             ValidationMaster();
+            if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
+                $scope.productionSummaryNew.MasterOrderItemId = null;
+                $scope.productionSummaryNew.ProductLibraryId = null;
+            }
+
+            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
+                $scope.productionSummaryNew.MasterOrderItemId = null;
+                $scope.productionSummaryNew.ProductLibraryId = null;
+            }
+            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
+                $scope.productionSummaryNew.SalesOrderId = null;
+                $scope.productionSummaryNew.ProductLibraryId = null;
+            }
+            else {
+                $scope.productionSummaryNew.SalesOrderId = null;
+            }
+
+            if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
+                throw "Future Date not allowed for Production Booking.";
+            }
+            CheckField("Quantity", $scope.productionSummaryNew.Quantity);
+            ValidationMaster();
+            if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
+                if (/^[ A-Za-z0-9_./-]*$/.test($scope.productionSummaryNew.LotNumber)) {
+                    ///
+                } else {
+                    throw "You have entered an invalid value for Lot Number.";
+                }
+            }
+            $scope.ProdQty = 0;
+
+            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
+                for (var i = 0; i < $scope.ProductionSummaryDetail.length; i++) {
+                    if (!baseService.isUndefinedOrNull($scope.ProductionSummaryDetail[i].Qty)) {
+                        $scope.ProdQty = $scope.ProdQty + $scope.ProductionSummaryDetail[i].Qty;
+                    }
+                }
+                $scope.productionSummaryNew.Quantity = $scope.ProdQty;
+            }
+            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
+                if ($scope.ProdQty === 0) {
+                    throw "SKU Qty is required.";
+                }
+            }
+
+            if ($scope.IsFirst == false) {
+                if (parseFloat($scope.RemainQty) < 0) {
+                    throw "Order Quantity dosen't available.";
+                }
+            }
+
+            if ($scope.IsFirst == false) {
+                if (parseFloat($scope.TotalSalesOrderQty) < parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
+                    throw "Produced Quantity should less than Order Quantity.";
+                }
+            }
+
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
