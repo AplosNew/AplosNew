@@ -757,6 +757,7 @@
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingTypeController.cs" />
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Costings\Controllers\OrderLineCostingItemController.cs" />
+    <Compile Include="Areas\OrderManagements\Controllers\SalesOrderApprovalController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\PackingTypeController.cs" />
     <Compile Include="Areas\Organizations\Controllers\PositionWiseMPStatusController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
@@ -2179,6 +2180,7 @@
     <Content Include="Areas\MeetingManagement\Scripts\MeetingTypeController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\meetingManagementConfig.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\SalesOrderApprovalController.js" />
     <Content Include="Areas\OrderManagements\Scripts\PackingTypeController.js" />
     <Content Include="Areas\Organizations\Scripts\PositionWiseMPStatusController.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
@@ -4306,6 +4308,7 @@
     <Content Include="Areas\Machines\Views\MaintenanceStatusDetails\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicineMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\SicknessType\Aplos.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\SalaesOrderApproval\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
