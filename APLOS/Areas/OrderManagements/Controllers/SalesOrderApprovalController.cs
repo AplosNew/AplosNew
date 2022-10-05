@@ -77,7 +77,23 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
+            string sql = @"select top 100 * from (SELECT S.[Id]
+      ,S.[GroupName]
+      ,S.[GroupInchargeId]
+      ,S.[DepartmentalHeadId]
+      ,S.[Remark]
+      ,S.[Active]
+      ,S.[AddedBy]
+      ,S.[AddedDate]
+      ,S.[AddedFromIP]
+      ,S.[UpdatedBy]
+      ,S.[UpdatedDate]
+      ,S.[UpdatedFromIP]
+	  ,GE.EmployeeName GroupInchargeName
+	  ,DE.EmployeeName DepartmentalHead
+  FROM [dbo].[SalesOrderApprovalMaster] S
+  LEFT JOIN dbo.EmployeeInformation GE ON GE.SystemId=S.[GroupInchargeId]  
+  LEFT JOIN dbo.EmployeeInformation DE ON DE.SystemId=S.[DepartmentalHeadId]) AS TEMP WHERE " + strkey + "";
 
 
 
@@ -85,10 +101,67 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
+        public ActionResult GetAllActiveEmployeeData()
         {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
+        public IEnumerable<object> GetAllEmployeeData()
+        {
+            try
+            {
+                string CmdText = @"SELECT CAST (0 AS bit) Flag,E.SystemId
+							    	,E.PlantId
+							    	,E.GroupID
+							    	,E.CompanyId
+							    	,E.EmployeeName
+							    	,PMB.Code BudgetCode
+							    	,PR.UserName PositionName
+							    	,E.TelePhnNo
+							    	,E.EmailId
+                                    ,E.DepartmentId
+                                    ,E.DivisionId
+									,E.SectionId
+							    	,E.EmpType
+							    	,E.GivenDesignationId
+									,E.EmployeeCategorySystemID EmployeeCategoryId
+							    	,EN.UserName EntityName
+							    	,D.UserName Designation
+							    	,GD.UserName GivenDesignation
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+							    	,DV.UserName AS Division
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode
+									,E.EmpPicPath
+                                    ,E.DOJ
+                                    ,P.UserName Plant
+									,SS.UserName SubSection
+                                    ,E.EmployeeCodeNumeric
+                                    ,C.UserName Company
+							    FROM EmployeeInformation E
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  Order by EmployeeCodeNumeric";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
@@ -97,7 +170,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["GroupName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where GroupName='" + data["GroupName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Group Name already exists!!!");
 
@@ -112,7 +185,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "PT" + _Id;
+                    data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -125,7 +198,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data= data,  Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)

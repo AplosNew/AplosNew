@@ -9,8 +9,8 @@ function SalesOrderApprovalController(cboService, commonMessage, $scope, $rootSc
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
-    $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.searchBy = "GroupName"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'GroupName', name: "Group Name" }];
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -28,8 +28,6 @@ function SalesOrderApprovalController(cboService, commonMessage, $scope, $rootSc
             dataType: 'JSON'
         }).then(function successCallback(response) {          
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
-            $scope.GetSequence();
         });
     }
     $scope.getData();
@@ -39,8 +37,6 @@ function SalesOrderApprovalController(cboService, commonMessage, $scope, $rootSc
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    
-
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
@@ -49,6 +45,47 @@ function SalesOrderApprovalController(cboService, commonMessage, $scope, $rootSc
             $rootScope.toggle();
         }
     };
+
+    $scope.popUpList = [];
+    $scope.SelectedEmpList = [];
+
+    $scope.popUpDataList = [];
+    $scope.state = null;
+    $scope.showEmployeeListPopUp = function (state) {
+        try {
+            $scope.state = state;
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmployeeData'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SelectEmployee = function (arg) {
+        if ($scope.state=="DH") {
+            $scope.ModelNew.DepartmentalHeadId = arg.data.SystemId;
+            $scope.ModelNew.DepartmentalHead = arg.data.EmployeeName;
+        } else {
+            $scope.ModelNew.GroupInchargeId = arg.data.SystemId;
+            $scope.ModelNew.GroupInchargeName = arg.data.EmployeeName;
+        }
+        $scope.closePopUp();
+    }
+
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
+
+
+
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -64,7 +101,8 @@ function SalesOrderApprovalController(cboService, commonMessage, $scope, $rootSc
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields();
+                    $scope.ModelNew.Id = response.data.Data.Id;
+                    //ClearFields();
                     $scope.getData();
 
                 }
