@@ -14,6 +14,10 @@ namespace Library.ViewModel.Accounts
         public string OwnRefNo { get; set; }
         public string Remarks { get; set; }
 
+        public string BankReconciliationUploadedDataId { get; set; }
+        public string VoucherDetailId { get; set; }
+        public string GLTransactionDetailId { get; set; }
+
 
 
     }
