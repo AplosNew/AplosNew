@@ -2424,7 +2424,8 @@ namespace Aplos.Areas.Accounts.Controllers
                                             )ttd 
                                             WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00 OR
 											ISNULL(OBDRcumulative,0.00) <> 0.00 OR ISNULL(OBCRcumulative,0) <> 0.00 OR
-											ISNULL(CBDRcumulative,0.00) <> 0.00 OR ISNULL(CBCRcumulative,0) <> 0.00";
+											ISNULL(CBDRcumulative,0.00) <> 0.00 OR ISNULL(CBCRcumulative,0) <> 0.00
+                                            OR ISNULL(PDRcumulative,0.00) <> 0.00 OR ISNULL(PCRcumulative,0) <> 0.00";
 
                     return _sqlRepository.GetGridData(parameters).Source;
 

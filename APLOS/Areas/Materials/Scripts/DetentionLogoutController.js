@@ -261,19 +261,25 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
 
     function CheckBoxSelectAll(e) {
 
-
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
         }
-
-        for (var i = 0; i < $scope.ResponsibleList.length; i++) {
-            $scope.ResponsibleList[i].chk = ChkOrUnchk;
-            $scope.chkdResponsiblePersonList = $scope.ResponsibleList[i].chk;
-        }
-
-        var gridObj = $("#GridResponsible").data("ejGrid");
-        gridObj.refreshContent();
+        var filtered = $("#GridResponsible").data("ejGrid").getFilteredRecords();
+        //if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ResponsibleList.length; i++) {
+                $scope.ResponsibleList[i].isActive = ChkOrUnchk;
+                //$scope.chkdResponsiblePersonList = $scope.ResponsibleList[i].isActive;
+            }
+        //}
+        //else {
+        //    for (var j = 0; j < filtered.length; j++) {
+        //        filtered[j].IsActive = ChkOrUnchk;
+        //    }
+        //}
+        var gridObj = $("#GridResponsible").data("ejGrid"); gridObj.refreshContent();
+        gridObj.refreshTemplate();
+        
     };
 
 
@@ -309,14 +315,13 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
                     $scope.userResponsiblePersonList.push(ob);
                     ob = {};
                 }
-                //}
+                
 
             });
         }
 
         $scope.$broadcast('show-errors-check-validity');
-        $scope.$broadcast('show-errors-check-validity');
-
+       
         $http({
             method: 'POST',
             url: $scope.path + 'saveDtentionLogResPerson',
@@ -346,71 +351,36 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
 
 
     //-------------------------------------------------------------------------
-    //$scope.chkdResponsiblePersonList = [];
-    //$scope.ResponsiblePersonGridAllCheck = function (args) {
-    //    $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
-    //};
-
-    //function CheckBoxSelectAll(e) {
-
-
-    //    var ChkOrUnchk = false;
-    //    if (e.model.checkState === "check") {
-    //        ChkOrUnchk = true;
-    //    }
-
-    //    for (var i = 0; i < $scope.ResponsibleList.length; i++) {
-    //        $scope.ResponsibleList[i].chk = ChkOrUnchk;
-    //        $scope.chkdResponsiblePersonList = $scope.ResponsibleList[i].chk;
-    //    }
-
-    //    var gridObj = $("#GridResponsible").data("ejGrid");
-    //    gridObj.refreshContent();
-    //};
-
-
-
-    //function checkResponsiblePersonExist(list, Id) {
-    //    for (var i = 0; i < list.length; i++) {
-    //        if (list[i].Id === Id) {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
-
-
+   
     $scope.SaveResponsiblePerson = function () {
         try {
 
-            if (baseService.arrayLength($scope.BudgetCodeList) > 0) {
-                angular.forEach($scope.ResponsibleList, function (a) {
-                    if (checkResponsiblePersonExist($scope.userResponsiblePersonList, a.Id) === false) {
-                        if (a.chk) {
-                            var ob = {};
-                            ob.Id = null;
-                            //ob.EmployeeCode = a.EmployeeCode;
-                            //ob.EmployeeName = a.ResponsiblePerson;
-                            //ob.Department = a.Department;
-                            //ob.Section = a.Section;
-                            //ob.SubSection = a.SubSection;
-                            //ob.LegalDesignation = a.LegalDesignation;
+            //if (baseService.arrayLength($scope.BudgetCodeList) > 0) {
+            //    angular.forEach($scope.ResponsibleList, function (a) {
+            //        if (checkResponsiblePersonExist($scope.userResponsiblePersonList, a.Id) === false) {
+            //            if (a.chk) {
+            //                var ob = {};
+            //                ob.Id = null;                           
+            //                ob.isActive = a.isActive
+            //                $scope.userResponsiblePersonList.push(ob);
+            //                ob = {};
+            //            }
+            //        }
 
-                            $scope.userResponsiblePersonList.push(ob);
-                            ob = {};
-                        }
-                    }
+            //    });
+            //}
 
-                });
+            $scope.SaveResponsibleList = [];
+            for (var i = 0; i < $scope.ResponsibleList.length; i++) {
+                $scope.SaveResponsibleList.push($scope.ResponsibleList[i]);
             }
-
             $scope.$broadcast('show-errors-check-validity');
 
             $http({
                 method: 'POST',
-                url: $scope.path + 'saveDtentionLogResPerson',
+                url: 'Materials/DetentionLog/saveDtentionLogResPerson',
                 data: {
-                    'data': $scope.userResponsiblePersonList,
+                    'data': $scope.SaveResponsibleList,
                     'detentionLogId': $scope.ModalNew.Id
                 },
                 dataType: 'JSON'

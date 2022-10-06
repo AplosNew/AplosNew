@@ -103,7 +103,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
                             ob.Section = a.Section;
                             ob.SubSection = a.SubSection;
                             ob.LegalDesignation = a.LegalDesignation;
-
+                            ob.isActive = a.isActive;
                             $scope.userResponsiblePersonList.push(ob);
                             ob = {};
                         }
@@ -276,7 +276,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
                             //ob.Section = a.Section;
                             //ob.SubSection = a.SubSection;
                             //ob.LegalDesignation = a.LegalDesignation;
-
+                            ob.isActive = a.isActive
                             $scope.userResponsiblePersonList.push(ob);
                             ob = {};
                         }

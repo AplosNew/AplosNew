@@ -170,8 +170,6 @@ namespace Aplos.Areas.Banks.Controllers
             _bankReconciliationService.InsertBankReconciliation(bankReconciliation, tempList);
             return Json(new { Message = AplosMessage.Insert });
         }
-
-
         [HttpGet, Authorize]
         public ActionResult CRReconcileReport(string BankMasterID,string fromDate,string toDate)
         {
@@ -410,6 +408,25 @@ namespace Aplos.Areas.Banks.Controllers
             return jsondata;
 
         }
+        [HttpPost]
+        public ActionResult SaveBankReconciliationMap(BankReconciliation bankReconciliation, IEnumerable<BankReconciliationUploadedDataViewModel> bankReconciliationList)
+        {
+            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+            accountsCommonService.SaveBankReconciliationMap(bankReconciliation, bankReconciliationList);
+
+            return Json(new { Message = AplosMessage.Insert });
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetBankDrReconciledList(string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = accountsBankReconcilliationService.GetBankDrReconciledList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, bankMasterId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
+
         #endregion Operation
     }
 }

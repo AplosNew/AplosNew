@@ -3,6 +3,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
+using Library.Model.Accounts;
 using Library.Model.Banks;
 using Library.Model.Currencies;
 using Library.Model.Employees;
@@ -15,6 +16,7 @@ using Library.Service.Enums;
 using Library.Service.Logs;
 using Library.Service.Properties;
 using Library.Service.Systems;
+using Library.ViewModel.Accounts;
 using Library.ViewModel.Vouchers;
 using OTSBD;
 using System;
@@ -881,6 +883,50 @@ namespace Library.Accounting.Accounts
                 con.getDataSet("Select * from [TRN].[BankReconciliationUploadedData] where 1=2", out dsData);
             }
             AddNewRow<BankReconciliationUploadedData>(dsData.Tables[0], bankReconciliationUploadedData);
+
+        }
+        public void SaveBankReconciliationMap(BankReconciliation bankReconciliation, IEnumerable<BankReconciliationUploadedDataViewModel> bankReconciliationList)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet _BankReconciliationUploadedData = null;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                foreach (var item in bankReconciliationList)
+                {
+                    var bankReconciliationMap = new BankReconciliationMap
+                    {
+                        BankReconciliationUploadedDataId = item.BankReconciliationUploadedDataId,
+                        VoucherDetailId = item.VoucherDetailId,
+                        GLTransactionDetailId = item.GLTransactionDetailId,
+                    };
+
+                    InsertBankReconciliationMap(bankReconciliationMap, ref _BankReconciliationUploadedData);
+                }
+
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_BankReconciliationUploadedData);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public void InsertBankReconciliationMap(BankReconciliationMap bankReconciliationMap, ref DataSet dsData)
+        {
+            bankReconciliationMap.Id = GetAutoNumber(nameof(BankReconciliationMap), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+            if (string.IsNullOrEmpty(bankReconciliationMap.AddedBy))
+                AuditService.AddedLog(bankReconciliationMap);
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[BankReconciliationMap] where 1=2", out dsData);
+            }
+            AddNewRow<BankReconciliationMap>(dsData.Tables[0], bankReconciliationMap);
 
         }
 

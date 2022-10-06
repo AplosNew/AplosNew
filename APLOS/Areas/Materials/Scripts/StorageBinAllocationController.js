@@ -194,8 +194,6 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
                 $scope.ModelNew.MaterialMasterId = response.data.Data.MaterialMasterId
                 $scope.SaveMaterialAllocation();
                 $scope.SaveBinAllocation();
-                //$scope.viewBinHead();
-                //$scope.selectBinIDs();
                 
             }
         }), function errorCallBack(response) {
@@ -229,6 +227,8 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
 
 
             };
+        $scope.BinHeadList = [];
+        $scope.BinAllocationChildList = [];
         $scope.StorageLocation = null;
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
@@ -437,7 +437,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             }
             else {
                 ShowResult(response.data.Message, 'success');
-
+                $scope.Clear();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
