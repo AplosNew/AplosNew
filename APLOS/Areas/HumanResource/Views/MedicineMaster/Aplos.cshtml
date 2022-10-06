@@ -31,7 +31,7 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Category" ng-model="ModelNew.Rate" class="form-control" required tabindex="4" maxlength="50">
+                    <input type="number" name="Category" ng-model="ModelNew.Rate" class="form-control" required tabindex="4" maxlength="50">
                 </div>
             </div>
             <div class="form-group">
@@ -44,54 +44,50 @@
                         </label>
                     </div>
                 </div>
-            </div> 
+            </div>
         </div>
-        
+
         @*COLUMN 2*@
-    <div class="col-xs-12 col-sm-8 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-            <div class="col-sm-4 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
-            </div>
-        </div>
-
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label"> Category<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="SubCategory" ng-model="ModelNew.Category" class="form-control" required tabindex="4" maxlength="50">
-            </div>
-        </div>
-        @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Category" ng-model="ModelNew.ItemName" class="form-control" required tabindex="4" maxlength="50">
-            </div>
-        </div>*@
-
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Purpose</label>
-            <div class="col-sm-8">
-                <div class="select-style">
-                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="MedicinePurposeList" e-value="ModalNew.MedicinePurposeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+        <div class="col-xs-12 col-sm-8 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
                 </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Remarks</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                </div>
             </div>
-        </div>
 
-    </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label"> Category<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="SubCategory" ng-model="ModelNew.Category" class="form-control" required tabindex="4" maxlength="50">
+                </div>
+            </div>
+           
+            <div class="form-group">
+                    <label class="col-sm-4 control-label">Purpose</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+            
+            <input id="medicinePurposeId"  e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="MedicinePurposeList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+            </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                </div>
+            </div>
+
+        </div>
         <div class="common-btn">
             <ul class="list-inline text-right">
                 <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
@@ -100,7 +96,7 @@
             </ul>
         </div>
     </div>
-
+    
 </div>
 
 <div class="table-responsive aplos-grid-toggle">
@@ -114,13 +110,13 @@
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="100"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="150"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="130"></div>
-            <div e-column e-field="ItemName" e-headertext="Item Name" e-width="130"></div>
+            
             <div e-column e-field="Category" e-headertext="Category" e-width="100"></div>
-            <div e-column e-field="SubCategory" e-headertext="SubCategory" e-width="100"></div>          
+            <div e-column e-field="SubCategory" e-headertext="SubCategory" e-width="100"></div>
             <div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
-            <div e-column e-field="Purpose" e-headertext="Purpose" e-width="100"></div>
+            <div e-column e-field="MedicinePurpose" e-headertext="Purpose" e-width="130"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
-            <div e-column e-field="IsActive" e-headertext="IsActive" e-width="50"></div>
+
         </div>
     </div>
 </div>
