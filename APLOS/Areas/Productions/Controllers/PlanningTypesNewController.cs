@@ -762,21 +762,22 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
             {
                 string sql = @"SELECT CP.Id,PW.WorkCenterMasterId,WCM.UserName WorkCenter,FORMAT(WCD.StartDate,'dd-MMM-yyyy')EffectiveDate,FORMAT(PD.PlanningDate,'dd-MMM-yyyy')PlanningDate,ps.ShiftId,sd.UserName [Shift]
 ,ApplicableShift=CASE WHEN PD.PlanningDate>=WCD.StartDate THEN 0 ELSE 1 END
-,WeekOff= CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END,PWD.WeekDays
-,NetWorkingShift=CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END
-,[From]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
-,[To]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END
-,NetWorkingMinute=DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
-,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END)
-,PlanShift=(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)
-,PlanMinute=(DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
-,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END))
-*(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)
-,'' Remark
-,Capacity=PW.PlanCapacity * ((DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
-,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END)))
-,CapacityInVolume=(PW.PlanCapacity * ((DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
-,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END))))*PW.AverageLoadFactor
+,WeekOff= CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END,PWD.WeekDays
+,Holiday=ISNULL(PHD.HDCount,0)
+,NetWorkingShift=CASE WHEN ((CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)+ISNULL(PHD.HDCount,0)+(CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END))>0 THEN 0 ELSE 1 END
+,[From]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
+,[To]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END
+,NetWorkingMinute=DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
+,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END)
+,PlanShift=(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)
+,PlanMinute=(DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
+,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END))
+*(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)
+,CP.Remark
+,Capacity=PW.PlanCapacity * ((DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
+,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END)))
+,CapacityInVolume=(PW.PlanCapacity * ((DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
+,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END))))*PW.AverageLoadFactor
   FROM dbo.PlanningTypesWorkCenter AS PW
 LEFT JOIN [SCS].[WorkCenterMaster] WCM ON WCM.Id = PW.WorkCenterMasterId
 LEFT JOIN [SCS].[WorkCenterMasterEffectiveDate] WCD ON PW.WorkCenterMasterId=WCD.WorkCenterMasterId
@@ -784,7 +785,7 @@ LEFT JOIN [dbo].[PlanningTypesDate] PD ON PD.PlanningTypesId=PW.PlanningTypesId
 LEFT JOIN [dbo].[PlanningTypesShift] PS ON PS.PlanningTypesId=PW.PlanningTypesId 
 LEFT JOIN [dbo].ShiftDefination AS sd ON PS.ShiftId=sd.SystemID 
 LEFT JOIN [dbo].[PlanningTypesWeekDays] PWD ON PWD.PlanningTypesId=PW.PlanningTypesId AND DATENAME(weekday,PD.PlanningDate)=PWD.WeekDays
---LEFT JOIN [dbo].[PlanningTypesHoliday] PHD ON PHD.PlanningTypesId=PW.PlanningTypesId
+LEFT JOIN(Select COUNT(Id) HDCount,PlanningTypesId,HolidayDate FROM [dbo].[PlanningTypesHoliday] GROUP BY PlanningTypesId,HolidayDate) PHD ON PHD.PlanningTypesId=PW.PlanningTypesId AND PD.PlanningDate=PHD.HolidayDate
 LEFT JOIN [dbo].[CapacityPlanning] CP ON CP.PlanningTypesId=PW.PlanningTypesId
 WHERE PW.PlanningTypesId='" + PlanningTypesId + "'";
 

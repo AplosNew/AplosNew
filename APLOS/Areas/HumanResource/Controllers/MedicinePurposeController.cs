@@ -13,23 +13,20 @@ using System.Data;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
-    public class MedicineMasterController : BaseController
+    public class MedicinePurposeController : BaseController
     {
-        MedicineMasterService mms = new MedicineMasterService();
+        MedicinePurposeService mp = new MedicinePurposeService();
 
         #region const
-        public MedicineMasterController()
+        public MedicinePurposeController()
         {
 
         }
         #endregion const
-
-        #region Page
         public ActionResult Aplos()
         {
             return View();
         }
-        #endregion Page
 
         #region GET
         [Authorize, HttpPost]
@@ -37,25 +34,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                var _master = mms.Get(Id);
+                var _master = mp.Get(Id);
 
 
                 return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult getMedicinePurpose()
-        {
-            try
-            {
-                return Json(mms.getMedicinePurpose(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -73,7 +55,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(mms.GetSequence(), JsonRequestBehavior.AllowGet);
+                return Json(mp.GetSequence(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -86,7 +68,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
-            return Json(mms.GetList(column, value), JsonRequestBehavior.AllowGet);
+            return Json(mp.GetList(column, value), JsonRequestBehavior.AllowGet);
         }
         #endregion SEARCH SAVED DATA IN GRID
 
@@ -96,20 +78,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(new { Error = false, Data = mms.Save(data), Message = AplosMessage.Success });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult SavePurpose(Dictionary<string, object> data, string medicineMasterId)
-        {
-            try
-            {
-                return Json(new { Error = false, Data = mms.SavePurpose(data, medicineMasterId), Message = AplosMessage.Success });
+                return Json(new { Error = false, Data = mp.Save(data), Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
@@ -125,7 +94,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
 
-                string ret = mms.Delete(id);
+                string ret = mp.Delete(id);
 
                 if (ret == "Success")
                 {
@@ -147,7 +116,5 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
         #endregion DELETE
-
-
     }
 }

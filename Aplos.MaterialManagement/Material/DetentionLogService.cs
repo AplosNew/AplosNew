@@ -84,15 +84,15 @@ namespace Library.MaterialManagement.Material
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string str = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
-                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId
-						  
+                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId,
+						  CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
 						   from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
 							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
-							
+							Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
                             --where DetentionMasterId='" + detentionId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
@@ -231,7 +231,7 @@ namespace Library.MaterialManagement.Material
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = "DL" + _Id;
-                    data["isUpdate"] = 0;
+                    
                     data["isClose"] = 0;
 
                     AddNewRow(dsMaster.Tables[0], data);
@@ -239,7 +239,7 @@ namespace Library.MaterialManagement.Material
                 else
                 {
                     _Id = data["Id"].ToString();
-                    data["isUpdate"] = 1;
+                    
                     data["isClose"] = 1;
 
                     EditRow(dsMaster.Tables[0].Rows[0], data);
@@ -288,24 +288,24 @@ namespace Library.MaterialManagement.Material
                         genid.GenID("TRN.DetentionLog", out _Id);
 
                         item["Id"] = "DLRP-" + _Id;
-                        item["DetentionLogId"] = detentionLogId;
-                        if(item["chk"] == item["chk"])
-                        {
-                            item["isActive"] = true;
-                        }
-                        else
-                        {
-                            item["isActive"] = false;
-                        }
-                        
-
+                        item["DetentionLogId"] = detentionLogId;                   
+                       
                         AddNewRow(dsMasterOrder.Tables[0], item);
                     }
                     else
                     {
-                        item["Id"] = "DLRP-" + _Id;
-                        item["DetentionLogId"] = detentionLogId;
-                        item["isActive"] = false;
+
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+
+                       
+                        dr["DetentionLogId"] = detentionLogId;
+                        
+                        EditRow(dr, item);
+                       
+                        dr.EndEdit();
+
+
 
                     }
 
@@ -382,7 +382,7 @@ namespace Library.MaterialManagement.Material
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string str = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
                            SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId,
-						  CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
+						  CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive, DLRP.Id
 						   from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
@@ -448,7 +448,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
             try
             {
                 string sql = @"select DLRP.Id, EI.EmployeeCode, EI.SystemId ResponsiblePersonId ,EI.EmployeeName, EI.CellPhnNo, DEP.UserName as Department, S.UserName Section, SS.UserName SubSection,
-                                DEG.UserName as LegalDesignation, DLRP.isActive
+                                DEG.UserName as LegalDesignation, DLRP.isActive, DLRP.Id
                                 from TRN.DetentionLogResponsiblePerson DLRP
                                 LEFT JOIN TRN.DetentionLog DL on DL.Id = DLRP.DetentionLogId
 								LEFT JOIN EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
