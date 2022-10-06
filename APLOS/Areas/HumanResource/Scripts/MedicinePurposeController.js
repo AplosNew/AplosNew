@@ -1,14 +1,14 @@
 ﻿'use strict';
-MedicineMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function MedicineMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Medicine Master';
+MedicinePurposeController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function MedicinePurposeController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Medicine Purpose';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'HumanResource/MedicineMaster/';
+    $scope.path = 'HumanResource/MedicinePurpose/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
-    $scope.saveUrlP = $scope.path + 'SavePurpose';
+   
     $scope.deleteUrl = $scope.path + 'Delete/';
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
@@ -20,8 +20,8 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
             $scope.ModelNew.Sequence = data;
         });
     };
-   $scope.GetSequence();
-   // ================================================SEQUENCE CLOSE====================================================
+    //$scope.GetSequence();
+    // ================================================SEQUENCE CLOSE====================================================
 
     // ================================================GET MAIN GRID DATA====================================================
 
@@ -36,20 +36,7 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
             $scope.GetSequence();
         });
     }
-    $scope.getData();
-
-    $scope.MedicinePurposeList = [];
-    $scope.getMedicinePurpose = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "getMedicinePurpose",
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.MedicinePurposeList = response.data;
-            
-        });
-    }
-    $scope.getMedicinePurpose();
+   $scope.getData();
     // ================================================GET MAIN GRID DATA CLOSE====================================================
 
     // ================================================FORM OBJECT DECLARATION & INITIALIZATION====================================
@@ -58,18 +45,14 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
         Sequence: 0,
         ShortName: null,
         StandardName: null,
-        UserName:null,
-        Category: null,
-        SubCategory: null,
-        ItemName: null,
-        Rate: null,
-        Purpose:null,
+        UserName: null,      
+        Purpose: null,
         Remarks: null,
         IsActive: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    
+   
     // ================================================FORM OBJECT DECLARATION & INITIALIZATION=====================================
 
     //=======================================DOUBLE CLICK ON GRID OPEN FORM============================================
@@ -110,7 +93,31 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
-    
+    $scope.SaveP = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        $http({
+            method: 'POST',
+            url: $scope.saveUrlP,
+            data: {
+                'data': $scope.ModelNewP,
+                'medicineMasterId': $scope.ModelNew.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                ClearFieldsP();
+
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
     //=======================================SAVE CLOSE==========================================
 
     //=======================================DELETE FUNCTION======================================
@@ -147,24 +154,21 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
     function ClearFields() {
         $scope.Action = 'Save';
 
-            $scope.ModelTemp = {
+
+        $scope.ModelTemp = {
             Id: null,
             Sequence: 0,
             ShortName: null,
             StandardName: null,
             UserName: null,
-            Category: null,
-            SubCategory: null,
-            ItemName: null,
-            Rate: 0.00,
             Purpose: null,
             Remarks: null,
             IsActive: true
-            };
+        };
 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
 
-    
+   
     //=======================================CLEAR FORM======================================
 }
