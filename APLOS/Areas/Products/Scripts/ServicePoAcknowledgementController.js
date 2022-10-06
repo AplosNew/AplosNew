@@ -557,6 +557,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
                             $scope.getalldataMaster();
                             $scope.ServiceListDetails();
                             getServiceChargeList($scope.productId);
+                            getACKTaxList($scope.productId);
                             $scope.Action = "Update";
                         }
                     }), function (response) {
