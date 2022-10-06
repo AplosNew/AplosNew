@@ -7,6 +7,7 @@ using ConnectionManager;
 using System.Data;
 using Library.Crosscutting.Security;
 using System.Threading;
+using Library.Service.Extension;
 
 namespace HRService
 {
@@ -241,8 +242,10 @@ namespace HRService
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct DD.DepartmentId, D.StandardName DetentionType  from DetentionMasterDepartment DD
-                              left outer join ORG.Department D on D.id = DD.DepartmentId";
+                strSQL = @"select distinct DT.UserName As DetentionType, DT.Id As DetentionTypeId from DetentionMasterDepartment DD
+                        left join DetentionMaster DM ON DM.Id=DD.DetentionMasterId
+                        left join hkp.DetentionType DT ON DT.id=DM.DetentionTypeId
+                        order by UserName";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -252,7 +255,7 @@ namespace HRService
                     DataList.Add(new DetentionTypeList
                     {
                         DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
-                        DepartmentId = dsRef.Tables[0].Rows[i]["DepartmentId"].ToString(),
+                        DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
 
                     });
                 }
@@ -417,20 +420,7 @@ namespace HRService
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
                     DataList.Add(new DetentionLogGridList
-                    {
-                        /*
-         * public string Id { get; set; }
-        public string WorkCenter { get; set; }
-        public string DetentionType { get; set; }
-        public string LoginTime { get; set; }
-        public string IssueByNo { get; set; }
-        public string Remarks { get; set; }
-        public string WorkCenterId { get; set; }
-        public string DetentionTypeId { get; set; }
-        public bool isClose { get; set; }
-        public bool MachineMaster { get; set; }
-        public bool MachineMasterId { get; set; }
-         */
+                    {                        
                         Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
                         WorkCenter = dsRef.Tables[0].Rows[i]["WorkCenter"].ToString(),
                         DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
@@ -442,7 +432,6 @@ namespace HRService
                         isClose = (bool)dsRef.Tables[0].Rows[i]["DetentionTypeId"],
                         MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
                         MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
-
                     });
                 }
             }
@@ -455,6 +444,100 @@ namespace HRService
                 objCon = null;
             }
         }
+
+        public void CreateDetentionLog(out List<CreateDetentionList> DataList)
+        {
+            string TableName = "TRN.DetentionLog";
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<CreateDetentionList>();
+            System.Data.DataSet dsRef;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            bplib.clsGenID genid = new bplib.clsGenID();
+
+            try
+            {
+                
+                string _Id = "";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.executeQuery("select * from " + TableName + " where Id ='" + DataList[0] + "'");
+
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    genid.GenID(TableName, out _Id);
+                    DataList.Add(new CreateDetentionList
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        
+                        WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
+                        DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
+                        MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
+                        IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
+                        isClose = (bool)dsRef.Tables[0].Rows[i]["isClose"],
+                        LogoutTime = (DateTime)dsRef.Tables[0].Rows[i]["LogoutTime"],
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+
+                    }) ;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        #region Add & Edit Row
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        #endregion Add & Edit Row
         // Detention Log Out
 
         #endregion Written By Nitesh
@@ -1047,7 +1130,7 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
 
     public class DetentionTypeList
     {
-        public string DepartmentId { get; set; } = "";
+        public string DetentionTypeId { get; set; } = "";
         public string DetentionType { get; set; } = "";
     }
     
@@ -1089,6 +1172,19 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public bool isClose { get; set; }
         public string MachineMaster { get; set; }
         public string MachineMasterId { get; set; }
+    }
+
+    public class CreateDetentionList
+    {
+        public string Id { get; set; }
+        public string WorkCenterId { get; set; }
+        public string DetentionTypeId { get; set; }
+        public string MachineMasterId { get; set; }
+        public string IssueByNo { get; set; }
+        public DateTime LogoutTime { get; set; } = System.DateTime.Now;
+        public bool isClose { get; set; }
+        public string Remarks { get; set; }
+        
     }
     #endregion Written by Nitesh
 

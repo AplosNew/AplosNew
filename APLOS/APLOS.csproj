@@ -585,6 +585,7 @@
     <Compile Include="Areas\HumanResource\Controllers\FurnitureMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\MedicinePurposeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SicknessTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTCompensatoryAllocationController.cs" />
@@ -2040,6 +2041,7 @@
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicineMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\MedicinePurposeController.js" />
     <Content Include="Areas\HumanResource\Scripts\SicknessTypeController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTCompensatoryAllocationController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTControlLimitReportController.js" />
@@ -4309,6 +4311,7 @@
     <Content Include="Areas\HumanResource\Views\MedicineMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\SicknessType\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\SalesOrderApproval\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicinePurpose\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

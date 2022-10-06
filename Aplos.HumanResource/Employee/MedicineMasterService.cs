@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 
 namespace Library.HumanResource.Employee
 {
-   public class MedicineMasterService
+    #region Medicine Master
+    public class MedicineMasterService
     {
         private readonly SqlRepository _sqlRepository;
         #region constructor
@@ -28,6 +29,19 @@ namespace Library.HumanResource.Employee
             try
             {
                 var sql = "select * from HKP.MedicineMaster where Id = '" + Id + "' ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getMedicinePurpose()
+        {
+            try
+            {
+                var sql = @"select Id Value, StandardName Text from HKP.MedicinePurpose";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -125,6 +139,54 @@ namespace Library.HumanResource.Employee
         }
         #endregion SAVE
 
+        #region SAVEPURPOSE
+        public Dictionary<string, object> SavePurpose(Dictionary<string, object> data, string medicineMasterId)
+        {
+            try
+            {
+                string TableNameHead = "HKP.MedicinePurpose";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+              
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where MedicineMasterId='" + medicineMasterId + "'", out dsMaster, false, "1");
+                string _Id = "";
+
+                #region FURNITURE POLICY HEAD
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    data["Id"] = "Mp" + _Id;
+                    data["MedicineMasterId"] = "MP" + _Id;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    data["MedicineMasterId"] = "MP" + _Id;
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion FURNITURE POLICY HEAD
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SAVE
+
         #region DELETE
         public string Delete(string id)
         {
@@ -197,4 +259,193 @@ namespace Library.HumanResource.Employee
         }
         #endregion CREATE AND EDIT DEFAULT COLUMN
     }
+    #endregion Medicine Master
+
+    #region Medicine Purpose
+    public class MedicinePurposeService
+    {
+        private readonly SqlRepository _sqlRepository;
+        #region constructor
+        public MedicinePurposeService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+        #endregion constructor
+
+        #region GET
+        public IEnumerable<object> Get(string Id)
+        {
+            try
+            {
+                var sql = "select * from HKP.MedicinePurpose where Id = '" + Id + "' ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion GET
+
+        #region GET SEQUENCE
+        public double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(Sequence),0) AS Sequence FROM HKP.MedicinePurpose");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+        #endregion GET SEQUENCE
+
+        #region SEARCH SAVED DATA IN GRID 
+        public IEnumerable<object> GetList(string column, string value)
+        {
+            try
+            {
+                string TableName = "HKP.MedicinePurpose";
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string sql = @"SELECT MP.* FROM HKP.MedicinePurpose MP
+                                where " + strkey + "order by Sequence";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SEARCH SAVED DATA IN GRID
+
+        #region SAVE
+        public Dictionary<string, object> Save(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableNameHead = "HKP.MedicinePurpose";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where StandardName='" + data["StandardName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Standard Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+
+                #region FURNITURE POLICY HEAD
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    data["Id"] = "MP" + _Id;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion FURNITURE POLICY HEAD
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SAVE
+
+        #region DELETE
+        public string Delete(string id)
+        {
+            try
+            {
+
+                string TableName = "HKP.MedicinePurpose";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion DELETE
+
+        #region CREATE AND EDIT DEFAULT COLUMN
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        #endregion CREATE AND EDIT DEFAULT COLUMN
+    }
+    #endregion Medicine Purpose
 }

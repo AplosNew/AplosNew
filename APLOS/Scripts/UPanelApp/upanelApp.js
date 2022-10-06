@@ -1084,6 +1084,7 @@ upanelApp.controller("PositionWiseMPStatusController", PositionWiseMPStatusContr
 upanelApp.controller("MedicineMasterController", MedicineMasterController)
 upanelApp.controller("SicknessTypeController", SicknessTypeController)
 upanelApp.controller("SalesOrderApprovalController", SalesOrderApprovalController)
+upanelApp.controller("MedicinePurposeController", MedicinePurposeController)
 
 
 upanelApp.config(AccessControllerConfig);
