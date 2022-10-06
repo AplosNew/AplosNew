@@ -125,6 +125,54 @@ namespace Library.HumanResource.Employee
         }
         #endregion SAVE
 
+        #region SAVEPURPOSE
+        public Dictionary<string, object> SavePurpose(Dictionary<string, object> data, string medicineMasterId)
+        {
+            try
+            {
+                string TableNameHead = "HKP.MedicinePurpose";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+              
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where MedicineMasterId='" + medicineMasterId + "'", out dsMaster, false, "1");
+                string _Id = "";
+
+                #region FURNITURE POLICY HEAD
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    data["Id"] = "Mp" + _Id;
+                    data["MedicineMasterId"] = "MP" + _Id;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    data["MedicineMasterId"] = "MP" + _Id;
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion FURNITURE POLICY HEAD
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SAVE
+
         #region DELETE
         public string Delete(string id)
         {

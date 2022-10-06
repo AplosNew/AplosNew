@@ -8,6 +8,7 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
+    $scope.saveUrlP = $scope.path + 'SavePurpose';
     $scope.deleteUrl = $scope.path + 'Delete/';
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
@@ -28,7 +29,6 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
-
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
@@ -55,6 +55,12 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
         IsActive: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.ModelTempP = {
+        Id: null,
+        Purpose: null
+    }
+    $scope.ModelNewP = Object.assign({}, $scope.ModelTempP);
     // ================================================FORM OBJECT DECLARATION & INITIALIZATION=====================================
 
     //=======================================DOUBLE CLICK ON GRID OPEN FORM============================================
@@ -94,6 +100,32 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(response.data.Message, 'failure');
         }
     };
+
+    $scope.SaveP = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        $http({
+            method: 'POST',
+            url: $scope.saveUrlP,
+            data: {
+                'data': $scope.ModelNewP,
+                'medicineMasterId': $scope.ModelNew.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                ClearFieldsP();
+                
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
     //=======================================SAVE CLOSE==========================================
 
     //=======================================DELETE FUNCTION======================================
@@ -125,6 +157,11 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
         ClearFields();
         return true;
     };
+
+    $scope.ClearP = function () {
+        ClearFieldsP();
+        return true;
+    };
     function ClearFields() {
         $scope.Action = 'Save';
 
@@ -145,6 +182,17 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
             };
 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    }
+
+    function ClearFieldsP() {
+        $scope.Action = 'Save';
+
+
+        $scope.ModelTempP = {
+            Purpose:null
+        };
+
+        $scope.ModelNewP = Object.assign({}, $scope.ModelTempP);
     }
     //=======================================CLEAR FORM======================================
 }

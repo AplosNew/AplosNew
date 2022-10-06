@@ -89,6 +89,19 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult SavePurpose(Dictionary<string, object> data, string medicineMasterId)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = mms.SavePurpose(data, medicineMasterId), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         #endregion SAVE
 
         #region DELETE
