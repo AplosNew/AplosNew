@@ -199,6 +199,21 @@ namespace Aplos.Areas.Banks.Controllers
             }
 
         }
+        [HttpGet, Authorize]
+        public ActionResult DRReconcilePendingReport(string bankMasterId, string fromDate, string toDate)
+        {
+            try
+            {
+                _bankReportService.DRReconcilePendingReport(bankMasterId, fromDate, toDate);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
         [HttpPost]
         public JsonResult DeleteBankreconciliation(string bankReconciliationId)
         {

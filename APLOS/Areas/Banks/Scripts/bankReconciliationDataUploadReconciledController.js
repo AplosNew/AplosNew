@@ -386,4 +386,26 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
 
         }
     }
+    $scope.CRREconcileReport = function () {
+        try {
+
+            var file_src = 'banks/bankreconciliation/CRReconcileReport?bankMasterId=' + $scope.bankReconciliationNew.BankMasterId + '&fromDate=' + $scope.bankReconciliationNew.FromDate + '&toDate=' + $scope.bankReconciliationNew.ToDate 
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+
+    $scope.DRREconcileReport = function () {
+        try {
+
+            var file_src = 'banks/bankreconciliation/DRReconcilePendingReport?BankMasterID=' + $scope.bankReconciliationNew.BankMasterId + '&fromDate=' + $scope.bankReconciliationNew.FromDate + '&toDate=' + $scope.bankReconciliationNew.ToDate 
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 }
