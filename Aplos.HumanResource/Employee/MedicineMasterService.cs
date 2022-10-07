@@ -499,4 +499,26 @@ namespace Library.HumanResource.Employee
         #endregion CREATE AND EDIT DEFAULT COLUMN
     }
     #endregion Medicine Purpose
+
+    public class MedicineReceiptService
+    {
+        private readonly SqlRepository _sqlRepository;
+        public MedicineReceiptService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getMedicineData()
+        {
+            try
+            {
+                var str = @"Select Id Value, UserName Text from HKP.MedicineMaster";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
 }

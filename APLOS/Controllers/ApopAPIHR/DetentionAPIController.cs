@@ -59,6 +59,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return detentionIssueByNo;
         }
 
+        public List<DetentionLogGridList> GetDetentionLogGrid()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetDetentionLogGrid(out List<DetentionLogGridList> detentionLoggridlist);
+            return detentionLoggridlist;
+        }
+
         public List<MachineMasterList> GetMachineMastersAsset()
         {
             clsDataContext clsData = new clsDataContext();
@@ -66,11 +73,6 @@ namespace Aplos.Controllers.ApopAPIHR
             return machinemstrlst;
         }
 
-        //public List<MachineMasterList> GetDetentionLogGrid()
-        //{
-        //    clsDataContext clsData = new clsDataContext();
-        //    clsData.GetDetentionLogGrid(out List<DetentionLogGridList> dtLogGrid);
-        //    return dtLogGrid;
-        //}
+        
     }
 }

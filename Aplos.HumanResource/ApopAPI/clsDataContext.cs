@@ -8,6 +8,7 @@ using System.Data;
 using Library.Crosscutting.Security;
 using System.Threading;
 using Library.Service.Extension;
+using Library.Service.EmployeeServices;
 
 namespace HRService
 {
@@ -355,6 +356,59 @@ namespace HRService
             }
         }
 
+        public void GetDetentionLogGrid(out List<DetentionLogGridList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<DetentionLogGridList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+                strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.AddedDate, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose,
+                            MM.UserName MachineMaster,  MM.Id MachineMasterId
+                            from TRN.DetentionLog DL
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+						    left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+						    left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+                            where isClose = 0";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new DetentionLogGridList
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        WorkCenter = dsRef.Tables[0].Rows[i]["WorkCenter"].ToString(),
+                        DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
+                        LoginTime = (DateTime)dsRef.Tables[0].Rows[i]["LoginTime"],
+                        IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
+                        DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
+                        isClose = (bool)dsRef.Tables[0].Rows[i]["DetentionTypeId"],
+                        MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
+                        MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetMachineMasterAsset(out List<MachineMasterList> DataList)
         {
             clsConnectionManager objCon = null;
@@ -392,108 +446,75 @@ namespace HRService
             }
         }
 
-        public void GetDetentionLogGrid(out List<DetentionLogGridList> DataList)
-        {
-            clsConnectionManager objCon = null;
-            string strSQL = "";
-            DataList = new List<DetentionLogGridList>();
+        
 
-            System.Data.DataSet dsRef;
-            try
-            {
+        #region CREATE
+        //public void CreateDetentionLog(IEnumerable<PhysicalVerifyModel> DataToSave)
+        //{
+           
+        //    try
+        //    {
+        //        DataSet dsMaster;
+        //        string TableName = "TRN.DetentionLog";
 
-                strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.AddedDate, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
-                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose,
-                            MM.UserName MachineMaster,  MM.Id MachineMasterId
-                            from TRN.DetentionLog DL
-                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
-                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
-						    left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
-                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-						    left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
-                            where isClose = 0";
+        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+        //        if (DataToSave.Count() == 0)
+        //            return "";
+        //        int i = 0;
+        //        foreach (PhysicalVerifyModel item in DataToSave)
+        //        {
+        //            con.OpenDataSetThroughAdapter("select * from TRN.DetentionLog where Id='" + DataToSave["Id"] + "'and WorkDate='" + item.WorkDate + "'", out dsMaster, false, "1");
 
-                objCon = new clsConnectionManager();
-                objCon.BeginTransaction();
-                objCon.getDataSet(strSQL, out dsRef);
-                objCon.CommitTransaction();
-                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
-                {
-                    DataList.Add(new DetentionLogGridList
-                    {                        
-                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
-                        WorkCenter = dsRef.Tables[0].Rows[i]["WorkCenter"].ToString(),
-                        DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
-                        LoginTime = dsRef.Tables[0].Rows[i]["LoginTime"].ToString(),
-                        IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
-                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
-                        WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
-                        DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
-                        isClose = (bool)dsRef.Tables[0].Rows[i]["DetentionTypeId"],
-                        MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
-                        MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
-                    });
-                }
-            }
-            catch (System.Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }
+        //            if (dsMaster.Tables[0].Rows.Count == 0)
+        //            {
+        //                DataRow dr = dsMaster.Tables[0].NewRow();
 
-        public void CreateDetentionLog(out List<CreateDetentionList> DataList)
-        {
-            string TableName = "TRN.DetentionLog";
-            clsConnectionManager objCon = null;
-            string strSQL = "";
-            DataList = new List<CreateDetentionList>();
-            System.Data.DataSet dsRef;
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            bplib.clsGenID genid = new bplib.clsGenID();
+        //                bplib.clsGenID genid = new bplib.clsGenID();
+        //                genid.GenID(TableName, out string _Id);
 
-            try
-            {
-                
-                string _Id = "";
-                objCon = new clsConnectionManager();
-                objCon.BeginTransaction();
-                objCon.executeQuery("select * from " + TableName + " where Id ='" + DataList[0] + "'");
+        //                dr["Id"] = "OT" + _Id;
+        //                dr["EmpSystemId"] = item.EmpSystemId;
+        //                dr["Remarks"] = item.Remarks;
+        //                dr["OThour"] = item.OThour;
+        //                dr["AddedBy"] = item.AddedBy;
+        //                dr["AddedDate"] = DateTime.Now.ToString();
+        //                dr["WorkDate"] = item.WorkDate;
+        //                dr["IsConfirmed"] = false;
 
-                objCon.getDataSet(strSQL, out dsRef);
-                objCon.CommitTransaction();
-                
-                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
-                {
-                    genid.GenID(TableName, out _Id);
-                    DataList.Add(new CreateDetentionList
-                    {
-                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
-                        
-                        WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
-                        DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
-                        MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
-                        IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
-                        isClose = (bool)dsRef.Tables[0].Rows[i]["isClose"],
-                        LogoutTime = (DateTime)dsRef.Tables[0].Rows[i]["LogoutTime"],
-                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+        //                dsMaster.Tables[0].Rows.Add(dr);
 
-                    }) ;
-                }
-            }
-            catch (System.Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }
+        //                clsStaticInfo _info = new clsStaticInfo();
+        //                _info.SaveDataSets(dsMaster);
 
+        //            }
+        //            else
+        //            {
+        //                DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+        //                dr.BeginEdit();
+        //                dr["EmpSystemId"] = item.EmpSystemId;
+        //                dr["Remarks"] = item.Remarks;
+        //                dr["OThour"] = item.OThour;
+        //                dr["IsConfirmed"] = false;
+        //                dr["UpdatedBy"] = item.UpdatedBy;
+        //                dr["UpdatedDate"] = DateTime.Now.ToString();
+        //                dr["WorkDate"] = item.WorkDate;
+
+        //                dr.EndEdit();
+        //                clsStaticInfo _info = new clsStaticInfo();
+        //                _info.SaveDataSets(dsMaster);
+        //            }
+        //            i++;
+        //        }
+        //        return i.ToString();
+
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return ex.ToString();
+        //    }
+        //}
+        #endregion CREATE
         #region Add & Edit Row
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -1154,8 +1175,8 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
 
     public class MachineMasterList
     {
-        public string MachineMasterId { get; set; }
-        public string MachineMaster { get; set; }
+        public string MachineMasterId { get; set; } = "";
+        public string MachineMaster { get; set; } = "";
     }
 
     public class DetentionLogGridList
@@ -1164,7 +1185,7 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Id { get; set; }
         public string WorkCenter { get; set; }
         public string DetentionType { get; set; }
-        public string LoginTime { get; set; }
+        public DateTime LoginTime { get; set; } = System.DateTime.Now;
         public string IssueByNo { get; set; }
         public string Remarks { get; set; }
         public string WorkCenterId { get; set; }
