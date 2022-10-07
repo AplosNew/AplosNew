@@ -5629,6 +5629,7 @@ namespace Library.MaterialManagement.Inventory
                     ,PO.PartyType
                     ,PO.PartyId
                     ,POD.RefferenceNo BuyerReferenceNo
+                    ,POD.RefferenceNo
                     , isnull(PO.DiscountAmount, 0) DiscountAmount
                     ,ISNULL(PO.DeliveryInstruction, '') DeliveryInstruction
                     ,ISNULL(PO.SpecialInstruction, '') SpecialInstruction
