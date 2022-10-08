@@ -35,5 +35,20 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
+
+        [Authorize, HttpPost]
+        public ActionResult getVendorNames()
+        {
+            try
+            {
+                return Json(mr.getVendorNames(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
     }
 }

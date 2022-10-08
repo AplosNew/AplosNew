@@ -512,10 +512,23 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var str = @"Select Id Value, UserName Text from HKP.MedicineMaster";
+                var str = @"Select Id, UserName Medicine from HKP.MedicineMaster";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getVendorNames()
+        {
+            try
+            {
+                var str = @"";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
             {
                 throw ex;
             }

@@ -73,6 +73,20 @@ namespace Aplos.Controllers.ApopAPIHR
             return machinemstrlst;
         }
 
-        
+        [System.Web.Http.HttpPost]
+        public string Create([FromBody] IEnumerable<CreateDetentionList> DataToSave)
+        {
+            try
+            {
+                clsDataContext clsData = new clsDataContext();
+                string Id = clsData.CreateDetentionLog(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
     }
 }

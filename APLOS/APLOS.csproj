@@ -4315,6 +4315,7 @@
     <Content Include="Areas\OrderManagements\Views\SalesOrderApproval\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicinePurpose\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicineReceipt\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalReceipt\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
