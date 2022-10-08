@@ -23,7 +23,7 @@
                     <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="input-group">
-                            <span class="input-group-addon">{{productNew.PartyCode}}</span>
+                            <span class="input-group-addon">{{ModalNew.PartyCode}}</span>
                             <input type="text" name="Vendor" ng-model="ModalNew.PartyName" class="form-control" required readonly>
                             <span class="input-group-btn">
                                 <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
@@ -76,7 +76,7 @@
 
             @*Qty*@
             <script type="text/template" id="checkboxQty">
-                <input type="number" id="quantityId" name="Quantity" e-change="$parent.functionname" e-value="data.Quantity" class="form-control" maxlength="15" required tabindex="3">
+                <input type="number" id="quantityId" name="Quantity" ng-change="$parent.calcAmount(this)" ng-model="data.Quantity" class="form-control" maxlength="15" required tabindex="3">
             </script>
 
             @*Expiry Date*@
