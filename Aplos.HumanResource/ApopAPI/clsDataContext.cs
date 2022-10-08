@@ -446,119 +446,77 @@ namespace HRService
             }
         }
 
-        
+
 
         #region CREATE
-        //public void CreateDetentionLog(IEnumerable<PhysicalVerifyModel> DataToSave)
-        //{
-           
-        //    try
-        //    {
-        //        DataSet dsMaster;
-        //        string TableName = "TRN.DetentionLog";
+        public string CreateDetentionLog(IEnumerable<CreateDetentionList> DataToSave)
+        {
 
-        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-        //        if (DataToSave.Count() == 0)
-        //            return "";
-        //        int i = 0;
-        //        foreach (PhysicalVerifyModel item in DataToSave)
-        //        {
-        //            con.OpenDataSetThroughAdapter("select * from TRN.DetentionLog where Id='" + DataToSave["Id"] + "'and WorkDate='" + item.WorkDate + "'", out dsMaster, false, "1");
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.DetentionLog";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
 
-        //            if (dsMaster.Tables[0].Rows.Count == 0)
-        //            {
-        //                DataRow dr = dsMaster.Tables[0].NewRow();
+                int i = 0;
+                foreach (CreateDetentionList item in DataToSave)
+                {
+                    con.OpenDataSetThroughAdapter("select * from TRN.DetentionLog where Id='" + item.Id + "'", out dsMaster, false, "1");
 
-        //                bplib.clsGenID genid = new bplib.clsGenID();
-        //                genid.GenID(TableName, out string _Id);
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
 
-        //                dr["Id"] = "OT" + _Id;
-        //                dr["EmpSystemId"] = item.EmpSystemId;
-        //                dr["Remarks"] = item.Remarks;
-        //                dr["OThour"] = item.OThour;
-        //                dr["AddedBy"] = item.AddedBy;
-        //                dr["AddedDate"] = DateTime.Now.ToString();
-        //                dr["WorkDate"] = item.WorkDate;
-        //                dr["IsConfirmed"] = false;
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+                        
+                        dr["Id"] = "DL" + _Id;
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["MachineMasterId"] = item.MachineMasterId;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
 
-        //                dsMaster.Tables[0].Rows.Add(dr);
+                        dsMaster.Tables[0].Rows.Add(dr);
 
-        //                clsStaticInfo _info = new clsStaticInfo();
-        //                _info.SaveDataSets(dsMaster);
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
 
-        //            }
-        //            else
-        //            {
-        //                DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-        //                dr.BeginEdit();
-        //                dr["EmpSystemId"] = item.EmpSystemId;
-        //                dr["Remarks"] = item.Remarks;
-        //                dr["OThour"] = item.OThour;
-        //                dr["IsConfirmed"] = false;
-        //                dr["UpdatedBy"] = item.UpdatedBy;
-        //                dr["UpdatedDate"] = DateTime.Now.ToString();
-        //                dr["WorkDate"] = item.WorkDate;
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
 
-        //                dr.EndEdit();
-        //                clsStaticInfo _info = new clsStaticInfo();
-        //                _info.SaveDataSets(dsMaster);
-        //            }
-        //            i++;
-        //        }
-        //        return i.ToString();
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["MachineMasterId"] = item.MachineMasterId;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+                    }
+                    i++;
+                }
+                return i.ToString();
 
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ex.ToString();
-        //    }
-        //}
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         #endregion CREATE
-        #region Add & Edit Row
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-
-            dt.Rows.Add(dr);
-        }
-
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-            dr.EndEdit();
-        }
-        #endregion Add & Edit Row
+       
         // Detention Log Out
 
         #endregion Written By Nitesh
