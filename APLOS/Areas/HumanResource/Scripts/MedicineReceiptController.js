@@ -1,6 +1,6 @@
 ﻿'use strict';
-MedicineReceiptController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$controller' ,'$filter'];
-function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $controller, $filter) {
+MedicineReceiptController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', '$window' ,'baseService', '$routeParams', '$location', '$http', '$controller' ,'$filter'];
+function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope, $window, baseService, $routeParams, $location, $http, $controller, $filter) {
     $rootScope.title = 'Medicine Receipt';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -48,7 +48,10 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         Id: null,
         InvoiceDate: curDate,
         PartyName: null,
-        InvoiceNo:null
+        PartyCode:null,
+        InvoiceNo: null,
+        PartyId: null,
+       
     };
     $scope.ModalNew = Object.assign({}, $scope.ModelTemp);
 
@@ -73,6 +76,8 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         });      
     }
 
+   
+    $scope.productNew = Object.assign({}, $scope.product);
     $scope.partyList = [];
     $scope.showPartyPopUp = function () {
         //baseService.setCurrentPage('partyList');
@@ -103,33 +108,13 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     };
     
     $scope.closePartyPopUp = function (x) {
-
-        //if ($scope.partyIndex !== -1) {
         var party = x.data;
-        // var party = $scope.partyList[$scope.partyIndex];
-        $scope.productNew.PartyCode = party.Code;
-        $scope.productNew.PartyName = party.UserName;
-        $scope.productNew.PartyId = party.Id;
-        $scope.productNew.PaymentTermId = party.PaymentTermId;
-        $scope.productNew.CurrencyId = party.CurrencyId;
-        $scope.IsBaseOnDueDateEnable = false;
-        $scope.productNew.BaseOnDueDate = null;
-        $scope.productNew.BaseNoOfDays = null;
-        $scope.productNew.MatureDate = null;
-
-        $scope.productNew.TaxApplicable = party.TaxApplicable;
-        $scope.productNew.IsTaxApplicableChangeable = party.IsTaxApplicableChangeable;
-        if (party.TaxApplicable === 'Mandatory')
-            $scope.productNew.IsTaxApplicable = true;
-        else
-            $scope.productNew.IsTaxApplicable = false;
-
-        if (!baseService.isUndefinedOrNull($scope.productNew.DocDate))
-            $scope.changePaymentTerm();
-        getPartyPlantList();
+       
+        $scope.ModalNew.PartyCode = party.Code;
+        $scope.ModalNew.PartyName = party.UserName;
+        $scope.ModalNew.PartyId = party.Id;
+        
         $scope.hidePartyPopUp();
-        $scope.PaymentModeByPaymentTerm();
-        //}
     };
 
     $scope.displaychild = function () {
@@ -149,8 +134,9 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         
     }
 
-    $scope.calcAmount = function () {
-        $scope.qty = null;
-        $scope.Rate = null;
+    $scope.calcAmount = function (e) {
+        $scope.Quantity = 123;
+        $scope.Amount = $scop.Quantity * $scope.Rate;
     }
+    
 }
