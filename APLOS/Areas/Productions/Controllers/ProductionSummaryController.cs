@@ -1890,19 +1890,12 @@ WHERE trkp.Id IN (" + PlantId + @")
                 ProductionReportSQL(fromDate, toDate, Plant, Entity, out dtOrder);
                
                 DataTable dtProcess = new DataView(dtOrder).ToTable(true, "Process", "ProcessId");
-                workbook = report.GetWorkbook(ref excelEngine, dtProcess.Rows.Count);
-                sheet = workbook.Worksheets[1];
+                int sheetcount= dtProcess.Rows.Count+1;
+                workbook = report.GetWorkbook(ref excelEngine, sheetcount);
+                sheet = workbook.Worksheets[0];
                 workbook.Version = ExcelVersion.Excel2016;
                
-                //for (int i = 0; i < dtProcess.Rows.Count; i++)
-                //{
-                //    DataView dv = new DataView(data);
-                //    dv.RowFilter = "ProcessId='" + dtProcess.Rows[i]["ProcessId"].ToString() + "'";
-
-                //    var sheet = workbook.Worksheets[i];
-
-                //    CreateDetailSheet(dtProcess.Rows[i]["Process"].ToString(), dv.ToTable(), ref sheet, identity.CompanyId);
-                //}
+               
 
                 int ROW = 6; int COL = 1;
 
@@ -2230,58 +2223,69 @@ WHERE trkp.Id IN (" + PlantId + @")
                 sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 sheet.PageSetup.CenterHorizontally = true;
 
+                
+                for (int k = 0; k < dtProcess.Rows.Count; k++)
+                {
+                    DataView dv = new DataView(dtOrder);
+                    dv.RowFilter = "ProcessId='" + dtProcess.Rows[k]["ProcessId"].ToString() + "'";
+
+                    sheet = workbook.Worksheets[k];
+
+                    //CreateDetailSheet(dtProcess.Rows[i]["Process"].ToString(), dv.ToTable(), ref sheet, identity.CompanyId);
+                   
+                    #region Pivot
+                    string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
+
+                    workbook.SaveAs(fPath);
+                    workbook = application.Workbooks.Open(fPath);
+                    try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+                    workbook.Worksheets[0].Name = "Order";
+
+                    IWorksheet pivotSheet = workbook.Worksheets[0];
+                    IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                    IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
+                    pivotTable.Fields[colId - 1].Axis = PivotAxisTypes.Row;
+                    pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
+                    pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
+                    pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Data;
 
 
-                //#region Pivot
-                //string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
 
-                //workbook.SaveAs(fPath);
-                //workbook = application.Workbooks.Open(fPath);
-                //try { System.IO.File.Delete(fPath); } catch (Exception) { }
+                    IPivotField field = pivotTable.Fields[colParameterValue - 1];
+                    field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                    pivotTable.DataFields.Add(field, "ParameterValue", PivotSubtotalTypes.Sum);
 
-                //workbook.Worksheets[0].Name = "Order";
+                    for (int i = 0; i < pivotTable.Fields.Count; i++)
+                    {
+                        if (i == colPlant - 1 || i == colEntity - 1 || i == colBuyerOrderNo - 1)
+                            continue;
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                    }
 
-                //IWorksheet pivotSheet = workbook.Worksheets[0];
-                //IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
-                //IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+                    pivotTable.ShowDrillIndicators = false;
+                    pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                    pivotTable.Options.NullString = "";
+                    pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
 
-                //pivotTable.Fields[colId - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
-                //pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Data;
+                    sheet = workbook.Worksheets[0];
+                    reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Report", identity.CompanyId, identity.CompanyName, "");
 
+                    reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                    sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-
-                //IPivotField field = pivotTable.Fields[colParameterValue - 1];
-                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                //pivotTable.DataFields.Add(field, "ParameterValue", PivotSubtotalTypes.Sum);
-
-                //for (int i = 0; i < pivotTable.Fields.Count; i++)
-                //{
-                //    if (i == colPlant - 1 || i == colEntity - 1 || i == colBuyerOrderNo - 1)
-                //        continue;
-                //    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
-                //}
-
-                //pivotTable.ShowDrillIndicators = false;
-                //pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
-                //pivotTable.Options.NullString = "";
-                //pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
-
-                //sheet = workbook.Worksheets[0];
-                //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Report", identity.CompanyId, identity.CompanyName, "");
-
-                //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-                //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                //sheet.IsGridLinesVisible = false;
-                //workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+                    sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                    sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.IsGridLinesVisible = false;
+                    workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
 
 
-                //#endregion Buyer Summary
+                    #endregion Buyer Summary
+
+                }
+
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
                 workbook.SaveAs(filePath);
                 workbook.Close();
