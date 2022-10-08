@@ -68,44 +68,57 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getMedicineData();
 
-    $scope.getPartyList = function () {
-        $http({
-            url: 'Parties/party/GetCompanyPartyDataList' + $scope.partyType
-        }).then(function successCallback(response) {
-            $scope.partyList = response.Rows;
-        });      
-    }
+    //$scope.getPartyList = function () {
+    //    $http({
+    //        url: 'Parties/party/GetCompanyPartyDataList' + $scope.partyType
+    //    }).then(function successCallback(response) {
+    //        $scope.partyList = response.Rows;
+    //    });      
+    //}
+
+    $scope.partyParameters = {
+        limit: 10
+        , offset: 0
+        , order: 'ASC'
+        , sort: 'UserName, PartyAccountGroupName'
+        , searchBy: 'UserName'
+        , pageSize: 10
+        , total_count: 0
+        , search: null
+        , serverPagination: true
+    };
+
 
    
     $scope.productNew = Object.assign({}, $scope.product);
     $scope.partyList = [];
-    $scope.showPartyPopUp = function () {
-        //baseService.setCurrentPage('partyList');
-        $scope.getPartyList = function (pageno) {
-            if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
-                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList?partyType=' + $scope.partyType;
-            }
-            else if ($scope.partyType === 'Party') {
-                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList';
-            }
-            else if ($scope.partyType === 'Director') {
-                $scope.partyUrl = 'Parties/party/GetCompanyDirectorDataList';
-            }
-            else if ($scope.partyType === 'Other') {
-                $scope.partyUrl = 'Parties/party/GetCompanyOtherDataList';
-            }
-            baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-                .then(function (result) {
-                    $scope.partyList = result.Rows;
-                    $scope.partyParameters.total_count = result.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#partyPopUp')).modal('show');
-        $scope.getPartyList();
-    };
+    //$scope.showPartyPopUp = function () {
+    //    //baseService.setCurrentPage('partyList');
+    //    $scope.getPartyList = function (pageno) {
+    //        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+    //            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList?partyType=' + $scope.partyType;
+    //        }
+    //        else if ($scope.partyType === 'Party') {
+    //            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList';
+    //        }
+    //        else if ($scope.partyType === 'Director') {
+    //            $scope.partyUrl = 'Parties/party/GetCompanyDirectorDataList';
+    //        }
+    //        else if ($scope.partyType === 'Other') {
+    //            $scope.partyUrl = 'Parties/party/GetCompanyOtherDataList';
+    //        }
+    //        baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
+    //            .then(function (result) {
+    //                $scope.partyList = result.Rows;
+    //                $scope.partyParameters.total_count = result.Total;
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, 'failure');
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    angular.element(document.querySelector('#partyPopUp')).modal('show');
+    //    $scope.getPartyList();
+    //};
     
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
