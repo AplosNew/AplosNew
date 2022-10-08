@@ -203,7 +203,6 @@ namespace Aplos.Areas.Products.Controllers
         public ActionResult InventorySalesReportExcel(string FromDate, string ToDate, string Summary, string Type,bool WithTax)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            //plantId = identity.PlantId;
             //var reportFileName = "Sales Register.xls" + FromDate + "To" + ToDate + "";
             ExcelEngine excelEngine = new ExcelEngine();
             SalesQueryService salesQueryService = new SalesQueryService(_sqlRepository);

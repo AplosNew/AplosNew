@@ -4321,7 +4321,7 @@ namespace Library.MaterialManagement.Inventory
                 //TROW.Cells[colHSNCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colMatDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialDetail"].ToString());
                 TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
-                TROW.Cells[colRefferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyerReferenceNo"].ToString());
+                TROW.Cells[colRefferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["RefferenceNo"].ToString());
                 TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());
                 TROW.Cells[colOriginCountry].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CountryOfOrigin"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
@@ -5629,6 +5629,7 @@ namespace Library.MaterialManagement.Inventory
                     ,PO.PartyType
                     ,PO.PartyId
                     ,POD.RefferenceNo BuyerReferenceNo
+                    ,POD.RefferenceNo
                     , isnull(PO.DiscountAmount, 0) DiscountAmount
                     ,ISNULL(PO.DeliveryInstruction, '') DeliveryInstruction
                     ,ISNULL(PO.SpecialInstruction, '') SpecialInstruction
@@ -8482,7 +8483,7 @@ ORDER BY IR.ID DESC";
                     ,PO.IsApproved
                     ,PO.PartyType
                     ,PO.PartyId
-                    ,POD.RefferenceNo
+                    ,ISNULL(POD.RefferenceNo,'') RefferenceNo,ISNULL(POD.RefferenceNo,'') BuyerRefferenceNo
                     ,isnull(PO.DiscountAmount, 0) DiscountAmount
                     ,ISNULL(PO.DeliveryInstruction, '') DeliveryInstruction
                     ,ISNULL(PO.SpecialInstruction, '') SpecialInstruction

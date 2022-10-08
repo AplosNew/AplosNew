@@ -826,5 +826,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/MedicinePurpose/Aplos',
             controller: 'MedicinePurposeController'
         })
+
+        .when('/medicine-receipt', {
+            templateUrl: 'humanResource/MedicineReceipt/Aplos',
+            controller: 'MedicineReceiptController'
+        })
         ;
 }
