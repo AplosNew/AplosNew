@@ -28,7 +28,19 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = "select * from HKP.MedicineMaster where Id = '" + Id + "' ";
+                var sql = @"Select Sequence, Code, Id, UserName, Category, SubCategory, Rate, IsActive Remarks, 
+                            STUFF((
+                            SELECT ',' + p.UserName
+
+                            FROM HKP.MedicineMasterPurpose pp
+                            left join hkp.MedicinePurpose p on p.Id = pp.MedicinePurposeId
+                            where pp.MedicineMasterId = pm.Id
+                            FOR XML PATH('')
+
+                            ),1,1,'') AS MedicinePurpose
+
+
+                            from HKP.MedicineMaster pm where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -74,7 +86,19 @@ namespace Library.HumanResource.Employee
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 
-                string sql = @"SELECT MM.* FROM HKP.MedicineMaster MM
+                string sql = @"Select Sequence, Code, ShortName, StandardName, Id, UserName, Category, SubCategory, Rate, IsActive Remarks, 
+                            STUFF((
+                            SELECT ',' + p.UserName
+
+                            FROM HKP.MedicineMasterPurpose pp
+                            left join hkp.MedicinePurpose p on p.Id = pp.MedicinePurposeId
+                            where pp.MedicineMasterId = pm.Id
+                            FOR XML PATH('')
+
+                            ),1,1,'') AS MedicinePurpose
+
+
+                            from HKP.MedicineMaster PM
                                 where " + strkey + "order by Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -86,7 +110,7 @@ namespace Library.HumanResource.Employee
         #endregion SEARCH SAVED DATA IN GRID
 
         #region SAVE
-        public Dictionary<string, object> Save(Dictionary<string, object> data)
+        public Dictionary<string, object> Save(Dictionary<string, object> data, List<string> medicinepurpose)
         {
             try
             {
@@ -107,28 +131,55 @@ namespace Library.HumanResource.Employee
 
                 con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 string _Id = "";
-
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 #region FURNITURE POLICY HEAD
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableNameHead, out _Id);
 
                     data["Id"] = "MM" + _Id;
+                    //dsMaster.Tables[0].Rows.Add(dr);
                     
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
+                    
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion FURNITURE POLICY HEAD
 
+                #region MedicineMasterPurpose child
 
+                DataSet dsMedicinePurposeChild;
+                ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                conn.OpenDataSetThroughAdapter("select * from HKP.MedicineMasterPurpose where MedicineMasterId ='" + data["Id"].ToString() + "'", out dsMedicinePurposeChild, false, "1");
+
+                while (dsMedicinePurposeChild.Tables[0].DefaultView.Count > 0)
+                {
+                    dsMedicinePurposeChild.Tables[0].DefaultView[0].Delete();
+                }
+
+                for (int i = 0; i < medicinepurpose.Count; i++)
+                {
+                    DataRow dr = dsMedicinePurposeChild.Tables[0].NewRow();
+                    dr["Id"] = data["Id"].ToString() + i.ToString();
+                    dr["MedicineMasterId"] = data["Id"].ToString();
+                    dr["MedicinePurposeId"] = medicinepurpose[i].ToString();
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    
+                    dsMedicinePurposeChild.Tables[0].Rows.Add(dr);
+                }
+
+                #endregion MedicineMasterPurpose child
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsMedicinePurposeChild);
 
                 return data;
             }
@@ -448,4 +499,39 @@ namespace Library.HumanResource.Employee
         #endregion CREATE AND EDIT DEFAULT COLUMN
     }
     #endregion Medicine Purpose
+
+    public class MedicineReceiptService
+    {
+        private readonly SqlRepository _sqlRepository;
+        public MedicineReceiptService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getMedicineData()
+        {
+            try
+            {
+                var str = @"Select Id, UserName Medicine from HKP.MedicineMaster";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getVendorNames()
+        {
+            try
+            {
+                var str = @"";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
 }

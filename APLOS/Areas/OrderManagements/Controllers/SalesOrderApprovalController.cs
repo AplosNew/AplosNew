@@ -107,6 +107,28 @@ namespace Aplos.Areas.OrderManagements.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetplantByCompany(string companyId)
+        {
+            JsonResult json = Json(GetplantByCompanyId(companyId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        public IEnumerable<object> GetplantByCompanyId(string companyId)
+        {
+            try
+            {
+                string CmdText = @"Select CAST(0 as bit) Flag,P.* from ORG.Plant P Where CompanyId='"+ companyId + "' Order By P.Sequence";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetAllEmployeeData()
         {
             try
@@ -287,6 +309,108 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
             return 1;
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreatePlant(List<Dictionary<string, object>> data)
+
+        {
+            SavePlantData(data);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+
+        private void SavePlantData(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesOrderApprovalPlant", out dsMaster, false, "1");
+
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["PlantId"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = item["PlantId"];
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedPlantData(string masterid)
+        {
+            JsonResult json = Json(GetSalesOrderApprovalPlantData(masterid), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        public IEnumerable<object> GetSalesOrderApprovalPlantData(string masterid)
+        {
+            try
+            {
+                string CmdText = @"Select SP.*,P.Sequence,P.ShortName,P.StandardName,P.UserName
+from SalesOrderApprovalPlant SP
+LEFT JOIN ORG.Plant P ON P.Id=SP.PlantId
+Where SP.SalesOrderApprovalMasterId='"+ masterid + @"'
+Order by P.Sequence";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeletePlant(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.SalesOrderApprovalPlant where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
         }
     }
 }
