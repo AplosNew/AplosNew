@@ -6,6 +6,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Model.Setups;
+using Library.OrderManagement.Sales;
 using Library.Service.Enums;
 using Library.Service.Setups;
 using OTSBD;
@@ -21,15 +22,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
 {
     public class SalesOrderApprovalController : BaseController
     {
-        //abcd
-        //this is my code from tarek
         string TableName = "dbo.SalesOrderApprovalMaster";
-        //authentication for
-        //GetList Create Delete
-
-
         #region Constructor
-
+        clsSales clsSales = new clsSales();
         private readonly ISqlRepository _sqlRepository;
         public SalesOrderApprovalController(ISqlRepository R)
         {
@@ -103,7 +98,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetAllActiveEmployeeData()
         {
-            JsonResult json = Json(GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -111,78 +106,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetplantByCompany(string companyId)
         {
-            JsonResult json = Json(GetplantByCompanyId(companyId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetplantByCompanyId(companyId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
 
-        public IEnumerable<object> GetplantByCompanyId(string companyId)
-        {
-            try
-            {
-                string CmdText = @"Select CAST(0 as bit) Flag,P.* from ORG.Plant P Where CompanyId='"+ companyId + "' Order By P.Sequence";
-                return _sqlRepository.GetDataCollection(CmdText);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public IEnumerable<object> GetAllEmployeeData()
-        {
-            try
-            {
-                string CmdText = @"SELECT CAST (0 AS bit) Flag,E.SystemId
-							    	,E.PlantId
-							    	,E.GroupID
-							    	,E.CompanyId
-							    	,E.EmployeeName
-							    	,PMB.Code BudgetCode
-							    	,PR.UserName PositionName
-							    	,E.TelePhnNo
-							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
-							    	,E.EmpType
-							    	,E.GivenDesignationId
-									,E.EmployeeCategorySystemID EmployeeCategoryId
-							    	,EN.UserName EntityName
-							    	,D.UserName Designation
-							    	,GD.UserName GivenDesignation
-                                    ,LD.UserName LegalDesignation
-							    	,DEPT.UserName AS Department
-							    	,DV.UserName AS Division
-									,SC.UserName AS Section
-                                    ,E.EmployeeCode
-									,E.EmpPicPath
-                                    ,E.DOJ
-                                    ,P.UserName Plant
-									,SS.UserName SubSection
-                                    ,E.EmployeeCodeNumeric
-                                    ,C.UserName Company
-							    FROM EmployeeInformation E
-							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
-							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
-							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
-							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
-							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
-                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
-                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
-								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
-                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
-                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  Order by EmployeeCodeNumeric";
-                return _sqlRepository.GetDataCollection(CmdText);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+       
 
 
         [HttpPost]

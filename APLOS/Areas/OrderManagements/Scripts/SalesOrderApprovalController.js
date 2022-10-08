@@ -1,6 +1,6 @@
 ﻿'use strict';
-SalesOrderApprovalController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function SalesOrderApprovalController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+SalesOrderApprovalController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$controller'];
+function SalesOrderApprovalController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = 'Sales Order Approval';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -11,7 +11,7 @@ function SalesOrderApprovalController(cboService, commonMessage, $scope, $rootSc
     baseService.init($scope.getListUrl);
     $scope.searchBy = "GroupName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'GroupName', name: "Group Name" }];
-
+    $controller('partyBaseController', { $scope: $scope, $http: $http });
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
