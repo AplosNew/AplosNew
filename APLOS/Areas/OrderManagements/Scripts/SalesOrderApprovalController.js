@@ -253,14 +253,14 @@ function SalesOrderApprovalController(cboService, commonMessage, $scope, $rootSc
         if (baseService.isUndefinedOrNull($scope.Id))
             $scope.message_confirmation = 'Are you sure want to delete this data....';
         else
-            $scope.message_confirmation = 'Are you sure want to delete parmanently [ ' + data.data.EmployeeCode + ' ]';
-        angular.element(document.querySelector('#removeRPPopUp')).modal('show');
+            $scope.message_confirmation = 'Are you sure want to delete parmanently [ ' + data.data.UserName + ' ]';
+        angular.element(document.querySelector('#removePlantPopUp')).modal('show');
     };
 
     $scope.DeletePlant = function () {
         $http({
             method: 'POST',
-            url: 'Productions/PlanningTypesNew/DeleteResponsibleEmployee?id=' + $scope.Id
+            url: 'OrderManagements/SalesOrderApproval/DeletePlant?id=' + $scope.Id
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
