@@ -1856,18 +1856,6 @@ WHERE trkp.Id IN (" + PlantId + @")
                 fileName = ProductionReport(fromDate, toDate, "ProductionReport", PlantId, EntityId);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
-                //DataTable data = ProductionReportSQL(fromDate, toDate, Plant, Entity);
-                //DataTable dtProcess = new DataView(data).ToTable(true, "Process", "ProcessId");
-                //for (int i = 0; i < dtProcess.Rows.Count; i++)
-                //{
-                //    DataView dv = new DataView(data);
-                //    dv.RowFilter = "ProcessId='" + dtProcess.Rows[i]["ProcessId"].ToString() + "'";
-
-                //    var sheet = workbook.Worksheets[i];
-
-                //    CreateDetailSheet(dtProcess.Rows[i]["Process"].ToString(), dv.ToTable(), ref sheet, identity.CompanyId);
-                //}
-
             }
             catch (Exception ex)
             {
@@ -1881,6 +1869,7 @@ WHERE trkp.Id IN (" + PlantId + @")
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
             IApplication application = null;
+            var report = new ReportUtility();
             IWorkbook workbook = null;
             IWorksheet sheet = null;
             var filePath = "";
@@ -1895,13 +1884,26 @@ WHERE trkp.Id IN (" + PlantId + @")
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(2);
-                workbook.Worksheets[1].Name = "Data";
-                sheet = workbook.Worksheets[1];
+                //workbook = application.Workbooks.Create(2);
+                //workbook.Worksheets[1].Name = "Data";
                 DataTable dtOrder;
                 ProductionReportSQL(fromDate, toDate, Plant, Entity, out dtOrder);
-
                
+                DataTable dtProcess = new DataView(dtOrder).ToTable(true, "Process", "ProcessId");
+                workbook = report.GetWorkbook(ref excelEngine, dtProcess.Rows.Count);
+                sheet = workbook.Worksheets[1];
+                workbook.Version = ExcelVersion.Excel2016;
+               
+                //for (int i = 0; i < dtProcess.Rows.Count; i++)
+                //{
+                //    DataView dv = new DataView(data);
+                //    dv.RowFilter = "ProcessId='" + dtProcess.Rows[i]["ProcessId"].ToString() + "'";
+
+                //    var sheet = workbook.Worksheets[i];
+
+                //    CreateDetailSheet(dtProcess.Rows[i]["Process"].ToString(), dv.ToTable(), ref sheet, identity.CompanyId);
+                //}
+
                 int ROW = 6; int COL = 1;
 
                 #region columns
@@ -2230,56 +2232,56 @@ WHERE trkp.Id IN (" + PlantId + @")
 
 
 
-                #region Pivot
-                string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
+                //#region Pivot
+                //string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
 
-                workbook.SaveAs(fPath);
-                workbook = application.Workbooks.Open(fPath);
-                try { System.IO.File.Delete(fPath); } catch (Exception) { }
+                //workbook.SaveAs(fPath);
+                //workbook = application.Workbooks.Open(fPath);
+                //try { System.IO.File.Delete(fPath); } catch (Exception) { }
 
-                workbook.Worksheets[0].Name = "Order";
+                //workbook.Worksheets[0].Name = "Order";
 
-                IWorksheet pivotSheet = workbook.Worksheets[0];
-                IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
-                IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+                //IWorksheet pivotSheet = workbook.Worksheets[0];
+                //IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                //IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
 
-                pivotTable.Fields[colId - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
-                pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Data;
-
-
-
-                IPivotField field = pivotTable.Fields[colParameterValue - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                pivotTable.DataFields.Add(field, "ParameterValue", PivotSubtotalTypes.Sum);
-
-                for (int i = 0; i < pivotTable.Fields.Count; i++)
-                {
-                    if (i == colPlant - 1 || i == colEntity - 1 || i == colBuyerOrderNo - 1)
-                        continue;
-                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
-                }
-
-                pivotTable.ShowDrillIndicators = false;
-                pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
-                pivotTable.Options.NullString = "";
-                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
-
-                sheet = workbook.Worksheets[0];
-                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Report", identity.CompanyId, identity.CompanyName, "");
-
-                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.IsGridLinesVisible = false;
-                workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+                //pivotTable.Fields[colId - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
+                //pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Data;
 
 
-                #endregion Buyer Summary
+
+                //IPivotField field = pivotTable.Fields[colParameterValue - 1];
+                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //pivotTable.DataFields.Add(field, "ParameterValue", PivotSubtotalTypes.Sum);
+
+                //for (int i = 0; i < pivotTable.Fields.Count; i++)
+                //{
+                //    if (i == colPlant - 1 || i == colEntity - 1 || i == colBuyerOrderNo - 1)
+                //        continue;
+                //    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                //}
+
+                //pivotTable.ShowDrillIndicators = false;
+                //pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                //pivotTable.Options.NullString = "";
+                //pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+                //sheet = workbook.Worksheets[0];
+                //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Report", identity.CompanyId, identity.CompanyName, "");
+
+                //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                //sheet.IsGridLinesVisible = false;
+                //workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+
+
+                //#endregion Buyer Summary
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
                 workbook.SaveAs(filePath);
                 workbook.Close();
@@ -2297,7 +2299,7 @@ WHERE trkp.Id IN (" + PlantId + @")
             try
             {
                 string sql = @"SELECT  PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
-                            pt1.SPT AS SAM,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,ISNULL(pp.UserName,ord.Material) Material,ISNULL(pp.StandardName,ord.Article ) Article              
+                            pt1.SPT AS SAM,pp.ProcessId,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,ISNULL(pp.UserName,ord.Material) Material,ISNULL(pp.StandardName,ord.Article ) Article              
                             ,ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
                             sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
  ,CPL.UserName AS ProductionShift,so.Id AS SalesOrderIdBooking,so.[Description] AS SalesOrderDescBooking,
