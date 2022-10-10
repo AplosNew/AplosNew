@@ -1028,11 +1028,11 @@ namespace Library.Accounting.Accounts
         {
             try
             {
-                parameters.sort = "EmployeeCodeNumeric";
+                parameters.sort = "EmployeeCodeNumeric,EmployeeStatus";
                 parameters.CmdText = @"SELECT Emp.SystemId,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
-                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EMP.EmployeeStatus
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -1045,7 +1045,7 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                                        WHERE EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' 
+                                        WHERE EMP.CompanyId='" + companyId + @"' 
                                         ";
                 return _sqlRepository.GetGridData(parameters);
             }

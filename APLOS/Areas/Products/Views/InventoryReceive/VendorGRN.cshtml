@@ -441,8 +441,8 @@
                                 <td class="text-right">&nbsp;</td>
                                 <td class="text-right">
                                     @*<ul class="list-inline action-list">
-                <li><button ng-click="getTotalReceiveTaxList(inventoryMaterialList | sumByKey : 'TrnAmount',true)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-            </ul>*@
+                                            <li><button ng-click="getTotalReceiveTaxList(inventoryMaterialList | sumByKey : 'TrnAmount',true)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                        </ul>*@
                                 </td>
                             </tr>
                         </tbody>
@@ -600,7 +600,7 @@
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
                                 <span class="input-group-addon">{{productNew.OtherPartyCode}}</span>
-                                <input type="text" name="OtherVendor" ng-model="productNew.OtherPartyName" class="form-control"  readonly>
+                                <input type="text" name="OtherVendor" ng-model="productNew.OtherPartyName" class="form-control" readonly>
                                 <span class="input-group-btn">
                                     <button name="submit" ng-click="showOtherPartyPopUpNew()" ng-disabled="inventoryMaterialList.length==0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                     <button name="submit" ng-click="OtherinvoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
@@ -2579,3 +2579,4 @@
             </div>
         </div>
     </div>
+

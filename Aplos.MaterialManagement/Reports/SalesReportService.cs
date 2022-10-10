@@ -810,7 +810,7 @@ namespace Library.MaterialManagement.Reports
             }
             catch (Exception ex)
             {
-                throw ex;
+                //throw ex;
             }
 
             document.Close();

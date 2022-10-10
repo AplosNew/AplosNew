@@ -92,11 +92,11 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region SAVE
         [HttpPost, Authorize]
-        public ActionResult Save(Dictionary<string, object> data)
+        public ActionResult Save(Dictionary<string, object> data, List<string> medicinepurpose)
         {
             try
             {
-                return Json(new { Error = false, Data = mms.Save(data), Message = AplosMessage.Success });
+                return Json(new { Error = false, Data = mms.Save(data, medicinepurpose), Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
