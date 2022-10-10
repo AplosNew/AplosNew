@@ -341,5 +341,84 @@ Order by P.Sequence";
 
 
         }
+
+        [HttpPost]
+        public JsonResult CreateCustomer(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from SalesOrderApprovalCustomer where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("SalesOrderApprovalCustomer", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedCustomerData(string masterid)
+        {
+            JsonResult json = Json(GetSalesOrderApprovalCustomerData(masterid), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        public IEnumerable<object> GetSalesOrderApprovalCustomerData(string masterid)
+        {
+            try
+            {
+                string CmdText = @"SELECT SC.[Id]
+      ,SC.[SalesOrderApprovalMasterId]
+      ,SC.[CustomerId]
+      ,SC.[AccountInchargeId]
+      ,SC.[Remark]
+      ,SC.[AddedBy]
+      ,SC.[AddedDate]
+      ,SC.[AddedFromIP]
+      ,SC.[UpdatedBy]
+      ,SC.[UpdatedDate]
+      ,SC.[UpdatedFromIP]
+	  ,E.EmployeeName AccountInchargeName
+	  ,P.UserName PartyName ,P.Code PartyCode
+  FROM [dbo].[SalesOrderApprovalCustomer] SC
+  LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=SC.AccountInchargeId  
+  LEFT JOIN HKP.Party P ON P.Id=SC.CustomerId
+Where SC.SalesOrderApprovalMasterId='" + masterid + @"'";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
