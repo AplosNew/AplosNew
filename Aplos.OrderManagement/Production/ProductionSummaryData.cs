@@ -1783,16 +1783,25 @@ namespace Library.OrderManagement.Production
             try
             {
 
+                //string sql = @"SELECT PlannedQty=CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE PQ.Qty END
+                //            ,(CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE PQ.Qty END-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
+                //            , ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
+                //            FROM trn.ProductionOrder AS PO
+                //            LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
+                //            LEFT JOIN 
+                //            (SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
+                //            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId
+                //            ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
+
                 string sql = @"SELECT PlannedQty=CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE PQ.Qty END
                             ,(CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE PQ.Qty END-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
                             , ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
                             FROM trn.ProductionOrder AS PO
-                            LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
+                            LEFT JOIN TRN.ProductionOrderProcessSet PQ ON PQ.ProductionOrderID=PO.Id AND PQ.ProcessId='" + processId + @"'
                             LEFT JOIN 
                             (SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
                             FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId
                             ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
-
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

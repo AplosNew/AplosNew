@@ -111,7 +111,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return json;
         }
 
-       
+
 
 
         [HttpPost]
@@ -149,7 +149,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data= data,  Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -244,77 +244,19 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public JsonResult CreatePlant(List<Dictionary<string, object>> data)
 
         {
-            SavePlantData(data);
+            clsSales.SavePlantData(data);
             return Json(new { Message = AplosMessage.Insert });
-        }
-
-
-        private void SavePlantData(List<Dictionary<string, object>> data)
-        {
-            try
-            {
-                if (data != null)
-                {
-                    DataSet dsMaster;
-                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesOrderApprovalPlant", out dsMaster, false, "1");
-
-                    foreach (var item in data)
-                    {
-                        DataView dv = new DataView(dsMaster.Tables[0]);
-                        dv.RowFilter = "Id='" + item["PlantId"] + "'";
-
-                        if (dv.Count == 0)
-                        {
-                            item["Id"] = item["PlantId"];
-                            AddNewRow(dsMaster.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
-                    }
-
-
-                    clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
-                }
-
-
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
         }
 
 
         [HttpGet, Authorize]
         public ActionResult GetSavedPlantData(string masterid)
         {
-            JsonResult json = Json(GetSalesOrderApprovalPlantData(masterid), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetSalesOrderApprovalPlantData(masterid), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
 
-        public IEnumerable<object> GetSalesOrderApprovalPlantData(string masterid)
-        {
-            try
-            {
-                string CmdText = @"Select SP.*,P.Sequence,P.ShortName,P.StandardName,P.UserName
-from SalesOrderApprovalPlant SP
-LEFT JOIN ORG.Plant P ON P.Id=SP.PlantId
-Where SP.SalesOrderApprovalMasterId='"+ masterid + @"'
-Order by P.Sequence";
-                return _sqlRepository.GetDataCollection(CmdText);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
         [HttpPost, Authorize]
         public ActionResult DeletePlant(string id)
@@ -341,5 +283,115 @@ Order by P.Sequence";
 
 
         }
+
+        [HttpPost]
+        public JsonResult CreateCustomer(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from SalesOrderApprovalCustomer where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("SalesOrderApprovalCustomer", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedCustomerData(string masterid)
+        {
+            JsonResult json = Json(GetSalesOrderApprovalCustomerData(masterid), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        public IEnumerable<object> GetSalesOrderApprovalCustomerData(string masterid)
+        {
+            try
+            {
+                string CmdText = @"SELECT SC.[Id]
+      ,SC.[SalesOrderApprovalMasterId]
+      ,SC.[CustomerId]
+      ,SC.[AccountInchargeId]
+      ,SC.[Remark]
+      ,SC.[AddedBy]
+      ,SC.[AddedDate]
+      ,SC.[AddedFromIP]
+      ,SC.[UpdatedBy]
+      ,SC.[UpdatedDate]
+      ,SC.[UpdatedFromIP]
+	  ,E.EmployeeName AccountInchargeName
+	  ,P.UserName PartyName ,P.Code PartyCode
+  FROM [dbo].[SalesOrderApprovalCustomer] SC
+  LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=SC.AccountInchargeId  
+  LEFT JOIN HKP.Party P ON P.Id=SC.CustomerId
+Where SC.SalesOrderApprovalMasterId='" + masterid + @"'";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateCheckBy(List<Dictionary<string, object>> data)
+        {
+            clsSales.SaveCheckByData(data);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateApproveBy(List<Dictionary<string, object>> data)
+        {
+            clsSales.SaveApproveByData(data);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetCheckByData(string masterId)
+        {
+            JsonResult json = Json(clsSales.GetCheckByData(masterId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetApproveByData(string masterId)
+        {
+            JsonResult json = Json(clsSales.GetApproveByData(masterId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
     }
 }

@@ -16,11 +16,14 @@ namespace Aplos.Areas.HumanResource.Controllers
     public class MedicineReceiptController : BaseController
     {
         MedicineReceiptService mr = new MedicineReceiptService();
+        #region PAGE
         public ActionResult Aplos()
         {
             return View();
         }
+        #endregion PAGE
 
+        #region GET FUN
         [Authorize, HttpPost]
         public ActionResult getMedicineData()
         {
@@ -37,11 +40,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getVendorNames()
+        public ActionResult getMedicineReceipt()
         {
             try
             {
-                return Json(mr.getVendorNames(), JsonRequestBehavior.AllowGet);
+                return Json(mr.getMedicineReceipt(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -50,5 +53,29 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
+        #endregion GET FUN
+        #region SEARCH SAVED DATA IN GRID 
+        [HttpPost, Authorize]
+        public ActionResult GetList(string column, string value)
+        {
+            return Json(mr.GetList(column, value), JsonRequestBehavior.AllowGet);
+        }
+        #endregion SEARCH SAVED DATA IN GRID
+        #region SAVE
+
+        [HttpPost, Authorize]
+        public ActionResult SaveHeader(Dictionary<string, object> data, List<Dictionary<string, object>> medicinelist, string partyId)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = mr.SaveHeader(data, medicinelist, partyId), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #endregion SAVE
     }
 }
