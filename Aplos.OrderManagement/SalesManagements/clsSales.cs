@@ -1430,6 +1430,363 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetplantByCompanyId(string companyId)
+        {
+            try
+            {
+                string CmdText = @"Select CAST(0 as bit) Flag,P.* from ORG.Plant P Where CompanyId='" + companyId + "' Order By P.Sequence";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetAllEmployeeData()
+        {
+            try
+            {
+                string CmdText = @"SELECT CAST (0 AS bit) Flag,E.SystemId
+							    	,E.PlantId
+							    	,E.GroupID
+							    	,E.CompanyId
+							    	,E.EmployeeName
+							    	,PMB.Code BudgetCode
+							    	,PR.UserName PositionName
+							    	,E.TelePhnNo
+							    	,E.EmailId
+                                    ,E.DepartmentId
+                                    ,E.DivisionId
+									,E.SectionId
+							    	,E.EmpType
+							    	,E.GivenDesignationId
+									,E.EmployeeCategorySystemID EmployeeCategoryId
+							    	,EN.UserName EntityName
+							    	,D.UserName Designation
+							    	,GD.UserName GivenDesignation
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+							    	,DV.UserName AS Division
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode
+									,E.EmpPicPath
+                                    ,E.DOJ
+                                    ,P.UserName Plant
+									,SS.UserName SubSection
+                                    ,E.EmployeeCodeNumeric
+                                    ,C.UserName Company
+							    FROM EmployeeInformation E
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  Order by EmployeeCodeNumeric";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void SavePlantData(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesOrderApprovalPlant", out dsMaster, false, "1");
+
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["PlantId"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = item["PlantId"];
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        public IEnumerable<object> GetSalesOrderApprovalPlantData(string masterid)
+        {
+            try
+            {
+                string CmdText = @"Select SP.*,P.Sequence,P.ShortName,P.StandardName,P.UserName
+from SalesOrderApprovalPlant SP
+LEFT JOIN ORG.Plant P ON P.Id=SP.PlantId
+Where SP.SalesOrderApprovalMasterId='" + masterid + @"'
+Order by P.Sequence";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void SaveCheckByData(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesOrderCheckBy", out dsMaster, false, "1");
+
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "EmpSystemId='" + item["EmpSystemId"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = item["EmpSystemId"];
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public void SaveApproveByData(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesOrderApproveBy", out dsMaster, false, "1");
+
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "EmpSystemId='" + item["EmpSystemId"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = item["EmpSystemId"];
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
+        public IEnumerable<object> GetCheckByData(string masterId)
+        {
+            try
+            {
+                string CmdText = @"SELECT PE.Id,PE.EmpSystemId
+							    	,E.EmployeeName
+							    	,PMB.Code BudgetCode
+							    	,PR.UserName PositionName
+							    	,E.TelePhnNo
+							    	,E.EmailId
+                                    ,E.DepartmentId
+                                    ,E.DivisionId
+									,E.SectionId
+							    	,E.EmpType
+							    	,E.GivenDesignationId
+									,E.EmployeeCategorySystemID EmployeeCategoryId
+							    	,EN.UserName EntityName
+							    	,D.UserName Designation
+							    	,GD.UserName GivenDesignation
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+							    	,DV.UserName AS Division
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode
+									,E.EmpPicPath
+                                    ,E.DOJ
+                                    ,P.UserName Plant
+									,SS.UserName SubSection
+                                    ,E.EmployeeCodeNumeric
+                                    ,C.UserName Company
+							    FROM [dbo].[SalesOrderCheckBy] PE
+							    LEFT JOIN  EmployeeInformation E ON E.SystemId=PE.EmpSystemId
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+                                WHERE PE.SalesOrderApprovalMasterId='" + masterId + "' Order by EmployeeCodeNumeric";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetApproveByData(string masterId)
+        {
+            try
+            {
+                string CmdText = @"SELECT PE.Id,PE.EmpSystemId
+							    	,E.EmployeeName
+							    	,PMB.Code BudgetCode
+							    	,PR.UserName PositionName
+							    	,E.TelePhnNo
+							    	,E.EmailId
+                                    ,E.DepartmentId
+                                    ,E.DivisionId
+									,E.SectionId
+							    	,E.EmpType
+							    	,E.GivenDesignationId
+									,E.EmployeeCategorySystemID EmployeeCategoryId
+							    	,EN.UserName EntityName
+							    	,D.UserName Designation
+							    	,GD.UserName GivenDesignation
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+							    	,DV.UserName AS Division
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode
+									,E.EmpPicPath
+                                    ,E.DOJ
+                                    ,P.UserName Plant
+									,SS.UserName SubSection
+                                    ,E.EmployeeCodeNumeric
+                                    ,C.UserName Company
+							    FROM [dbo].[SalesOrderApproveBy] PE
+							    LEFT JOIN  EmployeeInformation E ON E.SystemId=PE.EmpSystemId
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+                                WHERE PE.SalesOrderApprovalMasterId='" + masterId + "' Order by EmployeeCodeNumeric";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 
 

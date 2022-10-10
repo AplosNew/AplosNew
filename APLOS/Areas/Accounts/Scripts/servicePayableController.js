@@ -11,7 +11,7 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
     $scope.AcceptanceId = null;
 
     $scope.products = [];    $scope.searchByPostedService = "Id"; $scope.searchService = "";    $scope.searchByPostedServiceList = [{ value: 'Id', name: "Acknowledge No" }, { value: 'GRNDate', name: "Acknowledge Date" }, { value: 'Particular', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }
-        , { value: 'PostingDate', name: "PostingDate" }, { value: 'DocRefNo', name: "DocRef No" }
+        , { value: 'PostingDate', name: "PostingDate" }, { value: 'DocRefNo', name: "DocRef No" }, { value: 'TDSVoucherNo', name: "TDS VoucherNo" }
         , { value: 'DocDate', name: "Doc Date" }];    $scope.getDataList = function () {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetServicePostingList',            data: { column: $scope.searchByPostedService, value: $scope.searchService },    
         }).then(function successCallback(response) {            $scope.products = response.data;        });    };
     $scope.getDataList();
@@ -758,12 +758,16 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
         TaxAmount: null,
         ValueOfFixed: null,
         CompanyCurrencyAmount: null,
-        Type: null
+        Type: null,
+        TaxCategoryId: null
     };
     $scope.selectTDS = function () {
         $scope.TDS.ValueOfFixed = $.grep($scope.TDSCboList, function (item) {
             return item.Id === $scope.TDS.TaxCodeId;
         })[0].ValueOfFixed;
+        $scope.TDS.TaxCategoryId = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].TaxCategoryId;
         $scope.TDS.Type = $.grep($scope.TDSCboList, function (item) {
             return item.Id === $scope.TDS.TaxCodeId;
         })[0].Type;

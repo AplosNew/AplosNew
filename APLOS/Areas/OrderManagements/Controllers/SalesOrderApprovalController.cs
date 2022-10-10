@@ -6,6 +6,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Model.Setups;
+using Library.OrderManagement.Sales;
 using Library.Service.Enums;
 using Library.Service.Setups;
 using OTSBD;
@@ -21,15 +22,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
 {
     public class SalesOrderApprovalController : BaseController
     {
-        //abcd
-        //this is my code from tarek
         string TableName = "dbo.SalesOrderApprovalMaster";
-        //authentication for
-        //GetList Create Delete
-
-
         #region Constructor
-
+        clsSales clsSales = new clsSales();
         private readonly ISqlRepository _sqlRepository;
         public SalesOrderApprovalController(ISqlRepository R)
         {
@@ -103,7 +98,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetAllActiveEmployeeData()
         {
-            JsonResult json = Json(GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -111,78 +106,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetplantByCompany(string companyId)
         {
-            JsonResult json = Json(GetplantByCompanyId(companyId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetplantByCompanyId(companyId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
 
-        public IEnumerable<object> GetplantByCompanyId(string companyId)
-        {
-            try
-            {
-                string CmdText = @"Select CAST(0 as bit) Flag,P.* from ORG.Plant P Where CompanyId='"+ companyId + "' Order By P.Sequence";
-                return _sqlRepository.GetDataCollection(CmdText);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
-        public IEnumerable<object> GetAllEmployeeData()
-        {
-            try
-            {
-                string CmdText = @"SELECT CAST (0 AS bit) Flag,E.SystemId
-							    	,E.PlantId
-							    	,E.GroupID
-							    	,E.CompanyId
-							    	,E.EmployeeName
-							    	,PMB.Code BudgetCode
-							    	,PR.UserName PositionName
-							    	,E.TelePhnNo
-							    	,E.EmailId
-                                    ,E.DepartmentId
-                                    ,E.DivisionId
-									,E.SectionId
-							    	,E.EmpType
-							    	,E.GivenDesignationId
-									,E.EmployeeCategorySystemID EmployeeCategoryId
-							    	,EN.UserName EntityName
-							    	,D.UserName Designation
-							    	,GD.UserName GivenDesignation
-                                    ,LD.UserName LegalDesignation
-							    	,DEPT.UserName AS Department
-							    	,DV.UserName AS Division
-									,SC.UserName AS Section
-                                    ,E.EmployeeCode
-									,E.EmpPicPath
-                                    ,E.DOJ
-                                    ,P.UserName Plant
-									,SS.UserName SubSection
-                                    ,E.EmployeeCodeNumeric
-                                    ,C.UserName Company
-							    FROM EmployeeInformation E
-							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
-							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
-							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
-							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
-							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
-							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
-							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
-							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
-                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
-                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
-								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
-                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
-                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  Order by EmployeeCodeNumeric";
-                return _sqlRepository.GetDataCollection(CmdText);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
 
         [HttpPost]
@@ -220,7 +149,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data= data,  Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -315,70 +244,117 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public JsonResult CreatePlant(List<Dictionary<string, object>> data)
 
         {
-            SavePlantData(data);
+            clsSales.SavePlantData(data);
             return Json(new { Message = AplosMessage.Insert });
-        }
-
-
-        private void SavePlantData(List<Dictionary<string, object>> data)
-        {
-            try
-            {
-                if (data != null)
-                {
-                    DataSet dsMaster;
-                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesOrderApprovalPlant", out dsMaster, false, "1");
-
-                    foreach (var item in data)
-                    {
-                        DataView dv = new DataView(dsMaster.Tables[0]);
-                        dv.RowFilter = "Id='" + item["PlantId"] + "'";
-
-                        if (dv.Count == 0)
-                        {
-                            item["Id"] = item["PlantId"];
-                            AddNewRow(dsMaster.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
-                    }
-
-
-                    clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
-                }
-
-
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
         }
 
 
         [HttpGet, Authorize]
         public ActionResult GetSavedPlantData(string masterid)
         {
-            JsonResult json = Json(GetSalesOrderApprovalPlantData(masterid), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetSalesOrderApprovalPlantData(masterid), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
 
-        public IEnumerable<object> GetSalesOrderApprovalPlantData(string masterid)
+
+        [HttpPost, Authorize]
+        public ActionResult DeletePlant(string id)
         {
             try
             {
-                string CmdText = @"Select SP.*,P.Sequence,P.ShortName,P.StandardName,P.UserName
-from SalesOrderApprovalPlant SP
-LEFT JOIN ORG.Plant P ON P.Id=SP.PlantId
-Where SP.SalesOrderApprovalMasterId='"+ masterid + @"'
-Order by P.Sequence";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.SalesOrderApprovalPlant where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
+        [HttpPost]
+        public JsonResult CreateCustomer(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from SalesOrderApprovalCustomer where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("SalesOrderApprovalCustomer", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedCustomerData(string masterid)
+        {
+            JsonResult json = Json(GetSalesOrderApprovalCustomerData(masterid), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        public IEnumerable<object> GetSalesOrderApprovalCustomerData(string masterid)
+        {
+            try
+            {
+                string CmdText = @"SELECT SC.[Id]
+      ,SC.[SalesOrderApprovalMasterId]
+      ,SC.[CustomerId]
+      ,SC.[AccountInchargeId]
+      ,SC.[Remark]
+      ,SC.[AddedBy]
+      ,SC.[AddedDate]
+      ,SC.[AddedFromIP]
+      ,SC.[UpdatedBy]
+      ,SC.[UpdatedDate]
+      ,SC.[UpdatedFromIP]
+	  ,E.EmployeeName AccountInchargeName
+	  ,P.UserName PartyName ,P.Code PartyCode
+  FROM [dbo].[SalesOrderApprovalCustomer] SC
+  LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=SC.AccountInchargeId  
+  LEFT JOIN HKP.Party P ON P.Id=SC.CustomerId
+Where SC.SalesOrderApprovalMasterId='" + masterid + @"'";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)
@@ -386,5 +362,36 @@ Order by P.Sequence";
                 throw ex;
             }
         }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateCheckBy(List<Dictionary<string, object>> data)
+        {
+            clsSales.SaveCheckByData(data);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateApproveBy(List<Dictionary<string, object>> data)
+        {
+            clsSales.SaveApproveByData(data);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetCheckByData(string masterId)
+        {
+            JsonResult json = Json(clsSales.GetCheckByData(masterId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetApproveByData(string masterId)
+        {
+            JsonResult json = Json(clsSales.GetApproveByData(masterId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
     }
 }

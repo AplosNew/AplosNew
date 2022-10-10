@@ -4434,6 +4434,12 @@ namespace Library.MaterialManagement.Inventory
 
                 dtOrderMaster = loadGRNMaterialMaster(grnId);
 
+                if (dtOrderMaster.Rows.Count==0)
+                {
+                    throw new Exception("No Data Found");
+                }
+               
+
 
                 var invoicePartyAddress = ru.GetAddress(dtOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dtOrderMaster.Rows[0]["InvoicingByAddress"].ToString());
                 document.Replace("{InvoicingPartyAddress}", invoicePartyAddress, false, false);
@@ -4682,7 +4688,7 @@ namespace Library.MaterialManagement.Inventory
             try
             {
 
-                strSQL = @"SELECT IR.Id grnNumber
+                strSQL = @"SELECT ISNULL(IR.Id,0) grnNumber
 							,PO1.PODate
 							,GTE.ModeofTransport
 							,HSNC.Code HSNCode
@@ -4707,7 +4713,7 @@ namespace Library.MaterialManagement.Inventory
                             ,REPLACE(Convert(VARCHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                             ,IR.InvoicingPartyPlantId
                             ,INVPARTYPL.UserName InvoicingPartyName
-                            ,INVPARTYPL.AddressMasterId InvoicePartyAddressMasterId
+                            ,isnull(INVPARTYPL.AddressMasterId,0) InvoicePartyAddressMasterId
                             ,INVPARTYPL.GSTIN InvoicingPartyGSTIN
                             ,ISNULL(IR.InvoicingByAddress,'') InvoicingByAddress
                             ,IR.DeliveryByAddress
@@ -4783,7 +4789,7 @@ namespace Library.MaterialManagement.Inventory
                             ,IRD.TransactionUoMId
                             ,TUoM.ShortName  AS TransactionUoM
                             ,IRD.Id InventoryReceiveDetailId
-						    ,IR.ProductionOrderId
+						    ,ISNULL(IR.ProductionOrderId,0) ProductionOrderId
 
 							,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
                             ,CheckStatus= CASE when IR.CheckedByStatus='ForChecked' Then 'To be checked'
@@ -4876,7 +4882,7 @@ namespace Library.MaterialManagement.Inventory
                             WHERE IR.Id ='" + OrderMasterID + @"' and IOM.MaterialMasterId is not NULL
 
                             Union ALL
-                            SELECT IR.Id grnNumber
+                            SELECT ISNULL(IR.Id,0) grnNumber
 							,GTE.ModeofTransport
 							,PO1.PODate
 							,HSNC.Code HSNCode
@@ -4900,7 +4906,7 @@ namespace Library.MaterialManagement.Inventory
                             ,IR.InvoicingPartyPlantId
 
                             ,INVPARTYPL.UserName InvoicingPartyName
-                            ,INVPARTYPL.AddressMasterId InvoicePartyAddressMasterId
+                            ,ISNULL(INVPARTYPL.AddressMasterId,0) InvoicePartyAddressMasterId
                             ,INVPARTYPL.GSTIN InvoicingPartyGSTIN
                             ,ISNULL(IR.InvoicingByAddress,'') InvoicingByAddress
                             ,IR.DeliveryByAddress
