@@ -92,13 +92,17 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 
 
 	$scope.AllTabPrint = function (z) {
-		//debugger;
-		var x = "#" + z;
-		var gridObj = $(x).data("ejGrid");
-		var data = gridObj.getSelectedRecords()[0];
-		location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.Id;
 
-
+		try {
+			//debugger;
+			var x = "#" + z;
+			var gridObj = $(x).data("ejGrid");
+			var data = gridObj.getSelectedRecords()[0];
+			location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.Id;
+		}
+			catch (e) {
+			$scope.ShowResultCustom(e, "failure");
+			}
 	};
 	$scope.closeEmployeePopUp = function () {
 		if ($scope.employeeIndex !== -1) {
