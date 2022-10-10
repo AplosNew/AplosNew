@@ -214,6 +214,21 @@ namespace Aplos.Areas.Banks.Controllers
             }
 
         }
+        [HttpGet, Authorize]
+        public ActionResult CRReconcilePendingReport(string bankMasterId, string fromDate, string toDate)
+        {
+            try
+            {
+                _bankReportService.CRReconcilePendingReport(bankMasterId, fromDate, toDate);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
         [HttpPost]
         public JsonResult DeleteBankreconciliation(string bankReconciliationId)
         {
@@ -441,7 +456,36 @@ namespace Aplos.Areas.Banks.Controllers
             return jsondata;
 
         }
+        [HttpPost, Authorize]
+        public ActionResult GetBankCrReconListUploadedData(string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = accountsBankReconcilliationService.GetBankCrReconListUploadedData(identity.CompanyGroupId, identity.CompanyId, bankMasterId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
 
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetAvailableBankReconciliationUploadedCrDataList(string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = accountsBankReconcilliationService.GetAvailableBankReconciliationUploadedCrDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, bankMasterId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetBankCrReconciledList(string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = accountsBankReconcilliationService.GetBankCrReconciledList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, bankMasterId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
         #endregion Operation
     }
 }
