@@ -456,7 +456,7 @@ namespace HRService
             {
                 DataSet dsMaster;
                 string TableName = "TRN.DetentionLog";
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
@@ -478,9 +478,9 @@ namespace HRService
                         dr["DetentionTypeId"] = item.DetentionTypeId;
                         dr["MachineMasterId"] = item.MachineMasterId;
                         dr["IssueByNo"] = item.IssueByNo;
-                        dr["AddedBy"] = identity.Name;
+                        dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["AddedFromIP"] = item.AddedFromIP;
 
                         dsMaster.Tables[0].Rows.Add(dr);
 
@@ -497,9 +497,9 @@ namespace HRService
                         dr["DetentionTypeId"] = item.DetentionTypeId;
                         dr["MachineMasterId"] = item.MachineMasterId;
                         dr["IssueByNo"] = item.IssueByNo;
-                        dr["UpdatedBy"] = identity.Name;
+                        //dr["UpdatedBy"] = item.Name;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
+                       // dr["UpdatedFromIP"] = identity.IPAddress;
                         dr.EndEdit();
                         clsStaticInfo _info = new clsStaticInfo();
                         _info.SaveDataSets(dsMaster);
@@ -1163,7 +1163,8 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public DateTime LogoutTime { get; set; } = System.DateTime.Now;
         public bool isClose { get; set; }
         public string Remarks { get; set; }
-        
+        public string AddedBy { get; set; }
+        public string AddedFromIP { get; set; }
     }
     #endregion Written by Nitesh
 
