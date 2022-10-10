@@ -15,7 +15,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Invoice No.<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="number" name="InvoiceNo" ng-model="ModalNew.InvoiceNo" class="form-control" maxlength="15" required tabindex="3">
+                        <input type="number" name="InvoiceNo" ng-model="ModalNew.InvoiceNumber" class="form-control" maxlength="15" required tabindex="3">
                     </div>
                 </div>
 
@@ -42,22 +42,32 @@
                         <input type="text" ng-model="ModalNew.InvoiceDate" name="InvoiceDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label"></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
 
+                            <span class="input-group-btn">
+                                <button name="submit" ng-click="openMedicinePopUp()" class="btn single-small-btn" tabindex="1">Add Medicine <i class="cr-icon glyphicon glyphicon-plus-sign"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button class="btn" ng-click="displaychild();" tabindex="9"><i class="glyphicon glyphicon-circle-arrow-right"></i> Go</button></li>
-                </ul>
-            </div>
+            @*<div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button class="btn" ng-click="displaychild();" tabindex="9"><i class="glyphicon glyphicon-circle-arrow-right"></i> Go</button></li>
+                    </ul>
+                </div>*@
 
         </div>
 
         <div class="table-responsive" id="medicinereceiptchildId" style="margin-top:20px">
-            <div id="GridEdit" ej-grid e-datasource="MedicineList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+            <div id="GridEdit" ej-grid e-datasource="userMedicineList" e-recorddoubleclick="Get" e-load="loadGridEdit"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                 <div e-columns>
-                    <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
+
                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                     <div e-column e-field="Medicine" e-headertext="Medicine" e-width="50"></div>
                     <div e-column e-headertext="Expiry Date" e-template="#checkbxExpDate" e-textalign="center" e-width="30"></div>
@@ -67,35 +77,30 @@
 
                 </div>
             </div>
-            <script type="text/x-jsrender" id="headerTemplate">
-                <input type="checkbox" id="headchk" />
-            </script>
-            <script type="text/template" id="checkboxTemplate">
-                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
+            @*Expiry Date*@
+            <script type="text/template" id="checkbxExpDate">
+                <input type="text" ng-model="data.ExpiryDate" name="ExpiryDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
             </script>
 
             @*Qty*@
             <script type="text/template" id="checkboxQty">
-                <input type="number" id="quantityId" name="Quantity" ng-change="$parent.calcAmount(this)" ng-model="data.Quantity" class="form-control" maxlength="15" required tabindex="3">
-            </script>
-
-            @*Expiry Date*@
-            <script type="text/template" id="checkbxExpDate">
-                <input type="text" ng-model="data.InvoiceDate" name="InvoiceDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
+                <input type="number" id="quantityId" name="Quantity" ng-change="$parent.calcAmount(this)" ng-model="data.Quantity" class="form-control" maxlength="15" required tabindex="4">
             </script>
 
             @*Amount*@
             <script type="text/template" id="checkboxAmount">
-                <input type="text" ng-model="data.Amount" name="Amount"  class="form-control" maxlength="50" tabindex="3" required>
+                <input type="number" ng-model="data.Amount" name="Amount" class="form-control" maxlength="50" tabindex="3" required>
+
             </script>
 
             @*Rate*@
             <script type="text/template" id="checkboxRate">
-                <input type="text" id="rateId" ng-model="data.Rate" name="Rate" class="form-control" maxlength="50" tabindex="3" required>
+                <input type="text" id="rateId" ng-model="data.Rate" name="Rate" ng-change="$parent.calcAmount(this)" class="form-control" maxlength="50" tabindex="3" required>
+
             </script>
             <div class="common-btn" style="margin-top:10px">
                 <ul class="list-inline text-right">
-                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                    <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
                     <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                     <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                 </ul>
@@ -109,7 +114,51 @@
 
 <confirm-modal></confirm-modal>
 
+@Html.Partial("~/Areas/HumanResource/Views/MedicineReceipt/_MedicinePopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 
 
 
+<div class="aplos-grid-toggle">
+
+    <div style="color:black;" id="Grid" ej-grid e-datasource="MedicineReceiptList"
+         e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+         e-detailstemplate="detailTemp"
+         e-detailsdatabound="detailgrid">
+        <div e-columns>
+            @*<div e-column e-headertext="Actions" e-width="60">
+                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+            </div>*@
+            <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>
+            <div e-column e-field="Party" e-headertext="Vendor" e-width="250"></div>
+            <div e-column e-field="InvoiceNumber" e-headertext="Invoice Number" e-width="130"></div>
+            <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="130"></div>
+            <div e-column e-field="Medicine" e-headertext="Medicine" e-width="100"></div>
+            <div e-column e-field="ExpiryDate" e-headertext="Expiry Date" e-width="100"></div>
+            <div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
+            <div e-column e-field="Quantity" e-headertext="Quantity" e-width="100"></div>
+            <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+
+        </div>
+    </div>
+
+
+    @*<script id="tabGridContents" type="text/x-jsrender">
+        <div class="tabcontrol" id="Test">
+            <ul>
+                <li><a href="#gridTab{{:Id}}">Po Details</a></li>
+                <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
+            </ul>
+            <div id="gridTab{{:Id}}">
+                <div id="detailGrid"></div>
+            </div>
+
+            <div id="gridTab1{{:Id}}">
+                <div id="detailGrid1" style="width:800px;"></div>
+            </div>
+
+        </div>
+    </script>*@
+</div>
