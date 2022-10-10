@@ -40,4 +40,73 @@
         </ul>
     </div>
 </div>
-@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Employee List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Designation</th>
+                                <th>Department</th>
+                                <th>Section</th>
+                                <th>Sub Section</th>
+                                <th>Line</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-click="selectEmployeePopUp($index, x.SystemId)" ng-class="{selected : x.SystemId == selectedEmployee}" ng-dblclick="closeEmployeePopUp();" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOB}}</td>
+                                <td>{{x.LegalDesignation}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.Section}}</td>
+                                <td>{{x.SubSection}}</td>
+                                <td>{{x.Line}}</td>
+                                <td>{{x.EmployeeStatus}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
