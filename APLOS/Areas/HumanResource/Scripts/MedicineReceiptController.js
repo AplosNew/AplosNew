@@ -15,48 +15,68 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     $scope.partyType = 'Vendor';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
     
-
-    $scope.partySearchByList = [
+    $scope.searchByMedicine = "UserName"; $scope.searchMedicine = "";
+    $scope.MedicineSearchByList = [
         {
-            'name': $scope.partyType + ' Code',
+            'name': 'Code',
             'value': 'Code'
         },
         {
-            'name': $scope.partyType + ' Name',
+            'name': 'User Name',
             'value': 'UserName'
         },
         {
-            'name': 'Account Group',
-            'value': 'PartyAccountGroupName'
+            'name': 'Standard Name',
+            'value': 'StandardName'
         },
         {
-            'name': 'Country',
-            'value': 'CountryName'
+            'name': 'Short Name',
+            'value': 'ShortName'
         },
         {
-            'name': 'State',
-            'value': 'StateName'
+            'name': 'Category',
+            'value': 'Category'
         },
-        {
-            'name': 'Currency',
-            'value': 'CurrencyCode'
-        }
+        
     ];
 
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetList",
+            data: { column: $scope.searchByMedicine, value: $scope.searchMedicine },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.MedicineList = response.data;           
+        });
+    }
+   
+    // GET CURRENT DATE
     var curDate = new Date()
+
+    // OBJECT LIST DECLARED 
     $scope.ModelTemp = {
         Id: null,
         InvoiceDate: curDate,
         PartyName: null,
         PartyCode:null,
-        InvoiceNo: null,
+        InvoiceNumber: null,
         PartyId: null,
-       
+        //Medicine:null,
     };
     $scope.ModalNew = Object.assign({}, $scope.ModelTemp);
 
     $scope.MedicineList = [];
+    var oblenth = Object.keys($scope.ModalNew).length;
+    $scope.addMedicine = function () {
+        for (var i = 0; i <= Object.keys($scope.ModalNew).length; i++) {
+            $scope.ModelList = $scope.ModalNew.push($scope.ModalNew["Medicine"]);
+        }
+        $scope.displaychild();
+    }
 
+    // #REGION ALL GET FUNCTIONS
+    $scope.userMedicineList = [];
     $scope.getMedicineData = function () {
         $http({
             method: 'POST',
@@ -64,17 +84,32 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             dataType:'JSON'
         }).then(function successCallback(response) {
             $scope.MedicineList = response.data;
+
+            for (var i = 0; i < $scope.userMedicineList.length; i++) {
+                for (var j = 0; j < $scope.MedicineList.length; j++) {
+                    if ($scope.userMedicineList[i].Id === $scope.MedicineList[j].Id) {
+                        $scope.MedicineList[j].chk = true;
+                    }
+                }
+            }
         });
     }
     $scope.getMedicineData();
 
-    //$scope.getPartyList = function () {
-    //    $http({
-    //        url: 'Parties/party/GetCompanyPartyDataList' + $scope.partyType
-    //    }).then(function successCallback(response) {
-    //        $scope.partyList = response.Rows;
-    //    });      
-    //}
+    $scope.MedicineReceiptList = [];
+    $scope.getMedicineReceipt = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getMedicineReceipt',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.MedicineReceiptList = response.data;
+        });
+    }
+    $scope.getMedicineReceipt();
+    //  #ENDREGION REGION ALL GET FUNCTIONS
+
+    
 
     $scope.partyParameters = {
         limit: 10
@@ -92,34 +127,9 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
    
     $scope.productNew = Object.assign({}, $scope.product);
     $scope.partyList = [];
-    //$scope.showPartyPopUp = function () {
-    //    //baseService.setCurrentPage('partyList');
-    //    $scope.getPartyList = function (pageno) {
-    //        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
-    //            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList?partyType=' + $scope.partyType;
-    //        }
-    //        else if ($scope.partyType === 'Party') {
-    //            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList';
-    //        }
-    //        else if ($scope.partyType === 'Director') {
-    //            $scope.partyUrl = 'Parties/party/GetCompanyDirectorDataList';
-    //        }
-    //        else if ($scope.partyType === 'Other') {
-    //            $scope.partyUrl = 'Parties/party/GetCompanyOtherDataList';
-    //        }
-    //        baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-    //            .then(function (result) {
-    //                $scope.partyList = result.Rows;
-    //                $scope.partyParameters.total_count = result.Total;
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure');
-    //            }).finally(function () {
-    //            });
-    //    };
-    //    angular.element(document.querySelector('#partyPopUp')).modal('show');
-    //    $scope.getPartyList();
-    //};
-    
+   
+
+    // CLOSE PARTY POP UP
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
        
@@ -130,6 +140,38 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         $scope.hidePartyPopUp();
     };
 
+    // #REGION SELECT MEDICINE FROM POPUP SCREEN AND SEND IN CHILD GRID
+    $scope.openMedicinePopUp = function () {
+        angular.element(document.querySelector('#medicinePopUp')).modal('show');
+        
+    }
+
+    $scope.closeMedicinePopUp = function () {
+        
+        angular.element(document.querySelector('#medicinePopUp')).modal('hide');
+       
+    }
+    $scope.SendMedicine = function () {
+        if (baseService.arrayLength($scope.MedicineList) > 0) {
+            angular.forEach($scope.MedicineList, function (a) {
+               
+                if (a.chk) {
+                    var ob = {};
+                    ob.Id = a.Id;
+                    ob.Medicine = a.Medicine
+                    $scope.userMedicineList.push(ob);
+                    ob = {};
+                }
+               
+            });
+        }
+
+        //$scope.closeMedicinePopUp();
+        $scope.displaychild();
+    };
+    // #ENDREGION SELECT MEDICINE FROM POPUP SCREEN AND SEND IN CHILD GRID
+
+    // DISPLAY CHILD GRID
     $scope.displaychild = function () {
         // check input field Validations
        /* if (baseService.isUndefinedOrNull($scope.ModalNew.InvoiceNo)) {
@@ -143,13 +185,52 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             ShowResult('InvoiceDate is Required.', 'failure');
             throw 'Invalid Request';
         }*/
+        //$scope.addMedicine();
         document.querySelector("#medicinereceiptchildId").style.display = "block";
         
     }
 
-    $scope.calcAmount = function (e) {
-        $scope.Quantity = 123;
-        $scope.Amount = $scop.Quantity * $scope.Rate;
+    // FETCH VALUE FROM QANTITY, RATE AND CALCULATE
+    $scope.ob = {};
+    $scope.calcAmount = function (data1) {
+        $scope.ob = data1.data;
+        $scope.ob.Amount = $scope.ob.Quantity * $scope.ob.Rate;
+        var gridObj = $("#GridEdit").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
     }
-    
+
+    // #REGION SAVE
+
+    $scope.SaveHeader = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveHeader',
+            data: {
+                'data': $scope.ModalNew,
+                'medicinelist': $scope.userMedicineList,
+                'partyId': $scope.ModalNew.PartyId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.ModalNew.Id = response.data.Data.Id;                
+                ShowResult(response.data.Message, 'success');                
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    }
+    // #ENDREGION SAVE
+    $scope.AllTabPrint = function (z) {
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+    };
+
 }
