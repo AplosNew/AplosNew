@@ -73,7 +73,7 @@ namespace Aplos.Controllers.ApopAPIHR
             return machinemstrlst;
         }
 
-        [System.Web.Http.HttpPost]
+        
         public string Create([FromBody] IEnumerable<CreateDetentionList> DataToSave)
         {
             try
