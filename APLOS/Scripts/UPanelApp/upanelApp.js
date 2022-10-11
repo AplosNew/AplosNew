@@ -1083,6 +1083,10 @@ upanelApp.controller("maintenanceStatusDetailsController", maintenanceStatusDeta
 upanelApp.controller("PositionWiseMPStatusController", PositionWiseMPStatusController)
 upanelApp.controller("MedicineMasterController", MedicineMasterController)
 upanelApp.controller("SicknessTypeController", SicknessTypeController)
+upanelApp.controller("SalesOrderApprovalController", SalesOrderApprovalController)
+upanelApp.controller("MedicinePurposeController", MedicinePurposeController)
+upanelApp.controller("MedicineReceiptController", MedicineReceiptController)
+
 upanelApp.controller("pendingMaintenanceScheduleController", pendingMaintenanceScheduleController)
 
 upanelApp.config(AccessControllerConfig);

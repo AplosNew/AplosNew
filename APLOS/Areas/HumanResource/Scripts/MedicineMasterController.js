@@ -8,10 +8,13 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
+    $scope.saveUrlP = $scope.path + 'SavePurpose';
     $scope.deleteUrl = $scope.path + 'Delete/';
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
+
+   
     // ================================================SEQUENCE====================================================
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
@@ -28,15 +31,28 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
-
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            //ClearFields(response.data.Sequence);
+            ClearFields(response.data.Sequence);
             $scope.GetSequence();
         });
     }
     $scope.getData();
+
+    $scope.MedicinePurposeList = [];
+    $scope.userMPList = [];
+    $scope.getMedicinePurpose = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getMedicinePurpose",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.MedicinePurposeList = response.data;
+            
+        });
+    }
+    $scope.getMedicinePurpose();
     // ================================================GET MAIN GRID DATA CLOSE====================================================
 
     // ================================================FORM OBJECT DECLARATION & INITIALIZATION====================================
@@ -47,30 +63,47 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
         StandardName: null,
         UserName:null,
         Category: null,
-        SubCategory: null,
-        ItemName: null,
+        SubCategory: null,       
         Rate: null,
-        Purpose:null,
+        MedicinePurposeId:null,
         Remarks: null,
         IsActive: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    
     // ================================================FORM OBJECT DECLARATION & INITIALIZATION=====================================
 
     //=======================================DOUBLE CLICK ON GRID OPEN FORM============================================
+    
+    //Double Clicking The PA Header Grid
+    
     $scope.Get = function (args) {
-        $scope.ModelNew = Object.assign({}, args.data);
-        $scope.EmployeeId = args.data.ResponsiblePerson;
+        var prpseArr = args.data.MedicinePurpose.split(',');
+        $("#medicinePurposeId").data("ejDropDownList").selectItemByText(prpseArr);
+        $scope.ModelNew = Object.assign({}, args.data, $("#medicinePurposeId").data("ejDropDownList").selectItemByText(prpseArr));
+       
         $scope.Action = 'Update';
+
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-            $scope.getResponsiblePersonId();
+            
         }
     };
     //=======================================DOUBLE CLICK ON GRID OPEN FORM CLOSE============================================
 
+   
+
     //=======================================SAVE============================================
+   
     $scope.Save = function () {
+        var DropDownJobLocationListObjP = $("#medicinePurposeId").data("ejDropDownList");
+        var mdcnPrpsLists = DropDownJobLocationListObjP.getSelectedValue().split(",");
+
+        if (mdcnPrpsLists.length < 1) {
+            ShowResult('Medicie purpose are not selected!', 'failure');
+            throw ("Invalid Request!");
+        }
         $scope.$broadcast('show-errors-check-validity');
 
         $http({
@@ -78,6 +111,7 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
             url: $scope.saveUrl,
             data: {
                 'data': $scope.ModelNew,
+                'medicinepurpose': mdcnPrpsLists
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -94,6 +128,8 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(response.data.Message, 'failure');
         }
     };
+
+    
     //=======================================SAVE CLOSE==========================================
 
     //=======================================DELETE FUNCTION======================================
@@ -125,10 +161,11 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
         ClearFields();
         return true;
     };
+
+   
     function ClearFields() {
         $scope.Action = 'Save';
 
-       
             $scope.ModelTemp = {
             Id: null,
             Sequence: 0,
@@ -142,9 +179,12 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
             Purpose: null,
             Remarks: null,
             IsActive: true
-            };
+        };
+        $("#medicinePurposeId").data("ejDropDownList").clearText();
 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
+
+    
     //=======================================CLEAR FORM======================================
 }

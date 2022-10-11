@@ -50,6 +50,21 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
+        [Authorize, HttpPost]
+        public ActionResult getMedicinePurpose()
+        {
+            try
+            {
+                return Json(mms.getMedicinePurpose(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         #endregion GET
 
         #region GET SEQUENCE
@@ -77,11 +92,24 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region SAVE
         [HttpPost, Authorize]
-        public ActionResult Save(Dictionary<string, object> data)
+        public ActionResult Save(Dictionary<string, object> data, List<string> medicinepurpose)
         {
             try
             {
-                return Json(new { Error = false, Data = mms.Save(data), Message = AplosMessage.Success });
+                return Json(new { Error = false, Data = mms.Save(data, medicinepurpose), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult SavePurpose(Dictionary<string, object> data, string medicineMasterId)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = mms.SavePurpose(data, medicineMasterId), Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {

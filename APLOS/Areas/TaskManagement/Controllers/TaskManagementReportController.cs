@@ -310,6 +310,18 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 int iCompletedStoryPoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Completed Story Points";
 
+                xlsCol++;
+                int iCheckBy = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "CheckBy";
+
+                xlsCol++;
+                int iCrossCheckBy = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "CrossCheckBy";
+
+                xlsCol++;
+                int iApproveBy = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "ApproveBy";
+
                 endXlsCol = xlsCol;
 
 
@@ -373,6 +385,10 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString()) * 2;
 
                     sheet1[xlsRow, iCompletedStoryPoints].Number = (clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString())) * 2;
+
+                    sheet1.Range[xlsRow, iCheckBy].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CheckBy"].ToString());
+                    sheet1.Range[xlsRow, iCrossCheckBy].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CrossCheckBy"].ToString());
+                    sheet1.Range[xlsRow, iApproveBy].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ApproveBy"].ToString());
 
                     xlsRow++;
                 }
@@ -438,7 +454,20 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskCompletedFP) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskCompletedFP) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iTaskCompletedFP, xlsRow, iTaskCompletedFP].Formula = formula;
                 sheet1.Range[xlsRow, iTaskCompletedFP, xlsRow, iTaskCompletedFP].CellStyle.Font.Bold = true;
+              
 
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iCheckBy) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iCheckBy) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iCheckBy, xlsRow, iCheckBy].Formula = formula;
+                sheet1.Range[xlsRow, iCheckBy, xlsRow, iCheckBy].CellStyle.Font.Bold = true;
+
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iCrossCheckBy) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iCrossCheckBy) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iCrossCheckBy, xlsRow, iCrossCheckBy].Formula = formula;
+                sheet1.Range[xlsRow, iCrossCheckBy, xlsRow, iCrossCheckBy].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iApproveBy) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iApproveBy) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iApproveBy, xlsRow, iApproveBy].Formula = formula;
+                sheet1.Range[xlsRow, iApproveBy, xlsRow, iApproveBy].CellStyle.Font.Bold = true;
 
 
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
@@ -730,6 +759,17 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 int iCompletedStoryPoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Completed Story Points";
 
+                xlsCol++;
+                int iCheckBy = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "CheckBy";
+
+                xlsCol++;
+                int iCrossCheckBy = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "CrossCheckBy";
+
+                xlsCol++;
+                int iApproveBy = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "ApproveBy";
 
                 //xlsCol++;
                 //int iAvgStorypoints = xlsCol;
@@ -794,7 +834,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString()) * 2;
                     sheet1[xlsRow, iCompletedStoryPoints].Number = (clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString())) * 2;
                     //sheet1[xlsRow, iAvgStorypoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AvgStorypoints"].ToString());
-
+                    sheet1.Range[xlsRow, iCheckBy].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CheckBy"].ToString());
+                    sheet1.Range[xlsRow, iCrossCheckBy].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CrossCheckBy"].ToString());
+                    sheet1.Range[xlsRow, iApproveBy].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ApproveBy"].ToString());
                     xlsRow++;
                 }
                 sheet1.Range[xlsRow, 2].Text = "TOTAL";
@@ -868,6 +910,19 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 //formula = "SUM(" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + (xlsRow - 1) + ")";
                 //sheet1[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].Formula = formula;
                 //sheet1.Range[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].CellStyle.Font.Bold = true;
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iCheckBy) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iCheckBy) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iCheckBy, xlsRow, iCheckBy].Formula = formula;
+                sheet1.Range[xlsRow, iCheckBy, xlsRow, iCheckBy].CellStyle.Font.Bold = true;
+
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iCrossCheckBy) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iCrossCheckBy) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iCrossCheckBy, xlsRow, iCrossCheckBy].Formula = formula;
+                sheet1.Range[xlsRow, iCrossCheckBy, xlsRow, iCrossCheckBy].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iApproveBy) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iApproveBy) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iApproveBy, xlsRow, iApproveBy].Formula = formula;
+                sheet1.Range[xlsRow, iApproveBy, xlsRow, iApproveBy].CellStyle.Font.Bold = true;
+
                 #endregion
 
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
@@ -1164,6 +1219,18 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 int iCompletedStoryPoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Completed Story Points";
 
+                xlsCol++;
+                int iCheckBy = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "CheckBy";
+
+                xlsCol++;
+                int iCrossCheckBy = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "CrossCheckBy";
+
+                xlsCol++;
+                int iApproveBy = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "ApproveBy";
+
                 //xlsCol++;
                 //int iAvgStorypoints = xlsCol;
                 //sheet1.Range[xlsRow, xlsCol].Text = "AvgStorypoints";
@@ -1229,7 +1296,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString()) * 2;
                     sheet1[xlsRow, iCompletedStoryPoints].Number = (clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString())) * 2;
                     //sheet1[xlsRow, iAvgStorypoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AvgStorypoints"].ToString());
-
+                    sheet1.Range[xlsRow, iCheckBy].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CheckBy"].ToString());
+                    sheet1.Range[xlsRow, iCrossCheckBy].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CrossCheckBy"].ToString());
+                    sheet1.Range[xlsRow, iApproveBy].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ApproveBy"].ToString());
                     xlsRow++;
                 }
 
@@ -1305,7 +1374,18 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 //formula = "SUM(" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + (xlsRow - 1) + ")";
                 //sheet1[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].Formula = formula;
                 //sheet1.Range[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].CellStyle.Font.Bold = true;
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iCheckBy) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iCheckBy) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iCheckBy, xlsRow, iCheckBy].Formula = formula;
+                sheet1.Range[xlsRow, iCheckBy, xlsRow, iCheckBy].CellStyle.Font.Bold = true;
 
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iCrossCheckBy) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iCrossCheckBy) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iCrossCheckBy, xlsRow, iCrossCheckBy].Formula = formula;
+                sheet1.Range[xlsRow, iCrossCheckBy, xlsRow, iCrossCheckBy].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iApproveBy) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iApproveBy) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iApproveBy, xlsRow, iApproveBy].Formula = formula;
+                sheet1.Range[xlsRow, iApproveBy, xlsRow, iApproveBy].CellStyle.Font.Bold = true;
                 #endregion
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
 

@@ -5,6 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using ConnectionManager;
 using System.Data;
+using Library.Crosscutting.Security;
+using System.Threading;
+using Library.Service.Extension;
+using Library.Service.EmployeeServices;
+
 namespace HRService
 {
     public class clsDataContext
@@ -193,6 +198,7 @@ namespace HRService
         }
 
         // Written by Nitesh
+        #region Written By Nitesh
         public void getWorkcenter(out List<WorkCenterList> DataList)
         {
             clsConnectionManager objCon = null;
@@ -237,8 +243,10 @@ namespace HRService
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct DD.DepartmentId, D.StandardName  from DetentionMasterDepartment DD
-                              left outer join ORG.Department D on D.id = DD.DepartmentId";
+                strSQL = @"select distinct DT.UserName As DetentionType, DT.Id As DetentionTypeId from DetentionMasterDepartment DD
+                        left join DetentionMaster DM ON DM.Id=DD.DetentionMasterId
+                        left join hkp.DetentionType DT ON DT.id=DM.DetentionTypeId
+                        order by UserName";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -247,8 +255,8 @@ namespace HRService
                 {
                     DataList.Add(new DetentionTypeList
                     {
-                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
-                        DepartmentId = dsRef.Tables[0].Rows[i]["DepartmentId"].ToString(),
+                        DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
+                        DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
 
                     });
                 }
@@ -263,6 +271,255 @@ namespace HRService
             }
         }
 
+        public void GetDetentionResponsible(out List<DetentionResponsiblePersonList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<DetentionResponsiblePersonList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
+                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId
+						  
+						   from DetentionMasterResponsible DR
+                           left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
+							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId						
+                            ";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new DetentionResponsiblePersonList
+                    {                      
+                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                        CellPhnNo = dsRef.Tables[0].Rows[i]["CellPhnNo"].ToString(),
+                        EmployeeCode = dsRef.Tables[0].Rows[i]["EmployeeCode"].ToString(),
+                        ResponsiblePerson = dsRef.Tables[0].Rows[i]["ResponsiblePerson"].ToString(),
+                        Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
+                        Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
+                        SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
+                        LegalDesignation = dsRef.Tables[0].Rows[i]["LegalDesignation"].ToString(),
+                        DetentionMasterId = dsRef.Tables[0].Rows[i]["DetentionMasterId"].ToString(),
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetIssueByNo(out List<DetentionIssueByNo> DataList, string EmployeeId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<DetentionIssueByNo>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                strSQL = @"select E.CellPhnNo IssueByNo from EmployeeInformation E
+                                where E.SystemId = '" + EmployeeId + "'";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new DetentionIssueByNo
+                    {
+                        IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
+                        
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetDetentionLogGrid(out List<DetentionLogGridList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<DetentionLogGridList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+                strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.AddedDate, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose,
+                            MM.UserName MachineMaster,  MM.Id MachineMasterId
+                            from TRN.DetentionLog DL
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+						    left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+						    left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+                            where isClose = 0";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new DetentionLogGridList
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        WorkCenter = dsRef.Tables[0].Rows[i]["WorkCenter"].ToString(),
+                        DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
+                        LoginTime = (DateTime)dsRef.Tables[0].Rows[i]["LoginTime"],
+                        IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
+                        DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
+                        isClose = (bool)dsRef.Tables[0].Rows[i]["DetentionTypeId"],
+                        MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
+                        MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetMachineMasterAsset(out List<MachineMasterList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<MachineMasterList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+               
+                strSQL = @"select Id MachineMasterId, UserName MachineMaster from MST.MachineMaster
+                            order by MachineMaster";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new MachineMasterList
+                    {
+                        MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
+                        MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+
+        #region CREATE
+        public string CreateDetentionLog(IEnumerable<CreateDetentionList> DataToSave)
+        {
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.DetentionLog";
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                int i = 0;
+                foreach (CreateDetentionList item in DataToSave)
+                {
+                    con.OpenDataSetThroughAdapter("select * from TRN.DetentionLog where Id='" + item.Id + "'", out dsMaster, false, "1");
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+                        
+                        dr["Id"] = "DL" + _Id;
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["MachineMasterId"] = item.MachineMasterId;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["MachineMasterId"] = item.MachineMasterId;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        //dr["UpdatedBy"] = item.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                       // dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+                    }
+                    i++;
+                }
+                return i.ToString();
+
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        #endregion CREATE
+       
+        // Detention Log Out
+
+        #endregion Written By Nitesh
         // Written by Nitesh end
 
         public void getEmployeeInfo(string EmployeeCode, string CompanyID, out List<EmployeeInfo> DataList)
@@ -852,8 +1109,62 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
 
     public class DetentionTypeList
     {
-        public string DepartmentId { get; set; } = "";
-        public string StandardName { get; set; } = "";
+        public string DetentionTypeId { get; set; } = "";
+        public string DetentionType { get; set; } = "";
+    }
+    
+    public class DetentionResponsiblePersonList
+    {
+        public string ResponsiblePersonId { get; set; }
+        public string CellPhnNo { get; set; }
+        public string EmployeeCode { get; set; }
+        public string ResponsiblePerson { get; set; }
+        public string Department { get; set; }
+        public string Section { get; set; }
+        public string SubSection { get; set; }
+        public string LegalDesignation { get; set; }
+        public string DetentionMasterId { get; set; }
+    }
+
+    public class DetentionIssueByNo
+    {
+        public string IssueByNo { get; set; }
+    }
+
+    public class MachineMasterList
+    {
+        public string MachineMasterId { get; set; } = "";
+        public string MachineMaster { get; set; } = "";
+    }
+
+    public class DetentionLogGridList
+    {
+        
+        public string Id { get; set; }
+        public string WorkCenter { get; set; }
+        public string DetentionType { get; set; }
+        public DateTime LoginTime { get; set; } = System.DateTime.Now;
+        public string IssueByNo { get; set; }
+        public string Remarks { get; set; }
+        public string WorkCenterId { get; set; }
+        public string DetentionTypeId { get; set; }
+        public bool isClose { get; set; }
+        public string MachineMaster { get; set; }
+        public string MachineMasterId { get; set; }
+    }
+
+    public class CreateDetentionList
+    {
+        public string Id { get; set; }
+        public string WorkCenterId { get; set; }
+        public string DetentionTypeId { get; set; }
+        public string MachineMasterId { get; set; }
+        public string IssueByNo { get; set; }
+        public DateTime LogoutTime { get; set; } = System.DateTime.Now;
+        public bool isClose { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedFromIP { get; set; }
     }
     #endregion Written by Nitesh
 
