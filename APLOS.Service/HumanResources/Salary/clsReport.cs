@@ -1679,6 +1679,110 @@ namespace OTSBD
             }
         }//End Function
 
+        public void GetMaintenanceSchedulePlannedConsumableDetails(string PlannedId,string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select distinct 'Consumable' type, E.UserName Entity,MS.UserName ScheduleName,APD.Id as PlannedId,MS.ScheduleCode,
+MM.UserName MachineName,MA.AssetName,MM.MachineMake Make,MM.MachineModel Model,MS.ScheduleDays,Case when isnull((SELECT TOP 1 format(MPD.ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ORDER BY MPD.Id DESC),'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
+Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,MS.StandardScheduleMinutes as StandardTime,MS.MaxScheduleMinutes as Maximumtime,
+format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as ToTime,APD.Minute as [Minute],MA.AssetCode,WC.UserName WorkCenter,
+Reverse(stuff(Reverse((Select EmployeeName + ',' from EmployeeInformation where 
+SystemId in (select ResponsiblePersonId from [TRN].[ResponsiblePlannedDetails] where PlannedId=APD.Id and IsActive=1) for xml PATH(''))),1,1,'')) as ResponsiblePerson,
+'' as [Item Name],'' as ItemSNO,'' CriticalLevel,'' ItemRemarks,
+'' as CheckPoints,
+MSC.SNO as StoresSNO,MSC.ItemName as StoreItemName,
+(select UserName from SCS.UnitOfMeasurement where Active=1 and Id=MSC.UOMId) as UOM,
+(select StandardName from MST.MaterialMasterArticle where Id=MSC.ArticleId) as Article,
+MSC.EstimatedQty,
+MSC.Category,MSC.CostType,MSC.EstimationLevel,MSC.Remarks as StoresRemarks,
+isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id=APD.Id
+ ORDER BY Id DESC),'') as LastMaintenanceDate,
+Case when isnull((SELECT TOP 1 format(MPD.ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate
+from TRN.Maintenancescheduling MS
+left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
+left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
+left join ORG.Entity E ON E.Id=MMA.EntityId
+left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
+left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
+left join TRN.MaintenanceStoresConsumable MSC ON MSC.MaintenanceSchedulingId=MS.Id
+where APD.Id='" + PlannedId + @"'";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public void GetMaintenanceSchedulePlannedItemDetails(string PlannedId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select distinct 'Item' type, E.UserName Entity,MS.UserName ScheduleName,APD.Id as PlannedId,MS.ScheduleCode,
+MM.UserName MachineName,MA.AssetName,MM.MachineMake Make,MM.MachineModel Model,MS.ScheduleDays,Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ORDER BY MPD.Id DESC),'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
+Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,MS.StandardScheduleMinutes as StandardTime,MS.MaxScheduleMinutes as Maximumtime,
+format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as ToTime,APD.Minute as [Minute],MA.AssetCode,WC.UserName WorkCenter,
+Reverse(stuff(Reverse((Select EmployeeName + ',' from EmployeeInformation where 
+SystemId in (select ResponsiblePersonId from [TRN].[ResponsiblePlannedDetails] where PlannedId=APD.Id and IsActive=1) for xml PATH(''))),1,1,'')) as ResponsiblePerson,
+MI.ItemName as [Item Name],MI.SNO as ItemSNO,MI.CriticalLevel,MI.Remarks as ItemRemarks,
+Reverse(stuff(Reverse((Select CheckPoints + '[ ],' from ItemParameterDetails where 
+ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,
+'' as StoresSNO,'' as StoreItemName,
+'' as UOM,
+'' as Article,
+0 EstimatedQty,'' Category,'' CostType,'' EstimationLevel,'' as StoresRemarks,
+isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id=APD.Id
+ ORDER BY Id DESC),'') as LastMaintenanceDate,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate
+from TRN.Maintenancescheduling MS
+left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
+left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
+left join ORG.Entity E ON E.Id=MMA.EntityId
+left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
+left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
+left join TRN.MaintenanceItem MI ON MI.MaintenanceSchedulingId=MS.Id
+where APD.Id='" + PlannedId + @"'";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetExtraAbsentCount(string fromDate, string toDate, string plantid, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;

@@ -1087,6 +1087,7 @@ upanelApp.controller("SalesOrderApprovalController", SalesOrderApprovalControlle
 upanelApp.controller("MedicinePurposeController", MedicinePurposeController)
 upanelApp.controller("MedicineReceiptController", MedicineReceiptController)
 
+upanelApp.controller("pendingMaintenanceScheduleController", pendingMaintenanceScheduleController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

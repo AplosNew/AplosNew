@@ -394,9 +394,8 @@ function LegalDesignationController(cboService, commonMessage, $scope, $rootScop
     };
 
     $scope.languageEdit = function (index) {
-        $scope.language = $scope.languageDataList[index];
-        $scope.languageNew = Object.assign({}, $scope.language);
-        $scope._languageIndex = index;
+        //$scope.language = $scope.languageDataList[index];
+        $scope.languageNew = Object.assign({}, index);
         $scope.LanguageCaption = 'Update Row';
     };
 

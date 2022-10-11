@@ -5051,6 +5051,10 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].Text = "Shipment From Stock";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colShipmentFromStock = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Packing Type";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colPackingType = COL;
 
                 #endregion columns
 
@@ -5096,6 +5100,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                     sheet[ROW, colLCNo].Text = dtOrderMaster.Rows[i]["LCNo"].ToString();
                     sheet[ROW, colProductionType].Text = dtOrderMaster.Rows[i]["ProductionType"].ToString();
                     sheet[ROW, colShipmentFromStock].Text = dtOrderMaster.Rows[i]["ShipmentFromStock"].ToString();
+                    sheet[ROW, colPackingType].Text = dtOrderMaster.Rows[i]["PackingType"].ToString();
 
 
                     sheet[ROW, colArticle].Text = dtOrderMaster.Rows[i]["Article"].ToString();
@@ -5850,7 +5855,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                             FORMAT(SO.LSD,'dd-MMM-yyyy') AS LSD,isnull(DATEDIFF(DAY,so.LSD,so.DeliveryDate),0) AS Diff
                             ,uom.UserName AS UOM,so.[Description] AS SODesc,cur.Code AS Currency,trkp.UserName AS Plant,trke.UserName AS Entity,MOI.[Type]
                             ,PRPD.PRBookedQuantity,sopd.SOBookedQuantity,PLN.PRPlanQty,p.UserName AS Customer,PAG.UserName AS CustomerAccountGroup
-                            ,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
+                            ,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END,PT.UserName PackingType
                               FROM trn.MasterOrder MO
                             left outer join MasterOrderExchangeRates RT on RT.TransactionId=MO.Id
 							left JOIN org.Company AS com ON com.Id=mo.CompanyId
@@ -5863,6 +5868,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 							left outer join MasterLC M on m.Id=con.MasterLCId
 
                             left join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
+                            left join HKP.PackingType PT ON PT.Id=SO.PackingTypeId
                             left join [ExpectedSOWiseProductionCompletion] XCOM on XCOM.SalesOrderId=SO.Id
                             LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                             LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS SED ON sed.ProductionOrderID=pod.ProductionOrderId
