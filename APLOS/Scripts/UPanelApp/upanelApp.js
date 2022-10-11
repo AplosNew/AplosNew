@@ -1083,7 +1083,7 @@ upanelApp.controller("maintenanceStatusDetailsController", maintenanceStatusDeta
 upanelApp.controller("PositionWiseMPStatusController", PositionWiseMPStatusController)
 upanelApp.controller("MedicineMasterController", MedicineMasterController)
 upanelApp.controller("SicknessTypeController", SicknessTypeController)
-
+upanelApp.controller("pendingMaintenanceScheduleController", pendingMaintenanceScheduleController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

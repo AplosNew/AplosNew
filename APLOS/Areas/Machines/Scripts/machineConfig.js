@@ -77,6 +77,11 @@ function MachineConfig($routeProvider, $locationProvider) {
             controller: 'maintenanceStatusDetailsController'
         })
 
+        .when('/pending-maintenance-schedule', {
+            templateUrl: 'Machines/PendingMaintenanceSchedule/Aplos',
+            controller: 'pendingMaintenanceScheduleController'
+        })
+
         .when('/machine-masters', {
             templateUrl: 'Machines/MachineMas/aplos',
             controller: 'machineMasterControllers'
