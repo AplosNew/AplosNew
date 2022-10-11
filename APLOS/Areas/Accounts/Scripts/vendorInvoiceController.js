@@ -2204,5 +2204,37 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
 
         $scope.calContractDistributedAmount();
     }
+    $scope.checkDistributedAmount = function myfunction(index, item) {
+        $scope.activityOrderType = "";
+        $scope.activityOrderType = item.ActivityOrderType;
+        if ($scope.activityOrderType == "InboundInvoice") {
+            $scope.TotalDistributedAmounts = 0;
+            $scope.TotalDistributedAmounts = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+        
+            if (parseFloat($scope.TotalDistributedAmounts) !== parseFloat($scope.TotalChargesAmount)) {
+                $scope.checkedInvoiceList[index].DistributedAmount = 0;
+                throw "Distributed Amount must be equal Taxable Amount.!";
+            }    
+        }
+        else if ($scope.activityOrderType == "OutboundInvoice") {
+            $scope.TotalDistributedAmounts = 0;
+            $scope.TotalDistributedAmounts = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount"));
+
+            if (parseFloat($scope.TotalDistributedAmounts) !== parseFloat($scope.TotalChargesAmount)) {
+                $scope.checkedOutBoundInvoiceList[index].DistributedAmount = 0;
+                throw "Distributed Amount must be equal Taxable Amount.!";
+            }
+        }
+        else if ($scope.activityOrderType == "BothInOutboundInvoice") {
+            $scope.TotalDistributedAmountInBound = 0;
+            $scope.TotalDistributedAmountOutBound = 0;
+            $scope.TotalDistributedAmountInBound = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+            $scope.TotalDistributedAmountOutBound = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount"));
+
+            if ((parseFloat($scope.TotalDistributedAmountInBound) + parseFloat($scope.TotalDistributedAmountOutBound)) !== parseFloat($scope.TotalChargesAmount)) {
+                throw "Distributed Amount must be equal Taxable Amount.!";
+            }
+        }
+    }
 
 }
