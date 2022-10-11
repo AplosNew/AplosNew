@@ -828,12 +828,22 @@ namespace Aplos.Areas.Products.Controllers
 
         #region PurchaseOrderBOQ Report 
         [HttpGet, Authorize]
-        public ActionResult GePurchaseOrderBOQReport(string purchaseOrderBOQId)
+        public ActionResult GePurchaseOrderBOQReportWithTax(string purchaseOrderBOQId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             Library.MaterialManagement.InventoryManagements.POBOQReportService Report = new Library.MaterialManagement.InventoryManagements.POBOQReportService();
-            Report.GePurchaseOrderBOQReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderBOQId);
+            Report.GePurchaseOrderBOQReportWithTax(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderBOQId);
+
+            return null;
+        }
+        [HttpGet, Authorize]
+        public ActionResult GePurchaseOrderBOQReportWithoutTax(string purchaseOrderBOQId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            Library.MaterialManagement.InventoryManagements.POBOQReportService Report = new Library.MaterialManagement.InventoryManagements.POBOQReportService();
+            Report.GePurchaseOrderBOQReportWithoutTax(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderBOQId);
 
             return null;
         }
