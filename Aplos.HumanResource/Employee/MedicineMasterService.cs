@@ -838,5 +838,266 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
 
     }
     #endregion Medicine Receipt
+
+    #region Medical Log
+    public class MedicalLogServce
+    {
+        private readonly SqlRepository _sqlRepository;
+        #region Const
+        public MedicalLogServce()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+        #endregion Const
+
+        #region GET OP
+        public IEnumerable<object> getMedicineList()
+        {
+            try
+            {
+                var sql = @"select Id, UserName Medicine, Category, SubCategory, Rate from HKP.MedicineMaster";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getSicknessType()
+        {
+            try
+            {
+                var sql = @"select Id, UserName Purpose, Category, Remarks from HKP.MedicinePurpose";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getEmployee()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string str = @"select EMP.EmployeeCode as Code, EMP.SystemId, EMP.EmployeeName, SC.UserName as Section, SBC.UserName SubSection,
+                                LDSG.UserName Designation, EMP.DOJ,
+                                GDSG.UserName as GivenDesignation, UN.UserName as Entity
+                                from EmployeeInformation EMP
+                                LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+                                LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                                left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                                left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                                left join ORG.Department DP on DP.ID = POS.DepartmentId
+                                left join ORG.Section SC on SC.Id = POS.SectionId
+                                left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                                LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+                                LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                                LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+                                left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                                left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+                                where EMP.EmployeeStatus = 'Active'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion GET OP
+
+        #region SAVE
+        public Dictionary<string, object> Save(Dictionary<string, object> data, List<Dictionary<string, object>> medicinepurposelist, List<Dictionary<string, object>> medicinelist, string empSystemId)
+        {
+            try
+            {
+                string TableNameHead = "TRN.MedicalLog";
+
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+               
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                #region MEDICAL LOG HEAD
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    data["Id"] = "ML" + _Id;
+                    data["EmployeeSystemId"] = empSystemId;
+                    
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion MEDICAL LOG HEAD
+
+                #region sickness child
+
+                DataSet dsMedicinePurposeChild;
+                ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                conn.OpenDataSetThroughAdapter("select * from TRN.EmployeeSickness where MedicalLogId ='" + data["Id"].ToString() + "'", out dsMedicinePurposeChild, false, "1");
+
+                while (dsMedicinePurposeChild.Tables[0].DefaultView.Count > 0)
+                {
+                    dsMedicinePurposeChild.Tables[0].DefaultView[0].Delete();
+                }
+
+                for (int i = 0; i < medicinepurposelist.Count; i++)
+                {
+                    DataRow dr = dsMedicinePurposeChild.Tables[0].NewRow();
+                    dr["Id"] = data["Id"].ToString() + i.ToString();
+                    dr["MedicalLogId"] = data["Id"].ToString();
+                    dr["MedicinePurposeId"] = medicinepurposelist[i]["Id"];
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMedicinePurposeChild.Tables[0].Rows.Add(dr);
+                }
+
+                #endregion sickness child
+
+                #region SAVE MEDICINE CHILD
+                DataSet dsMedicineChild;
+                ConnectionManager.DAL.ConManager Medicineconn = new ConnectionManager.DAL.ConManager("1");
+                Medicineconn.OpenDataSetThroughAdapter("select * from TRN.EmployeeSicknessMedicines where MedicalLogId ='" + data["Id"].ToString() + "'", out dsMedicineChild, false, "1");
+
+                while (dsMedicineChild.Tables[0].DefaultView.Count > 0)
+                {
+                    dsMedicineChild.Tables[0].DefaultView[0].Delete();
+                }
+
+                for (int i = 0; i < medicinelist.Count; i++)
+                {
+                    DataRow dr = dsMedicineChild.Tables[0].NewRow();
+                    dr["Id"] = data["Id"].ToString() + i.ToString();
+                    dr["MedicineMasterId"] = medicinelist[i]["Id"].ToString();
+                    dr["MedicalLogId"] = data["Id"].ToString();
+                    dr["Quantity"] = medicinelist[i]["Quantity"];
+                    dr["NoOfDays"] = medicinelist[i]["NoOfDays"];
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMedicineChild.Tables[0].Rows.Add(dr);
+                }
+                #endregion SAVE MEDICINE CHILD
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsMedicinePurposeChild, dsMedicineChild);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SAVE
+
+        #region CREATE AND EDIT DEFAULT COLUMN
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        #endregion CREATE AND EDIT DEFAULT COLUMN
+    }
+    #endregion Medical Log
+
+    #region Medical Log Report
+    public class MedicalLogReportService
+    {
+        private readonly SqlRepository _sqlRepository;
+        public MedicalLogReportService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        #region Grid View Query
+        public IEnumerable<object> medicallogGridView(string from, string to, string empSystemId)
+        {
+            try
+            {
+                var SQL = @"select ML.Id, FORMAT(ML.[Date], 'dd-MMM-yyyy')[Date], MM.UserName Medicine, MP.Category Sickness, ESM.NoOfDays [Days], EMP.EmployeeCode
+,EMP.EmployeeName, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation,
+UN.UserName Entity from TRN.MedicalLog ML
+LEFT JOIN TRN.EmployeeSickness ES on ES.MedicalLogId = ML.Id
+LEFT JOIN HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
+LEFT JOIN TRN.EmployeeSicknessMedicines ESM on ESM.MedicalLogId = ML.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
+LEFT JOIN DBO.EmployeeInformation EMP on EMP.SystemId = ML.EmployeeSystemId
+LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+left join ORG.Entity UN on UN.Id = MBGT.EntityId
+left join ORG.Department DP on DP.ID = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+where ML.[Date] between '"+ from + "' and '"+ to + "' and EMP.SystemId = '"+ empSystemId + "' and EMP.EmployeeStatus = 'Active'";
+
+                return _sqlRepository.GetDataCollection(SQL);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion Grid View Query
+    }
+    #endregion Medical Log Report
 }
 
