@@ -1086,6 +1086,7 @@ upanelApp.controller("SicknessTypeController", SicknessTypeController)
 upanelApp.controller("SalesOrderApprovalController", SalesOrderApprovalController)
 upanelApp.controller("MedicinePurposeController", MedicinePurposeController)
 upanelApp.controller("MedicineReceiptController", MedicineReceiptController)
+upanelApp.controller("BOMDetailMasterController", BOMDetailMasterController)
 
 
 upanelApp.config(AccessControllerConfig);
