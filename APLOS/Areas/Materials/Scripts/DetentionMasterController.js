@@ -796,7 +796,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     };
 
     $scope.ResponsiblePersonGridAllCheck = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+        $("#headchkRes").ejCheckBox({ "change": CheckBoxSelectAll });
     };
 
     function CheckBoxSelectAll(e) {

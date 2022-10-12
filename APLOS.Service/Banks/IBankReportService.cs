@@ -22,5 +22,6 @@ namespace Library.Service.Banks
         void CRReconcileReport(string BankMasterID, string fromDate, string toDate);
         void DRReconcileReport(string BankMasterID, string fromDate, string toDate, string cutOffDate);
         void DRReconcilePendingReport(string bankMasterId, string fromDate, string toDate);
+        void CRReconcilePendingReport(string bankMasterId, string fromDate, string toDate);
     }
 }

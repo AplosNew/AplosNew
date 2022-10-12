@@ -1281,12 +1281,20 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
 
 
     };
-    $scope.PO = function (z) {
+    $scope.POWithTax = function (z) {
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        location.href = "Products/PurchaseOrder/GePurchaseOrderBOQReport?purchaseOrderBOQId=" + data.Id;
+        location.href = "Products/PurchaseOrder/GePurchaseOrderBOQReportWithTax?purchaseOrderBOQId=" + data.Id;
     };
+
+    $scope.POWithoutTax = function (z) {
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = "Products/PurchaseOrder/GePurchaseOrderBOQReportWithoutTax?purchaseOrderBOQId=" + data.Id;
+    };
+
     $scope.POBOQReportXl = function (data) {
 
         try {

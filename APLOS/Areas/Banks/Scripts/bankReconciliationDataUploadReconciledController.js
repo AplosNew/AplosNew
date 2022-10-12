@@ -98,6 +98,9 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
             $scope.getBankDrReconList();
             $scope.getBankReconciliationUploadedDrData();
             $scope.getBankDrReconciledList();
+            $scope.getBankCrReconList();
+            $scope.getBankReconciliationUploadedCrData();
+            $scope.getBankCrReconciledList();
             $scope.clear();
         } catch (e) {
             ShowResult(e, "failure");
@@ -138,36 +141,8 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
     function checkTotalAmount() {
         if (parseFloat($scope.bankDrReconAmount) !== parseFloat($scope.bankDrReconUploadedDataAmount))
             throw "Bank Dr reconciled total amount must be equal Bank Dr reconciled Uploaded total amount.!";
-    }
-
-    
-
-    //$scope.bankCrReconList = [];
-    $scope.bankCrTempList = [];
-    
-    $scope.bankCrReconDataListSyncfusion = [];
-    $scope.getBankCrReconListSyncfusion = function () {
-        try {
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetBankCrReconListSyncfusion",
-                data: {
-                    bankMasterId: $scope.bankReconciliationNew.BankMasterId,
-                    fromDate: $scope.bankReconciliationNew.FromDate,
-                    toDate: $scope.bankReconciliationNew.ToDate
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.bankCrReconDataListSyncfusion = response.data.DATA;
-            }),
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-        }
-
-        catch (e) {
-
-        }
+        if (parseFloat($scope.bankDrReconAmount) !== parseFloat($scope.bankDrReconUploadedDataAmount))
+            throw "Bank Dr reconciled total amount must be equal Bank Dr reconciled Uploaded total amount.!";
     }
 
     $scope.bankDrTempList = [];
@@ -275,6 +250,8 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
             $scope.TempList = [];
             if ($scope.bankDrTempList.length > 1 && $scope.bankDrUploadedDataTempList.length > 1)
                 throw "Please check One site one Dr. Reconcile Pending or other site multiple .!";
+            if ($scope.bankCrTempList.length > 1 && $scope.bankCrUploadedDataTempList.length > 1)
+                throw "Please check One site one Cr. Reconcile Pending or other site multiple .!";
            
             if ($scope.bankDrTempList.length > 1) {
                 for (var i = 0; i < $scope.bankDrTempList.length; i++) {
@@ -296,13 +273,43 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
                     })
                 }
             }
-            else {
-                $scope.TempList.push({
-                    BankReconciliationUploadedDataId: $scope.bankDrUploadedDataTempList[0].BankReconciliationUploadedDataId
-                    , VoucherDetailId: $scope.bankDrTempList[0].VoucherDetailId
-                    , GLTransactionDetailId: $scope.bankDrTempList[0].GLTransactionDetailId
+            else if ($scope.bankCrTempList.length > 1) {
+                for (var i = 0; i < $scope.bankCrTempList.length; i++) {
+                    $scope.TempList.push({
+                        BankReconciliationUploadedDataId: $scope.bankCrUploadedDataTempList[0].BankReconciliationUploadedDataId
+                        , VoucherDetailId: $scope.bankCrTempList[i].VoucherDetailId
+                        , GLTransactionDetailId: $scope.bankCrTempList[i].GLTransactionDetailId
 
-                })
+                    })
+                }
+            }
+            else if ($scope.bankCrUploadedDataTempList.length > 1) {
+                for (var i = 0; i < $scope.bankCrUploadedDataTempList.length; i++) {
+                    $scope.TempList.push({
+                        BankReconciliationUploadedDataId: $scope.bankCrUploadedDataTempList[i].BankReconciliationUploadedDataId
+                        , VoucherDetailId: $scope.bankCrTempList[0].VoucherDetailId
+                        , GLTransactionDetailId: $scope.bankCrTempList[0].GLTransactionDetailId
+
+                    })
+                }
+            }
+            else {
+                if ($scope.bankDrUploadedDataTempList.length > 0 && $scope.bankDrTempList.length > 0) {
+                    $scope.TempList.push({
+                        BankReconciliationUploadedDataId: $scope.bankDrUploadedDataTempList[0].BankReconciliationUploadedDataId
+                        , VoucherDetailId: $scope.bankDrTempList[0].VoucherDetailId
+                        , GLTransactionDetailId: $scope.bankDrTempList[0].GLTransactionDetailId
+
+                    })
+                }
+                else if ($scope.bankCrUploadedDataTempList.length > 0 && $scope.bankCrTempList.length > 0) {
+                    $scope.TempList.push({
+                        BankReconciliationUploadedDataId: $scope.bankCrUploadedDataTempList[0].BankReconciliationUploadedDataId
+                        , VoucherDetailId: $scope.bankCrTempList[0].VoucherDetailId
+                        , GLTransactionDetailId: $scope.bankCrTempList[0].GLTransactionDetailId
+
+                    })
+                }
             }
 
 
@@ -319,6 +326,10 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
         $scope.bankDrReconUploadedDataAmount = 0;
         $scope.bankDrTempList = [];
         $scope.bankDrUploadedDataTempList = [];
+        $scope.bankCrReconAmount = 0;
+        $scope.bankCrReconUploadedDataAmount = 0;
+        $scope.bankCrTempList = [];
+        $scope.bankCrUploadedDataTempList = [];
         $scope.TempList = [];
     }
     $scope.invalidDocDate = false;
@@ -343,7 +354,7 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
         try {
             $http({
                 method: 'POST',
-                url: $scope.path + "GetAvailableBankReconciliationUploadedDrDataList",
+                url: $scope.path + "GetAvailableBankReconciliationUploadedCrDataList",
                 data: {
                     bankMasterId: $scope.bankReconciliationNew.BankMasterId,
                     fromDate: $scope.bankReconciliationNew.FromDate,
@@ -389,7 +400,7 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
     $scope.CRREconcileReport = function () {
         try {
 
-            var file_src = 'banks/bankreconciliation/CRReconcileReport?bankMasterId=' + $scope.bankReconciliationNew.BankMasterId + '&fromDate=' + $scope.bankReconciliationNew.FromDate + '&toDate=' + $scope.bankReconciliationNew.ToDate 
+            var file_src = 'banks/bankreconciliation/CRReconcilePendingReport?bankMasterId=' + $scope.bankReconciliationNew.BankMasterId + '&fromDate=' + $scope.bankReconciliationNew.FromDate + '&toDate=' + $scope.bankReconciliationNew.ToDate 
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -405,6 +416,153 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
             $rootScope.report(file_src);
 
         } catch (e) {
+
+        }
+    }
+    $scope.bankCrTempList = [];
+    $scope.bankCrReconDataList = [];
+    $scope.getBankCrReconList = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetBankCrReconListUploadedData",
+                data: {
+                    bankMasterId: $scope.bankReconciliationNew.BankMasterId,
+                    fromDate: $scope.bankReconciliationNew.FromDate,
+                    toDate: $scope.bankReconciliationNew.ToDate
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.bankCrReconDataList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
+
+    $scope.bankCrReconAmount = 0;
+    $scope.isReconciledBankCrReconAmount = function (event, data, i, variable) {
+        try {
+            if (event.currentTarget.checked)
+                $scope.bankCrReconAmount = Math.round(($scope.bankCrReconAmount + parseFloat(data.Amount)) * 100 + Number.EPSILON) / 100;
+            else
+                $scope.bankCrReconAmount = Math.round(($scope.bankCrReconAmount - parseFloat(data.Amount)) * 100 + Number.EPSILON) / 100;
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.bankCrReconUploadedDataAmount = 0;
+    $scope.isReconciledBankCrReconUploadedDataAmount = function (event, data, i, variable) {
+        try {
+            if (event.currentTarget.checked)
+                $scope.bankCrReconUploadedDataAmount = Math.round(($scope.bankCrReconUploadedDataAmount + parseFloat(data.CrAmount)) * 100 + Number.EPSILON) / 100;
+            else
+                $scope.bankCrReconUploadedDataAmount = Math.round(($scope.bankCrReconUploadedDataAmount - parseFloat(data.CrAmount)) * 100 + Number.EPSILON) / 100;
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    $scope.listMergebankCrTempList = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                $scope.bankCrTempList.push({
+                    BankReconciliationUploadedDataId: ""
+                    , VoucherDetailId: data.VoucherDetailId
+                    , GLTransactionDetailId: data.GLTransactionDetailId
+                })
+            }
+            else {
+                var i = $scope.bankCrTempList.length;
+                while (i--) {
+                    if ($scope.bankCrTempList[i]["VoucherDetailId"] === data.VoucherDetailId) {
+                        $scope.bankCrTempList.splice(i, 1);
+                    }
+                }
+            }
+
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+    $scope.bankCrUploadedDataTempList = [];
+    $scope.listMergebankCrUploadedDataTempList = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                $scope.bankCrUploadedDataTempList.push({
+                    BankReconciliationUploadedDataId: data.Id
+                    , VoucherDetailId: ""
+                    , GLTransactionDetailId: ""
+                })
+            }
+            else {
+                var i = $scope.bankCrUploadedDataTempList.length;
+                while (i--) {
+                    if ($scope.bankCrUploadedDataTempList[i]["BankReconciliationUploadedDataId"] === data.Id) {
+                        $scope.bankCrUploadedDataTempList.splice(i, 1);
+                    }
+                }
+            }
+
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+    $scope.bankCrReconUploadedDataList = [];
+    $scope.getBankReconciliationUploadedCrData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetAvailableBankReconciliationUploadedDrDataList",
+                data: {
+                    bankMasterId: $scope.bankReconciliationNew.BankMasterId,
+                    fromDate: $scope.bankReconciliationNew.FromDate,
+                    toDate: $scope.bankReconciliationNew.ToDate
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.bankCrReconUploadedDataList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
+    $scope.bankCrReconciledDataList = [];
+    $scope.getBankCrReconciledList = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetBankCrReconciledList",
+                data: {
+                    bankMasterId: $scope.bankReconciliationNew.BankMasterId,
+                    fromDate: $scope.bankReconciliationNew.FromDate,
+                    toDate: $scope.bankReconciliationNew.ToDate
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.bankCrReconciledDataList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
 
         }
     }
