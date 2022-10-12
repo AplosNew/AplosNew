@@ -1568,7 +1568,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue
 						,TUoM.UserName AS UOM
 						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-						,IM.TransactionQty
+						,IM.TransactionQty,Isnull(GRN.GRNQty,0) ReceiptQty,0 RejectionQty
+						,(IM.TransactionQty-Isnull(GRN.GRNQty,0)) BalanceQty,IM.Tolerance
 						,ROUND(Isnull(IM.TransactionRate,0),2) TransactionRate
 						,ROUND(Isnull(IM.TransactionAmount,0),2) TransactionAmount
 						,ROUND(Isnull(IM.TotalTaxAmount,0),2) TotalTaxAmount
@@ -1613,7 +1614,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
 						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId
 						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
-
+                        LEFT JOIN (SELECT PODetailsId,SUM(TransactionQty) GRNQty FROM TRN.InventoryReceiveDetail IRD  GROUP BY PODetailsId) GRN ON GRN.PODetailsId=IM.Id
 						LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
 						LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
                         LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
@@ -1696,7 +1697,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					, '' ThirdCharacteristicsValue
 					,'' UOM
 					,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-					,0 TransactionQty
+					,0 TransactionQty,0 ReceiptQty,0 RejectionQty
+					,0 BalanceQty,0 Tolerance
 					,0 TransactionRate
 					,IM.Amount TransactionAmount
 					,ROUND(Isnull(servicetax.TaxAmount,0),2) TotalTaxAmount

@@ -333,16 +333,26 @@ function LegalDesignationController(cboService, commonMessage, $scope, $rootScop
     $scope.languageTbl = false;
     $scope.LanguageCaption = 'Add Row';
     $scope.languageDataList = [];
+    $scope.updateLanguage = function (languageId, languageName) {
+        $scope.languageDataList[$scope._languageIndex].Name = languageName;
+        $scope._languageIndex = -1;
+        $scope.languageNew = {};
+    };
     $scope.AddMultipleLanguage = function () {
         try {
             if (baseService.isUndefinedOrNull($scope.languageNew.LanguageId))
                 throw 'Please select your language';
             if (baseService.isUndefinedOrNull($scope.languageNew.Name))
                 throw 'Please insert locally translated name';
-            var lng = document.getElementById("languageId").options[document.getElementById('languageId').selectedIndex].text;
+
+            var isAvailable = false;
+            var lng = document.getElementById("languageId").options[document.getElementById("languageId").selectedIndex]
+                .text;
             for (var i = 0; i < $scope.languageDataList.length; i++) {
-                if (baseService.isAvailableInList($scope.languageDataList[i].LanguageId, $scope.languageNew.LanguageId, i, $scope._languageIndex))
-                    throw 'This Language : [' + lng + '] has been already taken';
+                isAvailable = listValidation($scope.languageDataList[i].LanguageId, $scope.languageNew.LanguageId, i);
+                if (isAvailable) {
+                    throw "This Language : [" + lng + "] has been already taken";
+                }
             }
             angular.copy($scope.languageNew, $scope.language);
             if ($scope._languageIndex === -1) {
@@ -357,11 +367,31 @@ function LegalDesignationController(cboService, commonMessage, $scope, $rootScop
                 $scope.language.LanguageName = lng;
                 $scope.languageDataList[$scope._languageIndex] = $scope.language;
             }
+            if (!$scope.languageTbl) {
+                $scope.languageTbl = true;
+            }
             clearLanguage();
-        } catch (e) {
+            } 
+            catch (e) {
             ShowResult(e, 'failure');
         }
     };
+
+    function listValidation(oldValue, newValue, index) {
+        if ($scope._languageIndex === -1) {
+            if (oldValue === newValue) {
+                return true;
+            }
+        }
+        else {
+            if ($scope._languageIndex !== index) {
+                if (oldValue === newValue) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     $scope.languageDataParameters = {
         limit: 10,
@@ -393,11 +423,11 @@ function LegalDesignationController(cboService, commonMessage, $scope, $rootScop
         $scope.getlanguageData();
     };
 
-    $scope.languageEdit = function (index) {
+    $scope.languageEdit = function (data, index) {
         $scope.language = $scope.languageDataList[index];
         $scope.languageNew = Object.assign({}, $scope.language);
         $scope._languageIndex = index;
-        $scope.LanguageCaption = 'Update Row';
+        $scope.LanguageCaption = "Update Row";
     };
 
     $scope.languageDelete = function (data, index) {

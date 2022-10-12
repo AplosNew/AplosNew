@@ -11,6 +11,21 @@ using System.Data;
 using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using Aplos.Controllers;
+using Library.Service.Employees;
+using Library.Model.Enums;
+using Library.Service.Helpers;
+using Library.Service.HumanResources;
+using Syncfusion.DocIO.DLS;
+using Syncfusion.ExcelToPdfConverter;
+using Syncfusion.Pdf;
+using Syncfusion.XlsIO;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Library.HumanResource.NewAttendanceProcess;
+
+
 
 namespace Aplos.Areas.Machines.Controllers
 {
@@ -19,11 +34,13 @@ namespace Aplos.Areas.Machines.Controllers
         #region Constructor
 
 
-
+        private readonly IAttendanceManagementService _AttendanceManagementService;
+        ResudeceStatusReportService rsr = new ResudeceStatusReportService();
         private readonly ISqlRepository _sqlRepository;
 
-        public MaintenanceStatusDetailsController(ISqlRepository R)
+        public MaintenanceStatusDetailsController(IAttendanceManagementService AttendanceManagementService, ISqlRepository R)
         {
+            _AttendanceManagementService = AttendanceManagementService;
             _sqlRepository = R;
         }
 
@@ -46,12 +63,18 @@ namespace Aplos.Areas.Machines.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select MS.Id,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
 MM.MachineModel Model,MS.ScheduleCode,MB.Code ResponsiblePersonBudgetCode,MA.AssetName,MA.AssetCode,
-WC.UserName WorkCenter,MS.ScheduleDays,MS.LastMaintenanceDate,
-Case when isnull(MS.LastMaintenanceDate,'')='' then convert(varchar(20),GETDATE(),103) else convert(varchar(20),(MS.ScheduleDays+GETDATE()),103) end CurrentMaintanceDate,
-Case when isnull(MS.LastMaintenanceDate,'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
-Case when isnull(MS.LastMaintenanceDate,'')='' then Case when GETDATE()<GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())<GETDATE() then 1 else 0 end end OverDue,
-Case when isnull(MS.LastMaintenanceDate,'')='' then Case when GETDATE()=GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())=GETDATE() then 1 else 0 end end DueToday,
-Case when isnull(MS.LastMaintenanceDate,'')='' then Case when (GETDATE()>GETDATE() and GETDATE()!=GETDATE()) then 1 else 0 end else Case when ((MS.ScheduleDays+GETDATE())>GETDATE() and (MS.ScheduleDays+GETDATE())!=GETDATE()) then 1 else 0 end end FutureDue,
+WC.UserName WorkCenter,MS.ScheduleDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'') as LastMaintenanceDate,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then Case when GETDATE()<GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())<GETDATE() then 1 else 0 end end OverDue,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then Case when GETDATE()=GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())=GETDATE() then 1 else 0 end end DueToday,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then Case when (GETDATE()>GETDATE() and GETDATE()!=GETDATE()) then 1 else 0 end else Case when ((MS.ScheduleDays+GETDATE())>GETDATE() and (MS.ScheduleDays+GETDATE())!=GETDATE()) then 1 else 0 end end FutureDue,
 MS.StandardScheduleMinutes,MS.Remarks
  from TRN.Maintenancescheduling MS
  left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
@@ -61,7 +84,7 @@ MS.StandardScheduleMinutes,MS.Remarks
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
  where MMA.Id is not null 
- and (Case when isnull(MS.LastMaintenanceDate,'')='' then convert(varchar(20),GETDATE(),106) else convert(varchar(20),(MS.ScheduleDays+GETDATE()),106) end)=(select replace('"+ ToDate + "','-',' '))";
+ and  format(GETDATE(),'dd-MMM-yyy')='" + ToDate + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -72,19 +95,21 @@ MS.StandardScheduleMinutes,MS.Remarks
             string sql = @"select MS.Id,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
 MM.MachineModel Model,MS.ScheduleCode,MB.Code ResponsiblePersonBudgetCode,
 count(MMA.Id) NoOfAsset,
-sum(Case when isnull(MS.LastMaintenanceDate,'')='' then Case when GETDATE()<GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())<GETDATE() then 1 else 0 end end) OverDue,
-sum(Case when isnull(MS.LastMaintenanceDate,'')='' then Case when GETDATE()=GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())=GETDATE() then 1 else 0 end end) DueToday,
-sum(Case when isnull(MS.LastMaintenanceDate,'')='' then Case when (GETDATE()>GETDATE() and GETDATE()!=GETDATE()) then 1 else 0 end else Case when ((MS.ScheduleDays+GETDATE())>GETDATE() and (MS.ScheduleDays+GETDATE())!=GETDATE()) then 1 else 0 end end) FutureDue,
-MS.Remarks
+sum(Case when isnull(ActualDate,'')='' then Case when GETDATE()<GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())<GETDATE() then 1 else 0 end end) OverDue,
+sum(Case when isnull(ActualDate,'')='' then Case when GETDATE()=GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())=GETDATE() then 1 else 0 end end) DueToday,
+sum(Case when isnull(ActualDate,'')='' then Case when (GETDATE()>GETDATE() and GETDATE()!=GETDATE()) then 1 else 0 end else Case when ((MS.ScheduleDays+GETDATE())>GETDATE() and (MS.ScheduleDays+GETDATE())!=GETDATE()) then 1 else 0 end end) FutureDue,
+MS.Remarks,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD where MPD.PlannedDate is null) as PlanStatus
  from TRN.Maintenancescheduling MS
  left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left join (SELECT top 1 format(ActualDate,'dd-MMM-yyyy') as ActualDate,AssetId from [TRN].[MachineAssetPlannedDetails]  
+ ORDER BY Id DESC) APD ON APD.AssetId=MMA.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
  where MMA.Id is not null 
- and (Case when isnull(MS.LastMaintenanceDate,'')='' then convert(varchar(20),GETDATE(),106) else convert(varchar(20),(MS.ScheduleDays+GETDATE()),106) end)=(select replace('" + ToDate + "','-',' ')) group by MS.Id,E.UserName,MS.UserName,MM.UserName,MM.MachineMake,MM.MachineModel,MS.ScheduleCode,MB.Code,MS.LastMaintenanceDate,MS.ScheduleDays,MS.Remarks"; 
+ and  format(GETDATE(),'dd-MMM-yyy')='" + ToDate+"' group by MS.Id,E.UserName,MS.UserName,MM.UserName,MM.MachineMake,MM.MachineModel,MS.ScheduleCode,MB.Code,MS.LastMaintenanceDate,MS.ScheduleDays,MS.Remarks"; 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -93,13 +118,19 @@ MS.Remarks
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,
-WC.UserName WorkCenter,MS.ScheduleDays,MS.LastMaintenanceDate,
-Case when isnull(MS.LastMaintenanceDate,'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
-Case when isnull(MS.LastMaintenanceDate,'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
-Case when isnull(MS.LastMaintenanceDate,'')='' then Case when GETDATE()<GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())<GETDATE() then 1 else 0 end end OverDue,
-Case when isnull(MS.LastMaintenanceDate,'')='' then Case when GETDATE()=GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())=GETDATE() then 1 else 0 end end DueToday,
-Case when isnull(MS.LastMaintenanceDate,'')='' then Case when (GETDATE()>GETDATE() and GETDATE()!=GETDATE()) then 1 else 0 end else Case when ((MS.ScheduleDays+GETDATE())>GETDATE() and (MS.ScheduleDays+GETDATE())!=GETDATE()) then 1 else 0 end end FutureDue,
-MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,isnull(APD.[Status],1) as [Status],APD.ActualDate,APD.Remarks
+WC.UserName WorkCenter,MS.ScheduleDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ ORDER BY MPD.Id DESC),'') as LastMaintenanceDate,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ ORDER BY MPD.Id DESC),'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ ORDER BY MPD.Id DESC),'')='' then Case when GETDATE()<GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())<GETDATE() then 1 else 0 end end OverDue,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ ORDER BY MPD.Id DESC),'')='' then Case when GETDATE()=GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())=GETDATE() then 1 else 0 end end DueToday,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ ORDER BY MPD.Id DESC),'')='' then Case when (GETDATE()>GETDATE() and GETDATE()!=GETDATE()) then 1 else 0 end else Case when ((MS.ScheduleDays+GETDATE())>GETDATE() and (MS.ScheduleDays+GETDATE())!=GETDATE()) then 1 else 0 end end FutureDue,
+MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,isnull(APD.[Status],1) as [Status],Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,APD.Remarks
  from TRN.Maintenancescheduling MS
  left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
@@ -107,7 +138,37 @@ MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and MS.Id='" + MaintenanceId + "' and (Case when isnull(MS.LastMaintenanceDate,'')='' then convert(varchar(20),GETDATE(),106) else convert(varchar(20),(MS.ScheduleDays+GETDATE()),106) end)=(select replace('" + ToDate + "','-',' ')) and 1='"+Value+"'";
+ where MMA.Id is not null and MS.Id='" + MaintenanceId + "' and format(GETDATE(),'dd-MMM-yyy')='"+ ToDate + "' and 1='" + Value + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadMaintenancePendingdScheduleList(string ToDate, string MaintenanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,
+WC.UserName WorkCenter,MS.ScheduleDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id='"+MaintenanceId+@"'
+ ORDER BY Id DESC),'') as LastMaintenanceDate,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id='"+MaintenanceId+@"'
+ ORDER BY Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id='"+MaintenanceId+@"'
+ ORDER BY Id DESC),'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id='"+MaintenanceId+@"'
+ ORDER BY Id DESC),'')='' then Case when GETDATE()<GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())<GETDATE() then 1 else 0 end end OverDue,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id='"+MaintenanceId+@"'
+ ORDER BY Id DESC),'')='' then Case when GETDATE()=GETDATE() then 1 else 0 end else Case when(MS.ScheduleDays+GETDATE())=GETDATE() then 1 else 0 end end DueToday,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id='"+MaintenanceId+@"'
+ ORDER BY Id DESC),'')='' then Case when (GETDATE()>GETDATE() and GETDATE()!=GETDATE()) then 1 else 0 end else Case when ((MS.ScheduleDays+GETDATE())>GETDATE() and (MS.ScheduleDays+GETDATE())!=GETDATE()) then 1 else 0 end end FutureDue,
+MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,isnull(APD.[Status],1) as [Status],APD.Remarks,
+Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as	ToTime,APD.Minute as [Minute],APD.ActualRemark
+ from TRN.Maintenancescheduling MS
+ left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
+ left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
+ left join ORG.Entity E ON E.Id=MMA.EntityId
+ left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
+ where MMA.Id is not null and APD.Id='" + MaintenanceId + "' and format(GETDATE(),'dd-MMM-yyy')='" + ToDate + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -262,6 +323,459 @@ WHERE EI.EmployeeStatus='Active'";
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetMaintenanceJobCardReportView(string PlannedId)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IWorkbook workbook = _AttendanceManagementService.GetMaintenanceJobCardReports(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, PlannedId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                return RenderReportAsPdf(workbook, reportFileName);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+                //throw new Exception(ex.Message);
+            }
+        }
+
+        public ActionResult RenderReportAsPdf(IWorkbook workbook, string fileName, bool isOpen = true)
+        {
+            try
+            {
+                using (var converter = new ExcelToPdfConverter(workbook))
+                {
+                    var pdfDocument = new PdfDocument();
+                    ExcelToPdfConverterSettings _settings = new ExcelToPdfConverterSettings();
+                    _settings.AutoDetectComplexScript = true;
+                    _settings.EmbedFonts = true;
+                    _settings.LayoutOptions = LayoutOptions.FitAllColumnsOnOnePage;
+
+                    pdfDocument = converter.Convert(_settings);
+
+                    if (isOpen == true)
+                        pdfDocument.Save(fileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Open);
+                    else
+                        pdfDocument.Save(fileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
+
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        
+        [Authorize, HttpPost]
+        public ActionResult XlsMaintenanceStatusSummary()
+        {
+            try
+            {
+                var workbook = MaintenanceStatusSummaryReport();
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "MaintenanceStatusSummary.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpPost]
+        private IWorkbook MaintenanceStatusSummaryReport()
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+
+            var data = rsr.MaintenanceStatusSummaryReport();
+
+
+            var sheet = workbook.Worksheets[0];
+
+
+            #region sheet1
+            sheet.Name = "Maintenance Status Summary Report";
+
+            int ROW = 1;
+            int endCol = 1;
+            int COL = 1;
+
+            int COLHeader = 0;
+
+            report.SetHeaderText(ref sheet, ROW, COLHeader + 6, "Maintenance Status Summary Report :", 20, ExcelHAlign.HAlignCenter);
+            sheet.Range[ROW, COLHeader + 6, ROW, COLHeader + 7].Merge();
+            ROW++;
+            #region Grid Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 12, ExcelHAlign.HAlignCenter);
+            int ColEntity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Schedule Name", 12, ExcelHAlign.HAlignCenter);
+            int ColScheduleName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Machine Name", 12, ExcelHAlign.HAlignCenter);
+            int ColMachineName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Make", 12, ExcelHAlign.HAlignCenter);
+            int ColMake = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Model", 12, ExcelHAlign.HAlignCenter);
+            int ColModel = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Schedule Code", 15, ExcelHAlign.HAlignCenter);
+            int ColScheduleCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person BudgetCode", 15, ExcelHAlign.HAlignCenter);
+            int ColResponsiblePersonBudgetCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "No Of Asset", 12, ExcelHAlign.HAlignCenter);
+            int ColNoOfAsset = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Over Due", 12, ExcelHAlign.HAlignCenter);
+            int ColOverDue = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Due Today", 12, ExcelHAlign.HAlignCenter);
+            int ColDueToday = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Future Due", 12, ExcelHAlign.HAlignCenter);
+            int ColFutureDue = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Plan Status", 12, ExcelHAlign.HAlignCenter);
+            int ColPlanStatus = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 12, ExcelHAlign.HAlignCenter);
+            int ColRemarks = COL;
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+            string MaintenanceEntity = "";
+            string MaintenanceScheduleName = "";
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            int MaintenanceEntityRow = 0;
+            int MaintenanceScheduleNameRow = 0;
+
+
+            double[] arr = new double[4];
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                if (MaintenanceEntity != data.Rows[i]["Entity"].ToString())
+                {
+                    MaintenanceEntity = data.Rows[i]["Entity"].ToString();
+
+                    sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+
+                    if (i != 0 && MaintenanceEntityRow != (ROW - 1))
+                    {
+                        sheet.Range[MaintenanceEntityRow, ColEntity, ROW - 1, ColEntity].Merge();
+                        sheet.Range[MaintenanceEntityRow, ColEntity, ROW - 1, ColEntity].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    }
+                    MaintenanceEntityRow = ROW;
+                }
+
+                if (MaintenanceScheduleName != data.Rows[i]["ScheduleName"].ToString())
+                {
+                    MaintenanceScheduleName = data.Rows[i]["ScheduleName"].ToString();
+                    sheet[ROW, ColScheduleName].Text = data.Rows[i]["ScheduleName"].ToString();
+
+                    if (i != 0 && MaintenanceScheduleNameRow != (ROW - 1))
+                    {
+                        sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].Merge();
+                        sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    }
+                    ColScheduleName = ROW;
+                }
+
+                sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                sheet[ROW, ColScheduleName].Text = data.Rows[i]["ScheduleName"].ToString();
+
+                sheet[ROW, ColMachineName].Text = data.Rows[i]["MachineName"].ToString();
+                sheet[ROW, ColMake].Text = data.Rows[i]["Make"].ToString();
+                sheet[ROW, ColModel].Text = data.Rows[i]["Model"].ToString();
+                sheet[ROW, ColScheduleCode].Text = data.Rows[i]["ScheduleCode"].ToString();
+
+                sheet[ROW, ColResponsiblePersonBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["ResponsiblePersonBudgetCode"].ToString());
+                sheet[ROW, ColNoOfAsset].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfAsset"].ToString());
+                sheet[ROW, ColOverDue].Number = clsStaticInfo.dbl(data.Rows[i]["OverDue"].ToString());
+                sheet[ROW, ColDueToday].Number = clsStaticInfo.dbl(data.Rows[i]["DueToday"].ToString());
+                sheet[ROW, ColFutureDue].Number = clsStaticInfo.dbl(data.Rows[i]["FutureDue"].ToString());
+                sheet[ROW, ColPlanStatus].Number = clsStaticInfo.dbl(data.Rows[i]["PlanStatus"].ToString());
+                sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+
+                
+                ROW++;
+
+            }
+
+            ROW++;
+
+           
+            sheet.Range[ROW, ColEntity, ROW, endCol].CellStyle.Font.Bold = true;
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+            #endregion sheet1
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
+           
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+
+        [Authorize, HttpPost]
+        public ActionResult XlsMaintenanceStatusDetails()
+        {
+            try
+            {
+                var workbook = MaintenanceStatusDetailsReport();
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "MaintenanceStatusDetails.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpPost]
+        private IWorkbook MaintenanceStatusDetailsReport()
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+
+            var data = rsr.MaintenanceStatusDetailsReport();
+
+
+            var sheet = workbook.Worksheets[0];
+
+
+            #region sheet1
+            sheet.Name = "Maintenance Status Details Report";
+
+            
+
+            int ROW = 1;
+            int endCol = 1;
+            int COL = 1;
+            int COLHeader = 0;
+
+            report.SetHeaderText(ref sheet, ROW, COLHeader+6, "Maintenance Status Details Report :", 15, ExcelHAlign.HAlignCenter);
+            sheet.Range[ROW, COLHeader + 6, ROW, COLHeader + 7].Merge();
+            ROW++;
+           
+            #region Grid Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 12, ExcelHAlign.HAlignCenter);
+            int ColEntity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Schedule Name", 12, ExcelHAlign.HAlignCenter);
+            int ColScheduleName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Machine Name", 12, ExcelHAlign.HAlignCenter);
+            int ColMachineName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Make", 12, ExcelHAlign.HAlignCenter);
+            int ColMake = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Model", 12, ExcelHAlign.HAlignCenter);
+            int ColModel = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Schedule Code", 15, ExcelHAlign.HAlignCenter);
+            int ColScheduleCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person BudgetCode", 15, ExcelHAlign.HAlignCenter);
+            int ColResponsiblePersonBudgetCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Asset Name", 12, ExcelHAlign.HAlignCenter);
+            int ColAssetName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Asset Code", 12, ExcelHAlign.HAlignCenter);
+            int ColAssetCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Work Center", 12, ExcelHAlign.HAlignCenter);
+            int ColWorkCenter = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Schedule Days", 12, ExcelHAlign.HAlignCenter);
+            int ColScheduleDays = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "LM.Date", 12, ExcelHAlign.HAlignCenter);
+            int ColLastMaintenanceDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "CM.Date", 12, ExcelHAlign.HAlignCenter);
+            int ColCurrentMaintanceDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Due Days", 12, ExcelHAlign.HAlignCenter);
+            int ColDueDays = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Over Due", 12, ExcelHAlign.HAlignCenter);
+            int ColOverDue = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Due Today", 12, ExcelHAlign.HAlignCenter);
+            int ColDueToday = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Future Due", 12, ExcelHAlign.HAlignCenter);
+            int ColFutureDue = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Standard Schedule Minutes", 12, ExcelHAlign.HAlignCenter);
+            int ColStandardScheduleMinutes = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 12, ExcelHAlign.HAlignCenter);
+            int ColRemarks = COL;
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+            string MaintenanceEntity = "";
+            string MaintenanceScheduleName = "";
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            int MaintenanceEntityRow = 0;
+            int MaintenanceScheduleNameRow = 0;
+
+
+            double[] arr = new double[4];
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                if (MaintenanceEntity != data.Rows[i]["Entity"].ToString())
+                {
+                    MaintenanceEntity = data.Rows[i]["Entity"].ToString();
+
+                    sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+
+                    if (i != 0 && MaintenanceEntityRow != (ROW - 1))
+                    {
+                        sheet.Range[MaintenanceEntityRow, ColEntity, ROW - 1, ColEntity].Merge();
+                        sheet.Range[MaintenanceEntityRow, ColEntity, ROW - 1, ColEntity].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    }
+                    MaintenanceEntityRow = ROW;
+                }
+
+                if (MaintenanceScheduleName != data.Rows[i]["ScheduleName"].ToString())
+                {
+                    MaintenanceScheduleName = data.Rows[i]["ScheduleName"].ToString();
+                    sheet[ROW, ColScheduleName].Text = data.Rows[i]["ScheduleName"].ToString();
+
+                    if (i != 0 && MaintenanceScheduleNameRow != (ROW - 1))
+                    {
+                        sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].Merge();
+                        sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    }
+                    ColScheduleName = ROW;
+                }
+
+                sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                sheet[ROW, ColScheduleName].Text = data.Rows[i]["ScheduleName"].ToString();
+
+                sheet[ROW, ColMachineName].Text = data.Rows[i]["MachineName"].ToString();
+                sheet[ROW, ColMake].Text = data.Rows[i]["Make"].ToString();
+                sheet[ROW, ColModel].Text = data.Rows[i]["Model"].ToString();
+                sheet[ROW, ColScheduleCode].Text = data.Rows[i]["ScheduleCode"].ToString();
+
+                sheet[ROW, ColResponsiblePersonBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["ResponsiblePersonBudgetCode"].ToString());
+                sheet[ROW, ColAssetName].Text = data.Rows[i]["AssetName"].ToString();
+                sheet[ROW, ColAssetCode].Text = data.Rows[i]["AssetCode"].ToString();
+                sheet[ROW, ColWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
+                sheet[ROW, ColScheduleDays].Number = clsStaticInfo.dbl(data.Rows[i]["ScheduleDays"].ToString());
+                sheet[ROW, ColLastMaintenanceDate].Text = data.Rows[i]["LastMaintenanceDate"].ToString();
+                sheet[ROW, ColCurrentMaintanceDate].Text = data.Rows[i]["CurrentMaintanceDate"].ToString();
+                sheet[ROW, ColDueDays].Number = clsStaticInfo.dbl(data.Rows[i]["DueDays"].ToString());
+                sheet[ROW, ColOverDue].Number = clsStaticInfo.dbl(data.Rows[i]["OverDue"].ToString());
+                sheet[ROW, ColDueToday].Number = clsStaticInfo.dbl(data.Rows[i]["DueToday"].ToString());
+                sheet[ROW, ColFutureDue].Number = clsStaticInfo.dbl(data.Rows[i]["FutureDue"].ToString());
+                sheet[ROW, ColStandardScheduleMinutes].Number = clsStaticInfo.dbl(data.Rows[i]["StandardScheduleMinutes"].ToString());
+                sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+
+
+                ROW++;
+
+            }
+
+            ROW++;
+
+
+            sheet.Range[ROW, ColEntity, ROW, endCol].CellStyle.Font.Bold = true;
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+            #endregion sheet1
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
         }
         #endregion -- Operations
     }

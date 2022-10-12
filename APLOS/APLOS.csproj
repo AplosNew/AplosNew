@@ -586,6 +586,7 @@
     <Compile Include="Areas\HumanResource\Controllers\FurnitureMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\MedicalLogReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineReceiptController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicinePurposeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SicknessTypeController.cs" />
@@ -690,6 +691,7 @@
     <Compile Include="Areas\HumanResource\Controllers\SpecialFollowUPReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\HrmsSettingsController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TBSAssignController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\MedicalLogController.cs" />
     <Compile Include="Areas\IE\Controllers\AttachmentController.cs" />
     <Compile Include="Areas\IE\Controllers\AdditionalElementCodeSettingsController.cs" />
     <Compile Include="Areas\IE\Controllers\BartackCodeController.cs" />
@@ -744,6 +746,7 @@
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceStatusDetailsController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSchedulingController.cs" />
+    <Compile Include="Areas\Machines\Controllers\PendingMaintenanceScheduleController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogoutController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
     <Compile Include="Areas\Materials\Controllers\ProcessWiseMaterialAllocationController.cs" />
@@ -2043,6 +2046,8 @@
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
+    <Content Include="Areas\HumanResource\Scripts\MedicalLogController.js" />
+    <Content Include="Areas\HumanResource\Scripts\MedicalLogReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicineReceiptController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicineMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicinePurposeController.js" />
@@ -2164,6 +2169,7 @@
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
+    <Content Include="Areas\Machines\Scripts\pendingMaintenanceScheduleController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceStatusDetailsController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogController.js" />
@@ -4320,6 +4326,12 @@
     <Content Include="Areas\HumanResource\Views\MedicalReceipt\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicineReceipt\_MedicinePopUp.cshtml" />
     <Content Include="Areas\Costings\Views\BOMDetailMaster\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\PendingMaintenanceSchedule\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLog\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLog\_SicknessPopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLog\_EmployeePopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLog\Report.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLogReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
