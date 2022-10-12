@@ -367,14 +367,14 @@ namespace HRService
             {
 
                 strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.AddedDate, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
-                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose,
-                            MM.UserName MachineMaster,  MM.Id MachineMasterId
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose
+                            --MM.UserName MachineMaster
                             from TRN.DetentionLog DL
                             left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                             left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
 						    left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-						    left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+						    --left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
                             where isClose = 0";
 
                 objCon = new clsConnectionManager();
@@ -393,9 +393,9 @@ namespace HRService
                         Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
                         WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
                         DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
-                        isClose = (bool)dsRef.Tables[0].Rows[i]["DetentionTypeId"],
+                        isClose = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["DetentionTypeId"]),
                         MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
-                        MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
+                        //MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
                     });
                 }
             }
@@ -1150,7 +1150,7 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string DetentionTypeId { get; set; }
         public bool isClose { get; set; }
         public string MachineMaster { get; set; }
-        public string MachineMasterId { get; set; }
+        //public string MachineMasterId { get; set; }
     }
 
     public class CreateDetentionList
