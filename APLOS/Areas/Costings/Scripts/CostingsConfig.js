@@ -86,7 +86,10 @@ function CostingsConfig($routeProvider, $locationProvider) {
             templateUrl: 'costings/BOQStatusReport/Aplos',
             controller: 'BOQStatusReportController'
         })
-
+        .when('/bom-detail', {
+            templateUrl: 'costings/BOMDetailMaster/Aplos',
+            controller: 'BOMDetailMasterController'
+        })
 
 
         ;

@@ -514,6 +514,7 @@
     <Compile Include="Areas\Costings\Controllers\CostingComponentController.cs" />
     <Compile Include="Areas\Costings\Controllers\CostingSubCategoryController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQCriteriaController.cs" />
+    <Compile Include="Areas\Costings\Controllers\BOMDetailMasterController.cs" />
     <Compile Include="Areas\Costings\CostingsAreaRegistration.cs" />
     <Compile Include="Areas\EmployeeServices\Controllers\EmployeeServiceBookingController.cs" />
     <Compile Include="Areas\EmployeeServices\Controllers\EmployeeServicesRateController.cs" />
@@ -1942,6 +1943,7 @@
     <Content Include="Areas\Costings\Scripts\CostingsConfig.js" />
     <Content Include="Areas\Costings\Scripts\CostingComponentController.js" />
     <Content Include="Areas\Costings\Scripts\BOQCriteriaController.js" />
+    <Content Include="Areas\Costings\Scripts\BOMDetailMasterController.js" />
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServiceBookingController.js" />
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServicesConfig.js" />
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServicesRateController.js" />
@@ -4323,6 +4325,7 @@
     <Content Include="Areas\HumanResource\Views\MedicineReceipt\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicalReceipt\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicineReceipt\_MedicinePopUp.cshtml" />
+    <Content Include="Areas\Costings\Views\BOMDetailMaster\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\PendingMaintenanceSchedule\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicalLog\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicalLog\_SicknessPopUp.cshtml" />

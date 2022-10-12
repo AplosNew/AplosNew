@@ -6,6 +6,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
     $scope.path = 'Machines/MaintenanceStatusDetails/';
     $scope.savePlannedUrl = $scope.path + 'createPlanned';
     $scope.saveResponsibleUrl = $scope.path + 'createResponsible';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.status = {
         Id: null,
@@ -238,5 +239,46 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
             ShowResult(ex, 'Info');
         }
     };
+
+    $scope.MaintenanceStatusSummaryReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'XlsMaintenanceStatusSummary?todate=' + $scope.statusNew.ToDate,
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.MaintenanceStatusDetailsReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'XlsMaintenanceStatusDetails?todate=' + $scope.statusNew.ToDate,
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+ 
 }
 
