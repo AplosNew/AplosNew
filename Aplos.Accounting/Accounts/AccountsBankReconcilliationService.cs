@@ -541,7 +541,7 @@ namespace Library.Accounting.Accounts
             try
             {
                 
-                var sql = @"SELECT BRUD.Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, DrAmount, CrAmount, BRUD.Remarks, OwnRefNo
+                var sql = @"SELECT BRUD.Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, DrAmount CrAmount, BRUD.Remarks, OwnRefNo
                                 FROM TRN.BankReconciliationUploadedData  BRUD
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                                 WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
@@ -562,7 +562,7 @@ namespace Library.Accounting.Accounts
             {
 
                 var sql = @"SELECT BRM.Id BankReconciliationMapId,BRM.VoucherDetailId,BRM.BankReconciliationUploadedDataId
-								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, BRUD.DrAmount UploadedAmount
+								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, BRUD.CrAmount UploadedAmount
 								,V.VoucherNo,VD.DocRefNo,VD.DrAmount VoucherAmount
                                 FROM TRN.BankReconciliationMap BRM
 								INNER JOIN TRN.BankReconciliationUploadedData  BRUD ON BRUD.Id=BRM.BankReconciliationUploadedDataId
@@ -570,7 +570,7 @@ namespace Library.Accounting.Accounts
                                 INNER JOIN TRN.VoucherDetail AS VD ON VD.Id=BRM.VoucherDetailId
 								INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
                                 WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
-                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND BRUD.DrAmount>0  ";
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND BRUD.CrAmount>0  ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -585,7 +585,7 @@ namespace Library.Accounting.Accounts
             try
             {
 
-                var sql = @"SELECT BRUD.Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, DrAmount, CrAmount, BRUD.Remarks, OwnRefNo
+                var sql = @"SELECT BRUD.Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, CrAmount DrAmount, BRUD.Remarks, OwnRefNo
                                 FROM TRN.BankReconciliationUploadedData  BRUD
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                                 WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
@@ -606,7 +606,7 @@ namespace Library.Accounting.Accounts
             {
 
                 var sql = @"SELECT BRM.Id BankReconciliationMapId,BRM.VoucherDetailId,BRM.BankReconciliationUploadedDataId
-								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, BRUD.CrAmount UploadedAmount
+								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, BRUD.DrAmount UploadedAmount
 								,V.VoucherNo,VD.DocRefNo,VD.CrAmount VoucherAmount
                                 FROM TRN.BankReconciliationMap BRM
 								INNER JOIN TRN.BankReconciliationUploadedData  BRUD ON BRUD.Id=BRM.BankReconciliationUploadedDataId
@@ -614,7 +614,7 @@ namespace Library.Accounting.Accounts
                                 INNER JOIN TRN.VoucherDetail AS VD ON VD.Id=BRM.VoucherDetailId
 								INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
                                 WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
-                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND BRUD.CrAmount>0  ";
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND BRUD.DrAmount>0  ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

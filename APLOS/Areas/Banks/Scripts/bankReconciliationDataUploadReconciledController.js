@@ -354,7 +354,7 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
         try {
             $http({
                 method: 'POST',
-                url: $scope.path + "GetAvailableBankReconciliationUploadedDrDataList",
+                url: $scope.path + "GetAvailableBankReconciliationUploadedCrDataList",
                 data: {
                     bankMasterId: $scope.bankReconciliationNew.BankMasterId,
                     fromDate: $scope.bankReconciliationNew.FromDate,
@@ -523,7 +523,7 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
         try {
             $http({
                 method: 'POST',
-                url: $scope.path + "GetAvailableBankReconciliationUploadedCrDataList",
+                url: $scope.path + "GetAvailableBankReconciliationUploadedDrDataList",
                 data: {
                     bankMasterId: $scope.bankReconciliationNew.BankMasterId,
                     fromDate: $scope.bankReconciliationNew.FromDate,

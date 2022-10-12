@@ -1086,6 +1086,8 @@ upanelApp.controller("SicknessTypeController", SicknessTypeController)
 upanelApp.controller("SalesOrderApprovalController", SalesOrderApprovalController)
 upanelApp.controller("MedicinePurposeController", MedicinePurposeController)
 upanelApp.controller("MedicineReceiptController", MedicineReceiptController)
+upanelApp.controller("MedicalLogController", MedicalLogController)
+upanelApp.controller("MedicalLogReportController", MedicalLogReportController)
 
 upanelApp.controller("pendingMaintenanceScheduleController", pendingMaintenanceScheduleController)
 
