@@ -371,7 +371,7 @@
                                 <input type="text" name="DepartmentName" ng-model="data.DepartmentName" ng-disabled="true" class="form-control" readonly>
                             </div>
                             <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                                <button ng-click="$parent.selectDepartment(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                <button ng-click="$parent.selectDepartment(this);"  class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                             </div>
                         </script>
                         <script type="text/template" id="DetentionTypeId">
@@ -381,8 +381,8 @@
                         </script>
                         <script type="text/template" id="DetentionId">
                             <div class="select-style">
-                                <input ej-dropdownlist e-datasource="data.DetentionList" e-value="data.DetentionId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                           </div>
+                                    <input ej-dropdownlist e-datasource="data.DetentionList" e-value="data.DetentionId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                            </div>
                         </script>
 
                         <script type="text/template" id="fromtime">

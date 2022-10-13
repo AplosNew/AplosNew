@@ -47,6 +47,7 @@ function MedicinePurposeController(cboService, commonMessage, $scope, $rootScope
         StandardName: null,
         UserName: null,      
         Purpose: null,
+        Category:null,
         Remarks: null,
         IsActive: true
     };
@@ -162,6 +163,7 @@ function MedicinePurposeController(cboService, commonMessage, $scope, $rootScope
             StandardName: null,
             UserName: null,
             Purpose: null,
+            Category: null,
             Remarks: null,
             IsActive: true
         };

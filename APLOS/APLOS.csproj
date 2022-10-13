@@ -514,6 +514,7 @@
     <Compile Include="Areas\Costings\Controllers\CostingComponentController.cs" />
     <Compile Include="Areas\Costings\Controllers\CostingSubCategoryController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQCriteriaController.cs" />
+    <Compile Include="Areas\Costings\Controllers\BOMDetailMasterController.cs" />
     <Compile Include="Areas\Costings\CostingsAreaRegistration.cs" />
     <Compile Include="Areas\EmployeeServices\Controllers\EmployeeServiceBookingController.cs" />
     <Compile Include="Areas\EmployeeServices\Controllers\EmployeeServicesRateController.cs" />
@@ -585,6 +586,7 @@
     <Compile Include="Areas\HumanResource\Controllers\FurnitureMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\MedicalLogReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineReceiptController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicinePurposeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SicknessTypeController.cs" />
@@ -689,6 +691,7 @@
     <Compile Include="Areas\HumanResource\Controllers\SpecialFollowUPReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\HrmsSettingsController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TBSAssignController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\MedicalLogController.cs" />
     <Compile Include="Areas\IE\Controllers\AttachmentController.cs" />
     <Compile Include="Areas\IE\Controllers\AdditionalElementCodeSettingsController.cs" />
     <Compile Include="Areas\IE\Controllers\BartackCodeController.cs" />
@@ -1940,6 +1943,7 @@
     <Content Include="Areas\Costings\Scripts\CostingsConfig.js" />
     <Content Include="Areas\Costings\Scripts\CostingComponentController.js" />
     <Content Include="Areas\Costings\Scripts\BOQCriteriaController.js" />
+    <Content Include="Areas\Costings\Scripts\BOMDetailMasterController.js" />
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServiceBookingController.js" />
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServicesConfig.js" />
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServicesRateController.js" />
@@ -2042,6 +2046,8 @@
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
+    <Content Include="Areas\HumanResource\Scripts\MedicalLogController.js" />
+    <Content Include="Areas\HumanResource\Scripts\MedicalLogReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicineReceiptController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicineMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicinePurposeController.js" />
@@ -4319,7 +4325,13 @@
     <Content Include="Areas\HumanResource\Views\MedicineReceipt\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicalReceipt\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicineReceipt\_MedicinePopUp.cshtml" />
+    <Content Include="Areas\Costings\Views\BOMDetailMaster\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\PendingMaintenanceSchedule\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLog\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLog\_SicknessPopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLog\_EmployeePopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLog\Report.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLogReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
