@@ -473,7 +473,7 @@ namespace Library.Service.Productions
                         LEFT JOIN EmployeeInformation C ON PW.CheckedBy=C.SystemId
 						LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId from MachineMasterTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + entityId + @"' AND MT.Date='" + productionDate + @"'  AND MT.ShiftId='" + shiftId + @"' 
 						group by WorkCenterId) SM ON SM.WorkCenterId=wc.Id
-                        where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + entityId + @"' ";
+                        where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + entityId + @"' order by wc.UserName";
             return _sqlRepository.GetDataCollection(sql);
         }
 
