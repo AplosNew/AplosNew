@@ -194,7 +194,8 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     $scope.ob = {};
     $scope.calcAmount = function (data1) {
         $scope.ob = data1.data;
-        $scope.ob.Amount = $scope.ob.Quantity * $scope.ob.Rate;
+       // $scope.ob.Amount = $scope.ob.Quantity * $scope.ob.Rate;
+        $scope.ob.Rate = $scope.ob.Amount / $scope.ob.Quantity;
         var gridObj = $("#GridEdit").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();

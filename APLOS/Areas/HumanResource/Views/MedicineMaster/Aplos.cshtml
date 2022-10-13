@@ -29,18 +29,16 @@
                 </div>
             </div>
             @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="number" name="Category" ng-model="ModelNew.Rate" class="form-control" required tabindex="4" maxlength="50">
-            </div>
-        </div>*@
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Purpose</label>
-                <div class="col-sm-8">
-                    <div class="select-style">
-
-                        <input id="medicinePurposeId" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="MedicinePurposeList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                    <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" name="Category" ng-model="ModelNew.Rate" class="form-control" required tabindex="4" maxlength="50">
                     </div>
+                </div>*@
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
                 </div>
             </div>
             <div class="form-group">
@@ -78,26 +76,45 @@
                     <input type="text" name="SubCategory" ng-model="ModelNew.Category" class="form-control" required tabindex="4" maxlength="50">
                 </div>
             </div>
-           
-            
 
             <div class="form-group">
-                <label class="col-sm-4 control-label">Remarks</label>
+                <label class="col-sm-4 control-label">Purpose</label>
                 <div class="col-sm-8">
-                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                    <div class="select-style">
+
+                        <input id="medicinePurposeId" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="MedicinePurposeList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                    </div>
                 </div>
             </div>
 
-        </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">UOM<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+
+                        <input type="text" name="Responsible Person" ng-model="ModelNew.UOMName" class="form-control" required readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="openUOMPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label"> Min. Stock Qty.<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="MinStockQty" ng-model="ModelNew.MinStockQty" class="form-control" required tabindex="4" maxlength="20">
+                </div>
+
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
         </div>
     </div>
-    
 </div>
 
 <div class="table-responsive aplos-grid-toggle">
@@ -111,11 +128,13 @@
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="100"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="150"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="130"></div>
-            
+
             <div e-column e-field="Category" e-headertext="Category" e-width="100"></div>
             <div e-column e-field="SubCategory" e-headertext="SubCategory" e-width="100"></div>
-           
+
             <div e-column e-field="MedicinePurpose" e-headertext="Purpose" e-width="130"></div>
+            <div e-column e-field="MinStockQty" e-headertext="Min Stock Qty" e-width="100"></div>
+            <div e-column e-field="UOMName" e-headertext="UOM" e-width="100"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
 
         </div>
@@ -125,6 +144,8 @@
 
 
 <confirm-modal></confirm-modal>
+
+@Html.Partial("~/Areas/HumanResource/Views/MedicineMaster/_UOMPopUpScreen.cshtml")
 
 
 
