@@ -22098,12 +22098,12 @@ group by Id) O60 ON O60.Id=IV.Id
             var sql = @"select distinct P.Code CustomerCode,P.UserName Customer,S.InvoiceNo,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
                                                 ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
 												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
-						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate),C.Code Currency,IWOD.Amount
+						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate),C.Code Currency,I.Amount
 						                        ,MO.Id,ISNULL(MOC.[Value],0) [Commission%] ,IWOD.Amount*ISNULL(MOC.[Value],0) CommissionAmount
 												,ISNULL(MOCD.[Value],0) [CashDiscount %],IWOD.Amount*ISNULL(MOCD.[Value],0) CDAmount
-												,(IWOD.Amount-(IWOD.Amount*ISNULL(MOC.[Value],0)+IWOD.Amount*ISNULL(MOCD.[Value],0)))[NetAmount_IfPaymet_Ontime]
-												,(IWOD.Amount-(IWOD.Amount*ISNULL(MOC.[Value],0)))[NetAmount_IfPaymet_Delay]
-												,0 ReceiveAgainstInvoice,0 BalancePaymentAgainstInvoice
+												,(IWOD.Amount-(IWOD.Amount*(ISNULL(MOC.[Value],0)/100)+IWOD.Amount*(ISNULL(MOCD.[Value],0)/100)))[NetAmount_IfPaymet_Ontime]
+												,(IWOD.Amount-(IWOD.Amount*(ISNULL(MOC.[Value],0)/100)))[NetAmount_IfPaymet_Delay]
+												,IWOD.Amount ReceiveAgainstInvoice,I.Amount-IWOD.Amount  BalancePaymentAgainstInvoice
 						                        from TRN.InvoiceWriteOffDetail IWOD
 						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
 						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
