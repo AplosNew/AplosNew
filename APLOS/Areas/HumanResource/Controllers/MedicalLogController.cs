@@ -40,6 +40,21 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [Authorize, HttpPost]
+        public ActionResult medicallogGridView()
+        {
+            try
+            {
+                return Json(ml.medicallogGridView(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        [Authorize, HttpPost]
         public ActionResult getSicknessType()
         {
             try

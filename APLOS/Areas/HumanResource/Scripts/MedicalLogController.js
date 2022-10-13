@@ -235,4 +235,15 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
 
     //=======================================SAVE CLOSE==========================================
 
+    $scope.MedicalLogGridList = [];
+    $scope.medicallogGridView = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'medicallogGridView',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.MedicalLogGridList = response.data;
+        })
+    }
+    $scope.medicallogGridView();
 }
