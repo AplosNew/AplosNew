@@ -401,8 +401,10 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[j]);
                 }
                 else {
-                    if (baseService.isUndefinedOrNull($scope.requisitionListByPo[j].TransactionQty) || $scope.requisitionListByPo[j].TransactionQty == 0) {
-                        ShowResult("Please input Requsition Qty of RowId" + $scope.inventoryMaterialListPO[j].InventoryReceiveDetailId, 'failure');
+                    var tempreqQty = Math.round($filter("sumByKey")($filter("filter")($scope.requisitionListByPo, { PODetailId: podetail.PODetailsID }), "TransactionQty") * 1000 + Number.EPSILON) / 1000;
+
+                    if (podetail.TransactionQty!= tempreqQty) {
+                        ShowResult("Please input Requsition Qty of RowId" + podetail.UserName, 'failure');
                         return true;
                         break;
                     } else {
