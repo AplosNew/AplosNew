@@ -87,8 +87,10 @@
                          e-detailstemplate="detailTemp"
                          e-detailsdatabound="detailgrid">
                         <div e-columns>
-                            <div e-column e-headertext="Actions" e-width="50">                      
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GridCHR');" style="margin: -6px;"></i></button>
+                            <div e-column e-headertext="Actions" e-width="100">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report with Tax" ng-click="$parent.POWithTax('GridCHR');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report without Tax" ng-click="$parent.POWithoutTax('GridCHR');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.POBOQReportXl(data);" style="margin: -6px;"></i></button>
                             </div>
                             <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
                             <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
@@ -145,8 +147,10 @@
                          e-detailstemplate="detailTemp"
                          e-detailsdatabound="detailgrid">
                         <div e-columns>
-                            <div e-column e-headertext="Actions" e-width="50">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PO('GridChecked');" style="margin: -6px;"></i></button>
+                            <div e-column e-headertext="Actions" e-width="100">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report with Tax" ng-click="$parent.POWithTax('GridChecked');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report without Tax" ng-click="$parent.POWithoutTax('GridChecked');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.POBOQReportXl(data);" style="margin: -6px;"></i></button>
                             </div>
                             <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
                             <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
@@ -205,8 +209,10 @@
                          e-detailstemplate="detailTemp"
                          e-detailsdatabound="detailgrid">
                         <div e-columns>
-                            <div e-column e-headertext="Actions" e-width="50">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridApprovedHR');" style="margin: -6px;"></i></button>
+                            <div e-column e-headertext="Actions" e-width="100">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report with Tax" ng-click="$parent.POWithTax('GridApprovedHR');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report without Tax" ng-click="$parent.POWithoutTax('GridApprovedHR');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.POBOQReportXl(data);" style="margin: -6px;"></i></button>
                             </div>
                             <div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>
                             <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -263,8 +269,10 @@
                          e-detailstemplate="detailTemp"
                          e-detailsdatabound="detailgrid">
                         <div e-columns>
-                            <div e-column e-headertext="Actions" e-width="50">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.PO('GridApproved');" style="margin: -6px;"></i></button>
+                            <div e-column e-headertext="Actions" e-width="100">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report with Tax" ng-click="$parent.POWithTax('GridApproved');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report without Tax" ng-click="$parent.POWithoutTax('GridApproved');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.POBOQReportXl(data);" style="margin: -6px;"></i></button>
                             </div>
                             <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
                             <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
