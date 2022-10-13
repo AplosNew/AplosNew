@@ -1654,6 +1654,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.selectDepartment = function (data) {
     $scope.Newobject = data.data;
         $scope.getsD();
+        $scope.NewObject.DetentionId = null;
+        $scope.NewObject.DetentionList = null;
+        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         angular.element(document.querySelector('#DepartmentPop')).modal('show');
     }
 
@@ -1721,9 +1724,11 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     $scope.ProcessDetentionLists[i].DetentionTypeList = response.data;
                 }
             }
+            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         });
     }
     $scope.getDetentionListByDepartment = function (departmentid) {
+        $scope.Newobject.DetentionList = null;
         $http({
             method: 'GET',
             url: 'IE/MachineMasterTransaction/getDetentionListByDepartment?departmentid=' + departmentid
@@ -1734,6 +1739,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     $scope.ProcessDetentionLists[i].DetentionList = response.data;
                 }
             }
+            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         });
     }
 

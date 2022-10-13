@@ -105,7 +105,7 @@
                                 </div>
                             </div>
                             <script type="text/template" id="Remarks">
-                                <textarea class="form-control" rows="3" ng-model="data.Remarks" maxlength="250" tabindex="6"></textarea>
+                                <textarea class="form-control" rows="1" ng-model="data.Remarks" maxlength="250" tabindex="6"></textarea>
                             </script>
                         </div>
 
@@ -153,7 +153,7 @@
                                     <input type="number" name="Days" ng-model="data.NoOfDays" class="form-control" style="color:black; text-align:center">
                                 </script>
                                 <script type="text/template" id="Remarks">
-                                    <textarea class="form-control" rows="3" ng-model="data.Remarks" maxlength="250" tabindex="6"></textarea>
+                                    <textarea class="form-control" rows="1" ng-model="data.Remarks" maxlength="250" tabindex="6"></textarea>
                                 </script>
                             </div>
 
@@ -176,6 +176,31 @@
     </div>
 </div>
     <confirm-modal></confirm-modal>
+    <div class="table-responsive aplos-grid-toggle">
+        <div style="color:black;" id="Grid" ej-grid e-datasource="MedicalLogGridList"
+             e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick" e-allowfiltering="true" e-allowpaging="true"
+             e-allowsorting="true" e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+             e-allowselection="true" e-detailsdatabound="detailgrid">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-visible="true" e-width="50"></div>
+                <div e-column e-field="Date" e-headertext="Date" e-width="80"></div>
+                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="100"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Name" e-width="100"></div>
+
+                <div e-column e-field="Sickness" e-headertext="Sickness" e-width="100"></div>
+                <div e-column e-field="Medicines" e-headertext="Medicines" e-width="100"></div>
+                <div e-column e-field="Days" e-headertext="Days" e-width="100"></div>
+                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                
+            </div>
+        </div>
+        @*<div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="XlsMedicalLogReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
+
+            </ul>
+        </div>*@
+    </div>
 
     @Html.Partial("~/Areas/HumanResource/Views/MedicalLog/_EmployeePopUp.cshtml")
     @Html.Partial("~/Areas/HumanResource/Views/MedicineReceipt/_MedicinePopUp.cshtml")

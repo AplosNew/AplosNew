@@ -36,24 +36,24 @@
         </div>
         <div class="common-btn" style="position:relative; right:240px; bottom:30px">
             <ul class="list-inline text-right">
-                <li> <button ng-click="View();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
+                <li> <button ng-click="medicallogGridView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
 
             </ul>
         </div>
     </div>
 </div>
 <div class="">
-    <div style="color:black;" id="Grid" ej-grid e-datasource="MedicineReceiptList"
+    <div style="color:black;" id="Grid" ej-grid e-datasource="MedicalLogGridList"
          e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick" e-allowfiltering="true" e-allowpaging="true"
          e-allowsorting="true" e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="true"
-         e-allowselection="true" e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid">
+         e-allowselection="true" e-detailsdatabound="detailgrid">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="50"></div>
+            <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="true" e-width="50"></div>
             <div e-column e-field="Date" e-headertext="Date" e-width="80"></div>
             <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="100"></div>
-            <div e-column e-field="InvoiceDate" e-headertext="Sickness" e-width="100"></div>
-            <div e-column e-field="Sickness" e-headertext="Medicine" e-width="100"></div>
-            <div e-column e-field="Medicine" e-headertext="Medicine" e-width="100"></div>
+
+            <div e-column e-field="Sickness" e-headertext="Sickness" e-width="150"></div>
+            <div e-column e-field="Medicines" e-headertext="Medicines" e-width="150"></div>
             <div e-column e-field="Days" e-headertext="Days" e-width="100"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
             <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
@@ -65,6 +65,11 @@
             <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
         </div>
     </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="XlsMedicalLogReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
 
+        </ul>
+    </div>
 </div>
 @Html.Partial("~/Areas/HumanResource/Views/MedicalLog/_EmployeePopUp.cshtml")

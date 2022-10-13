@@ -906,6 +906,37 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
                 throw ex;
             }
         }
+
+        #region Grid View Query
+        public IEnumerable<object> medicallogGridView()
+        {
+            try
+            {
+                var SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks,
+STUFF((select ', ' + MP.Category
+from TRN.EmployeeSickness ES
+LEFT join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
+where ES.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Sickness,
+STUFF((Select ', ' + MM.UserName
+from TRN.EmployeeSicknessMedicines ESM
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
+where ESM.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Medicines
+from TRN.MedicalLog ML
+left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
+INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
+GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays
+";
+
+                return _sqlRepository.GetDataCollection(SQL);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion Grid View Query
         #endregion GET OP
 
         #region SAVE
@@ -1067,14 +1098,23 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
         {
             try
             {
-                var SQL = @"select ML.Id, FORMAT(ML.[Date], 'dd-MMM-yyyy')[Date], MM.UserName Medicine, MP.Category Sickness, ESM.NoOfDays [Days], EMP.EmployeeCode
-,EMP.EmployeeName, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation,
-UN.UserName Entity from TRN.MedicalLog ML
-LEFT JOIN TRN.EmployeeSickness ES on ES.MedicalLogId = ML.Id
-LEFT JOIN HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
-LEFT JOIN TRN.EmployeeSicknessMedicines ESM on ESM.MedicalLogId = ML.Id
+                var SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], EMP.EmployeeCode, 
+DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation,
+UN.UserName Entity,
+EMP.EmployeeName, ML.Remarks, GDSG.UserName GivenDesignation,
+STUFF((select ', ' + MP.Category
+from TRN.EmployeeSickness ES
+LEFT join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
+where ES.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Sickness,
+STUFF((Select ', ' + MM.UserName
+from TRN.EmployeeSicknessMedicines ESM
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
-LEFT JOIN DBO.EmployeeInformation EMP on EMP.SystemId = ML.EmployeeSystemId
+where ESM.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Medicines
+from TRN.MedicalLog ML
+INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
+left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
 left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
@@ -1086,8 +1126,11 @@ LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
 LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
 LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
-left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
-where ML.[Date] between '"+ from + "' and '"+ to + "' and EMP.SystemId = '"+ empSystemId + "' and EMP.EmployeeStatus = 'Active'";
+left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
+where ML.[Date] between '" + from + "' and '"+ to + "' and EMP.SystemId = '"+ empSystemId + "' and EMP.EmployeeStatus = 'Active'" +
+"GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName";
+
+
 
                 return _sqlRepository.GetDataCollection(SQL);
             }
@@ -1097,6 +1140,52 @@ where ML.[Date] between '"+ from + "' and '"+ to + "' and EMP.SystemId = '"+ emp
             }
         }
         #endregion Grid View Query
+
+        #region Excel View Query
+        public DataTable medicallogExcelView(string from, string to, string empSystemId)
+        {
+            try
+            {
+                var SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], EMP.EmployeeCode, 
+DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation,
+UN.UserName Entity,
+EMP.EmployeeName, ML.Remarks, GDSG.UserName GivenDesignation,
+STUFF((select ', ' + MP.Category
+from TRN.EmployeeSickness ES
+LEFT join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
+where ES.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Sickness,
+STUFF((Select ', ' + MM.UserName
+from TRN.EmployeeSicknessMedicines ESM
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
+where ESM.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Medicines
+from TRN.MedicalLog ML
+INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
+left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
+LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+left join ORG.Entity UN on UN.Id = MBGT.EntityId
+left join ORG.Department DP on DP.ID = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
+where ML.[Date] between '" + from + "' and '" + to + "' and EMP.SystemId = '" + empSystemId + "' and EMP.EmployeeStatus = 'Active'" +
+"GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName";
+
+                return _sqlRepository.GetDataTable(SQL);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion Excel View Query
     }
     #endregion Medical Log Report
 }
