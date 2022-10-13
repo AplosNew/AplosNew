@@ -67,17 +67,24 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-4 control-label">Customer RefNo<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="OwnRefNo" ng-model="ModelC.CustomerRefNo" class="form-control" maxlength="15" required tabindex="3">
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Own RefNo<sup>*</sup></label>
                         <div class="col-sm-8">
                             <input type="text" name="OwnRefNo" ng-model="ModelC.OwnRefNo" class="form-control" maxlength="15" required tabindex="3">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label">Remarks</label>
+                        <label class="col-sm-4 control-label">Version<sup>*</sup></label>
                         <div class="col-sm-8">
-                            <textarea class="form-control" rows="3" ng-model="ModelC.Remarks" maxlength="250" tabindex="6"></textarea>
+                            <input type="text" name="Version" ng-model="ModelC.Version" only-numbeers class="form-control" maxlength="15" required tabindex="3">
                         </div>
                     </div>
+                    
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group">
@@ -94,9 +101,15 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label">Version<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Vendor RefNo<sup>*</sup></label>
                         <div class="col-sm-8">
-                            <input type="text" name="Version" ng-model="ModelC.Version" only-numbeers class="form-control" maxlength="15" required tabindex="3">
+                            <input type="text" name="OwnRefNo" ng-model="ModelC.VendorRefNo" class="form-control" maxlength="15" required tabindex="3">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" rows="3" ng-model="ModelC.Remarks" maxlength="250" tabindex="6"></textarea>
                         </div>
                     </div>
                 </div>
@@ -114,6 +127,8 @@
                         <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
                         <div e-column e-field="PartyName" e-headertext="Customer" e-width="3"></div>
                         <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="5"></div>
+                        <div e-column e-field="CustomerRefNo" e-headertext="CustomerRefNo" e-width="5"></div>
+                        <div e-column e-field="VendorRefNo" e-headertext="VendorRefNo" e-width="5"></div>
                         <div e-column e-field="OwnRefNo" e-headertext="OwnRefNo" e-width="5"></div>
                         <div e-column e-field="Version" e-headertext="Version" e-width="5"></div>
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
@@ -147,6 +162,12 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-4 control-label">BOM Material Detail</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="1" ng-model="Child2New.BOMMaterialDetail" maxlength="250" tabindex="6"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label" title="Material">Material<sup>*</sup></label>
                             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                                 <span class="input-group-addon">{{Child2New.MaterialCode}}</span>
@@ -156,16 +177,6 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">BOM Material Detail</label>
-                            <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="Child2New.BOMMaterialDetail" maxlength="250" tabindex="6"></textarea>
-                            </div>
-                        </div>
-
-
-                    </div>
-                    <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
                             <div class="col-sm-8">
@@ -178,11 +189,28 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"></label>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">SKU2<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="SKU2List" e-value="Child2New.SecondCharacteristicsValueId" e-fields-value="Id" e-fields-text="Username" e-width="100%" />
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"></label>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label" title="Article">Article<sup>*</sup></label>
@@ -195,10 +223,11 @@
                                 </span>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="Child2New.Remarks" maxlength="250" tabindex="6"></textarea>
+                                <textarea class="form-control" rows="1" ng-model="Child2New.Remarks" maxlength="250" tabindex="6"></textarea>
                             </div>
                         </div>
 
@@ -213,22 +242,25 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
-                            <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="2"></div>
+                            @*<div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="2"></div>*@
                             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
                             <div e-column e-field="CostingItem" e-headertext="CostingItem" e-width="3"></div>
-                            <div e-column e-field="Vendor" e-headertext="Vendor" e-width="5"></div>
-                            <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="3"></div>
-                            <div e-column e-field="Article" e-headertext="Article" e-width="5"></div>
-                            <div e-column e-field="SKU1" e-headertext="SKU1" e-width="5"></div>
-                            <div e-column e-field="SKU2" e-headertext="SKU2" e-width="5"></div>
-                            <div e-column e-field="BOMMaterialDetail" e-headertext="BOMMaterialDetail" e-width="2"></div>
-                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+                            <div e-column e-field="SKU1" e-headertext="SKU1" e-width="2"></div>
+                            <div e-column e-field="SKU2" e-headertext="SKU2" e-width="2"></div>
+                            <div e-column e-field="BOMMaterialDetail" e-headertext="BOMMaterialDetail" e-width="5"></div>
+                            <div e-column e-field="MaterialCode" e-headertext="MaterialCode" e-width="3"></div>
+                            <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="10"></div>
+                            <div e-column e-field="ArticleCode" e-headertext="ArticleCode" e-width="3"></div>
+                            <div e-column e-field="Article" e-headertext="Article" e-width="10"></div>
+                            <div e-column e-field="VendorCode" e-headertext="VendorCode" e-width="3"></div>
+                            <div e-column e-field="VendorName" e-headertext="Vendor" e-width="8"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
                         </div>
                     </div>
-                    <script type="text/template" id="ShowActionButtonsBOM">
+                    @*<script type="text/template" id="ShowActionButtonsBOM">
                         <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetDetailChild2(this);" style="margin: -6px;"></i></button>
                         <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeChild1(this);" style="margin: -6px;"></i></button>
-                    </script>
+                    </script>*@
                 </div>
             </div>
         </div>

@@ -5221,6 +5221,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 IPivotCache cache = workbook.PivotCaches.Add(sheet[startRow - 1, 1, ROW - 1, endCol]);
                 IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
 
+
                 pivotTable.Fields[colPlant - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colCustomerAccountGroup - 1].Axis = PivotAxisTypes.Row;
