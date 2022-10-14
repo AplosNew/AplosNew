@@ -572,6 +572,18 @@ PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks,
             }
         }
 
+        public IEnumerable<object> getPlant()
+        {
+            try
+            {
+                var str = @"select Id Value, StandardName Text from ORG.Plant";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<object> getMedicineReceipt()
         {
             try

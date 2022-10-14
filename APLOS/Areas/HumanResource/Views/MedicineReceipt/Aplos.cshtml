@@ -13,6 +13,19 @@
             @*COLUMN 1*@
             <div class="col-xs-12 col-sm-8 col-md-6">
                 <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ModalNew.PlantId" required name="Plant"
+                                    tabindex="2">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Invoice No.<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <input type="number" name="InvoiceNo" ng-model="ModalNew.InvoiceNumber" class="form-control" maxlength="15" required tabindex="3">
@@ -35,25 +48,37 @@
             </div>
 
             @*COLUMN 2*@
-            <div class="col-xs-12 col-sm-8 col-md-6">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="ModalNew.InvoiceDate" name="InvoiceDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label"></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="input-group">
-
-                            <span class="input-group-btn">
-                                <button name="submit" ng-click="openMedicinePopUp()" class="btn single-small-btn" tabindex="1">Add Medicine <i class="cr-icon glyphicon glyphicon-plus-sign"></i></button>
-                            </span>
-                        </div>
+        <div class="col-xs-12 col-sm-8 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Location<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.LocationId" required name="Location"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in LocationList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
                     </div>
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-model="ModalNew.InvoiceDate" name="InvoiceDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label"></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="openMedicinePopUp()" class="btn single-small-btn" tabindex="1">Add Medicine <i class="cr-icon glyphicon glyphicon-plus-sign"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
             @*<div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button class="btn" ng-click="displaychild();" tabindex="9"><i class="glyphicon glyphicon-circle-arrow-right"></i> Go</button></li>
@@ -71,9 +96,8 @@
                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                     <div e-column e-field="Medicine" e-headertext="Medicine" e-width="50"></div>
                     <div e-column e-headertext="Expiry Date" e-template="#checkbxExpDate" e-textalign="center" e-width="30"></div>
-
-                    <div e-column e-headertext="Amount" e-template="#checkboxAmount" e-textalign="center" e-width="30"></div>
                     <div e-column e-headertext="Quantity" e-template="#checkboxQty" e-textalign="center" e-width="30"></div>
+                    <div e-column e-headertext="Amount" e-template="#checkboxAmount" e-textalign="center" e-width="30"></div>
                     <div e-column e-headertext="Rate" e-template="#checkboxRate" e-textalign="center" e-width="30"></div>
 
 

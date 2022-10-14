@@ -53,6 +53,21 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
+
+        [Authorize, HttpPost]
+        public ActionResult getPlant()
+        {
+            try
+            {
+                return Json(mr.getPlant(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
         #endregion GET FUN
         #region SEARCH SAVED DATA IN GRID 
         [HttpPost, Authorize]

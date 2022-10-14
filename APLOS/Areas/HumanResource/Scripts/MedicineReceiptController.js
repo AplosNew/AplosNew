@@ -14,7 +14,23 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.partyType = 'Vendor';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
-    
+
+    // GET CURRENT DATE
+    var curDate = new Date()
+    // OBJECT LIST DECLARED 
+    $scope.ModelTemp = {
+        Id: null,
+        InvoiceDate: curDate,
+        PartyName: null,
+        PartyCode: null,
+        InvoiceNumber: null,
+        PartyId: null,
+        PlantId: null,
+        //Medicine:null,
+    };
+    $scope.ModalNew = Object.assign({}, $scope.ModelTemp);
+
+
     $scope.searchByMedicine = "UserName"; $scope.searchMedicine = "";
     $scope.MedicineSearchByList = [
         {
@@ -40,6 +56,7 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         
     ];
 
+    // #region GET FUNCTIONS
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -50,22 +67,24 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             $scope.MedicineList = response.data;           
         });
     }
+
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getPlant",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+
+        });
+    }
+    $scope.getPlant();
+    // #endregion GET FUNCTIONS
    
-    // GET CURRENT DATE
-    var curDate = new Date()
+    
 
-    // OBJECT LIST DECLARED 
-    $scope.ModelTemp = {
-        Id: null,
-        InvoiceDate: curDate,
-        PartyName: null,
-        PartyCode:null,
-        InvoiceNumber: null,
-        PartyId: null,
-        //Medicine:null,
-    };
-    $scope.ModalNew = Object.assign({}, $scope.ModelTemp);
-
+    
     $scope.MedicineList = [];
     var oblenth = Object.keys($scope.ModalNew).length;
     $scope.addMedicine = function () {
@@ -220,18 +239,14 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             }
             else {
                 $scope.ModalNew.Id = response.data.Data.Id;                
-                ShowResult(response.data.Message, 'success');                
+                ShowResult(response.data.Message, 'success');
+                $scope.getMedicineReceipt();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
     }
     // #ENDREGION SAVE
-    $scope.AllTabPrint = function (z) {
-        var x = "#" + z;
-        var gridObj = $(x).data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
-        location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
-    };
 
+   
 }
