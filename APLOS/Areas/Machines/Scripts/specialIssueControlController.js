@@ -84,7 +84,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         , Remarks: null
         , ResponsiblePersonId: null
         , ResponsiblePerson: null
-        , MonitoringPeriod:null
+        , MonitoringPeriods:null
     };
     $scope.issueNew = Object.assign({}, $scope.issue);
 
@@ -107,13 +107,13 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
     }
    
    
-    $scope.IssueControlMasterList = [];
+    $scope.MaintenanceMasterList = [];
     $scope.LoadSpecialIssueMasterList = function () {
         $http({
             method: 'Get',
             url: 'Machines/SpecialIssueControl/LoadSpecialIssueMasterList'
         }).then(function successCallback(response) {
-            $scope.IssueControlMasterList = response.data;
+            $scope.MaintenanceMasterList = response.data;
             var gridObj = $("#GridSpecialIssueControlMaster").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         });
     }
@@ -209,7 +209,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
             }
         }    
     };
-    $scope.Temp = 'SIC1';
+/*    $scope.Temp = 'SIC1';*/
     $scope.ItemSave = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.SpecialIssueItemForm.$valid) {
@@ -218,7 +218,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
                 url: $scope.saveUrlItem,
                 data: {
                     'ItemData': $scope.ItemNew,
-                    'Pid': $scope.Temp
+                    'Pid': $scope.issueNew.Id,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -255,6 +255,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         }).then(function successCallback(response) {
             $scope.issueNew = response.data.issue[0];
             $scope.LoadItemDetails($scope.IssueMasterId);
+            ItemClearFields();
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }

@@ -67,7 +67,7 @@
                 <label class="col-sm-4 control-label">Monitoring Period<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="issueNew.MonitoringPeriod" name="Category" required
+                        <select class="form-control" ng-model="issueNew.MonitoringPeriods" name="Monitoring Period" required
                                 ng-options="item.Value as item.Text for item in MonitoringPeriod">
                             <option value=""></option>
                         </select>
@@ -160,11 +160,11 @@
     </div>
 </div>
 <div class="table-responsive aplos-grid-toggle">
-        <div id="GridSpecialIssueControlMaster" ej-grid e-datasource="IssueControlMasterList" e-recorddoubleclick="GetDetails"
+        <div id="GridSpecialIssueControlMaster" ej-grid e-datasource="MaintenanceMasterList" e-recorddoubleclick="GetDetails"
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
             <div e-columns>
-                <div e-column e-type="String" e-field="Id" e-headertext="Id" e-width="3"></div>
+                <div e-column e-type="String" e-field="Id" e-headertext="Id" e-visible="false" e-width="3"></div>
                 <div e-column e-type="String" e-field="Category" e-headertext="Category" e-width="3"></div>
                 <div e-column e-type="String" e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
                 <div e-column e-type="String" e-field="SpecialIssueName" e-headertext="Special Issue Name" e-width="3"></div>
@@ -172,7 +172,7 @@
                 <div e-column e-type="String" e-field="TDate" e-headertext="Target Date" e-width="3"></div>
                 <div e-column e-type="String" e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                 <div e-column e-type="String" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="3"></div>
-                <div e-column e-type="String" e-field="MonitoringPeriod" e-headertext="Monitoring Period" e-width="3"></div>
+                <div e-column e-type="String" e-field="MonitoringPeriods" e-headertext="Monitoring Period" e-width="3"></div>
             </div>
         </div>
     </div>
