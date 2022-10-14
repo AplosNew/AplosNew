@@ -4334,6 +4334,7 @@
     <Content Include="Areas\HumanResource\Views\MedicalLog\_EmployeePopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicalLog\Report.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicalLogReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicineMaster\_UOMPopUpScreen.cshtml" />
     <Content Include="Areas\Machines\Views\SpecialIssueControl\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

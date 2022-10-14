@@ -71,9 +71,11 @@
                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                     <div e-column e-field="Medicine" e-headertext="Medicine" e-width="50"></div>
                     <div e-column e-headertext="Expiry Date" e-template="#checkbxExpDate" e-textalign="center" e-width="30"></div>
+
+                    <div e-column e-headertext="Amount" e-template="#checkboxAmount" e-textalign="center" e-width="30"></div>
                     <div e-column e-headertext="Quantity" e-template="#checkboxQty" e-textalign="center" e-width="30"></div>
                     <div e-column e-headertext="Rate" e-template="#checkboxRate" e-textalign="center" e-width="30"></div>
-                    <div e-column e-headertext="Amount" e-template="#checkboxAmount" e-textalign="center" e-width="30"></div>
+
 
                 </div>
             </div>
@@ -89,13 +91,13 @@
 
             @*Amount*@
             <script type="text/template" id="checkboxAmount">
-                <input type="number" ng-model="data.Amount" name="Amount" class="form-control" maxlength="50" tabindex="3" required>
+                <input type="number" ng-model="data.Amount" name="Amount" ng-change="$parent.calcAmount(this)" class="form-control" maxlength="50" tabindex="3" required>
 
             </script>
 
             @*Rate*@
             <script type="text/template" id="checkboxRate">
-                <input type="text" id="rateId" ng-model="data.Rate" name="Rate" ng-change="$parent.calcAmount(this)" class="form-control" maxlength="50" tabindex="3" required>
+                <input type="text" id="rateId" ng-model="data.Rate" name="Rate" class="form-control" maxlength="50" tabindex="3" required>
 
             </script>
             <div class="common-btn" style="margin-top:10px">

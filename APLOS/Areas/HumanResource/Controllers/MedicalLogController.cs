@@ -84,6 +84,14 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
+        #region SEARCH SAVED DATA IN GRID 
+        [HttpPost, Authorize]
+        public ActionResult getSearchSicknessData(string column, string value)
+        {
+            return Json(ml.getSearchSicknessData(column, value), JsonRequestBehavior.AllowGet);
+        }
+        #endregion SEARCH SAVED DATA IN GRID
+
         #region SAVE
         [HttpPost, Authorize]
         public ActionResult Save(Dictionary<string, object> data, List<Dictionary<string, object>> medicinepurposelist, List<Dictionary<string, object>> medicinelist, string empSystemId)

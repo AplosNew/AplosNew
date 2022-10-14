@@ -25,6 +25,61 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
    $scope.GetSequence();
    // ================================================SEQUENCE CLOSE====================================================
 
+    // ================================================GET FUN==========================================================
+    $scope.UOMList = [];
+    $scope.getUOM = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getUOM",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.UOMList = response.data;
+        })
+    }
+    $scope.getUOM();
+
+    $scope.doubleClkUOM = function (e) {
+        $scope.ModelNew.UOMName = e.data.StandardName;
+        $scope.ModelNew.UOMId = e.data.Id;
+        $scope.closeUOMPopUp();
+    }
+
+    $scope.openUOMPopUp = function () {
+        angular.element(document.querySelector('#UOMPopUpId')).modal('show');
+    }
+
+    $scope.closeUOMPopUp = function () {
+        angular.element(document.querySelector('#UOMPopUpId')).modal('hide');
+    }
+
+    $scope.searchByUOM = "UserName";
+    $scope.searchUM = "";
+
+    $scope.UOMSearchByList = [      
+        {
+            'name': 'User Name',
+            'value': 'UserName'
+        },
+        {
+            'name': 'Standard Name',
+            'value': 'StandardName'
+        }        
+    ];
+
+    
+    $scope.searchUOM = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'searchUOM',
+            data: { column: $scope.searchByUOM, value: $scope.searchUM },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.UOMList = response.data;
+        });
+    }
+   // ================================================GET FUN CLOSE====================================================
+
+    
     // ================================================GET MAIN GRID DATA====================================================
 
     $scope.getData = function () {
@@ -67,7 +122,10 @@ function MedicineMasterController(cboService, commonMessage, $scope, $rootScope,
         Rate: null,
         MedicinePurposeId:null,
         Remarks: null,
-        IsActive: true
+        IsActive: true,
+        UOMName:null,
+        UOMId: null,
+        MinStockQty:null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 

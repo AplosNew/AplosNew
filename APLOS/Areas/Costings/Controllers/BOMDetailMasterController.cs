@@ -419,14 +419,14 @@ Where BOMDetailMasterId='" + masterid + "'";
         [HttpGet, Authorize]
         public ActionResult GetChild2Data(string masterid)
         {
-            string sql = @"Select B.*,CI.UserName CostingItem,C1.UserName SKU1,C2.UserName SKU2,MM.UserName MaterialMaster,MM.Code MaterialCode,MMA.StandardName Article,P.UserName Vendor from dbo.BOMDetailChild2 B
+            string sql = @"Select B.*,CI.UserName CostingItem,C1.UserName SKU1,C2.UserName SKU2,MM.UserName MaterialMaster,MM.Code MaterialCode,MMA.Code ArticleCode,MMA.StandardName Article,P.UserName VendorName,P.Code VendorCode from dbo.BOMDetailChild2 B
 LEFT JOIN HKP.CostingItem CI ON CI.Id=B.CostingItemId
 LEFT JOIN HKP.CharacteristicsValue C1 ON C1.Id=B.FirstCharacteristicsValueId
 LEFT JOIN HKP.CharacteristicsValue C2 ON C2.Id=B.SecondCharacteristicsValueId
 LEFT JOIN MST.MaterialMaster MM ON MM.Id=B.MaterialMasterId
 LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=B.ArticleId
 LEFT JOIN HKP.Party P ON P.Id=B.VendorId
-Where B.BOMDetailMasterId='"+ masterid + "'";
+Where B.BOMDetailMasterId='" + masterid + "'";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
