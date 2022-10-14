@@ -15,7 +15,8 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     $scope.partyType = 'Vendor';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
 
-
+    // GET CURRENT DATE
+    var curDate = new Date()
     // OBJECT LIST DECLARED 
     $scope.ModelTemp = {
         Id: null,
@@ -71,17 +72,17 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     $scope.getPlant = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "getPlant",           
+            url: $scope.path + "getPlant",
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PlantList = response.data;
-            
+
+        });
     }
     $scope.getPlant();
     // #endregion GET FUNCTIONS
    
-    // GET CURRENT DATE
-    var curDate = new Date()
+    
 
     
     $scope.MedicineList = [];
@@ -238,7 +239,8 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             }
             else {
                 $scope.ModalNew.Id = response.data.Data.Id;                
-                ShowResult(response.data.Message, 'success');                
+                ShowResult(response.data.Message, 'success');
+                $scope.getMedicineReceipt();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
