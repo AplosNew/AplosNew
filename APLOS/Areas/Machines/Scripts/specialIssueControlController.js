@@ -99,21 +99,14 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         , SpecialIssueControlId:null
     };
     $scope.ItemNew = Object.assign({}, $scope.Item);
-
-    $scope.Remove = function (index) {
-        var removed = $scope.DataList.splice(index, 1);
-        $scope.Detail = removed;
-        //$scope.Detail.pop();
-    }
-   
-   
-    $scope.MaintenanceMasterList = [];
+    
+    $scope.IssueControlMasterList = [];
     $scope.LoadSpecialIssueMasterList = function () {
         $http({
             method: 'Get',
             url: 'Machines/SpecialIssueControl/LoadSpecialIssueMasterList'
         }).then(function successCallback(response) {
-            $scope.MaintenanceMasterList = response.data;
+            $scope.IssueControlMasterList = response.data;
             var gridObj = $("#GridSpecialIssueControlMaster").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         });
     }
@@ -209,7 +202,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
             }
         }    
     };
-/*    $scope.Temp = 'SIC1';*/
+
     $scope.ItemSave = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.SpecialIssueItemForm.$valid) {
@@ -290,6 +283,16 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
 
     function ItemClearFields() {
         $scope.Action = "Save";
+        $scope.Item = {
+            Id: null
+            , SpecialIssueItem: null
+            , Actiontaken: null
+            , ActiontakenById: null
+            , ActiontakenBy: null
+            , SampleSize: null
+            , Remarks: null
+            , SpecialIssueControlId: null
+        };
         $scope.ItemNew = Object.assign({}, $scope.item);  
     }
 
