@@ -69,6 +69,39 @@ namespace Library.HumanResource.Employee
                 throw ex;
             }
         }
+
+        public IEnumerable<object> getUOM()
+        {
+            try
+            {
+                var sql = @"select Id, StandardName, UserName, IsComercialUnit, Description, Remarks from scs.UnitOfMeasurement";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> searchUOM(string column, string value)
+        {
+            try
+            {
+                string TableName = "HKP.MedicineMaster";
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string sql = @"select Id, StandardName, UserName, IsComercialUnit, Description, Remarks from scs.UnitOfMeasurement 
+                               where " + strkey + "";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion GET
 
         #region GET SEQUENCE
@@ -94,7 +127,9 @@ namespace Library.HumanResource.Employee
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"Select Sequence, Code, ShortName, StandardName, Id, UserName, Category, SubCategory, Rate, IsActive Remarks, 
+                string sql = @"Select PM.Sequence, PM.Code, PM.ShortName, PM.StandardName, PM.Id, PM.UserName, PM.Category, PM.SubCategory, PM.Rate, 
+PM.IsActive,
+PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks, 
                             STUFF((
                             SELECT ',' + p.UserName
 
@@ -107,6 +142,7 @@ namespace Library.HumanResource.Employee
 
 
                             from HKP.MedicineMaster PM
+							left join SCS.UnitOfMeasurement U on U.Id = PM.UOMId
                                 where " + strkey + "order by Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -536,6 +572,18 @@ namespace Library.HumanResource.Employee
             }
         }
 
+        public IEnumerable<object> getPlant()
+        {
+            try
+            {
+                var str = @"select Id Value, StandardName Text from ORG.Plant";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<object> getMedicineReceipt()
         {
             try
@@ -907,6 +955,29 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
             }
         }
 
+        #region SEARCH SAVED DATA IN GRID 
+        public IEnumerable<object> getSearchSicknessData(string column, string value)
+        {
+            try
+            {
+                string TableName = "HKP.MedicinePurpose";
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string sql = @"select UserName Purpose, Category Sickness from HKP.MedicinePurpose 
+                               where " + strkey + "";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SEARCH SAVED DATA IN GRID
+
         #region Grid View Query
         public IEnumerable<object> medicallogGridView()
         {
@@ -1186,6 +1257,8 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.SystemId = '" + 
             }
         }
         #endregion Excel View Query
+
+       
     }
     #endregion Medical Log Report
 }

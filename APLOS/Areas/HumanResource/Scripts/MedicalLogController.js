@@ -246,4 +246,66 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         })
     }
     $scope.medicallogGridView();
+
+
+    //--------------------------------------------------------LISTS FOR SEARCH-------------------------------------------------------------------
+    $scope.searchByMedicine = "UserName"; $scope.searchMedicine = "";
+    $scope.MedicineSearchByList = [
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'User Name',
+            'value': 'UserName'
+        },
+        {
+            'name': 'Standard Name',
+            'value': 'StandardName'
+        },
+        {
+            'name': 'Short Name',
+            'value': 'ShortName'
+        },
+        {
+            'name': 'Category',
+            'value': 'Category'
+        },
+
+    ];
+
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: 'HumanResource/MedicineReceipt/GetList',
+            data: { column: $scope.searchByMedicine, value: $scope.searchMedicine },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.MedicineList = response.data;
+        });
+    }
+
+    $scope.searchBySickness = "UserName"; $scope.searchSickness = "";
+    $scope.SicknessSearchByList = [
+        {
+            'name': 'UserName',
+            'value': 'UserName'
+        },
+        {
+            'name': 'Category',
+            'value': 'Category'
+        },
+    ];
+
+   // $scope.MedicinePurposeList = []
+    $scope.getSearchSicknessData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getSearchSicknessData',
+            data: { column: $scope.searchBySickness, value: $scope.searchSickness},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.MedicinePurposeList = response.data;
+        });
+    }
 }

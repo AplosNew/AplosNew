@@ -744,6 +744,7 @@
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
+    <Compile Include="Areas\Machines\Controllers\SpecialIssueControlController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceStatusDetailsController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSchedulingController.cs" />
     <Compile Include="Areas\Machines\Controllers\PendingMaintenanceScheduleController.cs" />
@@ -2169,6 +2170,7 @@
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
+    <Content Include="Areas\Machines\Scripts\specialIssueControlController.js" />
     <Content Include="Areas\Machines\Scripts\pendingMaintenanceScheduleController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceStatusDetailsController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
@@ -4332,6 +4334,9 @@
     <Content Include="Areas\HumanResource\Views\MedicalLog\_EmployeePopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicalLog\Report.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicalLogReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicineMaster\_UOMPopUpScreen.cshtml" />
+    <Content Include="Areas\Machines\Views\SpecialIssueControl\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLog\_MedicinePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

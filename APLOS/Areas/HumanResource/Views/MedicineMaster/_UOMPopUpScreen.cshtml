@@ -1,0 +1,52 @@
+﻿<div class="modal fade site-modal in" id="UOMPopUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> UOM List <button type="button" class="close" ng-click="closeUOMPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByUOM">
+                                            <option ng-repeat="option in UOMSearchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchUM" ng-enter="searchUOM()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="searchUOM()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="content-container-fluid">
+                            @*style="color:black;overflow:scroll"*@
+                            <div style="color:black;" id="UOMPopUp" ej-grid e-datasource="UOMList" e-recorddoubleclick="doubleClkUOM"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                                <div e-columns>
+
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                    <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="50"></div>
+                                    <div e-column e-field="UserName" e-headertext="User Name" e-width="50"></div>
+                                    <div e-column e-field="Description" e-headertext="Description" e-width="50"></div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
