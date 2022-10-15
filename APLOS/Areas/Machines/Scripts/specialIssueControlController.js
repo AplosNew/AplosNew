@@ -204,6 +204,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
     };
 
     $scope.ItemSave = function () {
+        angular.copy($scope.ItemNew, $scope.Item);
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.SpecialIssueItemForm.$valid) {
             $http({
@@ -248,7 +249,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         }).then(function successCallback(response) {
             $scope.issueNew = response.data.issue[0];
             $scope.LoadItemDetails($scope.IssueMasterId);
-            ItemClearFields();
+           // ItemClearFields();
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
