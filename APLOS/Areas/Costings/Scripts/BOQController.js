@@ -14,7 +14,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-  
+
 
     $scope.EditList = [];
     $scope.SelectedEdit = {};
@@ -332,6 +332,75 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
             ShowResult(response.data.Message, 'failure');
         };
     }
+
+    $scope.BOMDetailDataList = [];
+    $scope.getBOMDetailData = function () {
+        $http({
+            method: 'POST',
+            url: "Costings/BOMDetailMaster/GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.BOMDetailDataList = response.data;
+        });
+        angular.element(document.querySelector('#BOMDetailPopUp')).modal('show');
+    }
+
+    $scope.BOMDetailMasterId = null;
+    $scope.BOMDetailMasterName = null;
+    $scope.SelectBoMDetail = function (obj) {
+        $scope.BOMDetailMasterId = obj.data.Id;
+        $scope.BOMDetailMasterName = obj.data.UserName;
+        $scope.GetChild1Data();
+        
+    }
+
+    $scope.Child1DataList = [];
+    $scope.GetChild1Data = function () {
+        $http.get('Costings/BOMDetailMaster/GetChild1Data?masterId=' + $scope.BOMDetailMasterId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.Child1DataList = response.data;
+                }
+                $scope.GetSOData();
+            });
+
+    }
+
+    $scope.GetSOData = function () {
+        try {
+            $http.get('Costings/BOMDetailMaster/GetSODataList?masterid=' + $scope.BOMDetailMasterId)
+                .then(function (response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.GetChild2Data();
+                    }
+                    else {
+                        ShowResult("Select SO for this BoM Detail " + $scope.BOMDetailMasterName + "", 'failure');
+                        return false;
+                    }
+                });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    }
+
+
+    $scope.Child2DataList = [];
+    $scope.GetChild2Data = function () {
+        $http.get('Costings/BOMDetailMaster/GetChild2Data?masterId=' + $scope.BOMDetailMasterId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.Child2DataList = response.data;
+                }
+            });
+
+    }
+
+    $scope.closeBOMDetailPopUp = function () {
+        angular.element(document.querySelector('#BOMDetailPopUp')).modal('show');
+    }
+
 
 
     //$scope.SelectedItemData = {};

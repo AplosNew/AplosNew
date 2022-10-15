@@ -49,7 +49,7 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" ng-model="ModalNew.Date" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                    <input type="text" ng-model="ModalNew.Date" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" readonly required>
                 </div>
             </div>
 
@@ -203,6 +203,6 @@
     </div>
 
     @Html.Partial("~/Areas/HumanResource/Views/MedicalLog/_EmployeePopUp.cshtml")
-    @Html.Partial("~/Areas/HumanResource/Views/MedicineReceipt/_MedicinePopUp.cshtml")
+    @Html.Partial("~/Areas/HumanResource/Views/MedicalLog/_MedicinePopUp.cshtml")
     @Html.Partial("~/Areas/HumanResource/Views/MedicalLog/_SicknessPopUp.cshtml")
 

@@ -1089,8 +1089,9 @@ upanelApp.controller("MedicineReceiptController", MedicineReceiptController)
 upanelApp.controller("MedicalLogController", MedicalLogController)
 upanelApp.controller("MedicalLogReportController", MedicalLogReportController)
 upanelApp.controller("BOMDetailMasterController", BOMDetailMasterController)
-
 upanelApp.controller("pendingMaintenanceScheduleController", pendingMaintenanceScheduleController)
+upanelApp.controller("specialIssueControlController", specialIssueControlController)
+upanelApp.controller("specialIssueControlUpdateController", specialIssueControlUpdateController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

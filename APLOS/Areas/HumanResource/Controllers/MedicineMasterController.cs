@@ -65,6 +65,35 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
+        [Authorize, HttpPost]
+        public ActionResult getUOM()
+        {
+            try
+            {
+                return Json(mms.getUOM(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+        [Authorize, HttpPost]
+        public ActionResult searchUOM(string column, string value)
+        {
+            try
+            {
+                return Json(mms.searchUOM(column, value), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         #endregion GET
 
         #region GET SEQUENCE
