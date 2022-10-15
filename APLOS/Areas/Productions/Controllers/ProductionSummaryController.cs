@@ -1287,13 +1287,13 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         [HttpPost, Authorize]
         //public ActionResult GetOrderReport(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType)
-        public ActionResult GetOrderReport(string fromDate, string toDate, string PlantId, string EntityId)
+        public ActionResult GetOrderReport(string fromDate, string toDate, string PlantId, string EntityId, string ProcessId)
         {
             try
             {
                 string fileName = "";
                 // fileName = OrderReport(parameters, fromDate, toDate, dateType, "OrderReport");
-                fileName = OrderReport(fromDate, toDate, "OrderReport", PlantId, EntityId);
+                fileName = OrderReport(fromDate, toDate, "OrderReport", PlantId, EntityId, ProcessId);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -1303,7 +1303,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         }
 
-        public string OrderReport(string fromDate, string toDate, string SheetName, string PlantId, string EntityId)
+        public string OrderReport(string fromDate, string toDate, string SheetName, string PlantId, string EntityId, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -1326,7 +1326,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 workbook.Worksheets[1].Name = "Data";
                 sheet = workbook.Worksheets[1];
                 DataTable dtOrder;
-                OrderReportSQL(fromDate, toDate, Plant, Entity, out dtOrder);
+                OrderReportSQL(fromDate, toDate, Plant, Entity, ProcessId, out dtOrder);
 
                 int ROW = 6; int COL = 1;
 
@@ -1669,16 +1669,17 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
                 IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
 
-                pivotTable.Fields[colId - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
-                pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Data;
+                pivotTable.Fields[colActualDate - 1].Axis = PivotAxisTypes.Column;
+                //pivotTable.Fields[colId - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
 
 
 
-                IPivotField field = pivotTable.Fields[colParameterValue - 1];
+                IPivotField field = pivotTable.Fields[colActualQty - 1];
                 field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                pivotTable.DataFields.Add(field, "ParameterValue", PivotSubtotalTypes.Sum);
+                pivotTable.DataFields.Add(field, "ActualQty", PivotSubtotalTypes.Sum);
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
@@ -1718,7 +1719,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 throw ex;
             }
         }
-        private void OrderReportSQL(string fromDate, string toDate, string PlantId, string EntityId, out DataTable dtOrder)
+        private void OrderReportSQL(string fromDate, string toDate, string PlantId, string EntityId, string ProcessId, out DataTable dtOrder)
         {
             try
             {
@@ -1792,7 +1793,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                                     FROM trn.ProductionSummary AS ps 
                                   left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
                                   LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
-      		                            WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")
+      		                            WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")  and ps.ProcessId='"+ ProcessId +@"'
                                           --AND ps.ProcessId=(select XX.ProcessId from trn.ProductionOrderProcessSet AS XX where XX.IsBaseProcess=1 and XX.ProductionOrderID=ps.ProductionOrderId)
                                   GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId
                             ) AS pp
@@ -1833,8 +1834,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                                                         left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
                                                         group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
                                               ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
-WHERE trkp.Id IN (" + PlantId + @")
-                        ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID,p.Sequence";
+                                            WHERE trkp.Id IN (" + PlantId + @") 
+                                            ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID,p.Sequence";
                 dtOrder = _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)

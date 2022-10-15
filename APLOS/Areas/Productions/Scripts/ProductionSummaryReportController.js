@@ -52,11 +52,14 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
                     selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
                     , width: 250
                 });
+            $scope.loadProcessList($scope.EntityId);
         });
     }
     $scope.getAllEntities();
 
-
+    $scope.PlantId = null;
+    $scope.EntityId = null;
+    $scope.ProcessId = null;
     $scope.Report = function () {
         try {
             if (angular.isUndefinedOrNull($scope.fromDate)) {
@@ -71,18 +74,18 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
                 throw "From date can not be greater than To date.";
             }
 
-            var DropDownListObj = $("#PlantList").data("ejDropDownList");
-            var PlantId = DropDownListObj.getSelectedValue();
+            //var DropDownListObj = $("#PlantList").data("ejDropDownList");
+            //var PlantId = DropDownListObj.getSelectedValue();
 
-            var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
-            var EntityId = DropDownEntityListObj.getSelectedValue();
+            //var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+            //var EntityId = DropDownEntityListObj.getSelectedValue();
 
             $scope.fileName = "ProductionOrderReport.xlsx";
             $http({
                 method: 'POST',
                 url: $scope.path + "GetOrderReport",
                 //data: { 'parameters': $scope.parameters, 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'dateType': $rootScope.dateCgroup },
-                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'PlantId': PlantId, 'EntityId': EntityId},
+                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'PlantId': $scope.PlantId, 'EntityId': $scope.EntityId, 'ProcessId': $scope.ProcessId},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
