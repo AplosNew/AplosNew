@@ -433,149 +433,18 @@ Where B.BOMDetailMasterId='" + masterid + "'";
             return json;
         }
 
-
-
-
-
-
-
-
-
-
-
-        [HttpPost, Authorize]
-        public ActionResult DeletePlant(string id)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from dbo.BOMDetailMasterPlant where id='" + id + "'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
-            }
-
-
-        }
-
-        [HttpPost]
-        public JsonResult CreateCustomer(Dictionary<string, object> data)
-        {
-            try
-            {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from BOMDetailMasterCustomer where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-
-                string _Id = "";
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("BOMDetailMasterCustomer", out _Id);
-
-                    data["Id"] = _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-
         [HttpGet, Authorize]
-        public ActionResult GetSavedCustomerData(string masterid)
-        {
-            JsonResult json = Json(GetBOMDetailMasterCustomerData(masterid), JsonRequestBehavior.AllowGet);
-            json.MaxJsonLength = int.MaxValue;
-            return json;
-        }
-
-        public IEnumerable<object> GetBOMDetailMasterCustomerData(string masterid)
+        public ActionResult GetSODataList(string masterid)
         {
             try
             {
-                string CmdText = @"SELECT SC.[Id]
-      ,SC.[BOMDetailMasterMasterId]
-      ,SC.[CustomerId]
-      ,SC.[AccountInchargeId]
-      ,SC.[Remark]
-      ,SC.[AddedBy]
-      ,SC.[AddedDate]
-      ,SC.[AddedFromIP]
-      ,SC.[UpdatedBy]
-      ,SC.[UpdatedDate]
-      ,SC.[UpdatedFromIP]
-	  ,E.EmployeeName AccountInchargeName
-	  ,P.UserName PartyName ,P.Code PartyCode
-  FROM [dbo].[BOMDetailMasterCustomer] SC
-  LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=SC.AccountInchargeId  
-  LEFT JOIN HKP.Party P ON P.Id=SC.CustomerId
-Where SC.BOMDetailMasterMasterId='" + masterid + @"'";
-                return _sqlRepository.GetDataCollection(CmdText);
+                string sql = @"Select * from [dbo].[BOMSODetail] Where BOMDetailChild1Id IN(Select ID from BOMDetailChild1 Where BOMDetailMasterId='"+ masterid + "')";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-        }
-
-        [HttpPost, Authorize]
-        public JsonResult CreateCheckBy(List<Dictionary<string, object>> data)
-        {
-            clsSales.SaveCheckByData(data);
-            return Json(new { Message = AplosMessage.Insert });
-        }
-
-        [HttpPost, Authorize]
-        public JsonResult CreateApproveBy(List<Dictionary<string, object>> data)
-        {
-            clsSales.SaveApproveByData(data);
-            return Json(new { Message = AplosMessage.Insert });
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetCheckByData(string masterId)
-        {
-            JsonResult json = Json(clsSales.GetCheckByData(masterId), JsonRequestBehavior.AllowGet);
-            json.MaxJsonLength = int.MaxValue;
-            return json;
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetApproveByData(string masterId)
-        {
-            JsonResult json = Json(clsSales.GetApproveByData(masterId), JsonRequestBehavior.AllowGet);
-            json.MaxJsonLength = int.MaxValue;
-            return json;
         }
 
     }
