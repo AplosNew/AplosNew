@@ -351,21 +351,21 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     $scope.SelectBoMDetail = function (obj) {
         $scope.BOMDetailMasterId = obj.data.Id;
         $scope.BOMDetailMasterName = obj.data.UserName;
-        $scope.GetChild1Data();
-        
-    }
-
-    $scope.Child1DataList = [];
-    $scope.GetChild1Data = function () {
-        $http.get('Costings/BOMDetailMaster/GetChild1Data?masterId=' + $scope.BOMDetailMasterId)
-            .then(function (response) {
-                if (baseService.arrayLength(response.data) > 0) {
-                    $scope.Child1DataList = response.data;
-                }
-                $scope.GetSOData();
-            });
+        $scope.GetSOData();
 
     }
+
+    //$scope.Child1DataList = [];
+    //$scope.GetChild1Data = function () {
+    //    $http.get('Costings/BOMDetailMaster/GetChild1Data?masterId=' + $scope.BOMDetailMasterId)
+    //        .then(function (response) {
+    //            if (baseService.arrayLength(response.data) > 0) {
+    //                $scope.Child1DataList = response.data;
+    //            }
+    //            $scope.GetSOData();
+    //        });
+
+    //}
 
     $scope.GetSOData = function () {
         try {
@@ -386,65 +386,84 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     }
 
 
-    $scope.Child2DataList = [];
+    $scope.ChildDataList = [];
     $scope.GetChild2Data = function () {
-        $http.get('Costings/BOMDetailMaster/GetChild2Data?masterId=' + $scope.BOMDetailMasterId)
+        $http.get('Costings/BOMDetailMaster/GetBOMDetailData?masterid=' + $scope.BOMDetailMasterId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
-                    $scope.Child2DataList = response.data;
+                    $scope.ChildDataList = response.data;
                 }
-            });
 
+                for (var i = 0; i < $scope.MaterialAttachmentList.length; i++) {
+                    for (var j = 0; j < $scope.ChildDataList.length; j++) {
+                        if ($scope.MaterialAttachmentList[i].CostingItemId === $scope.ChildDataList[j].CostingItemId) {
+                            if (baseService.isUndefinedOrNull($scope.MaterialAttachmentList[i].MaterialMasterId)) {
+                                $scope.MaterialAttachmentList[i].MaterialCode = $scope.ChildDataList[j].MaterialCode;
+                                $scope.MaterialAttachmentList[i].Material = $scope.ChildDataList[j].MaterialMaster;
+                                $scope.MaterialAttachmentList[i].MaterialMasterId = $scope.ChildDataList[j].MaterialMasterId;
+                            }
+
+                            if (baseService.isUndefinedOrNull($scope.MaterialAttachmentList[i].ArticleId)) {
+                                $scope.MaterialAttachmentList[i].ArticleCode = $scope.ChildDataList[j].ArticleCode;
+                                $scope.MaterialAttachmentList[i].Article = $scope.ChildDataList[j].Article;
+                                $scope.MaterialAttachmentList[i].ArticleId = $scope.ChildDataList[j].ArticleId;
+                            }
+
+                            if (baseService.isUndefinedOrNull($scope.MaterialAttachmentList[i].VendorId)) {
+                                $scope.MaterialAttachmentList[i].Vendor = $scope.ChildDataList[j].VendorName;
+                                $scope.MaterialAttachmentList[i].VendorId = $scope.ChildDataList[j].VendorId;
+                            }
+
+
+                        }
+                    }
+                }
+                for (var k = 0; k < $scope.MaterialQtyEditList.length; k++) {
+                    for (var m = 0; m < $scope.ChildDataList.length; m++) {
+                        if ($scope.MaterialQtyEditList[k].CostingItemId === $scope.ChildDataList[m].CostingItemId && $scope.MaterialQtyEditList[k].BOQCriteria === 'SKU1'
+                            && baseService.isUndefinedOrNull($scope.ChildDataList[m].SecondCharacteristicsValueId) && !baseService.isUndefinedOrNull($scope.ChildDataList[m].FirstCharacteristicsValueId)
+                            && $scope.MaterialQtyEditList[k].FGFirstCharacteristicsValueId === $scope.ChildDataList[m].FirstCharacteristicsValueId) {
+
+                            $scope.MaterialQtyEditList[k].RMDescription = $scope.ChildDataList[m].BOMMaterialDetail;
+                            $scope.MaterialQtyEditList[k].RMVendorSpec = $scope.ChildDataList[m].VendorRefNo;
+                            $scope.MaterialQtyEditList[k].RMCustomerSpec = $scope.ChildDataList[m].CustomerRefNo;
+                            $scope.MaterialQtyEditList[k].OwnReferenceNo = $scope.ChildDataList[m].OwnRefNo;
+                        }
+                        if ($scope.MaterialQtyEditList[k].CostingItemId === $scope.ChildDataList[m].CostingItemId && $scope.MaterialQtyEditList[k].BOQCriteria === 'SKU2'
+                            && !baseService.isUndefinedOrNull($scope.ChildDataList[m].SecondCharacteristicsValueId) && baseService.isUndefinedOrNull($scope.ChildDataList[m].FirstCharacteristicsValueId)
+                            && $scope.MaterialQtyEditList[k].FGSecondCharacteristicsValueId === $scope.ChildDataList[m].SecondCharacteristicsValueId) {
+                            $scope.MaterialQtyEditList[k].RMDescription = $scope.ChildDataList[m].BOMMaterialDetail;
+                            $scope.MaterialQtyEditList[k].RMVendorSpec = $scope.ChildDataList[m].VendorRefNo;
+                            $scope.MaterialQtyEditList[k].RMCustomerSpec = $scope.ChildDataList[m].CustomerRefNo;
+                            $scope.MaterialQtyEditList[k].OwnReferenceNo = $scope.ChildDataList[m].OwnRefNo;
+                        }
+                        if ($scope.MaterialQtyEditList[k].CostingItemId === $scope.ChildDataList[m].CostingItemId && $scope.MaterialQtyEditList[k].BOQCriteria === 'SKU1SKU2'
+                            && !baseService.isUndefinedOrNull($scope.ChildDataList[m].SecondCharacteristicsValueId) && !baseService.isUndefinedOrNull($scope.ChildDataList[m].FirstCharacteristicsValueId)
+                            && $scope.MaterialQtyEditList[k].FGFirstCharacteristicsValueId === $scope.ChildDataList[m].FirstCharacteristicsValueId
+                            && $scope.MaterialQtyEditList[k].FGSecondCharacteristicsValueId === $scope.ChildDataList[m].SecondCharacteristicsValueId) {
+                            $scope.MaterialQtyEditList[k].RMDescription = $scope.ChildDataList[m].BOMMaterialDetail;
+                            $scope.MaterialQtyEditList[k].RMVendorSpec = $scope.ChildDataList[m].VendorRefNo;
+                            $scope.MaterialQtyEditList[k].RMCustomerSpec = $scope.ChildDataList[m].CustomerRefNo;
+                            $scope.MaterialQtyEditList[k].OwnReferenceNo = $scope.ChildDataList[m].OwnRefNo;
+                        }
+                    }
+                }
+
+            });
+        var gridObj = $("#GridMaterialQuantity").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
+
+        var gridObjs = $("#GridMaterialAttachment").data("ejGrid");
+        gridObjs.refreshContent();
+        gridObjs.refreshTemplate();
+
+        angular.element(document.querySelector('#BOMDetailPopUp')).modal('hide');
     }
 
     $scope.closeBOMDetailPopUp = function () {
         angular.element(document.querySelector('#BOMDetailPopUp')).modal('show');
     }
-
-
-
-    //$scope.SelectedItemData = {};
-    //$scope.UploadTableName = '';
-    //$scope.uploadUrl = $scope.path + "UploadAttachment/";
-    //$scope.ShowUploadBox = function (data/*, costingStage, DBTableName*/) {
-    //    $scope.SelectedItemData = data;
-
-
-    //    var _title = "Pre Costing";
-
-    //    //$("#UploadBox").ejDialog("setTitle", "Upload File (" + _title + ")");
-    //    var eDialog = $("#UploadBox").data("ejDialog");
-    //    eDialog.open();
-    //}
-
-
-    //$scope.uploadPBUrl ="Costings/BOQ/UploadAttachment";
-
-    //$scope.onBeginPBUpload = function (args) {
-    //    try {
-    //        if (angular.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
-    //            throw 'Please select/save the production order first'
-
-    //        args.data = $scope.bulletinTemplateNew.Id;
-    //    } catch (e) {
-
-    //        args.cancel = true;
-    //        ShowResult(e, 'Error');
-    //    }
-
-    //}
-    //$scope.errorPBPicUpload = function (e) {
-    //    if (angular.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
-    //        ShowResult('Please select/save the production order first', 'Error');
-    //    else
-    //        ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
-    //}
-
-
-    //#region Production Bulletin Picture upload
-
-
-
 
 
     $scope.onBeginPBUpload = function (args) {
