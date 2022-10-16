@@ -518,21 +518,21 @@ function BOMDetailMasterController(cboService, commonMessage, $scope, $rootScope
             if (baseService.isUndefinedOrNull($scope.Child2New.CostingItemId)) {
                 throw "Select CostingItem.";
             }
-            if (baseService.isUndefinedOrNull($scope.Child2New.FirstCharacteristicsValueId)) {
-                throw "Select SKU1";
-            }
-            if (baseService.isUndefinedOrNull($scope.Child2New.SecondCharacteristicsValueId)) {
-                throw "Select SKU2";
-            }
-            if (baseService.isUndefinedOrNull($scope.Child2New.MaterialMasterId)) {
-                throw "Select Material";
-            }
-            if (baseService.isUndefinedOrNull($scope.Child2New.ArticleId)) {
-                throw "Select Article";
-            }
-            if (baseService.isUndefinedOrNull($scope.Child2New.VendorId)) {
-                throw "Select Vendor";
-            }
+            //if (baseService.isUndefinedOrNull($scope.Child2New.FirstCharacteristicsValueId)) {
+            //    throw "Select SKU1";
+            //}
+            //if (baseService.isUndefinedOrNull($scope.Child2New.SecondCharacteristicsValueId)) {
+            //    throw "Select SKU2";
+            //}
+            //if (baseService.isUndefinedOrNull($scope.Child2New.MaterialMasterId)) {
+            //    throw "Select Material";
+            //}
+            //if (baseService.isUndefinedOrNull($scope.Child2New.ArticleId)) {
+            //    throw "Select Article";
+            //}
+            //if (baseService.isUndefinedOrNull($scope.Child2New.VendorId)) {
+            //    throw "Select Vendor";
+            //}
 
             $http({
                 method: 'POST',
@@ -546,7 +546,7 @@ function BOMDetailMasterController(cboService, commonMessage, $scope, $rootScope
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.ClearChild2();
-                    //$scope.GetChild2Data();
+                    $scope.GetChild2Data();
 
                 }
             }), function errorCallBack(response) {

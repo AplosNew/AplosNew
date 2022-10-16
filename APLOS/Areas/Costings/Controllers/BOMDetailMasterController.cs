@@ -438,7 +438,7 @@ Where B.BOMDetailMasterId='" + masterid + "'";
         {
             try
             {
-                string sql = @"Select * from [dbo].[BOMSODetail] Where BOMDetailChild1Id IN(Select ID from BOMDetailChild1 Where BOMDetailMasterId='"+ masterid + "')";
+                string sql = @"Select * from [dbo].[BOMSODetail] Where BOMDetailChild1Id IN(Select ID from BOMDetailChild1 Where BOMDetailMasterId='" + masterid + "')";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -447,5 +447,37 @@ Where B.BOMDetailMasterId='" + masterid + "'";
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetBOMDetailData(string masterid)
+        {
+            try
+            {
+                string sql = @"SELECT C.CostingItemId,C.FirstCharacteristicsValueId,C.SecondCharacteristicsValueId,C.BOMMaterialDetail
+,C.MaterialMasterId,C.ArticleId,C.VendorId,B.CustomerRefNo,B.VendorRefNo,B.OwnRefNo
+,PB.Code PartyCode,PB.UserName PartyName, PL.Code,PL.UserName ProductCode
+,CI.UserName CostingItem,C1.UserName SKU1,C2.UserName SKU2,MM.UserName MaterialMaster
+,MM.Code MaterialCode,MMA.Code ArticleCode,MMA.StandardName Article,P.UserName VendorName,P.Code VendorCode
+FROM [dbo].[BOMDetailMaster] A
+LEFT JOIN [dbo].BOMDetailChild1 B ON B.BOMDetailMasterId=A.Id
+LEFT JOIN [dbo].BOMDetailChild2 C ON C.BOMDetailMasterId=A.Id
+LEFT JOIN HKP.CostingItem CI ON CI.Id=C.CostingItemId
+LEFT JOIN HKP.CharacteristicsValue C1 ON C1.Id=C.FirstCharacteristicsValueId
+LEFT JOIN HKP.CharacteristicsValue C2 ON C2.Id=C.SecondCharacteristicsValueId
+LEFT JOIN MST.MaterialMaster MM ON MM.Id=C.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=C.ArticleId
+LEFT JOIN HKP.Party P ON P.Id=C.VendorId
+LEFT JOIN HKP.Party PB ON PB.id=B.CustomerId
+LEFT JOIN dbo.ProductLibrary PL ON PL.id=B.ProductCodeId
+WHERE A.Id='" + masterid + "'";
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
     }
 }
