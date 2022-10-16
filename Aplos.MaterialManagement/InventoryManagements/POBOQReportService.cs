@@ -2203,9 +2203,10 @@ WHERE po.Id='" + POID+@"'";
                             			BOQ boq
                             			INNER JOin trn.POBOQMAP xboqMap on boq.Id=xboqMap.BOQDetailId
 										INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
-										LEFT OUTER JOIN [TRN].[SalesOrder] AS so ON so.MasterOrderItemId=boq.MasterOrderItemId
-										LEFT OUTER JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-                            			WHERE xpod.Id=pod.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										--LEFT JOIN CostingBOQItems xboqI on xboqI.CostingItemId=boq.CostingItemId
+										LEFT JOIN [TRN].[SalesOrder] AS so ON so.CostingBOQMasterId=boq.CostingBOQMasterId
+										LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                            			WHERE xpod.InventoryReceiveId='222227' and boq.[Status]='Approved' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                     ,CheckStatus= CASE when PO.CheckedByStatus='pending' Then 'To be checked'
                     when PO.CheckedByStatus='Hold' Then 'Hold'
                     when PO.CheckedByStatus='Reject' Then 'Reject'
