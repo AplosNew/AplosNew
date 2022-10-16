@@ -36,7 +36,6 @@ namespace Aplos.Areas.Costings.Controllers
         #endregion Constructor
 
 
-        [Authorize]
         public ActionResult Aplos()
         {
             return View();
@@ -265,7 +264,7 @@ Where BOMDetailMasterId='" + masterid + "'";
             return json;
         }
 
-
+        [HttpGet, Authorize]
         public ActionResult GetSOData()
         {
             try
@@ -330,7 +329,7 @@ Where BOMDetailMasterId='" + masterid + "'";
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
-
+        [HttpGet, Authorize]
         public ActionResult GetCostingItemData()
         {
             try
@@ -345,7 +344,7 @@ Where BOMDetailMasterId='" + masterid + "'";
                 throw ex;
             }
         }
-
+        [HttpGet, Authorize]
         public ActionResult GetFirstSKUCbo()
         {
             try
@@ -360,7 +359,7 @@ Where BOMDetailMasterId='" + masterid + "'";
                 throw ex;
             }
         }
-
+        [HttpGet, Authorize]
         public ActionResult GetSecondSKUCbo()
         {
             try
