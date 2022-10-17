@@ -35,7 +35,6 @@ namespace Aplos.Areas.Costings.Controllers
 
         #endregion Constructor
 
-
         public ActionResult Aplos()
         {
             return View();
