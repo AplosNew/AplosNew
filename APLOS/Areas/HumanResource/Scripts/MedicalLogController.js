@@ -128,6 +128,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
                     
                     $scope.UserSicknessList.push(ob);
                     ob = {};
+                    a.chk = false;
                 }
 
             });
@@ -142,7 +143,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.getMedicineData = function () {
         $http({
             method: 'POST',
-            url: $scope.MedicineMasterUrl,
+            url: $scope.path + 'getMedicineList',
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.MedicineList = response.data;
@@ -307,5 +308,69 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         }).then(function successCallback(response) {
             $scope.MedicinePurposeList = response.data;
         });
+    }
+
+    // Get medicines pop up screen by medicine receipt 
+    $scope.MedicineMasterId = null;
+    $scope.MedicineByPurposeList = [];
+
+    $scope.openMedicineReceiptPopUp = function (e) {
+        $scope.MedicineMasterId = e.data.Id;
+        angular.element(document.querySelector('#medicineExpDateWisePopUp')).modal('show');
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getMedicineByReceipt',
+            data: { 'medicinemasterId': e.data.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.MedicineByPurposeList = response.data;
+
+            for (var i = 0; i < $scope.UserSicknessList.length; i++) {
+                for (var j = 0; j < $scope.MedicineByPurposeList.length; j++) {
+                    if ($scope.UserSicknessList[i].Id === $scope.MedicineByPurposeList[j].Id) {
+                        $scope.MedicineByPurposeList[j].chk = true;
+                    }
+                }
+            }
+
+        
+        });
+    }
+
+    $scope.SendMedicine = function () {
+        if (baseService.arrayLength($scope.MedicineByPurposeList) > 0) {
+            angular.forEach($scope.MedicineByPurposeList, function (a) {
+
+                if (a.chk) {
+                    var ob = {};
+                    ob.Id = a.Id;                  
+                    ob.Medicine = a.Medicine;
+                    ob.Category = a.Category;
+                    ob.SubCategory = a.SubCategory;
+                    ob.Quantity = a.Quantity;
+                    ob.NoOfDays = a.NoOfDays;
+                    ob.Remarks = a.Remarks;
+                    $scope.userMedicineList.push(ob);
+                    ob = {};
+                    a.chk = false;
+                }
+
+            });
+        }
+
+    };
+
+    $scope.closeMedicineReceiptPopUp = function () {
+        angular.element(document.querySelector('#medicineExpDateWisePopUp')).modal('hide');
+    }
+
+
+    $scope.ob2 = {};
+    $scope.subtractStock = function (d) {
+        $scope.ob2 = d.data;
+        $scope.ob2.Stock = $scope.ob2.Quantity - $scope.ob2.Stock;
+        var gridObj = $("#GridEdit").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
     }
 }

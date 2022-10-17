@@ -38,6 +38,20 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
+        [Authorize, HttpPost]
+        public ActionResult getMedicineByReceipt(string medicinemasterId)
+        {
+            try
+            {
+                return Json(ml.getMedicineByReceipt(medicinemasterId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
 
         [Authorize, HttpPost]
         public ActionResult medicallogGridView()
