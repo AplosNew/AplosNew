@@ -4658,7 +4658,8 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                             SELECT SMB.SystemID,SMB.EmpInfoSystemID,SMB.EffectiveDate,SDB.EntryAmount,SDB.SalaryHeadID FROM SalaryInfoBackMaster SMB
                             LEFT JOIN SalaryInfoBack SDB ON SDB.SalaryID=SMB.SystemID
                             WHERE SMB.EmpInfoSystemID='" + empId + @"'
-                            ) salaryInfo on IH.EmpSystemID=salaryInfo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfo.EffectiveDate and IH.ToSalaryId=salaryInfo.SystemID
+                            ) salaryInfo on IH.EmpSystemID=salaryInfo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfo.EffectiveDate 
+                            --and IH.ToSalaryId=salaryInfo.SystemID
 
 
                             LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=salaryInfo.SalaryHeadID

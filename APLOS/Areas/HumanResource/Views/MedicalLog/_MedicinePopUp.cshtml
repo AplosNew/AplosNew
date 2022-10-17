@@ -31,20 +31,26 @@
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>
-                                <div e-column e-headertext="Apply" e-headertemplateid="" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
+                               @* <div e-column e-headertext="Apply" e-headertemplateid="" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>*@
                                 <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                                 <div e-column e-field="Medicine" e-headertext="Medicine" e-width="50"></div>
                                 <div e-column e-field="SubCategory" e-headertext="SubCategory" e-width="50"></div>
                                 <div e-column e-field="Category" e-headertext="Category" e-width="50"></div>
+                                <div e-column e-field="stock" e-template="#StockId" e-headertext="Stock" e-width="50"></div>
 
                                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="50"></div>
                             </div>
                         </div>
-                        <script type="text/x-jsrender" id="headerTemplate">
+                        @*<script type="text/x-jsrender" id="headerTemplate">
                             <input type="checkbox" id="headchk" />
                         </script>
                         <script type="text/template" id="checkboxTemplate">
                             <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
+                        </script>*@
+                        <script type="text/template" id="StockId">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.openMedicineReceiptPopUp(this);">{{data.stock}}</a>
+                            
+
                         </script>
                     </div>
                 </div>
@@ -52,7 +58,7 @@
                     <li><button ng-click="SendMedicine();" class="btn"> Add</button></li>
                     <li><button ng-click="closeMedicinePopUp();" class="btn"> Close</button></li>
                 </ul>
-                
+
             </div>
         </div>
     </div>
