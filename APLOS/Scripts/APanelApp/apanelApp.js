@@ -20,6 +20,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("countryTaxYearPeriodController", CountryTaxYearPeriodController)
     .controller("fiscalYearController", FiscalYearController)
     .controller("fiscalYearCloseController", FiscalYearCloseController)
+    .controller("IncentiveController", IncentiveController)
     .controller("paymentTermController", PaymentTermController)
     .controller("taxCodeController", TaxCodeController)
     .controller("taxCodeYearController", TaxCodeYearController)

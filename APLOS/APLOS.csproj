@@ -356,6 +356,7 @@
     <Compile Include="Areas\Accounts\Controllers\PostInvoiceController.cs" />
     <Compile Include="Areas\Accounts\Controllers\GroupBalanceReportController.cs" />
     <Compile Include="Areas\Accounts\Controllers\VoucherGlUpdateController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\IncentiveController.cs" />
     <Compile Include="Areas\Accounts\Controllers\VoucherParkController.cs" />
     <Compile Include="Areas\Accounts\Controllers\GeneralAccountDeterminateController.cs" />
     <Compile Include="Areas\Accounts\Controllers\InvoicePostController.cs" />
@@ -586,6 +587,7 @@
     <Compile Include="Areas\HumanResource\Controllers\FurnitureMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\IncidentCategoryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicalLogReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineReceiptController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicinePurposeController.cs" />
@@ -1712,6 +1714,7 @@
     <Content Include="Areas\Accounts\Scripts\generalLedgerGSTReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GroupBalanceReportController.js" />
     <Content Include="Areas\Accounts\Scripts\inventorySalesReturnPost.js" />
+    <Content Include="Areas\Accounts\Scripts\IncentiveController.js" />
     <Content Include="Areas\Accounts\Scripts\PostInvoiceController.js" />
     <Content Include="Areas\Accounts\Scripts\CustomerConfirmationController.js" />
     <Content Include="Areas\Accounts\Scripts\vendorPaymentApprovalController.js" />
@@ -4340,6 +4343,9 @@
     <Content Include="Areas\Machines\Views\SpecialIssueControl\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicalLog\_MedicinePopUp.cshtml" />
     <Content Include="Areas\Machines\Views\SpecialIssueControlUpdate\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLog\_MedicineExpDateWisePopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\IncidentCategory\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\Incentive\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
