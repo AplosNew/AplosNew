@@ -196,7 +196,7 @@ from
         public string GetExistingSalesOrderList(string BOMMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Selected
+            return @"SELECT ROW_NUMBER() OVER (ORDER BY SO.MasterOrderItemId) AS RN,0 AS Selected
 	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,so.OrderCostingMasterTemplateId
 	                            , SO.Id AS SalesOrderId, P.UserName AS Customer
 	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
@@ -214,9 +214,10 @@ from
 													JOIN hkp.CostingItem AS cix ON cix.Id=cbx.CostingItemId
                                     where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								,BOMList=STUFF((SELECT distinct ','+cbx.CostingBOQMasterId FROM [TRN].[SalesOrder] AS cbx
-                                    where cbx.Id=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                    where cbx.Id=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),OCMT.CostingStage
                        FROM [TRN].[SalesOrder] AS SO 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       LEFT JOIN dbo.OrderCostingMasterTemplate OCMT ON OCMT.Id=MOI.OrderCostingMasterTemplateId
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
                        LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
                        LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id

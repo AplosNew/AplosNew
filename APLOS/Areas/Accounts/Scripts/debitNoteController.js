@@ -601,7 +601,8 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.invoiceSalesAvailableList,
-                        "invoiceTaxVMList": $scope.invoiceTaxDetailList
+                        "invoiceTaxVMList": $scope.invoiceTaxDetailList,
+                         "tdsTaxList": $scope.TDSList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -738,6 +739,7 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.NoteType = "CustomerDebitNote";
         $scope.voucher.SettlementType = "Others";
+        $scope.TDSList = [];
         $scope.invoiceSalesAvailableList = [];
         $scope.voucherDetail.InvoiceTaxViewModel = [];
         $scope.invoiceTaxDetailList = [];
@@ -1049,5 +1051,71 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
         angular.element(document.querySelector("#confirmTaxCodeDelPopUp")).modal("show");
     };
 
-    //-------------------#endregion debit note-----------------------
+    $scope.TDSCboList = [];
+    $scope.TDSlistMessage = "";
+    $scope.getTDS = function (date) {
+        $http({
+            method: "get",
+            url: "accounts/TaxCode/GetTDSCbo?postingDate=" + $filter("dateFiltering")(date)
+        }).then(
+            function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.TDSlistMessage = response.data.Message;
+                }
+                else {
+                    $scope.TDSCboList = response.data;;
+                }
+            },
+            function errorCallback(response) {
+            });
+    };
+
+    $scope.getTDS($filter("dateFiltering")(Date.now()));
+
+    $scope.TDS = {
+        TaxCodeId: null,
+        Text: null,
+        TaxAmount: null,
+        ValueOfFixed: null,
+        CompanyCurrencyAmount: null,
+        Type: null
+    };
+    $scope.selectTDS = function () {
+        $scope.TDS.ValueOfFixed = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].ValueOfFixed;
+        $scope.TDS.Type = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].Type;
+        $scope.TDS.TaxCategoryId = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].TaxCategoryId;
+        if ($scope.TDS.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.TDS.ValueOfFixed)) {
+            $scope.TDS.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryReceivedList), "TaxableAmount") * $scope.TDS.ValueOfFixed / 100).toFixed(4);
+        }
+    }
+    $scope.TDSList = [];
+    $scope.addTDS = function () {
+        if (manualValidation("td_TDS_TaxCode", baseService.isUndefinedOrNull($scope.TDS.TaxCodeId), "Tax Code is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TDS_TaxCodeAmount", baseService.isUndefinedOrNull($scope.TDS.TaxAmount), "Amount is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TDS_TaxCodeCompanyCurrencyAmount", baseService.isUndefinedOrNull($scope.TDS.CompanyCurrencyAmount), $scope.companyCurrencyCode + " is required.")) {
+            $scope.invalidRow = true;
+        }
+        else {
+            $scope.TDS.TaxName = $.grep($scope.TDSCboList, function (item) {
+                return item.Id === $scope.TDS.TaxCodeId;
+            })[0].UserName;
+
+            $scope.TDSList.push($scope.TDS);
+            $scope.TDS = {};
+        }
+        $scope.calBaseAmount();
+    };
+    $scope.removeTDSRow = function (index) {
+        $scope.TDSList.splice(index, 1);
+    };
 }

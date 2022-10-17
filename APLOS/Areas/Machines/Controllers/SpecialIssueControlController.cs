@@ -104,7 +104,7 @@ namespace Aplos.Areas.Machines.Controllers
         public ActionResult LoadSpecialIssueMasterList()
          {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" SELECT *,format(SIC.TargetDate,'dd-MMM-yyyy') as TDate,
+            string sql = @" SELECT *,format(SIC.TargetDate,'dd-MMM-yyyy') as TDate,MonitoringPeriod as MonitoringPeriods,
 (select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=SIC.ResponsiblePersonId) as ResponsiblePerson
  FROM TRN.SpecialIssueControl SIC";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -260,9 +260,9 @@ FROM [TRN].[SpecialIssueItem] where SpecialIssueControlId ='" + IssueId + "'";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"SELECT *,format(SIC.TargetDate,'dd-MMM-yyyy') as TDate,
+            string sql = @" SELECT *,format(SIC.TargetDate,'dd-MMM-yyyy') as TDate,MonitoringPeriod as MonitoringPeriods,
 (select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=SIC.ResponsiblePersonId) as ResponsiblePerson
- FROM [TRN].[SpecialIssueControl] SIC where SIC.Id=='" + IssueID + @"'";
+ FROM [TRN].[SpecialIssueControl] SIC where SIC.Id='" + IssueID + @"'";
             return Json(new { issue = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
         

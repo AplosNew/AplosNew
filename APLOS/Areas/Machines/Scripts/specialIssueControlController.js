@@ -84,7 +84,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         , Remarks: null
         , ResponsiblePersonId: null
         , ResponsiblePerson: null
-        , MonitoringPeriod:null
+        , MonitoringPeriods:null
     };
     $scope.issueNew = Object.assign({}, $scope.issue);
 
@@ -99,14 +99,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         , SpecialIssueControlId:null
     };
     $scope.ItemNew = Object.assign({}, $scope.Item);
-
-    $scope.Remove = function (index) {
-        var removed = $scope.DataList.splice(index, 1);
-        $scope.Detail = removed;
-        //$scope.Detail.pop();
-    }
-   
-   
+    
     $scope.IssueControlMasterList = [];
     $scope.LoadSpecialIssueMasterList = function () {
         $http({
@@ -209,8 +202,9 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
             }
         }    
     };
-    $scope.Temp = 'SIC1';
+
     $scope.ItemSave = function () {
+        angular.copy($scope.ItemNew, $scope.Item);
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.SpecialIssueItemForm.$valid) {
             $http({
@@ -218,7 +212,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
                 url: $scope.saveUrlItem,
                 data: {
                     'ItemData': $scope.ItemNew,
-                    'Pid': $scope.Temp
+                    'Pid': $scope.issueNew.Id,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -255,6 +249,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         }).then(function successCallback(response) {
             $scope.issueNew = response.data.issue[0];
             $scope.LoadItemDetails($scope.IssueMasterId);
+           // ItemClearFields();
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -289,6 +284,16 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
 
     function ItemClearFields() {
         $scope.Action = "Save";
+        $scope.Item = {
+            Id: null
+            , SpecialIssueItem: null
+            , Actiontaken: null
+            , ActiontakenById: null
+            , ActiontakenBy: null
+            , SampleSize: null
+            , Remarks: null
+            , SpecialIssueControlId: null
+        };
         $scope.ItemNew = Object.assign({}, $scope.item);  
     }
 
