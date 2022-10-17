@@ -511,6 +511,13 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(_accountsGLService.GetAssetCOAWise(parameters, coaId), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public JsonResult GetAssetCOAWiseIncentive(GridParameter parameters, string coaId)
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+
+            return Json(_accountsGLService.GetAssetCOAWiseIncentive(parameters, coaId), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetAssetBudgetActivityCOAWise(GridParameter parameters, string coaId)

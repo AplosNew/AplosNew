@@ -132,6 +132,28 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public GridModel GetAssetCOAWiseIncentive(GridParameter parameters, string coaId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT DISTINCT C.Id AS COAId, AG.UserName AS AccountGroupName, C.UserName AS COAName
+		                            , GLGI.UserName AS GLGeneralInfoName, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.Id AS GLGeneralInfoId
+		                            FROM HKP.GLGeneralInfo AS GLGI
+									JOIN HKP.COA AS C ON C.Id=GLGI.COAId
+		                            LEFT JOIN HKP.GLAccountType AS GLAT ON GLAT.GLGeneralInfoId = GLGI.Id
+		                            LEFT JOIN HKP.AccountGroup AS AG ON AG.Id = GLGI.AccountGroupId
+									LEFT JOIN HKP.AccountType AS ACT ON ACT.Id =AG.AccountTypeId
+                                    WHERE GLGI.COAId='" + coaId + @"' AND ACT.Id='" + AccountTypeEnum.Asset + @"' 
+                                    AND GLGI.Id NOT  IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'' AND GLAT.AccountType='Asset')";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public GridModel GetExpenseGLList(GridParameter parameters, string coaId)
         {
             try
