@@ -6207,6 +6207,7 @@ namespace Library.Service.Advances
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
+                var rdBuilder = new System.Text.StringBuilder();
                 var voucher = _voucherRepository.Find(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
@@ -6228,6 +6229,19 @@ namespace Library.Service.Advances
                     //var gltransactionDetail = _gLTransactionDetailRepository.Find(item.Id);
                     //if (gltransactionDetail != null)
                     //    _gLTransactionDetailRepository.Delete(gltransactionDetail.Id);
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT * from trn.GLTransactionDetail where Id = '" + item.Id + "'";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        var voucherSql = @"Delete [TRN].GLTransactionDetail  WHERE Id='" + item.Id + "'";
+                        rdBuilder.Append(voucherSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+
                     _voucherDetailRepository.Delete(item.Id);
                 }
 
@@ -6272,6 +6286,7 @@ namespace Library.Service.Advances
                 }
 
                 _voucherRepository.Delete(voucher.Id);
+                
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
