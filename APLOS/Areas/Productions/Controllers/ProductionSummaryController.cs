@@ -1955,6 +1955,30 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet[ROW, COL].ColumnWidth = 30;
                 int colArticle = COL;
                 COL++;
+                sheet[ROW, COL].Text = "Product Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductCode = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Entry Id";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colEntryId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Entry By";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colEntryBy = COL;
+                COL++;
+                sheet[ROW, COL].Text = "UOM";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colUOM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Production Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductionQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colRemarks = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Product";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colProduct = COL;
@@ -1986,6 +2010,21 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colProductionShift = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Shift Working Min";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colShiftWorkingMin = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Detention In Min";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colDetentionInMin = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Utilization";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colUtilization = COL;
                 COL++;
                 sheet[ROW, COL].Text = "SalesOrderIdBooking";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -2048,10 +2087,14 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 int colMasterOrderNo = COL;
                 COL++;
 
-
-                sheet[ROW, COL].Text = "BuyerOrderNo";
+                sheet[ROW, COL].Text = "Buyer Order No";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colBuyerOrderNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO Ref No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPORefNo = COL;
                 COL++;
                 sheet[ROW, COL].Text = "OwnOrderNo";
                 sheet[ROW, COL].ColumnWidth = 12;
@@ -2137,13 +2180,23 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     sheet[ROW, colToWorkCenter].Text = dtOrder.Rows[i]["ToWorkCenter"].ToString();
                     sheet[ROW, colMaterial].Text = dtOrder.Rows[i]["Material"].ToString();
                     sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
+                    sheet[ROW, colProductCode].Text = dtOrder.Rows[i]["ProductCode"].ToString();
                     sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
+                    sheet[ROW, colEntryId].Text = dtOrder.Rows[i]["EntryId"].ToString();
+                    sheet[ROW, colEntryBy].Text = dtOrder.Rows[i]["EntryBy"].ToString();
+                    sheet[ROW, colUOM].Text = dtOrder.Rows[i]["UOM"].ToString();
+                    sheet[ROW, colProductionQty].Text = dtOrder.Rows[i]["ProductionQty"].ToString();
+                    sheet[ROW, colRemarks].Text = dtOrder.Rows[i]["Remarks"].ToString();
+                    sheet[ROW, colProductCode].Text = dtOrder.Rows[i]["ProductCode"].ToString();
                     sheet[ROW, colProductCategory].Text = dtOrder.Rows[i]["ProductCategory"].ToString();
                     sheet[ROW, colSnapshotDate].Text = dtOrder.Rows[i]["SnapshotDate"].ToString();
                     sheet[ROW, colPlanQty].Text = dtOrder.Rows[i]["PlanQty"].ToString();
                     sheet[ROW, colPlanCM].Text = dtOrder.Rows[i]["PlanCM"].ToString();
                     sheet[ROW, colCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["CM"].ToString());
                     sheet[ROW, colProductionShift].Text = dtOrder.Rows[i]["ProductionShift"].ToString();
+                    sheet[ROW, colShiftWorkingMin].Text = dtOrder.Rows[i]["ShiftWorkingMin"].ToString();
+                    sheet[ROW, colDetentionInMin].Text = dtOrder.Rows[i]["DetentionInMin"].ToString();
+                    sheet[ROW, colUtilization].Text = dtOrder.Rows[i]["Utilization"].ToString();
                     sheet[ROW, colSalesOrderIdBooking].Text = dtOrder.Rows[i]["SalesOrderIdBooking"].ToString();
                     sheet[ROW, colSalesOrderDescBooking].Text = dtOrder.Rows[i]["SalesOrderDescBooking"].ToString();
                     sheet[ROW, colStandardWorkingHours].Text = dtOrder.Rows[i]["StandardWorkingHours"].ToString();
@@ -2160,6 +2213,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     sheet[ROW, colSalesOrderDesc].Text = dtOrder.Rows[i]["SalesOrderDesc"].ToString();
                     sheet[ROW, colMasterOrderNo].Text = dtOrder.Rows[i]["MasterOrderNo"].ToString();
                     sheet[ROW, colBuyerOrderNo].Text = dtOrder.Rows[i]["BuyerOrderNo"].ToString();
+                    sheet[ROW, colPORefNo].Text = dtOrder.Rows[i]["PORefNo"].ToString();
                     sheet[ROW, colOwnOrderNo].Text = dtOrder.Rows[i]["OwnOrderNo"].ToString();
                     sheet[ROW, colStyleNo].Text = dtOrder.Rows[i]["StyleNo"].ToString();
                     sheet[ROW, colOwnStyleNo].Text = dtOrder.Rows[i]["OwnStyleNo"].ToString();
@@ -2217,6 +2271,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
 
                 #region Pivot
+                
                 string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
 
                 workbook.SaveAs(fPath);
@@ -2229,10 +2284,25 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
                 IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
 
-                pivotTable.Fields[colId - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
+                pivotTable.Fields[colActualDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Data;
+                pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colWorkCenter - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductionShift - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colDetentionInMin - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colUtilization - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colbuyer - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colBuyerOrderNo - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPORefNo - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductCode - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colMaterial - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colArticle - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colEntryId - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colEntryBy - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colUOM - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductionQty - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colRemarks - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
 
 
 
@@ -2284,12 +2354,10 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             {
                 string sql = @"SELECT  PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
                             pt1.SPT AS SAM,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,ISNULL(pp.UserName,ord.Material) Material,ISNULL(pp.StandardName,ord.Article ) Article              
-                            ,ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
-                            sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
- ,CPL.UserName AS ProductionShift,so.Id AS SalesOrderIdBooking,so.[Description] AS SalesOrderDescBooking,
- wcm.StandardTimePerDay AS StandardWorkingHours,  wcm.NoOfWorkStation AS StandardWorkStations,wcm.DailyFixedCost,wcm.VariableCost AS VariableCostPerHour,
- PP.ProductionHours AS WorkingHours,SN.isBuildUp,
- pt1.TargetPerDay AS LineTargetPerDay,PT1.TargetPerHour AS PlanTargetPerHour,PT1.PlanWorkingHoursPerDay,
+                            ,ORD.ProductCode,ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
+							 ,CPL.UserName AS ProductionShift,CPL.ShiftDuration ShiftWorkingMin,so.Id AS SalesOrderIdBooking,so.[Description] AS SalesOrderDescBooking,
+							 wcm.StandardTimePerDay AS StandardWorkingHours,  wcm.NoOfWorkStation AS StandardWorkStations,wcm.DailyFixedCost,wcm.VariableCost AS VariableCostPerHour,
+							 PP.ProductionHours AS WorkingHours,SN.isBuildUp,pt1.TargetPerDay AS LineTargetPerDay,PT1.TargetPerHour AS PlanTargetPerHour,PT1.PlanWorkingHoursPerDay,
                             --additional info
 			                     buyer=STUFF((select distinct ','+XB.UserName from 
 			                            trn.SalesOrder XSO 
@@ -2348,6 +2416,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0) AS ActualMinutes,
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*pp.ProductionHours*60) AS ActualEfficiency
 							,PSV.UserName Parameter,psv.[Value] ParameterValue
+							,0 DetentionInMin,0 Utilization,0 PORefNo,0 EntryId,0 EntryBy,0 UOM,0 ProductionQty,0 Remarks
                             FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
                                     FROM trn.ProductionSummary AS ps 
                                   left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
@@ -2373,8 +2442,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 							LEFT OUTER JOIN hkp.Process AS Tp ON Tp.Id=pp.ToProcessId
                             LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
                             LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
-                             left outer join (
-                                                        select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory,
+                             left outer join (select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.Id ProductCode,PM.UserName AS Product,PC.UserName AS ProductCategory,
                                                           SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
                                                           SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
                                                         from trn.ProductionOrderDetail POD 
@@ -2383,17 +2451,17 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                                                         left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
                                                         left join MasterOrderExchangeRates RT ON RT.TransactionId=MO.Id
                                                         left JOIN org.Company AS com ON com.Id=mo.CompanyId
-                                                        LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
-                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
+                                                        LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN ('118'))
+                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN ('118'))
                                                         LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
                                                         left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
                                                         LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
                                                         left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
                                                         left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                                         left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-                                                        group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
+                                                        group by mm.UserName,MA.StandardName,PM.Id,PM.UserName,PC.UserName,POD.ProductionOrderId
                                               ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
-WHERE trkp.Id IN (" + PlantId + @")
+						WHERE trkp.Id IN (" + PlantId + @")
                         ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID,p.Sequence";
                 dtOrder = _sqlRepository.GetDataTable(sql);
             }
