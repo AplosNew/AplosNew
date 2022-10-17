@@ -191,9 +191,9 @@ function BOMDetailMasterController(cboService, commonMessage, $scope, $rootScope
             if (baseService.isUndefinedOrNull($scope.ModelC.CustomerId)) {
                 throw "Select Customer";
             }
-            if (baseService.isUndefinedOrNull($scope.ModelC.ProductCodeId)) {
-                throw "Select Product Code";
-            }
+            //if (baseService.isUndefinedOrNull($scope.ModelC.ProductCodeId)) {
+            //    throw "Select Product Code";
+            //}
 
             $http({
                 method: 'POST',
