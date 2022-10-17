@@ -903,10 +903,42 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
         {
             try
             {
-                var sql = @"select Id, UserName Medicine, Category, SubCategory, Rate from HKP.MedicineMaster";
+                #region commnet
+                var sql = @"select distinct MM.UserName Medicine, MM.Id, MM.Category, MM.SubCategory, 
+stuff((select ',' +  CONVERT(VARCHAR(20), SUM(x.Quantity)) 
+from TRN.MedicineReceiptChild x
+where x.MedicineMasterId = MM.Id
+FOR XML PATH('')),1,1,'') stock
+from TRN.MedicineReceipt MR
+left join TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+where MRC.Quantity is not null";
+                #endregion commnet
+                //var sql = @"select (SUM(MRC.Quantity)-SUM(ESM.Quantity)) Stock,MM.UserName, MM.Id, MM.Category, MM.SubCategory from TRN.EmployeeSicknessMedicines ESM
+                //            LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.Id=ESM.MedicineReceiptChildId
+                //            LEFT JOIN HKP.MedicineMaster MM ON MM.Id=MRC.MedicineMasterId
+                //            GROUP BY MM.UserName, MM.Id, MM.Category, MM.SubCategory";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getMedicineByReceipt(string medicinemasterId)
+        {
+            try
+            {
+                var sql = @"select MRC.Id, MM.UserName Medicine, MM.Category, MM.SubCategory, MRC.Quantity Stock, FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate
+                        from TRN.MedicineReceipt MR
+                        left join TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+                        left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+                        where MRC.Quantity is not null and MM.Id = '" + medicinemasterId + "'order by MRC.ExpiryDate";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -978,12 +1010,13 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
         }
         #endregion SEARCH SAVED DATA IN GRID
 
-        #region Grid View Query
+       
         public IEnumerable<object> medicallogGridView()
         {
             try
             {
-                var SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks,
+                var SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], 
+EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks,
 STUFF((select ', ' + MP.Category
 from TRN.EmployeeSickness ES
 LEFT join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
@@ -991,9 +1024,17 @@ where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Sickness,
 STUFF((Select ', ' + MM.UserName
 from TRN.EmployeeSicknessMedicines ESM
-LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Medicines
+FOR XML PATH('')),1,1,'') Medicines,
+
+STUFF((Select ', ' +  CONVERT(VARCHAR(20),ESM.Quantity)
+from TRN.EmployeeSicknessMedicines ESM
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+where ESM.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Quantity
 from TRN.MedicalLog ML
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
@@ -1007,7 +1048,7 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 throw ex;
             }
         }
-        #endregion Grid View Query
+        
         #endregion GET OP
 
         #region SAVE
@@ -1085,7 +1126,7 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 {
                     DataRow dr = dsMedicineChild.Tables[0].NewRow();
                     dr["Id"] = data["Id"].ToString() + i.ToString();
-                    dr["MedicineMasterId"] = medicinelist[i]["Id"].ToString();
+                    dr["MedicineReceiptChildId"] = medicinelist[i]["Id"].ToString();
                     dr["MedicalLogId"] = data["Id"].ToString();
                     dr["Quantity"] = medicinelist[i]["Quantity"];
                     dr["NoOfDays"] = medicinelist[i]["NoOfDays"];
@@ -1180,9 +1221,19 @@ where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Sickness,
 STUFF((Select ', ' + MM.UserName
 from TRN.EmployeeSicknessMedicines ESM
-LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
+LEFT JOIN TRN.MedicineReceipt MR on MR.Id = ESM.MedicineReceiptId
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Medicines
+
+FOR XML PATH('')),1,1,'') Medicines,
+STUFF((Select ', ' +  CONVERT(VARCHAR(20),ESM.Quantity)
+from TRN.EmployeeSicknessMedicines ESM
+LEFT JOIN TRN.MedicineReceipt MR on MR.Id = ESM.MedicineReceiptId
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+where ESM.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Quantity
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
@@ -1228,9 +1279,19 @@ where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Sickness,
 STUFF((Select ', ' + MM.UserName
 from TRN.EmployeeSicknessMedicines ESM
-LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
+LEFT JOIN TRN.MedicineReceipt MR on MR.Id = ESM.MedicineReceiptId
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Medicines
+
+FOR XML PATH('')),1,1,'') Medicines,
+STUFF((Select ', ' +  CONVERT(VARCHAR(20),ESM.Quantity)
+from TRN.EmployeeSicknessMedicines ESM
+LEFT JOIN TRN.MedicineReceipt MR on MR.Id = ESM.MedicineReceiptId
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+where ESM.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Quantity
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId

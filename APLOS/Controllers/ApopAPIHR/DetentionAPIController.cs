@@ -16,7 +16,10 @@ using System.Web.Script.Serialization;
 using System.Web.Security;
 using HRService;
 using System.Web.Http;
+using System.Net;
+using System.Net.Http;
 using Library.MaterialManagement.Material;
+using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
 
 namespace Aplos.Controllers.ApopAPIHR
 {
@@ -73,13 +76,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return machinemstrlst;
         }
 
-        
-        public string Create([FromBody] IEnumerable<CreateDetentionList> DataToSave)
+        [HttpPost]
+        public string Create([FromBody] IEnumerable<CreateDetentionList> DataToSave, string By, string Ip, string updatedBy, string updatedFrom)
         {
             try
             {
                 clsDataContext clsData = new clsDataContext();
-                string Id = clsData.CreateDetentionLog(DataToSave);
+                string Id = clsData.CreateDetentionLog(DataToSave, By, Ip, updatedBy, updatedFrom);
                 return Id;
             }
             catch (Exception ex)

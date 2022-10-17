@@ -395,6 +395,7 @@ namespace HRService
                         DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
                         isClose = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["DetentionTypeId"]),
                         MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
+
                         //MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
                     });
                 }
@@ -449,7 +450,7 @@ namespace HRService
 
 
         #region CREATE
-        public string CreateDetentionLog(IEnumerable<CreateDetentionList> DataToSave)
+        public string CreateDetentionLog(IEnumerable<CreateDetentionList> DataToSave, string By, string Ip, string updatedBy, string updatedFrom)
         {
 
             try
@@ -462,6 +463,7 @@ namespace HRService
                     return "";
 
                 int i = 0;
+
                 foreach (CreateDetentionList item in DataToSave)
                 {
                     con.OpenDataSetThroughAdapter("select * from TRN.DetentionLog where Id='" + item.Id + "'", out dsMaster, false, "1");
@@ -478,9 +480,12 @@ namespace HRService
                         dr["DetentionTypeId"] = item.DetentionTypeId;
                         dr["MachineMasterId"] = item.MachineMasterId;
                         dr["IssueByNo"] = item.IssueByNo;
-                        dr["AddedBy"] = item.AddedBy;
+                        dr["Remarks"] = item.Remarks;
+                        dr["AddedBy"] = By;
+                        dr["isClose"] = false;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedFromIP"] = Ip;
+                        
 
                         dsMaster.Tables[0].Rows.Add(dr);
 
@@ -497,9 +502,10 @@ namespace HRService
                         dr["DetentionTypeId"] = item.DetentionTypeId;
                         dr["MachineMasterId"] = item.MachineMasterId;
                         dr["IssueByNo"] = item.IssueByNo;
-                        //dr["UpdatedBy"] = item.Name;
+                        dr["Remarks"] = item.Remarks;
+                        dr["UpdatedBy"] = updatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                       // dr["UpdatedFromIP"] = identity.IPAddress;
+                       dr["UpdatedFromIP"] = updatedFrom;
                         dr.EndEdit();
                         clsStaticInfo _info = new clsStaticInfo();
                         _info.SaveDataSets(dsMaster);
@@ -1165,6 +1171,9 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Remarks { get; set; }
         public string AddedBy { get; set; }
         public string AddedFromIP { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
     }
     #endregion Written by Nitesh
 
