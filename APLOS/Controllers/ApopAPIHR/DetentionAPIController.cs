@@ -74,12 +74,12 @@ namespace Aplos.Controllers.ApopAPIHR
         }
 
         
-        public string Create([FromBody] IEnumerable<CreateDetentionList> DataToSave)
+        public string Create([FromBody] IEnumerable<CreateDetentionList> DataToSave, string By, string Ip, string updatedBy, string updatedFrom)
         {
             try
             {
                 clsDataContext clsData = new clsDataContext();
-                string Id = clsData.CreateDetentionLog(DataToSave);
+                string Id = clsData.CreateDetentionLog(DataToSave, By, Ip, updatedBy, updatedFrom);
                 return Id;
             }
             catch (Exception ex)
