@@ -2051,11 +2051,11 @@ WHERE BM.Id='"+ BankMasterID + "'";
                                        AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) 
 UNION ALL
 								SELECT  '' VoucherDetailId,'' VoucherNo,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  VoucherDate ,'' DocRefNo, '' PartyType, '' Narration
-								, DrAmount AS Amount ,BRUD.Id BankReconciliationUploadedDataId, BankRefNo
+								, CrAmount AS Amount ,BRUD.Id BankReconciliationUploadedDataId, BankRefNo
                                 FROM TRN.BankReconciliationUploadedData  BRUD
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                                 WHERE BRUD.CompanyGroupId='" + identity.CompanyGroupId + "' AND BRUD.CompanyId='" + identity.CompanyId + "' AND BRUD.PlantId='" + identity.PlantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
-                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND DrAmount>0 
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND CrAmount>0 
                                 AND BRUD.Id NOT IN(select BankReconciliationUploadedDataId from TRN.BankReconciliationMap)";
         }
         private string BankReconcilePendingCRSql(string bankMasterId, string fromDate, string toDate)
@@ -2601,12 +2601,12 @@ UNION ALL
                 int colAmount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "BankMissing";
+                sheet[ROW, COL].Text = "MissingInGL";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colBankMissing = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "GLMissing";
+                sheet[ROW, COL].Text = "MissingInBank";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colGLMissing = COL;
 
