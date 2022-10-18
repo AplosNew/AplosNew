@@ -47,7 +47,7 @@ namespace Aplos.Areas.Costings.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";
