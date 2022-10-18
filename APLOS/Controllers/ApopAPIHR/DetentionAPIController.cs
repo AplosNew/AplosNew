@@ -25,15 +25,17 @@ namespace Aplos.Controllers.ApopAPIHR
 {
     public class DetentionAPIController : ApiController
     {
-        private readonly SqlRepository _sqlRepository;
         
+        clsDataContext clsData = new clsDataContext();
         public DetentionAPIController()
         {
 
-            _sqlRepository = new SqlRepository();
+            
         }
 
+
         
+
         public List<WorkCenterList> GetWorkCenter()
         {
             clsDataContext clsData = new clsDataContext();
@@ -76,20 +78,5 @@ namespace Aplos.Controllers.ApopAPIHR
             return machinemstrlst;
         }
 
-        [HttpPost]
-        public string Create([FromBody] IEnumerable<CreateDetentionList> DataToSave, string By, string Ip, string updatedBy, string updatedFrom)
-        {
-            try
-            {
-                clsDataContext clsData = new clsDataContext();
-                string Id = clsData.CreateDetentionLog(DataToSave, By, Ip, updatedBy, updatedFrom);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-
-            }
-        }
     }
 }

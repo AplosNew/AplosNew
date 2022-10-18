@@ -1,0 +1,238 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">User Name </label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="30">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Material Type<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-change="getMaterialGroup()" ng-model="ModelNew.MaterialTypeId" required name="Material Type"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in MaterialTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Material</label>
+                <div class="col-sm-8 show-message">
+
+                    <input e-change="getMaterialArticle" ej-dropdownlist e-enablefiltersearch="true" e-datasource="MaterialList" ng-model="ModelNew.MaterialMasterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+
+                </div>
+            </div>
+            
+        </div>
+
+        <!--
+         //** ----------------------------------------------------  **//
+        -->
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Storage Level<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.StorageLevel" required name="Storage Location"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option value="Material">Material</option>
+                            <option value="Article">Article</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Material Group</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <input e-change="getMaterial" ej-dropdownlist e-enablefiltersearch="true" e-datasource="MaterialGroupList" ng-model="ModelNew.MaterialGroupMasterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />                      
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" tabindex="7" maxlength="250"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+
+            <div class="col-xs-12 col-lg-3 col-md-3"></div>
+            <ul class="list-inline text-right">
+
+                <li> <button ng-click="getMaterialArticleId()" class="btn" tabindex="11"><i class="glyphicon glyphicon-chevron-down"></i> View</button></li>
+
+            </ul>
+
+        </div>
+    </div>
+
+</div>
+@*----------------------------------HEAD CLOSED------------------------------------------------------*@
+<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material Allocation</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Item Applicable</a></li>
+
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="table-responsive aplos-grid-toggle">
+                <div id="GridEdit"
+                     ej-grid e-datasource="MaterialArticleList"
+                     e-load="loadGridEdit"
+                     e-allowfiltering="true"
+                     e-allowpaging="true"
+                     e-allowsorting="true"
+                     e-enabletouch="false"
+                     e-responsive="true"
+                     e-allowselection="true"
+                     e-filtersettings-filterType="excel"
+                     e-templaterefresh="MaterialAllocationGridAllCheck"
+                     e-allowtextwrap="true">
+
+                    <div e-columns>
+                        <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
+                        <div e-column e-field="MaterialName" e-headertext="Material " e-width="80"></div>
+                        <div e-column e-field="ArticleName" e-headertext="Article" e-width="80"></div>
+                        <div e-column e-headertext="Machine Applicable" e-template="#MachineApplicable" e-textalign="center" e-width="50"></div>
+                        <div e-column e-headertext="Workcenter Applicable" e-template="#WorkcenterApplicable" e-textalign="center" e-width="50"></div>
+                        <div e-column e-headertext="Oeder Level" e-template="#OrderLevel" e-textalign="center" e-width="50"></div>
+
+                    </div>
+                </div>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
+                </script>
+
+                <script type="text/template" id="MachineApplicable">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
+                </script>
+                <script type="text/template" id="WorkcenterApplicable">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
+                </script>
+                <script type="text/template" id="OrderLevel">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="StorageLevel" required name="Storage Location"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option value="Material">Line Item</option>
+                            <option value="Article">Production Order</option>
+                            <option value="Article">Sales Order</option>
+
+                        </select>
+                    </div>
+                </script>
+
+            </div>
+            
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="table-responsive aplos-grid-toggle">
+                <div id="GridEditB" ej-grid e-datasource="BinAllocationChildList" e-load="loadGridEdit"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="BinAllocationGridAllCheck">
+                    <div e-columns>
+                        <div e-column e-headertext="Select" e-headertemplateid="#headerTemplateB" e-template="#checkboxTemplateB" e-textalign="center" e-width="20"></div>
+
+
+                        @*<div e-column e-field="AreaRackCode" e-headertext="Area Rack Code" e-width="70"></div>
+
+                        <div e-column e-field="ColumnNo" e-headertext="Column No" e-width="80"></div>
+                        <div e-column e-field="RowNo" e-headertext="RowNo" e-width="80"></div>
+                        <div e-column e-field="BinReference" e-headertext="Bin Reference" e-width="100"></div>
+                        <div e-column e-field="BinCode" e-headertext="Bin Code" e-width="80"></div>
+
+                        <div e-column e-field="CapacityValue" e-headertext="Capacity Value " e-width="80"></div>
+
+                        <div e-column e-field="UserLocationType" e-headertext="User Location Type" e-width="100"></div>*@
+
+
+                    </div>
+                </div>
+                <script type="text/x-jsrender" id="headerTemplateB">
+                    <input type="checkbox" id="headchkB" />
+                </script>
+
+                <script type="text/template" id="checkboxTemplateB">
+
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
+                </script>
+            </div>
+            <div class="common-btn" style="margin-top:10px">
+
+                <ul class="list-inline text-right">
+
+                    @*<li> <button class="btn" ng-click="selBinAllocation()" tabindex="11"><i class="glyphicon"></i> Select</button></li>*@
+                    @*<li> <button ng-click="SaveBinAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>*@
+
+                </ul>
+
+            </div>
+        </div>
+
+
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn cmn-btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+            @*<li> <button ng-click="Clear();" class="btn cmn-btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+        </ul>
+    </div>
+</div>
+
+</div>
+
+<!--*************************************************************************************-->
+<style>
+    .modellgModify1 {
+        width: 1300px;
+    }
+
+    .cmn-btn {
+        background: #3e445a none repeat scroll 0 0;
+        border: 1px solid #3e445a;
+        border-radius: unset;
+        color: #fff;
+        font-size: 15px;
+        /* font-weight: 600; */
+        letter-spacing: 0.65px;
+        line-height: normal;
+        padding: 6px 15px;
+        text-transform: none;
+        transition: all 0.3s linear 0s;
+    }
+
+        .cmn-btn:hover {
+            background: #EA6153 none repeat scroll 0 0;
+            border: 1px solid #EA6153;
+            color: #fff !important;
+            outline: none;
+        }
+</style>
+
+
+
+
+
+

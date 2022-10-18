@@ -297,4 +297,9 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/DetentionLogout/Aplos',
             controller: 'DetentionLogoutController'
         })
+
+        .when('/issue-control', {
+            templateUrl: 'materials/IssueControl/Aplos',
+            controller: 'IssueControlController'
+        })
 };

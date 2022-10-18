@@ -16,25 +16,19 @@
                     <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
                 </div>
             </div>
-            <div class="form-group" show-errors>
+            @*<div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
                 </div>
-            </div>
+            </div>*@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Sub Category</label>
                 <div class="col-sm-8 show-message">
                     <input type="text" name="Category" ng-model="ModelNew.SubCategory" class="form-control" required tabindex="4" maxlength="50">
                 </div>
             </div>
-            @*<div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="Category" ng-model="ModelNew.Rate" class="form-control" required tabindex="4" maxlength="50">
-                    </div>
-                </div>*@
-
+            
             <div class="form-group">
                 <label class="col-sm-4 control-label">Remarks</label>
                 <div class="col-sm-8">
@@ -69,23 +63,26 @@
                 </div>
             </div>
 
-
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label"> Category<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="SubCategory" ng-model="ModelNew.Category" class="form-control" required tabindex="4" maxlength="50">
-                </div>
-            </div>
-
             <div class="form-group">
                 <label class="col-sm-4 control-label">Purpose</label>
                 <div class="col-sm-8">
                     <div class="select-style">
-
-                        <input id="medicinePurposeId" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="MedicinePurposeList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                        <input id="medicinePurposeId" e-change="getMedicinePurposeCategory" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="MedicinePurposeList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
                     </div>
                 </div>
             </div>
+
+            <!--<div class="form-group" show-errors>
+                <label class="col-sm-4 control-label"> Category<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">-->
+                        @*<input type="text" name="Category" ng-model="ModelNew.Category" class="form-control" required tabindex="4" maxlength="50">*@
+                        <!--<input id="categoryId" ng-model="ModelNew.Category" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="CategoryList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                    </div>
+                </div>
+            </div>-->
+
+
 
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">UOM<sup>*</sup></label>

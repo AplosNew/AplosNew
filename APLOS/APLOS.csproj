@@ -588,6 +588,7 @@
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\IncidentCategoryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicalLogReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\MedicineCategoryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineReceiptController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicinePurposeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SicknessTypeController.cs" />
@@ -752,6 +753,7 @@
     <Compile Include="Areas\Machines\Controllers\PendingMaintenanceScheduleController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogoutController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
+    <Compile Include="Areas\Materials\Controllers\IssueControlController.cs" />
     <Compile Include="Areas\Materials\Controllers\ProcessWiseMaterialAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\StockRegisterController.cs" />
     <Compile Include="Areas\Materials\Controllers\StorageBinAllocationController.cs" />
@@ -2051,6 +2053,7 @@
     <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicalLogController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicalLogReportController.js" />
+    <Content Include="Areas\HumanResource\Scripts\MedicineCategoryController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicineReceiptController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicineMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicinePurposeController.js" />
@@ -2181,6 +2184,7 @@
     <Content Include="Areas\Materials\Scripts\DetentionLogoutController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
+    <Content Include="Areas\Materials\Scripts\IssueControlController.js" />
     <Content Include="Areas\Materials\Scripts\ProcessWiseMaterialAllocationController.js" />
     <Content Include="Areas\Materials\Scripts\RequisitionStatusController.js" />
     <Content Include="Areas\Materials\Scripts\StockRegisterController.js" />
@@ -4343,6 +4347,8 @@
     <Content Include="Areas\Machines\Views\SpecialIssueControlUpdate\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicalLog\_MedicineExpDateWisePopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\IncidentCategory\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\IssueControl\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicineCategory\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

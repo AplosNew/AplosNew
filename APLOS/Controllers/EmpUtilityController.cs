@@ -34,6 +34,24 @@ namespace Aplos.Controllers
             }
         }
 
+        #region Nitesh
+        [HttpPost]
+        public string Create([FromBody] IEnumerable<CreateDetentionList> DataToSave, string By, string Ip, string updatedBy, string updatedFrom)
+        {
+            try
+            {
+
+                string Id = _emp.CreateDetentionLog(DataToSave, By, Ip, updatedBy, updatedFrom);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        #endregion Nitesh
+
         [HttpGet]
         
         public IHttpActionResult GetEmpInfo(string Code)
