@@ -245,6 +245,8 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         $scope.purchaseLCNew.VendorId = party.Id;
         $scope.purchaseLCNew.PartyCode = party.Code;
         $scope.purchaseLCNew.PartyName = party.UserName;
+        $scope.purchaseLCNew.CurrencyId = party.CurrencyId;
+        $scope.GetCurrencyExchangeRateList();
         $scope.getVendorCountry();
 
         if ($scope.PantCountryId == $scope.PartyCountryId) {

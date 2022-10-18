@@ -125,15 +125,15 @@ namespace Library.OrderManagement.Costing
         {
 
             string sql = @"SELECT convert(bit,isnull(mm.WithSKU,0)) AS WithSKU,BOQ.CostingItemId,boq.SalesOrderId--,d.UserName AS Destination,
-                            ,boq.FGFirstCharacteristicsValueId,boq.FGSecondCharacteristicsValueId,cv1.UserName AS SKU1,cv2.UserName AS SKU2,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
-                                    BOQ.Id, ci.Sequence,ci.UserName AS CostingItem,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
-                                    mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,
-                                    boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,boq.rate*boq.RequiredQty AS BOMAmount,boq.Rate,BOQ.BOQCriteria,c.Code AS Currency,
-                                    BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc,ci.Id CostingItemId,
-  boq.Rate*BOQ.RequiredQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount ,BOQ.OwnReferenceNo,BOQ.Remark,
-  SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
- CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
- BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria
+,boq.FGFirstCharacteristicsValueId,boq.FGSecondCharacteristicsValueId,cv1.UserName AS SKU1,cv2.UserName AS SKU2,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
+BOQ.Id, ci.Sequence,ci.UserName AS CostingItem,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
+mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,
+boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,(boq.Rate+boq.UpDownCharge)*boq.RequiredQty AS BOMAmount,boq.Rate,boq.UpDownCharge,BOQ.BOQCriteria,c.Code AS Currency,
+BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc,ci.Id CostingItemId,
+(boq.Rate+boq.UpDownCharge)*BOQ.BOMQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount ,BOQ.OwnReferenceNo,BOQ.Remark,
+SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria
 ,SONumber=STUFF((select distinct ','+XSO.Id 
                                          from trn.SalesOrder XSO
 										 LEFT JOIN dbo.CostingBOQMaster CBM ON CBM.Id=XSO.CostingBOQMasterId

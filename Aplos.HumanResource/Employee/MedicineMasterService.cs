@@ -70,6 +70,25 @@ namespace Library.HumanResource.Employee
             }
         }
 
+        public IEnumerable<object> getMedicinePurposeCategory(List<string>medincinepurpose)
+        {
+            try
+            {
+                var sql = "";
+                for (int i = 0; i < medincinepurpose.Count; i++)
+                {
+                     sql = @"select Category Text, Id from HKP.MedicinePurpose MP
+                            where MP.Id in('" + medincinepurpose[i].ToString() + "')";
+                }
+                
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> getUOM()
         {
             try
@@ -127,9 +146,9 @@ namespace Library.HumanResource.Employee
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"Select PM.Sequence, PM.Code, PM.ShortName, PM.StandardName, PM.Id, PM.UserName, PM.Category, PM.SubCategory, PM.Rate, 
-PM.IsActive,
-PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks, 
+                string sql = @"Select PM.Sequence, PM.Code, PM.ShortName, PM.StandardName, PM.Id, PM.UserName,  
+                                PM.IsActive, PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks, 
+
                             STUFF((
                             SELECT ',' + p.UserName
 
@@ -543,6 +562,194 @@ PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks,
         #endregion CREATE AND EDIT DEFAULT COLUMN
     }
     #endregion Medicine Purpose
+
+    #region Medicine Category
+    public class MedicineCategoryService
+    {
+        private readonly SqlRepository _sqlRepository;
+        #region constructor
+        public MedicineCategoryService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+        #endregion constructor
+
+        #region GET
+        public IEnumerable<object> Get(string Id)
+        {
+            try
+            {
+                var sql = "select * from HKP.MedicineCategory where Id = '" + Id + "' ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion GET
+
+        #region GET SEQUENCE
+        public double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(Sequence),0) AS Sequence FROM HKP.MedicineCategory");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+        #endregion GET SEQUENCE
+
+        #region SEARCH SAVED DATA IN GRID 
+        public IEnumerable<object> GetList(string column, string value)
+        {
+            try
+            {
+                string TableName = "HKP.MedicineCategory";
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string sql = @"SELECT MC.* FROM HKP.MedicineCategory MC
+                                where " + strkey + "order by Sequence";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SEARCH SAVED DATA IN GRID
+
+        #region SAVE
+        public Dictionary<string, object> Save(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableNameHead = "HKP.MedicineCategory";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where StandardName='" + data["StandardName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Standard Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+
+                #region FURNITURE POLICY HEAD
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    data["Id"] = "MP" + _Id;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion FURNITURE POLICY HEAD
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SAVE
+
+        #region DELETE
+        public string Delete(string id)
+        {
+            try
+            {
+
+                string TableName = "HKP.MedicineCategory";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion DELETE
+
+        #region CREATE AND EDIT DEFAULT COLUMN
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        #endregion CREATE AND EDIT DEFAULT COLUMN
+    }
+    #endregion Medicine Category
 
     #region Medicine Receipt
     public class MedicineReceiptService

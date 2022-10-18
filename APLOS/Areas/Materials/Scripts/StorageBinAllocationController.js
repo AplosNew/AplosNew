@@ -233,11 +233,11 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
 
-   /* 
+   
     
-    // ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
+    // #region ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
 
-    */
+    
     $scope.userMaterialList = [];
     $scope.selectIDs = function () {
         $http({
@@ -277,10 +277,10 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             $scope.selectBinIDs();
         })
     }
-
+    // #endregion ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
     /*
    
-    // ---------------------------------      BIN ALLOCACTION GRID      -----------------------------------//
+    //  ---------------------------------      BIN ALLOCACTION GRID      -----------------------------------//
 
     */
     $scope.BinAllocationChildList = [];
