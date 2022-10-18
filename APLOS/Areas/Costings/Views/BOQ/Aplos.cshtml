@@ -124,6 +124,7 @@
                                     <div e-column e-type="number" e-field="BOMQty" e-headertext="Plan Qty" e-textalign="right" e-width="80px"></div>
                                     <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="80px"></div>
                                     <div e-column e-type="number" e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="80px"></div>
+                                    <div e-column e-type="number" e-field="UpDownCharge" e-template="#UpDownChargeTemplate" e-headertext="UpDownCharge" e-textalign="right" e-width="80px"></div>
                                     <div e-column e-type="number" e-field="BOMAmount" e-headertext="Required Amount" e-textalign="right" e-width="80px"></div>
                                     <div e-column e-type="number" e-field="PlanAmount" e-headertext="Plan Amount" e-textalign="right" e-width="80px"></div>
                                     <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="120px"></div>
@@ -159,7 +160,7 @@
                             </script>
                             <script type="text/template" id="EnterSKUTemplate">
                                 <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
-                                    <input type="number" min="0" ng-model="data.RequiredQty" class="form-control">
+                                    <input type="number" min="0" ng-model="data.RequiredQty" ng-blur="$parent.CalRequiredAmount(this)" class="form-control">
                                 </div>
                             </script>
                             <script type="text/template" id="ItemDesc">
@@ -177,7 +178,11 @@
                                     <input type="text" ng-model="data.OwnReferenceNo" class="form-control">
                                 </div>
                             </script>
-
+                            <script type="text/template" id="UpDownChargeTemplate">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="number" min="0" ng-model="data.UpDownCharge" ng-blur="$parent.CalPlanAmount(this)" class="form-control">
+                                </div>
+                            </script>
                             <script type="text/template" id="VendorItem">
                                 <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
                                     <input type="text" ng-model="data.RMVendorSpec" class="form-control">

@@ -66,6 +66,21 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [Authorize, HttpPost]
+        public ActionResult getMedicinePurposeCategory(List<string> medincinepurpose)
+        {
+            try
+            {
+                return Json(mms.getMedicinePurposeCategory(medincinepurpose), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        [Authorize, HttpPost]
         public ActionResult getUOM()
         {
             try
