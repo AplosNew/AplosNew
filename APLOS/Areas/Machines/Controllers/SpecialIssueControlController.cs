@@ -256,6 +256,14 @@ FROM [TRN].[SpecialIssueItem] where SpecialIssueControlId ='" + IssueId + "'";
         }
 
         [Authorize, HttpGet]
+        public ActionResult LoadPeriodDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT *,(select SD.UserName from ShiftDefination SD where SD.SystemID=Shift) as ShiftName,Format(Time,'hh:mm:tt') as Times FROM [MST].[SpecialIssueDefinePeriod]";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult LoadIssueEditData(string IssueID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -276,7 +284,16 @@ FROM [TRN].[SpecialIssueItem] where SpecialIssueControlId ='" + IssueId + "'";
 FROM [TRN].[SpecialIssueItem] where Id='" + ItemId + @"'";
             return Json(new { item = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
-      
+
+        [Authorize, HttpGet]
+        public ActionResult LoadPeriodEditData(string PeriodId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"SELECT *,(select SD.UserName from ShiftDefination SD where SD.SystemID=Shift) as ShiftName,Format(Time,'hh:mm:tt') as Times FROM [MST].[SpecialIssueDefinePeriod] where Id ='" + PeriodId + @"'";
+            return Json(new { Period = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public JsonResult CreateItem(Dictionary<string, object> ItemData, string Pid)
         {
@@ -325,7 +342,54 @@ FROM [TRN].[SpecialIssueItem] where Id='" + ItemId + @"'";
 
             }
         }
-      
+
+        [HttpPost, Authorize]
+        public JsonResult CreatePeriod(Dictionary<string, object> PeriodData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[SpecialIssueDefinePeriod] where Id<>'" + PeriodData["Id"] + "'", out DataSet dsSpecialIssueDefinePeriodValidation, false, "1");
+
+                DataSet dsSpecialIssueDefinePeriod;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[SpecialIssueDefinePeriod] where Id='" + PeriodData["Id"] + "'", out dsSpecialIssueDefinePeriod, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsSpecialIssueDefinePeriod.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("SpecialIssueDefinePeriod", out _Id);
+                    _Id = "SIDP" + _Id;
+                    PeriodData["Id"] = _Id;
+                    AddNewRow(dsSpecialIssueDefinePeriod.Tables[0], PeriodData);
+                }
+                else
+                {
+                    _Id = PeriodData["Id"].ToString();
+                    EditRow(dsSpecialIssueDefinePeriod.Tables[0].Rows[0], PeriodData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsSpecialIssueDefinePeriod);
+
+                return Json(new { Error = false, Data = PeriodData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
         #endregion -- Operations
     }
 }
