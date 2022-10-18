@@ -2950,5 +2950,25 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { DATA = accountsStatusDashboardService.GetReceiptPaymentStatusDataList(), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
+        //[Authorize, HttpPost]
+        //public ActionResult ReceiptPaymentStatusSummaryReport(ReportFormat reportFormat, Dictionary<string,string> data)
+        //{
+           
+        //    var reportFileName = "Receipt Payment Status Summary";
+        //    AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+        //    var workbook = accountsStatusDashboardService.CreateReceiptPaymentStatusSummaryReportSheet(data);
+
+        //    switch (reportFormat)
+        //    {
+        //        case ReportFormat.Pdf:
+        //            return RenderReportAsPdf(workbook, reportFileName);
+
+        //        case ReportFormat.Excel:
+        //            return RenderReportAsExcel(workbook, reportFileName);
+
+        //        default:
+        //            return View();
+        //    }
+        //}
     }
 }

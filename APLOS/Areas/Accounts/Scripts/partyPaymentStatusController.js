@@ -4958,17 +4958,16 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.ReceiptPaymentStatusSummaryReport = function () {
-
         try {
-            var ReportFileName = "Receipt Payment Status";
+            $scope.reportFormat = "Excel";
+            //var ReportFileName = "Receipt Payment Status";
             var gridObj = $("#GridReceiptPaymentStatus").data("ejGrid");
             var data = gridObj.model.dataSource();
 
             var NewReceiptPaymentStatusList = [];
             for (var i = 0; i < $scope.ReceiptPaymentStatusList.length; i++) {
                 if ($scope.ReceiptPaymentStatusList[i].isSelected == true) {
-
-                    if (NewReceiptPaymentStatusList, $scope.ReceiptPaymentStatusList[i].CustomerCode) {
+                if (NewReceiptPaymentStatusList, $scope.ReceiptPaymentStatusList[i].CustomerCode) {
                         NewReceiptPaymentStatusList.push($scope.ReceiptPaymentStatusList[i].CustomerCode);
                     }
                 }
@@ -4978,8 +4977,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             //}
             $http({
                 method: 'POST',
-                url: $scope.exportgriddataUrl,
-                data: { 'data': data, 'reportFileName': ReportFileName}
+                url: 'Accounts/InventoryPayable/ReceiptPaymentStatusSummaryReport',
+                data: { 'data': data, 'reportFormat': $scope.reportFormat}
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
