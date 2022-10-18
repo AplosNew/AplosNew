@@ -146,9 +146,9 @@ namespace Library.HumanResource.Employee
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"Select PM.Sequence, PM.Code, PM.ShortName, PM.StandardName, PM.Id, PM.UserName, PM.Category, PM.SubCategory, PM.Rate, 
-PM.IsActive,
-PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks, 
+                string sql = @"Select PM.Sequence, PM.Code, PM.ShortName, PM.StandardName, PM.Id, PM.UserName,  
+                                PM.IsActive, PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks, 
+
                             STUFF((
                             SELECT ',' + p.UserName
 

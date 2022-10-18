@@ -89,7 +89,8 @@ namespace Library.MaterialManagement.Material
             try
             {
                 var sql = "";
-                if (storagelevel == "Material")
+
+                if(storagelevel == "Material" && materialTypeId == null && materialGroupMasterId == null && materialMasterId == null)
                 {
                     sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
                             mma.standardname as ArticleName, mm.Id as MaterialMasterId,
@@ -99,12 +100,40 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where mm.Id not in (SELECT M.MaterialMasterId FROM TRN.MaterialAlocation M) and
-                            mt.Id = '" + materialTypeId + "' and mgm.Id = '" + materialGroupMasterId + "' and mm.Id = '" + materialMasterId + "'";
+                           -- where mm.Id not in (SELECT M.MaterialMasterId FROM TRN.MaterialAlocation M) 
+                            --and mt.Id = '" + materialTypeId + "' and mgm.Id = '" + materialGroupMasterId + "' and mm.Id = '" + materialMasterId + "'";
                 }
-                else if (storagelevel == "Article")
+                else if (storagelevel == "Material")
                 {
-                    sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                    sql = @"select distinct mma.standardname as ArticleName, mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                             mm.Id as MaterialMasterId,
+                            mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId
+							from mst.MaterialMasterArticle mma
+							left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
+							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
+							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
+							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
+                            where --mm.Id not in (SELECT M.MaterialMasterId FROM TRN.MaterialAlocation M) and
+                             mt.Id = '" + materialTypeId + "' and mgm.Id = '" + materialGroupMasterId + "' and mm.Id = '" + materialMasterId + "'";
+                }
+                else
+                {
+                    if (storagelevel == "Article" && materialTypeId == null && materialGroupMasterId == null && materialMasterId == null)
+                    {
+                        sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                            mma.standardname as ArticleName, mm.Id as MaterialMasterId,
+                            mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId, bah.Id
+							from mst.MaterialMasterArticle mma
+							left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
+							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
+							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
+							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
+                           -- where mm.Id not in (SELECT M.MaterialMasterId FROM TRN.MaterialAlocation M) 
+                            --and mt.Id = '" + materialTypeId + "' and mgm.Id = '" + materialGroupMasterId + "' and mm.Id = '" + materialMasterId + "'";
+                    }
+                    else if (storagelevel == "Article")
+                    {
+                        sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
                             mma.standardname as ArticleName, mma.Id as MaterialMasterArticleId, mm.Id as MaterialMasterId,
                             mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId, bah.Id
 							from mst.MaterialMasterArticle mma
@@ -112,9 +141,11 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where mma.Id NOT in (SELECT M.MaterialMasterArticleId FROM TRN.MaterialAlocation M) and 
+                            where --mma.Id NOT in (SELECT M.MaterialMasterArticleId FROM TRN.MaterialAlocation M)  and
                             mt.Id = '" + materialTypeId + "' and mgm.Id = '" + materialGroupMasterId + "' and mm.Id = '" + materialMasterId + "'";
+                    }
                 }
+                
 
 
                 return _sqlRepository.GetDataCollection(sql);
