@@ -309,7 +309,20 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
 
     };
 
+    $scope.CalPlanAmount = function (data) {
+        data.data.PlanAmount = (data.data.Rate + data.data.UpDownCharge) * data.data.BOMQty;
+        data.data.BOMAmount = (data.data.Rate + data.data.UpDownCharge) * data.data.RequiredQty;
+        var gridObjs = $("#GridMaterialQuantity").data("ejGrid");
+        gridObjs.refreshContent();
+        gridObjs.refreshTemplate();
+    }
 
+    $scope.CalRequiredAmount = function (data) {
+        data.data.BOMAmount = (data.data.Rate + data.data.UpDownCharge) * data.data.RequiredQty;
+        var gridObjs = $("#GridMaterialQuantity").data("ejGrid");
+        gridObjs.refreshContent();
+        gridObjs.refreshTemplate();
+    }
 
     $scope.Update = function () {
         $http({
@@ -355,18 +368,6 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
 
     }
 
-    //$scope.Child1DataList = [];
-    //$scope.GetChild1Data = function () {
-    //    $http.get('Costings/BOMDetailMaster/GetChild1Data?masterId=' + $scope.BOMDetailMasterId)
-    //        .then(function (response) {
-    //            if (baseService.arrayLength(response.data) > 0) {
-    //                $scope.Child1DataList = response.data;
-    //            }
-    //            $scope.GetSOData();
-    //        });
-
-    //}
-
     $scope.GetSOData = function () {
         try {
             $http.get('Costings/BOMDetailMaster/GetSODataList?masterid=' + $scope.BOMDetailMasterId)
@@ -384,7 +385,6 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         }
 
     }
-
 
     $scope.ChildDataList = [];
     $scope.GetChild2Data = function () {
@@ -464,7 +464,6 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     $scope.closeBOMDetailPopUp = function () {
         angular.element(document.querySelector('#BOMDetailPopUp')).modal('show');
     }
-
 
     $scope.onBeginPBUpload = function (args) {
         try {
