@@ -52,12 +52,15 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
                     selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
                     , width: 250
                 });
+            $scope.loadProcessList($scope.EntityId);
         });
     }
     $scope.getAllEntities();
 
-
-    $scope.Report = function () {
+    $scope.PlantId = null;
+    $scope.EntityId = null;
+    $scope.ProcessId = null;
+    $scope.ProcessWiseReport = function () {
         try {
             if (angular.isUndefinedOrNull($scope.fromDate)) {
                 throw "Select From Date";
@@ -71,18 +74,18 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
                 throw "From date can not be greater than To date.";
             }
 
-            var DropDownListObj = $("#PlantList").data("ejDropDownList");
-            var PlantId = DropDownListObj.getSelectedValue();
+            //var DropDownListObj = $("#PlantList").data("ejDropDownList");
+            //var PlantId = DropDownListObj.getSelectedValue();
 
-            var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
-            var EntityId = DropDownEntityListObj.getSelectedValue();
+            //var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+            //var EntityId = DropDownEntityListObj.getSelectedValue();
 
             $scope.fileName = "ProductionOrderReport.xlsx";
             $http({
                 method: 'POST',
-                url: $scope.path + "GetOrderReport",
+                url: $scope.path + "GetProcessWiseOrderReport",
                 //data: { 'parameters': $scope.parameters, 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'dateType': $rootScope.dateCgroup },
-                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'PlantId': PlantId, 'EntityId': EntityId},
+                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'PlantId': $scope.PlantId, 'EntityId': $scope.EntityId, 'ProcessId': $scope.ProcessId},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
@@ -100,6 +103,47 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
         }
     }
 
+    $scope.PerameterWiseReport = function () {
+        try {
+            if (angular.isUndefinedOrNull($scope.fromDate)) {
+                throw "Select From Date";
+            }
+
+            if (angular.isUndefinedOrNull($scope.toDate)) {
+                throw "Select To Date";
+            }
+
+            if (new Date($scope.fromDate) > new Date($scope.toDate)) {
+                throw "From date can not be greater than To date.";
+            }
+
+            //var DropDownListObj = $("#PlantList").data("ejDropDownList");
+            //var PlantId = DropDownListObj.getSelectedValue();
+
+            //var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+            //var EntityId = DropDownEntityListObj.getSelectedValue();
+
+            $scope.fileName = "ProductionOrderReport.xlsx";
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetPerametreWiseOrderReport",
+                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'PlantId': $scope.PlantId, 'EntityId': $scope.EntityId},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
     $scope.loadProcessList = function (entityid) {
         cboService.GetEntityProcessCbo(entityid, function (result) {

@@ -840,5 +840,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             controller: 'MedicalLogReportController'
         })
 
+        .when('/medicine-category', {
+            templateUrl: 'humanResource/MedicineCategory/Aplos',
+            controller: 'MedicineCategoryController'
+        })
+
         ;
 }

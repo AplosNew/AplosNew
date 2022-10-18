@@ -416,7 +416,7 @@
                         <div e-column e-field="NetWorkingMinute" e-headertext="NetWorkingMinute" e-width="3"></div>
                         <div e-column e-field="PlanShift" e-template="#PlanShift" e-headertext="PlanShift" e-width="3"></div>
                         <div e-column e-field="PlanMinute" e-template="#PlanMinute" e-headertext="PlanMinute" e-width="3"></div>
-                        <div e-column e-field="Remark" e-headertext="Remark" e-width="3"></div>
+                        <div e-column e-field="Remark" e-template="#Remark" e-headertext="Remark" e-width="3"></div>
                         <div e-column e-field="Capacity" e-headertext="Capacity" e-width="3"></div>
                         <div e-column e-field="CapacityInVolume" e-template="#CapacityInVolume" e-headertext="CapacityInVolume" e-width="3"></div>
                     </div>
@@ -435,6 +435,11 @@
                 <script type="text/template" id="CapacityInVolume">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
                         <input type="text" ej-numerictextbox e-decimalplaces="0" e-value="data.CapacityInVolume" e-width="80" />
+                    </div>
+                </script>
+                <script type="text/template" id="Remark">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <textarea class="form-control" rows="1" ng-model="data.Remark" maxlength="250" tabindex="6"></textarea>
                     </div>
                 </script>
 

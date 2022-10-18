@@ -70,6 +70,25 @@ namespace Library.HumanResource.Employee
             }
         }
 
+        public IEnumerable<object> getMedicinePurposeCategory(List<string>medincinepurpose)
+        {
+            try
+            {
+                var sql = "";
+                for (int i = 0; i < medincinepurpose.Count; i++)
+                {
+                     sql = @"select Category Text, Id from HKP.MedicinePurpose MP
+                            where MP.Id in('" + medincinepurpose[i].ToString() + "')";
+                }
+                
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> getUOM()
         {
             try
@@ -127,9 +146,9 @@ namespace Library.HumanResource.Employee
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"Select PM.Sequence, PM.Code, PM.ShortName, PM.StandardName, PM.Id, PM.UserName, PM.Category, PM.SubCategory, PM.Rate, 
-PM.IsActive,
-PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks, 
+                string sql = @"Select PM.Sequence, PM.Code, PM.ShortName, PM.StandardName, PM.Id, PM.UserName,  
+                                PM.IsActive, PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks, 
+
                             STUFF((
                             SELECT ',' + p.UserName
 
@@ -544,6 +563,194 @@ PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks,
     }
     #endregion Medicine Purpose
 
+    #region Medicine Category
+    public class MedicineCategoryService
+    {
+        private readonly SqlRepository _sqlRepository;
+        #region constructor
+        public MedicineCategoryService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+        #endregion constructor
+
+        #region GET
+        public IEnumerable<object> Get(string Id)
+        {
+            try
+            {
+                var sql = "select * from HKP.MedicineCategory where Id = '" + Id + "' ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion GET
+
+        #region GET SEQUENCE
+        public double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(Sequence),0) AS Sequence FROM HKP.MedicineCategory");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+        #endregion GET SEQUENCE
+
+        #region SEARCH SAVED DATA IN GRID 
+        public IEnumerable<object> GetList(string column, string value)
+        {
+            try
+            {
+                string TableName = "HKP.MedicineCategory";
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string sql = @"SELECT MC.* FROM HKP.MedicineCategory MC
+                                where " + strkey + "order by Sequence";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SEARCH SAVED DATA IN GRID
+
+        #region SAVE
+        public Dictionary<string, object> Save(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableNameHead = "HKP.MedicineCategory";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where StandardName='" + data["StandardName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Standard Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+
+                #region FURNITURE POLICY HEAD
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    data["Id"] = "MP" + _Id;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion FURNITURE POLICY HEAD
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SAVE
+
+        #region DELETE
+        public string Delete(string id)
+        {
+            try
+            {
+
+                string TableName = "HKP.MedicineCategory";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion DELETE
+
+        #region CREATE AND EDIT DEFAULT COLUMN
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        #endregion CREATE AND EDIT DEFAULT COLUMN
+    }
+    #endregion Medicine Category
+
     #region Medicine Receipt
     public class MedicineReceiptService
     {
@@ -903,10 +1110,42 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
         {
             try
             {
-                var sql = @"select Id, UserName Medicine, Category, SubCategory, Rate from HKP.MedicineMaster";
+                #region commnet
+                var sql = @"select distinct MM.UserName Medicine, MM.Id, MM.Category, MM.SubCategory, 
+stuff((select ',' +  CONVERT(VARCHAR(20), SUM(x.Quantity)) 
+from TRN.MedicineReceiptChild x
+where x.MedicineMasterId = MM.Id
+FOR XML PATH('')),1,1,'') stock
+from TRN.MedicineReceipt MR
+left join TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+where MRC.Quantity is not null";
+                #endregion commnet
+                //var sql = @"select (SUM(MRC.Quantity)-SUM(ESM.Quantity)) Stock,MM.UserName, MM.Id, MM.Category, MM.SubCategory from TRN.EmployeeSicknessMedicines ESM
+                //            LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.Id=ESM.MedicineReceiptChildId
+                //            LEFT JOIN HKP.MedicineMaster MM ON MM.Id=MRC.MedicineMasterId
+                //            GROUP BY MM.UserName, MM.Id, MM.Category, MM.SubCategory";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getMedicineByReceipt(string medicinemasterId)
+        {
+            try
+            {
+                var sql = @"select MRC.Id, MM.UserName Medicine, MM.Category, MM.SubCategory, MRC.Quantity Stock, FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate
+                        from TRN.MedicineReceipt MR
+                        left join TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+                        left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+                        where MRC.Quantity is not null and MM.Id = '" + medicinemasterId + "'order by MRC.ExpiryDate";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -978,12 +1217,13 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
         }
         #endregion SEARCH SAVED DATA IN GRID
 
-        #region Grid View Query
+       
         public IEnumerable<object> medicallogGridView()
         {
             try
             {
-                var SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks,
+                var SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], 
+EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks,
 STUFF((select ', ' + MP.Category
 from TRN.EmployeeSickness ES
 LEFT join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
@@ -991,9 +1231,17 @@ where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Sickness,
 STUFF((Select ', ' + MM.UserName
 from TRN.EmployeeSicknessMedicines ESM
-LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Medicines
+FOR XML PATH('')),1,1,'') Medicines,
+
+STUFF((Select ', ' +  CONVERT(VARCHAR(20),ESM.Quantity)
+from TRN.EmployeeSicknessMedicines ESM
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+where ESM.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Quantity
 from TRN.MedicalLog ML
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
@@ -1007,7 +1255,7 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 throw ex;
             }
         }
-        #endregion Grid View Query
+        
         #endregion GET OP
 
         #region SAVE
@@ -1085,7 +1333,7 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 {
                     DataRow dr = dsMedicineChild.Tables[0].NewRow();
                     dr["Id"] = data["Id"].ToString() + i.ToString();
-                    dr["MedicineMasterId"] = medicinelist[i]["Id"].ToString();
+                    dr["MedicineReceiptChildId"] = medicinelist[i]["Id"].ToString();
                     dr["MedicalLogId"] = data["Id"].ToString();
                     dr["Quantity"] = medicinelist[i]["Quantity"];
                     dr["NoOfDays"] = medicinelist[i]["NoOfDays"];
@@ -1180,9 +1428,19 @@ where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Sickness,
 STUFF((Select ', ' + MM.UserName
 from TRN.EmployeeSicknessMedicines ESM
-LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
+LEFT JOIN TRN.MedicineReceipt MR on MR.Id = ESM.MedicineReceiptId
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Medicines
+
+FOR XML PATH('')),1,1,'') Medicines,
+STUFF((Select ', ' +  CONVERT(VARCHAR(20),ESM.Quantity)
+from TRN.EmployeeSicknessMedicines ESM
+LEFT JOIN TRN.MedicineReceipt MR on MR.Id = ESM.MedicineReceiptId
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+where ESM.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Quantity
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
@@ -1228,9 +1486,19 @@ where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Sickness,
 STUFF((Select ', ' + MM.UserName
 from TRN.EmployeeSicknessMedicines ESM
-LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
+LEFT JOIN TRN.MedicineReceipt MR on MR.Id = ESM.MedicineReceiptId
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Medicines
+
+FOR XML PATH('')),1,1,'') Medicines,
+STUFF((Select ', ' +  CONVERT(VARCHAR(20),ESM.Quantity)
+from TRN.EmployeeSicknessMedicines ESM
+LEFT JOIN TRN.MedicineReceipt MR on MR.Id = ESM.MedicineReceiptId
+LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+where ESM.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Quantity
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId

@@ -193,6 +193,7 @@
     <Compile Include="Material\clsInvoiceTagWithLc.cs" />
     <Compile Include="Material\clsMaterial.cs" />
     <Compile Include="Material\DetentionLogService.cs" />
+    <Compile Include="Material\IssueControlService.cs" />
     <Compile Include="Material\ProcessWiseMaterialAllocationService.cs" />
     <Compile Include="Material\StorageBinAllocationService.cs" />
     <Compile Include="ProductionOrderProcessWithRate\clsProductionOrderProcessWithRate.cs" />

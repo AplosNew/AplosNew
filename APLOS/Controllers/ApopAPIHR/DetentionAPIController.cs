@@ -16,21 +16,26 @@ using System.Web.Script.Serialization;
 using System.Web.Security;
 using HRService;
 using System.Web.Http;
+using System.Net;
+using System.Net.Http;
 using Library.MaterialManagement.Material;
+using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
 
 namespace Aplos.Controllers.ApopAPIHR
 {
     public class DetentionAPIController : ApiController
     {
-        private readonly SqlRepository _sqlRepository;
         
+        clsDataContext clsData = new clsDataContext();
         public DetentionAPIController()
         {
 
-            _sqlRepository = new SqlRepository();
+            
         }
 
+
         
+
         public List<WorkCenterList> GetWorkCenter()
         {
             clsDataContext clsData = new clsDataContext();
@@ -73,20 +78,5 @@ namespace Aplos.Controllers.ApopAPIHR
             return machinemstrlst;
         }
 
-        
-        public string Create([FromBody] IEnumerable<CreateDetentionList> DataToSave)
-        {
-            try
-            {
-                clsDataContext clsData = new clsDataContext();
-                string Id = clsData.CreateDetentionLog(DataToSave);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-
-            }
-        }
     }
 }
