@@ -1785,6 +1785,83 @@ where APD.Id='" + PlannedId + @"'";
             }
         }
 
+        public void GetSpecialIssueControlDetails(string IssueId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select SIC.Category,SIC.SubCategory,SIC.SpecialIssueName,SIC.SpecialIssueDetails,format(SIC.TargetDate,'dd-MMM-yyyy') as TargetDate,
+SIC.Remarks,(select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=SIC.ResponsiblePersonId) as ResponsiblePerson,
+SIC.MonitoringPeriod as MonitoringPeriods,SIC.IssueStatus from [TRN].[SpecialIssueControl] SIC where Id='" + IssueId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetSpecialIssueControlItemDetails(string IssueId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"SELECT (select SpecialIssueName from [TRN].[SpecialIssueControl] SIC where SIC.Id='SIC1') as SpecialIssueName,ROW_NUMBER() OVER(ORDER BY SII.Id) SNO,SII.SpecialIssueItem,SII.Actiontaken,
+(select EmployeeName from EmployeeInformation where SystemId=ActiontakenById) as ActiontakenBy
+,SII.SampleSize,'' Remarks
+FROM [TRN].[SpecialIssueItem] SII where SII.SpecialIssueControlId='" + IssueId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetSpecialIssueControlPeriodDetails(string Shift, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"SELECT PeriodName FROM [MST].[SpecialIssueDefinePeriod] where Shift ='" + Shift + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetExtraAbsentCount(string fromDate, string toDate, string plantid, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;

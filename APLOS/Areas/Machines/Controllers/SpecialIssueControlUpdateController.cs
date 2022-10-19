@@ -60,7 +60,7 @@ format(SIC.TargetDate,'dd-MMM-yyyy') as TDate,MonitoringPeriod as MonitoringPeri
 (select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=SIC.ResponsiblePersonId) as ResponsiblePerson
  FROM TRN.SpecialIssueControl SIC
  left join HKP.TaskCategory TC On TC.Id=SIC.Category
- left join HKP.TaskSubCategory TSC On TSC.Id=SIC.SubCategory";
+ left join HKP.TaskSubCategory TSC On TSC.Id=SIC.SubCategory where IssueStatus<>'Close'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
