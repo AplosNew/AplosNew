@@ -36,7 +36,20 @@ function MedicinePurposeController(cboService, commonMessage, $scope, $rootScope
             $scope.GetSequence();
         });
     }
-   $scope.getData();
+    $scope.getData();
+
+    $scope.CategoryList = [];
+    $scope.getCategory = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetCategory",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.CategoryList = response.data;
+            
+        });
+    }
+    $scope.getCategory();
     // ================================================GET MAIN GRID DATA CLOSE====================================================
 
     // ================================================FORM OBJECT DECLARATION & INITIALIZATION====================================
@@ -47,7 +60,7 @@ function MedicinePurposeController(cboService, commonMessage, $scope, $rootScope
         StandardName: null,
         UserName: null,      
         Purpose: null,
-        Category:null,
+        MedicineCategoryId:null,
         Remarks: null,
         IsActive: true
     };
