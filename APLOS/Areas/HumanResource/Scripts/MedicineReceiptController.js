@@ -177,9 +177,10 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
                 if (a.chk) {
                     var ob = {};
                     ob.Id = a.Id;
-                    ob.Medicine = a.Medicine
+                    ob.UserName = a.UserName
                     $scope.userMedicineList.push(ob);
                     ob = {};
+                    a.chk = false;
                 }
                
             });

@@ -47,6 +47,21 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetCategory()
+        {
+            try
+            {
+                return Json(mp.GetCategory(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         #endregion GET
 
         #region GET SEQUENCE
