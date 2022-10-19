@@ -141,8 +141,8 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
     function checkTotalAmount() {
         if (parseFloat($scope.bankDrReconAmount) !== parseFloat($scope.bankDrReconUploadedDataAmount))
             throw "Bank Dr reconciled total amount must be equal Bank Dr reconciled Uploaded total amount.!";
-        if (parseFloat($scope.bankDrReconAmount) !== parseFloat($scope.bankDrReconUploadedDataAmount))
-            throw "Bank Dr reconciled total amount must be equal Bank Dr reconciled Uploaded total amount.!";
+        if (parseFloat($scope.bankCrReconAmount) !== parseFloat($scope.bankCrReconUploadedDataAmount))
+            throw "Bank Cr reconciled total amount must be equal Bank Cr reconciled Uploaded total amount.!";
     }
 
     $scope.bankDrTempList = [];

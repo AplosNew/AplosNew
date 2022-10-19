@@ -287,7 +287,7 @@ namespace Aplos.Areas.IE.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public JsonResult CreateAsset(Dictionary<string, object> data, string machineMasterId)
         {
             try

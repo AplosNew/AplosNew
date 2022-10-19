@@ -755,6 +755,7 @@
     <Compile Include="Areas\Machines\Controllers\PendingMaintenanceScheduleController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogoutController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
+    <Compile Include="Areas\Materials\Controllers\MaterialIssueControlController.cs" />
     <Compile Include="Areas\Materials\Controllers\IssueControlController.cs" />
     <Compile Include="Areas\Materials\Controllers\ProcessWiseMaterialAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\StockRegisterController.cs" />
@@ -2677,6 +2678,7 @@
     <Content Include="Areas\Securities\Scripts\menuUserCodeController.js" />
     <Content Include="Areas\Securities\Scripts\syncURLController.js" />
     <Content Include="Areas\Securities\Scripts\employeeMobileAppsAuthorizationNewController.js" />
+    <Content Include="Areas\Setups\Scripts\defineEnumController.js" />
     <Content Include="Areas\Setups\Scripts\LabelListController.js" />
     <Content Include="Areas\Setups\Scripts\ReportingGroupController.js" />
     <Content Include="Areas\Setups\Scripts\notificationSettingController.js" />
@@ -4459,6 +4461,7 @@
     <Content Include="POPResources\Templates\JobWorkGRNReceiptReport20202.docx" />
     <Content Include="POPResources\Templates\JobWorkValAddedGRNReceiptReport20202.docx" />
     <Content Include="Areas\TaskManagement\Views\TaskManagementReport\Aplos.cshtml" />
+    <Content Include="Areas\Setups\Views\BusinessProcess\DefineEnum.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

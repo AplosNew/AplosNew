@@ -2040,7 +2040,7 @@ WHERE BM.Id='"+ BankMasterID + "'";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"SELECT  VD.Id AS VoucherDetailId  ,V.VoucherNo,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
                                              ,VD.DocRefNo, VD.PartyType, VD.Narration ,GLT.DrAmount AS Amount 
-	                                         ,'' BankReconciliationUploadedDataId,'' BankRefNo
+	                                         ,'' BankReconciliationUploadedDataId,'' BankRefNo,'' BankParticulars
                                        FROM TRN.VoucherDetail AS VD
                                        INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
                                        INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
@@ -2051,11 +2051,11 @@ WHERE BM.Id='"+ BankMasterID + "'";
                                        AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) 
 UNION ALL
 								SELECT  '' VoucherDetailId,'' VoucherNo,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  VoucherDate ,'' DocRefNo, '' PartyType, '' Narration
-								, DrAmount AS Amount ,BRUD.Id BankReconciliationUploadedDataId, BankRefNo
+								, CrAmount AS Amount ,BRUD.Id BankReconciliationUploadedDataId, BankRefNo,BankParticulars
                                 FROM TRN.BankReconciliationUploadedData  BRUD
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                                 WHERE BRUD.CompanyGroupId='" + identity.CompanyGroupId + "' AND BRUD.CompanyId='" + identity.CompanyId + "' AND BRUD.PlantId='" + identity.PlantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
-                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND DrAmount>0 
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND CrAmount>0 
                                 AND BRUD.Id NOT IN(select BankReconciliationUploadedDataId from TRN.BankReconciliationMap)";
         }
         private string BankReconcilePendingCRSql(string bankMasterId, string fromDate, string toDate)
@@ -2063,7 +2063,7 @@ UNION ALL
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"SELECT  VD.Id AS VoucherDetailId  ,V.VoucherNo,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
                                              ,VD.DocRefNo, VD.PartyType, VD.Narration ,GLT.CrAmount AS Amount 
-	                                         ,'' BankReconciliationUploadedDataId,'' BankRefNo
+	                                         ,'' BankReconciliationUploadedDataId,'' BankRefNo,'' BankParticulars
                                        FROM TRN.VoucherDetail AS VD
                                        INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
                                        INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
@@ -2074,11 +2074,11 @@ UNION ALL
                                        AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) 
 UNION ALL
 								SELECT  '' VoucherDetailId,'' VoucherNo,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  VoucherDate ,'' DocRefNo, '' PartyType, '' Narration
-								, CrAmount AS Amount ,BRUD.Id BankReconciliationUploadedDataId, BankRefNo
+								, DrAmount AS Amount ,BRUD.Id BankReconciliationUploadedDataId, BankRefNo,BankParticulars
                                 FROM TRN.BankReconciliationUploadedData  BRUD
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                                 WHERE BRUD.CompanyGroupId='" + identity.CompanyGroupId + "' AND BRUD.CompanyId='" + identity.CompanyId + "' AND BRUD.PlantId='" + identity.PlantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
-                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND CrAmount>0 
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND DrAmount>0 
                                 AND BRUD.Id NOT IN(select BankReconciliationUploadedDataId from TRN.BankReconciliationMap)";
         }
 
@@ -2601,14 +2601,19 @@ UNION ALL
                 int colAmount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "BankMissing";
+                sheet[ROW, COL].Text = "MissingInGL";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colBankMissing = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "GLMissing";
+                sheet[ROW, COL].Text = "MissingInBank";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colGLMissing = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "BankParticulars";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colBankParticulars = COL;
 
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
@@ -2630,6 +2635,7 @@ UNION ALL
                     sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
                     sheet[ROW, colBankMissing].Text = dtDRBR.Rows[i]["BankRefNo"].ToString();
                     sheet[ROW, colGLMissing].Text = dtDRBR.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, colBankParticulars].Text = dtDRBR.Rows[i]["BankParticulars"].ToString();
 
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -2797,14 +2803,19 @@ UNION ALL
                 int colAmount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "BankMissing";
+                sheet[ROW, COL].Text = "MissingInGL";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colBankMissing = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "GLMissing";
+                sheet[ROW, COL].Text = "MissingInBank";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colGLMissing = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "BankParticulars";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colBankParticulars = COL;
 
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
@@ -2826,6 +2837,7 @@ UNION ALL
                     sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
                     sheet[ROW, colBankMissing].Text = dtDRBR.Rows[i]["BankRefNo"].ToString();
                     sheet[ROW, colGLMissing].Text = dtDRBR.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, colBankParticulars].Text = dtDRBR.Rows[i]["BankParticulars"].ToString();
 
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);

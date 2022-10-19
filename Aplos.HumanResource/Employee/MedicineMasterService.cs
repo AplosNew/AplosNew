@@ -399,6 +399,19 @@ namespace Library.HumanResource.Employee
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetCategory()
+        {
+            try
+            {
+                var sql = "select Id Value, UserName Text from HKP.MedicineCategory where  IsActive = 1";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion GET
 
         #region GET SEQUENCE
@@ -424,7 +437,8 @@ namespace Library.HumanResource.Employee
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"SELECT MP.* FROM HKP.MedicinePurpose MP
+                string sql = @"SELECT MP.*, MC.UserName MedicineCategory FROM HKP.MedicinePurpose MP
+                                LEFT JOIN HKP.MedicineCategory MC on MC.Id = MP.MedicineCategoryId
                                 where " + strkey + "order by Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -587,6 +601,8 @@ namespace Library.HumanResource.Employee
                 throw ex;
             }
         }
+
+        
         #endregion GET
 
         #region GET SEQUENCE
@@ -768,8 +784,24 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var str = @"select M.Id, M.Code, M.Sequence, M.UserName Medicine, M.Category, 
-                            M.SubCategory, M.Remarks from HKP.MedicineMaster M";
+                var str = @"Select PM.Sequence, PM.Code, PM.ShortName, PM.StandardName, PM.Id, PM.UserName,  
+                                PM.IsActive, PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks, 
+
+                            STUFF((
+                            SELECT ',' + p.UserName
+
+                            FROM HKP.MedicineMasterPurpose pp
+                            left join hkp.MedicinePurpose p on p.Id = pp.MedicinePurposeId
+                            where pp.MedicineMasterId = pm.Id
+                            FOR XML PATH('')
+
+                            ),1,1,'') AS MedicinePurpose
+
+
+                            from HKP.MedicineMaster PM
+							left join SCS.UnitOfMeasurement U on U.Id = PM.UOMId
+							where PM.IsActive = 1
+							order by PM.UserName";
                 //var str = @"Select Id Value, UserName Text from HKP.MedicineMaster";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -795,7 +827,7 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var str = @"select M.Category, M.Id MedicineMaster, M.StandardName Medicine, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
+                var str = @"select M.Id MedicineMaster, M.StandardName Medicine, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
 FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, MRC.Quantity, MRC.Rate, MRC.Amount, P.UserName Party,
 MRC.Id MedicineReceiptChildId, MR.Id MedicineReceiptId
 from TRN.MedicineReceiptChild MRC
@@ -1064,11 +1096,13 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
                 string TableName = "HKP.MedicineMaster";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                    strkey = column + " like '%" + value + "%'";
+                    strkey = "PM." + column + " like '%" + value + "%'";
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"Select Sequence, Code, ShortName, StandardName, Id, UserName Medicine, Category, SubCategory, Rate, IsActive Remarks, 
+                string sql = @"Select PM.Sequence, PM.Code, PM.ShortName, PM.StandardName, PM.Id, PM.UserName,  
+                                PM.IsActive, PM.MinStockQty, U.StandardName UOMName, U.Id UOMId, PM.Remarks, 
+
                             STUFF((
                             SELECT ',' + p.UserName
 
@@ -1081,6 +1115,7 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
 
 
                             from HKP.MedicineMaster PM
+							left join SCS.UnitOfMeasurement U on U.Id = PM.UOMId
                                 where " + strkey + "order by Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
