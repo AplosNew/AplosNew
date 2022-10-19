@@ -105,7 +105,7 @@ namespace Library.MaterialManagement.Material
                 }
                 else if (storagelevel == "Material")
                 {
-                    sql = @"select distinct mma.standardname as ArticleName, mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                    sql = @"select distinct  mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
                              mm.Id as MaterialMasterId, 
                             mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId
 							from mst.MaterialMasterArticle mma
@@ -203,7 +203,7 @@ namespace Library.MaterialManagement.Material
         #endregion Save 
 
         #region Save Child
-        public List<Dictionary<string, object>> SaveChild(List<Dictionary<string, object>> data, string headerId)
+        public List<Dictionary<string, object>> SaveChild(List<Dictionary<string, object>> data, Dictionary<string, object> itemApplicableData, string headerId, string materiallevel)
         {
             try
             {
@@ -221,7 +221,7 @@ namespace Library.MaterialManagement.Material
                 for (int i = 0; i < data.Count; i++)
                 {
                     DataRow dr = dsMaster.Tables[0].NewRow();
-                    if (data[i]["MaterialMasterArticleId"] == null)
+                    if (materiallevel == "Material")
                     {
                         dr["Id"] = headerId + '-' + i.ToString();
                         dr["IssueControlHeadId"] = headerId;
@@ -230,6 +230,11 @@ namespace Library.MaterialManagement.Material
                         dr["MachineApplicable"] = data[i]["MachineApplicable"];
                         dr["WorkcenterApplicable"] = data[i]["WorkcenterApplicable"];
                         dr["OrderLevel"] = data[i]["StorageLevel"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
                     }
                     else
                     {
@@ -240,13 +245,38 @@ namespace Library.MaterialManagement.Material
                         dr["MachineApplicable"] = data[i]["MachineApplicable"];
                         dr["WorkcenterApplicable"] = data[i]["WorkcenterApplicable"];
                         dr["OrderLevel"] = data[i]["StorageLevel"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(dr);
                     }
                 }
                 #endregion Medicine HEAD
 
+                #region ItemAplicable
+                string ItemApplicableTable = "TRN.IssueControlItemApplicable";
+                DataSet dsItemApplicable;
+
+                con.OpenDataSetThroughAdapter("select * from " + ItemApplicableTable + " where IssueControlHeadId='" + headerId + "'", out dsItemApplicable, false, "1");
+                if (dsItemApplicable.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsItemApplicable.Tables[0].NewRow();
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    itemApplicableData["Id"] = "IA" + _Id;
+                    itemApplicableData["IssueControlHeadId"] = headerId;
+                    AddNewRow(dsItemApplicable.Tables[0], itemApplicableData);
+                }
+
+
+
+
+                #endregion ItemAplicable
+
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsItemApplicable);
 
                 return data;
             }
@@ -255,6 +285,8 @@ namespace Library.MaterialManagement.Material
                 throw ex;
             }
         }
+
+       
         #endregion SAVE Child
 
         #region CREATE AND EDIT DEFAULT COLUMN
@@ -301,6 +333,24 @@ namespace Library.MaterialManagement.Material
             dr.EndEdit();
         }
         #endregion CREATE AND EDIT DEFAULT COLUMN
+
+        #region GET
+        public IEnumerable<object> GetIssue()
+        {
+            try
+            {
+                var str = @"Select * from TRN.IssueControlHeader";
+                
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+       
+        #endregion GET
     }
 
 
