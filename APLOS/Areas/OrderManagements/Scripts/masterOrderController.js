@@ -1133,6 +1133,37 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         serverPagination: true
     };
 
+    $scope.showEmployeeListPopUps = function (name) {
+        try {
+            $scope.Name = name;
+            //$scope.employeeParameters.searchBy = 'EmployeeCode';
+            baseService.setCurrentPage('employeeList');
+            $scope.searchEmployeeByList = [];
+            $scope.getEmployeeData = function (pageno) {
+                //$scope.employeeParameters.plantId = $scope.fileNew.PlantId;
+                //$scope.employeeParameters.partyAccountGroupId = $scope.fileNew.PartyAccountGroupId;
+                //$scope.employeeParameters.partyId = $scope.fileNew.PartyId;
+                baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
+                    .then(function (result) {
+                        $scope.employeeList = result.Rows;
+                        $scope.employeeParameters.total_count = result.Total;
+
+                        if (baseService.arrayLength($scope.searchEmployeeByList) === 0)
+                            baseService.getDDLSearchColumn(result.Rows, $scope.searchEmployeeByList);
+                        //$scope.employeeParameters.searchBy = 'EmployeeCode';
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#employeePopUp')).modal('show');
+            $scope.getEmployeeData();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+
     $scope.showEmployeeListPopUp = function (name) {
         try {
             if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
@@ -1192,6 +1223,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             else if ($scope.Name === 'boq') {
                 $scope.qboqModel.ResponsiblePersonId = employee.SystemId;
                 $scope.qboqModel.ResponsiblePersonName = employee.EmployeeName;
+            }
+            else if ($scope.Name === 'pd') {
+                $scope.modelNewPD.ResponsiblePersonId = employee.SystemId;
+                $scope.modelNewPD.ResponsiblePersonName = employee.EmployeeName;
             }
             else {
                 $scope.soSplitModel.ResponsiblePersonId = employee.SystemId;
@@ -1917,7 +1952,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         //    ShowResult("Please enter mandatory fields", 'failure', 'soPoUp');
         //    return false;
         //}
-       
+
 
         $scope.$broadcast('show-errors-check-validity');
 
@@ -2218,7 +2253,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , ShipmentFromStock: null
             , StockResponsiblePersonId: null
             , StockResponsiblePerson: null
-            , PackingTypeId:null
+            , PackingTypeId: null
         };
     }
 
@@ -4266,8 +4301,22 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
     //#endregion Job Work Type
 
+    $scope.modelPD = {
+        Id: null,
+        UserName: null,
+        LineItem: null,
+        PackingLevel: null,
+        OwnRefNo: null,
+        CustomerRefNo: null,
+        ResponsiblePersonId: null,
+        ResponsiblePersonName: null,
+        Remarks: null,
+    };
+    $scope.modelNewPD = Object.assign({}, $scope.modelPD);
 
-    //#endregion QBOQ
+    $scope.ClearPackingDetail = function () {
+        $scope.modelNewPD = Object.assign({}, $scope.modelPD);
+    };
 
     //#region Contract
 
@@ -4734,48 +4783,44 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     }
 
-    $scope.SaveContract = function () {
+    $scope.SavePackingDetail = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.modelNew.MasterOrderId)) {
-                $scope.modelNew.MasterOrderId = $scope.fileNew.Id;
-            }
+            //if (baseService.isUndefinedOrNull($scope.modelNew.MasterOrderId)) {
+            //    $scope.modelNew.MasterOrderId = $scope.fileNew.Id;
+            //}
 
-            $scope.modelNew.Amount = $scope.modelNew.Amount.toFixed(2);
-            $scope.modelNew.Amount = parseFloat($scope.modelNew.Amount);
-            $scope.saveFunds = [];
+            //$scope.modelNew.Amount = $scope.modelNew.Amount.toFixed(2);
+            //$scope.modelNew.Amount = parseFloat($scope.modelNew.Amount);
+            //$scope.saveFunds = [];
 
-            for (var i = 0; i < $scope.buyerDeductionList.length; i++) {
-                $scope.saveFunds.push($scope.buyerDeductionList[i]);
-            }
+            //for (var i = 0; i < $scope.buyerDeductionList.length; i++) {
+            //    $scope.saveFunds.push($scope.buyerDeductionList[i]);
+            //}
 
-            for (var i = 0; i < $scope.fundUtilizationList.length; i++) {
-                $scope.saveFunds.push($scope.fundUtilizationList[i]);
-            }
+            //for (var i = 0; i < $scope.fundUtilizationList.length; i++) {
+            //    $scope.saveFunds.push($scope.fundUtilizationList[i]);
+            //}
 
-            for (var i = 0; i < $scope.saveFunds.length; i++) {
-                if (baseService.isUndefinedOrNull($scope.saveFunds[i].Id)) {
-                    $scope.saveFunds[i].Id = null;
-                }
-                if ($scope.saveFunds[i].Percentage !== $scope.saveFunds[i].OldPercentage) {
-                    if (baseService.isUndefinedOrNull($scope.saveFunds[i].Reason)) {
-                        throw "Reason is required for " + $scope.saveFunds[i].FundUtilizationText + "";
-                    }
-                }
-            }
+            //for (var i = 0; i < $scope.saveFunds.length; i++) {
+            //    if (baseService.isUndefinedOrNull($scope.saveFunds[i].Id)) {
+            //        $scope.saveFunds[i].Id = null;
+            //    }
+            //    if ($scope.saveFunds[i].Percentage !== $scope.saveFunds[i].OldPercentage) {
+            //        if (baseService.isUndefinedOrNull($scope.saveFunds[i].Reason)) {
+            //            throw "Reason is required for " + $scope.saveFunds[i].FundUtilizationText + "";
+            //        }
+            //    }
+            //}
 
 
-            if (baseService.isUndefinedOrNull($scope.modelNew.ContractNo)) {
-                throw "ContractNo is required.";
-            }
+            //if (baseService.isUndefinedOrNull($scope.modelNew.ContractNo)) {
+            //    throw "ContractNo is required.";
+            //}
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
-                    url: 'OrderManagements/MasterOrder/CreateContract',
-                    data: {
-                        'model': $scope.modelNew
-                        , 'funds': $scope.saveFunds
-                        , 'masterOrderItem': $scope.itemList
-                    },
+                    url: 'OrderManagements/MasterOrder/CreatePackingDetail',
+                    data: { 'data': $scope.modelNewPD },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
                 }).then(function successCallback(response) {
@@ -4784,11 +4829,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.modelNew.Id = response.data.Id;
-
-                        //$scope.GetContractByMasterOrder();
-                        $scope.GetContractFundData($scope.modelNew.Id);
-                        $scope.getMasterItemList();
+                        $scope.modelNewPD.Id = response.data.Id;
+                        $scope.ClearPackingDetail();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -4799,7 +4841,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-
+    $scope.GetPackingDetail = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetPackingDetail?PackingDetailId =' + $scope.modelNewPD.Id
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) > 0)
+            {
+                $scope.PackingDetailDataList = response.data;
+            }
+             });
+        }
     //#endregion Contract
 
     //#region   SO Copy    
