@@ -94,7 +94,7 @@
                 <div e-columns>
 
                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                    <div e-column e-field="Medicine" e-headertext="Medicine" e-width="50"></div>
+                    <div e-column e-field="UserName" e-headertext="Medicine" e-width="50"></div>
                     <div e-column e-headertext="Expiry Date" e-template="#checkbxExpDate" e-textalign="center" e-width="30"></div>
                     <div e-column e-headertext="Quantity" e-template="#checkboxQty" e-textalign="center" e-width="30"></div>
                     <div e-column e-headertext="Amount" e-template="#checkboxAmount" e-textalign="center" e-width="30"></div>
@@ -151,7 +151,7 @@
          e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
          e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-         e-detailstemplate="detailTemp"
+         
          e-detailsdatabound="detailgrid">
         <div e-columns>
             @*<div e-column e-headertext="Actions" e-width="60">
@@ -171,20 +171,4 @@
     </div>
 
 
-    @*<script id="tabGridContents" type="text/x-jsrender">
-        <div class="tabcontrol" id="Test">
-            <ul>
-                <li><a href="#gridTab{{:Id}}">Po Details</a></li>
-                <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-            </ul>
-            <div id="gridTab{{:Id}}">
-                <div id="detailGrid"></div>
-            </div>
-
-            <div id="gridTab1{{:Id}}">
-                <div id="detailGrid1" style="width:800px;"></div>
-            </div>
-
-        </div>
-    </script>*@
 </div>

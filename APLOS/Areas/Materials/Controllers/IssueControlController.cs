@@ -71,5 +71,34 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
         #endregion GET FUN
+
+        #region SAVE
+        [HttpPost, Authorize]
+        public ActionResult Save(Dictionary<string, object> data)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = isc.Save(data), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult SaveChild(List<Dictionary<string, object>> data, string headerId)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = isc.SaveChild(data, headerId), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #endregion SAVE
     }
 }
