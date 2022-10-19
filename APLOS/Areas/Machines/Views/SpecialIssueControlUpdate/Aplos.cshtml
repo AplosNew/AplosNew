@@ -12,7 +12,7 @@
                 <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="issueupdateNew.Shift" name="Sub Category" required
+                        <select class="form-control" ng-model="issueupdateNew.Shift" name="Shift" required
                                 ng-options="item.Value as item.Text for item in ShiftList">
                             <option value=""></option>
                         </select>
@@ -33,6 +33,12 @@
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Time<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ej-timepicker e-value="issueupdateNew.Time" e-width="100%" />
+                </div>
+            </div>
+            <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Issue<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="col-sm-10" style="padding:0px;">
@@ -44,55 +50,90 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Time<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    @*<input type="text" name="Time" ng-model="issueupdateNew.Time" timepicker class="form-control" required maxlength="100" autocomplete="off">*@
-                    <input type="text" ej-timepicker e-value="issueupdateNew.Time" e-width="100%" />
-                </div>
-            </div>
-            <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Remarks" ng-model="issueupdateNew.Remarks" class="form-control" required maxlength="100" autocomplete="off">
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div id="GridIssueControlUpdate" ej-grid e-datasource="IssueControlUpdateList" e-recorddoubleclick="GetICUDetails"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-                    <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="3"></div>
-                    <div e-column e-field="IssueUpdateDate" e-headertext="Date" e-width="3"></div>
-                    <div e-column e-field="ShiftName" e-headertext="Shift" e-width="3"></div>
-                    <div e-column e-field="ShiftInCharge" e-headertext="Shift In Charge" e-width="3"></div>
-                    <div e-column e-field="Issue" e-headertext="Issue" e-width="3"></div>
-                    <div e-column e-field="IssueTime" e-headertext="Time" e-width="3"></div>
-                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
-                    <div e-column e-template="#ItemGrid" e-headertext="Item Grid" e-width="3"></div>
-                </div>
-            </div>
-            <script type="text/template" id="ItemGrid">
-                <div class="form-group">
-                    <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Remarks" ng-model="issueupdateNew.Remarks" class="form-control" required maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                         <div class="common-btn">
-                            <ul class="list-inline text-left">
-                                <li><button ng-click="$parent.GetIssueItemPopup(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
-                            </ul>
+                            <button ng-click="GetIssueItemPopup();" class="btn"> View </button>
                         </div>
                     </div>
                 </div>
-            </script>
+            </div>
+        </div>
+        @*<div class="col-xs-12 col-sm-12 col-md-12">
+                <div id="GridIssueControlUpdate" ej-grid e-datasource="IssueControlUpdateList" e-recorddoubleclick="GetICUDetails"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="3"></div>
+                        <div e-column e-field="IssueUpdateDate" e-headertext="Date" e-width="3"></div>
+                        <div e-column e-field="ShiftName" e-headertext="Shift" e-width="3"></div>
+                        <div e-column e-field="ShiftInCharge" e-headertext="Shift In Charge" e-width="3"></div>
+                        <div e-column e-field="Issue" e-headertext="Issue" e-width="3"></div>
+                        <div e-column e-field="IssueTime" e-headertext="Time" e-width="3"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                        <div e-column e-template="#ItemGrid" e-headertext="Item Grid" e-width="3"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="ItemGrid">
+                    <div class="form-group">
+                        <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="$parent.GetIssueItemPopup(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </script>
+            </div>*@
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div style="color:black;" id="GridUpdateIssueItem" ej-grid e-datasource="IssueItemDetailsList"
+                 e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                 e-recorddoubleclick="" e-templaterefresh="refreshTemplateIssueItem">
+                <div e-columns>
+                   @* <div e-column e-headertext="All" e-headertemplateid="#headerTemplateIssueItem" e-template="#checkboxTemplateIssueItem" e-textalign="center" e-width="1"></div>*@
+                    <div e-column e-type="string" e-field="Id" e-visible="false" e-headertext="Id" e-width="2"></div>
+                    <div e-column e-type="string" e-field="SICItemId" e-visible="false" e-headertext="Item Id" e-width="2"></div>
+                    <div e-column e-type="string" e-field="ICUId" e-visible="false" e-headertext="Issue Update Id" e-width="2"></div>
+                    <div e-column e-type="string" e-field="SpecialIssueItem" e-headertext="Item Name" e-width="3"></div>
+                    <div e-column e-type="string" e-field="Actiontaken" e-headertext="Action taken" e-width="3"></div>
+                    <div e-column e-type="string" e-field="ActiontakenBy" e-headertext="Action taken By" e-width="3"></div>
+                    <div e-column e-type="string" e-field="SampleSize" e-headertext="Sample Size" e-width="2"></div>
+                    <div e-column e-type="string" e-template="#Value" e-headertext="Value" e-width="2"></div>
+                    <div e-column e-type="string" e-template="#Remark" e-headertext="Remarks" e-width="2"></div>
+                </div>
+                <script type="text/template" id="checkboxTemplateIssueItem">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplateIssueItem">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <script type="text/template" id="Value">
+                    <div class="col-sm-12" style="padding:0px;">
+                        <input type="text" name="Value" ng-model="data.Value" ng-click="" class="form-control">
+                    </div>
+                </script>
+                <script type="text/template" id="Remark">
+                    <div class="col-sm-12" style="padding:0px;">
+                        <input type="text" name="Remark" ng-model="data.Remarks" ng-click="" class="form-control">
+                    </div>
+                </script>
+            </div>
         </div>
         <div class="common-btn">
             <ul class="list-inline text-right">
                 <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Delete</button></li>
+                @*<li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Delete</button></li>*@
                 <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
     </div>
-</div>    
+</div>
 <confirm-modal></confirm-modal>
 <div class="modal fade site-modal in" id="ShifInChargePopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">

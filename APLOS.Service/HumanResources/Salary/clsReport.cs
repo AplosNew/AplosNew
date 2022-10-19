@@ -1694,7 +1694,7 @@ format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as ToT
 Reverse(stuff(Reverse((Select EmployeeName + ',' from EmployeeInformation where 
 SystemId in (select ResponsiblePersonId from [TRN].[ResponsiblePlannedDetails] where PlannedId=APD.Id and IsActive=1) for xml PATH(''))),1,1,'')) as ResponsiblePerson,
 '' as [Item Name],'' as ItemSNO,'' CriticalLevel,'' ItemRemarks,
-'' as CheckPoints,
+'' as CheckPoints, 
 MSC.SNO as StoresSNO,MSC.ItemName as StoreItemName,
 (select UserName from SCS.UnitOfMeasurement where Active=1 and Id=MSC.UOMId) as UOM,
 (select StandardName from MST.MaterialMasterArticle where Id=MSC.ArticleId) as Article,
@@ -1703,7 +1703,8 @@ MSC.Category,MSC.CostType,MSC.EstimationLevel,MSC.Remarks as StoresRemarks,
 isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id=APD.Id
  ORDER BY Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(MPD.ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
-ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate
+ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
+MA.AssetReference
 from TRN.Maintenancescheduling MS
 left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
 left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
@@ -1755,7 +1756,8 @@ ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,
 isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id=APD.Id
  ORDER BY Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
-ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate
+ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
+MA.AssetReference
 from TRN.Maintenancescheduling MS
 left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
 left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id

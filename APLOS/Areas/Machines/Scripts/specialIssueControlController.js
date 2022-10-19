@@ -7,6 +7,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
     $scope.path = 'Machines/SpecialIssueControl/';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveUrlItem = $scope.path + 'createItem';
+    $scope.saveUrlPeriod = $scope.path + 'createPeriod';
   
 
     $scope.CategoryList = [];
@@ -99,7 +100,27 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         , SpecialIssueControlId:null
     };
     $scope.ItemNew = Object.assign({}, $scope.Item);
-    
+
+    $scope.Period = {
+        Id: null
+        , Sequence: null
+        , PeriodName: null
+        , Shift: null
+        , Time: null
+    };
+    $scope.PeriodNew = Object.assign({}, $scope.Period);
+
+    $scope.ShiftList = [];
+    $scope.GetShiftList = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/SpecialIssueControlUpdate/GetShiftList'
+        }).then(function successCallback(response) {
+            $scope.ShiftList = response.data;
+        });
+    }
+    $scope.GetShiftList();
+
     $scope.IssueControlMasterList = [];
     $scope.LoadSpecialIssueMasterList = function () {
         $http({
@@ -124,7 +145,19 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         )
     }
 
-  
+    $scope.PeriodList = [];
+    $scope.LoadPeriodDetails = function () {
+        $http({
+
+            method: 'Get',
+            url: 'Machines/SpecialIssueControl/LoadPeriodDetails'
+        }).then(function successCallback(response) {
+            $scope.PeriodList = response.data;
+        }
+        )
+    }
+    $scope.LoadPeriodDetails();
+
     $scope.selectEmployee = function () {
         $scope.getEmployee();
         angular.element(document.querySelector('#ResponsiblePopup')).modal('show');
@@ -231,7 +264,32 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         }
     };
 
-  
+    $scope.PeriodSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.SpecialDefinePeirodForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlPeriod,
+                data: {
+                    'PeriodData': $scope.PeriodNew,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadPeriodDetails($scope.PeriodNew.Id);
+                    PeriodClearFields();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -269,19 +327,38 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         }
         )
     }
-   
+
+    $scope.GetPeriodDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'Machines/SpecialIssueControl/LoadPeriodEditData?PeriodId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.PeriodNew = response.data.Period[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+
     $scope.Clear = function () {
         SpecialIssueClearFields();
     };
     $scope.ItemClear = function () {
         ItemClearFields();
     };
-   
+    $scope.PeriodClear = function () {
+        PeriodClearFields();
+    };
     function SpecialIssueClearFields() {
         $scope.Action = "Save";
         $scope.issueNew = Object.assign({}, $scope.issue);
     }
-
+    function PeriodClearFields() {
+        $scope.Action = "Save";
+        $scope.PeriodNew = Object.assign({}, $scope.Period);
+    }
     function ItemClearFields() {
         $scope.Action = "Save";
         $scope.Item = {

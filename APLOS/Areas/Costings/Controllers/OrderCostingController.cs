@@ -37,7 +37,7 @@ namespace Aplos.Areas.Costings.Controllers
 
         #region Constructor
 
-        private readonly ISqlRepository _sqlRepository;
+        private readonly ISqlRepository _sqlRepository; 
         Library.Service.Materials.MaterialMasterService _Materialservice;
         public OrderCostingController(ISqlRepository R, Library.Service.Materials.MaterialMasterService M)
         {

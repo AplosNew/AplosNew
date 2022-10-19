@@ -85,10 +85,10 @@ format(SIC.TargetDate,'dd-MMM-yyyy') as TDate,MonitoringPeriod as MonitoringPeri
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-       
+
         [Authorize, HttpGet]
         public ActionResult LoadIssueControlUpdateList()
-         {
+        {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @" SELECT *,format(ICU.Date,'dd-MMM-yyyy') as [IssueUpdateDate],
 (select SD.UserName from ShiftDefination SD where SD.SystemID=ICU.Shift) as [ShiftName],
@@ -118,46 +118,46 @@ format(ICU.Time,'hh:mm tt') as IssueTime
         {
             try
             {
-                    ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                    conRack.OpenDataSetThroughAdapter("select * from [TRN].[SpecialIssueControlUpdate] where Id<>'" + IssueUpdateData["Id"] + "'", out DataSet dsSpecialIssueControlUpdateValidation, false, "1");
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SpecialIssueControlUpdate] where Id<>'" + IssueUpdateData["Id"] + "'", out DataSet dsSpecialIssueControlUpdateValidation, false, "1");
 
-                    DataSet dsSpecialIssueControlUpdate;
+                DataSet dsSpecialIssueControlUpdate;
 
-                    conRack = new ConnectionManager.DAL.ConManager("1");
-                    conRack.OpenDataSetThroughAdapter("select * from [TRN].[SpecialIssueControlUpdate] where Id='" + IssueUpdateData["Id"] + "'", out dsSpecialIssueControlUpdate, false, "1");
-                    string _Id = "";
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SpecialIssueControlUpdate] where Id='" + IssueUpdateData["Id"] + "'", out dsSpecialIssueControlUpdate, false, "1");
+                string _Id = "";
 
-                    #region data update
-                    if (dsSpecialIssueControlUpdate.Tables[0].Rows.Count == 0)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("SpecialIssueControlUpdate", out _Id);
-                        _Id = "ICU" + _Id;
-                        IssueUpdateData["Id"] = _Id;
-                        AddNewRow(dsSpecialIssueControlUpdate.Tables[0], IssueUpdateData);
-                    }
-                    else
-                    {
-                        _Id = IssueUpdateData["Id"].ToString();
-                        EditRow(dsSpecialIssueControlUpdate.Tables[0].Rows[0], IssueUpdateData);
-                    }
-                    #endregion data update
-
-
-
-                    clsStaticInfo _info = new clsStaticInfo();
-                    _info.SaveDataSets(dsSpecialIssueControlUpdate);
-
-                    return Json(new { Error = false, Data = IssueUpdateData, Message = AplosMessage.Insert });
-
-                }
-                catch (Exception ex)
+                #region data update
+                if (dsSpecialIssueControlUpdate.Tables[0].Rows.Count == 0)
                 {
-
-                    return Json(new { Error = true, Message = ex.Message });
-
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("SpecialIssueControlUpdate", out _Id);
+                    _Id = "ICU" + _Id;
+                    IssueUpdateData["Id"] = _Id;
+                    AddNewRow(dsSpecialIssueControlUpdate.Tables[0], IssueUpdateData);
                 }
+                else
+                {
+                    _Id = IssueUpdateData["Id"].ToString();
+                    EditRow(dsSpecialIssueControlUpdate.Tables[0].Rows[0], IssueUpdateData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsSpecialIssueControlUpdate);
+
+                return Json(new { Error = false, Data = IssueUpdateData, Message = AplosMessage.Insert });
+
             }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -198,55 +198,20 @@ format(ICU.Time,'hh:mm tt') as IssueTime
             dr.EndEdit();
         }
 
-        [Authorize, HttpPost]
-        public ActionResult IssueDelete(string id)
-        {
-            try
-            {
-                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                DataSet ItemCount;
-
-                conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SpecialIssueItem] where SpecialIssueControlId='" + id + "'", out ItemCount, false, "1");
-
-
-                if (ItemCount.Tables[0].Rows.Count == 0)
-                {
-
-                    conC.BeginTransaction();
-                    conC.executeQuery("delete from TRN.SpecialIssueControl where Id ='" + id + @"'");
-                    conC.CommitTransaction();
-                }
-                else
-                {
-                    throw new Exception("Transaction are Exists!");
-                }
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
         [Authorize, HttpGet]
         public ActionResult LoadIssueItemDetailsList(string IssueId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN SIUI.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,SIUI.Id,SII.Id as SICItemId,ICU.Id as ICUId,
+            string sql = @"Select SII.Id as SICItemId,
  SII.SpecialIssueItem,SII.Actiontaken,
  (select EmployeeName from EmployeeInformation where SystemId=SII.ActiontakenById) as ActiontakenBy,
- SII.SampleSize,SIUI.Value,SIUI.Remarks 
-  from TRN.SpecialIssueItem SII
- left join [TRN].[SpecialIssueUpdateItem] SIUI ON SIUI.SICItemId=SII.Id
- left join [TRN].[SpecialIssueControlUpdate] ICU ON ICU.IssueId=SII.SpecialIssueControlId
- where SpecialIssueControlId='" + IssueId + "'";
+ SII.SampleSize,'' Value,'' Remarks,'' Id,'' ICUId  from TRN.SpecialIssueItem SII
+ where SII.SpecialIssueControlId='" + IssueId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateItem(List<Dictionary<string, object>> DataList)
+        public JsonResult CreateItem(List<Dictionary<string, object>> DataList, string Pid)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -263,33 +228,74 @@ format(ICU.Time,'hh:mm tt') as IssueTime
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT * from " + TableName + "  where SICItemId=(select  Id from TRN.SpecialIssueItem where SpecialIssueItem='" + item["SpecialIssueItem"] + "') and Value < '" + item["Value"] + "'", out DataSet dsSpecialIssueUpdateItemValidation, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT * from TRN.SpecialIssueItem  where Id= '" + item["SICItemId"] + "' and SampleSize<" + item["Value"] + "", out DataSet dsSampleSizeValidation, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
 
                         if (dv.Count == 0)
                         {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "SIUI" + _Id;
-                            AddNewRow(dsProdBooked.Tables[0], item);
+                            if (dsSampleSizeValidation.Tables[0].Rows.Count > 0)
+                            {
+                                
+                                objCon.BeginTransaction();
+                                objCon.executeQuery("delete from TRN.SpecialIssueUpdateItem where ICUId = '" + Pid + @"'");
+                                objCon.executeQuery("delete from TRN.SpecialIssueControlUpdate where Id ='" + Pid + @"'");
+                                objCon.CommitTransaction();
+                                throw new Exception("Value should not be exceed more than Sample Size");
+                            }
+                            else
+                            {
+                                if (dsSpecialIssueUpdateItemValidation.Tables[0].Rows.Count > 0)
+                                {
+
+                                    if (item["Remarks"].ToString() == "")
+                                    {
+                                        objCon.BeginTransaction();
+                                        objCon.executeQuery("delete from TRN.SpecialIssueUpdateItem where ICUId = '" + Pid + @"'");
+                                        objCon.executeQuery("delete from TRN.SpecialIssueControlUpdate where Id ='" + Pid + @"'");
+                                        objCon.CommitTransaction();
+                                        throw new Exception("Please add remarks and proceed");
+                                    }
+                                    else
+                                    {
+                                        bplib.clsGenID genid = new bplib.clsGenID();
+                                        genid.GenID(TableName, out _Id);
+                                        item["Id"] = "SIUI" + _Id;
+                                        item["ICUId"] = Pid;
+                                        AddNewRow(dsProdBooked.Tables[0], item);
+
+                                    }
+
+                                }
+                                else
+                                {
+                                    bplib.clsGenID genid = new bplib.clsGenID();
+                                    genid.GenID(TableName, out _Id);
+                                    item["Id"] = "SIUI" + _Id;
+                                    item["ICUId"] = Pid;
+                                    AddNewRow(dsProdBooked.Tables[0], item);
+
+                                }
+                            }
                         }
                         else
                         {
                             DataRow drpb = dv[0].Row;
                             EditRow(drpb, item);
                         }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsProdBooked);
+                            clsStaticInfo obj = new clsStaticInfo();
+                            obj.SaveDataSets(dsProdBooked);
+                        }
                     }
-                }
-                return Json(new { Message = AplosMessage.Insert });
+                    return Json(new { Message = AplosMessage.Insert });
 
-            }
+                }
             catch (Exception ex)
             {
                 throw (ex);
             }
         }
-      
+
         #endregion -- Operations
     }
 }

@@ -6,7 +6,7 @@ function specialIssueControlUpdateController(cboService, commonMessage, $scope, 
     $scope.path = 'Machines/SpecialIssueControlUpdate/';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveIssueItemUpdateUrl = $scope.path + 'createItem';
-  
+    var CurrentTime = new Date();
 
     $scope.ShiftList = [];
     $scope.GetShiftList = function () {
@@ -22,13 +22,13 @@ function specialIssueControlUpdateController(cboService, commonMessage, $scope, 
     
     $scope.issueupdate = {
         Id: null
-        , Date: null
+        , Date: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
         , Shift: null
         , ShiftInchargeId: null
         , ShiftIncharge: null
         , IssueId:null
         , Issue: null
-        , Time: null
+        , Time: CurrentTime
         , Remarks: null
     };
     $scope.issueupdateNew = Object.assign({}, $scope.issueupdate);
@@ -41,31 +41,32 @@ function specialIssueControlUpdateController(cboService, commonMessage, $scope, 
         , ActiontakenBy: null
         , SampleSize: null
         , Remarks: null
+        , Value: null
         , SpecialIssueControlId:null
     };
     $scope.ItemNew = Object.assign({}, $scope.Item);
 
-    $scope.IssueControlUpdateList = [];
-    $scope.LoadIssueControlUpdateList = function () {
-        $http({
-            method: 'Get',
-            url: 'Machines/SpecialIssueControlUpdate/LoadIssueControlUpdateList'
-        }).then(function successCallback(response) {
-            $scope.IssueControlUpdateList = response.data;
-            var gridObj = $("#GridIssueControlUpdate").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-        });
-    }
-    $scope.LoadIssueControlUpdateList();
+    //$scope.IssueControlUpdateList = [];
+    //$scope.LoadIssueControlUpdateList = function () {
+    //    $http({
+    //        method: 'Get',
+    //        url: 'Machines/SpecialIssueControlUpdate/LoadIssueControlUpdateList'
+    //    }).then(function successCallback(response) {
+    //        $scope.IssueControlUpdateList = response.data;
+    //        var gridObj = $("#GridIssueControlUpdate").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    //    });
+    //}
+    //$scope.LoadIssueControlUpdateList();
 
     $scope.IssueItemDetailsList = [];
-    $scope.GetIssueItemPopup = function (data) {
+    $scope.GetIssueItemPopup = function () {
         $http({
             method: 'Get',
-            url: 'Machines/SpecialIssueControlUpdate/LoadIssueItemDetailsList?IssueId=' + data.data.IssueId
+            url: 'Machines/SpecialIssueControlUpdate/LoadIssueItemDetailsList?IssueId=' + $scope.issueupdateNew.IssueId
         }).then(function successCallback(response) {
             $scope.IssueItemDetailsList = response.data;
             var gridObj = $("#GridUpdateIssueItem").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            angular.element(document.querySelector('#IssueItemPopup')).modal('show');
+            //angular.element(document.querySelector('#IssueItemPopup')).modal('show');
         }
         )
     }
@@ -116,7 +117,7 @@ function specialIssueControlUpdateController(cboService, commonMessage, $scope, 
 
     $scope.doubleEmployee = function (e) {
         $scope.issueupdateNew.ShiftInchargeId = e.data.SystemId;
-        $scope.issueupdateNew.ShiftIncharge = e.data.EmployeeName;
+        $scope.issueupdateNew.ShiftInCharge = e.data.EmployeeName;
         angular.element(document.querySelector('#ShifInChargePopup')).modal('hide');
     }
 
@@ -150,47 +151,62 @@ function specialIssueControlUpdateController(cboService, commonMessage, $scope, 
         angular.element(document.querySelector('#IssuePopup')).modal('hide');
     }
 
+    $scope.CheckValidValue = function () {
+        for (var i = 0; i < $scope.IssueItemDetailsList.length; i++)
+        {
+            if (baseService.isUndefinedOrNull($scope.IssueItemDetailsList[i].Value)) {
 
+                throw "Value is required";
+            }
+        }
+    }
 
     $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.SpecialIssueControlUpdateForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'IssueUpdateData': $scope.issueupdateNew},
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
+        try {
+            $scope.CheckValidValue();
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.SpecialIssueControlUpdateForm.$valid) {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'IssueUpdateData': $scope.issueupdateNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        //ShowResult(response.data.Message, 'success');
+                        $scope.SaveIssueUpdateItemDetails(response.data.Data.Id);
+                        //$scope.LoadIssueControlUpdateList();
+                        //IssueUpdateClearFields();
+
+
+                    }
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.LoadIssueControlUpdateList();
-                    IssueUpdateClearFields();
-                 
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
             }
-        }    
+        }
+        catch (ex) {
+            ShowResult(ex, 'Info');
+        }
     };
 
-    $scope.SaveIssueUpdateItemDetails = function () {
+    $scope.SaveIssueUpdateItemDetails = function (Id) {
         try {
 
             $scope.SaveList = [];
             for (var i = 0; i < $scope.IssueItemDetailsList.length; i++) {
-                if ($scope.IssueItemDetailsList[i].Flag == true) {
                     $scope.SaveList.push($scope.IssueItemDetailsList[i]);
-                }
             }
 
             $http({
                 method: 'POST',
                 url: $scope.saveIssueItemUpdateUrl,
                 data: {
-                    "DataList": $scope.SaveList
+                    "DataList": $scope.SaveList,
+                    'Pid': Id
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -235,6 +251,7 @@ function specialIssueControlUpdateController(cboService, commonMessage, $scope, 
     function IssueUpdateClearFields() {
         $scope.Action = "Save";
         $scope.issueupdateNew = Object.assign({}, $scope.issueupdate);
+        $scope.IssueItemDetailsList = [];
     }
 
     function ItemClearFields() {
