@@ -648,15 +648,13 @@ namespace Library.Planning.OrderManagement
             dr.EndEdit();
         }
 
-        public void SaveContractData(Dictionary<string, object> data, out string contractId, List<Dictionary<string, object>> funds, List<MasterOrderItem> masterOrderItem)
+        public void SavePackingDetailData(Dictionary<string, object> data)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[Contract] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PackingDetaial] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -664,82 +662,21 @@ namespace Library.Planning.OrderManagement
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "Contract", out _Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PackingDetaial", out _Id);
 
-                    data["Id"] = "C" + _Id;
-                    data["PlantId"] = identity.PlantId;
+                    data["Id"] = "PD" + _Id;
+                    //data["LineItem"] = dsMaster["LineItem"];
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
-                    data["PlantId"] = identity.PlantId;
+                    //data["PlantId"] = identity.PlantId;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
 
-                contractId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-
-                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.MasterOrderItem WHERE MasterOrderId IN (" + data["MasterOrderId"] + ")", out DataSet dsMasterOrder, false, "1");
-
-                foreach (var item in masterOrderItem)
-                {
-                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
-                    dv.RowFilter = "Id='" + item.Id + "'";
-
-                    if (dv.Count > 0)
-                    {
-                        DataRow drmo = dv[0].Row;
-
-                        drmo.BeginEdit();
-
-                        drmo["ContractId"] = contractId;
-                        drmo["UpdatedBy"] = identity.Name;
-                        drmo["UpdatedDate"] = DateTime.Now.ToString();
-                        drmo["UpdatedFromIP"] = identity.IPAddress;
-
-                        drmo.EndEdit();
-
-                    }
-
-                }
-
-
-
-                #region FUND 
-
-                DataSet dsChild;
-
-                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ContractFund where  ContractId='" + contractId + "'", out dsChild, false, "1");
-                #region data update
-
-                if (funds != null)
-                {
-                    foreach (var item in funds)
-                    {
-                        DataView dv = new DataView(dsChild.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                        if (dv.Count == 0)
-                        {
-                            item["Id"] = GetContractFundPK();
-                            item["ContractId"] = contractId;
-
-                            AddNewRow(dsChild.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
-                    }
-                }
-                #endregion
-
-                #endregion
-
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsChild, dsMasterOrder);
+                obj.SaveDataSets(dsMaster);
 
             }
             catch (Exception ex)
@@ -984,6 +921,13 @@ ORDER BY OL.Sequence";
                     GROUP BY MOI.Id
                     ) SO ON SO.Id=I.Id
                     WHERE I.MasterOrderId='" + masterId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetPackingDetail(string PackingDetailId)
+        {
+            string sql = @"SELECT * from PackingDetail 
+                    WHERE Id='" + PackingDetailId + "'";
             return _sqlRepository.GetDataCollection(sql);
         }
 
