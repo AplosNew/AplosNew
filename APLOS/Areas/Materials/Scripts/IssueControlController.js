@@ -209,6 +209,8 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.Get = function (args) {
         $scope.ModelNew.Id = args.data.Id;
+        $scope.ModelNew = Object.assign({}, args.data);
+
         $scope.Action = 'Update';
 
         if (!$rootScope.isCollapsed) {
