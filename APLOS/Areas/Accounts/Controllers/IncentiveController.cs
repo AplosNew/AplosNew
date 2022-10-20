@@ -18,7 +18,7 @@ namespace Aplos.Areas.Accounts.Controllers
 {
     public class IncentiveController : BaseController
     {
-        string TableName = "hkp.Incentive";
+        string TableName = "MST.IncentiveMaster";
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
@@ -47,7 +47,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                var _master = _sqlRepository.GetDataCollection("select * from hkp.Incentive where Id = '" + Id + "' ");
+                var _master = _sqlRepository.GetDataCollection("select * from MST.IncentiveMaster where Id = '" + Id + "' ");
 
 
                 return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
@@ -68,7 +68,11 @@ namespace Aplos.Areas.Accounts.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
+            string sql = @"select top 500 * from (SELECT IM.*,P.UserName PartyName,GLD.AccountCode +'-'+GLD.UserName AssetGLInof ,GLC.AccountCode +'-'+GLC.UserName RevenueGLInof
+                        FROM [MST].[IncentiveMaster] IM
+                        LEFT JOIN [HKP].Party AS P ON P.Id=IM.PartyId
+                        LEFT JOIN HKP.GLGeneralInfo AS GLD ON GLD.Id=IM.DrGLGeneralInfoId
+                        LEFT JOIN HKP.GLGeneralInfo AS GLC ON GLC.Id=IM.CrGLGeneralInfoId) AS TEMP WHERE " + strkey + " order by sequence";
 
 
 
@@ -133,7 +137,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         public ActionResult Delete(string id)
         {
-            string sql = @"select * from HKP.Incentive where Id = '" + id + "'";
+            string sql = @"select * from MST.IncentiveMaster where Id = '" + id + "'";
 
 
             try
@@ -176,6 +180,9 @@ namespace Aplos.Areas.Accounts.Controllers
                 {
                 }
             }
+            dr["CompanyGroupId"] = identity.CompanyGroupId;
+            dr["CompanyId"] = identity.CompanyId;
+            dr["PlantId"] = identity.PlantId;
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
