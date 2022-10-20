@@ -654,7 +654,7 @@ namespace Library.Planning.OrderManagement
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PackingDetaial] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PackingDetail] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -924,10 +924,11 @@ ORDER BY OL.Sequence";
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetPackingDetail(string PackingDetailId)
+        public IEnumerable<object> GetPackingDetail()
         {
-            string sql = @"SELECT * from PackingDetail 
-                    WHERE Id='" + PackingDetailId + "'";
+            string sql = @"select PD.*,EI.EmployeeName ResponsiblePerson
+                                from PackingDetail PD
+                                left join EmployeeInformation EI on EI.SystemId=PD.ResponsiblePersonId";
             return _sqlRepository.GetDataCollection(sql);
         }
 
