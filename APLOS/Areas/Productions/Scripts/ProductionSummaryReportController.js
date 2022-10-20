@@ -64,6 +64,18 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     }
     $scope.getAllEntities();
 
+    $scope.processDataList = [];
+    $scope.getProcessDataList = function () {
+        $http({
+            method: 'POST',
+            url: "Productions/Productionsummary/GetShiftList/GetProcessData"
+        }).then(function successCallback(response) {
+            $scope.processDataList = response.data;
+        });
+    }
+    $scope.getProcessDataList();
+
+
     $scope.EntityId = null;
     $scope.ProcessId = null;
     $scope.ProcessWiseReport = function () {
