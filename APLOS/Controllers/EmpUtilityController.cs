@@ -35,13 +35,14 @@ namespace Aplos.Controllers
         }
 
         #region Nitesh
-        [HttpPost]
-        public string Create([FromBody] IEnumerable<CreateDetentionList> DataToSave, string By, string Ip, string updatedBy, string updatedFrom)
+        [Route("api/EmpUtiliy/PostCreate")]
+        [HttpPost, AllowAnonymous]
+        public string PostCreate([FromBody] IEnumerable<CreateDetentionList> DataToSave)
         {
             try
             {
 
-                string Id = _emp.CreateDetentionLog(DataToSave, By, Ip, updatedBy, updatedFrom);
+                string Id = _emp.CreateDetentionLog(DataToSave);
                 return Id;
             }
             catch (Exception ex)

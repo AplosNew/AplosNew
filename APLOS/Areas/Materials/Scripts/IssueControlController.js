@@ -80,6 +80,17 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     }
     $scope.getMaterial();
 
+    $scope.EnumList = [];
+    $scope.getEnum = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetEnum",           
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EnumList = response.data;
+        });
+    }
+
     // #region ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
 
 
