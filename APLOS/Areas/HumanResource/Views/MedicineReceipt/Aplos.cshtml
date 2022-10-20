@@ -98,7 +98,7 @@
                     <th>Quantity</th>
                     <th>Amount</th>
                     <th>Rate</th>
-                    <th class="text-right">Action</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -121,12 +121,20 @@
             </tbody>
             @*<tfoot ng-show="userMedicineList.length">
                 <tr>
-                    <td colspan="2"><b>Sub Total</b></td>
-                    <td class="text-right"><b>{{ TDSList | sumByKey : 'TaxAmount' }}</b></td>
-                    <td></td>
+
+                    <td>
+                    </td>
                 </tr>
             </tfoot>*@
         </table>
+        <div class="common-btn" style="margin-top:10px">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+            
+            </ul>
+        </div>
     </div>
         @*---------------------------------------------------------------------------------------------------------*@
         <!--<div class="table-responsive" id="medicinereceiptchildId" style="margin-top:20px">
