@@ -228,7 +228,7 @@ format(ICU.Time,'hh:mm tt') as IssueTime
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
-                        objCon.OpenDataSetThroughAdapter("SELECT * from " + TableName + "  where SICItemId=(select  Id from TRN.SpecialIssueItem where SpecialIssueItem='" + item["SpecialIssueItem"] + "') and Value < '" + item["Value"] + "'", out DataSet dsSpecialIssueUpdateItemValidation, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT * from " + TableName + "  where SICItemId='" + item["SICItemId"] + "' and Value < '" + item["Value"] + "'", out DataSet dsSpecialIssueUpdateItemValidation, false, "1");
                         objCon.OpenDataSetThroughAdapter("SELECT * from TRN.SpecialIssueItem  where Id= '" + item["SICItemId"] + "' and SampleSize<" + item["Value"] + "", out DataSet dsSampleSizeValidation, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
 

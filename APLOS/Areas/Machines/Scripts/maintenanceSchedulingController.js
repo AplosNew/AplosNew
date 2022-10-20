@@ -130,7 +130,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         , Model: null
         , MaxScheduleDays: null
         , StandardScheduleMinutes: null
-        , IsActive: false
+        , IsActive: true
         , Particulars:null
     };
     $scope.scheduleNew = Object.assign({}, $scope.schedule);
@@ -533,8 +533,8 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     };
 
     $scope.StoresSave = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.MaintenanceScheduleStoresForm.$valid) {
+        //$scope.$broadcast('show-errors-check-validity');
+        //if ($scope.MaintenanceScheduleStoresForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrlStores,
@@ -556,12 +556,12 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-        }
+       /* }*/
     };
 
     $scope.BudgetCodeSave = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.MaintenanceScheduleBudgetForm.$valid) {
+        //$scope.$broadcast('show-errors-check-validity');
+        //if ($scope.MaintenanceScheduleBudgetForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrlBudgetCode,
@@ -583,7 +583,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-        }
+        /*}*/
     };
 
     $scope.ParameterLists = [];
