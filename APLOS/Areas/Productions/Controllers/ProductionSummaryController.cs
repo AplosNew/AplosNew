@@ -1287,13 +1287,13 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         [HttpPost, Authorize]
         //public ActionResult GetOrderReport(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType)
-        public ActionResult GetProcessWiseOrderReport(string fromDate, string toDate, string PlantId, string EntityId, string ProcessId)
+        public ActionResult GetProcessWiseOrderReport(string fromDate, string toDate, string EntityId, string ProcessId)
         {
             try
             {
                 string fileName = "";
                 // fileName = OrderReport(parameters, fromDate, toDate, dateType, "OrderReport");
-                fileName = ProcessWiseOrderReport(fromDate, toDate, "OrderReport", PlantId, EntityId, ProcessId);
+                fileName = ProcessWiseOrderReport(fromDate, toDate, "OrderReport", EntityId, ProcessId);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -1303,7 +1303,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         }
 
-        public string ProcessWiseOrderReport(string fromDate, string toDate, string SheetName, string PlantId, string EntityId, string ProcessId)
+        public string ProcessWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -1313,11 +1313,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             var filePath = "";
             try
             {
-                if (PlantId == "" || PlantId == null)
-                {
-                    PlantId = identity.PlantId;
-                }
-                string Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+                
                 string Entity = "'" + EntityId.Replace(",", "','") + "'";//replaced with ""
 
                 excelEngine = new ExcelEngine();
@@ -1326,7 +1322,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 workbook.Worksheets[1].Name = "Data";
                 sheet = workbook.Worksheets[1];
                 DataTable dtOrder;
-                ProcessWiseOrderReportSQL(fromDate, toDate, Plant, Entity, ProcessId, out dtOrder);
+                ProcessWiseOrderReportSQL(fromDate, toDate, Entity, ProcessId, out dtOrder);
 
                 int ROW = 6; int COL = 1;
 
@@ -1719,7 +1715,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 throw ex;
             }
         }
-        private void ProcessWiseOrderReportSQL(string fromDate, string toDate, string PlantId, string EntityId, string ProcessId, out DataTable dtOrder)
+        private void ProcessWiseOrderReportSQL(string fromDate, string toDate, string EntityId, string ProcessId, out DataTable dtOrder)
         {
             try
             {
@@ -1834,7 +1830,6 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                                                         left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
                                                         group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
                                               ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
-                                            WHERE trkp.Id IN (" + PlantId + @") 
                                             ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID,p.Sequence";
                 dtOrder = _sqlRepository.GetDataTable(sql);
             }

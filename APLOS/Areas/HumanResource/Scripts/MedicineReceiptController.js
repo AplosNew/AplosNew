@@ -212,13 +212,20 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
 
     // FETCH VALUE FROM QANTITY, RATE AND CALCULATE
     $scope.ob = {};
-    $scope.calcAmount = function (data1) {
-        $scope.ob = data1.data;
-       // $scope.ob.Amount = $scope.ob.Quantity * $scope.ob.Rate;
-        $scope.ob.Rate = $scope.ob.Amount / $scope.ob.Quantity;
-        var gridObj = $("#GridEdit").data("ejGrid");
-        gridObj.refreshContent();
-        gridObj.refreshTemplate();
+    $scope.calcAmount = function (data1, index) {
+
+
+
+
+        if (data1.Quantity == null || data1.Quantity == '') {
+            $scope.userMedicineList[index].Rate = data1.Amount / 1
+        }
+        else if (data1.Amount == null || data1.Amount == '') {
+            $scope.userMedicineList[index].Rate = 1 / data1.Quantity
+        }
+        else {
+            $scope.userMedicineList[index].Rate = data1.Amount / data1.Quantity
+        }
     }
 
     // #REGION SAVE

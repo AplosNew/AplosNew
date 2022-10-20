@@ -19,6 +19,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListResponsible';
+    $scope.ItemListUrl = $scope.path + 'GetMasterItemList';
     $scope.partyType = 'Customer';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
@@ -1163,7 +1164,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-
     $scope.showEmployeeListPopUp = function (name) {
         try {
             if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
@@ -1226,7 +1226,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }
             else if ($scope.Name === 'pd') {
                 $scope.modelNewPD.ResponsiblePersonId = employee.SystemId;
-                $scope.modelNewPD.ResponsiblePersonName = employee.EmployeeName;
+                $scope.modelNewPD.ResponsiblePerson = employee.EmployeeName;
             }
             else {
                 $scope.soSplitModel.ResponsiblePersonId = employee.SystemId;
@@ -4309,7 +4309,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         OwnRefNo: null,
         CustomerRefNo: null,
         ResponsiblePersonId: null,
-        ResponsiblePersonName: null,
+        ResponsiblePerson: null,
         Remarks: null,
     };
     $scope.modelNewPD = Object.assign({}, $scope.modelPD);
@@ -4783,39 +4783,46 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     }
 
+    $scope.MasterItemList = [];
+    $scope.GetMasterItemDataList = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/?masterOrderId=' + $scope.fileNew.Id
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.MasterItemList = response.data;
+            }
+        });
+    }
+    $scope.GetMasterItemDataList();
+
+    $scope.MasterItemListPopUp = function (name) {
+        try {
+            $scope.Name = name;
+            //baseService.setCurrentPage('employeeList');
+            $scope.searchMasterItemList = [];
+            $scope.getItemListData = function (pageno) {
+                baseService.paginationBase($scope.ItemListUrl, pageno)
+                    .then(function (result) {
+                        $scope.employeeList = result.Rows;
+
+                        if (baseService.arrayLength($scope.searchMasterItemList) === 0)
+                            baseService.getDDLSearchColumn(result.Rows, $scope.searchMasterItemList);
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#masterItemListPopUp')).modal('show');
+            $scope.getItemListData();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+
     $scope.SavePackingDetail = function () {
         try {
-            //if (baseService.isUndefinedOrNull($scope.modelNew.MasterOrderId)) {
-            //    $scope.modelNew.MasterOrderId = $scope.fileNew.Id;
-            //}
-
-            //$scope.modelNew.Amount = $scope.modelNew.Amount.toFixed(2);
-            //$scope.modelNew.Amount = parseFloat($scope.modelNew.Amount);
-            //$scope.saveFunds = [];
-
-            //for (var i = 0; i < $scope.buyerDeductionList.length; i++) {
-            //    $scope.saveFunds.push($scope.buyerDeductionList[i]);
-            //}
-
-            //for (var i = 0; i < $scope.fundUtilizationList.length; i++) {
-            //    $scope.saveFunds.push($scope.fundUtilizationList[i]);
-            //}
-
-            //for (var i = 0; i < $scope.saveFunds.length; i++) {
-            //    if (baseService.isUndefinedOrNull($scope.saveFunds[i].Id)) {
-            //        $scope.saveFunds[i].Id = null;
-            //    }
-            //    if ($scope.saveFunds[i].Percentage !== $scope.saveFunds[i].OldPercentage) {
-            //        if (baseService.isUndefinedOrNull($scope.saveFunds[i].Reason)) {
-            //            throw "Reason is required for " + $scope.saveFunds[i].FundUtilizationText + "";
-            //        }
-            //    }
-            //}
-
-
-            //if (baseService.isUndefinedOrNull($scope.modelNew.ContractNo)) {
-            //    throw "ContractNo is required.";
-            //}
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
@@ -4829,7 +4836,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.modelNewPD.Id = response.data.Id;
+                        $scope.GetPackingDetail();
+                        //$scope.modelNewPD.Id = response.data.Id;
                         $scope.ClearPackingDetail();
                     }
                 }), function errorCallBack(response) {
@@ -4841,18 +4849,62 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
+    $scope.PackingDetailDataList = [];
     $scope.GetPackingDetail = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetPackingDetail?PackingDetailId =' + $scope.modelNewPD.Id
+            url: 'OrderManagements/MasterOrder/GetPackingDetail'
         }).then(function successCallback(response) {
             if (baseService.arrayLength(response.data) > 0)
             {
                 $scope.PackingDetailDataList = response.data;
             }
              });
+    }
+    $scope.GetPackingDetail();
+    $scope.recorddoubleclicks = function (args) {
+        try {
+            $scope.Action = 'Update';
+            $scope.modelNewPD = Object.assign({}, args.data);
+           
+            //$scope.getCityList();
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
         }
-    //#endregion Contract
+    };
+
+    $scope.message_PackingDetailconfirmation = null;
+    $scope.RemovePackingDetail = function (data) {
+        $scope.modelNewPD = data.data;
+        if (!baseService.isUndefinedOrNull($scope.modelNewPD.Id))
+            $scope.message_PackingDetailconfirmation = 'Are you sure want to delete permanently';
+        angular.element(document.querySelector('#confirmPackingDetailPopUp')).modal('show');
+    }
+
+    $scope.DeletePackingDetail = function () {
+        if (!baseService.isUndefinedOrNull($scope.modelNewPD.Id)) {
+            $http.get('OrderManagements/MasterOrder/DeletePackingDetail?PackingDetailId=' + $scope.modelNewPD.Id)
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.modelNewPD = Object.assign({}, $scope.modelPD);
+                        $scope.GetPackingDetail();
+                        //$scope.ClearPackingDetail();
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+        }
+    };
+
+
 
     //#region   SO Copy    
     $scope.CopySO = function (data) {

@@ -1,7 +1,7 @@
 ﻿'use strict';
 IncentiveController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
 function IncentiveController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-    $rootScope.title = 'Incentive';
+    $rootScope.title = 'Incentive Master';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Accounts/Incentive/';
@@ -60,10 +60,21 @@ function IncentiveController(cboService, commonMessage, $scope, $rootScope, base
         });
     };
     $scope.GetSequence();
+    baseService.getCompanyConfiguration(function (result) {
+        $scope.companyConfig = result;
+        $scope.ModelNew.COAId = $scope.companyConfig.COAId;
+    });
 
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ModelNew.COAId = $scope.companyConfig.COAId;
+        $scope.AssetGLInof = $scope.ModelNew.AssetGLInof;
+        $scope.RevenueGLInof = $scope.ModelNew.RevenueGLInof;
+        getRevenueBudget();
+        getAssetBudget();
+        $scope.getAssetActivity();
+        $scope.getRevenueActivity();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -126,6 +137,8 @@ function IncentiveController(cboService, commonMessage, $scope, $rootScope, base
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+        $scope.AssetGLInof = "";
+        $scope.RevenueGLInof = "";
     }
     $scope.COAList = [];
     cboService.getCboChartOfAccount('', function (result) {
@@ -315,16 +328,6 @@ function IncentiveController(cboService, commonMessage, $scope, $rootScope, base
             $scope.ModelNew.PartyCode = party.Code;
             $scope.ModelNew.PartyName = party.UserName;
             $scope.ModelNew.PartyType = $scope.partyType;
-            //$scope.ModelNew.GLGeneralInfoId = party.ReconciliationGLId;
-            //$scope.ModelNew.GLGeneralInfoCode = party.ReconciliationGLCode;
-            //$scope.ModelNew.GLGeneralInfoName = party.ReconciliationGLName;
-            //$scope.ModelNew.CurrencyId = party.CurrencyId;
-            //$scope.ModelNew.BudgetMasterId = party.ReconciliationBudgetId;
-            //$scope.ModelNew.BudgetCode = party.ReconciliationBudgetCode;
-            //$scope.ModelNew.BudgetName = party.ReconciliationBudgetName;
-            //$scope.ModelNew.ActivityId = party.ReconciliationActivityId;
-            //$scope.ModelNew.ActivityCode = party.ReconciliationActivityCode;
-            //$scope.ModelNew.ActivityName = party.ReconciliationActivityName;
             
         }
         $scope.hidePartyPopUp();
