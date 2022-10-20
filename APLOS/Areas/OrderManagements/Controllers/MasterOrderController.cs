@@ -642,7 +642,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             if (plantId == "null") plantId = null;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_masterOrderService.GetCompanyPartyList(parameters, identity.CompanyGroupId, companyId, plantId, partyType), JsonRequestBehavior.AllowGet);
-        }
+        } 
 
         [HttpGet, Authorize]
         public JsonResult GetMasterItemList(string masterOrderId)
