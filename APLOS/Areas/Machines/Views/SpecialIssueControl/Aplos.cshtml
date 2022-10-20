@@ -22,17 +22,6 @@
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Sub Category<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="issueNew.SubCategory" name="Sub Category" required
-                                        ng-options="item.Value as item.Text for item in SubCategoryList">
-                                    <option value=""></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Special Issue name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="User Name" ng-model="issueNew.SpecialIssueName" class="form-control" required maxlength="100" autocomplete="off">
@@ -47,19 +36,30 @@
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Sub Category<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="issueNew.SubCategory" name="Sub Category" required
+                                        ng-options="item.Value as item.Text for item in SubCategoryList">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Target Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" ng-model="issueNew.TargetDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">
-                            Remarks<sup>*</sup>
-                        </label>
+                        <label class="col-sm-4 control-label"> Remarks<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="User Name" ng-model="issueNew.Remarks" class="form-control" required maxlength="100" autocomplete="off">
                         </div>
                     </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
@@ -75,14 +75,26 @@
                         <label class="col-sm-4 control-label">Monitoring Period<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
-                                <select class="form-control" ng-model="issueNew.MonitoringPeriods" name="Monitoring Period" required
-                                        ng-options="item.Value as item.Text for item in MonitoringPeriod">
+                                <select class="form-control" ng-model="issueNew.MonitoringPeriod" name="Monitoring Period" required
+                                        ng-options="item.Value as item.Text for item in MonitoringPeriodList">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Issue Status<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="issueNew.IssueStatus" name="Issue Status" required
+                                        ng-options="item.Value as item.Text for item in IssueStatusList">
                                     <option value=""></option>
                                 </select>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
@@ -181,7 +193,8 @@
                     <div e-column e-type="String" e-field="TDate" e-headertext="Target Date" e-width="3"></div>
                     <div e-column e-type="String" e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                     <div e-column e-type="String" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="3"></div>
-                    <div e-column e-type="String" e-field="MonitoringPeriods" e-headertext="Monitoring Period" e-width="3"></div>
+                    <div e-column e-type="String" e-field="MonitoringPeriod" e-headertext="Monitoring Period" e-width="3"></div>
+                    <div e-column e-type="String" e-field="IssueStatus" e-headertext="Issue Status" e-width="3"></div>
                 </div>
             </div>
         </div>

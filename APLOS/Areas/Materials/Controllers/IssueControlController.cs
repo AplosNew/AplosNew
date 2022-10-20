@@ -21,6 +21,18 @@ namespace Aplos.Areas.Materials.Controllers
 
         #region GET FUN
         [Authorize, HttpPost]
+        public ActionResult GetIssue()
+        {
+            try
+            {
+                return Json(isc.GetIssue(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [Authorize, HttpPost]
         public ActionResult getMaterialType()
         {
             try
@@ -70,6 +82,19 @@ namespace Aplos.Areas.Materials.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [Authorize, HttpPost]
+        public ActionResult GetEnum()
+        {
+            try
+            {
+                return Json(isc.GetEnum(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         #endregion GET FUN
 
         #region SAVE
@@ -87,11 +112,11 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult SaveChild(List<Dictionary<string, object>> data, string headerId)
+        public ActionResult SaveChild(List<Dictionary<string, object>> data, Dictionary<string, object> itemApplicableData, string headerId, string materiallevel)
         {
             try
             {
-                return Json(new { Error = false, Data = isc.SaveChild(data, headerId), Message = AplosMessage.Success });
+                return Json(new { Error = false, Data = isc.SaveChild(data, itemApplicableData, headerId, materiallevel), Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {

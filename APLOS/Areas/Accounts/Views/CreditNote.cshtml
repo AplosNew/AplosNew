@@ -5,11 +5,11 @@
             <label class="col-sm-4 control-label">Party Type<sup>*</sup></label>
             <div class="col-sm-8 radio">
                 <label>
-                    <input type="radio" name="source" ng-click="getPartyType(voucher.NoteType);" ng-model="voucher.NoteType" value="@Library.Model.Invoices.NoteType.CustomerCreditNote.ToString()">
+                    <input type="radio" name="source" ng-click="getPartyType(voucher.NoteType);" ng-model="voucher.NoteType" value="@Library.Model.Invoices.NoteType.CustomerCreditNote.ToString()" ng-change="changeTDS()">
                     <span class="cr" tabindex="1"><i class="cr-icon"></i></span>Customer
                 </label>
                 <label>
-                    <input type="radio" name="source" ng-click="getPartyType(voucher.NoteType);" ng-model="voucher.NoteType" value="@Library.Model.Invoices.NoteType.VendorCreditNote.ToString()">
+                    <input type="radio" name="source" ng-click="getPartyType(voucher.NoteType);" ng-model="voucher.NoteType" value="@Library.Model.Invoices.NoteType.VendorCreditNote.ToString()" ng-change="changeTDS()">
                     <span class="cr" tabindex="2"><i class="cr-icon"></i></span>Vendor
                 </label>
             </div>
@@ -242,7 +242,7 @@
         </table>
     </div>
     <div class="clearfix"></div>
-    <div class="col-xs-12 col-sm-5 col-md-5" ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.VendorCreditNote.ToString()'">
+    <div class="col-xs-12 col-sm-5 col-md-5" @*ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.VendorCreditNote.ToString()'"*@>
         <div class="form-group">
             <label class="col-sm-4 control-label">TDS</label>
             <label class="switch col-sm-8">

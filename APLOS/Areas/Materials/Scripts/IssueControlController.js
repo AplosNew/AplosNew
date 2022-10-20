@@ -27,6 +27,13 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         MaterialLevel:null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.ModelTempC = {
+        Id: null,
+        Machine: null,
+        WorkCenter: null,
+    };
+    $scope.ModelNewC = Object.assign({}, $scope.ModelTempC);
     //  #endregion Objects
 
     //  #region All Lists
@@ -73,6 +80,17 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     }
     $scope.getMaterial();
 
+    $scope.EnumList = [];
+    $scope.getEnum = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetEnum",           
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EnumList = response.data;
+        });
+    }
+
     // #region ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
 
 
@@ -91,7 +109,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         }).then(function successCallback(response) {
             $scope.MaterialArticleList = response.data;
             // #region cmnt
-            
+            $scope.hideshow();
             for (var i = 0; i < $scope.userMaterialArticleList.length; i++) {
                 for (var j = 0; j < $scope.MaterialArticleList.length; j++) {
                     if ($scope.userMaterialArticleList[i].Id === $scope.MaterialArticleList[j].Id) {
@@ -123,6 +141,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.ModelNew.Id = response.data.Data.Id;
+                $scope.ModelNew.MaterialLevel = response.data.Data.MaterialLevel;
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -168,7 +187,8 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             data: {
                 'headerId': $scope.ModelNew.Id,
                 'data': $scope.userMaterialArticleList,
-                
+                'materiallevel': $scope.ModelNew.MaterialLevel,
+                'itemApplicableData': $scope.ModelNewC
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -177,7 +197,8 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.Clear();
+                
+                $scope.GetIssue();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -185,4 +206,55 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
     };
     // #endregion SAVE CHILD
+
+    $scope.GetIssue = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetIssue',           
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data
+        });
+    }
+    $scope.GetIssue();
+
+    $scope.Get = function (args) {
+        $scope.ModelNew.Id = args.data.Id;
+        $scope.ModelNew = Object.assign({}, args.data);
+
+        $scope.Action = 'Update';
+
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+
+        }
+    };
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+
+    function ClearFields() {
+        
+        $scope.userMaterialArticleList = [];
+        
+        
+
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    }
+
+    $scope.hideshow = function () {
+        var id = document.getElementById("ArticleId");
+        var mid = document.getElementById("MaterialId");
+        if ($scope.ModelNew.MaterialLevel == "Article") {
+            id.style.display = "block";
+            mid.style.display = "none";
+        }
+        else if ($scope.ModelNew.MaterialLevel == "Material") {
+            id.style.display = "none";
+            mid.style.display = "block";
+        }
+    }
 }
