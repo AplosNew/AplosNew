@@ -81,8 +81,7 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                string sql = @"Select distinct sb.UserName as Text from MST.StorageBinMaster sb
-                               left join HKP.MaterialStorage ms on ms.Id = sb.StorageLocation order by Text ASC";
+                string sql = @"Select ms.Id as Value,  ms.UserName as Text from  HKP.MaterialStorage ms  order by Text ASC";
 
                 return _sqlRepository.GetDataCollection(sql);
             }

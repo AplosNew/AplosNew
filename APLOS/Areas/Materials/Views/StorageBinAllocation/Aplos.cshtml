@@ -77,7 +77,7 @@
                             <select class="form-control" ng-change="getStorageSubLocation()" ng-model="ModelNew.StorageBinmasterId" required name="Storage Location"
                                     tabindex="2">
                                 <option value="">--Select--</option>
-                                <option ng-repeat="option in StorageLocationList" value="{{option.Text}}">{{option.Text}}</option>
+                                <option ng-repeat="option in StorageLocationList" value="{{option.Value}}">{{option.Text}}</option>
 
                             </select>
                         </div>
