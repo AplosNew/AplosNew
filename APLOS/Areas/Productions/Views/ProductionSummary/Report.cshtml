@@ -1,99 +1,187 @@
-﻿<h3 class="site-heading"><span class="glyphicon glyphicon-file"></span> {{FormTitle}}</h3>
-<style type="text/css">
-    #myDIV {
-        width: 100%;
-        text-align: center;
-    }
+﻿<div id="Test">
+    <h3 class="site-heading"><span class="glyphicon glyphicon-file"></span> {{FormTitle}}</h3>
+    <style type="text/css">
+        #myDIV {
+            width: 100%;
+            text-align: center;
+        }
 
-    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
-        background: #a2f1ff;
-        color: #080076;
-        min-height: 100%;
-        border-bottom-color: #8B4513;
-    }
+        .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+            background: #a2f1ff;
+            color: #080076;
+            min-height: 100%;
+            border-bottom-color: #8B4513;
+        }
 
-    .modal-table {
-        position: relative;
-        height: 300px;
-        overflow: auto;
-    }
+        .modal-table {
+            position: relative;
+            height: 300px;
+            overflow: auto;
+        }
 
-    .modal {
-        overflow-y: auto;
-    }
+        .modal {
+            overflow-y: auto;
+        }
 
-    .table-responsive {
-        display: block;
-    }
+        .table-responsive {
+            display: block;
+        }
 
-    td, th {
-        padding: 10px;
-    }
-</style>
-<div id="MainDiv">
-    <div class="form-elements form-horizontal">
-        <div class="row">
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Plant<sup>*</sup></label>
-                   @* <div class="col-sm-9"><input id="PlantList" /></div>*@
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="PlantId" ng-options="item.PlantId as item.PlantName for item in PlantList" required>
-                                <option value=""></option>
-                            </select>
+        td, th {
+            padding: 10px;
+        }
+    </style>
+
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Process Wise</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Perameter Wise</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                @*<div id="MainDiv">*@
+                <fieldset class="scheduler-border">
+                    <div class="form-elements form-horizontal" ng-form="from0">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Plant<sup>*</sup></label>
+                                    @* <div class="col-sm-9"><input id="PlantList" /></div>*@
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="PlantId" ng-options="item.PlantId as item.PlantName for item in PlantList" required>
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="From Date" ng-model="fromDate" datepicker class="form-control" required tabindex="5">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Process<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                @*<div class="form-group">
+                                        <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
+                                        <div class="col-sm-9"><input id="entityList" /></div>
+                                    </div>*@
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-disabled="IsGo" ng-model="EntityId" ng-change="loadProcessList(EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="To Date" ng-model="toDate" datepicker class="form-control" required tabindex="6">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="col-md-2 text-right">
+                                    <ul>
+                                        <li><button type="button" class="btn single-btn" ng-click="ProcessWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Process Wise</button></li>
+                                        <li><button type="button" class="btn single-btn" ng-click="PerameterWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Perametre Wise</button></li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="From Date" ng-model="fromDate" datepicker class="form-control" required tabindex="5">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Process<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
-                                <option value=""></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
+                </fieldset>
+                @*</div>*@
             </div>
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                @*<div class="form-group">
-            <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
-            <div class="col-sm-9"><input id="entityList" /></div>
-        </div>*@
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-disabled="IsGo" ng-model="EntityId" ng-change="loadProcessList(EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
-                                <option value=""></option>
-                            </select>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                @*<div id="MainDiv">*@
+                <fieldset class="scheduler-border">
+                    <div class="form-elements form-horizontal" ng-form="from0">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Plant<sup>*</sup></label>
+                                    @* <div class="col-sm-9"><input id="PlantList" /></div>*@
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="PlantId" ng-options="item.PlantId as item.PlantName for item in PlantList" required>
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="From Date" ng-model="fromDate" datepicker class="form-control" required tabindex="5">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Process<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                @*<div class="form-group">
+                                        <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
+                                        <div class="col-sm-9"><input id="entityList" /></div>
+                                    </div>*@
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-disabled="IsGo" ng-model="EntityId" ng-change="loadProcessList(EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="To Date" ng-model="toDate" datepicker class="form-control" required tabindex="6">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="col-md-2 text-right">
+                                    <ul>
+                                        <li><button type="button" class="btn single-btn" ng-click="ProcessWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Process Wise</button></li>
+                                        <li><button type="button" class="btn single-btn" ng-click="PerameterWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Perametre Wise</button></li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="To Date" ng-model="toDate" datepicker class="form-control" required tabindex="6">
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-12">
-                <div class="col-md-2 text-right">
-                    <ul>
-                        <li><button type="button" class="btn single-btn" ng-click="ProcessWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Process Wise</button></li>
-                        <li><button type="button" class="btn single-btn" ng-click="PerameterWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Perametre Wise</button></li>
-                    </ul>
-                </div>
+                    @*</div>*@
+                </fieldset>
             </div>
         </div>
     </div>
-</div>
+    </div>  

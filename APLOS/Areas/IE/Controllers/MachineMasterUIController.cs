@@ -590,7 +590,7 @@ left join HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult CreateEntityCapacity(Dictionary<string, object> data, string machineMasterId)
         {
             try

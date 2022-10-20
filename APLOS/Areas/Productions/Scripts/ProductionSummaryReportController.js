@@ -11,7 +11,14 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     $scope.downloadgriddataPDFUrl = 'GridReports/DownloadPdf';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
 
-  
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.PlantList = [];
     $scope.getPlant = function () {
         $http({
