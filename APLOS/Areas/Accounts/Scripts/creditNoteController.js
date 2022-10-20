@@ -704,6 +704,7 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
         $scope.voucher.NoteType = "CustomerCreditNote";
         $scope.voucher.SettlementType = "Others";
         $scope.invoiceSalesAvailableList = [];
+        $scope.TDSList = [];
         $scope.voucherDetail.InvoiceTaxViewModel = [];
         $scope.invoiceTaxDetailList = [];
         $scope.salesDetailList = [];
@@ -1003,9 +1004,14 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
     $scope.TDSCboList = [];
     $scope.TDSlistMessage = "";
     $scope.getTDS = function (date) {
+        if ($scope.voucher.NoteType =='VendorCreditNote') {
+            $scope.tdsUrl = "accounts/TaxCode/GetTDSCbo?postingDate=" + $filter("dateFiltering")(date);
+        } else {
+            $scope.tdsUrl = "accounts/TaxCode/GetAdditionalTaxOutputCbo?postingDate=" + $filter("dateFiltering")(date);
+        }
         $http({
             method: "get",
-            url: "accounts/TaxCode/GetTDSCbo?postingDate=" + $filter("dateFiltering")(date)
+            url: $scope.tdsUrl
         }).then(
             function successCallback(response) {
                 if (response.data.Error === true) {
@@ -1021,6 +1027,10 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
 
     $scope.getTDS($filter("dateFiltering")(Date.now()));
 
+    $scope.changeTDS = function () {
+        $scope.getTDS($filter("dateFiltering")(Date.now()));
+        $scope.TDSList = [];
+    }
     $scope.TDS = {
         TaxCodeId: null,
         Text: null,

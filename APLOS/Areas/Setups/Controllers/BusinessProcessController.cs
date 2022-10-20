@@ -406,8 +406,23 @@ namespace Aplos.Areas.Setups.Controllers
         }
         public enum DefineEnumName
         {
-            Machine,
-            Production
+              BulkPacking
+            , Detention
+            , DirectMaterial
+            , DirectProcess
+            , FOB
+            , FinalPacking
+            , IndividualPacking
+            , Machine
+            , OrderLineItem
+            , Operation
+            , Profit
+            , Production
+            , ProductionOrder
+            , SalesOrder
+            , SalesExpense
+            , ValueLoss
+            , WorkCenter
         }
 
         [HttpGet, Authorize]
