@@ -105,8 +105,8 @@ namespace Library.MaterialManagement.Material
                 }
                 else if (storagelevel == "Material")
                 {
-                    sql = @"select distinct mma.standardname as ArticleName, mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
-                             mm.Id as MaterialMasterId,
+                    sql = @"select distinct  mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                             mm.Id as MaterialMasterId, 
                             mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId
 							from mst.MaterialMasterArticle mma
 							left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
@@ -133,9 +133,9 @@ namespace Library.MaterialManagement.Material
                     }
                     else if (storagelevel == "Article")
                     {
-                        sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                        sql = @"select distinct mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
                             mma.standardname as ArticleName, mma.Id as MaterialMasterArticleId, mm.Id as MaterialMasterId,
-                            mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId, bah.Id
+                            mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId -- bah.Id
 							from mst.MaterialMasterArticle mma
 							left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
@@ -146,8 +146,6 @@ namespace Library.MaterialManagement.Material
                     }
                 }
                 
-
-
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -155,5 +153,217 @@ namespace Library.MaterialManagement.Material
                 throw ex;
             }
         }
+
+        #region SAVE
+        public Dictionary<string, object> Save(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableNameHead = "TRN.IssueControlHeader";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                #region Medicine HEAD
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    data["Id"] = "IC" + _Id;
+                   
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion Medicine POLICY HEAD
+
+                
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion Save 
+
+        #region Save Child
+        public List<Dictionary<string, object>> SaveChild(List<Dictionary<string, object>> data, Dictionary<string, object> itemApplicableData, string headerId, string materiallevel)
+        {
+            try
+            {
+                string TableNameHead = "TRN.IssueControlChild";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where IssueControlHeadId='" + headerId + "'", out dsMaster, false, "1");
+                string _Id = "";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                #region Medicine HEAD
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    if (materiallevel == "Material")
+                    {
+                        dr["Id"] = headerId + '-' + i.ToString();
+                        dr["IssueControlHeadId"] = headerId;
+                        dr["MaterialMasterId"] = data[i]["MaterialMasterId"];
+                        //dr["MaterialMasterArticleId"] = data[i]["MaterialMasterArticleId"];
+                        dr["MachineApplicable"] = data[i]["MachineApplicable"];
+                        dr["WorkcenterApplicable"] = data[i]["WorkcenterApplicable"];
+                        dr["OrderLevel"] = data[i]["StorageLevel"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        dr["Id"] = headerId + '-' + i.ToString();
+                        dr["IssueControlHeadId"] = headerId;
+                        //dr["MaterialMasterId"] = data[i]["MaterialMasterId"];
+                        dr["MaterialMasterArticleId"] = data[i]["MaterialMasterArticleId"];
+                        dr["MachineApplicable"] = data[i]["MachineApplicable"];
+                        dr["WorkcenterApplicable"] = data[i]["WorkcenterApplicable"];
+                        dr["OrderLevel"] = data[i]["StorageLevel"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+                #endregion Medicine HEAD
+
+                #region ItemAplicable
+                string ItemApplicableTable = "TRN.IssueControlItemApplicable";
+                DataSet dsItemApplicable;
+
+                con.OpenDataSetThroughAdapter("select * from " + ItemApplicableTable + " where IssueControlHeadId='" + headerId + "'", out dsItemApplicable, false, "1");
+                if (dsItemApplicable.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsItemApplicable.Tables[0].NewRow();
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    itemApplicableData["Id"] = "IA" + _Id;
+                    itemApplicableData["IssueControlHeadId"] = headerId;
+                    AddNewRow(dsItemApplicable.Tables[0], itemApplicableData);
+                }
+
+
+
+
+                #endregion ItemAplicable
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsItemApplicable);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+       
+        #endregion SAVE Child
+
+        #region CREATE AND EDIT DEFAULT COLUMN
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        #endregion CREATE AND EDIT DEFAULT COLUMN
+
+        #region GET
+        public IEnumerable<object> GetIssue()
+        {
+            try
+            {
+                var str = @"Select * from TRN.IssueControlHeader";
+                
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetEnum()
+        {
+            try
+            {
+                var str = @"Select Id Vaue, EnumName Text  from dbo.DefineEnum";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion GET
     }
+
+
 }

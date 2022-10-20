@@ -366,16 +366,7 @@ namespace HRService
             try
             {
                 #region cmnt
-                //      strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.AddedDate, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
-                //                  WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose,
-                //                  MM.UserName MachineMaster,  MM.Id ProcessId
-                //                  from TRN.DetentionLog DL
-                //                  left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
-                //                  left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
-                //left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
-                //                  left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-                //left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
-                //                  where isClose = 0";
+               
 
                 strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.AddedDate, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose,
@@ -484,9 +475,80 @@ namespace HRService
             }
         }
 
+        public string PostCreateDetention(IEnumerable<CreateDetentionList> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.DetentionLog";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                int i = 0;
+                foreach (CreateDetentionList item in DataToSave)
+                {
+                    con.OpenDataSetThroughAdapter("select * from TRN.DetentionLog where Id='" + item.Id + "'", out dsMaster, false, "1");
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
 
 
-        
+                        dr["Id"] = "DL" + _Id;
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["MachineMasterId"] = item.MachineMasterId;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        dr["Remarks"] = item.Remarks;
+                        dr["isClose"] = false;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["MachineMasterId"] = item.MachineMasterId;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        dr["Remarks"] = item.Remarks;
+                        dr["isClose"] = false;
+                       
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+                        dr.EndEdit();
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+                    }
+                    i++;
+                }
+                return i.ToString();
+
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
+
 
         // Detention Log Out
 
@@ -1142,6 +1204,7 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Remarks { get; set; }
         public string AddedBy { get; set; }
         public string AddedFromIP { get; set; }
+        public string UpdatedFromIP { get; set; }
         public DateTime? AddedDate { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedDate { get; set; }

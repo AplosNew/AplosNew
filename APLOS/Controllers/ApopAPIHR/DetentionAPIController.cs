@@ -71,6 +71,21 @@ namespace Aplos.Controllers.ApopAPIHR
             return detentionLoggridlist;
         }
 
+        [HttpPost]
+        public string PostGetDetentionLogGrid([FromBody] IEnumerable<CreateDetentionList> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostCreateDetention(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
         public List<MachineMasterList> GetMachineMastersAsset()
         {
             clsDataContext clsData = new clsDataContext();

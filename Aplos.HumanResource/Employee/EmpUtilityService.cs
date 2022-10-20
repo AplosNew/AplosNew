@@ -84,7 +84,7 @@ namespace Library.Service.EmployeeServices
         }
 
         #region CREATE By Nitesh
-        public string CreateDetentionLog(IEnumerable<CreateDetentionList> DataToSave, string By, string Ip, string updatedBy, string updatedFrom)
+        public string CreateDetentionLog(IEnumerable<CreateDetentionList> DataToSave)
         {
 
             try
@@ -115,10 +115,10 @@ namespace Library.Service.EmployeeServices
                         dr["MachineMasterId"] = item.MachineMasterId;
                         dr["IssueByNo"] = item.IssueByNo;
                         dr["Remarks"] = item.Remarks;
-                        dr["AddedBy"] = By;
+                        //dr["AddedBy"] = By;
                         dr["isClose"] = false;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = Ip;
+                        //dr["AddedFromIP"] = Ip;
 
 
                         dsMaster.Tables[0].Rows.Add(dr);
@@ -137,9 +137,9 @@ namespace Library.Service.EmployeeServices
                         dr["MachineMasterId"] = item.MachineMasterId;
                         dr["IssueByNo"] = item.IssueByNo;
                         dr["Remarks"] = item.Remarks;
-                        dr["UpdatedBy"] = updatedBy;
+                        //dr["UpdatedBy"] = updatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = updatedFrom;
+                        //dr["UpdatedFromIP"] = updatedFrom;
                         dr.EndEdit();
                         clsStaticInfo _info = new clsStaticInfo();
                         _info.SaveDataSets(dsMaster);
@@ -1058,15 +1058,15 @@ namespace Library.Service.EmployeeServices
         public string DetentionTypeId { get; set; }
         public string MachineMasterId { get; set; }
         public string IssueByNo { get; set; }
-        public DateTime LogoutTime { get; set; } = System.DateTime.Now;
+        public string LogoutTime { get; set; } 
         public bool isClose { get; set; }
         public string Remarks { get; set; }
         public string AddedBy { get; set; }
         public string AddedFromIP { get; set; }
         public string UpdateFromIP { get; set; }
-        public DateTime? AddedDate { get; set; }
+        public string AddedDate { get; set; }
         public string UpdatedBy { get; set; }
-        public DateTime? UpdatedDate { get; set; }
+        public string UpdatedDate { get; set; }
     }
 
 }

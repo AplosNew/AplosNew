@@ -2,7 +2,8 @@
 specialIssueControlController.$inject = ["cboService","commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter"];
 function specialIssueControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "SpecialIssueControl";
-    $scope.MonitoringPeriod = [];
+    $scope.MonitoringPeriodList = [];
+    $scope.IssueStatusList = [];
     $scope.Action = 'Save';
     $scope.path = 'Machines/SpecialIssueControl/';
     $scope.saveUrl = $scope.path + 'create';
@@ -32,7 +33,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
     }
     $scope.GetSubCategoryList();
 
-    $scope.MonitoringPeriod = [
+    $scope.MonitoringPeriodList = [
         {
             'Value': '1',
             'Text': '1'
@@ -74,7 +75,16 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
             'Text': '10'
         }
     ];
-    
+    $scope.IssueStatusList = [
+        {
+            'Value': 'Inprogress',
+            'Text': 'Inprogress'
+        },
+        {
+            'Value': 'Close',
+            'Text': 'Close'
+        }
+    ];
     $scope.issue = {
         Id: null
         , Category: null
@@ -85,7 +95,8 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
         , Remarks: null
         , ResponsiblePersonId: null
         , ResponsiblePerson: null
-        , MonitoringPeriods:null
+        , MonitoringPeriod: null
+        , IssueStatus: null
     };
     $scope.issueNew = Object.assign({}, $scope.issue);
 

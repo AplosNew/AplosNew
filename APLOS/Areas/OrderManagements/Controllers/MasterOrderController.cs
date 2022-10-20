@@ -1849,13 +1849,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(MasterOrder.GetMasterOrderAmountAndQty(masterId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
-        public JsonResult CreateContract(Dictionary<string, object> model, List<Dictionary<string, object>> funds, List<MasterOrderItem> masterOrderItem)
+        public JsonResult CreatePackingDetail(Dictionary<string, object> data)
         {
             try
             {
-                MasterOrder.SaveContractData(model, out string contractId, funds, masterOrderItem);
+                MasterOrder.SavePackingDetailData(data);
 
-                return Json(new { Contract = model, Id = contractId, Message = AplosMessage.Insert });
+                return Json(new { Contract = data, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -1863,7 +1863,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
             }
 
         }
-
+       
+        [HttpGet, Authorize]
+        public ActionResult GetPackingDetail(string PackingDetailId)
+        {
+            return Json(MasterOrder.GetPackingDetail(PackingDetailId), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
         #region Copy SO
