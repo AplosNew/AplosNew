@@ -78,7 +78,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         #endregion SEARCH SAVED DATA IN GRID
         #region SAVE
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult SaveHeader(Dictionary<string, object> data, List<Dictionary<string, object>> medicinelist, string partyId)
         {
             try

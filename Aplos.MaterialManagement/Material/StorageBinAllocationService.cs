@@ -96,7 +96,7 @@ namespace Library.MaterialManagement.Material
             try
             {
                 string sql = @"Select distinct sb.StorageSubLocation as Text from MST.StorageBinMaster sb
-							   where sb.UserName = '"+ storageLocationId + "'";
+							   where sb.StorageLocation = '" + storageLocationId + "'";
                                
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -304,7 +304,7 @@ mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = 
                             FROM MST.StorageBinMaster sb
 							left join trn.BinAllocationHead ba on ba.StorageBinMasterId = sb.Id
                         WHERE not exists(SELECT * FROM TRN.BinAllocation as B where B.StorageBinMasterId = sb.Id) and
-                        sb.UserName = '" + storagelocation + "'  and sb.AccessType = '"+ AccessType + "'";
+                        sb.StorageLocation = '" + storagelocation + "'  and sb.AccessType = '"+ AccessType + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

@@ -135,7 +135,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         #endregion SEARCH SAVED DATA IN GRID
 
         #region SAVE
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult Save(Dictionary<string, object> data, List<string> medicinepurpose)
         {
             try
@@ -148,7 +148,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult SavePurpose(Dictionary<string, object> data, string medicineMasterId)
         {
             try

@@ -48,9 +48,9 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group" show-errors>
+            @*<div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Attachment<sup>*</sup></label>
-            </div>
+            </div>*@
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
@@ -88,10 +88,10 @@
                     <input type="text" name="Min Schedule Minutes" ng-model="scheduleNew.MaxScheduleMinutes" class="form-control" required maxlength="100" autocomplete="off">
                 </div>
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Remarks" ng-model="scheduleNew.Remarks" class="form-control" required maxlength="100" autocomplete="off">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Remarks" ng-model="scheduleNew.Remarks" class="form-control"  maxlength="100" autocomplete="off">
                 </div>
             </div>
         </div>
@@ -227,7 +227,7 @@
                         <input type="text" name="SNO" ng-model="ItemNew.SNO" class="form-control" required maxlength="100" autocomplete="off">
                     </div>
                 </div>
-                <div class="form-group" show-errors>
+                <div class="form-group">
                     <label class="col-sm-4 control-label">IsAuditable</label>
                     <div class="col-sm-8">
                         <div class="checkbox-site">
@@ -257,21 +257,21 @@
                     </div>
                 </div>
 
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label" ng-show="ItemNew.IsAuditable==true">By Whom<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" ng-show="ItemNew.IsAuditable==true">By Whom</label>
+                    <div class="col-sm-8">
                         <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="By Whome" ng-disabled="true" ng-show="ItemNew.IsAuditable==true" ng-model="ItemNew.ByWhom" class="form-control" maxlength="100" required autocomplete="off">
+                            <input type="text" name="By Whome" ng-disabled="true" ng-show="ItemNew.IsAuditable==true" ng-model="ItemNew.ByWhom" class="form-control" maxlength="100"  autocomplete="off">
                         </div>
                         <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                             <button ng-click="selectEmployee();" ng-show="ItemNew.IsAuditable==true" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </div>
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Remarks" ng-model="ItemNew.Remarks" class="form-control" required maxlength="100" autocomplete="off">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Remarks" ng-model="ItemNew.Remarks" class="form-control"  maxlength="100" autocomplete="off">
                     </div>
                 </div>
             </div>
@@ -314,79 +314,79 @@
 
         <div role="tabpanel" ng-form="MaintenanceScheduleStoresForm" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
             <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">SNO<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="SNO" ng-model="StoresNew.SNO" class="form-control" required maxlength="100" autocomplete="off">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">SNO</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="SNO" ng-model="StoresNew.SNO" class="form-control"  maxlength="100" autocomplete="off">
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Item Name" ng-model="StoresNew.ItemName" class="form-control" required maxlength="100" autocomplete="off">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Item Name</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Item Name" ng-model="StoresNew.ItemName" class="form-control"  maxlength="100" autocomplete="off">
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Estimated Qty<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Estimated Qty" ng-model="StoresNew.EstimatedQty" class="form-control" required maxlength="100" autocomplete="off">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Estimated Qty</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Estimated Qty" ng-model="StoresNew.EstimatedQty" class="form-control"  maxlength="100" autocomplete="off">
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Cost Type<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Cost Type</label>
+                    <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="StoresNew.CostType" name="Cost Type" required
+                            <select class="form-control" ng-model="StoresNew.CostType" name="Cost Type" 
                                     ng-options="item.Value as item.Text for item in CostTypeList">
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Remarks" ng-model="StoresNew.Remarks" class="form-control" required maxlength="100" autocomplete="off">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Remarks" ng-model="StoresNew.Remarks" class="form-control"  maxlength="100" autocomplete="off">
                     </div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Item Category<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Item Category</label>
+                    <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="StoresNew.Category" name="Item Category" required
+                            <select class="form-control" ng-model="StoresNew.Category" name="Item Category" 
                                     ng-options="item.Value as item.Text for item in ItemCategoryList">
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Article<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Article</label>
+                    <div class="col-sm-8">
                         <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="Article" ng-disabled="true" ng-model="StoresNew.Article" class="form-control" maxlength="100" required autocomplete="off">
+                            <input type="text" name="Article" ng-disabled="true" ng-model="StoresNew.Article" class="form-control" maxlength="100"  autocomplete="off">
                         </div>
                         <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                             <button ng-click="selectArticle();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </div>
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">UOM<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">UOM</label>
+                    <div class="col-sm-8">
                         <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="UOM" ng-disabled="true" ng-model="StoresNew.UOM" class="form-control" maxlength="100" required autocomplete="off">
+                            <input type="text" name="UOM" ng-disabled="true" ng-model="StoresNew.UOM" class="form-control" maxlength="100" autocomplete="off">
                         </div>
                         <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                             <button ng-click="selectUOM();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </div>
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Estimation Level<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Estimation Level</label>
+                    <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="StoresNew.EstimationLevel" name="Estimation Level" required
+                            <select class="form-control" ng-model="StoresNew.EstimationLevel" name="Estimation Level" 
                                     ng-options="item.Value as item.Text for item in EstimationLevelList">
                             </select>
                         </div>
@@ -421,17 +421,17 @@
         </div>
         <div role="tabpanel" ng-form="MaintenanceScheduleBudgetForm" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
             <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">SNO<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="SNO" ng-model="PersonBudgetNew.SNO" class="form-control" required maxlength="100" autocomplete="off">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">SNO</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="SNO" ng-model="PersonBudgetNew.SNO" class="form-control" maxlength="100" autocomplete="off">
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Group<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Group</label>
+                    <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="PersonBudgetNew.Group" name="Group" required
+                            <select class="form-control" ng-model="PersonBudgetNew.Group" name="Group" 
                                     ng-options="item.Value as item.Text for item in GroupList">
                             </select>
                         </div>
@@ -439,10 +439,10 @@
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
-                <label class="col-sm-4 control-label">Budget Code<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
+                <label class="col-sm-4 control-label">Budget Code</label>
+                <div class="col-sm-8">
                     <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Budget Code" ng-disabled="true" ng-model="PersonBudgetNew.PersonBudgetCode" class="form-control" maxlength="100" required autocomplete="off">
+                        <input type="text" name="Budget Code" ng-disabled="true" ng-model="PersonBudgetNew.PersonBudgetCode" class="form-control" maxlength="100" autocomplete="off">
                     </div>
                     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                         <button ng-click="selectPersonBudgetCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>

@@ -149,36 +149,44 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     };
     // #endregion save
 
-    // #region SAVE CHILD
-    $scope.SaveIssueControlChild = function () {
-        
+    // #region Send
+    $scope.sendItemApplicable = function () {
         if (baseService.arrayLength($scope.MaterialArticleList) > 0) {
             angular.forEach($scope.MaterialArticleList, function (a) {
 
                 if (a.chk) {
                     var ob = {};
-                    ob.Id = null; 
-                    ob.ArticleName = a.ArticleName;                                          
-                    ob.MaterialGroupMasterId = a.MaterialGroupMasterId;                                           
-                    ob.MaterialMaster = a.MaterialMaster;                                          
-                    ob.MaterialMasterId = a.MaterialMasterId;  
+                    ob.Id = null;
+                    ob.ArticleName = a.ArticleName;
+                    ob.MaterialGroupMasterId = a.MaterialGroupMasterId;
+                    ob.MaterialMaster = a.MaterialMaster;
+                    ob.MaterialMasterId = a.MaterialMasterId;
                     ob.MaterialMasterArticleId = a.MaterialMasterArticleId;
-                    ob.MaterialType = a.MaterialType;                                          
-                    ob.MaterialTypeId = a.MaterialTypeId;                                           
-                    ob.MaterialgroupName = a.MaterialgroupName;    
+                    ob.MaterialType = a.MaterialType;
+                    ob.MaterialTypeId = a.MaterialTypeId;
+                    ob.MaterialgroupName = a.MaterialgroupName;
                     ob.MachineApplicable = a.MachineApplicable;
                     ob.WorkcenterApplicable = a.WorkcenterApplicable;
                     ob.StorageLevel = a.StorageLevel;
                     ob.chk = a.chk;
-                     
+
                     ob.StorageBinMasterId = a.StorageBinMasterId;
-                    
+
                     $scope.userMaterialArticleList.push(ob);
                     ob = {};
                     a.chk = false;
                 }
             });
         }
+    }
+    // #endregion Send
+
+   
+
+    // #region SAVE CHILD
+    $scope.SaveIssueControlChild = function () {
+        
+        
         $scope.$broadcast('show-errors-check-validity');
 
         $http({
@@ -247,14 +255,20 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.hideshow = function () {
         var id = document.getElementById("ArticleId");
+        var id1 = document.getElementById("ArticleId1");
         var mid = document.getElementById("MaterialId");
+        var mid1 = document.getElementById("MaterialId1");
         if ($scope.ModelNew.MaterialLevel == "Article") {
             id.style.display = "block";
+            id1.style.display = "block";
             mid.style.display = "none";
+            mid1.style.display = "none";
         }
         else if ($scope.ModelNew.MaterialLevel == "Material") {
             id.style.display = "none";
+            id1.style.display = "none";
             mid.style.display = "block";
+            mid1.style.display = "block";
         }
     }
 }

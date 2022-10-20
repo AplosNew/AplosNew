@@ -9,6 +9,7 @@ using System.Data;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System.IO;
+using Library.Service.EmployeeServices;
 
 namespace Library.General.TaskScheduler
 {
@@ -1021,6 +1022,98 @@ namespace Library.General.TaskScheduler
                 return ex.ToString();
             }
         }
+
+        #region Detention save By Aman
+        public string savedetention(IEnumerable<DetentionMoidel> DataSaveok)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.DetentionsaveTable";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataSaveok.Count() == 0)
+                    return "";
+
+                List<DetentionMoidel> items = DataSaveok.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + items[0].ID + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (DetentionMoidel item in DataSaveok)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0 && items[0].ID == "")
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TO DO", out _Id);
+
+                        dr["Id"] =  "TD" + _Id;
+                        dr["Process"] = item.Process;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["DetentionType"] = item.DetentionType;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["WorkCenter"] = item.WorkCenter;
+                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
+                        dr["ContactNo"] = item.ContactNo;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        dr["LoginTime"] = item.LoginTime;
+                        dr["Remark"] = item.Remark;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = item.AddedDate;
+                        dr["AddedFromIp"] = item.AddedFromIp;
+                        dr["UpdateBy"] = item.UpdateBy;
+                        dr["UpdateDate"] = item.UpdateBy;
+                        dr["UpdateFromIp"] = item.UpdateBy;
+                        dr["LogoutTime"] = item.UpdateBy;
+                        dr["IsClose"] = item.IsClose;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["Process"] = item.Process;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["DetentionType"] = item.DetentionType;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["WorkCenter"] = item.WorkCenter;
+                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
+                        dr["ContactNo"] = item.ContactNo;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        dr["LoginTime"] = item.LoginTime;
+                        dr["Remark"] = item.Remark;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = item.AddedDate;
+                        dr["AddedFromIp"] = item.AddedFromIp;
+                        dr["UpdateBy"] = item.UpdateBy;
+                        dr["UpdateDate"] = item.UpdateBy;
+                        dr["UpdateFromIp"] = item.UpdateBy;
+                        dr["LogoutTime"] = item.UpdateBy;
+                        dr["IsClose"] = item.IsClose;
+
+
+                        dr.EndEdit();
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        #endregion Detention save By Aman
 
         public string TaskCreate(IEnumerable<TaskMasterData> DataToSave)
         {
@@ -4407,6 +4500,29 @@ public class TaskMasterData
 
     #endregion Audit Properties
 
+}
+
+public class DetentionMoidel
+{
+    public string ID { get; set; }
+    public string Process { get; set; }
+    public string ProcessId { get; set; }
+    public string DetentionType { get; set; }
+    public string DetentionTypeId { get; set; }
+    public string WorkCenter { get; set; }
+    public string ResponsiblePerson { get; set; }
+    public string ContactNo { get; set; }
+    public string IssueByNo { get; set; }
+    public string LoginTime { get; set; }
+    public string Remark { get; set; }
+    public string AddedBy { get; set; }
+    public string AddedDate { get; set; }
+    public string AddedFromIp { get; set; }
+    public string UpdateBy { get; set; }
+    public string UpdateDate { get; set; }
+    public string UpdateFromIp { get; set; }
+    public string LogoutTime { get; set; }
+    public bool IsClose { get; set; }
 }
 
 public class TaskCommentsData
