@@ -124,27 +124,29 @@ namespace Library.OrderManagement.Costing
         public List<Dictionary<string, object>> GetAllCostingDirectMaterialForQuantityEdit(string CostingBOQMasterId)
         {
 
-            string sql = @"SELECT convert(bit,isnull(mm.WithSKU,0)) AS WithSKU,BOQ.CostingItemId,boq.SalesOrderId--,d.UserName AS Destination,
-,boq.FGFirstCharacteristicsValueId,boq.FGSecondCharacteristicsValueId,cv1.UserName AS SKU1,cv2.UserName AS SKU2,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
-BOQ.Id, ci.Sequence,ci.UserName AS CostingItem,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
-mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,
-boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,(boq.Rate+boq.UpDownCharge)*boq.RequiredQty AS BOMAmount,boq.Rate,boq.UpDownCharge,BOQ.BOQCriteria,c.Code AS Currency,
-BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc,ci.Id CostingItemId,
-(boq.Rate+boq.UpDownCharge)*BOQ.BOMQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount ,BOQ.OwnReferenceNo,BOQ.Remark,
-SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
-CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
-BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria
-,SONumber=STUFF((select distinct ','+XSO.Id 
-                                         from trn.SalesOrder XSO
-										 LEFT JOIN dbo.CostingBOQMaster CBM ON CBM.Id=XSO.CostingBOQMasterId
-							             where CBM.Id=boq.CostingBOQMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-,Destination=STUFF((select distinct ','+d.UserName 
-                                         from mst.Destination D
-										 LEFT JOIN trn.SalesOrder XSO ON XSO.DestinationId=D.Id
-										 LEFT JOIN dbo.CostingBOQMaster CBM ON CBM.Id=XSO.CostingBOQMasterId
-							             where CBM.Id=boq.CostingBOQMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+            string sql = @"SELECT convert(bit,isnull(mm.WithSKU,0)) AS WithSKU,BOQ.CostingItemId,boq.SalesOrderId,boq.FGFirstCharacteristicsValueId,boq.FGSecondCharacteristicsValueId,cv1.UserName AS SKU1
+									,cv2.UserName AS SKU2,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
+									BOQ.Id, ci.Sequence,ci.UserName AS CostingItem,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
+									mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase
+									,(R.Rate+boq.UpDownCharge)*boq.RequiredQty AS BOMAmount,R.Rate,boq.UpDownCharge,BOQ.BOQCriteria,c.Code AS Currency,
+									BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc,ci.Id CostingItemId,uom.UserName AS UOM
+									,(R.Rate+boq.UpDownCharge)*BOQ.BOMQty AS PlanAmount,R.Rate*BOQ.BOMQty AS BOMAmount ,BOQ.OwnReferenceNo,BOQ.Remark,
+									SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+									CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+									BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria
+									,SONumber=STUFF((select distinct ','+XSO.Id 
+																			 from trn.SalesOrder XSO
+																			 LEFT JOIN dbo.CostingBOQMaster CBM ON CBM.Id=XSO.CostingBOQMasterId
+																			 where CBM.Id=boq.CostingBOQMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,Destination=STUFF((select distinct ','+d.UserName 
+																			 from mst.Destination D
+																			 LEFT JOIN trn.SalesOrder XSO ON XSO.DestinationId=D.Id
+																			 LEFT JOIN dbo.CostingBOQMaster CBM ON CBM.Id=XSO.CostingBOQMasterId
+																			 where CBM.Id=boq.CostingBOQMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                     FROM BOQ
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
+									JOIN CostingBOQItems CBI ON CBI.CostingItemId=BOQ.CostingItemId AND CBI.CostingBOQMasterId=boq.CostingBOQMasterId
+									join dbo.OrderProcurementCostingDirectMaterial R ON R.Id=CBI.OrderProcurementCostingDirectMaterialId AND R.CostingItemId=boq.CostingItemId
                                     LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
                                     LEFT JOIN employeeinformation emp ON emp.SystemId=cb.EmployeeSystemId
 
