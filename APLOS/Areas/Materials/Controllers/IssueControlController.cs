@@ -82,6 +82,19 @@ namespace Aplos.Areas.Materials.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [Authorize, HttpPost]
+        public ActionResult GetEnum()
+        {
+            try
+            {
+                return Json(isc.GetEnum(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         #endregion GET FUN
 
         #region SAVE

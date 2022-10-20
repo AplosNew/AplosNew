@@ -11,7 +11,14 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     $scope.downloadgriddataPDFUrl = 'GridReports/DownloadPdf';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
 
-  
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.PlantList = [];
     $scope.getPlant = function () {
         $http({
@@ -57,7 +64,6 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     }
     $scope.getAllEntities();
 
-    $scope.PlantId = null;
     $scope.EntityId = null;
     $scope.ProcessId = null;
     $scope.ProcessWiseReport = function () {
@@ -85,7 +91,7 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
                 method: 'POST',
                 url: $scope.path + "GetProcessWiseOrderReport",
                 //data: { 'parameters': $scope.parameters, 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'dateType': $rootScope.dateCgroup },
-                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'PlantId': $scope.PlantId, 'EntityId': $scope.EntityId, 'ProcessId': $scope.ProcessId},
+                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'EntityId': $scope.EntityId, 'ProcessId': $scope.ProcessId},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {

@@ -349,7 +349,19 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-       
+        public IEnumerable<object> GetEnum()
+        {
+            try
+            {
+                var str = @"Select Id Vaue, EnumName Text  from dbo.DefineEnum";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion GET
     }
 
