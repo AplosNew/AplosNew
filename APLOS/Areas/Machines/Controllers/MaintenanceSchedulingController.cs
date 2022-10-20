@@ -445,7 +445,7 @@ FROM [TRN].[MaintenanceStoresConsumable] where MaintenanceSchedulingId ='" + Sch
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select MPB.Id,MPB.SNO,MPB.PersonBudgetCodeId,MPB.[Group],MPB.AddedBy,MPB.AddedDate,MPB.AddedFromIP,MPB.UpdatedBy,MPB.UpdatedDate,MPB.UpdatedFromIP,MP.Id ManPowerBudgetId, MP.Code as PersonBudgetCode, E.UserName Entity, P.UserName Position,P.Activity,
 DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.UserName AS [LegalDesignation] from [TRN].[MaintenancePersonBudgetCode] MPB
-                            left join MST.ManpowerBudget MP on MP.Id=MPB.PersonBudgetCodeId
+                            left join MST.ManpowerBudget MP on MP.Id=MPB.PersonBudgetCodeId and MP.Active = 1
 						    left join ORG.Entity E on E.Id = MP.EntityId
                             left join ORG.Position P on P.Id = MP.PositionId
 							left join EmployeeInformation EI on EI.BudgetCode=MP.Id and EI.EmployeeStatus='Active'
@@ -453,7 +453,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            where MP.Active = 1 and MPB.MaintenanceSchedulingId ='" + ScheduleId + "'";
+                            where MPB.MaintenanceSchedulingId ='" + ScheduleId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]

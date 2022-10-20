@@ -4237,7 +4237,10 @@ namespace Library.Service.HumanResources
                                 Period = xlsCol;
                                 xlsCol += 1;
                                 if (i == 1) { seq = "1st "; }
-                                if (i == 2) { seq = "2nd "; }
+                                else if (i == 2) { seq = "2nd "; }
+                                else if (i == 3) { seq = "3rd "; }
+                                else
+                                { seq = i + "th "; }
                                 sheet1.Range[xlsRow, Period].Text = seq + "Period";
                                 sheet1.Range[xlsRow, Period].ColumnWidth = 10;
                                 sheet1.Range[xlsRow, Period].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -4304,165 +4307,6 @@ namespace Library.Service.HumanResources
 
                                 }
                             }
-
-
-                            //xlsRow += 2;
-                            //xlsCol = 1;
-                            //sheet1.Range[xlsRow, xlsCol].Text = "Consumable :";
-                            //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                            //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
-                            //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
-
-                            //xlsRow += 1;
-                            //xlsCol = 1;
-                            //StoresSNO = xlsCol;
-                            //sheet1.Range[xlsRow, StoresSNO].Text = "SNO";
-                            //sheet1.Range[xlsRow, StoresSNO].ColumnWidth = 10;
-                            //sheet1.Range[xlsRow, StoresSNO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, StoresSNO].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //xlsCol += 1;
-                            //StoreItemName = xlsCol;
-                            //sheet1.Range[xlsRow, StoreItemName].Text = "Item";
-                            //sheet1.Range[xlsRow, StoreItemName].ColumnWidth = 25;
-                            //sheet1.Range[xlsRow, StoreItemName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, StoreItemName].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //xlsCol += 1;
-                            //Category = xlsCol;
-                            //sheet1.Range[xlsRow, Category].Text = "Category";
-                            //sheet1.Range[xlsRow, Category].ColumnWidth = 15;
-                            //sheet1.Range[xlsRow, Category].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, Category].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //xlsCol += 1;
-                            //Article = xlsCol;
-                            //sheet1.Range[xlsRow, Article].Text = "Article";
-                            //sheet1.Range[xlsRow, Article].ColumnWidth = 25;
-                            //sheet1.Range[xlsRow, Article].RowHeight = 5;
-                            //sheet1.Range[xlsRow, Article].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, Article].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //xlsCol += 1;
-                            //StoresRemarks = xlsCol;
-                            //sheet1.Range[xlsRow, StoresRemarks].Text = "Remarks";
-                            //sheet1.Range[xlsRow, StoresRemarks].ColumnWidth = 30;
-                            //sheet1.Range[xlsRow, StoresRemarks].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, StoresRemarks].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //xlsCol += 1;
-                            //UOM = xlsCol;
-                            //sheet1.Range[xlsRow, UOM].Text = "UOM";
-                            //sheet1.Range[xlsRow, UOM].ColumnWidth = 15;
-                            //sheet1.Range[xlsRow, UOM].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, UOM].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //xlsCol += 1;
-                            //EstimatedQty = xlsCol;
-                            //sheet1.Range[xlsRow, EstimatedQty].Text = "Estimated Qty";
-                            //sheet1.Range[xlsRow, EstimatedQty].ColumnWidth = 12;
-                            //sheet1.Range[xlsRow, EstimatedQty].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, EstimatedQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            ////xlsCol += 1;
-                            ////iOutTime = xlsCol;
-                            ////sheet1.Range[xlsRow, iOutTime].Text = "Stock Qty";
-                            ////sheet1.Range[xlsRow, iOutTime].ColumnWidth = 8;
-                            ////sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //xlsCol += 1;
-                            //CostType = xlsCol;
-                            //sheet1.Range[xlsRow, CostType].Text = "Cost Type";
-                            //sheet1.Range[xlsRow, CostType].ColumnWidth = 12;
-                            //sheet1.Range[xlsRow, CostType].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, CostType].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //xlsCol += 1;
-                            //EstimationLevel = xlsCol;
-                            //sheet1.Range[xlsRow, EstimationLevel].Text = "Estimated Level";
-                            //sheet1.Range[xlsRow, EstimationLevel].ColumnWidth = 12;
-                            //sheet1.Range[xlsRow, EstimationLevel].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, EstimationLevel].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                            //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-                            //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
-                            //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                            //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].RowHeight = 20;
-                            //endXlsCol = xlsCol;
-
-                            //freezeRow = xlsRow.ToString();
-                            //#endregion ------------------Column Header------------------
-
-                            //for (int i = 0; i < dvBioDvAC.Count; i++)
-                            //{
-                            //    if ((string.Compare(strEmpCode.ToUpper(), dvBioDvAC[i]["ScheduleCode"].ToString().Trim().ToUpper())) != 0)
-                            //    {
-
-                            //        #region ----------------------ConsumableData-----------------------
-
-                            //        xlsRow += 1;
-                            //        sheet1.Range[xlsRow, StoresSNO].Text = dvBioDvAC[i]["StoresSNO"].ToString();
-                            //        sheet1.Range[xlsRow, StoresSNO].RowHeight = 20;
-                            //        sheet1.Range[xlsRow, StoresSNO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //        sheet1.Range[xlsRow, StoresSNO].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //        sheet1.Range[xlsRow, Category].Text = dvBioDvAC[i]["Category"].ToString();
-                            //        sheet1.Range[xlsRow, Category].RowHeight = 20;
-                            //        sheet1.Range[xlsRow, Category].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //        sheet1.Range[xlsRow, Category].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //        sheet1.Range[xlsRow, StoreItemName].Text = dvBioDvAC[i]["StoreItemName"].ToString();
-                            //        sheet1.Range[xlsRow, StoreItemName].RowHeight = 20;
-                            //        sheet1.Range[xlsRow, StoreItemName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //        sheet1.Range[xlsRow, StoreItemName].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //        sheet1.Range[xlsRow, Article].Text = dvBioDvAC[i]["Article"].ToString();
-                            //        sheet1.Range[xlsRow, Article].RowHeight = 20;
-                            //        sheet1.Range[xlsRow, Article].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //        sheet1.Range[xlsRow, Article].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //        sheet1.Range[xlsRow, StoresRemarks].Text = dvBioDvAC[i]["StoresRemarks"].ToString().Trim();
-                            //        sheet1.Range[xlsRow, StoresRemarks].RowHeight = 20;
-                            //        sheet1.Range[xlsRow, StoresRemarks].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //        sheet1.Range[xlsRow, StoresRemarks].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //        sheet1.Range[xlsRow, UOM].Text = dvBioDvAC[i]["UOM"].ToString().Trim();
-                            //        sheet1.Range[xlsRow, UOM].RowHeight = 20;
-                            //        sheet1.Range[xlsRow, UOM].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //        sheet1.Range[xlsRow, UOM].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //        sheet1.Range[xlsRow, EstimatedQty].Text = dvBioDvAC[i]["EstimatedQty"].ToString().Trim();
-                            //        sheet1.Range[xlsRow, EstimatedQty].RowHeight = 20;
-                            //        sheet1.Range[xlsRow, EstimatedQty].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //        sheet1.Range[xlsRow, EstimatedQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //        sheet1.Range[xlsRow, CostType].Text = dvBioDvAC[i]["CostType"].ToString().Trim();
-                            //        sheet1.Range[xlsRow, CostType].RowHeight = 20;
-                            //        sheet1.Range[xlsRow, CostType].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //        sheet1.Range[xlsRow, CostType].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //        sheet1.Range[xlsRow, EstimationLevel].Text = dvBioDvAC[i]["EstimationLevel"].ToString().Trim();
-                            //        sheet1.Range[xlsRow, EstimationLevel].RowHeight = 20;
-                            //        sheet1.Range[xlsRow, EstimationLevel].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //        sheet1.Range[xlsRow, EstimationLevel].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-
-
-                            //        #endregion ----------------------ConsumableData-----------------------
-
-                                    //#region Line Setup
-
-                                    //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
-                                    //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-                                    //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].WrapText = true;
-
-                                    //#endregion Line Setup
-                            //    }
-                            //}
                         }
 
 
