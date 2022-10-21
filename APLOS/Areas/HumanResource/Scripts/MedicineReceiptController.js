@@ -178,6 +178,8 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
                     var ob = {};
                     ob.Id = a.Id;
                     ob.UserName = a.UserName
+                    ob.Quantity = '';
+                    ob.Amount = '';
                     $scope.userMedicineList.push(ob);
                     ob = {};
                     a.chk = false;

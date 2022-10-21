@@ -377,13 +377,13 @@ namespace HRService
 							left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
 							where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
 							FOR XML PATH('')
-							),1,1,'') ResponsiblePersonName,
+							),1,1,'') ResponsiblePersonId,
 							STUFF((select ',' +  X.EmployeeName
 							From TRN.DetentionLogResponsiblePerson DLR
 							left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
 							where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
 							FOR XML PATH('')
-							),1,1,'') ResponsiblePersonId,
+							),1,1,'') ResponsiblePersonName,
 							STUFF((select ',' +  X.CellPhnNo
 							From TRN.DetentionLogResponsiblePerson DLR
 							left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
@@ -413,6 +413,8 @@ namespace HRService
                         DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
                         LoginTime = dsRef.Tables[0].Rows[i]["LoginTime"].ToString(),
                         IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
+                        ResponsiblePersonName = dsRef.Tables[0].Rows[i]["ResponsiblePersonName"].ToString(),
+                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
                         Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
                         WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
                         DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
@@ -1178,6 +1180,8 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string DetentionType { get; set; }
         public string LoginTime { get; set; }
         public string IssueByNo { get; set; }
+        public string ResponsiblePersonName { get; set; }
+        public string ResponsiblePersonId { get; set; }
         public string Remarks { get; set; }
         public string WorkCenterId { get; set; }
         public string DetentionTypeId { get; set; }
