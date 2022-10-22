@@ -1053,18 +1053,18 @@ namespace Library.General.TaskScheduler
                         dr["Id"] =  "DL" + _Id;
                         dr["WorkCenterId"] = item.WorkCenterId;
                         dr["DetentionTypeId"] = item.DetentionTypeId;
-                        dr["LoginTime"] = item.LoginTime;
+                        dr["LoginTime"] = DBNull.Value;
                         dr["IssueByNo"] = item.IssueByNo;
                         dr["Remarks"] = item.Remarks;
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = item.AddedDate;
                         dr["AddedFromIP"] = item.AddedFromIP;
-                        dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = item.UpdatedDate;
-                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+                        dr["UpdatedBy"] = DBNull.Value;
+                        dr["UpdatedDate"] = DBNull.Value;
+                        dr["UpdatedFromIP"] = DBNull.Value;
                         dr["isUpdate"] = item.isUpdate;
                         dr["isClose"] = item.isClose;
-                        dr["LogoutTime"] = item.LogoutTime;
+                        dr["LogoutTime"] = DBNull.Value;
                         dr["MachineMasterId"] = item.MachineMasterId;
                         dsMaster.Tables[0].Rows.Add(dr);
                     }
@@ -1139,10 +1139,10 @@ namespace Library.General.TaskScheduler
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = item.AddedDate;
                         dr["AddedFromIP"] = item.AddedFromIP;
-                        dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = item.UpdatedDate;
-                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
-                        dr["isActive"] = item.isActive;
+                        dr["UpdatedBy"] = DBNull.Value;
+                        dr["UpdatedDate"] = DBNull.Value;
+                        dr["UpdatedFromIP"] = DBNull.Value;
+                        dr["isActive"] = DBNull.Value;
                         dsMaster.Tables[0].Rows.Add(dr);
                     }
                     else
@@ -1158,7 +1158,7 @@ namespace Library.General.TaskScheduler
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = item.UpdatedDate;
                         dr["UpdatedFromIP"] = item.UpdatedFromIP;
-                        dr["isActive"] = item.isActive;
+                        dr["isActive"] = DBNull.Value;
 
 
                         dr.EndEdit();
@@ -4571,17 +4571,17 @@ public class DetentionMoidel
     public string Id { get; set; }
     public string WorkCenterId { get; set; }
     public string DetentionTypeId { get; set; }
-    public DateTime? LoginTime { get; set; }
+    public string LoginTime { get; set; }
     public string IssueByNo { get; set; }
     public string Remarks { get; set; }
     public string AddedBy { get; set; }
-    public DateTime? AddedDate { get; set; }
+    public string AddedDate { get; set; }
     public string AddedFromIP { get; set; }
     public string UpdatedBy { get; set; }
-    public DateTime? UpdatedDate { get; set; }
+    public string UpdatedDate { get; set; }
     public string UpdatedFromIP { get; set; }
     public bool isUpdate { get; set; }
-    public DateTime? LogoutTime { get; set; }
+    public string LogoutTime { get; set; }
     public string MachineMasterId { get; set; }
     public bool isClose { get; set; }
 }
@@ -4592,10 +4592,10 @@ public class ResponsiblePersonModel
     public string DetentionLogId { get; set; }
     public string ResponsiblePersonId { get; set; }
     public string AddedBy { get; set; }
-    public DateTime? AddedDate { get; set; }
+    public string AddedDate { get; set; }
     public string AddedFromIP { get; set; }
     public string UpdatedBy { get; set; }
-    public DateTime? UpdatedDate { get; set; }
+    public string UpdatedDate { get; set; }
     public string UpdatedFromIP { get; set; }
     public bool isActive { get; set; }
 }
