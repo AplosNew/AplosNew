@@ -415,6 +415,7 @@ namespace HRService
                         IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
                         ResponsiblePersonName = dsRef.Tables[0].Rows[i]["ResponsiblePersonName"].ToString(),
                         ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                        ContactNo = dsRef.Tables[0].Rows[i]["ContactNo"].ToString(),
                         Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
                         WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
                         DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
@@ -1182,6 +1183,7 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string IssueByNo { get; set; }
         public string ResponsiblePersonName { get; set; }
         public string ResponsiblePersonId { get; set; }
+        public string ContactNo { get; set; }
         public string Remarks { get; set; }
         public string WorkCenterId { get; set; }
         public string DetentionTypeId { get; set; }
