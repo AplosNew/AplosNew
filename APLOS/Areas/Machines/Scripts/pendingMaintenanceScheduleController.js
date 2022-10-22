@@ -14,6 +14,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
         Responsible: null,
         WorkCenter: null,
+        Status:'All',
         Asset: null
     };
     $scope.statusNew = Object.assign({}, $scope.status);
@@ -27,7 +28,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
           
             $http({
                 method: 'GET',
-                url: 'Machines/PendingMaintenanceSchedule/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate,
+                url: 'Machines/PendingMaintenanceSchedule/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&Status=' + $scope.statusNew.Status,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.filters = response.data;
@@ -102,7 +103,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
             $http({
                 method: 'POST',
                 url: $scope.path + "LoadPendingMaintenanceSchedule",
-                data: { 'parameters': $scope.parameters, 'todate': $scope.statusNew.ToDate, 'fromDate' : $scope.statusNew.FromDate},
+                data: { 'parameters': $scope.parameters, 'todate': $scope.statusNew.ToDate, 'fromDate': $scope.statusNew.FromDate, 'Status' : $scope.statusNew.Status},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
