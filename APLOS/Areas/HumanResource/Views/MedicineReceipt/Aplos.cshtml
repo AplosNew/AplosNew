@@ -26,42 +26,6 @@
                 </div>
 
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Invoice No.<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="InvoiceNo" ng-model="ModalNew.InvoiceNumber" class="form-control" maxlength="15" required tabindex="3">
-                    </div>
-                </div>
-
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="input-group">
-                            <span class="input-group-addon">{{ModalNew.PartyCode}}</span>
-                            <input type="text" name="Vendor" ng-model="ModalNew.PartyName" class="form-control" required readonly>
-                            <span class="input-group-btn">
-                                <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            @*COLUMN 2*@
-            <div class="col-xs-12 col-sm-8 col-md-6">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Location<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="ModelNew.LocationId" required name="Location"
-                                    tabindex="2">
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in LocationList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <input type="text" ng-model="ModalNew.InvoiceDate" name="InvoiceDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
@@ -78,7 +42,44 @@
                         </div>
                     </div>
                 </div>
+
             </div>
+
+            @*COLUMN 2*@
+        <div class="col-xs-12 col-sm-8 col-md-6">
+            @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Location<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.LocationId" required name="Location"
+                            tabindex="2">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in LocationList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Invoice No.<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="InvoiceNo" ng-model="ModalNew.InvoiceNumber" class="form-control" maxlength="15" required tabindex="3">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <span class="input-group-addon">{{ModalNew.PartyCode}}</span>
+                        <input type="text" name="Vendor" ng-model="ModalNew.PartyName" class="form-control" required readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+
+                        </span>
+                    </div>
+                </div>
+            </div>
+           
+        </div>
             @*<div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button class="btn" ng-click="displaychild();" tabindex="9"><i class="glyphicon glyphicon-circle-arrow-right"></i> Go</button></li>
@@ -98,6 +99,7 @@
                     <th>Quantity</th>
                     <th>Amount</th>
                     <th>Rate</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -120,12 +122,20 @@
             </tbody>
             @*<tfoot ng-show="userMedicineList.length">
                 <tr>
-                    <td colspan="2"><b>Sub Total</b></td>
-                    <td class="text-right"><b>{{ TDSList | sumByKey : 'TaxAmount' }}</b></td>
-                    <td></td>
+
+                    <td>
+                    </td>
                 </tr>
             </tfoot>*@
         </table>
+        <div class="common-btn" style="margin-top:10px">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+            
+            </ul>
+        </div>
     </div>
         @*---------------------------------------------------------------------------------------------------------*@
         <!--<div class="table-responsive" id="medicinereceiptchildId" style="margin-top:20px">

@@ -381,6 +381,22 @@ namespace Aplos.Controllers
 
             }
         }
+
+        [HttpPost]
+        [Route("api/MyTask/saveresponsibleperson")]
+        public string saveresponsibleperson([FromBody] IEnumerable<ResponsiblePersonModel> DataSaveresponsible)
+        {
+            try
+            {
+                string Id = _task.saveresponsibleperson(DataSaveresponsible);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion Detention save api By Aman
 
         [HttpPost]

@@ -88,7 +88,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         #endregion SEARCH SAVED DATA IN GRID
 
         #region SAVE
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult Save(Dictionary<string, object> data)
         {
             try

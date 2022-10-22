@@ -76,9 +76,9 @@
                     <li role="presentation" ng-class="{ active: isSet(3) }">
                         <a ng-click="setTab(3)" href="" data-toggle="tab">Item</a>
                     </li>
-                    <li role="presentation" ng-class="{ active: isSet(4) }">
+                    @*<li role="presentation" ng-class="{ active: isSet(4) }">
                         <a ng-click="setTab(4);GetMasterOrderAmountAndQty();" href="" data-toggle="tab">Packing Define</a>
-                    </li>
+                    </li>*@
                 </ul>
             </div>
 
@@ -663,7 +663,7 @@
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <!--<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                     <div class="form-elements form-horizontal" ng-form="modelNewForm">
                         <div class="row" id="mainGrid">
                             <div class="tab-design">
@@ -751,10 +751,10 @@
 
                                     <div class="common-btn">
                                         <ul class="list-inline text-right">
-                                            <li> <button ng-click="SavePackingDetail()" class="btn single-small-btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNewPD.Id.length>0?'Update':'Save'}}</button></li>
+                                            <li> <button ng-click="SavePackingDetail()" class="btn single-small-btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNewPD.Id.length>0?'Update':'Save'}}</button></li>-->
                                             @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
                                             @*<li> <button ng-click="DeletePackingDetail();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-                                            <li> <button ng-click="ClearPackingDetail();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                            <!--<li> <button ng-click="ClearPackingDetail();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                         </ul>
                                     </div>
 
@@ -779,7 +779,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>-->
             </div>
             <confirm-archive-generic modalid="confirmPackingDetailPopUp" title="Confirmation" message={{message_PackingDetailconfirmation}} data-ng-click-right-button="DeletePackingDetail();"></confirm-archive-generic>
 

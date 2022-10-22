@@ -48,9 +48,20 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Department" ng-disabled="true" ng-model="scheduleNew.Department" class="form-control" maxlength="100" required autocomplete="off">
+                    </div>
+                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                        <button ng-click="selectDepartment();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </div>
             @*<div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Attachment<sup>*</sup></label>
-            </div>*@
+            <label class="col-sm-4 control-label">Attachment<sup>*</sup></label>
+        </div>*@
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
@@ -91,7 +102,13 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">Remarks</label>
                 <div class="col-sm-8">
-                    <input type="text" name="Remarks" ng-model="scheduleNew.Remarks" class="form-control"  maxlength="100" autocomplete="off">
+                    <input type="text" name="Remarks" ng-model="scheduleNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Maintenance Group</label>
+                <div class="col-sm-8">
+                    <input type="text" name="MaintenanceGroup" ng-model="scheduleNew.MaintenanceGroup" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
         </div>
@@ -501,6 +518,8 @@
             <div e-column e-field="MaxScheduleDays" e-headertext="Max Schedule Days" e-width="3"></div>
             <div e-column e-field="StandardScheduleMinutes" e-headertext="Standard Schedule Minutes" e-width="3"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+            <div e-column e-field="Department" e-headertext="Department" e-width="3"></div>
+            <div e-column e-field="MaintenanceGroup" e-headertext="Maintenance Group" e-width="3"></div>
             <div e-column e-field="IsActive" e-headertext="Is Active" e-width="3"></div>
         </div>
     </div>
@@ -763,6 +782,39 @@
                     <ul class="list-inline text-right">
                         <li>
                             <button ng-click="closePersonBudgetCodePopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="DepartmentPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Department<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to select an Department</p>
+                        <div style="color:black;" id="GridDepartment" ej-grid e-datasource="DepartmentList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleDepartment">
+                            <div e-columns>
+                                <div e-column e-field="DepartmentId" e-headertext="Id" e-width="30"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="30"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="30"></div>
+                                <div e-column e-field="Department" e-headertext="User Name" e-width="30"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeDepartmentPopUp();" class="btn"><i class=""></i> Close</button>
                         </li>
                     </ul>
 

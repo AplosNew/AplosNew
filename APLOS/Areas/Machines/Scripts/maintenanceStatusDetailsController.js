@@ -8,11 +8,18 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
     $scope.saveResponsibleUrl = $scope.path + 'createResponsible';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
+    var date = new Date(), y = date.getFullYear(), m = date.getMonth();
+    var firstDay = new Date(y, m, 1);
     $scope.status = {
         Id: null,
-        ToDate: null
+        FromDate: $filter('dateFiltering')(firstDay),
+        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
+        FromDateMD: $filter('dateFiltering')(firstDay),
+        ToDateMD: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
     };
     $scope.statusNew = Object.assign({}, $scope.status);
+
+    
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -50,7 +57,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
             $http({
 
                 method: 'Get',
-                url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDate
+                url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDateMD + '&FromDate=' + $scope.statusNew.FromDateMD
             }).then(function successCallback(response) {
                 $scope.MaintenanceStatusDetailsList = response.data;
                 var gridObj = $("#GridMaintenanceStatusDetails").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -69,7 +76,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
             $http({
 
                 method: 'Get',
-                url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusSummaryList?ToDate=' + $scope.statusNew.ToDate
+                url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusSummaryList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate
             }).then(function successCallback(response) {
                 $scope.MaintenanceStatusSummaryList = response.data;
                 var gridObj = $("#GridMaintenanceStatusSummary").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -135,7 +142,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
         }
         $http({
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedList?ToDate=' + $scope.statusNew.ToDate + '&MaintenanceId=' + data.data.Id + '&Value=' + $scope.Test
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + data.data.Id + '&Value=' + $scope.Test
         }).then(function successCallback(response) {
             $scope.MaintenanceStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -243,8 +250,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
     $scope.MaintenanceStatusSummaryReport = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'XlsMaintenanceStatusSummary?todate=' + $scope.statusNew.ToDate,
-
+            url: $scope.path + 'XlsMaintenanceStatusSummary?todate=' + $scope.statusNew.ToDate + '&fromDate=' + $scope.statusNew.FromDate,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -263,8 +269,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
     $scope.MaintenanceStatusDetailsReport = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'XlsMaintenanceStatusDetails?todate=' + $scope.statusNew.ToDate,
-
+            url: $scope.path + 'XlsMaintenanceStatusDetails?todate=' + $scope.statusNew.ToDateMD + '&fromDate=' + $scope.statusNew.FromDate,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {

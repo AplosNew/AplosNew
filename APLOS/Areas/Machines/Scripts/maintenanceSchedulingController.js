@@ -131,7 +131,10 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         , MaxScheduleDays: null
         , StandardScheduleMinutes: null
         , IsActive: true
-        , Particulars:null
+        , Particulars: null
+        , Department: null
+        , DepartmentId: null
+        , MaintenanceGroup: null
     };
     $scope.scheduleNew = Object.assign({}, $scope.schedule);
 
@@ -274,7 +277,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    $scope.LoadMachineDetails($scope.scheduleNew.MachineMasterId);
+                    $scope.LoadMachineDetails($scope.scheduleNew.MachineMasterId, $scope.scheduleNew.Id);
                     $scope.Action = 'Save';
                 }
 
@@ -429,6 +432,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         angular.element(document.querySelector('#UOMPopUp')).modal('hide');
     }
 
+
     $scope.selectArticle = function () {
         $scope.getArticle();
         angular.element(document.querySelector('#ArticlePopUp')).modal('show');
@@ -479,6 +483,32 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
 
     $scope.closePersonBudgetCodePopUp = function () {
         angular.element(document.querySelector('#PersonBudgetCodePopUp')).modal('hide');
+    }
+
+    $scope.selectDepartment = function () {
+        $scope.getDepartment();
+        angular.element(document.querySelector('#DepartmentPopUp')).modal('show');
+    }
+
+    $scope.DepartmentList = [];
+    $scope.getDepartment = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetDepartment',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.DepartmentList = resp.data;
+        });
+    }
+
+    $scope.doubleDepartment = function (e) {
+        $scope.scheduleNew.DepartmentId = e.data.DepartmentId;
+        $scope.scheduleNew.Department = e.data.Department;
+        angular.element(document.querySelector('#DepartmentPopUp')).modal('hide');
+    }
+
+    $scope.closeDepartmentPopUp = function () {
+        angular.element(document.querySelector('#DepartmentPopUp')).modal('hide');
     }
 
     $scope.Save = function () {
