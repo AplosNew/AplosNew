@@ -58,7 +58,7 @@ namespace Aplos.Areas.Machines.Controllers
 
         #region -- Operations
         [Authorize, HttpGet]
-        public ActionResult LoadMaintenanceStatusDetailsList(string ToDate)
+        public ActionResult LoadMaintenanceStatusDetailsList(string ToDate,string FromDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select MS.Id,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
@@ -82,7 +82,7 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end) = 0 and (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
-MS.StandardScheduleMinutes,MS.Remarks
+MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup
  from TRN.Maintenancescheduling MS
  left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
@@ -91,38 +91,56 @@ MS.StandardScheduleMinutes,MS.Remarks
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
  where MMA.Id is not null 
- and  format(GETDATE(),'dd-MMM-yyy')='" + ToDate + "'";
+ and  Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadMaintenanceStatusSummaryList(string ToDate)
+        public ActionResult LoadMaintenanceStatusSummaryList(string ToDate,string FromDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select MS.Id,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
-MM.MachineModel Model,MS.ScheduleCode,MB.Code ResponsiblePersonBudgetCode,
-count(MMA.Id) NoOfAsset,
-sum(case when (Case when isnull(ActualDate,'')='' then GETDATE() else (MS.ScheduleDays+ActualDate)end)<GETDATE() then 1 else 0 end) OverDue,
-sum(case when (Case when isnull(ActualDate,'')='' then GETDATE() else (MS.ScheduleDays+ActualDate)end)=GETDATE() then 1 else 0 end) DueToday,
-sum(case when (case when (Case when isnull(ActualDate,'')='' then GETDATE() else (MS.ScheduleDays+ActualDate)end)<GETDATE() then 1 else 0 end = 0 
-and case when (Case when isnull(ActualDate,'')='' then GETDATE() else (MS.ScheduleDays+ActualDate)end)=GETDATE() then 1 else 0 end=0) then 1 else 0 end) FutureDue,
-MS.Remarks,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD where MPD.PlannedDate is null) as PlanStatus
+            string sql = @"select X.Id,X.Entity,X.ScheduleName,X.MachineName,X.Make,X.Model,X.ScheduleCode,X.ResponsiblePersonBudgetCode,
+count(X.NoOfAsset) as NoOfAsset,sum(X.OverDue) as OverDue,sum(X.DueToday) as DueToday,sum(X.FutureDue) as FutureDue,X.Remarks,X.PlanStatus,X.Department,X.MaintenanceGroup from (
+select MS.Id,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
+MM.MachineModel Model,MS.ScheduleCode,MB.Code ResponsiblePersonBudgetCode,count(MMA.Id) NoOfAsset,
+MS.ScheduleDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'') as LastMaintenanceDate,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end CurrentMaintanceDate,
+DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end) DueDays,
+ case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end OverDue,
+ case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end DueToday,
+ case when (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end) = 0 and (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
+MS.Remarks,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD where MPD.PlannedDate is null) as PlanStatus,
+(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup
  from TRN.Maintenancescheduling MS
  left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
- left join (SELECT top 1 ActualDate as ActualDate,AssetId from [TRN].[MachineAssetPlannedDetails]  
- ORDER BY Id DESC) APD ON APD.AssetId=MMA.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null 
- and  format(GETDATE(),'dd-MMM-yyy')='" + ToDate+"' group by MS.Id,E.UserName,MS.UserName,MM.UserName,MM.MachineMake,MM.MachineModel,MS.ScheduleCode,MB.Code,MS.LastMaintenanceDate,MS.ScheduleDays,MS.Remarks"; 
+ where MMA.Id is not null and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "' group by MS.Id,MMA.Id,E.UserName,MS.UserName,MM.UserName,MM.MachineMake,MM.MachineModel,MS.ScheduleCode,MB.Code,MS.LastMaintenanceDate,MS.ScheduleDays,MS.Remarks,MS.DepartmentId,MS.MaintenanceGroup) X group by NoOfAsset,Id,Entity,ScheduleName,MachineName,Make,Model,ScheduleCode,ResponsiblePersonBudgetCode,Remarks,PlanStatus,Department,MaintenanceGroup"; 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadMaintenanceStatusPlannedList(string ToDate,string MaintenanceId,string Value)
+        public ActionResult LoadMaintenanceStatusPlannedList(string ToDate,string FromDate,string MaintenanceId,string Value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,
@@ -153,12 +171,12 @@ MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and MS.Id='" + MaintenanceId + "' and format(GETDATE(),'dd-MMM-yyy')='"+ ToDate + "' and 1='" + Value + "'";
+ where MMA.Id is not null and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "' and 1='" + Value + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadMaintenancePendingdScheduleList(string ToDate, string MaintenanceId)
+        public ActionResult LoadMaintenancePendingdScheduleList(string ToDate,string FromDate, string MaintenanceId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,
@@ -190,7 +208,7 @@ Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,format(APD.FromTime,'hh:mm tt
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and APD.Id='" + MaintenanceId + "' and format(GETDATE(),'dd-MMM-yyy')='" + ToDate + "'";
+ where MMA.Id is not null and APD.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -233,23 +251,16 @@ WHERE EI.EmployeeStatus='Active'";
                 {
                     foreach (var item in DataList)
                     {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
-                        objCon.OpenDataSetThroughAdapter("select * from " + TableName + " where AssetId='" + item["AssetId"] + "'", out DataSet dsMaintenancePlanValidation, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and AssetId='" + item["AssetId"] + "'", out dsProdBooked, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
 
                         if (dv.Count == 0)
                         {
-                            if (dsMaintenancePlanValidation.Tables[0].Rows.Count > 0)
-                            {
-                                throw new Exception("Machine Already Exists!");
-                            }
-                            else
-                            { 
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID(TableName, out _Id);
                             item["Id"] = "APD" + _Id;
                             AddNewRow(dsProdBooked.Tables[0], item);
-                            }
+                           
                         }
                         else
                         {
@@ -404,11 +415,11 @@ WHERE EI.EmployeeStatus='Active'";
 
         
         [Authorize, HttpPost]
-        public ActionResult XlsMaintenanceStatusSummary()
+        public ActionResult XlsMaintenanceStatusSummary(string todate, string fromDate)
         {
             try
             {
-                var workbook = MaintenanceStatusSummaryReport();
+                var workbook = MaintenanceStatusSummaryReport(todate, fromDate);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "MaintenanceStatusSummary.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -425,7 +436,7 @@ WHERE EI.EmployeeStatus='Active'";
         }
 
         [Authorize, HttpPost]
-        private IWorkbook MaintenanceStatusSummaryReport()
+        private IWorkbook MaintenanceStatusSummaryReport(string todate, string fromDate)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -433,7 +444,7 @@ WHERE EI.EmployeeStatus='Active'";
             workbook.Version = ExcelVersion.Excel2016;
 
 
-            var data = rsr.MaintenanceStatusSummaryReport();
+            var data = rsr.MaintenanceStatusSummaryReport(todate, fromDate);
 
 
             var sheet = workbook.Worksheets[0];
@@ -502,6 +513,14 @@ WHERE EI.EmployeeStatus='Active'";
 
             report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 12, ExcelHAlign.HAlignCenter);
             int ColRemarks = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 12, ExcelHAlign.HAlignCenter);
+            int ColDepartment = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Maintenance Group", 12, ExcelHAlign.HAlignCenter);
+            int ColMaintenanceGroup = COL;
 
             ROW++;
             endCol = COL;
@@ -565,8 +584,10 @@ WHERE EI.EmployeeStatus='Active'";
                 sheet[ROW, ColFutureDue].Number = clsStaticInfo.dbl(data.Rows[i]["FutureDue"].ToString());
                 sheet[ROW, ColPlanStatus].Number = clsStaticInfo.dbl(data.Rows[i]["PlanStatus"].ToString());
                 sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                sheet[ROW, ColMaintenanceGroup].Text = data.Rows[i]["MaintenanceGroup"].ToString();
 
-                
+
                 ROW++;
 
             }
@@ -591,11 +612,11 @@ WHERE EI.EmployeeStatus='Active'";
 
 
         [Authorize, HttpPost]
-        public ActionResult XlsMaintenanceStatusDetails()
+        public ActionResult XlsMaintenanceStatusDetails(string todate, string fromDate)
         {
             try
             {
-                var workbook = MaintenanceStatusDetailsReport();
+                var workbook = MaintenanceStatusDetailsReport(todate,fromDate);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "MaintenanceStatusDetails.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -612,7 +633,7 @@ WHERE EI.EmployeeStatus='Active'";
         }
 
         [Authorize, HttpPost]
-        private IWorkbook MaintenanceStatusDetailsReport()
+        private IWorkbook MaintenanceStatusDetailsReport(string todate, string fromDate)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -620,7 +641,7 @@ WHERE EI.EmployeeStatus='Active'";
             workbook.Version = ExcelVersion.Excel2016;
 
 
-            var data = rsr.MaintenanceStatusDetailsReport();
+            var data = rsr.MaintenanceStatusDetailsReport(todate, fromDate);
 
 
             var sheet = workbook.Worksheets[0];
@@ -715,6 +736,14 @@ WHERE EI.EmployeeStatus='Active'";
 
             report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 12, ExcelHAlign.HAlignCenter);
             int ColRemarks = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 12, ExcelHAlign.HAlignCenter);
+            int ColDepartment = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Maintenance Group", 12, ExcelHAlign.HAlignCenter);
+            int ColMaintenanceGroup = COL;
 
             ROW++;
             endCol = COL;
@@ -784,6 +813,8 @@ WHERE EI.EmployeeStatus='Active'";
                 sheet[ROW, ColFutureDue].Number = clsStaticInfo.dbl(data.Rows[i]["FutureDue"].ToString());
                 sheet[ROW, ColStandardScheduleMinutes].Number = clsStaticInfo.dbl(data.Rows[i]["StandardScheduleMinutes"].ToString());
                 sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                sheet[ROW, ColMaintenanceGroup].Text = data.Rows[i]["MaintenanceGroup"].ToString();
 
 
                 ROW++;
