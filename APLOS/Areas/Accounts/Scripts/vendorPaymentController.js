@@ -652,7 +652,9 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calDiscountAmount = function () {
         if ($scope.voucher.PaymentSource == 'Discount') {
             $scope.BaseAmountObj.Type = 'Discount';
-            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000;
+            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "BaseDrAmount") * 1000 + Number.EPSILON) / 1000;
+            $scope.BaseAmountObj.BaseCrAmount += Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList, { ExchangeType: "ExchangeLoss" }), "ExchangeAmount") * 1000 + Number.EPSILON) / 1000;
+            $scope.BaseAmountObj.BaseCrAmount -= Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList, { ExchangeType: "ExchangeGain" }), "ExchangeAmount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseDrAmount = null;
             $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};

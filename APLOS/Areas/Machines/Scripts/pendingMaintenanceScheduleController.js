@@ -6,12 +6,15 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
     $scope.path = 'Machines/PendingMaintenanceSchedule/';
     $scope.savePlannedUrl = $scope.path + 'createPlanned';
     $scope.saveResponsibleUrl = $scope.path + 'createResponsible';
-
+    var date = new Date(), y = date.getFullYear(), m = date.getMonth();
+    var firstDay = new Date(y, m, 1);
     $scope.status = {
         Id: null,
-        ToDate: null,
+        FromDate: $filter('dateFiltering')(firstDay),
+        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
         Responsible: null,
         WorkCenter: null,
+        Status:'All',
         Asset: null
     };
     $scope.statusNew = Object.assign({}, $scope.status);
@@ -25,7 +28,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
           
             $http({
                 method: 'GET',
-                url: 'Machines/PendingMaintenanceSchedule/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDate,
+                url: 'Machines/PendingMaintenanceSchedule/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&Status=' + $scope.statusNew.Status,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.filters = response.data;
@@ -100,7 +103,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
             $http({
                 method: 'POST',
                 url: $scope.path + "LoadPendingMaintenanceSchedule",
-                data: { 'parameters': $scope.parameters, 'todate': $scope.statusNew.ToDate},
+                data: { 'parameters': $scope.parameters, 'todate': $scope.statusNew.ToDate, 'fromDate': $scope.statusNew.FromDate, 'Status' : $scope.statusNew.Status},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -228,7 +231,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
      
         $http({
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&MaintenanceId=' + data.data.PlannedId
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + data.data.PlannedId
         }).then(function successCallback(response) {
             $scope.MaintenanceStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -240,7 +243,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
 
         $http({
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&MaintenanceId=' + data.data.AssetId
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + data.data.AssetId
         }).then(function successCallback(response) {
             $scope.MaintenanceStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();

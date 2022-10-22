@@ -3354,10 +3354,8 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					 FROM [TRN].[ServiceAcknowledgementDetail] AS A
 		                        JOIN [TRN].[ServiceAcknowledgementMaster] AS B ON A.ServiceAcknowledgementMasterId=B.Id WHERE B.PlantId='" + plantId + @"' 
 								GROUP BY A.ServiceAcknowledgementMasterId) AS IRD ON IRD.ServiceAcknowledgementMasterId=IR.Id
-					
-					
                     WHERE IR.PlantId='" + plantId + @"' 
-					AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1";
+					AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0   AND IR.ApprovedByStatus='Approved'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

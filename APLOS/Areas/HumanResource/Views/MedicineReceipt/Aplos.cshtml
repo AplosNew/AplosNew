@@ -26,113 +26,161 @@
                 </div>
 
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Invoice No.<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="number" name="InvoiceNo" ng-model="ModalNew.InvoiceNumber" class="form-control" maxlength="15" required tabindex="3">
+                        <input type="text" ng-model="ModalNew.InvoiceDate" name="InvoiceDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
                     </div>
                 </div>
-
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
+                    <label class="col-sm-4 control-label"></label>
                     <div class="col-sm-8 show-message">
                         <div class="input-group">
-                            <span class="input-group-addon">{{ModalNew.PartyCode}}</span>
-                            <input type="text" name="Vendor" ng-model="ModalNew.PartyName" class="form-control" required readonly>
-                            <span class="input-group-btn">
-                                <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
 
+                            <span class="input-group-btn">
+                                <button name="submit" ng-click="openMedicinePopUp()" class="btn single-small-btn" tabindex="1">Add Medicine <i class="cr-icon glyphicon glyphicon-plus-sign"></i></button>
                             </span>
                         </div>
                     </div>
                 </div>
+
             </div>
 
             @*COLUMN 2*@
         <div class="col-xs-12 col-sm-8 col-md-6">
+            @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Location<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.LocationId" required name="Location"
+                            tabindex="2">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in LocationList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Location<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Invoice No.<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.LocationId" required name="Location"
-                                tabindex="2">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in LocationList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
+                    <input type="number" name="InvoiceNo" ng-model="ModalNew.InvoiceNumber" class="form-control" maxlength="15" required tabindex="3">
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" ng-model="ModalNew.InvoiceDate" name="InvoiceDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label"></label>
+                <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="input-group">
-
+                        <span class="input-group-addon">{{ModalNew.PartyCode}}</span>
+                        <input type="text" name="Vendor" ng-model="ModalNew.PartyName" class="form-control" required readonly>
                         <span class="input-group-btn">
-                            <button name="submit" ng-click="openMedicinePopUp()" class="btn single-small-btn" tabindex="1">Add Medicine <i class="cr-icon glyphicon glyphicon-plus-sign"></i></button>
+                            <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+
                         </span>
                     </div>
                 </div>
             </div>
+           
         </div>
             @*<div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button class="btn" ng-click="displaychild();" tabindex="9"><i class="glyphicon glyphicon-circle-arrow-right"></i> Go</button></li>
-                    </ul>
-                </div>*@
-
-        </div>
-
-        <div class="table-responsive" id="medicinereceiptchildId" style="margin-top:20px">
-            <div id="GridEdit" ej-grid e-datasource="userMedicineList" e-recorddoubleclick="Get" e-load="loadGridEdit"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-
-                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                    <div e-column e-field="UserName" e-headertext="Medicine" e-width="50"></div>
-                    <div e-column e-headertext="Expiry Date" e-template="#checkbxExpDate" e-textalign="center" e-width="30"></div>
-                    <div e-column e-headertext="Quantity" e-template="#checkboxQty" e-textalign="center" e-width="30"></div>
-                    <div e-column e-headertext="Amount" e-template="#checkboxAmount" e-textalign="center" e-width="30"></div>
-                    <div e-column e-headertext="Rate" e-template="#checkboxRate" e-textalign="center" e-width="30"></div>
-
-
-                </div>
-            </div>
-            @*Expiry Date*@
-            <script type="text/template" id="checkbxExpDate">
-                <input type="text" ng-model="data.ExpiryDate" name="ExpiryDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
-            </script>
-
-            @*Qty*@
-            <script type="text/template" id="checkboxQty">
-                <input type="number" id="quantityId" name="Quantity" ng-change="$parent.calcAmount(this)" ng-model="data.Quantity" class="form-control" maxlength="15" required tabindex="4">
-            </script>
-
-            @*Amount*@
-            <script type="text/template" id="checkboxAmount">
-                <input type="number" ng-model="data.Amount" name="Amount" ng-change="$parent.calcAmount(this)" class="form-control" maxlength="50" tabindex="3" required>
-
-            </script>
-
-            @*Rate*@
-            <script type="text/template" id="checkboxRate">
-                <input type="text" id="rateId" ng-model="data.Rate" name="Rate" class="form-control" maxlength="50" tabindex="3" required>
-
-            </script>
-            <div class="common-btn" style="margin-top:10px">
                 <ul class="list-inline text-right">
-                    <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    <li> <button class="btn" ng-click="displaychild();" tabindex="9"><i class="glyphicon glyphicon-circle-arrow-right"></i> Go</button></li>
                 </ul>
-            </div>
+            </div>*@
 
         </div>
+
+
+        @*---------------------------------------------------------------------------------------------------------*@
+    <div class="table-responsive modal-table">
+        <table class="table table-responsive table-striped">
+            <thead ng-show="userMedicineList.length">
+                <tr>
+                    <th>User Name</th>
+                    <th>Expiry Date</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Rate</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in userMedicineList">
+                    <td>{{x.UserName}}</td>
+                    <td>
+                        <div class="show-message">
+                            <input type="text" ng-model="x.ExpiryDate" class="form-control" datepicker>
+                        </div>
+                    </td>
+                    <td>
+                        <input type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Quantity" ng-model="x.Quantity" ng-keyup="calcAmount(x, $index)">
+                    </td>
+                    <td>
+                        <input type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" ng-model="x.Amount" ng-keyup="calcAmount(x, $index)">
+                    </td>
+                    <td class="text-right">{{x.Rate | number:2 }}</td>
+
+                </tr>
+            </tbody>
+            @*<tfoot ng-show="userMedicineList.length">
+                <tr>
+
+                    <td>
+                    </td>
+                </tr>
+            </tfoot>*@
+        </table>
+        <div class="common-btn" style="margin-top:10px">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+            
+            </ul>
+        </div>
+    </div>
+        @*---------------------------------------------------------------------------------------------------------*@
+        <!--<div class="table-responsive" id="medicinereceiptchildId" style="margin-top:20px">
+        <div id="GridEdit" ej-grid e-datasource="userMedicineList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                <div e-column e-field="UserName" e-headertext="Medicine" e-width="50"></div>
+                <div e-column e-headertext="Expiry Date" e-template="#checkbxExpDate" e-textalign="center" e-width="30"></div>
+                <div e-column e-headertext="Quantity" e-template="#checkboxQty" e-textalign="center" e-width="30"></div>
+                <div e-column e-headertext="Amount" e-template="#checkboxAmount" e-textalign="center" e-width="30"></div>
+                <div e-column e-headertext="Rate" e-template="#checkboxRate" e-textalign="center" e-width="30"></div>
+
+
+            </div>
+        </div>-->
+        @*Expiry Date*@
+        <!--<script type="text/template" id="checkbxExpDate">
+        <input type="text" ng-model="data.ExpiryDate" name="ExpiryDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
+    </script>-->
+        @*Qty*@
+        <!--<script type="text/template" id="checkboxQty">
+        <input type="number" id="quantityId" name="Quantity" ng-keyup="$parent.calcAmount(this)" ng-model="data.Quantity" class="form-control" maxlength="15" required tabindex="4">
+    </script>-->
+        @*Amount*@
+        <!--<script type="text/template" id="checkboxAmount">
+        <input type="number" ng-model="data.Amount" name="Amount" ng-change="$parent.calcAmount(this)" class="form-control" maxlength="50" tabindex="3" required>
+
+    </script>-->
+        @*Rate*@
+        <!--<script type="text/template" id="checkboxRate">
+            <input type="text" id="rateId" ng-model="data.Rate" name="Rate" class="form-control" maxlength="50" tabindex="3" required>
+
+        </script>
+        <div class="common-btn" style="margin-top:10px">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+
+    </div>-->
     </fieldset>
 
 

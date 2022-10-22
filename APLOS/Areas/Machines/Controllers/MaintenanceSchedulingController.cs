@@ -321,12 +321,21 @@ left join HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpPost]
+        public ActionResult GetDepartment()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select D.Id DepartmentId, D.Code,D.StandardName, D.UserName Department from Org.Department D where D.Active = 1";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpGet]
         public ActionResult LoadScheduleEditData(string ScheduleID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             string sql = @"select *,(select MP.Code from MST.ManpowerBudget MP where MP.Id=MS.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
+          (select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,
                             MM.UserName as MachineName,MM.MachineMake as Make,MM.MachineModel as Model,MM.MachinePerticulars  as Particulars
                             FROM [Trn].[MaintenanceScheduling] MS
 							left join MST.MachineMaster MM ON MM.Id=MS.MachineMasterId where MS.Id='" + ScheduleID + @"'";
@@ -394,6 +403,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT * ,(select MP.Code from MST.ManpowerBudget MP where MP.Id=MS.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
+(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,
                             (select UserName from MST.MachineMaster where Id=MS.MachineMasterId) as MachineName
                             FROM [Trn].[MaintenanceScheduling] MS";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -445,7 +455,7 @@ FROM [TRN].[MaintenanceStoresConsumable] where MaintenanceSchedulingId ='" + Sch
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select MPB.Id,MPB.SNO,MPB.PersonBudgetCodeId,MPB.[Group],MPB.AddedBy,MPB.AddedDate,MPB.AddedFromIP,MPB.UpdatedBy,MPB.UpdatedDate,MPB.UpdatedFromIP,MP.Id ManPowerBudgetId, MP.Code as PersonBudgetCode, E.UserName Entity, P.UserName Position,P.Activity,
 DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.UserName AS [LegalDesignation] from [TRN].[MaintenancePersonBudgetCode] MPB
-                            left join MST.ManpowerBudget MP on MP.Id=MPB.PersonBudgetCodeId
+                            left join MST.ManpowerBudget MP on MP.Id=MPB.PersonBudgetCodeId and MP.Active = 1
 						    left join ORG.Entity E on E.Id = MP.EntityId
                             left join ORG.Position P on P.Id = MP.PositionId
 							left join EmployeeInformation EI on EI.BudgetCode=MP.Id and EI.EmployeeStatus='Active'
@@ -453,7 +463,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            where MP.Active = 1 and MPB.MaintenanceSchedulingId ='" + ScheduleId + "'";
+                            where MPB.MaintenanceSchedulingId ='" + ScheduleId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
@@ -482,7 +492,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                 {
                     foreach (var item in DataList)
                     {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and MaintenanceSchedulingId='" + item["MaintenanceSchedulingId"] + "'", out dsProdBooked, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
 
                         if (dv.Count == 0)
@@ -517,11 +527,6 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceItem] where Id<>'" + ItemData["Id"] + "'", out DataSet dsMaintenanceItemValidation, false, "1");
-
-                //if (dsDetentionMaster.Tables[0].Rows.Count>0)
-                //{
-                //    throw new Exception("Code Already Exist.");
-                //}
 
                 DataSet dsMaintenanceItem;
 
@@ -571,11 +576,6 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from ItemParameterDetails where Id<>'" + ParameterData["Id"] + "'", out DataSet dsItemParameterDetailsValidation, false, "1");
 
-                //if (dsDetentionMaster.Tables[0].Rows.Count>0)
-                //{
-                //    throw new Exception("Code Already Exist.");
-                //}
-
                 DataSet dsItemParameterDetails;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
@@ -624,11 +624,6 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceStoresConsumable] where Id<>'" + StoresData["Id"] + "'", out DataSet dsMaintenanceStoresConsumableValidation, false, "1");
 
-                //if (dsDetentionMaster.Tables[0].Rows.Count>0)
-                //{
-                //    throw new Exception("Code Already Exist.");
-                //}
-
                 DataSet dsMaintenanceStoresConsumable;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
@@ -676,11 +671,6 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenancePersonBudgetCode] where Id<>'" + BudgetCodeData["Id"] + "'", out DataSet dsMaintenancePersonBudgetCodeValidation, false, "1");
-
-                //if (dsDetentionMaster.Tables[0].Rows.Count>0)
-                //{
-                //    throw new Exception("Code Already Exist.");
-                //}
 
                 DataSet dsMaintenancePersonBudgetCode;
 

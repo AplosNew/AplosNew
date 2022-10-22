@@ -82,16 +82,6 @@
         </div>
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">COA<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.COAId" ng-options="item.Value as item.Text for item in COAList" id="COAId" name="COA" required tabindex="1">
-                        <option></option>
-                    </select>
-                </div>
-            </div>
-        </div>
         <fieldset class="scheduler-border">
             <legend class="scheduler-border">Dr.</legend>
             <div class="form-group">
@@ -206,5 +196,5 @@
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_AssetTypeGL.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_RevenueTypeGL.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
-@*@Html.Partial("~/Areas/Parties/Views/Party/_PartyOtherPopUpNew.cshtml")*@
+
 <confirm-modal></confirm-modal>

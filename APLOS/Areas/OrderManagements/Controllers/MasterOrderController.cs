@@ -642,7 +642,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             if (plantId == "null") plantId = null;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_masterOrderService.GetCompanyPartyList(parameters, identity.CompanyGroupId, companyId, plantId, partyType), JsonRequestBehavior.AllowGet);
-        }
+        } 
 
         [HttpGet, Authorize]
         public JsonResult GetMasterItemList(string masterOrderId)
@@ -1865,10 +1865,31 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
        
         [HttpGet, Authorize]
-        public ActionResult GetPackingDetail(string PackingDetailId)
+        public ActionResult GetPackingDetail()
         {
-            return Json(MasterOrder.GetPackingDetail(PackingDetailId), JsonRequestBehavior.AllowGet);
+            return Json(MasterOrder.GetPackingDetail(), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet]
+        public ActionResult DeletePackingDetail(string PackingDetailId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsPackingDetail;
+            try
+            {
+                string sqlStopage = @"delete from PackingDetail  WHERE Id='" + PackingDetailId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsPackingDetail, false, "1");
+
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
 
         #region Copy SO

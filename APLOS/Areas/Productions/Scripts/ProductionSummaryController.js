@@ -100,6 +100,33 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     }
     $scope.getAllEntities();
 
+    //$scope.tab = 1;
+    //$scope.setTabMLedger = function (newTab) {
+    //    $scope.tab = newTab;
+    //};
+    //$scope.isSetMLedger = function (tabNum) {
+    //    return $scope.tab === tabNum;
+    //};
+    //$scope.setTabMLedger1 = function (newTab) {
+    //    $scope.tab = newTab;
+    //};
+    //$scope.isSetMLedger1 = function (tabNum) {
+    //    return $scope.tab === tabNum;
+    //};
+
+  
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+   
+
+
     $scope.loadProcessList = function (entityid) {
         cboService.GetEntityProcessCbo(entityid, function (result) {
             $scope.processList = result;

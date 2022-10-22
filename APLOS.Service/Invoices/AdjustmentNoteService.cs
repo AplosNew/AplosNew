@@ -532,6 +532,11 @@ namespace Library.Service.Invoices
                 };
                 if (voucherVM.PartyType == "Customer")
                 {
+                    if (voucherVM.PartyType == PartyType.Customer.ToString() && null != additionalTaxList && additionalTaxList.Count() > 0)
+                    {
+                        adjustmentNoteDetail.Amount = adjustmentNote.Amount + totalwithholdDrAmount + totalcreditableCrAmount - additionalTaxList.Sum(r => r.TaxAmount);
+                    }
+                    else
                     adjustmentNoteDetail.Amount = adjustmentNote.Amount  +  totalwithholdDrAmount+ totalcreditableCrAmount;
 
                 }
@@ -645,6 +650,84 @@ namespace Library.Service.Invoices
                     }
                 }
                 if (voucherVM.PartyType == PartyType.Vendor.ToString() && null != additionalTaxList && additionalTaxList.Count() > 0)
+                {
+                    AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                    var tdsTax = new AdditionalTax
+                    {
+
+                        TaxYearId = voucher.TaxYearId,
+                        TaxYearPeriodId = voucher.TaxYearPeriodId,
+                        TaxAmount = additionalTaxList.Sum(r => r.TaxAmount),
+                        TaxAutoAmount = additionalTaxList.Sum(r => r.TaxAutoAmount),
+                        PartyId = voucherVM.PartyId,
+                        PartyPlantId = voucherVM.PartyPlantId,
+                        AdjustmentNoteId = adjustmentNote.Id,
+                        Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        AddedBy = voucher.AddedBy,
+                        AddedDate = voucher.AddedDate,
+                        AddedFromIP = voucher.AddedFromIP
+                    };
+                    _additionalTaxRepository.Insert(tdsTax);
+
+                    int addtionalTaxDetailId = 0;
+                    foreach (var tdsTaxVM in additionalTaxList)
+                    {
+
+                        if (null == tdsTaxVM.TaxCodeId)
+                            throw new CustomException("Tax code not found!");
+
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
+
+
+                        addtionalTaxDetailId++;
+                        var tdsTaxDetail = new AdditionalTaxDetail
+                        {
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
+                            Amount = tdsTaxVM.TaxAmount,
+                            AdditionalTaxId = tdsTax.Id,
+                            TaxCodeId = tdsTaxVM.TaxCodeId,
+                            TaxCategoryId = tdsTaxVM.TaxCategoryId,
+                            AType = "Cr",
+                            Id = MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
+                            AddedBy = voucher.AddedBy,
+                            AddedDate = voucher.AddedDate,
+                            AddedFromIP = voucher.AddedFromIP
+                        };
+                        _additionalTaxDetailRepository.Insert(tdsTaxDetail);
+
+                        var voucherDetailCr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = tdsTaxDetail.GLGeneralInfoId,
+                            BudgetMasterId = tdsTaxDetail.BudgetMasterId,
+                            ActivityId = tdsTaxDetail.ActivityId,
+                            EntityId = voucherVM.EntityId,
+                            CrAmount = tdsTaxDetail.Amount,
+                            DocDate = voucherVM.DocDate,
+                            DocRefNo = voucherVM.DocRefNo,
+                            Narration = voucherVM.Narration,
+                            PartyId = voucherVM.PartyId,
+                            PartyPlantId = voucherVM.PartyPlantId,
+                            PartyType = voucherVM.PartyType,
+                        };
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
+
+                        // INSERT INTO VoucherDetailCurrency
+                        var voucherDetailCurrencyCr = _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailCr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount
+                        });
+                        totalAmountCr += voucherDetailCr.CrAmount;
+                    }
+                }
+                if (voucherVM.PartyType == PartyType.Customer.ToString() && null != additionalTaxList && additionalTaxList.Count() > 0)
                 {
                     AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                     var tdsTax = new AdditionalTax

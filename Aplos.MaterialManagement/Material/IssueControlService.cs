@@ -105,7 +105,7 @@ namespace Library.MaterialManagement.Material
                 }
                 else if (storagelevel == "Material")
                 {
-                    sql = @"select distinct mma.standardname as ArticleName, mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                    sql = @"select distinct  mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
                              mm.Id as MaterialMasterId, 
                             mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId
 							from mst.MaterialMasterArticle mma
@@ -203,7 +203,53 @@ namespace Library.MaterialManagement.Material
         #endregion Save 
 
         #region Save Child
-        public List<Dictionary<string, object>> SaveChild(List<Dictionary<string, object>> data, string headerId)
+        public string SaveItemApplicable(bool machineApplicable, bool worckcenterApplicable, string orderlevel, string headerId)
+        {
+            try
+            {
+                string TableNameHead = "TRN.IssueControlItemApplicable";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where IssueControlHeadId='" + headerId + "'", out dsMaster, false, "1");
+                string _Id = "";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                #region Medicine HEAD
+                DataRow dr = dsMaster.Tables[0].NewRow();
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                   
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    dr["Id"] = "IA" + _Id;
+                    dr["IssueControlHeadId"] = headerId;
+                    dr["MachineApplicable"] = machineApplicable;
+                    dr["WorkCenterApplicable"] = worckcenterApplicable;
+                    dr["OrderLevel"] = orderlevel;
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+               
+                #endregion Medicine HEAD
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return dr.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<Dictionary<string, object>> SaveChild(List<Dictionary<string, object>> data, string headerId, string materiallevel)
         {
             try
             {
@@ -221,7 +267,7 @@ namespace Library.MaterialManagement.Material
                 for (int i = 0; i < data.Count; i++)
                 {
                     DataRow dr = dsMaster.Tables[0].NewRow();
-                    if (data[i]["MaterialMasterArticleId"] == null)
+                    if (materiallevel == "Material")
                     {
                         dr["Id"] = headerId + '-' + i.ToString();
                         dr["IssueControlHeadId"] = headerId;
@@ -229,7 +275,12 @@ namespace Library.MaterialManagement.Material
                         //dr["MaterialMasterArticleId"] = data[i]["MaterialMasterArticleId"];
                         dr["MachineApplicable"] = data[i]["MachineApplicable"];
                         dr["WorkcenterApplicable"] = data[i]["WorkcenterApplicable"];
-                        dr["OrderLevel"] = data[i]["StorageLevel"];
+                        dr["OrderLevel"] = data[i]["OrderLevel"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
                     }
                     else
                     {
@@ -239,11 +290,14 @@ namespace Library.MaterialManagement.Material
                         dr["MaterialMasterArticleId"] = data[i]["MaterialMasterArticleId"];
                         dr["MachineApplicable"] = data[i]["MachineApplicable"];
                         dr["WorkcenterApplicable"] = data[i]["WorkcenterApplicable"];
-                        dr["OrderLevel"] = data[i]["StorageLevel"];
+                        dr["OrderLevel"] = data[i]["OrderLevel"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(dr);
                     }
                 }
                 #endregion Medicine HEAD
-
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
@@ -255,6 +309,8 @@ namespace Library.MaterialManagement.Material
                 throw ex;
             }
         }
+
+       
         #endregion SAVE Child
 
         #region CREATE AND EDIT DEFAULT COLUMN
@@ -301,6 +357,36 @@ namespace Library.MaterialManagement.Material
             dr.EndEdit();
         }
         #endregion CREATE AND EDIT DEFAULT COLUMN
+
+        #region GET
+        public IEnumerable<object> GetIssue()
+        {
+            try
+            {
+                var str = @"Select * from TRN.IssueControlHeader";
+                
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetEnum()
+        {
+            try
+            {
+                var str = @"Select Id Vaue, EnumName Text  from dbo.DefineEnum";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion GET
     }
 
 

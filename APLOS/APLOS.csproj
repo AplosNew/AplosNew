@@ -747,6 +747,7 @@
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
+    <Compile Include="Areas\Machines\Controllers\SpecialIssueControlRegisterController.cs" />
     <Compile Include="Areas\Machines\Controllers\SpecialIssueControlUpdateController.cs" />
     <Compile Include="Areas\Machines\Controllers\SpecialIssueControlController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceStatusDetailsController.cs" />
@@ -2178,6 +2179,7 @@
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
+    <Content Include="Areas\Machines\Scripts\specialIssueControlRegisterController.js" />
     <Content Include="Areas\Machines\Scripts\specialIssueControlUpdateController.js" />
     <Content Include="Areas\Machines\Scripts\specialIssueControlController.js" />
     <Content Include="Areas\Machines\Scripts\pendingMaintenanceScheduleController.js" />
@@ -2188,7 +2190,7 @@
     <Content Include="Areas\Materials\Scripts\DetentionLogoutController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
-    <Content Include="Areas\Materials\Scripts\IssueControlController.js" />
+    <Content Include="Areas\Materials\Scripts\IssueController.js" />
     <Content Include="Areas\Materials\Scripts\ProcessWiseMaterialAllocationController.js" />
     <Content Include="Areas\Materials\Scripts\RequisitionStatusController.js" />
     <Content Include="Areas\Materials\Scripts\StockRegisterController.js" />
@@ -4356,6 +4358,7 @@
     <Content Include="Areas\Materials\Views\IssueControl\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicineCategory\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\SpecialIssueControlRegister\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
