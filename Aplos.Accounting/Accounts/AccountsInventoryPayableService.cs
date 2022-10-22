@@ -3357,7 +3357,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					
 					
                     WHERE IR.PlantId='" + plantId + @"' 
-					AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1";
+					AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0   AND IR.ApprovedByStatus='Approved'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
