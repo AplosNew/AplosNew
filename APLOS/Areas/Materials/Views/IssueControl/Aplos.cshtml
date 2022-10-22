@@ -178,7 +178,8 @@
                         <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="80"></div>
                         <div e-column e-headertext="Machine Applicable" e-template="#machineApplicableTempM" e-width="50"></div>
                         <div e-column e-headertext="Workcenter Applicable" e-template="#WorkcenterApplicableTempM" e-width="50"></div>
-                        <div e-column e-headertext="Order Level" e-template="#OrderLevelTempM" e-width="50"></div>
+                        <div e-column e-field="SelectedOrderLevel" e-headertext="Order Level"  e-width="50"></div>
+                        @*<div e-column e-headertext="Order Level" e-template="#OrderLevelTempM" e-width="50"></div>*@
 
                     </div>
                 </div>
@@ -194,7 +195,7 @@
                 <script type="text/template" id="WorkcenterApplicableTempM">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="WorkcenterApplicable" e-checked="data.WorkcenterApplicable" e-value="data.WorkcenterApplicable" />
                 </script>
-                <script type="text/template" id="OrderLevelTempM">
+                @*<script type="text/template" id="OrderLevelTempM">
                     <div class="form-group">
 
                         <div class="select-style">
@@ -209,7 +210,7 @@
                         </div>
 
                     </div>
-                </script>
+                </script>*@
 
             </div>
 

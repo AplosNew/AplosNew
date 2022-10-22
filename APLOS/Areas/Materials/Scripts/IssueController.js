@@ -154,6 +154,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             $scope.MaterialArticleList[i].MachineApplicable = $scope.MachineApplicable;
             $scope.MaterialArticleList[i].WorkcenterApplicable = $scope.WorkcenterApplicable;
             $scope.MaterialArticleList[i].SelectedOrderLevel = $scope.OrderLevel;
+            /*$scope.SelectedOrderLevel=$scope.OrderLevel;*/
         }
         if ($scope.ModelNew.MaterialLevel == "Material") {
             var gridObj = $("#GridEdit").data("ejGrid");
