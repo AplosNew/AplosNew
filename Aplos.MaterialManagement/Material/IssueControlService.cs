@@ -203,7 +203,53 @@ namespace Library.MaterialManagement.Material
         #endregion Save 
 
         #region Save Child
-        public List<Dictionary<string, object>> SaveChild(List<Dictionary<string, object>> data, Dictionary<string, object> itemApplicableData, string headerId, string materiallevel)
+        public string SaveItemApplicable(bool machineApplicable, bool worckcenterApplicable, string orderlevel, string headerId)
+        {
+            try
+            {
+                string TableNameHead = "TRN.IssueControlItemApplicable";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where IssueControlHeadId='" + headerId + "'", out dsMaster, false, "1");
+                string _Id = "";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                #region Medicine HEAD
+                DataRow dr = dsMaster.Tables[0].NewRow();
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                   
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    dr["Id"] = "IA" + _Id;
+                    dr["IssueControlHeadId"] = headerId;
+                    dr["MachineApplicable"] = machineApplicable;
+                    dr["WorkCenterApplicable"] = worckcenterApplicable;
+                    dr["OrderLevel"] = orderlevel;
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+               
+                #endregion Medicine HEAD
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return dr.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<Dictionary<string, object>> SaveChild(List<Dictionary<string, object>> data, string headerId, string materiallevel)
         {
             try
             {
@@ -229,7 +275,7 @@ namespace Library.MaterialManagement.Material
                         //dr["MaterialMasterArticleId"] = data[i]["MaterialMasterArticleId"];
                         dr["MachineApplicable"] = data[i]["MachineApplicable"];
                         dr["WorkcenterApplicable"] = data[i]["WorkcenterApplicable"];
-                        dr["OrderLevel"] = data[i]["StorageLevel"];
+                        dr["OrderLevel"] = data[i]["OrderLevel"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
@@ -244,7 +290,7 @@ namespace Library.MaterialManagement.Material
                         dr["MaterialMasterArticleId"] = data[i]["MaterialMasterArticleId"];
                         dr["MachineApplicable"] = data[i]["MachineApplicable"];
                         dr["WorkcenterApplicable"] = data[i]["WorkcenterApplicable"];
-                        dr["OrderLevel"] = data[i]["StorageLevel"];
+                        dr["OrderLevel"] = data[i]["OrderLevel"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
@@ -253,30 +299,8 @@ namespace Library.MaterialManagement.Material
                 }
                 #endregion Medicine HEAD
 
-                #region ItemAplicable
-                string ItemApplicableTable = "TRN.IssueControlItemApplicable";
-                DataSet dsItemApplicable;
-
-                con.OpenDataSetThroughAdapter("select * from " + ItemApplicableTable + " where IssueControlHeadId='" + headerId + "'", out dsItemApplicable, false, "1");
-                if (dsItemApplicable.Tables[0].Rows.Count == 0)
-                {
-                    DataRow dr = dsItemApplicable.Tables[0].NewRow();
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableNameHead, out _Id);
-
-                    itemApplicableData["Id"] = "IA" + _Id;
-                    itemApplicableData["IssueControlHeadId"] = headerId;
-                    AddNewRow(dsItemApplicable.Tables[0], itemApplicableData);
-                }
-
-
-
-
-                #endregion ItemAplicable
-
-
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsItemApplicable);
+                _info.SaveDataSets(dsMaster);
 
                 return data;
             }

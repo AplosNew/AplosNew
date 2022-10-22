@@ -19,7 +19,7 @@
 </style>
 <div class="form-horizontal form-elements">
     <div class="row">
-        <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="col-xs-12 col-sm-2 col-md-2">
             <div class="form-group">
                 <label class="col-sm-4 control-label">From Date</label>
                 <div class="col-sm-8">
@@ -27,7 +27,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="col-xs-12 col-sm-2 col-md-2">
             <div class="form-group">
                 <label class="col-sm-4 control-label">To Date</label>
                 <div class="col-sm-8">
@@ -35,7 +35,40 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="col-sm-2">
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="IsProrataMonthlyColu" ng-model="statusNew.Status" value="Pending">
+                        <span class="cr"><i class="cr-icon"></i></span>Pending Schedules
+                    </label>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="IsProrataMonthlyColu" ng-model="statusNew.Status" value="Completed">
+                        <span class="cr"><i class="cr-icon"></i></span>Completed Schedules
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="IsProrataMonthlyColu" ng-model="statusNew.Status" value="All">
+                        <span class="cr"><i class="cr-icon"></i></span>All Schedules
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
             <div class="common-btn">
                 <ul class="list-inline text-left">
                     <li> <button ng-click="getFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>

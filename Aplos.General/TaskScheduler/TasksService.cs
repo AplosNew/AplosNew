@@ -1059,12 +1059,12 @@ namespace Library.General.TaskScheduler
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = item.AddedDate;
                         dr["AddedFromIP"] = item.AddedFromIP;
-                        dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = item.UpdatedDate;
-                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+                        dr["UpdatedBy"] = DBNull.Value;
+                        dr["UpdatedDate"] = DBNull.Value;
+                        dr["UpdatedFromIP"] = DBNull.Value;
                         dr["isUpdate"] = item.isUpdate;
                         dr["isClose"] = item.isClose;
-                        dr["LogoutTime"] = item.LogoutTime;
+                        dr["LogoutTime"] = DBNull.Value;
                         dr["MachineMasterId"] = item.MachineMasterId;
                         dsMaster.Tables[0].Rows.Add(dr);
                     }
@@ -1133,16 +1133,16 @@ namespace Library.General.TaskScheduler
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("TO DO", out _Id);
 
-                        dr["Id"] = "DL" + _Id;
+                        dr["Id"] = "DLRP" + _Id;
                         dr["DetentionLogId"] = item.DetentionLogId;
                         dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = item.AddedDate;
                         dr["AddedFromIP"] = item.AddedFromIP;
-                        dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = item.UpdatedDate;
-                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
-                        dr["isActive"] = item.isActive;
+                        dr["UpdatedBy"] = DBNull.Value;
+                        dr["UpdatedDate"] = DBNull.Value;
+                        dr["UpdatedFromIP"] = DBNull.Value;
+                        dr["isActive"] = DBNull.Value;
                         dsMaster.Tables[0].Rows.Add(dr);
                     }
                     else
@@ -1158,7 +1158,7 @@ namespace Library.General.TaskScheduler
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = item.UpdatedDate;
                         dr["UpdatedFromIP"] = item.UpdatedFromIP;
-                        dr["isActive"] = item.isActive;
+                        dr["isActive"] = DBNull.Value;
 
 
                         dr.EndEdit();

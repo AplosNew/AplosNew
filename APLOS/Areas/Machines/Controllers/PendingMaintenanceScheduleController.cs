@@ -41,8 +41,21 @@ namespace Aplos.Areas.Machines.Controllers
 
         #region -- Operations
         [Authorize, HttpGet]
-        public ActionResult LoadMaintenanceStatusDetailsList(string ToDate,string FromDate)
+        public ActionResult LoadMaintenanceStatusDetailsList(string ToDate,string FromDate,string Status)
         {
+            string Filter = string.Empty;
+            if (Status == "All")
+            {
+                Filter = " and Status in (0,1)";
+            }
+            else if (Status == "Completed")
+            {
+                Filter = " and Status in (1)";
+            }
+            else
+            {
+                Filter = " and Status in (0)";
+            }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select MS.Id,Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,MPD.Id as PlannedId,MMA.EntityId,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
 MM.MachineModel Model,MS.ScheduleCode,MS.ResponsiblePersoneBgtCodeId,MB.Code ResponsiblePersonBudgetCode,MMA.AssetId,MA.AssetName,MA.AssetCode,
@@ -78,13 +91,26 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
  where MMA.Id is not null 
  and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "' and Status in (0,1)";
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "' " + Filter + @"";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
-        public ActionResult LoadPendingMaintenanceSchedule(Dictionary<string, string> parameters, string todate,string fromdate)
+        public ActionResult LoadPendingMaintenanceSchedule(Dictionary<string, string> parameters, string todate,string fromdate, string Status)
         {
+            string Filter = string.Empty;
+            if (Status == "All")
+            {
+                Filter = " and Status in (0,1)";
+            }
+            else if (Status == "Completed")
+            {
+                Filter = " and Status in (1)";
+            }
+            else
+            {
+                Filter = " and Status in (0)";
+            }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select MS.Id,Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,MPD.Id as PlannedId,MMA.EntityId,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
 MM.MachineModel Model,MS.ScheduleCode,MS.ResponsiblePersoneBgtCodeId,MB.Code ResponsiblePersonBudgetCode,MMA.AssetId,MA.AssetName,MA.AssetCode,
@@ -123,7 +149,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
             and MMA.EntityId IN(" + parameters["EntityId"] + @") 
  and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + fromdate + "' and '" + todate + "' and Status in (0,1)";
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + fromdate + "' and '" + todate + "' " + Filter + @"";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

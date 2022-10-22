@@ -93,287 +93,183 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 @*#region*@
-                @*<div class="form-elements form-horizontal" ng-form name="ModelNewCForm">
-            <div class="row">
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Machine<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="ModelNewC.Machine" required name="Storage Location"
-                                        tabindex="2">
-                                    <option value="">--Select--</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
+               
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Machine</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="MachineApplicable" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
 
-                                </select>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Order Level<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="OrderLevel" required name="Order Level"
+                                            tabindex="2">
+                                        <option value="">--Select--</option>
+                                        <option value="LineItem">Line Item</option>
+                                        <option value="ProductionOrder">Production Order</option>
+                                        <option value="SalesOrder">Sales Order</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Work Center<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="WorkcenterApplicable" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Order Level<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="ModelNewC.StorageLevel" required name="Storage Location"
-                                        tabindex="2">
-                                    <option value="">--Select--</option>
-                                    <option value="Material">Line Item</option>
-                                    <option value="Article">Production Order</option>
-                                    <option value="Article">Sales Order</option>
+                    <div class="common-btn">
 
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+                        <div class="col-xs-12 col-lg-3 col-md-3"></div>
+                        <ul class="list-inline text-right">
 
-                </div>
 
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Work Center<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="ModelNewC.WorkCenter" required name="Storage Location"
-                                        tabindex="2">
-                                    <option value="">--Select--</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
+                            <li> <button ng-click="sendItemApplicable();" class="btn" tabindex="11"><i class="glyphicon glyphicon-floppy-disk"></i> Send</button></li>
 
-                                </select>
-                            </div>
-                        </div>
+                        </ul>
+
                     </div>
                 </div>
-            </div>
-        </div>*@
-                @*#endregion*@
-                <div class="table-responsive" id="MaterialId1">
-                    <div id="GridEdit"
-                         ej-grid e-datasource="MaterialArticleList"
-                         e-load="loadGridEdit"
-                         e-allowfiltering="true"
-                         e-allowpaging="true"
-                         e-allowsorting="true"
-                         e-enabletouch="false"
-                         e-responsive="true"
-                         e-allowselection="true"
-                         e-filtersettings-filterType="excel"
-                         e-templaterefresh="MaterialAllocationGridAllCheck"
-                         e-allowtextwrap="true">
-
-                        <div e-columns>
-                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
-
-                            <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="80"></div>
-
-                            <div e-column e-headertext="Machine Applicable" e-template="#MachineApplicable" e-textalign="center" e-width="50"></div>
-                            <div e-column e-headertext="Workcenter Applicable" e-template="#WorkcenterApplicable" e-textalign="center" e-width="50"></div>
-                            <div e-column e-headertext="Order Level" e-template="#OrderLevel" e-textalign="center" e-width="50"></div>
-
-                        </div>
-                    </div>
-                    <script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
-                    </script>
-                    <script type="text/template" id="checkboxTemplate">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
-                    </script>
-
-                    <script type="text/template" id="MachineApplicable">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.MachineApplicable" e-checked="data.MachineApplicable" e-value="data.MachineApplicable" />
-                    </script>
-                    <script type="text/template" id="WorkcenterApplicable">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.WorkcenterApplicable" e-checked="data.WorkcenterApplicable" e-value="data.WorkcenterApplicable" />
-                    </script>
-                    <script type="text/template" id="OrderLevel">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="data.StorageLevel" required name="Storage Location"
-                                    tabindex="2">
-                                <option value="">--Select--</option>
-                                <option value="Line Item">Line Item</option>
-                                <option value="Production Order">Production Order</option>
-                                <option value="Sales Order">Sales Order</option>
-
-                            </select>
-                        </div>
-                    </script>
-
                 </div>
+
 
                 @*------------------------------------------------------------------------------------------*@
-                <div class="table-responsive" id="ArticleId1">
-                    <div id="GridEdit"
-                         ej-grid e-datasource="MaterialArticleList"
-                         e-load="loadGridEdit"
-                         e-allowfiltering="true"
-                         e-allowpaging="true"
-                         e-allowsorting="true"
-                         e-enabletouch="false"
-                         e-responsive="true"
-                         e-allowselection="true"
-                         e-filtersettings-filterType="excel"
-                         e-templaterefresh="MaterialAllocationGridAllCheck"
-                         e-allowtextwrap="true">
+            
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="table-responsive" id="MaterialId">
+                <div id="GridEdit"
+                     ej-grid e-datasource="MaterialArticleList"
+                     e-load="loadGridEdit"
+                     e-allowfiltering="true"
+                     e-allowpaging="true"
+                     e-allowsorting="true"
+                     e-enabletouch="false"
+                     e-responsive="true"
+                     e-allowselection="true"
+                     e-filtersettings-filterType="excel"
+                     e-templaterefresh="MaterialAllocationGridAllCheck"
+                     e-allowtextwrap="true">
 
-                        <div e-columns>
-                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
+                    <div e-columns>
+                        <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
 
 
-                            <div e-column e-field="ArticleName" e-headertext="Article" e-width="80"></div>
-                            <div e-column e-headertext="Machine Applicable" e-template="#MachineApplicable" e-textalign="center" e-width="50"></div>
-                            <div e-column e-headertext="Workcenter Applicable" e-template="#WorkcenterApplicable" e-textalign="center" e-width="50"></div>
-                            <div e-column e-headertext="Order Level" e-template="#OrderLevel" e-textalign="center" e-width="50"></div>
+                        <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="80"></div>
+                        <div e-column e-headertext="Machine Applicable" e-template="#machineApplicableTempM" e-width="50"></div>
+                        <div e-column e-headertext="Workcenter Applicable" e-template="#WorkcenterApplicableTempM" e-width="50"></div>
+                        <div e-column e-field="SelectedOrderLevel" e-headertext="Order Level"  e-width="50"></div>
+                        @*<div e-column e-headertext="Order Level" e-template="#OrderLevelTempM" e-width="50"></div>*@
 
-                        </div>
                     </div>
-                    <script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
-                    </script>
-                    <script type="text/template" id="checkboxTemplate">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
-                    </script>
+                </div>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
+                </script>
+                <script type="text/template" id="machineApplicableTempM">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="MachineApplicable" e-checked="data.MachineApplicable" e-value="data.MachineApplicable" />
+                </script>
+                <script type="text/template" id="WorkcenterApplicableTempM">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="WorkcenterApplicable" e-checked="data.WorkcenterApplicable" e-value="data.WorkcenterApplicable" />
+                </script>
+                @*<script type="text/template" id="OrderLevelTempM">
+                    <div class="form-group">
 
-                    <script type="text/template" id="MachineApplicable">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.MachineApplicable" e-checked="data.MachineApplicable" e-value="data.MachineApplicable" />
-                    </script>
-                    <script type="text/template" id="WorkcenterApplicable">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.WorkcenterApplicable" e-checked="data.WorkcenterApplicable" e-value="data.WorkcenterApplicable" />
-                    </script>
-                    <script type="text/template" id="OrderLevel">
                         <div class="select-style">
-                            <select class="form-control" ng-model="data.StorageLevel" required name="Storage Location"
+                            <select class="form-control" ng-model="SelectedOrderLevel" required name="Order Level"
                                     tabindex="2">
                                 <option value="">--Select--</option>
-                                <option value="Material">Line Item</option>
-                                <option value="Article">Production Order</option>
-                                <option value="Article">Sales Order</option>
+                                <option value="LineItem">Line Item</option>
+                                <option value="ProductionOrder">Production Order</option>
+                                <option value="SalesOrder">Sales Order</option>
 
                             </select>
                         </div>
-                    </script>
 
+                    </div>
+                </script>*@
+
+            </div>
+
+            <div class="table-responsive" id="ArticleId">
+                <div id="GridEditB"
+                     ej-grid e-datasource="MaterialArticleList"
+                     e-load="loadGridEdit"
+                     e-allowfiltering="true"
+                     e-allowpaging="true"
+                     e-allowsorting="true"
+                     e-enabletouch="false"
+                     e-responsive="true"
+                     e-allowselection="true"
+                     e-filtersettings-filterType="excel"
+                     e-templaterefresh="MaterialAllocationGridAllCheck"
+                     e-allowtextwrap="true">
+
+                    <div e-columns>
+                        <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
+
+
+                        <div e-column e-field="ArticleName" e-headertext="Article" e-width="80"></div>
+                        <div e-column e-headertext="Machine Applicable" e-template="#machineApplicableTemp" e-width="50"></div>
+                        <div e-column e-headertext="Workcenter Applicable" e-template="#WorkcenterApplicableTemp" e-width="50"></div>
+                        <div e-column e-headertext="Order Level" e-template="#OrderLevelTemp" e-width="50"></div>
+
+                    </div>
                 </div>
-                <div class="common-btn">
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
+                </script>
+                <script type="text/template" id="machineApplicableTemp">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="MachineApplicable" e-checked="data.MachineApplicable" e-value="data.MachineApplicable" />
+                </script>
+                <script type="text/template" id="WorkcenterApplicableTemp">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="WorkcenterApplicable" e-checked="data.WorkcenterApplicable" e-value="data.WorkcenterApplicable" />
+                </script>
+                <script type="text/template" id="OrderLevelTemp">
+                    <div class="form-group">
+                        
+                            <div class="select-style">
+                                <select class="form-control" ng-model="OrderLevel" required name="Order Level"
+                                        tabindex="2">
+                                    <option value="">--Select--</option>
+                                    <option value="LineItem">Line Item</option>
+                                    <option value="ProductionOrder">Production Order</option>
+                                    <option value="SalesOrder">Sales Order</option>
 
-                    <div class="col-xs-12 col-lg-3 col-md-3"></div>
-                    <ul class="list-inline text-right">
-
+                                </select>
+                            </div>
                        
-                        <li> <button ng-click="sendItemApplicable();" class="btn" tabindex="11"><i class="glyphicon glyphicon-floppy-disk"></i> Send</button></li>
+                    </div>
+                </script>
 
-                    </ul>
 
-                </div>
-                @*------------------------------------------------------------------------------------------*@
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div class="table-responsive" id="MaterialId">
-                    <div id="GridEdit"
-                         ej-grid e-datasource="userMaterialArticleList"
-                         e-load="loadGridEdit"
-                         e-allowfiltering="true"
-                         e-allowpaging="true"
-                         e-allowsorting="true"
-                         e-enabletouch="false"
-                         e-responsive="true"
-                         e-allowselection="true"
-                         e-filtersettings-filterType="excel"
-                         e-templaterefresh="MaterialAllocationGridAllCheck"
-                         e-allowtextwrap="true">
-
-                        <div e-columns>
-                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
-
-                            <div e-column e-field="MaterialMaster" e-headertext="Material " e-width="80"></div>
-                            <div e-column e-field="MachineApplicable" e-headertext="Machine Applicable " e-width="80"></div>
-                            <div e-column e-field="WorkcenterApplicable" e-headertext="Workcenter Applicable" e-width="80"></div>
-                            <div e-column e-field="StorageLevel" e-headertext="Storage Level" e-width="80"></div>
-
-                            @*<div e-column e-headertext="Machine Applicable" e-template="#MachineApplicable" e-textalign="center" e-width="50"></div>
-                            <div e-column e-headertext="Workcenter Applicable" e-template="#WorkcenterApplicable" e-textalign="center" e-width="50"></div>
-                            <div e-column e-headertext="Order Level" e-template="#OrderLevel" e-textalign="center" e-width="50"></div>*@
-
-                        </div>
-                    </div>
-                    @*<script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
-                    </script>
-                    <script type="text/template" id="checkboxTemplate">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
-                    </script>
-
-                    <script type="text/template" id="MachineApplicable">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.MachineApplicable" e-checked="data.MachineApplicable" e-value="data.MachineApplicable" />
-                    </script>
-                    <script type="text/template" id="WorkcenterApplicable">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.WorkcenterApplicable" e-checked="data.WorkcenterApplicable" e-value="data.WorkcenterApplicable" />
-                    </script>
-                    <script type="text/template" id="OrderLevel">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="data.StorageLevel" required name="Storage Location"
-                                    tabindex="2">
-                                <option value="">--Select--</option>
-                                <option value="Material">Line Item</option>
-                                <option value="Article">Production Order</option>
-                                <option value="Article">Sales Order</option>
-
-                            </select>
-                        </div>
-                    </script>*@
-
-                </div>
-
-                @*------------------------------------------------------------------------------------------*@
-                <div class="table-responsive" id="ArticleId">
-                    <div id="GridEdit"
-                         ej-grid e-datasource="userMaterialArticleList"
-                         e-load="loadGridEdit"
-                         e-allowfiltering="true"
-                         e-allowpaging="true"
-                         e-allowsorting="true"
-                         e-enabletouch="false"
-                         e-responsive="true"
-                         e-allowselection="true"
-                         e-filtersettings-filterType="excel"
-                         e-templaterefresh="MaterialAllocationGridAllCheck"
-                         e-allowtextwrap="true">
-
-                        <div e-columns>
-                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
-                            <div e-column e-field="MaterialMaster" e-headertext="Material " e-width="80"></div>
-                            <div e-column e-field="MachineApplicable" e-headertext="Machine Applicable " e-width="80"></div>
-                            <div e-column e-field="WorkcenterApplicable" e-headertext="Workcenter Applicable" e-width="80"></div>
-                            <div e-column e-field="StorageLevel" e-headertext="Storage Level" e-width="80"></div>
-                        </div>
-                    </div>
-                    @*<script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
-                    </script>
-                    <script type="text/template" id="checkboxTemplate">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
-                    </script>
-
-                    <script type="text/template" id="MachineApplicable">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.MachineApplicable" e-checked="data.MachineApplicable" e-value="data.MachineApplicable" />
-                    </script>
-                    <script type="text/template" id="WorkcenterApplicable">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.WorkcenterApplicable" e-checked="data.WorkcenterApplicable" e-value="data.WorkcenterApplicable" />
-                    </script>
-                    <script type="text/template" id="OrderLevel">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="data.StorageLevel" required name="Storage Location"
-                                    tabindex="2">
-                                <option value="">--Select--</option>
-                                <option value="Material">Line Item</option>
-                                <option value="Article">Production Order</option>
-                                <option value="Article">Sales Order</option>
-
-                            </select>
-                        </div>
-                    </script>*@
-
-                </div>
-                @*------------------------------------------------------------------------------------------*@
             <div class="common-btn">
 
                 <div class="col-xs-12 col-lg-3 col-md-3"></div>
@@ -385,13 +281,12 @@
                 </ul>
 
             </div>
-            </div>
+        </div>
 
 
             <!--<ul class="list-inline text-right">
                 <li> <button ng-click="SaveIssueControlChild();" class="btn cmn-btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>-->
-
-                @*<li> <button ng-click="Clear();" class="btn cmn-btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+            @*<li> <button ng-click="Clear();" class="btn cmn-btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
             <!--</ul>-->
         </div>
     </div>
@@ -407,7 +302,7 @@
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
             <div e-column e-field="UserName" e-headertext="UserName" e-width="2"></div>
             <div e-column e-field="MaterialLevel" e-headertext="MaterialLevel" e-width="3"></div>
-            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>         
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
         </div>
     </div>
 </div>
@@ -415,9 +310,10 @@
 
 <!--*************************************************************************************-->
 <style>
-    #ArticleId, #ArticleId1 {
+    #ArticleId {
         display: none;
     }
+
     .modellgModify1 {
         width: 1300px;
     }

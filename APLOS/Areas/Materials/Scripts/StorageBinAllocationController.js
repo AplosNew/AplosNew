@@ -267,13 +267,13 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
                 throw 'Invalid Request';
             }
             $scope.BinHeadList = response.data;
-            for (var i = 0; i < $scope.userMaterialList.length; i++) {
-                for (var j = 0; j < $scope.BinHeadList.length; j++) {
-                    if ($scope.userMaterialList[i].Id === $scope.BinHeadList[j].Id) {
-                        $scope.BinHeadList[j].chk = true;
-                    }
-                }
-            }
+            //for (var i = 0; i < $scope.userMaterialList.length; i++) {
+            //    for (var j = 0; j < $scope.BinHeadList.length; j++) {
+            //        if ($scope.userMaterialList[i].Id === $scope.BinHeadList[j].Id) {
+            //            $scope.BinHeadList[j].chk = true;
+            //        }
+            //    }
+            //}
             $scope.selectBinIDs();
         })
     }
@@ -307,13 +307,13 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             }
             $scope.BinAllocationChildList = response.data;
 
-            for (var i = 0; i < $scope.userBinAllocationList.length; i++) {
-                for (var j = 0; j < $scope.BinAllocationChildList.length; j++) {
-                    if ($scope.userBinAllocationList[i].Id === $scope.BinAllocationChildList[j].Id) {
-                        $scope.BinAllocationChildList[j].chk = true;
-                    }
-                }
-            }
+            //for (var i = 0; i < $scope.userBinAllocationList.length; i++) {
+            //    for (var j = 0; j < $scope.BinAllocationChildList.length; j++) {
+            //        if ($scope.userBinAllocationList[i].Id === $scope.BinAllocationChildList[j].Id) {
+            //            $scope.BinAllocationChildList[j].chk = true;
+            //        }
+            //    }
+            //}
         })
     }
 
