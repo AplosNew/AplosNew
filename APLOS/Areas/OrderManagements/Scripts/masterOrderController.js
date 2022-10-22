@@ -1498,6 +1498,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.getLineItemType();
     }
 
+    
     $scope.CostingPath = 'Costings/OrderCosting/';
 
     $scope.OrderCostingId = null;
@@ -4308,6 +4309,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         PackingLevel: null,
         OwnRefNo: null,
         CustomerRefNo: null,
+        MasterOrderItemId:null,
         ResponsiblePersonId: null,
         ResponsiblePerson: null,
         Remarks: null,
@@ -4796,30 +4798,56 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     }
     $scope.GetMasterItemDataList();
 
-    $scope.MasterItemListPopUp = function (name) {
-        try {
-            $scope.Name = name;
-            //baseService.setCurrentPage('employeeList');
-            $scope.searchMasterItemList = [];
-            $scope.getItemListData = function (pageno) {
-                baseService.paginationBase($scope.ItemListUrl, pageno)
-                    .then(function (result) {
-                        $scope.employeeList = result.Rows;
+    //$scope.MasterItemListPopUp = function (name) {
+    //    try {
+    //        $scope.Name = name;
+    //        //baseService.setCurrentPage('employeeList');
+    //        $scope.searchMasterItemList = [];
+    //        $scope.getItemListData = function (pageno) {
+    //            baseService.paginationBase($scope.ItemListUrl, pageno)
+    //                .then(function (result) {
+    //                    $scope.employeeList = result.Rows;
 
-                        if (baseService.arrayLength($scope.searchMasterItemList) === 0)
-                            baseService.getDDLSearchColumn(result.Rows, $scope.searchMasterItemList);
-                    }, function () {
-                        ShowResult(commonMessage.NetworkError, 'failure');
-                    }).finally(function () {
-                    });
-            };
-            angular.element(document.querySelector('#masterItemListPopUp')).modal('show');
-            $scope.getItemListData();
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
+    //                    if (baseService.arrayLength($scope.searchMasterItemList) === 0)
+    //                        baseService.getDDLSearchColumn(result.Rows, $scope.searchMasterItemList);
+    //                }, function () {
+    //                    ShowResult(commonMessage.NetworkError, 'failure');
+    //                }).finally(function () {
+    //                });
+    //        };
+    //        angular.element(document.querySelector('#masterItemListPopUp')).modal('show');
+    //        $scope.getItemListData();
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
+
+    $scope.itemListData = [];
+    $scope.MasterItemListPopUp = function () {
+
+        $http.get('OrderManagements/MasterOrder/GetItemsData?masterOrderId=' + $scope.fileNew.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.itemListData = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#masterItemListPopUpId')).modal('show');
     };
 
+
+
+    $scope.closeItemListPopUp = function (data) {
+        $scope.modelNewPD.MasterOrderItemId = data.MasterOrderItemId;
+        $scope.hideItemListPopUp();
+    };
+
+    $scope.hideItemListPopUp = function () {
+        angular.element(document.querySelector('#masterItemListPopUpId')).modal('hide');
+    };
 
     $scope.SavePackingDetail = function () {
         try {
