@@ -64,7 +64,18 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     }
     $scope.getAllEntities();
 
-    $scope.PlantId = null;
+    $scope.processDataList = [];
+    $scope.getProcessDataList = function () {
+        $http({
+            method: 'POST',
+            url: "Productions/Productionsummary/GetShiftList/GetProcessData"
+        }).then(function successCallback(response) {
+            $scope.processDataList = response.data;
+        });
+    }
+    $scope.getProcessDataList();
+
+
     $scope.EntityId = null;
     $scope.ProcessId = null;
     $scope.ProcessWiseReport = function () {
@@ -92,7 +103,7 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
                 method: 'POST',
                 url: $scope.path + "GetProcessWiseOrderReport",
                 //data: { 'parameters': $scope.parameters, 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'dateType': $rootScope.dateCgroup },
-                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'PlantId': $scope.PlantId, 'EntityId': $scope.EntityId, 'ProcessId': $scope.ProcessId},
+                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'EntityId': $scope.EntityId, 'ProcessId': $scope.ProcessId},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {

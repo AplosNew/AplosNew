@@ -1713,7 +1713,7 @@ left join ORG.Entity E ON E.Id=MMA.EntityId
 left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
 left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
 left join TRN.MaintenanceStoresConsumable MSC ON MSC.MaintenanceSchedulingId=MS.Id
-where APD.Id='" + PlannedId + @"'";
+where APD.Id='" + PlannedId + @"' order by MSC.SNO";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1766,7 +1766,7 @@ left join ORG.Entity E ON E.Id=MMA.EntityId
 left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
 left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
 left join TRN.MaintenanceItem MI ON MI.MaintenanceSchedulingId=MS.Id
-where APD.Id='" + PlannedId + @"'";
+where APD.Id='" + PlannedId + @"' order by MI.SNO";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

@@ -149,46 +149,98 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     };
     // #endregion save
 
+    $scope.sendItemApplicable = function () {
+        for (var i = 0; i < $scope.MaterialArticleList.length; i++) {
+            $scope.MaterialArticleList[i].MachineApplicable = $scope.MachineApplicable;
+            $scope.MaterialArticleList[i].WorkcenterApplicable = $scope.WorkcenterApplicable;
+            $scope.MaterialArticleList[i].SelectedOrderLevel = $scope.OrderLevel;
+            /*$scope.SelectedOrderLevel=$scope.OrderLevel;*/
+        }
+        if ($scope.ModelNew.MaterialLevel == "Material") {
+            var gridObj = $("#GridEdit").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        }
+        else {
+            var gridObj = $("#GridEditB").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        }
+       
+    }
+
     // #region SAVE CHILD
-    $scope.SaveIssueControlChild = function () {
+    $scope.SaveItemApplicable = function () {
         
+        $scope.$broadcast('show-errors-check-validity');
+       
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveItemApplicable',
+            data: {
+                'headerId': $scope.ModelNew.Id,
+                'machineApplicable': $scope.MachineApplicable,
+                'worckcenterApplicable': $scope.WorkcenterApplicable,
+                'orderlevel': $scope.OrderLevel
+                
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+
+                
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+    $scope.SaveIssueControlChild = function () {
         if (baseService.arrayLength($scope.MaterialArticleList) > 0) {
             angular.forEach($scope.MaterialArticleList, function (a) {
 
                 if (a.chk) {
                     var ob = {};
-                    ob.Id = null; 
-                    ob.ArticleName = a.ArticleName;                                          
-                    ob.MaterialGroupMasterId = a.MaterialGroupMasterId;                                           
-                    ob.MaterialMaster = a.MaterialMaster;                                          
-                    ob.MaterialMasterId = a.MaterialMasterId;  
+                    ob.Id = null;
+                    ob.ArticleName = a.ArticleName;
+                    ob.MaterialGroupMasterId = a.MaterialGroupMasterId;
+                    ob.MaterialMaster = a.MaterialMaster;
+                    ob.MaterialMasterId = a.MaterialMasterId;
                     ob.MaterialMasterArticleId = a.MaterialMasterArticleId;
-                    ob.MaterialType = a.MaterialType;                                          
-                    ob.MaterialTypeId = a.MaterialTypeId;                                           
-                    ob.MaterialgroupName = a.MaterialgroupName;    
-                    ob.MachineApplicable = a.MachineApplicable;
-                    ob.WorkcenterApplicable = a.WorkcenterApplicable;
-                    ob.StorageLevel = a.StorageLevel;
+                    ob.MaterialType = a.MaterialType;
+                    ob.MaterialTypeId = a.MaterialTypeId;
+                    ob.MaterialgroupName = a.MaterialgroupName;
+                   
+                   
                     ob.chk = a.chk;
-                     
+
                     ob.StorageBinMasterId = a.StorageBinMasterId;
-                    
+
                     $scope.userMaterialArticleList.push(ob);
                     ob = {};
                     a.chk = false;
                 }
             });
         }
+        
         $scope.$broadcast('show-errors-check-validity');
-
+        for (var i = 0; i < $scope.userMaterialArticleList.length; i++) {
+            $scope.userMaterialArticleList[i].MachineApplicable = $scope.MachineApplicable;
+            $scope.userMaterialArticleList[i].WorkcenterApplicable = $scope.WorkcenterApplicable;
+            $scope.userMaterialArticleList[i].OrderLevel = $scope.OrderLevel;
+        }
         $http({
             method: 'POST',
             url: $scope.path + 'SaveChild',
             data: {
                 'headerId': $scope.ModelNew.Id,
                 'data': $scope.userMaterialArticleList,
-                'materiallevel': $scope.ModelNew.MaterialLevel,
-                'itemApplicableData': $scope.ModelNewC
+                'materiallevel': $scope.ModelNew.MaterialLevel
+                
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -247,14 +299,19 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.hideshow = function () {
         var id = document.getElementById("ArticleId");
+       
         var mid = document.getElementById("MaterialId");
+       
         if ($scope.ModelNew.MaterialLevel == "Article") {
             id.style.display = "block";
+            
             mid.style.display = "none";
         }
         else if ($scope.ModelNew.MaterialLevel == "Material") {
             id.style.display = "none";
+            
             mid.style.display = "block";
+
         }
     }
 }

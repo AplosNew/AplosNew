@@ -46,42 +46,7 @@
                     <div class="form-elements form-horizontal" ng-form="from0">
                         <div class="row">
                             <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">Plant<sup>*</sup></label>
-                                    @* <div class="col-sm-9"><input id="PlantList" /></div>*@
-                                    <div class="col-sm-8 show-message">
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="PlantId" ng-options="item.PlantId as item.PlantName for item in PlantList" required>
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="text" name="From Date" ng-model="fromDate" datepicker class="form-control" required tabindex="5">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">Process<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6">
                                 @*<div class="form-group">
-                                        <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
-                                        <div class="col-sm-9"><input id="entityList" /></div>
-                                    </div>*@
-                                <div class="form-group">
                                     <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <div class="select-style">
@@ -90,7 +55,36 @@
                                             </select>
                                         </div>
                                     </div>
+                                </div>*@
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
+                                    <div class="col-sm-9"><input id="entityList" /></div>
                                 </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="From Date" ng-model="fromDate" datepicker class="form-control" required tabindex="5">
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                @*<div class="form-group">
+                                    <label class="col-sm-3 control-label">Process<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>*@
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Process<sup>*</sup></label>
+                                    <div class="col-sm-9"><input id="processDataList" /></div>
+                                </div>
+
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
@@ -102,7 +96,6 @@
                                 <div class="col-md-2 text-right">
                                     <ul>
                                         <li><button type="button" class="btn single-btn" ng-click="ProcessWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Process Wise</button></li>
-                                        <li><button type="button" class="btn single-btn" ng-click="PerameterWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Perametre Wise</button></li>
                                     </ul>
                                 </div>
                             </div>

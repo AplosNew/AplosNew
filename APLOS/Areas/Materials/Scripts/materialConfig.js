@@ -298,8 +298,12 @@ function MaterialConfig($routeProvider, $locationProvider) {
             controller: 'DetentionLogoutController'
         })
 
-        .when('/issue-control', {
+        .when('/inventory-issue-control', {
             templateUrl: 'materials/IssueControl/Aplos',
             controller: 'IssueControlController'
+        })
+        .when('/material-issue-control', {
+            templateUrl: 'materials/MaterialIssueControl/Aplos',
+            controller: 'MaterialIssueControlController'
         })
 };

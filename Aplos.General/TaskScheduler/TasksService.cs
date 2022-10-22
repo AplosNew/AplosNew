@@ -9,6 +9,7 @@ using System.Data;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System.IO;
+using Library.Service.EmployeeServices;
 
 namespace Library.General.TaskScheduler
 {
@@ -1021,6 +1022,162 @@ namespace Library.General.TaskScheduler
                 return ex.ToString();
             }
         }
+
+        #region Detention save By Aman
+        public string savedetention(IEnumerable<DetentionMoidel> DataSaveok)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.DetentionLog";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataSaveok.Count() == 0)
+                    return "";
+
+                List<DetentionMoidel> items = DataSaveok.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (DetentionMoidel item in DataSaveok)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0 && items[0].Id == "")
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TO DO", out _Id);
+
+                        dr["Id"] =  "DL" + _Id;
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["LoginTime"] = item.LoginTime;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        dr["Remarks"] = item.Remarks;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = item.AddedDate;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["UpdatedBy"] = DBNull.Value;
+                        dr["UpdatedDate"] = DBNull.Value;
+                        dr["UpdatedFromIP"] = DBNull.Value;
+                        dr["isUpdate"] = item.isUpdate;
+                        dr["isClose"] = item.isClose;
+                        dr["LogoutTime"] = DBNull.Value;
+                        dr["MachineMasterId"] = item.MachineMasterId;
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["LoginTime"] = item.LoginTime;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        dr["Remarks"] = item.Remarks;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = item.AddedDate;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = item.UpdatedDate;
+                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+                        dr["isUpdate"] = item.isUpdate;
+                        dr["isClose"] = item.isClose;
+                        dr["LogoutTime"] = item.LogoutTime;
+                        dr["MachineMasterId"] = item.MachineMasterId;
+
+
+                        dr.EndEdit();
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        public string saveresponsibleperson(IEnumerable<ResponsiblePersonModel> DataSaveresponsible)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.DetentionLogResponsiblePerson";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataSaveresponsible.Count() == 0)
+                    return "";
+
+                List<ResponsiblePersonModel> items = DataSaveresponsible.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (ResponsiblePersonModel item in DataSaveresponsible)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0 && items[0].Id == "")
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TO DO", out _Id);
+
+                        dr["Id"] = "DLRP" + _Id;
+                        dr["DetentionLogId"] = item.DetentionLogId;
+                        dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = item.AddedDate;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["UpdatedBy"] = DBNull.Value;
+                        dr["UpdatedDate"] = DBNull.Value;
+                        dr["UpdatedFromIP"] = DBNull.Value;
+                        dr["isActive"] = DBNull.Value;
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["DetentionLogId"] = item.DetentionLogId;
+                        dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = item.AddedDate;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = item.UpdatedDate;
+                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+                        dr["isActive"] = DBNull.Value;
+
+
+                        dr.EndEdit();
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        #endregion Detention save By Aman
 
         public string TaskCreate(IEnumerable<TaskMasterData> DataToSave)
         {
@@ -4408,7 +4565,41 @@ public class TaskMasterData
     #endregion Audit Properties
 
 }
+#region By Aman
+public class DetentionMoidel
+{
+    public string Id { get; set; }
+    public string WorkCenterId { get; set; }
+    public string DetentionTypeId { get; set; }
+    public DateTime? LoginTime { get; set; }
+    public string IssueByNo { get; set; }
+    public string Remarks { get; set; }
+    public string AddedBy { get; set; }
+    public DateTime? AddedDate { get; set; }
+    public string AddedFromIP { get; set; }
+    public string UpdatedBy { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public string UpdatedFromIP { get; set; }
+    public bool isUpdate { get; set; }
+    public DateTime? LogoutTime { get; set; }
+    public string MachineMasterId { get; set; }
+    public bool isClose { get; set; }
+}
 
+public class ResponsiblePersonModel
+{
+    public string Id { get; set; }
+    public string DetentionLogId { get; set; }
+    public string ResponsiblePersonId { get; set; }
+    public string AddedBy { get; set; }
+    public DateTime? AddedDate { get; set; }
+    public string AddedFromIP { get; set; }
+    public string UpdatedBy { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public string UpdatedFromIP { get; set; }
+    public bool isActive { get; set; }
+}
+#endregion By Aman
 public class TaskCommentsData
 {
     #region Audit Properties

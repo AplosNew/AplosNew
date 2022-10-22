@@ -2185,11 +2185,12 @@
     <Content Include="Areas\Machines\Scripts\pendingMaintenanceScheduleController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceStatusDetailsController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
+    <Content Include="Areas\Materials\Scripts\MaterialIssueControlController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogoutController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
-    <Content Include="Areas\Materials\Scripts\IssueControlController.js" />
+    <Content Include="Areas\Materials\Scripts\IssueController.js" />
     <Content Include="Areas\Materials\Scripts\ProcessWiseMaterialAllocationController.js" />
     <Content Include="Areas\Materials\Scripts\RequisitionStatusController.js" />
     <Content Include="Areas\Materials\Scripts\StockRegisterController.js" />
@@ -4356,6 +4357,7 @@
     <Content Include="Areas\Accounts\Views\Incentive\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\IssueControl\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicineCategory\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\MaterialIssueControl\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\SpecialIssueControlRegister\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

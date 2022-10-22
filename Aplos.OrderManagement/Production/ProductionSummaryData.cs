@@ -1864,6 +1864,24 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
                 throw ex;
             }
         }
+        public IEnumerable<object> GetProcessData(string entityId)
+        {
+            try
+            {
+                var sql = "";
+                {
+                    sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text]
+							FROM HKP.EntityProcessTag AS EP
+                            JOIN HKP.Process AS P ON EP.ProcessId=P.Id '" + entityId + @"' AND P.Active=1 ";
+                }
+               
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public IEnumerable<object> GetDetentionParaData(string DetentionId, string processId, string masterId)
         {
