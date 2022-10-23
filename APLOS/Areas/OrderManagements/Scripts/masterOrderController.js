@@ -4825,61 +4825,61 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         angular.element(document.querySelector('#masterItemListPopUpId')).modal('hide');
     };
 
-    $scope.SavePackingDetail = function () {
-        try {
-            if ($scope.Action === 'Save' || $scope.Action === 'Update') {
-                $http({
-                    method: 'POST',
-                    url: 'OrderManagements/MasterOrder/CreatePackingDetail',
-                    data: { 'data': $scope.modelNewPD },
-                    dataType: 'JSON'
-                    , contentType: "application/json charset=utf-8"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.GetPackingDetail();
-                        //$scope.modelNewPD.Id = response.data.Id;
-                        $scope.ClearPackingDetail();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
-            }
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
+    //$scope.SavePackingDetail = function () {
+    //    try {
+    //        if ($scope.Action === 'Save' || $scope.Action === 'Update') {
+    //            $http({
+    //                method: 'POST',
+    //                url: 'OrderManagements/MasterOrder/CreatePackingDetail',
+    //                data: { 'data': $scope.modelNewPD },
+    //                dataType: 'JSON'
+    //                , contentType: "application/json charset=utf-8"
+    //            }).then(function successCallback(response) {
+    //                if (response.data.Error === true) {
+    //                    ShowResult(response.data.Message, 'failure');
+    //                }
+    //                else {
+    //                    ShowResult(response.data.Message, 'success');
+    //                    $scope.GetPackingDetail();
+    //                    //$scope.modelNewPD.Id = response.data.Id;
+    //                    $scope.ClearPackingDetail();
+    //                }
+    //            }), function errorCallBack(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            };
+    //        }
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
 
-    $scope.PackingDetailDataList = [];
-    $scope.GetPackingDetail = function () {
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetPackingDetail'
-        }).then(function successCallback(response) {
-            if (baseService.arrayLength(response.data) > 0)
-            {
-                $scope.PackingDetailDataList = response.data;
-            }
-             });
-    }
-    $scope.GetPackingDetail();
+    //$scope.PackingDetailDataList = [];
+    //$scope.GetPackingDetail = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'OrderManagements/MasterOrder/GetPackingDetail'
+    //    }).then(function successCallback(response) {
+    //        if (baseService.arrayLength(response.data) > 0)
+    //        {
+    //            $scope.PackingDetailDataList = response.data;
+    //        }
+    //         });
+    //}
+    //$scope.GetPackingDetail();
 
-    $scope.recorddoubleclicks = function (args) {
-        try {
-            $scope.Action = 'Update';
-            $scope.modelNewPD = Object.assign({}, args.data);
+    //$scope.recorddoubleclicks = function (args) {
+    //    try {
+    //        $scope.Action = 'Update';
+    //        $scope.modelNewPD = Object.assign({}, args.data);
            
-            //$scope.getCityList();
-            if (!$rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
+    //        //$scope.getCityList();
+    //        if (!$rootScope.isCollapsed) {
+    //            $rootScope.toggle();
+    //        }
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
 
     $scope.message_PackingDetailconfirmation = null;
     $scope.RemovePackingDetail = function (data) {
