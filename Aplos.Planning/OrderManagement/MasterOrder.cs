@@ -705,12 +705,12 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             try
             {
                 string sql = @"SELECT A.Id,A.MasterOrderItemId,OL.Id OrderLineCostingItemId,OL.SOItemName,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
-Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN OL.ValueinDecimal=1 THEN OL.DefaultValue ELSE OL.DefaultValue/100 END) END
-,OL.EntryState,ValueIN = CASE WHEN OL.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
-FROM OrderLineCostingItem AS OL
-LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
-OUTER APPLY (SELECT * FROM dbo.MasterOrderItemCostingRate WHERE OrderLineCostingItemId=OL.Id AND ISNULL(MasterOrderItemId,'" + masterOrderItemId + @"')='"+ masterOrderItemId + @"') A
-ORDER BY OL.Sequence";
+                            Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN OL.ValueinDecimal=1 THEN OL.DefaultValue ELSE OL.DefaultValue/100 END) END
+                            ,OL.EntryState,ValueIN = CASE WHEN OL.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+                            FROM OrderLineCostingItem AS OL
+                            LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
+                            OUTER APPLY (SELECT * FROM dbo.MasterOrderItemCostingRate WHERE OrderLineCostingItemId=OL.Id AND ISNULL(MasterOrderItemId,'" + masterOrderItemId + @"')='"+ masterOrderItemId + @"') A
+                            ORDER BY OL.Sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -724,12 +724,12 @@ ORDER BY OL.Sequence";
             try
             {
                 string sql = @"SELECT A.Id,OL.Id OrderLineCostingItemId,OL.SOItemName,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
-LR.Value ItemValue,SOValue=CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END,ValueDiff=LR.Value-(CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END),A.SalesOrderId,A.Remark
-FROM OrderLineCostingItem AS OL
-LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
-LEFT JOIN dbo.MasterOrderItemCostingRate LR ON LR.OrderLineCostingItemId=OL.Id  AND ISNULL(LR.MasterOrderItemId,'" + lineId + @"')='" + lineId + @"'
-OUTER APPLY (SELECT * FROM dbo.SOCostingConfirmation WHERE OrderLineCostingItemId=OL.Id AND ISNULL(SalesOrderId,'" + SalesOrderId + @"')='"+ SalesOrderId + @"') A
-ORDER BY OL.Sequence";
+                            LR.Value ItemValue,SOValue=CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END,ValueDiff=LR.Value-(CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END),A.SalesOrderId,A.Remark
+                            FROM OrderLineCostingItem AS OL
+                            LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
+                            LEFT JOIN dbo.MasterOrderItemCostingRate LR ON LR.OrderLineCostingItemId=OL.Id  AND ISNULL(LR.MasterOrderItemId,'" + lineId + @"')='" + lineId + @"'
+                            OUTER APPLY (SELECT * FROM dbo.SOCostingConfirmation WHERE OrderLineCostingItemId=OL.Id AND ISNULL(SalesOrderId,'" + SalesOrderId + @"')='"+ SalesOrderId + @"') A
+                            ORDER BY OL.Sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -930,6 +930,20 @@ ORDER BY OL.Sequence";
                                 from PackingDetail PD
                                 left join EmployeeInformation EI on EI.SystemId=PD.ResponsiblePersonId";
             return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetPackingDetailData()
+        {
+            try
+            {
+                var sql = @"SELECT * FROM [dbo].[PackingDetail]
+                            Where CostingSegment='" + CostingSegment.DirectMaterial + "' Order By CI.UserName";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public IEnumerable<object> GetItemMaterialSKUData(string materialMasterId, string sequence)

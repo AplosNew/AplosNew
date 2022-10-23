@@ -684,11 +684,11 @@
                                                     </div>
                                                 </div>
                                                 @*<div class="form-group">
-                                                    <label class="col-sm-4 control-label">Line Item<sup>*</sup></label>
-                                                    <div class="col-sm-8">
-                                                        <input type="text" name="Line Item" ng-model="modelNewPD.LineItem" class="form-control" maxlength="50" tabindex="1">
-                                                    </div>
-                                                </div>*@
+                                                        <label class="col-sm-4 control-label">Line Item<sup>*</sup></label>
+                                                        <div class="col-sm-8">
+                                                            <input type="text" name="Line Item" ng-model="modelNewPD.LineItem" class="form-control" maxlength="50" tabindex="1">
+                                                        </div>
+                                                    </div>*@
                                                 <div class="form-group">
                                                     <label class="col-sm-4 control-label">Own Ref. No<sup>*</sup></label>
                                                     <div class="col-sm-8">
@@ -752,7 +752,7 @@
                                     <div class="common-btn">
                                         <ul class="list-inline text-right">
                                             <li> <button ng-click="SavePackingDetail()" class="btn single-small-btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNewPD.Id.length>0?'Update':'Save'}}</button></li>
-                                          @*  <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                                            @*  <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
                                             <li> <button ng-click="DeletePackingDetail();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                                             <li> <button ng-click="ClearPackingDetail();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                         </ul>
@@ -774,6 +774,7 @@
                                     </div>
                                     <script type="text/ng-template" id="ShowActionButton">
                                         <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.RemovePackingDetail(this);" style="margin: -6px;"></i></button>
+                                        <button ng-click="AddSODetail(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Detail"><i class="glyphicon glyphicon-th-list"></i></button>
                                     </script>
                                 </div>
                             </div>
@@ -3767,7 +3768,7 @@
                                 <th>Own Item#</th>
                                 <th>Customer</th>
                                 <th>Product Master Name</th>
-                               
+
                             </tr>
                         </thead>
                         <tbody>
@@ -3793,11 +3794,237 @@
                         </tbody>
                     </table>
                 </div>
-                
+
             </div>
             @*<div class="modal-footer common-btn">
-                <button ng-click="closeItemListPopUp();" class="btn"><i class=""></i> Select</button>
-            </div>*@
+                    <button ng-click="closeItemListPopUp();" class="btn"><i class=""></i> Select</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="SODetailPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+               SO Detail<button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div ng-form="SODetailForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Header Id<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Item Name" class="form-control" ng-model="soDetailModel.HeaderId" ng-options="item.Id as item.UserName for item in PackingDetailList" required tabindex="10002">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" min="1" name="Sequence" ng-model="qboqModel.Sequence" class="form-control" required tabindex="10001">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label" title="Material">Material<sup>*</sup></label>
+                            <div class="col-sm-8  show-message input-group" style="padding-left: 15px;padding-right: 14px;">
+                                <input type="text" ng-model="qboqModel.MaterialMaster" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="getRMaterialMasterSearchData()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Material Cost Per Unit<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" n-decimals="2" name="Material Cost Per Unit" ng-model="qboqModel.MaterialCostPerUnit" class="form-control text-right" tabindex="10003">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Net Consumption Per Unit<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" n-decimals="4" name="Net Consumption Per Unit" ng-model="qboqModel.NetConsumptionPerUnit" class="form-control text-right" tabindex="10005" ng-change="CalculateNetConsumption();">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Responsible Person</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="Responsible Person" ng-model="qboqModel.ResponsiblePersonName" class="form-control" readonly tabindex="115">
+                                    <span class="input-group-btn">
+                                        <button ng-click="showEmployeeListPopUp('boq');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="qboqModel.ProcessId" name="Process" ng-options="item.Value as item.Text for item in processList" required tabindex="10007">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Is Out Source</label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="qboqModel.IsOutSource" ng-checked="qboqModel.IsOutSource" ng-click="clearBoQJobType();clearBoQEntityOrVendor();" />
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-2 control-label">Work Type</label>
+                            <div class="col-sm-5">
+                                @*<div class="select-style">
+                    <select class="form-control" ng-model="qboqModel.JobWorkType" ng-disabled="qboqModel.IsOutSource==='false'" ng-change="clearEntityOrVendor(itemList, $index);"
+                            ng-options="item.Value as item.Text for item in boqjobWorkTypeList" style="width: 100px;">
+                        <option value=""></option>
+                    </select>
+                </div>*@
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="qboqModel.JobWorkType" ng-disabled="qboqModel.IsOutSource===false" name="JobWorkType" ng-options="item.Value as item.Text for item in boqjobWorkTypeList" tabindex="10009">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Description</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" name="Description" ng-model="qboqModel.Description" rows="2" maxlength="250" tabindex="10011"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label" title="Article">Article<sup>*</sup></label>
+                            <div class="col-sm-8 show-message input-group" style="padding-left: 15px;padding-right: 14px;">
+                                <input type="text" ng-model="qboqModel.Article" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="getRMArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearRMArticle();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">UoM</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="UOM" class="form-control" ng-model="qboqModel.UoMId" ng-options="item.Value as item.Text for item in uOMList" tabindex="10004" required>
+                                        @*<option value=""></option>*@
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Value Loss (%)<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" n-decimals="2" name="Value Loss Percentage" ng-model="qboqModel.ValueLossPercentage" class="form-control text-right" tabindex="10006" ng-change="CalculateNetConsumption();">
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Gross Consumption<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" n-decimals="2" name="Gross Consumption" ng-model="qboqModel.GrossConsumption" disabled class="form-control text-right" tabindex="10008">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Process Group</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Process Group" ng-model="qboqModel.ProcessGroup" class="form-control" tabindex="10010">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Entity/Vendor<sup ng-show="qboqModel.JobWorkType!==null">*</sup></label>
+                            <input type="hidden" ng-model="x.EntityIdWithinCompany">
+                            <input type="hidden" ng-model="x.EntityIdWithinGroup">
+                            <input type="hidden" ng-model="x.VendorId">
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="EntityOrVendorName" ng-model="qboqModel.EntityOrVendorName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="BOQJobPopUp();" ng-disabled="qboqModel.JobWorkType==null" class="btn single-small-btn" tabindex="10010"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearBoQEntityOrVendor()" ng-disabled="qboqModel.JobWorkType==null" class="btn single-small-btn" tabindex="10010"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" ng-model="qboqModel.Remarks" rows="2" maxlength="250" tabindex="10012"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveQBOQ();" class="btn"><i class="glyphicon glyphicon-floppy-save"></i> {{qboqModel.Id==null?'Save':'Update'}}</button></li>
+                            <li><button ng-click="ClearQBOQByMasterOrderItem();" class="btn"><i class="glyphicon glyphicon-refresh"></i>Clear</button></li>
+                            <li><button ng-click="closeQBOQPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i>Close</button></li>
+                            @*<li><button ng-click="BOQDelete(null, 'so');" class="btn hide"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12 table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Actions</th>
+                                <th>Seq.</th>
+                                <th>Item Name</th>
+                                <th>Material</th>
+                                <th>Article</th>
+                                <th>Material Cost/Unit</th>
+                                <th>Net Consumption/Unit</th>
+                                <th>Value Loss(%)</th>
+                                <th>Gross Consumption</th>
+                                <th>UoM</th>
+                                <th>Process</th>
+                                <th>Work Type</th>
+                                <th>Entity/Vendor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in qboqList">
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="GetQBOQ(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button></li>
+                                        <li><button ng-click="removeLineItemBOQ(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    </ul>
+                                </td>
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.CostingItem}}</td>
+                                <td>{{x.MaterialMaster}}</td>
+                                <td>{{x.Article}}</td>
+                                <td>{{x.MaterialCostPerUnit}}</td>
+                                <td>{{x.NetConsumptionPerUnit}}</td>
+                                <td>{{x.ValueLossPercentage}}</td>
+                                <td>{{x.GrossConsumption}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.Process}}</td>
+                                <td>{{x.JobWorkType}}</td>
+                                <td>{{x.EntityOrVendorName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
