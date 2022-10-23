@@ -1146,7 +1146,7 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
             try
             {
                 #region commnet
-                var sql = @"select distinct MM.UserName Medicine, MM.Id, MM.Category, MM.SubCategory, 
+                var sql = @"select distinct MM.UserName Medicine, MM.Id, 
 stuff((select ',' +  CONVERT(VARCHAR(20), SUM(x.Quantity)) 
 from TRN.MedicineReceiptChild x
 where x.MedicineMasterId = MM.Id
@@ -1190,7 +1190,7 @@ where MRC.Quantity is not null";
         {
             try
             {
-                var sql = @"select Id, UserName Purpose, Category, Remarks from HKP.MedicinePurpose";
+                var sql = @"select Id, UserName Purpose, Remarks from HKP.MedicinePurpose";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

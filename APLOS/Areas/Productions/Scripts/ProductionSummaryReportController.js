@@ -68,7 +68,7 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     $scope.getProcessDataList = function () {
         $http({
             method: 'POST',
-            url: "Productions/Productionsummary/GetShiftList/GetProcessData"
+            url: "Productions/Productionsummary/GetProcessData"
         }).then(function successCallback(response) {
             $scope.processDataList = response.data;
         });

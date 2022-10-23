@@ -536,6 +536,39 @@ namespace Library.Accounting.Accounts
                 //_unitOfWork.Rollback();
             }
         }
+        public void DeleteBankReconciliationMapData(string voucherDetailId)
+        {
+            var flag = false;
+            try
+            {
+                flag = true;
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+
+                vendorAdWrsql = @"DELETE FROM TRN.BankReconciliationMap where VoucherDetailId='" + voucherDetailId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+
+                flag = false;
+
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                //if (flag)
+                //_unitOfWork.Rollback();
+            }
+        }
         public IEnumerable<object> GetAvailableBankReconciliationUploadedDrDataList(string companyGroupId, string companyId, string plantId, string bankMasterId, DateTime fromDate, DateTime toDate)
         {
             try

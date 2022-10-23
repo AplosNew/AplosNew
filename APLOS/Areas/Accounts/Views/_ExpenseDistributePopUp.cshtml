@@ -49,7 +49,7 @@
                                             <td>{{x.CurrencyCode}}</td>
                                             <td class="text-right">{{x.BooksAmount|number:2}}</td>
                                             <td>
-                                                <input @*ng-keyup="checkDistributedAmount($index,x)"*@ type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="DistributedAmount" autocomplete="off" ng-model="x.DistributedAmount">
+                                                <input ng-keyup="checkDistributedAmount($index,x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="DistributedAmount" autocomplete="off" ng-model="x.DistributedAmount">
                                             </td>
                                             @*<td class="text-right">{{x.DistributedAmount|number:2}}</td>*@
                                             <td class="text-right">
@@ -107,7 +107,7 @@
                                             <td>{{x.CurrencyCode}}</td>
                                             <td class="text-right">{{x.BooksAmount|number:2}}</td>
                                             <td>
-                                                <input @*ng-keyup="checkDistributedAmount($index,x)"*@ type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="DistributedAmount" autocomplete="off" ng-model="x.DistributedAmount">
+                                                <input ng-keyup="checkDistributedAmount($index,x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="DistributedAmount" autocomplete="off" ng-model="x.DistributedAmount">
                                             </td>
                                             @*<td class="text-right">{{x.DistributedAmount|number:2}}</td>*@
                                             <td class="text-right">

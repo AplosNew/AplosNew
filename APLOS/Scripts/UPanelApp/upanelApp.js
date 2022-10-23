@@ -1095,7 +1095,9 @@ upanelApp.controller("specialIssueControlController", specialIssueControlControl
 upanelApp.controller("specialIssueControlUpdateController", specialIssueControlUpdateController)
 upanelApp.controller("IssueControlController", IssueControlController)
 upanelApp.controller("MedicineCategoryController", MedicineCategoryController)
+upanelApp.controller("MaterialIssueControlController", MaterialIssueControlController)
 upanelApp.controller("specialIssueControlRegisterController", specialIssueControlRegisterController)
+upanelApp.controller("MaterialIssueControlApprovalController", MaterialIssueControlApprovalController)
 upanelApp.controller("specialIssueControlReportController", specialIssueControlReportController)
 
 
