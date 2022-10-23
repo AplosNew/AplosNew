@@ -456,7 +456,11 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-
+    $scope.redirectTab = function () {
+        if ($scope.tabForm1.$invalid) {
+            $scope.setTab(1);
+        }
+    };
     // Enable Disable
     $scope.EnableDisable = function () {
         $scope.selected = $scope.ModelNew.StorageLevel;

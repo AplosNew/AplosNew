@@ -91,6 +91,20 @@ namespace Library.MaterialManagement.Material
             }
         }
 
+        public IEnumerable<object> GetBinAllocationHead()
+        {
+            try
+            {
+                string sql = @"Select * from TRN.BinAllocationHead";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public IEnumerable<object> getStorageSubLocation(string storageLocationId)
         {
             try
