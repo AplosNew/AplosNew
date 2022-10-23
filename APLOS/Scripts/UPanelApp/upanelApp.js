@@ -1096,6 +1096,8 @@ upanelApp.controller("specialIssueControlUpdateController", specialIssueControlU
 upanelApp.controller("IssueControlController", IssueControlController)
 upanelApp.controller("MedicineCategoryController", MedicineCategoryController)
 upanelApp.controller("specialIssueControlRegisterController", specialIssueControlRegisterController)
+upanelApp.controller("specialIssueControlReportController", specialIssueControlReportController)
+
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

@@ -96,7 +96,7 @@
                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
                  e-recorddoubleclick="" e-templaterefresh="refreshTemplateIssueItem">
                 <div e-columns>
-                   @* <div e-column e-headertext="All" e-headertemplateid="#headerTemplateIssueItem" e-template="#checkboxTemplateIssueItem" e-textalign="center" e-width="1"></div>*@
+                    @* <div e-column e-headertext="All" e-headertemplateid="#headerTemplateIssueItem" e-template="#checkboxTemplateIssueItem" e-textalign="center" e-width="1"></div>*@
                     <div e-column e-type="string" e-field="Id" e-visible="false" e-headertext="Id" e-width="2"></div>
                     <div e-column e-type="string" e-field="SICItemId" e-visible="false" e-headertext="Item Id" e-width="2"></div>
                     <div e-column e-type="string" e-field="ICUId" e-visible="false" e-headertext="Issue Update Id" e-width="2"></div>
@@ -106,6 +106,7 @@
                     <div e-column e-type="string" e-field="SampleSize" e-headertext="Sample Size" e-width="2"></div>
                     <div e-column e-type="string" e-template="#Value" e-headertext="Value" e-width="2"></div>
                     <div e-column e-type="string" e-template="#Remark" e-headertext="Remarks" e-width="2"></div>
+                    <div e-column e-type="string" e-template="#ConfidenceLevel" e-headertext="Confidence Level" e-width="2"></div>
                 </div>
                 <script type="text/template" id="checkboxTemplateIssueItem">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
@@ -121,6 +122,14 @@
                 <script type="text/template" id="Remark">
                     <div class="col-sm-12" style="padding:0px;">
                         <input type="text" name="Remark" ng-model="data.Remarks" ng-click="" class="form-control">
+                    </div>
+                </script>
+                <script type="text/template" id="ConfidenceLevel">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="data.ConfidenceLevel" name="ConfidenceLevel" 
+                                ng-options="item.Value as item.Text for item in $parent.ConfidenceLevelList">
+                            @*<option value="">Select</option>*@
+                        </select>
                     </div>
                 </script>
             </div>
