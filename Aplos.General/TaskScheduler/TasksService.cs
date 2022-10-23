@@ -1053,7 +1053,7 @@ namespace Library.General.TaskScheduler
                         dr["Id"] =  "DL" + _Id;
                         dr["WorkCenterId"] = item.WorkCenterId;
                         dr["DetentionTypeId"] = item.DetentionTypeId;
-                        dr["LoginTime"] = DBNull.Value;
+                        dr["LoginTime"] = item.LoginTime;
                         dr["IssueByNo"] = item.IssueByNo;
                         dr["Remarks"] = item.Remarks;
                         dr["AddedBy"] = item.AddedBy;
@@ -1133,7 +1133,7 @@ namespace Library.General.TaskScheduler
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("TO DO", out _Id);
 
-                        dr["Id"] = "DL" + _Id;
+                        dr["Id"] = "DLRP" + _Id;
                         dr["DetentionLogId"] = item.DetentionLogId;
                         dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
                         dr["AddedBy"] = item.AddedBy;
@@ -4571,17 +4571,17 @@ public class DetentionMoidel
     public string Id { get; set; }
     public string WorkCenterId { get; set; }
     public string DetentionTypeId { get; set; }
-    public string LoginTime { get; set; }
+    public DateTime? LoginTime { get; set; }
     public string IssueByNo { get; set; }
     public string Remarks { get; set; }
     public string AddedBy { get; set; }
-    public string AddedDate { get; set; }
+    public DateTime? AddedDate { get; set; }
     public string AddedFromIP { get; set; }
     public string UpdatedBy { get; set; }
-    public string UpdatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; }
     public string UpdatedFromIP { get; set; }
     public bool isUpdate { get; set; }
-    public string LogoutTime { get; set; }
+    public DateTime? LogoutTime { get; set; }
     public string MachineMasterId { get; set; }
     public bool isClose { get; set; }
 }
@@ -4592,10 +4592,10 @@ public class ResponsiblePersonModel
     public string DetentionLogId { get; set; }
     public string ResponsiblePersonId { get; set; }
     public string AddedBy { get; set; }
-    public string AddedDate { get; set; }
+    public DateTime? AddedDate { get; set; }
     public string AddedFromIP { get; set; }
     public string UpdatedBy { get; set; }
-    public string UpdatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; }
     public string UpdatedFromIP { get; set; }
     public bool isActive { get; set; }
 }

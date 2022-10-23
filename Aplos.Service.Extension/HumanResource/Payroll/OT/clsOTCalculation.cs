@@ -124,7 +124,7 @@ namespace Library.Service.Payrolls.OT
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"  SELECT  NEW.*,d.EntryAmount Amount,d.DefineAmount,d.SalaryHeadID,d.EntryCurrencyID,h.SalaryHead,h.HeadCategory,h.HeadType 
+                strSQL = @"SELECT distinct NEW.SystemID,NEW.RankEmp,NEW.EmpInfoSystemID,NEW.SalaryRuleMasterSystemID,NEW.EffectiveDate,d.EntryAmount Amount,d.DefineAmount,d.SalaryHeadID,d.EntryCurrencyID,h.SalaryHead,h.HeadCategory,h.HeadType 
                             ,LD.UserName OldLegalDesignation, LG.Code OldGradeCode from 
                             
                             (
@@ -176,7 +176,8 @@ namespace Library.Service.Payrolls.OT
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @" SELECT DISTINCT * FROM (
+                strSQL = @" SELECT DISTINCT xx.SystemID,xx.EmpInfoSystemID,xx.SalaryIncrementSystemID,xx.SalaryRuleMasterSystemID,xx.EffectiveDate,xx.IsApproved,xx.Amount,xx.DefineAmount,xx.SalaryHeadID
+ ,xx.EntryCurrencyID,xx.SalaryHead,xx.HeadCategory,xx.HeadType,xx.OldLegalDesignation,xx.OldGradeCode FROM (
 SELECT  OLD.*,d.EntryAmount Amount,d.DefineAmount,d.SalaryHeadID,d.EntryCurrencyID,h.SalaryHead,h.HeadCategory,h.HeadType 
                             ,LD.UserName OldLegalDesignation, LG.Code OldGradeCode  FROM (
 
@@ -216,7 +217,7 @@ LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.Fro
                             
 LEFT JOIN scs.LegalSalaryGrade LG ON LG.Id = LGD.LegalSalaryGradeId and LGD.PlantId='" + sPlantID + @"'
 
-where OLD.OLDRANK=1 AND h.HeadCategory='" + HeadCategory+@"' ) as xx
+where OLD.OLDRANK=1 AND h.HeadCategory='" + HeadCategory+ @"' and LG.Code is not null) as xx
 ORDER BY xx.EmpInfoSystemID";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
