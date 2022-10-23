@@ -1,148 +1,36 @@
 ﻿'use strict';
 MaterialIssueControlApprovalController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http", "$controller"];
 function MaterialIssueControlApprovalController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http, $controller) {
-    $rootScope.title = "Material Issue Control";
+    $rootScope.title = "Material Issue Control Approval";
     $scope.Action = 'Save';
     $scope.index = -1;
-    //$rootScope.isLeftMenuHide = true;
-    //$rootScope.ShowHideSideBar();
-    $scope.baseProcess = { Id: null, UserName: null };
-    $scope.modelList = [];
-    $scope.productionMaterialList = [];
-    $scope.prdProcessSetList = [];
-    $scope.productionEntityList = [];
-    $scope.productionWorkCenterList = [];
-    $scope.runningWorkCenterList = [];
-    $scope.productWorkCenterList = [];
-    $scope.productionStatusList = [];
-    $scope.MaterialImagePath = virtualPath.ProductsImage;
-    $scope.sortSettings = { sortedColumns: [{ field: "ProductionStatus", direction: "descending" }, { field: "LSD", direction: "ascending" }] };
+    $scope.SOItemList = [];
     $scope.path = 'Materials/MaterialIssueControl/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.updateUrl = $scope.path + 'edit';
-    $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.incrementType = [
-        { text: "FIXED", contentType: "textonly" },
-        { text: "PERCENTAGE", contentType: "textonly", selected: "selected" }];
-    cboService.getProductionStatusCboByGroup(function (result) {
-        $scope.productionStatusList = result;
-    });
-    $scope.modelFilterByList = [
-        { 'name': 'Prod. Order#', 'value': 'Id' },
-        { 'name': 'Prod. Status', 'value': 'ProductionStatus' },
-        { 'name': 'Material', 'value': 'Material' },
-        { 'name': 'Product', 'value': 'Product' },
-        { 'name': 'Product Category', 'value': 'ProductCategory' },
-        { 'name': 'Master Order No', 'value': 'MasterOrderId' },
-        { 'name': 'Buyer Order#', 'value': 'BuyerRefNo' },
-        { 'name': 'Own Order#', 'value': 'OwnRefNo' },
-        { 'name': 'Buyer Item#', 'value': 'StyleNo' },
-        { 'name': 'Own Item#', 'value': 'OwnStyleNo' },
-        { 'name': 'SO No', 'value': 'SONo' },
-        { 'name': 'SO Desc', 'value': 'SODesc' },
-        { 'name': 'Buyer', 'value': 'buyer' },
-        { 'name': 'Customer', 'value': 'Customer' },
-    ];
-    $scope.closePopup = function (popupName) {
-        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
-        try {
-            $("#" + popupName).data("ejDialog").close();
-        } catch (e) {
-
-        }
-    }
-    $scope.openPopup = function (popupName) {
-
-        try {
-            $("#" + popupName).data("ejDialog").open();
-        } catch (e) {
-
-        }
-    }
-    $scope.openPopupAngular = function (popupName) {
-        try {
-            angular.element(document.querySelector("#" + popupName + "")).modal("show");
-        } catch (e) {
-
-        }
-
-    }
-
+   
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
 
-    $scope.modelPriorityList = [];
-    $scope.loadDataForPriority = function () {
-        $scope.modelPriorityList = [];
-        try {
-            $http({
-                method: 'POST',
-                data: {
-                    'baseprocessid': $scope.baseProcess.Id, 'entityid': $scope.EntityId, 'column': '', 'value': ''
-                },
-                url: $scope.getListUrl
-            }).then(function successCallback(response) {
-                for (var i = 0; i < response.data.length; i++) {
-                    response.data[i].LSD = new Date(response.data[i].LSD);
-                    response.data[i].FirstShipmentDate = new Date(response.data[i].FirstShipmentDate);
-                    response.data[i].LastShipmentDate = new Date(response.data[i].LastShipmentDate);
-                    response.data[i].LSD = new Date(response.data[i].LSD);
-                }
+  
+    $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
 
-                $scope.modelPriorityList = response.data;
-            });
-        } catch (e) {
-
-        }
-    }
-
-    $scope.entityList = [];
-    $scope.getAllEntities = function () {
-        $http({
-            method: 'POST',
-            url: "OrderManagements/productionOrderSchedulingParametersType1/GetAllEntityForPlanningType1"
-        }).then(function successCallback(response) {
-            $scope.entityList = response.data;
-        });
-    }
-    $scope.getAllEntities();
-
-    $scope.PRSearchColumn = 'Id';
-    $scope.PRSearchValue = null;
     $scope.modelList = [];
-    $scope.getData = function () {
-        $http({
-            method: 'POST',
-            data: {
-                'entityid': $scope.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
-            },
-            url: $scope.getListUrl
-        }).then(function successCallback(response) {
-            $scope.modelList = response.data;
-        });
-    };
-
-    $scope.ModelNew = { Id: null, POId: null, EntityId: null, Level: "Costing", PlanPercentage: null };
-
-    $scope.SOItemList = [];
-    $scope.Get = function (obj) {
-        $scope.ModelNew.POId = obj.data.Id;
-        $scope.SOItemList = [];
-        $http.get('Materials/MaterialIssueControl/GetSOItemList?entityid=' + $scope.EntityId + '&ProductionOrderId=' + obj.data.Id)
+    $scope.GetData = function () {
+        $scope.modelList = [];
+        $http.get('Materials/MaterialIssueControl/GetSavedUnApprovedData')
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
-                        $scope.SOItemList = response.data;
+                        $scope.modelList = response.data;
                     }
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
+      
     };
+    $scope.GetData();
+
+
 
     $scope.getArticle = function (data) {
         $scope.SelectedMaterial = data;
