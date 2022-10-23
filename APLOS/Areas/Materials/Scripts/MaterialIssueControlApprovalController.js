@@ -1,6 +1,6 @@
 ﻿'use strict';
-MaterialIssueControlController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http", "$controller"];
-function MaterialIssueControlController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http, $controller) {
+MaterialIssueControlApprovalController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http", "$controller"];
+function MaterialIssueControlApprovalController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http, $controller) {
     $rootScope.title = "Material Issue Control";
     $scope.Action = 'Save';
     $scope.index = -1;

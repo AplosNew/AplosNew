@@ -2185,6 +2185,7 @@
     <Content Include="Areas\Machines\Scripts\pendingMaintenanceScheduleController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceStatusDetailsController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
+    <Content Include="Areas\Materials\Scripts\MaterialIssueControlApprovalController.js" />
     <Content Include="Areas\Materials\Scripts\MaterialIssueControlController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogoutController.js" />
@@ -4359,6 +4360,8 @@
     <Content Include="Areas\HumanResource\Views\MedicineCategory\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\SpecialIssueControlRegister\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\MaterialIssueControl\Approval.cshtml" />
+    <Content Include="Areas\Materials\Views\MaterialIssueControl\Issue.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4420,7 +4423,7 @@
     <Content Include="Areas\Productions\Views\ProductionReportWithParameter\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\EInvoice.cshtml" />
     <Content Include="Areas\SalesManagements\Views\_postedSalesPopUp.cshtml" />
-    <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
     <Content Include="POPResources\Templates\PurchaseOrder202034.docx" />

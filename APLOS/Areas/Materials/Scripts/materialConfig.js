@@ -306,4 +306,8 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/MaterialIssueControl/Aplos',
             controller: 'MaterialIssueControlController'
         })
+        .when('/material-issue-ctrl-approval', {
+            templateUrl: 'materials/MaterialIssueControl/Approval',
+            controller: 'MaterialIssueControlApprovalController'
+        })
 };
