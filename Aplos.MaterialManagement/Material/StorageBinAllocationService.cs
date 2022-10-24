@@ -1,9 +1,13 @@
 ﻿using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
+using Library.Service.Enums;
+using Library.Service.Logs;
 using OTSBD;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
 using System.Threading;
 
 namespace Library.MaterialManagement.Material
@@ -91,17 +95,52 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> GetBinAllocationHead()
+        public IEnumerable<object> GetBinAllocationHead(string column, string value)
         {
             try
             {
-                string sql = @"Select * from TRN.BinAllocationHead";
-
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"
+                        select top 100 * from (select BAH.Id,BAH.UserName ,SBM.UserName MaterialStorage,MT.UserName MaterialType,MGM.UserName MaterialGroup,MM.UserName MaterialName,BAH.MaterialMasterId,BAH.StorageLocationId,BAH.AccessType 
+	                    FROM TRN.BinAllocationHead BAH 
+	                    LEFT JOIN HKP.MaterialStorage SBM ON SBM.Id=BAH.StorageLocationId
+	                    LEFT JOIN HKP.MaterialType MT ON MT.Id=BAH.MaterialTypeId
+	                    LEFT JOIN MST.MaterialMaster MM ON MM.Id=BAH.MaterialMasterId
+	                    LEFT JOIN MST.MaterialGroupMaster MGM ON MGM.Id=BAH.MaterialGroupMasterId) AS TEMP WHERE " + strkey + " ";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw e;
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GetBinAllocationByMaterialId(string materialMasterId, string materialStorageId)
+        {
+            try
+            {
+                var sql = @"
+                        select BAH.Id,BAH.UserName ,SBM.UserName StorageBinMaster,MS.UserName StorageLocation,MT.UserName MaterialType,MGM.UserName MaterialGroup
+	                    ,MM.UserName MaterialName,BAH.MaterialMasterId,BAH.StorageLocationId,BA.StorageBinMasterId,BAH.AccessType 
+	                    FROM TRN.BinAllocationHead BAH 
+	                    LEFT JOIN TRN.BinAllocation BA ON BA.BinAllocationHeadId=BAH.Id
+	                    LEFT JOIN MST.StorageBinMaster SBM ON SBM.Id=ba.StorageBinMasterId
+	                    LEFT JOIN HKP.MaterialStorage MS ON MS.Id=BAH.StorageLocationId
+	                    LEFT JOIN HKP.MaterialType MT ON MT.Id=BAH.MaterialTypeId
+	                    LEFT JOIN MST.MaterialMaster MM ON MM.Id=BAH.MaterialMasterId
+	                    LEFT JOIN MST.MaterialGroupMaster MGM ON MGM.Id=BAH.MaterialGroupMasterId
+	                    where BAH.MaterialMasterId='"+ materialMasterId + "' AND BAH.StorageLocationId='"+ materialStorageId + @"' ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
 
