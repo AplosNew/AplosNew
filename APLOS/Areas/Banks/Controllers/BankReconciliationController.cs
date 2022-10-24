@@ -421,6 +421,14 @@ namespace Aplos.Areas.Banks.Controllers
             accountsBankReconcilliationService.DeleteBankReconciliationUploadedData(bankReconciliationUploadId);
             return Json(new { Message = AplosMessage.Deleted });
         }
+        [HttpPost]
+        public ActionResult DeleteBankReconciliationMapData(string voucherDetailId)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+
+            accountsBankReconcilliationService.DeleteBankReconciliationMapData(voucherDetailId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
         [Authorize, HttpGet]
         public JsonResult GetAvailableBankReconciliationUploadedDataList(GridParameter parameters, string bankMasterId, DateTime fromDate, DateTime toDate)
         {

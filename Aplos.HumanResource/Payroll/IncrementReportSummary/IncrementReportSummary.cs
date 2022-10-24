@@ -66,7 +66,7 @@ namespace Library.HumanResource.Payroll.IncrementReportSummary
             SELECT SMB.SystemID,SMB.EmpInfoSystemID,SMB.EffectiveDate,SDB.EntryAmount,SDB.SalaryHeadID FROM SalaryInfoBackMaster SMB
             LEFT JOIN SalaryInfoBack SDB ON SDB.SalaryID=SMB.SystemID
             WHERE SMB.EmpInfoSystemID='" + EmpSystemId + @"'
-            ) salaryInfoTo on IH.EmpSystemID=salaryInfoTo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfoTo.EffectiveDate and IH.ToSalaryId=salaryInfoTo.SystemID
+            ) salaryInfoTo on IH.EmpSystemID=salaryInfoTo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfoTo.EffectiveDate --and IH.ToSalaryId=salaryInfoTo.SystemID
             LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=salaryInfoTo.SalaryHeadID
             
             LEFT JOIN (
@@ -77,7 +77,7 @@ namespace Library.HumanResource.Payroll.IncrementReportSummary
             SELECT SMB.SystemID,SMB.EmpInfoSystemID,SMB.EffectiveDate,SDB.EntryAmount,SDB.SalaryHeadID FROM SalaryInfoBackMaster SMB
             LEFT JOIN SalaryInfoBack SDB ON SDB.SalaryID=SMB.SystemID
             WHERE SMB.EmpInfoSystemID='" + EmpSystemId + @"'
-              ) salaryInfoFrom on IH.EmpSystemID=salaryInfoFrom.EmpInfoSystemID AND IH.FromEffectiveDate=salaryInfoFrom.EffectiveDate and IH.FromSalaryId=salaryInfoFrom.SystemID
+              ) salaryInfoFrom on IH.EmpSystemID=salaryInfoFrom.EmpInfoSystemID AND IH.FromEffectiveDate=salaryInfoFrom.EffectiveDate --and IH.FromSalaryId=salaryInfoFrom.SystemID
             LEFT JOIN SalaryHead SH1 ON SH1.SalaryHeadID=salaryInfoFrom.SalaryHeadID
             LEFT JOIN EmployeeInformation ei ON EI.SystemId=salaryInfoTo.EmpInfoSystemID
             LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id

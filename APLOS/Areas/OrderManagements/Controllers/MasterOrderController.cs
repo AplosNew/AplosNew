@@ -1896,6 +1896,18 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetPackingDetailData()
+        {
+            try
+            {
+                return Json(MasterOrder.GetPackingDetailData(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
 
         #region Copy SO

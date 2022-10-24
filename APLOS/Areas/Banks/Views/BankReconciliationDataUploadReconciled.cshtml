@@ -187,9 +187,21 @@
                                         <div e-column e-field="BankParticulars" e-headertext="Bank Particulars" e-width="40" e-textalign="center"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="VoucherAmount" e-headertext="Voucher Amount" e-width="50" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="UploadedAmount" e-headertext="Uploaded Amount" e-width="50" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-headertext="Actions" e-template="#ReportTemplateDr" e-width="100"></div>
                                     </div>
                                 </div>
                             </div>
+                            <script id="ReportTemplateDr" type="text/template">
+                                <div class="common-btn">
+                                    <ul class="common-btn list-inline text-center">
+                                        <li>
+                                            <button ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                                <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </script>
                         </fieldset>
                     </div>
                 </div>
@@ -300,9 +312,21 @@
                                         <div e-column e-field="BankParticulars" e-headertext="Bank Particulars" e-width="40" e-textalign="center"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="VoucherAmount" e-headertext="Voucher Amount" e-width="50" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="UploadedAmount" e-headertext="Uploaded Amount" e-width="50" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-headertext="Actions" e-template="#ReportTemplateCr" e-width="100"></div>
                                     </div>
                                 </div>
                             </div>
+                            <script id="ReportTemplateCr" type="text/template">
+                                <div class="common-btn">
+                                    <ul class="common-btn list-inline text-center">
+                                        <li>
+                                            <button ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                                <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </script>
                         </fieldset>
                     </div>
                 </div>
@@ -312,5 +336,5 @@
         </div>
 
         <confirm-modal></confirm-modal>
-        <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(bankReconciliationId)"></confirm-archive-generic>
+        <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(voucherDetailId)"></confirm-archive-generic>
         @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")

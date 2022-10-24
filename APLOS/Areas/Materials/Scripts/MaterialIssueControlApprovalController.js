@@ -1,66 +1,36 @@
 ﻿'use strict';
-MaterialIssueControlController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http", "$controller"];
-function MaterialIssueControlController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http, $controller) {
-    $rootScope.title = "Material Issue Control";
+MaterialIssueControlApprovalController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http", "$controller"];
+function MaterialIssueControlApprovalController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http, $controller) {
+    $rootScope.title = "Material Issue Control Approval";
     $scope.Action = 'Save';
     $scope.index = -1;
-   
+    $scope.SOItemList = [];
     $scope.path = 'Materials/MaterialIssueControl/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.updateUrl = $scope.path + 'edit';
-    $scope.deleteUrl = $scope.path + 'delete/';
-  
-
+   
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
 
-
-    $scope.entityList = [];
-    $scope.getAllEntities = function () {
-        $http({
-            method: 'POST',
-            url: "OrderManagements/productionOrderSchedulingParametersType1/GetAllEntityForPlanningType1"
-        }).then(function successCallback(response) {
-            $scope.entityList = response.data;
-        });
-    }
-    $scope.getAllEntities();
-
-    $scope.PRSearchColumn = 'Id';
-    $scope.PRSearchValue = null;
-    $scope.modelList = [];
-    $scope.getData = function () {
-        $http({
-            method: 'POST',
-            data: {
-                'entityid': $scope.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
-            },
-            url: $scope.getListUrl
-        }).then(function successCallback(response) {
-            $scope.modelList = response.data;
-        });
-    };
+  
     $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
 
-    $scope.SOItemList = [];
-    $scope.Get = function (obj) {
-        $scope.ModelNew.POId = obj.data.Id;
-        $scope.SOItemList = [];
-        $http.get('Materials/MaterialIssueControl/GetSOItemList?entityid=' + $scope.EntityId + '&ProductionOrderId=' + obj.data.Id)
+    $scope.modelList = [];
+    $scope.GetData = function () {
+        $scope.modelList = [];
+        $http.get('Materials/MaterialIssueControl/GetSavedUnApprovedData')
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
-                        $scope.SOItemList = response.data;
+                        $scope.modelList = response.data;
                     }
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
+      
     };
+    $scope.GetData();
+
+
 
     $scope.getArticle = function (data) {
         $scope.SelectedMaterial = data;
