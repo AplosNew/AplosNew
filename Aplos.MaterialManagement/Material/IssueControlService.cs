@@ -113,7 +113,9 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where --mm.Id not in (SELECT M.MaterialMasterId FROM TRN.MaterialAlocation M) and
+							left join TRN.IssueControlChild ICC on ICC.MaterialMasterArticleId = MMA.Id
+							left join TRN.IssueControlHeader IC on IC.Id = ICC.IssueControlHeadId
+                            where
                              mt.Id = '" + materialTypeId + "' and mgm.Id = '" + materialGroupMasterId + "' and mm.Id = '" + materialMasterId + "'";
                 }
                 else
@@ -141,7 +143,9 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where --mma.Id NOT in (SELECT M.MaterialMasterArticleId FROM TRN.MaterialAlocation M)  and
+							left join TRN.IssueControlChild ICC on ICC.MaterialMasterId = MM.Id
+							left join TRN.IssueControlHeader IC on IC.Id = ICC.IssueControlHeadId
+                            where 
                             mt.Id = '" + materialTypeId + "' and mgm.Id = '" + materialGroupMasterId + "' and mm.Id = '" + materialMasterId + "'";
                     }
                 }
@@ -203,7 +207,7 @@ namespace Library.MaterialManagement.Material
         #endregion Save 
 
         #region Save Child
-        public string SaveItemApplicable(bool machineApplicable, bool worckcenterApplicable, string orderlevel, string headerId)
+        public string SaveItemApplicable(bool machineApplicable, bool worckcenterApplicable, int orderlevel, string headerId)
         {
             try
             {
@@ -274,7 +278,7 @@ namespace Library.MaterialManagement.Material
                         dr["MaterialMasterId"] = data[i]["MaterialMasterId"];
                         //dr["MaterialMasterArticleId"] = data[i]["MaterialMasterArticleId"];
                         dr["MachineApplicable"] = data[i]["MachineApplicable"];
-                        dr["WorkcenterApplicable"] = data[i]["WorkcenterApplicable"];
+                        dr["WorkCenterApplicable"] = data[i]["WorkCenterApplicable"];
                         dr["OrderLevel"] = data[i]["OrderLevel"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -289,7 +293,7 @@ namespace Library.MaterialManagement.Material
                         //dr["MaterialMasterId"] = data[i]["MaterialMasterId"];
                         dr["MaterialMasterArticleId"] = data[i]["MaterialMasterArticleId"];
                         dr["MachineApplicable"] = data[i]["MachineApplicable"];
-                        dr["WorkcenterApplicable"] = data[i]["WorkcenterApplicable"];
+                        dr["WorkCenterApplicable"] = data[i]["WorkCenterApplicable"];
                         dr["OrderLevel"] = data[i]["OrderLevel"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -377,7 +381,7 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                var str = @"Select Id Vaue, EnumName Text  from dbo.DefineEnum";
+                var str = @"Select Id Value, Category Text  from dbo.DefineEnum";
 
                 return _sqlRepository.GetDataCollection(str);
             }

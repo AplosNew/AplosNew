@@ -4363,6 +4363,7 @@
     <Content Include="Areas\HumanResource\Views\MedicineCategory\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\SpecialIssueControlRegister\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\IssueControl\_ItemApplicablePopUp.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Approval.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Issue.cshtml" />
     <Content Include="Areas\Machines\Views\SpecialIssueControlReport\Aplos.cshtml" />

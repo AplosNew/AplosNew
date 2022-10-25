@@ -1,7 +1,7 @@
 ﻿<div id="tarekcontainer">
 
 </div>
-<togglable name="Material Issue Control"></togglable>
+<togglable name="Material Issue Control Approval"></togglable>
 
 <div class="form-horizontal form-elements" id="entrycontainer">
     <div class="row">
@@ -74,7 +74,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">SODetail</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetQBOQCostingData();" href="" data-toggle="tab">{{ModelNew.Level}}</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" data-toggle="tab">{{ModelNew.Level}}</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -89,8 +89,7 @@
                         <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
                         <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
                         <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="160px"></div>
-                        @*<div e-column e-template="#SearchArticleTemplate" e-headertext="" e-width="32px"></div>*@
+                        <div e-column e-type="string" e-field="SOArticle" e-headertext="Article" e-width="160px"></div>
                         <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
                         <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="75"></div>
                         <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
@@ -104,12 +103,10 @@
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="BOQTotalCost" e-headertext="BOQTotalCost" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalVarianceCostingVsSO" e-headertext="TotalVarianceCostingVsSO" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalVarianceCostingVsBOQ" e-headertext="TotalVarianceCostingVsBOQ" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Remarks" e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
                     </div>
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div ng-show="ModelNew.Level == 'QBOQ'">
                     <div style="color:black;" id="BGrid" ej-grid e-datasource="QBOQCostingList" e-allowscrolling="true"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-allowselection="false" e-filtersettings-filterType="excel">
@@ -133,32 +130,6 @@
                             <div e-column e-type="string" e-field="Remarks" e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
                         </div>
                     </div>
-                </div>
-                <div ng-show="ModelNew.Level == 'Costing'">
-                    <div style="color:black;" id="CGrid" ej-grid e-datasource="QBOQCostingList" e-allowscrolling="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-allowselection="false" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-type="string" e-field="SrNo" e-headertext="SrNo" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Item" e-headertext="Item" e-width="80"></div>
-                            <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Consumption" e-headertext="NetConsumption" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="ValueLoss" e-headertext="ValueLoss" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="GrossConsumption" e-headertext="GrossConsumption" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalConsumption" e-headertext="TotalConsumption" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-template="#AdditionReductionTemplate" e-field="AdditionReduction" e-headertext="AdditionReduction" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="PlanConsumption" e-headertext="PlanConsumption" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="TotaPlanlAmount" e-headertext="TotaPlanlAmount" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="200px"></div>
-                            <div e-column e-template="#SearchArticleTemplate" e-headertext="Article" e-width="32px"></div>
-                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="180"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="StockRate" e-headertext="StockRate" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="ActualIssueAmount" e-headertext="ActualIssueAmount" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Remarks" e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -206,44 +177,24 @@
                 <div class="row">
 
                     <div class="col-xs-12" style="color:black;">
-                        <div id="Gridunassigned" e-load="actionCompleteSearch" ej-grid e-datasource="modelList" e-recorddoubleclick="Get" e-rowdatabound="rowDataBoundOrder"
+                        <div id="Gridunassigned" e-load="actionCompleteSearch" ej-grid e-datasource="modelList" e-recorddoubleclick="Get" 
                              e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                              e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
                              e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                              e-allowselection="false" e-filtersettings-filterType="excel">
                             <div e-columns>
                                 @*<div e-column e-template="#showPRPlanList" e-headertext="" e-width="28"></div>*@
-                                <div e-column e-type="string" e-field="Id" e-headertext="ID" e-visibility="false" e-width="50"></div>
+                                <div e-column e-type="string" e-field="Id" e-headertext="ID" e-visible="false" e-width="50"></div>
                                 <div e-column e-type="string" e-field="POId" e-headertext="POId" e-width="100"></div>
                                 <div e-column e-type="string" e-field="UserCode" e-headertext="UserCode" e-width="50"></div>
                                 <div e-column e-type="string" e-field="UserRef" e-headertext="UserRef" e-width="80"></div>
-                                <div e-column e-type="text" e-field="SOCount" e-headertext="NoOfSO" e-width="80" style="height: 20px;"></div>
-                                <div e-column e-type="text" e-field="ItemCount" e-headertext="NoOfLineItem" e-width="80" style="height: 20px;"></div>
-                                <div e-column e-type="string" e-field="SODesc" e-headertext="SO Desc" e-width="100"></div>
-                                <div e-column e-type="string" e-field="TargetPerDay" e-headertext="Target Per Day" e-width="80"></div>
-                                <div e-column e-type="string" e-field="POQuantity" e-headertext="Qty" e-width="80"></div>
-                                <div e-column e-type="string" e-field="SOQuantity" e-headertext="Plan SO Qty" e-width="80"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="UserName" e-width="100"></div>
+                                <div e-column e-type="text" e-field="PlanPercentage" e-headertext="PlanPercentage" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-type="text" e-field="ByWhom" e-headertext="ByWhom" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-type="string" e-field="Level" e-headertext="Level" e-width="80"></div>
+                                <div e-column e-type="string" e-field="LotNo" e-headertext="LotNo" e-width="80"></div>
 
-                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="FirstShipmentDate" e-headertext="First Delivery Date" e-width="80"></div>
-                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LastShipmentDate" e-headertext="Last Delivery Date" e-width="80"></div>
-
-                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
-
-                                <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
-                                <div e-column e-type="string" e-field="EntityName" e-headertext="Entity" e-width="90"></div>
-
-                                <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="180"></div>
-                                <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="180"></div>
-                                <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
-                                <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
-
-                                <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
-                                <div e-column e-type="string" e-field="OwnRefNo" e-headertext="Own Order#" e-width="100"></div>
-                                <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="100"></div>
-                                <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
-
-                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
-                                <div e-column e-type="string" e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+                             
 
 
                             </div>

@@ -1172,7 +1172,7 @@ where MRC.Quantity is not null";
         {
             try
             {
-                var sql = @"select MRC.Id, MM.UserName Medicine, MM.Category, MM.SubCategory, MRC.Quantity Stock, FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate
+                var sql = @"select MRC.Id, MM.UserName Medicine, MRC.Quantity Stock, FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate
                         from TRN.MedicineReceipt MR
                         left join TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
                         left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
@@ -1190,7 +1190,10 @@ where MRC.Quantity is not null";
         {
             try
             {
-                var sql = @"select Id, UserName Purpose, Remarks from HKP.MedicinePurpose";
+                var sql = @"select MP.Id, MP.UserName Sickness, MC.UserName Category, MP.Remarks PurposeRemarks,
+						MC.Remarks CategoryRemarks
+						from HKP.MedicinePurpose MP
+						left join HKP.MedicineCategory MC on MC.Id = MP.MedicineCategoryId";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
