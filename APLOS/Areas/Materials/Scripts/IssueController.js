@@ -80,6 +80,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     }
     $scope.getMaterial();
 
+    // #region get Define Enum
     $scope.EnumList = [];
     $scope.getEnum = function () {
         $http({
@@ -90,6 +91,8 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             $scope.EnumList = response.data;
         });
     }
+    $scope.getEnum();
+     // #endregion get Define Enum
 
     // #region ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
 
@@ -149,12 +152,13 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     };
     // #endregion save
 
+    // #region Send
     $scope.sendItemApplicable = function () {
         for (var i = 0; i < $scope.MaterialArticleList.length; i++) {
             $scope.MaterialArticleList[i].MachineApplicable = $scope.MachineApplicable;
-            $scope.MaterialArticleList[i].WorkcenterApplicable = $scope.WorkcenterApplicable;
-            $scope.MaterialArticleList[i].SelectedOrderLevel = $scope.OrderLevel;
-            /*$scope.SelectedOrderLevel=$scope.OrderLevel;*/
+            $scope.MaterialArticleList[i].WorkCenterApplicable = $scope.WorkCenterApplicable;
+            $scope.MaterialArticleList[i].OrderLevel = $scope.OrderLevel;
+            //$scope.SelectedOrderLevel=$scope.OrderLevel;
         }
         if ($scope.ModelNew.MaterialLevel == "Material") {
             var gridObj = $("#GridEdit").data("ejGrid");
@@ -168,6 +172,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         }
        
     }
+     // #endregion Send
 
     // #region SAVE CHILD
     $scope.SaveItemApplicable = function () {
@@ -180,7 +185,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             data: {
                 'headerId': $scope.ModelNew.Id,
                 'machineApplicable': $scope.MachineApplicable,
-                'worckcenterApplicable': $scope.WorkcenterApplicable,
+                'worckcenterApplicable': $scope.WorkCenterApplicable,
                 'orderlevel': $scope.OrderLevel
                 
             },
@@ -214,12 +219,11 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
                     ob.MaterialType = a.MaterialType;
                     ob.MaterialTypeId = a.MaterialTypeId;
                     ob.MaterialgroupName = a.MaterialgroupName;
-                   
-                   
+                    ob.WorkCenterApplicable = a.WorkCenterApplicable;
+                    ob.MachineApplicable = a.MachineApplicable;
+                    ob.OrderLevel = a.OrderLevel;
                     ob.chk = a.chk;
-
                     ob.StorageBinMasterId = a.StorageBinMasterId;
-
                     $scope.userMaterialArticleList.push(ob);
                     ob = {};
                     a.chk = false;
@@ -228,11 +232,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         }
         
         $scope.$broadcast('show-errors-check-validity');
-        for (var i = 0; i < $scope.userMaterialArticleList.length; i++) {
-            $scope.userMaterialArticleList[i].MachineApplicable = $scope.MachineApplicable;
-            $scope.userMaterialArticleList[i].WorkcenterApplicable = $scope.WorkcenterApplicable;
-            $scope.userMaterialArticleList[i].OrderLevel = $scope.OrderLevel;
-        }
+        
         $http({
             method: 'POST',
             url: $scope.path + 'SaveChild',
@@ -259,6 +259,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     };
     // #endregion SAVE CHILD
 
+    // #region Get Issue save Data
     $scope.GetIssue = function () {
         $http({
             method: 'POST',
@@ -269,7 +270,9 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
     $scope.GetIssue();
+    // #endregion Get Issue save Data
 
+    // #region Double tab on row
     $scope.Get = function (args) {
         $scope.ModelNew.Id = args.data.Id;
         $scope.ModelNew = Object.assign({}, args.data);
@@ -281,6 +284,9 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
         }
     };
+     // #endregion Double tab on row
+
+    // #region Clear
 
     $scope.Clear = function () {
         ClearFields();
@@ -296,7 +302,9 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
+    // #endregion Clear
 
+    // #region Hide & show Material/Article
     $scope.hideshow = function () {
         var id = document.getElementById("ArticleId");
        
@@ -314,4 +322,34 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
         }
     }
+    // #endregion Hide & show Material/Article
+
+
+    $scope.MAObject = {
+        Id: null,
+        WorkCenterApplicable: false,
+        MachineApplicable: false,
+        OrderLevel :null
+    }
+
+    // #region Item Applicable Pop Up
+    $scope.openItemApplicablePopUp = function (obj) {
+        $scope.MAObject = obj.data;
+        angular.element(document.querySelector('#itemApplicablePopUpid')).modal('show');
+    }
+
+    $scope.closeItemApplicablePopUp = function () {
+        angular.element(document.querySelector('#itemApplicablePopUpid')).modal('hide');
+        if ($scope.ModelNew.MaterialLevel == "Material") {
+            var gridObj = $("#GridEdit").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        }
+        else {
+            var gridObj = $("#GridEditB").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        }
+    }
+    // #endregion Item Applicable Pop Up
 }

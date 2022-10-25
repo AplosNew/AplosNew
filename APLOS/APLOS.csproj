@@ -1722,6 +1722,7 @@
     <Content Include="Areas\Accounts\Scripts\IncentiveController.js" />
     <Content Include="Areas\Accounts\Scripts\PostInvoiceController.js" />
     <Content Include="Areas\Accounts\Scripts\CustomerConfirmationController.js" />
+    <Content Include="Areas\Accounts\Scripts\incentiveReceivableController.js" />
     <Content Include="Areas\Accounts\Scripts\vendorPaymentApprovalController.js" />
     <Content Include="Areas\Accounts\Scripts\VoucherGlUpdateController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherParkController.js" />
@@ -4362,9 +4363,11 @@
     <Content Include="Areas\HumanResource\Views\MedicineCategory\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\SpecialIssueControlRegister\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\IssueControl\_ItemApplicablePopUp.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Approval.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Issue.cshtml" />
     <Content Include="Areas\Machines\Views\SpecialIssueControlReport\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\Incentive\IncentiveReceivable.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

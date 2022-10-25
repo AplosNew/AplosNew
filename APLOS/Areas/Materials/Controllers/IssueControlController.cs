@@ -125,7 +125,7 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult SaveItemApplicable(bool machineApplicable, bool worckcenterApplicable, string orderlevel, string headerId)
+        public ActionResult SaveItemApplicable(bool machineApplicable, bool worckcenterApplicable, int orderlevel, string headerId)
         {
             try
             {

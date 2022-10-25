@@ -70,6 +70,12 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetDetentionLogGrid(out List<DetentionLogGridList> detentionLoggridlist);
             return detentionLoggridlist;
         }
+        public List<GetDetentionLog> GetDetentionLogDetail()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetDetentionLogDetail(out List<GetDetentionLog> detentionLoggridlist);
+            return detentionLoggridlist;
+        }
 
         [HttpPost]
         public string PostGetDetentionLogGrid([FromBody] IEnumerable<CreateDetentionList> DataToSave)

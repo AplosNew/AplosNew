@@ -76,9 +76,9 @@
                     <li role="presentation" ng-class="{ active: isSet(3) }">
                         <a ng-click="setTab(3)" href="" data-toggle="tab">Item</a>
                     </li>
-                    @*<li role="presentation" ng-class="{ active: isSet(4) }">
+                    <li role="presentation" ng-class="{ active: isSet(4) }">
                         <a ng-click="setTab(4)" href="" data-toggle="tab">Packing Define</a>
-                    </li>*@
+                    </li>
                 </ul>
             </div>
 
@@ -354,7 +354,40 @@
                                     </div>
                                 </div>
                             </div>
+
                         </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <button ng-click="getTaskList();" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i> View Task List</button>
+                                </li>
+                                <li>
+                                    <button ng-click="PrintTaskList();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Task List</button>
+                                </li>
+                                <li>
+                                    <button ng-click="PrintMatrix();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Master Order (Matrix)</button>
+                                </li>
+                                <li>
+                                    <button ng-click="PrintLinear();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Master Order (Linear)</button>
+                                </li>
+
+                            </ul>
+                            <ul class="list-inline text-right">
+                                <li>
+                                    <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button>
+                                </li>
+                                <li>
+                                    <button ng-click="removeMaster();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
+                                </li>
+                                @*
+                                    <li>
+                                    <button data-toggle="modal" data-target="#confirmMasterPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                                <li>
+                                    <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
+                                </li>
+                            </ul>
+                        </div>
+
                     </div>
                 </div>
                 @*
@@ -661,15 +694,45 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <button ng-click="getTaskList();" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i> View Task List</button>
+                                </li>
+                                <li>
+                                    <button ng-click="PrintTaskList();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Task List</button>
+                                </li>
+                                <li>
+                                    <button ng-click="PrintMatrix();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Master Order (Matrix)</button>
+                                </li>
+                                <li>
+                                    <button ng-click="PrintLinear();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Master Order (Linear)</button>
+                                </li>
+
+                            </ul>
+                            <ul class="list-inline text-right">
+                                <li>
+                                    <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button>
+                                </li>
+                                <li>
+                                    <button ng-click="removeMaster();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
+                                </li>
+                                @*
+                                    <li>
+                                    <button data-toggle="modal" data-target="#confirmMasterPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                                <li>
+                                    <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
+                                </li>
+                            </ul>
+                        </div>
+
                     </div>
                 </div>
-                <!--<!--<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                     <div class="form-elements form-horizontal" ng-form="modelNewForm">
-                        <div class="row" id="mainGrid">
-                            <div class="tab-design">
+                        <div class="row" id="mainGrid" ng-form="tab4">
 
                                 <div class="tab-content">
-                                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }" ng-form="tabForm1" id="PackingLine">
                                         <div class="row">
                                             <div class="col-xs-12 col-sm-6 col-md-6">
                                                 <div class="form-group">
@@ -682,14 +745,9 @@
                                                             </span>
                                                         </div>
                                                     </div>
-                                                </div>-->-->
-                                                <!--@*<div class="form-group">
-                                                        <label class="col-sm-4 control-label">Line Item<sup>*</sup></label>
-                                                        <div class="col-sm-8">
-                                                            <input type="text" name="Line Item" ng-model="modelNewPD.LineItem" class="form-control" maxlength="50" tabindex="1">
-                                                        </div>
-                                                    </div>*@-->
-                                                <!--<!--<div class="form-group">
+                                                </div>
+                                                
+                                                <div class="form-group">
                                                     <label class="col-sm-4 control-label">Own Ref. No<sup>*</sup></label>
                                                     <div class="col-sm-8">
                                                         <input type="text" name="Own Ref. No" ng-model="modelNewPD.OwnRefNo" class="form-control" maxlength="50" tabindex="1">
@@ -745,15 +803,12 @@
 
 
                                         </div>
-                                    </div>
 
                                     <div class="clearfix"></div>
 
                                     <div class="common-btn">
                                         <ul class="list-inline text-right">
-                                            <li> <button ng-click="SavePackingDetail()" class="btn single-small-btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNewPD.Id.length>0?'Update':'Save'}}</button></li>-->-->
-                                            <!--@*  <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@-->
-                                            <!--<li> <button ng-click="DeletePackingDetail();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                            <li> <button ng-click="SavePackingDetail()" class="btn single-small-btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNewPD.Id.length>0?'Update':'Save'}}</button></li>
                                             <li> <button ng-click="ClearPackingDetail();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                         </ul>
                                     </div>
@@ -774,47 +829,17 @@
                                     </div>
                                     <script type="text/ng-template" id="ShowActionButton">
                                         <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.RemovePackingDetail(this);" style="margin: -6px;"></i></button>
-                                        <button ng-click="AddSODetail(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Detail"><i class="glyphicon glyphicon-th-list"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetPopUpTab(this)" style="margin: -6px;"></i></button>
+                                        @*<button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetDetailChild(this);" style="margin: -6px;"></i></button>*@
+                                        @*<button ng-click="AddSODetail(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Detail"><i class="glyphicon glyphicon-th-list"></i></button>*@
                                     </script>
                                 </div>
-                            </div>
                         </div>
                     </div>
-                </div>-->
+                </div>
             </div>
             <confirm-archive-generic modalid="confirmPackingDetailPopUp" title="Confirmation" message={{message_PackingDetailconfirmation}} data-ng-click-right-button="DeletePackingDetail();"></confirm-archive-generic>
 
-            <div class="common-btn">
-                <ul class="list-inline text-left">
-                    <li>
-                        <button ng-click="getTaskList();" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i> View Task List</button>
-                    </li>
-                    <li>
-                        <button ng-click="PrintTaskList();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Task List</button>
-                    </li>
-                    <li>
-                        <button ng-click="PrintMatrix();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Master Order (Matrix)</button>
-                    </li>
-                    <li>
-                        <button ng-click="PrintLinear();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Master Order (Linear)</button>
-                    </li>
-
-                </ul>
-                <ul class="list-inline text-right">
-                    <li>
-                        <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button>
-                    </li>
-                    <li>
-                        <button ng-click="removeMaster();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
-                    </li>
-                    @*
-                        <li>
-                        <button data-toggle="modal" data-target="#confirmMasterPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-                    <li>
-                        <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
-                    </li>
-                </ul>
-            </div>
         </div>
     </div>
     <div class="aplos-grid-toggle">
@@ -3807,7 +3832,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-               SO Detail<button type="button" class="close" data-dismiss="modal">&times;</button>
+                SO Detail<button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body form-elements form-horizontal">
                 <div ng-form="SODetailForm">
@@ -3886,11 +3911,11 @@
                             <label class="col-sm-2 control-label">Work Type</label>
                             <div class="col-sm-5">
                                 @*<div class="select-style">
-                    <select class="form-control" ng-model="qboqModel.JobWorkType" ng-disabled="qboqModel.IsOutSource==='false'" ng-change="clearEntityOrVendor(itemList, $index);"
-                            ng-options="item.Value as item.Text for item in boqjobWorkTypeList" style="width: 100px;">
-                        <option value=""></option>
-                    </select>
-                </div>*@
+                                        <select class="form-control" ng-model="qboqModel.JobWorkType" ng-disabled="qboqModel.IsOutSource==='false'" ng-change="clearEntityOrVendor(itemList, $index);"
+                                                ng-options="item.Value as item.Text for item in boqjobWorkTypeList" style="width: 100px;">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>*@
                                 <div class="select-style">
                                     <select class="form-control" ng-model="qboqModel.JobWorkType" ng-disabled="qboqModel.IsOutSource===false" name="JobWorkType" ng-options="item.Value as item.Text for item in boqjobWorkTypeList" tabindex="10009">
                                         <option value=""></option>
@@ -4028,3 +4053,175 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade site-modal in" id="SOPopUpData" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Packing Define Detail<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements from-horizontal">
+                <div class="tab-content">
+                    <div class="row">
+                        <div class="site-tab">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" ng-class="{ active: isSet2(5) }">
+                                    <a ng-click="setTab2(5)" href="" data-toggle="tab">SO Detail</a>
+                                </li>
+
+                                <li role="presentation" ng-class="{ active: isSet2(6) }">
+                                    <a ng-click="setTab2(6)" href="" data-toggle="tab">Packing Type</a>
+                                </li>
+
+                            </ul>
+                        </div>
+                        <div class="tab-content" ng-form="tab5">
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(5), active: isSet2(5) }">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">SO NO<sup>*</sup></label>
+                                            <div class="col-sm-8">
+                                                <div class="input-group">
+                                                    <input type="text" name="SONo" ng-model="ModelSO.SOId" class="form-control" readonly>
+                                                    <span class="input-group-btn">
+                                                        <button name="submit" ng-click="GetSOPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Remarks</label>
+                                            <div class="col-sm-8">
+                                                <textarea class="form-control" rows="3" ng-model="ModelSO.Remarks" maxlength="250" tabindex="6"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="SaveSOData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                            <li> <button ng-click="ClearSO();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-xs-12">
+                                        <div id="GridSO" ej-grid e-datasource="SODataList" e-recorddoubleclick="GetSOData"
+                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                            <div e-columns>
+                                                @*<div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="2"></div>*@
+                                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+                                                <div e-column e-field="SOId" e-headertext="SONo" e-width="5"></div>
+                                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(6), active: isSet2(6) }">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="DetailChildPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> SO Data<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements from-horizontal">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">SO NO<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="SONo" ng-model="ModelSO.SOId" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="GetSOPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="ModelSO.Remarks" maxlength="250" tabindex="6"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveSOData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="ClearSO();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-12">
+                        <div id="GridSO" ej-grid e-datasource="SODataList" e-recorddoubleclick="GetSOData"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                @*<div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="2"></div>*@
+                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+                                <div e-column e-field="SOId" e-headertext="SONo" e-width="5"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+                            </div>
+                        </div>
+                        @*<script type="text/template" id="ShowActionButtonsBOM">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetDetailChild(this);" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeChild1(this);" style="margin: -6px;"></i></button>
+                            </script>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal site-modal in" id="SOItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Sales Order Item<button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div style="color:black;" id="SOGrid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSOItem"
+                         e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SOId" e-headertext="Sales OrderNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalProductionQty" e-headertext="Booked Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="RemainingQty" e-headertext="Remaining Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="75"></div>
+                            <div e-column e-type="string" e-field="POId" e-headertext="PrO" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
