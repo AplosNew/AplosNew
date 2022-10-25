@@ -1455,6 +1455,45 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
             }
         }
 
+        public DataTable SpecialIssueControlDetailsReport(string FromDate, string ToDate, string Shift)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var sql = @"select distinct '' Id,SIC.SpecialIssueName,SII.SpecialIssueItem,format(SICU.Date,'dd-MMM-yyyy') as Date,
+SICU.Shift,(select PeriodName from (select PeriodName,format(Time,'HH:mm:tt') as FromTime,isnull(lead(format(Time,'HH:mm:tt'))Over(order by Sequence),format(Time+2,'HH:mm:tt')) as ToTime from  MST.SpecialIssueDefinePeriod) P where format(SICU.Time,'HH:mm:tt') between P.FromTime and P.ToTime) Period,
+format(SICU.Time,'hh:mm:tt') as Time,SII.SampleSize,SIUI.Value,SIUI.Remarks,SIUI.ConfidenceLevel,convert(decimal(18,2),(SIUI.Value/SII.SampleSize)) as Percentage
+from TRN.SpecialIssueControl SIC
+left join TRN.SpecialIssueItem SII ON SII.SpecialIssueControlId=SIC.Id
+left join TRN.SpecialIssueControlUpdate SICU ON SICU.IssueId=SIC.Id
+left join TRN.SpecialIssueUpdateItem SIUI ON SIUI.ICUId=SICU.Id and SIUI.SICItemId=SII.Id
+where 
+format(SICU.Date,'dd-MMM-yyyy') between '" + FromDate + "' and '" + ToDate + "' and SICU.Shift='" + Shift + "'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable SpecialIssueControlSummaryReport(string FromDate, string ToDate, string Shift)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var sql = @"select X.SpecialIssueName,X.SpecialIssueItem,Sum(X.SampleSize) as SampleSize,Sum(Value) as Value,convert(decimal(18,2),Sum(Value)/Sum(X.SampleSize)) as Percentage from (select distinct '' Id,SIC.SpecialIssueName,SII.SpecialIssueItem,format(SICU.Date, 'dd-MMM-yyyy') as Date,SICU.Shift,(select PeriodName from(select PeriodName, format(Time,'HH:mm:tt') as FromTime,isnull(lead(format(Time, 'HH:mm:tt'))Over(order by Sequence), format(Time + 2, 'HH:mm:tt')) as ToTime from MST.SpecialIssueDefinePeriod) P where format(SICU.Time, 'HH:mm:tt') between P.FromTime and P.ToTime) Period,format(SICU.Time, 'hh:mm:tt') as Time,SII.SampleSize,SIUI.Value,SIUI.Remarks,SIUI.ConfidenceLevel,convert(decimal(18,2),(SIUI.Value/SII.SampleSize)) as Percentage from TRN.SpecialIssueControl SIC left join TRN.SpecialIssueItem SII ON SII.SpecialIssueControlId = SIC.Id left join TRN.SpecialIssueControlUpdate SICU ON SICU.IssueId = SIC.Id left join TRN.SpecialIssueUpdateItem SIUI ON SIUI.ICUId = SICU.Id and SIUI.SICItemId = SII.Id where Date between '" + FromDate + "' and '" + ToDate + "' and Shift = '" + Shift + "') X group by X.SpecialIssueItem,X.SpecialIssueName";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         #endregion Detail Residence Status Report
 
         #region Residence Grid View
