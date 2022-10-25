@@ -44,6 +44,7 @@ namespace Library.Service.OrderManagements
 
         GridModel GetCompanyPartyList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string customerVendor);
 
+        IEnumerable<object> GetItemsData(string masterOrderId);
         IEnumerable<object> GetMasterItemList(string masterOrderId);
 
         IEnumerable<object> GetAttributeListByMaterialMasterId(string materialMasterId);

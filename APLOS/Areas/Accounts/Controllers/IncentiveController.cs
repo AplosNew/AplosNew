@@ -12,7 +12,7 @@ using System.Web.Mvc;
 using OTSBD;
 using System;
 using System.Collections.Generic;
-
+using Library.Core;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -35,6 +35,18 @@ namespace Aplos.Areas.Accounts.Controllers
         public ActionResult Aplos()
         {
             return View("~/Areas/Accounts/Views/Incentive/Aplos.cshtml");
+        }
+        [Authorize]
+        public ActionResult IncentiveReceivable()
+        {
+            return View("~/Areas/Accounts/Views/Incentive/IncentiveReceivable.cshtml");
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetIncentiveReceivableList(GridParameter parameters)
+        {
+            AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsInvoiceService.GetIncentiveReceivableList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.ReceivableFromOthers), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetCbo()
