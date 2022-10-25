@@ -205,7 +205,7 @@ format(ICU.Time,'hh:mm tt') as IssueTime
             string sql = @"Select SII.Id as SICItemId,
  SII.SpecialIssueItem,SII.Actiontaken,
  (select EmployeeName from EmployeeInformation where SystemId=SII.ActiontakenById) as ActiontakenBy,
- SII.SampleSize,'' Value,'' Remarks,'' Id,'' ICUId  from TRN.SpecialIssueItem SII
+ SII.SampleSize,'' Value,'' Remarks,'' ConfidenceLevel,'' Id,'' ICUId  from TRN.SpecialIssueItem SII
  where SII.SpecialIssueControlId='" + IssueId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

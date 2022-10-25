@@ -7,6 +7,7 @@ function specialIssueControlUpdateController(cboService, commonMessage, $scope, 
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveIssueItemUpdateUrl = $scope.path + 'createItem';
     var CurrentTime = new Date();
+    $scope.ConfidenceLevelList = [];
 
     $scope.ShiftList = [];
     $scope.GetShiftList = function () {
@@ -19,6 +20,48 @@ function specialIssueControlUpdateController(cboService, commonMessage, $scope, 
     }
     $scope.GetShiftList();
 
+    $scope.ConfidenceLevelList = [
+        {
+            'Value': '10%',
+            'Text': '10%'
+        },
+        {
+            'Value': '20%',
+            'Text': '20%'
+        },
+        {
+            'Value': '30%',
+            'Text': '30%'
+        },
+        {
+            'Value': '40%',
+            'Text': '40%'
+        },
+        {
+            'Value': '50%',
+            'Text': '50%'
+        },
+        {
+            'Value': '60%',
+            'Text': '60%'
+        },
+        {
+            'Value': '70%',
+            'Text': '70%'
+        },
+        {
+            'Value': '80%',
+            'Text': '80%'
+        },
+        {
+            'Value': '90%',
+            'Text': '90%'
+        },
+        {
+            'Value': '100%',
+            'Text': '100%'
+        }
+    ];
     
     $scope.issueupdate = {
         Id: null

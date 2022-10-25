@@ -97,6 +97,11 @@ function MachineConfig($routeProvider, $locationProvider) {
             controller: 'specialIssueControlRegisterController'
         })
 
+        .when('/special-issue-report', {
+            templateUrl: 'Machines/SpecialIssueControlReport/Aplos',
+            controller: 'specialIssueControlReportController'
+        })
+
         .when('/machine-masters', {
             templateUrl: 'Machines/MachineMas/aplos',
             controller: 'machineMasterControllers'

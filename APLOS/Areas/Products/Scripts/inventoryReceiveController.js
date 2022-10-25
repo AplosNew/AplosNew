@@ -1166,6 +1166,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 			$scope.getCharacteristicsList(ob.Id);
 
 		getTaxCategoryList(ob.HSNCodeId, ob.HSNCode);
+		getBinMasterByMaterial(ob.Id);
 		var mmId = []; mmId.push(ob.Id);
 		cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (result) {
 			$scope.uoMList = result;
@@ -1177,6 +1178,17 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		$scope.closeMaterialMasterbyTypePopUp();
 
 	};
+
+	$scope.binMasterList = [];
+	function getBinMasterByMaterial(materialMasterId) {
+		$scope.binMasterList = [];
+		$http({
+			method: 'Post'
+			, url: 'Materials/StorageBinAllocation/GetBinAllocationByMaterialId?materialMasterId=' + materialMasterId + '&materialStorageId=' + $scope.productNew.MaterialStorageId
+		}).then(function (response) {
+			$scope.binMasterList = response.data;
+		});
+	}
 	$scope.LoadMaterialStatusLoad = function (ob) {
 		////debugger;
 		$http({
