@@ -1872,7 +1872,8 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
                 {
                     sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text]
 							FROM HKP.EntityProcessTag AS EP
-                            JOIN HKP.Process AS P ON EP.ProcessId=P.Id '" + entityId + @"' AND P.Active=1 ";
+                            JOIN HKP.Process AS P ON EP.ProcessId=P.Id 
+                            where EP.EntityId in (" + entityId + @") AND P.Active=1 ";
                 }
                
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -2320,8 +2321,8 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
         public IEnumerable<object> GetShiftList(string processId)
         {
             string sql = @"SELECT distinct sd.SystemID [Value],sd.UserName [Text] FROM [dbo].[WorkCenterWiseShift] WCS
-LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID = WCS.ShiftDefinationID
-WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm.ProcessId='" + processId + "')";
+                                        LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID = WCS.ShiftDefinationID
+                                        WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm.ProcessId='" + processId + "')";
             return _sqlRepository.GetDataCollection(sql);
         }
 

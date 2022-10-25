@@ -527,6 +527,62 @@ namespace Library.Service.OrderManagements
             }
         }
 
+
+        public IEnumerable<object> GetItemsData(string masterOrderId)
+        {
+            try
+            {
+                
+                var sql = @"SELECT  mo.MasterOrderNo,moi.Id MasterOrderItemId
+	                                ,ISNULL(so.Id,'') SOId
+	                                ,SO.CustomerPOId
+	                                ,CPO.PONumber
+	                                ,mm.Id MaterialMasterId
+	                                ,mm.UserName MaterialMaster
+	                                ,ISNULL(mma.StandardName, '') Article
+	                                ,b.UserName Customer
+	                                ,mo.TotalQty MOQty
+	                                ,ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage [ExtraP]
+	                                ,moi.OrderWastagePercentage [WastageP]
+	                                ,ISNULL(mma.Id, '') ArticleId
+	                                ,mmc.CharCount
+	                                ,B.UserName Buyer
+	                                ,PM.UserName AS ProductMasterName
+	                                ,CEILING(SO.PlannedQty) PlannedQty
+	                             
+                                    ,SO.Description
+									,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
+                                FROM trn.MasterOrderItem moi
+                               LEFT JOIN (
+	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                FROM trn.SalesOrder AS s
+	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                ) so ON moi.Id = SO.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN (SELECT COUNT(Id) CharCount, MaterialMasterId	FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+	                                ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+                                LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+                                  WHERE moi.MasterOrderId ='" + masterOrderId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
+
         public IEnumerable<object> GetAttributeListByMaterialMasterId(string materialMasterId)
         {
             try

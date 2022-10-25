@@ -128,6 +128,33 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
+       
+        [HttpPost, Authorize]
+        public ActionResult GetBinAllocationHead(string column, string value)
+        {
+            try
+            {
+                return Json(sba.GetBinAllocationHead(column, value), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetBinAllocationByMaterialId(string materialMasterId, string materialStorageId)
+        {
+            try
+            {
+                return Json(sba.GetBinAllocationByMaterialId(materialMasterId, materialStorageId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetList(string materialMasterId)
         {

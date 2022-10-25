@@ -70,6 +70,24 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     $scope.AccessTypeList = [];
     $scope.BinHeadList = [];
 
+    $scope.searchByBinAllocation = "UserName"; $scope.searchBinAllocation = "";
+    $scope.searchByBinAllocationList = [{ value: 'UserName', name: "User Name" }, { value: 'StorageBinMaster', name: "StorageBinMaster" }
+        , { value: 'MaterialType', name: "MaterialType" }, { value: 'MaterialGroup', name: "Material Group" }, { value: 'MaterialName', name: "Material" }
+        , { value: 'AccessType', name: "Access Type" }];
+
+    $scope.binAllocationHeads = [];
+    $scope.getbinAllocationHeadDataList = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/StorageBinAllocation/GetBinAllocationHead',
+            data: { column: $scope.searchByBinAllocation, value: $scope.searchBinAllocation },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.binAllocationHeads = response.data;
+        });
+    };
+    $scope.getbinAllocationHeadDataList();
+
     $scope.getStorageLevel = function () {
         $http({
             method: 'POST',
@@ -456,7 +474,11 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-
+    $scope.redirectTab = function () {
+        if ($scope.tabForm1.$invalid) {
+            $scope.setTab(1);
+        }
+    };
     // Enable Disable
     $scope.EnableDisable = function () {
         $scope.selected = $scope.ModelNew.StorageLevel;

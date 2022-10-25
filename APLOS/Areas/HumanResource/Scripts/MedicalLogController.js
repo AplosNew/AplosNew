@@ -123,7 +123,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
                 if (a.chk) {
                     var ob = {};
                     ob.Id = a.Id;
-                    ob.Purpose = a.Purpose
+                    ob.Sickness = a.Sickness;
                     ob.Category = a.Category;
                     
                     $scope.UserSicknessList.push(ob);

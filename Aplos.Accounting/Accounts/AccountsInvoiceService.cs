@@ -503,6 +503,42 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public GridModel GetIncentiveReceivableList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT  V.VoucherNo, P.Code AS PartyCode, P.UserName AS PartyName,  PP.UserName AS PartyPlantName, EI.EmployeeCode, EI.EmployeeName
+                                        , C.Code AS CurrencyCode, P.Code+' - '+ PP.UserName Particulars,I.Id,I.Amount,I.WrittenOffAmount,I.VoucherId,I.SourceType,I.IsPark
+                                        ,'Vendor' BeneficiaryType,I.PostingDate,I.DocDate,I.DocRefNo,V.VoucherDate,V.CurrencyId, ADT.TaxAmount AdditionalTax, ADT.VoucherId AdditionalTaxVoucherId, ADT.Id AdditionalTaxId
+                                        ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'TDSPosted' WHEN  ADT.InvoiceId IS NULL THEN '' ELSE 'TDSParked' end,V.VoucherTypeId,I.CompanyCurrencyRate
+                                        ,I.PartyId,I.PartyPlantId,Null EmployeeId
+                                        ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
+                                        ,OI.Id OtherInvoiceId
+                                        ,OtherIsPark=CASE WHEN OI.VoucherId<>'' THEN 'OtherInvoicePosted' WHEN  OI.VoucherId IS NULL THEN '' ELSE 'OtherInvoiceParked' end
+                                        ,OI.VoucherId OtherInvoiceVoucherId
+                                        ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
+										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
+										WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END
+                                        FROM TRN.[Invoice] AS I
+                                        JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
+                                        LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
+                                        LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=I.EmployeeId
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=I.CurrencyId
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=I.VoucherId
+                                        LEFT JOIN TRN.AdditionalTax ADT ON ADT.InvoiceId=I.Id
+                                        LEFT JOIN TRN.Voucher AV ON AV.Id=ADT.VoucherId
+                                        LEFT JOIN TRN.OtherInvoice OI ON OI.InvoiceId=I.Id
+                                        WHERE I.Archive=0 AND I.OpeningBalanceId IS NULL AND I.SourceType='" + sourceType + @"' 
+                                        AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  ";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
 
         public List<Dictionary<string, object>> GetInvoiceGLBudgetActivityDetail(string voucherId)
         {

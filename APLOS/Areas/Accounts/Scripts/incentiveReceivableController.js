@@ -1,12 +1,12 @@
 ﻿"use strict";
-vendorInvoiceController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "bankService", '$window'];
-function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, bankService, $window) {
-    $rootScope.title = "Vendor Invoice";
+incentiveReceivableController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "bankService", '$window'];
+function incentiveReceivableController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, bankService, $window) {
+    $rootScope.title = "Incentive Receivable";
     $scope.voucherDetailList = [];
     $scope.taxCodDataList = [];
     $scope.Action = "Save";
-    $scope.url = "Accounts/Invoice";
-    $scope.listUrl = $scope.url + "/GetVendorInvoiceList";
+    $scope.url = "Accounts/Incentive";
+    $scope.listUrl = $scope.url + "/GetIncentiveReceivableList";
     $scope.saveUrl = $scope.url + "/InsertVendorInvoice";
     $scope.updateUrl = $scope.url + "/UpdateVendorInvoice";
     $scope.postUrl = $scope.url + "/PostVendorInvoice";
