@@ -522,7 +522,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
         angular.copy($scope.fileNew, $scope.file);
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.fileNewForm.$valid) {
+        if ($scope.tab1.$valid) {
 
             if ($scope.ExchangeSaveExchangeRates($scope.fileNew.CurrencyId) == false) {
                 return;
@@ -4819,12 +4819,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
 
     $scope.SavePackingDetail = function () {
+    $scope.MasterOrderId = $scope.fileNew.Id;
         try {
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
                     url: 'OrderManagements/MasterOrder/CreatePackingDetail',
-                    data: { 'data': $scope.modelNewPD },
+                    data: { 'data': $scope.modelNewPD, 'MasterOrderId': $scope.MasterOrderId },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
                 }).then(function successCallback(response) {
@@ -4930,6 +4931,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.GetPopUpTab = function (obj) {
         $scope.modelNewPD = obj.data;
         $scope.ModelSO.PackingDetailId = obj.data.Id;
+        $scope.ModelPTNew.PackingDetailId = obj.data.Id;
         $scope.GetSavedSOData($scope.ModelSO.PackingDetailId);
         angular.element(document.querySelector('#SOPopUpData')).modal('show');
     }
@@ -5030,6 +5032,48 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             UpdatedFromIP: null
         };
     }
+
+    $scope.ModelPT = {
+        Id: null,
+        PackingCode: null,
+        PackingType: null,
+        CustomerRefCode: null,
+        Remarks: null
+    };
+    $scope.ModelPTNew = Object.assign({}, $scope.ModelPT);
+
+    $scope.ClearPT = function () {
+        $scope.ModelPTNew = Object.assign({}, $scope.ModelPT);
+    }
+
+    $scope.SavePackingType = function () {
+        try {
+            //if (baseService.isUndefinedOrNull($scope.ModelSO.SOId)) {
+            //    throw "Select SO No.";
+            //}
+
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/MasterOrder/CreatePackingType',
+                data: { 'data': $scope.ModelPTNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearPT();
+                    //$scope.GetSavedSOData($scope.modelNewPD.Id);
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
     //#region   SO Copy    
     $scope.CopySO = function (data) {
