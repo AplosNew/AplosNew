@@ -124,8 +124,6 @@ namespace Aplos.Areas.Costings.Controllers
 
         public ActionResult Delete(string id)
         {
-            string sql = @"select * from TableName where CostingGroupId = '" + id + "'";
-
 
             try
             {
@@ -135,6 +133,9 @@ namespace Aplos.Areas.Costings.Controllers
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[BOMSODetail] Where BOMDetailChild1Id IN(Select Id from BOMDetailChild1 Where BOMDetailMasterId='"+id+"')");
+                con.executeQuery("delete from BOMDetailChild1 where BOMDetailMasterId='" + id + "'");
+                con.executeQuery("delete from BOMDetailChild2 where BOMDetailMasterId='" + id + "'");
                 con.executeQuery("delete from " + TableName + " where id='" + id + "'");
                 con.CommitTransaction();
 
@@ -150,7 +151,88 @@ namespace Aplos.Areas.Costings.Controllers
 
 
         }
+        [HttpPost, Authorize]
+        public ActionResult DeleteChild1(string id)
+        {
 
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[BOMSODetail] Where BOMDetailChild1Id IN('" + id + "')");
+                con.executeQuery("delete from BOMDetailChild1 where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+        [HttpPost, Authorize]
+        public ActionResult DeleteChildSO(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[BOMSODetail] Where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+        [HttpPost, Authorize]
+        public ActionResult DeleteChild2(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from BOMDetailChild2 where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
