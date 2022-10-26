@@ -51,8 +51,7 @@ namespace Aplos.Areas.Materials.Controllers
             try
             {
                 string sql = @"SELECT M.*,E.EmployeeName ByWhom FROM [dbo].[MaterialIssueControlMaster] M
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
-Where ISNULL(M.IsApproved,0)=0";
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -100,6 +99,7 @@ Where ISNULL(M.IsApproved,0)=0";
 									,TotalVarianceCostingVsSO=(CEILING(SO.PlannedQty)*SDMC.[SOValue])-(CMC.TotalGrossAmount*CEILING(SO.PlannedQty))
 
 									,TotalVarianceCostingVsBOQ=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)-CMC.TotalGrossAmount*CEILING(SO.PlannedQty)
+                                    ,MIS.PlanRate,MIS.PlantCost,MIS.TotalSOCostVsTotalPlanCost
                                 FROM [dbo].[MaterialIssueControlSODetail] MIS 
 								 LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=MIS.SOId
                                LEFT JOIN (
@@ -162,7 +162,12 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         {
             try
             {
-                string sql = @"Select * from [dbo].[MaterialIssueControlDetail] Where MaterialIssueControlMasterId='" + masterId + "'";
+                string sql = @"select D.*,D.CostingItemId,I.UserName Item,A.StandardName QBOQArticle,A.Id AtricleId,M.Id MaterialMasterId
+,M.UserName MaterialMaster from dbo.MaterialIssueControlDetail D 
+INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
+LEFT JOIN MST.MaterialMaster M ON M.Id=D.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.AtricleId
+Where D.MaterialIssueControlMasterId='" + masterId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -332,6 +337,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
 									,TotalVarianceCostingVsSO=(CEILING(SO.PlannedQty)*SDMC.[SOValue])-(CMC.TotalGrossAmount*CEILING(SO.PlannedQty))
 
 									,TotalVarianceCostingVsBOQ=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)-CMC.TotalGrossAmount*CEILING(SO.PlannedQty)
+                                    ,0 PlanRate,0 PlantCost,0 TotalSOCostVsTotalPlanCost
                                 FROM TRN.ProductionOrderDetail POD
                                LEFT JOIN (
 	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
@@ -477,6 +483,115 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                 else
                 {
                     _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+
+                _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #region MaterialIssueControlSODetail 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlSODetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsSOChild, false, "1");
+                int socount = 0;
+                if (soList != null)
+                {
+                    foreach (var item in soList)
+                    {
+                        socount++;
+                        DataView dv = new DataView(dsSOChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _Id + "-" + socount;
+                            item["MaterialIssueControlMasterId"] = _Id;
+                            item["SOQty"] = item["PlannedQty"];
+
+                            AddNewRow(dsSOChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                #region MaterialIssueControlDetail 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlDetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsChild, false, "1");
+                int ccount = 0;
+                if (dataList != null)
+                {
+                    foreach (var item in dataList)
+                    {
+                        ccount++;
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _Id + "-" + ccount;
+                            item["MaterialIssueControlMasterId"] = _Id;
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsSOChild, dsChild);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateApprove(Dictionary<string, object> model, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList)
+        {
+            try
+            {
+                SaveApproveData(model, soList, dataList);
+                return Json(new { Data = model, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
+        private void SaveApproveData(Dictionary<string, object> data, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsChild, dsSOChild;
+            string _Id = string.Empty;
+            try
+            {
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlMaster WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("MaterialIssueControlMaster", out _Id);
+
+                    data["Id"] = "M" + _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    data["IsApproved"] = true;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
 
