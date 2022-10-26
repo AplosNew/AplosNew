@@ -6,6 +6,7 @@ function specialIssueControlReportController(commonMessage, $scope, $rootScope, 
     $scope.path = 'Machines/SpecialIssueControlReport/';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveSummary = $scope.path + 'createSummary';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
     var firstDay = new Date(y, m, 1);
@@ -135,5 +136,43 @@ function specialIssueControlReportController(commonMessage, $scope, $rootScope, 
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
+    };
+
+    $scope.SpecialIssueControlDetailsReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'XlsSpecialIssueControlDetails?FromDate=' + $scope.SpecialIssueRegisters.FromDate + '&ToDate=' + $scope.SpecialIssueRegisters.ToDate + '&Shift=' + $scope.SpecialIssueRegisters.Shift,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.SpecialIssueControlSummaryReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'XlsSpecialIssueControlSummary?FromDate=' + $scope.SpecialIssueRegisters.FromDate + '&ToDate=' + $scope.SpecialIssueRegisters.ToDate + '&Shift=' + $scope.SpecialIssueRegisters.Shift,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
     };
 }

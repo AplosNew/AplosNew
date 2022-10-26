@@ -1872,7 +1872,8 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
                 {
                     sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text]
 							FROM HKP.EntityProcessTag AS EP
-                            JOIN HKP.Process AS P ON EP.ProcessId=P.Id '" + entityId + @"' AND P.Active=1 ";
+                            JOIN HKP.Process AS P ON EP.ProcessId=P.Id 
+                            where EP.EntityId in (" + entityId + @") AND P.Active=1 ";
                 }
                
                 return _sqlRepository.GetDataCollection(sql, null);
