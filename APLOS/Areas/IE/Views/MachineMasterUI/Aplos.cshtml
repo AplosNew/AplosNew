@@ -28,6 +28,7 @@
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                  e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                 <div e-columns>
+                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
                     <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
                     <div e-column e-field="UserName" e-headertext="Machine Name" e-width="80"></div>
                     <div e-column e-field="StandardName" e-headertext="Machine Name" e-width="80"></div>
@@ -373,7 +374,7 @@
                                 <div class="form-group" id="" show-errors>
                                     <label class="col-sm-4 control-label">Asset Name<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" name="Asset Name" ng-model="modelNewA.AssetName" class="form-control" required maxlength="15">
+                                        <input type="text" name="Asset Name" ng-model="modelNewA.AssetName" class="form-control" required maxlength="50">
                                     </div>
                                 </div>
                             </div>
