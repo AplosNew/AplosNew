@@ -74,7 +74,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">SODetail</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetQBOQCostingData();" href="" data-toggle="tab">{{ModelNew.Level}}</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" data-toggle="tab">{{ModelNew.Level}}</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -88,7 +88,7 @@
                         <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Ref#" e-width="80"></div>
                         <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
                         <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
-                        <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
+                        <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="80"></div>
                         <div e-column e-type="string" e-field="SOArticle" e-headertext="Article" e-width="160px"></div>
                         @*<div e-column e-template="#SearchArticleTemplate" e-headertext="" e-width="32px"></div>*@
                         <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
@@ -104,6 +104,9 @@
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="BOQTotalCost" e-headertext="BOQTotalCost" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalVarianceCostingVsSO" e-headertext="TotalVarianceCostingVsSO" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalVarianceCostingVsBOQ" e-headertext="TotalVarianceCostingVsBOQ" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="PlanRate" e-headertext="PlanRate" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="PlantCost" e-headertext="PlantCost" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalSOCostVsTotalPlanCost" e-headertext="TotalSOCostVsTotalPlanCost" e-textalign="right" e-width="80"></div>
                     </div>
                 </div>
             </div>
@@ -117,16 +120,16 @@
                             <div e-column e-type="string" e-field="Item" e-headertext="Item" e-width="80"></div>
                             <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="80"></div>
                             <div e-column e-type="string" e-field="NetConsumptionPerUnit" e-headertext="Consumption" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="ValueLossPercentage" e-headertext="ValueLoss" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="ValueLoss" e-headertext="ValueLoss" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="GrossConsumption" e-headertext="GrossConsumption" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalConsumption" e-headertext="TotalConsumption" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-template="#AdditionReductionTemplate" e-field="AdditionReduction" e-headertext="AdditionReduction" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="PlanConsumption" e-headertext="PlanConsumption" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="TotaPlanlAmount" e-headertext="TotaPlanlAmount" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="180"></div>
                             <div e-column e-type="string" e-field="QBOQArticle" e-headertext="Article" e-width="200px"></div>
                             <div e-column e-template="#SearchArticleTemplate" e-headertext="Article" e-width="32px"></div>
-                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="180"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="StockRate" e-headertext="StockRate" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="ActualIssueAmount" e-headertext="ActualIssueAmount" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="string" e-field="Remarks" e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
@@ -149,9 +152,9 @@
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="PlanConsumption" e-headertext="PlanConsumption" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="TotaPlanlAmount" e-headertext="TotaPlanlAmount" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="180"></div>
                             <div e-column e-type="string" e-field="QBOQArticle" e-headertext="Article" e-width="200px"></div>
                             <div e-column e-template="#SearchArticleTemplate" e-headertext="Article" e-width="32px"></div>
-                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="180"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="StockRate" e-headertext="StockRate" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="ActualIssueAmount" e-headertext="ActualIssueAmount" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="string" e-field="Remarks" e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
