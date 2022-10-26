@@ -51,8 +51,7 @@ namespace Aplos.Areas.Materials.Controllers
             try
             {
                 string sql = @"SELECT M.*,E.EmployeeName ByWhom FROM [dbo].[MaterialIssueControlMaster] M
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
-Where ISNULL(M.IsApproved,0)=0";
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -100,6 +99,7 @@ Where ISNULL(M.IsApproved,0)=0";
 									,TotalVarianceCostingVsSO=(CEILING(SO.PlannedQty)*SDMC.[SOValue])-(CMC.TotalGrossAmount*CEILING(SO.PlannedQty))
 
 									,TotalVarianceCostingVsBOQ=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)-CMC.TotalGrossAmount*CEILING(SO.PlannedQty)
+                                    ,MIS.PlanRate,MIS.PlantCost,MIS.TotalSOCostVsTotalPlanCost
                                 FROM [dbo].[MaterialIssueControlSODetail] MIS 
 								 LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=MIS.SOId
                                LEFT JOIN (
