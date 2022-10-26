@@ -1856,11 +1856,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(MasterOrder.GetMasterOrderAmountAndQty(masterId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
-        public JsonResult CreatePackingDetail(Dictionary<string, object> data)
+        public JsonResult CreatePackingDetail(Dictionary<string, object> data,string MasterOrderId)
         {
             try
             {
-                MasterOrder.SavePackingDetailData(data);
+                MasterOrder.SavePackingDetailData(data, MasterOrderId);
 
                 return Json(new { Contract = data, Message = AplosMessage.Insert });
             }
@@ -1989,7 +1989,45 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 throw (ex);
             }
         }
+        
+        [HttpPost, Authorize]
+        public JsonResult CreatePackingType(Dictionary<string, object> data)
+        {
+            try
+            {
+                if (data != null)
+                {
 
+                    string _Id;
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("select * from dbo.PackingType where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    #region data update
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("PackingType", out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+                    #endregion data update
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         #endregion
 
         #region Copy SO
