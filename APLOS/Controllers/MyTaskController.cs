@@ -397,6 +397,22 @@ namespace Aplos.Controllers
 
             }
         }
+
+        [HttpPost]
+        [Route("api/MyTask/PostDetentionLog")]
+        public string PostDetentionLog([FromBody] IEnumerable<PostDetentionLog> DataSaveok)
+        {
+            try
+            {
+                string Id = _task.PostDetentionLog(DataSaveok);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion Detention save api By Aman
 
         [HttpPost]
