@@ -74,7 +74,7 @@
             <div class="col-xs-12 col-lg-3 col-md-3"></div>
             <ul class="list-inline text-right">
 
-                <li> <button ng-click="getMaterialArticleId()" class="btn" tabindex="11"><i class="glyphicon glyphicon-chevron-down"></i> View</button></li>
+                
                 <li> <button ng-click="Save();" class="btn" tabindex="11"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
 
             </ul>
@@ -112,7 +112,7 @@
                             <label class="col-sm-4 control-label">Order Level</label>
                             <div class="col-sm-6 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" ng-change="getMaterial();" ng-model="OrderLevel" required name="Order Level"
+                                    <select class="form-control" ng-model="OrderLevel" required name="Order Level"
                                             tabindex="2">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in EnumList" value="{{option.Value}}">{{option.Text}}</option>
@@ -143,7 +143,8 @@
                         <div class="col-xs-12 col-lg-3 col-md-3"></div>
                         <ul class="list-inline text-right">
 
-
+                            <li> <button ng-click="getMaterialArticleId()" class="btn" tabindex="11"><i class="glyphicon glyphicon-chevron-down"></i> View</button></li>
+                            @*<li> <button ng-click="sendItemApplicable();" class="btn" tabindex="11"><i class="glyphicon glyphicon-send"></i> Send</button></li>*@
                             <li> <button ng-click="SaveItemApplicable();" class="btn" tabindex="11"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
 
                         </ul>
@@ -168,13 +169,11 @@
                          e-responsive="true"
                          e-allowselection="true"
                          e-filtersettings-filterType="excel"
-                         e-templaterefresh="MaterialAllocationGridAllCheck"
+                         e-templaterefresh="refreshMaterialArticle"
                          e-allowtextwrap="true">
 
                         <div e-columns>
                             <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
-
-
                             <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="80"></div>
                             <div e-column e-headertext="Machine Applicable" e-template="#machineApplicableTempM" e-width="50"></div>
                             <div e-column e-headertext="Workcenter Applicable" e-template="#WorkcenterApplicableTempM" e-width="50"></div>
@@ -187,6 +186,7 @@
                     <script type="text/x-jsrender" id="headerTemplate">
                         <input type="checkbox" id="headchk" />
                     </script>
+                   
                     <script type="text/template" id="checkboxTemplate">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
                     </script>
@@ -205,22 +205,7 @@
 
                         </div>
                     </script>
-                    @*<script type="text/template" id="OrderLevelTempM">
-            <div class="form-group">
 
-                <div class="select-style">
-                    <select class="form-control" ng-model="SelectedOrderLevel" required name="Order Level"
-                            tabindex="2">
-                        <option value="">--Select--</option>
-                        <option value="LineItem">Line Item</option>
-                        <option value="ProductionOrder">Production Order</option>
-                        <option value="SalesOrder">Sales Order</option>
-
-                    </select>
-                </div>
-
-            </div>
-        </script>*@
 
                 </div>
 
@@ -235,11 +220,11 @@
                          e-responsive="true"
                          e-allowselection="true"
                          e-filtersettings-filterType="excel"
-                         e-templaterefresh="MaterialAllocationGridAllCheck"
+                         e-templaterefresh="refreshArticle"
                          e-allowtextwrap="true">
 
                         <div e-columns>
-                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
+                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplateB" e-template="#checkboxTemplateB" e-textalign="center" e-width="10"></div>
 
 
                             <div e-column e-field="ArticleName" e-headertext="Article" e-width="80"></div>
@@ -251,10 +236,10 @@
 
                         </div>
                     </div>
-                    <script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
+                    <script type="text/x-jsrender" id="headerTemplateB">
+                        <input type="checkbox" id="headchkB" />
                     </script>
-                    <script type="text/template" id="checkboxTemplate">
+                    <script type="text/template" id="checkboxTemplateB">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
                     </script>
                     <script type="text/template" id="machineApplicableTemp">
