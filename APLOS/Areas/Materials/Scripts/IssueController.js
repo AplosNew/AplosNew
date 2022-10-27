@@ -20,6 +20,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         return $scope.tab === tabNum;
     };
     // #endregion TAB CHANGE
+
     //  #region Objects
     $scope.ModelTemp = {
         Id: null,
@@ -80,6 +81,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     }
     $scope.getMaterial();
 
+    // #region get Define Enum
     $scope.EnumList = [];
     $scope.getEnum = function () {
         $http({
@@ -90,6 +92,8 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             $scope.EnumList = response.data;
         });
     }
+    $scope.getEnum();
+     // #endregion get Define Enum
 
     // #region ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
 
@@ -149,12 +153,13 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     };
     // #endregion save
 
+    // #region Send
     $scope.sendItemApplicable = function () {
         for (var i = 0; i < $scope.MaterialArticleList.length; i++) {
             $scope.MaterialArticleList[i].MachineApplicable = $scope.MachineApplicable;
-            $scope.MaterialArticleList[i].WorkcenterApplicable = $scope.WorkcenterApplicable;
-            $scope.MaterialArticleList[i].SelectedOrderLevel = $scope.OrderLevel;
-            /*$scope.SelectedOrderLevel=$scope.OrderLevel;*/
+            $scope.MaterialArticleList[i].WorkCenterApplicable = $scope.WorkCenterApplicable;
+            $scope.MaterialArticleList[i].OrderLevel = $scope.OrderLevel;
+            //$scope.SelectedOrderLevel=$scope.OrderLevel;
         }
         if ($scope.ModelNew.MaterialLevel == "Material") {
             var gridObj = $("#GridEdit").data("ejGrid");
@@ -168,8 +173,88 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         }
        
     }
+     // #endregion Send
+
+    // #region checkbox all for Material
+    
+    $scope.refreshMaterialArticle = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllMaterialArticle });
+    };
+
+    function CheckBoxSelectAllMaterialArticle(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#GridEdit").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.MaterialArticleList.length; i++) {
+                $scope.MaterialArticleList[i].chk = ChkOrUnchk;
+                $scope.MaterialArticleList[i].MachineApplicable = $scope.MachineApplicable;
+                $scope.MaterialArticleList[i].WorkCenterApplicable = $scope.WorkCenterApplicable;
+                $scope.MaterialArticleList[i].OrderLevel = $scope.OrderLevel;
+
+                if ($scope.MaterialArticleList[i].isSelected == true) {
+                    
+                    $scope.userMaterialArticleList.push($scope.MaterialArticleList[i]);
+                }
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+
+        }
+        var gridObj = $("#GridEdit").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+
+   // #endregion checkbox all
+
+    // #region checkbox all for Article
+
+    $scope.refreshArticle = function (args) {
+        $("#headchkB").ejCheckBox({ "change": CheckBoxSelectAllArticle });
+    };
+
+    function CheckBoxSelectAllArticle(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEditB").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.MaterialArticleList.length; i++) {
+                $scope.MaterialArticleList[i].chk = ChkOrUnchk;
+                $scope.MaterialArticleList[i].MachineApplicable = $scope.MachineApplicable;
+                $scope.MaterialArticleList[i].WorkCenterApplicable = $scope.WorkCenterApplicable;
+                $scope.MaterialArticleList[i].OrderLevel = $scope.OrderLevel;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEditB").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+
+   // #endregion checkbox all for Article
 
     // #region SAVE CHILD
+
+    // #region Save Item Applicable
     $scope.SaveItemApplicable = function () {
         
         $scope.$broadcast('show-errors-check-validity');
@@ -180,7 +265,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             data: {
                 'headerId': $scope.ModelNew.Id,
                 'machineApplicable': $scope.MachineApplicable,
-                'worckcenterApplicable': $scope.WorkcenterApplicable,
+                'worckcenterApplicable': $scope.WorkCenterApplicable,
                 'orderlevel': $scope.OrderLevel
                 
             },
@@ -199,7 +284,10 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         }
 
     };
+     // #endregion Save Item Applicable
+
     $scope.SaveIssueControlChild = function () {
+        // #region Commented
         if (baseService.arrayLength($scope.MaterialArticleList) > 0) {
             angular.forEach($scope.MaterialArticleList, function (a) {
 
@@ -214,31 +302,27 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
                     ob.MaterialType = a.MaterialType;
                     ob.MaterialTypeId = a.MaterialTypeId;
                     ob.MaterialgroupName = a.MaterialgroupName;
-                   
-                   
+                    ob.WorkCenterApplicable = a.WorkCenterApplicable;
+                    ob.MachineApplicable = a.MachineApplicable;
+                    ob.OrderLevel = a.OrderLevel;
                     ob.chk = a.chk;
-
                     ob.StorageBinMasterId = a.StorageBinMasterId;
-
                     $scope.userMaterialArticleList.push(ob);
                     ob = {};
                     a.chk = false;
                 }
             });
         }
+         // #endregion Commented
         
         $scope.$broadcast('show-errors-check-validity');
-        for (var i = 0; i < $scope.userMaterialArticleList.length; i++) {
-            $scope.userMaterialArticleList[i].MachineApplicable = $scope.MachineApplicable;
-            $scope.userMaterialArticleList[i].WorkcenterApplicable = $scope.WorkcenterApplicable;
-            $scope.userMaterialArticleList[i].OrderLevel = $scope.OrderLevel;
-        }
+        
         $http({
             method: 'POST',
             url: $scope.path + 'SaveChild',
             data: {
                 'headerId': $scope.ModelNew.Id,
-                'data': $scope.userMaterialArticleList,
+                'data': $scope.MaterialArticleList,
                 'materiallevel': $scope.ModelNew.MaterialLevel
                 
             },
@@ -259,6 +343,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     };
     // #endregion SAVE CHILD
 
+    // #region Get Issue save Data
     $scope.GetIssue = function () {
         $http({
             method: 'POST',
@@ -269,7 +354,9 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
     $scope.GetIssue();
+    // #endregion Get Issue save Data
 
+    // #region Double tab on row
     $scope.Get = function (args) {
         $scope.ModelNew.Id = args.data.Id;
         $scope.ModelNew = Object.assign({}, args.data);
@@ -281,6 +368,9 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
         }
     };
+     // #endregion Double tab on row
+
+    // #region Clear
 
     $scope.Clear = function () {
         ClearFields();
@@ -296,7 +386,9 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
+    // #endregion Clear
 
+    // #region Hide & show Material/Article
     $scope.hideshow = function () {
         var id = document.getElementById("ArticleId");
        
@@ -314,4 +406,36 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
         }
     }
+    // #endregion Hide & show Material/Article
+
+    // #region MAObject
+    $scope.MAObject = {
+        Id: null,
+        WorkCenterApplicable: false,
+        MachineApplicable: false,
+        OrderLevel: null,
+        
+    }
+     // #endregion MAObject
+
+    // #region Item Applicable Pop Up
+    $scope.openItemApplicablePopUp = function (obj) {
+        $scope.MAObject = obj.data;
+        angular.element(document.querySelector('#itemApplicablePopUpid')).modal('show');
+    }
+
+    $scope.closeItemApplicablePopUp = function () {
+        angular.element(document.querySelector('#itemApplicablePopUpid')).modal('hide');
+        if ($scope.ModelNew.MaterialLevel == "Material") {
+            var gridObj = $("#GridEdit").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        }
+        else {
+            var gridObj = $("#GridEditB").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        }
+    }
+    // #endregion Item Applicable Pop Up
 }

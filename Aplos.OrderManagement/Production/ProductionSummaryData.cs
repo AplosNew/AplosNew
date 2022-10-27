@@ -1793,11 +1793,12 @@ namespace Library.OrderManagement.Production
                 //            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId
                 //            ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
 
-                string sql = @"SELECT PlannedQty=CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE PQ.Qty END
-                            ,(CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE PQ.Qty END-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
+                string sql = @"SELECT PlannedQty=CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PSP.Qty)) ELSE PQ.Qty END
+                            ,(CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PSP.Qty)) ELSE PQ.Qty END-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
                             , ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
                             FROM trn.ProductionOrder AS PO
                             LEFT JOIN TRN.ProductionOrderProcessSet PQ ON PQ.ProductionOrderID=PO.Id AND PQ.ProcessId='" + processId + @"'
+							LEFT JOIN ProductionOrderSchedulingParametersType1 PSP ON PSP.ProductionOrderID=PO.Id
                             LEFT JOIN 
                             (SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
                             FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId
@@ -1872,7 +1873,8 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
                 {
                     sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text]
 							FROM HKP.EntityProcessTag AS EP
-                            JOIN HKP.Process AS P ON EP.ProcessId=P.Id '" + entityId + @"' AND P.Active=1 ";
+                            JOIN HKP.Process AS P ON EP.ProcessId=P.Id 
+                            where EP.EntityId in (" + entityId + @") AND P.Active=1 ";
                 }
                
                 return _sqlRepository.GetDataCollection(sql, null);

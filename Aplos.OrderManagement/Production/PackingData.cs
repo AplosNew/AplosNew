@@ -1216,6 +1216,40 @@ WHERE  PLI.PackingId ='"+ packingId + "' ORDER BY MMA.StandardName";
             }
         }
 
+        public DataTable GetFinishedGoodsPackingReport(string ToDate, string FromDate)
+        {
+            try
+            {
+                var str = @"select distinct CASE WHEN R.PurposeId = 'MP4' THEN 'Fresh Production'
+WHEN R.PurposeId = 'MP10' THEN 'Re-Pack Production' END AS 'PROD_TYPE',
+S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.Shade, S.AddedBy, ISM.WorkDate, S.AddedDate, M.StandardName, R.FromLocation, R.ToLocation 
+FROM ItemScanChild S 
+LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
+LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
+WHERE R.PurposeId IN('MP4','MP10') AND ISM.WorkDate between '"+ FromDate + @"' and '"+ ToDate + @"'
+union all
+select distinct CASE WHEN R.PurposeId = 'MP4' THEN 'Fresh Production'
+WHEN R.PurposeId = 'MP10' THEN 'Re-Pack Production' END AS 'PROD_TYPE',
+S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.Shade, S.AddedBy, ISM.WorkDate, S.AddedDate, M.StandardName, R.FromLocation, R.ToLocation 
+FROM ItemScanChildHistory S 
+LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
+LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
+WHERE R.PurposeId IN('MP4','MP10') AND ISM.WorkDate between '"+ FromDate + @"' and '"+ ToDate + @"'
+";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public DataTable getAllFinishedStocksReport(string Loc , string ToDate , string FromDate)
         {
             try

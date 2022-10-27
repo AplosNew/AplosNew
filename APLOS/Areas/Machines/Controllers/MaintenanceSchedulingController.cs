@@ -41,6 +41,56 @@ namespace Aplos.Areas.Machines.Controllers
 
         #region -- Operations
 
+        [Authorize, HttpGet]
+        public decimal GetItemAutoSequence()
+        {
+            try
+            {
+                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM TRN.MaintenanceItem");
+                if (dt.Rows.Count > 0)
+                    return (decimal)clsStaticInfo.dbl(dt.Rows[0]["SNO"].ToString()) + 1;
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                return 1.00M;
+            }
+        }
+
+        [Authorize, HttpGet]
+        public decimal GetStoresAutoSequence()
+        {
+            try
+            {
+                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM TRN.MaintenanceStoresConsumable");
+                if (dt.Rows.Count > 0)
+                    return (decimal)clsStaticInfo.dbl(dt.Rows[0]["SNO"].ToString()) + 1;
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                return 1.00M;
+            }
+        }
+
+        [Authorize, HttpGet]
+        public decimal GetPersonBudgetAutoSequence()
+        {
+            try
+            {
+                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM TRN.MaintenancePersonBudgetCode");
+                if (dt.Rows.Count > 0)
+                    return (decimal)clsStaticInfo.dbl(dt.Rows[0]["SNO"].ToString()) + 1;
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                return 1.00M;
+            }
+        }
 
         [HttpPost, Authorize]
         public JsonResult Create(Dictionary<string, object> ScheduleData)
@@ -429,7 +479,7 @@ MM.UserName as MachineName,MA.AssetCode,E.UserName as Entity,MA.EntityId
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT *,
 (select EmployeeName from EmployeeInformation where SystemId=ByWhomId) as ByWhom
-FROM [TRN].[MaintenanceItem] where MaintenanceSchedulingId ='" + ScheduleId + "'";
+FROM [TRN].[MaintenanceItem] where MaintenanceSchedulingId ='" + ScheduleId + "' order by SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
@@ -446,7 +496,7 @@ FROM [TRN].[MaintenanceItem] where MaintenanceSchedulingId ='" + ScheduleId + "'
             string sql = @"SELECT *,
 (select UserName from SCS.UnitOfMeasurement where Active=1 and Id=UOMId) as UOM,
 (select StandardName from MST.MaterialMasterArticle where Id=ArticleId) as Article
-FROM [TRN].[MaintenanceStoresConsumable] where MaintenanceSchedulingId ='" + ScheduleId + "'";
+FROM [TRN].[MaintenanceStoresConsumable] where MaintenanceSchedulingId ='" + ScheduleId + "' order by SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
@@ -463,7 +513,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            where MPB.MaintenanceSchedulingId ='" + ScheduleId + "'";
+                            where MPB.MaintenanceSchedulingId ='" + ScheduleId + "' order by MPB.SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]

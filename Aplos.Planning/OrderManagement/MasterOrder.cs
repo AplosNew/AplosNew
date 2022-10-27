@@ -648,12 +648,14 @@ namespace Library.Planning.OrderManagement
             dr.EndEdit();
         }
 
-        public void SavePackingDetailData(Dictionary<string, object> data)
+        public void SavePackingDetailData(Dictionary<string, object> data,string MasterOrderId)
         {
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM trn.MasterOrder WHERE Id='" + MasterOrderId + "'", out dsMaster, false, "1");
+
                 con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PackingDetail] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
@@ -665,19 +667,17 @@ namespace Library.Planning.OrderManagement
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PackingDetaial", out _Id);
 
                     data["Id"] = "PD" + _Id;
-                    //data["LineItem"] = dsMaster["LineItem"];
+                    data["MasterOrderId"] = MasterOrderId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
-                    //data["PlantId"] = identity.PlantId;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster);
-
             }
             catch (Exception ex)
             {
@@ -924,11 +924,12 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetPackingDetail()
+        public IEnumerable<object> GetPackingDetail(string masterOderId)
         {
             string sql = @"select PD.*,EI.EmployeeName ResponsiblePerson
                                 from PackingDetail PD
-                                left join EmployeeInformation EI on EI.SystemId=PD.ResponsiblePersonId";
+                                left join EmployeeInformation EI on EI.SystemId=PD.ResponsiblePersonId
+                                where PD.MasterOrderId= '" + masterOderId + "'";
             return _sqlRepository.GetDataCollection(sql);
         }
 

@@ -6,10 +6,9 @@ function MaterialIssueControlApprovalController(cboService, commonMessage, $scop
     $scope.index = -1;
     $scope.SOItemList = [];
     $scope.path = 'Materials/MaterialIssueControl/';
-   
+    $scope.saveUrl = $scope.path + 'CreateApprove';
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
-
   
     $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
 
@@ -30,7 +29,47 @@ function MaterialIssueControlApprovalController(cboService, commonMessage, $scop
     };
     $scope.GetData();
 
+    $scope.SOItemList = [];
+    $scope.GetSavedSODetailData = function () {
+        $scope.SOItemList = [];
+        $http.get('Materials/MaterialIssueControl/GetSavedSODetailData?masterId='+$scope.ModelNew.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.SOItemList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
 
+    };
+
+    $scope.QBOQCostingList = [];
+    $scope.GetSavedDetailData = function () {
+        $scope.QBOQCostingList = [];
+        $http.get('Materials/MaterialIssueControl/GetSavedDetailData?masterId=' + $scope.ModelNew.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.QBOQCostingList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    };
+
+    $scope.Get = function (obj) {
+        $scope.ModelNew = Object.assign({}, obj.data);
+        $scope.Action = 'Update';
+        $scope.GetSavedSODetailData();
+        $scope.GetSavedDetailData();
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
 
     $scope.getArticle = function (data) {
         $scope.SelectedMaterial = data;

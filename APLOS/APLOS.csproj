@@ -783,6 +783,7 @@
     <Compile Include="Areas\Productions\Controllers\EmployeeTimeOutController.cs" />
     <Compile Include="Areas\Productions\Controllers\FGInventoryStockReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\FinalPackDefinitionController.cs" />
+    <Compile Include="Areas\Productions\Controllers\FinishedGoodsPackingReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
@@ -2223,6 +2224,7 @@
     <Content Include="Areas\Productions\Scripts\EmployeeTimeOutController.js" />
     <Content Include="Areas\Productions\Scripts\FGInventoryStockReportController.js" />
     <Content Include="Areas\Productions\Scripts\FinalPackDefinitionController.js" />
+    <Content Include="Areas\Productions\Scripts\FinishedGoodsPackingReportController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataMasterController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
@@ -4363,11 +4365,13 @@
     <Content Include="Areas\HumanResource\Views\MedicineCategory\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\SpecialIssueControlRegister\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\IssueControl\_ItemApplicablePopUp.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Approval.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Issue.cshtml" />
     <Content Include="Areas\Machines\Views\SpecialIssueControlReport\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\Incentive\IncentiveReceivable.cshtml" />
     <Content Include="Areas\Materials\Views\StorageBinAllocation\_BinAllocationPopUp.cshtml" />
+    <Content Include="Areas\Productions\Views\FinishedGoodsPackingReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

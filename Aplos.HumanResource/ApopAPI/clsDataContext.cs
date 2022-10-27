@@ -440,7 +440,64 @@ namespace HRService
                 objCon = null;
             }
         }
+        #region Aman
+        public void GetDetentionLogDetail(out List<GetDetentionLog> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<GetDetentionLog>();
 
+            System.Data.DataSet dsRef;
+            try
+            {
+                #region cmnt
+
+
+                strSQL = @"select * from TRN.MobileDetentionLog where isClose = 0";
+                #endregion cmnt
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new GetDetentionLog
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        WorkCenter = dsRef.Tables[0].Rows[i]["WorkCenter"].ToString(),
+                        DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
+                        LoginTime = dsRef.Tables[0].Rows[i]["LoginTime"].ToString(),
+                        LogoutTime = dsRef.Tables[0].Rows[i]["LogoutTime"].ToString(),
+                        IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
+                        ResponsiblePersonName = dsRef.Tables[0].Rows[i]["ResponsiblePersonName"].ToString(),
+                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                        ContactNo = dsRef.Tables[0].Rows[i]["ContactNo"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
+                        DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
+                        isClose = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["DetentionTypeId"]),
+                        MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
+                        MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
+                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                        AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        UpdatedBy = dsRef.Tables[0].Rows[i]["UpdatedBy"].ToString(),
+                        UpdatedFromIP = dsRef.Tables[0].Rows[i]["UpdatedFromIP"].ToString(),
+                        UpdatedDate = dsRef.Tables[0].Rows[i]["UpdatedDate"].ToString(),
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        #endregion Aman
         public void GetMachineMasterAsset(out List<MachineMasterList> DataList)
         {
             clsConnectionManager objCon = null;
@@ -1190,6 +1247,32 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public bool isClose { get; set; }
         public string MachineMaster { get; set; }
         public string ProcessId { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedFromIP { get; set; }
+        public string AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+    }
+
+    public class GetDetentionLog
+    {
+
+        public string Id { get; set; }
+        public string WorkCenter { get; set; }
+        public string DetentionType { get; set; }
+        public string LoginTime { get; set; }
+        public string IssueByNo { get; set; }
+        public string ResponsiblePersonName { get; set; }
+        public string ResponsiblePersonId { get; set; }
+        public string ContactNo { get; set; }
+        public string Remarks { get; set; }
+        public string WorkCenterId { get; set; }
+        public string DetentionTypeId { get; set; }
+        public bool isClose { get; set; }
+        public string MachineMaster { get; set; }
+        public string LogoutTime { get; set; }
+        public string MachineMasterId { get; set; }
         public string AddedBy { get; set; }
         public string AddedFromIP { get; set; }
         public string UpdatedFromIP { get; set; }

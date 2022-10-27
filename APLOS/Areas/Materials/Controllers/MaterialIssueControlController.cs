@@ -51,8 +51,123 @@ namespace Aplos.Areas.Materials.Controllers
             try
             {
                 string sql = @"SELECT M.*,E.EmployeeName ByWhom FROM [dbo].[MaterialIssueControlMaster] M
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
-Where ISNULL(M.IsApproved,0)=0";
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedSODetailData(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,MIS.Id
+	                                ,ISNULL(so.Id,'') SOId
+	                                ,SO.CustomerPOId
+	                                ,CPO.PONumber
+	                                ,mm.Id MaterialMasterId
+	                                ,mm.UserName MaterialMaster
+									,mma.Id ArticleId
+	                                ,ISNULL(mma.StandardName, '') SOArticle
+									,b.Id CustomerId
+	                                ,b.UserName Customer
+	                                ,mo.TotalQty MOQty
+	                                ,ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage [ExtraP]
+	                                ,moi.OrderWastagePercentage [WastageP]
+	                                ,ISNULL(mma.Id, '') ArticleId
+	                                ,mmc.CharCount
+	                                ,ISNULL(POD.ProductionOrderId, '') POId
+                                    ,CBI.CostingBOQMasterId
+                                    ,moi.OrderCostingMasterTemplateId
+	                                ,B.UserName Buyer
+	                                ,PM.UserName AS ProductMasterName
+									,PC.UserName AS ProductCategory
+	                                ,CEILING(SO.PlannedQty) PlannedQty
+                                    ,SO.Description,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
+
+									,DMC.[Value] ItemMaterialCost,SDMC.[SOValue] SOMaterialCost,CMC.TotalGrossAmount CostingMaterialCost
+
+									,ISNULL(QBOQ.BOQMaterialCost,0) BOQMaterialCost,SOTotalMaterailCost=CEILING(SO.PlannedQty)*SDMC.[SOValue]
+
+									,CostingTotalMaterialCost=CMC.TotalGrossAmount*CEILING(SO.PlannedQty),BOQTotalCost=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)
+
+									,TotalVarianceCostingVsSO=(CEILING(SO.PlannedQty)*SDMC.[SOValue])-(CMC.TotalGrossAmount*CEILING(SO.PlannedQty))
+
+									,TotalVarianceCostingVsBOQ=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)-CMC.TotalGrossAmount*CEILING(SO.PlannedQty)
+                                    ,MIS.PlanRate,MIS.PlantCost,MIS.TotalSOCostVsTotalPlanCost
+                                FROM [dbo].[MaterialIssueControlSODetail] MIS 
+								 LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=MIS.SOId
+                               LEFT JOIN (
+	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                FROM trn.SalesOrder AS s
+	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                ) so ON POD.SalesOrderId = SO.Id
+                                LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN [dbo].[CostingBOQItems] CBI ON CBI.SalesOrderId=SO.Id
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN (SELECT COUNT(Id) CharCount, MaterialMasterId	FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+	                                ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+								left join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+                                LEFT JOIN (SELECT PS.UserName, PO.Id ProductionOrderId FROM [HKP].[ProductionStatus] PS
+	                                INNER JOIN TRN.ProductionOrder PO ON PO.ProductionStatusId = PS.Id
+	                                ) OS ON OS.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN TRN.ProductionOrder PO ON PO.Id = POD.ProductionOrderId
+                                LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
+                                LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id
+                                LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+								LEFT JOIN(SELECT distinct MI.Id,MC.UserName,MC.[Value] 
+														FROM  dbo.MasterOrderItemCostingRate MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														LEFT JOIN TRN.MasterOrderItem MI ON MI.Id=MC.MasterOrderItemId
+														WHERE OLC.SOItemName='DirectMaterialCost') DMC ON DMC.Id=MOI.Id
+								LEFT JOIN(SELECT distinct MC.SalesOrderId,MC.UserName,MC.[SOValue] 
+														FROM  dbo.SOCostingConfirmation MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														WHERE OLC.SOItemName='DirectMaterialCost') SDMC ON SDMC.SalesOrderId=so.Id
+LEFT JOIN(SELECT pc.OrderCostingMasterTemplateId,SUM(pc.GrossAmount)AS TotalGrossAmount FROM OrderProcurementCostingDirectMaterial AS pc  
+INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial'
+GROUP BY PC.OrderCostingMasterTemplateId) CMC ON CMC.OrderCostingMasterTemplateId=MOI.OrderCostingMasterTemplateId
+
+LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost,Q.MasterOrderItemId FROM [dbo].[QuickBOQ] Q
+INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
+inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
+
+                                WHERE MIS.MaterialIssueControlMasterId='" + masterId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedDetailData(string masterId)
+        {
+            try
+            {
+                string sql = @"select D.*,D.CostingItemId,I.UserName Item,A.StandardName QBOQArticle,A.Id AtricleId,M.Id MaterialMasterId
+,M.UserName MaterialMaster from dbo.MaterialIssueControlDetail D 
+INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
+LEFT JOIN MST.MaterialMaster M ON M.Id=D.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.AtricleId
+Where D.MaterialIssueControlMasterId='" + masterId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -180,7 +295,7 @@ Where ISNULL(M.IsApproved,0)=0";
 													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
                                                     group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE PO.entityid='" + entityid + @"' AND S.UserName<>'Closed' AND PO.Id NOT IN(SELECT POId  FROM [dbo].[MaterialIssueControlMaster])) AS TEMP WHERE " + strkey + " ORDER BY ProductionPriority";
+                            WHERE PO.entityid='" + entityid + @"' AND S.UserName<>'Closed') AS TEMP WHERE " + strkey + " ORDER BY ProductionPriority";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -195,7 +310,7 @@ Where ISNULL(M.IsApproved,0)=0";
 	                                ,mm.Id MaterialMasterId
 	                                ,mm.UserName MaterialMaster
 									,mma.Id ArticleId
-	                                ,ISNULL(mma.StandardName, '') Article
+	                                ,ISNULL(mma.StandardName, '') SOArticle
 									,b.Id CustomerId
 	                                ,b.UserName Customer
 	                                ,mo.TotalQty MOQty
@@ -222,6 +337,7 @@ Where ISNULL(M.IsApproved,0)=0";
 									,TotalVarianceCostingVsSO=(CEILING(SO.PlannedQty)*SDMC.[SOValue])-(CMC.TotalGrossAmount*CEILING(SO.PlannedQty))
 
 									,TotalVarianceCostingVsBOQ=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)-CMC.TotalGrossAmount*CEILING(SO.PlannedQty)
+                                    ,0 PlanRate,0 PlantCost,0 TotalSOCostVsTotalPlanCost
                                 FROM TRN.ProductionOrderDetail POD
                                LEFT JOIN (
 	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
@@ -439,6 +555,115 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
             }
         }
 
+        [HttpPost]
+        public JsonResult CreateApprove(Dictionary<string, object> model, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList)
+        {
+            try
+            {
+                SaveApproveData(model, soList, dataList);
+                return Json(new { Data = model, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
+        private void SaveApproveData(Dictionary<string, object> data, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsChild, dsSOChild;
+            string _Id = string.Empty;
+            try
+            {
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlMaster WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("MaterialIssueControlMaster", out _Id);
+
+                    data["Id"] = "M" + _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    data["IsApproved"] = true;
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+
+                _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #region MaterialIssueControlSODetail 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlSODetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsSOChild, false, "1");
+                int socount = 0;
+                if (soList != null)
+                {
+                    foreach (var item in soList)
+                    {
+                        socount++;
+                        DataView dv = new DataView(dsSOChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _Id + "-" + socount;
+                            item["MaterialIssueControlMasterId"] = _Id;
+                            item["SOQty"] = item["PlannedQty"];
+
+                            AddNewRow(dsSOChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                #region MaterialIssueControlDetail 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlDetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsChild, false, "1");
+                int ccount = 0;
+                if (dataList != null)
+                {
+                    foreach (var item in dataList)
+                    {
+                        ccount++;
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _Id + "-" + ccount;
+                            item["MaterialIssueControlMasterId"] = _Id;
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsSOChild, dsChild);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -501,7 +726,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         {
             string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,Q.UoM,Q.Consumption NetConsumptionPerUnit,Q.ValueLoss,Q.GrossConsumption,
  TotalConsumption=Q.GrossConsumption*SO.Qty,SO.Qty, 0 AdditionReduction,0 PlanConsumption
- ,Q.Rate,0 TotaPlanlAmount,A.StandardName Atricle,A.Id AtricleId,M.Id MaterialMasterId,M.UserName MaterialMaster,ISNULL(SR.StockRate,0)StockRate,0 ActualIssueAmount, NULL Remarks
+ ,Q.Rate,0 TotaPlanlAmount,A.StandardName QBOQArticle,A.Id AtricleId,M.Id MaterialMasterId,M.UserName MaterialMaster,ISNULL(SR.StockRate,0)StockRate,0 ActualIssueAmount, NULL Remarks
  FROM OrderProcurementCostingDirectMaterial AS Q  
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial'
@@ -524,7 +749,7 @@ Where SO.Id " + soId + "";
         public ActionResult GetQBOQDataList(string soId)
         {
             string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,U.Code UoM,Q.NetConsumptionPerUnit,Q.ValueLossPercentage ValueLoss,Q.GrossConsumption,SO.Qty
-,TotalConsumption=Q.GrossConsumption*SO.Qty, 0 AdditionReduction,0 PlanConsumption,Q.MaterialCostPerUnit Rate,0 TotaPlanlAmount,A.StandardName Atricle,A.Id AtricleId,M.Id MaterialMasterId
+,TotalConsumption=Q.GrossConsumption*SO.Qty, 0 AdditionReduction,0 PlanConsumption,Q.MaterialCostPerUnit Rate,0 TotaPlanlAmount,A.StandardName QBOQArticle,A.Id AtricleId,M.Id MaterialMasterId
 ,M.UserName MaterialMaster,ISNULL(SR.StockRate,0)StockRate,0 ActualIssueAmount, NULL Remarks
 FROM [dbo].[QuickBOQ] Q
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
