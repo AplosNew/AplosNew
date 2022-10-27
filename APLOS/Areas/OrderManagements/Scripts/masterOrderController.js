@@ -4961,7 +4961,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.SOItemList = [];
     $scope.GetSOPopUp = function () {
         $scope.SOItemList = [];
-        $http.get('OrderManagements/MasterOrder/GetSOData')
+        $http.get('OrderManagements/MasterOrder/GetSOData?lineItem=' + $scope.modelNewPD.MasterOrderItemId)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -5080,6 +5080,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.ModelPT = {
         Id: null,
         PackingCode: null,
+        PackingTypeId: null,
         PackingType: null,
         CustomerRefCode: null,
         Remarks: null
@@ -5119,13 +5120,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-    $scope.PackingTypeList = [];
+    $scope.PackingTypeListData = [];
     $scope.GetSavedPackingType = function (packingDetailId) {
-        $scope.PackingTypeList = [];
+        $scope.PackingTypeListData = [];
         $http.get('OrderManagements/MasterOrder/GetSavedPackingType?PackingDetailId=' + packingDetailId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
-                    $scope.PackingTypeList = response.data;
+                    $scope.PackingTypeListData = response.data;
                 }
             });
     }

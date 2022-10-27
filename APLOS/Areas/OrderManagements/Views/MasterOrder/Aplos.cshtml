@@ -3774,6 +3774,8 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
+                                <th>Master Order No</th>
+                                <th>Master Order Item Id</th>
                                 <th>Material Master</th>
                                 <th>Article</th>
                                 <th>PO Number</th>
@@ -3784,8 +3786,6 @@
                                 <th>SO Qty</th>
                                 <th>Booked Qty</th>
                                 <th>Remaining Qty</th>
-                                <th>Master Order No</th>
-                                <th>Master Order Item Id</th>
                                 <th>PO No</th>
                                 <th>Own Ord#</th>
                                 <th>Own Item#</th>
@@ -3796,6 +3796,8 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="x in itemListData" ng-dblclick="closeItemListPopUp(x)">
+                                <td>{{x.MasterOrderNo}}</td>
+                                <td>{{x.MasterOrderItemId}}</td>
                                 <td>{{x.MaterialMaster}}</td>
                                 <td>{{x.Article}}</td>
                                 <td>{{x.PONumber}}</td>
@@ -3806,8 +3808,6 @@
                                 <td>{{x.PlannedQty}}</td>
                                 <td>{{x.TotalProductionQty}}</td>
                                 <td>{{x.RemainingQty}}</td>
-                                <td>{{x.MasterOrderNo}}</td>
-                                <td>{{x.MasterOrderItemId}}</td>
                                 <td>{{x.POId}}</td>
                                 <td>{{x.OwnOrder}}</td>
                                 <td>{{x.OwnItem}}</td>
@@ -4109,7 +4109,7 @@
                                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                             <div e-columns>
-                                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsSO" e-width="2"></div>
+                                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsSO" e-width="1"></div>
                                                 <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
                                                 <div e-column e-field="SOId" e-headertext="SONo" e-width="5"></div>
                                                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
@@ -4139,10 +4139,21 @@
                                         </div>
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-6">
-                                        <div class="form-group">
+                                        @*<div class="form-group">
                                             <label class="col-sm-4 control-label">Packing Type</label>
                                             <div class="col-sm-8">
                                                 <input type="text" name="CM" ng-model="ModelPTNew.PackingType" class="form-control" tabindex="113">
+                                            </div>
+                                        </div>*@
+
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Packing Type<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select name="PackingType" class="form-control" ng-model="ModelPTNew.PackingTypeId" ng-options="item.Value as item.Text for item in packingTypeList" required tabindex="105" ng-change="GetSOBookedQtyAndLevel(soModel.Id);">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -4160,7 +4171,7 @@
                                         </ul>
                                     </div>
                                     <div class="col-xs-12">
-                                        <div id="GridSO" ej-grid e-datasource="PackingTypeList" e-recorddoubleclick="GetPT"
+                                        <div id="GridSO" ej-grid e-datasource="PackingTypeListData" e-recorddoubleclick="GetPT"
                                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                             <div e-columns>

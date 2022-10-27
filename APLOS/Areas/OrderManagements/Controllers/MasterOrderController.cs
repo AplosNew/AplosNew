@@ -1936,13 +1936,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetSOData()
+        public ActionResult GetSOData(string lineItem)
         {
             try
             {
-                JsonResult json = Json(_productionSummaryData.GetSOData(), JsonRequestBehavior.AllowGet);
-                json.MaxJsonLength = int.MaxValue;
-                return json;
+                return Json(MasterOrder.GetSOData(lineItem), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -2022,12 +2020,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     string _Id;
                     DataSet dsMaster;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                    con.OpenDataSetThroughAdapter("select * from dbo.PackingType where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from dbo.PackingTypeChild where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                     #region data update
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("PackingType", out _Id);
+                        genid.GenID("PackingTypeChild", out _Id);
 
                         data["Id"] = _Id;
                         AddNewRow(dsMaster.Tables[0], data);
@@ -2054,7 +2052,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSavedPackingType(string PackingDetailId)
         {
-            string sql = @"select * from  [dbo].[PackingType] Where PackingDetailId='" + PackingDetailId + "'";
+            string sql = @"select PTC.*,PT.UserName PackingType 
+                                from  [dbo].[PackingTypeChild] PTC
+                                left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId
+                                Where PackingDetailId='" + PackingDetailId + "'";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
@@ -2071,7 +2072,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("delete from dbo.PackingType where Id='" + id + "'");
+                con.executeQuery("delete from dbo.PackingTypeChild where Id='" + id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
