@@ -305,5 +305,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionSummary/Report',
             controller: 'ProductionSummaryReportController'
         })
+        .when('/finished-goods-packing-report', {
+            templateUrl: 'Productions/FinishedGoodsPackingReport/Aplos',
+            controller: 'FinishedGoodsPackingReportController'
+        })
         ;
 }

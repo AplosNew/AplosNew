@@ -1,0 +1,40 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="row form-elements form-horizontal">
+            <div class="col-xs-5">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="From Date" ng-model="FromDate" datepicker class="form-control" tabindex="4">
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-5">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="To Date" ng-model="ToDate" datepicker class="form-control" tabindex="4">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-2">
+                <div class="common-btn" style="margin-top:10px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="getFinishedStocksReport();" class="btn"><i class="glyphicon glyphicon-download"></i> Report </button></li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    
+</div>

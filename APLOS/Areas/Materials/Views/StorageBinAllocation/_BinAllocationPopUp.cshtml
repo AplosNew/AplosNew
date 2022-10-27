@@ -1,0 +1,42 @@
+﻿<style>
+	.modellgModify {
+		width: 800px;
+	}
+</style>
+<div class="modal fade site-modal in" id="binAllocationPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content" style="overflow:scroll">
+            <div class="modal-header" style="width:1960px;"> Material Stock<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div id="GridEditB" ej-grid e-datasource="binMasterList" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" 
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="BinAllocationGridAllCheck">
+                        <div e-columns>
+                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplateB" e-template="#checkboxTemplateB" e-textalign="center" e-width="20"></div>
+                            <div e-column e-field="StorageBinMaster" e-headertext="StorageBinMaster" e-width="80" e-filter="false"></div>
+                            <div e-column e-field="StorageLocation" e-headertext="Material Storage" e-width="80"></div>
+                            <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80" textAlign='Left'></div>
+                            <div e-column e-field="MaterialGroup" e-headertext="Material Group" e-width="80" textAlign='Left'></div>
+                            <div e-column e-field="MaterialName" e-headertext="Material " e-width="80" textAlign='Left'></div>
+                            <div e-column e-field="AccessType" e-headertext="AccessType " e-width="80" textAlign='Left'></div>
+                        </div>
+                    </div>
+                    <script type="text/x-jsrender" id="headerTemplateB">
+                        <input type="checkbox" id="headchkB" />
+                    </script>
+
+                    <script type="text/template" id="checkboxTemplateB">
+
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.check" e-value="data.check" />
+                    </script>
+                </div>
+                <div class="common-btn" style="margin-top:10px">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseBinAllocationPopUp();" class="btn cmn-btn" tabindex="9"><i class="glyphicon glyphicon-folder-close"></i>Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
