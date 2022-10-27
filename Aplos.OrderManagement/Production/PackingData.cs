@@ -1219,26 +1219,26 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
         {
             try
             {
-                var str = @"select distinct CASE WHEN R.PurposeId = 'MP4' THEN 'Fresh Production'
-WHEN R.PurposeId = 'MP10' THEN 'Re-Pack Production' END AS 'PROD_TYPE',
+                var str = @"select distinct MP.UserName AS 'PROD_TYPE',
 S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
 S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation 
 FROM ItemScanChild S 
 LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
 LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
 LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
-LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
 WHERE R.PurposeId IN('MP4','MP10') AND ISM.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
 union all
-select distinct CASE WHEN R.PurposeId = 'MP4' THEN 'Fresh Production'
-WHEN R.PurposeId = 'MP10' THEN 'Re-Pack Production' END AS 'PROD_TYPE',
+select distinct MP.UserName AS 'PROD_TYPE',
 S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
 S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation 
 FROM ItemScanChildHistory S 
 LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
 LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
 LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
-LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
 WHERE R.PurposeId IN('MP4','MP10') AND ISM.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
 ";
                 dtOrder = _sqlRepository.GetDataTable(str);
