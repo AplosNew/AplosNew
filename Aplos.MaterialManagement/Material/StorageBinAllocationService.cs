@@ -125,7 +125,7 @@ namespace Library.MaterialManagement.Material
             {
                 var sql = @"
                         select BAH.Id,BAH.UserName ,SBM.UserName StorageBinMaster,MS.UserName StorageLocation,MT.UserName MaterialType,MGM.UserName MaterialGroup
-	                    ,MM.UserName MaterialName,BAH.MaterialMasterId,BAH.StorageLocationId,BA.StorageBinMasterId,BAH.AccessType 
+	                    ,MM.UserName MaterialName,BAH.MaterialMasterId,BAH.StorageLocationId,BA.StorageBinMasterId,BAH.AccessType ,0 [check]
 	                    FROM TRN.BinAllocationHead BAH 
 	                    LEFT JOIN TRN.BinAllocation BA ON BA.BinAllocationHeadId=BAH.Id
 	                    LEFT JOIN MST.StorageBinMaster SBM ON SBM.Id=ba.StorageBinMasterId
@@ -133,7 +133,7 @@ namespace Library.MaterialManagement.Material
 	                    LEFT JOIN HKP.MaterialType MT ON MT.Id=BAH.MaterialTypeId
 	                    LEFT JOIN MST.MaterialMaster MM ON MM.Id=BAH.MaterialMasterId
 	                    LEFT JOIN MST.MaterialGroupMaster MGM ON MGM.Id=BAH.MaterialGroupMasterId
-	                    where BAH.MaterialMasterId='"+ materialMasterId + "' AND BAH.StorageLocationId='"+ materialStorageId + @"' ";
+	                    where BAH.MaterialMasterId='" + materialMasterId + "' AND BAH.StorageLocationId='"+ materialStorageId + @"' ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
