@@ -42,11 +42,11 @@ namespace Aplos.Areas.Machines.Controllers
         #region -- Operations
 
         [Authorize, HttpGet]
-        public decimal GetItemAutoSequence()
+        public decimal GetItemAutoSequence(string scheduleId)
         {
             try
             {
-                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM TRN.MaintenanceItem");
+                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM TRN.MaintenanceItem where MaintenanceSchedulingId='" + scheduleId + "'");
                 if (dt.Rows.Count > 0)
                     return (decimal)clsStaticInfo.dbl(dt.Rows[0]["SNO"].ToString()) + 1;
 
@@ -59,11 +59,11 @@ namespace Aplos.Areas.Machines.Controllers
         }
 
         [Authorize, HttpGet]
-        public decimal GetStoresAutoSequence()
+        public decimal GetStoresAutoSequence(string scheduleId)
         {
             try
             {
-                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM TRN.MaintenanceStoresConsumable");
+                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM TRN.MaintenanceStoresConsumable where MaintenanceSchedulingId='"+ scheduleId + "'");
                 if (dt.Rows.Count > 0)
                     return (decimal)clsStaticInfo.dbl(dt.Rows[0]["SNO"].ToString()) + 1;
 
@@ -76,11 +76,11 @@ namespace Aplos.Areas.Machines.Controllers
         }
 
         [Authorize, HttpGet]
-        public decimal GetPersonBudgetAutoSequence()
+        public decimal GetPersonBudgetAutoSequence(string scheduleId)
         {
             try
             {
-                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM TRN.MaintenancePersonBudgetCode");
+                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM TRN.MaintenancePersonBudgetCode where MaintenanceSchedulingId='" + scheduleId + "'");
                 if (dt.Rows.Count > 0)
                     return (decimal)clsStaticInfo.dbl(dt.Rows[0]["SNO"].ToString()) + 1;
 

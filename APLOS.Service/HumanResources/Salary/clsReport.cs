@@ -1739,34 +1739,15 @@ where APD.Id='" + PlannedId + @"' order by MSC.SNO";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select distinct 'Item' type, E.UserName Entity,MS.UserName ScheduleName,APD.Id as PlannedId,MS.ScheduleCode,
-MM.UserName MachineName,MA.AssetName,MM.MachineMake Make,MM.MachineModel Model,MS.ScheduleDays,Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
-ORDER BY MPD.Id DESC),'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
-Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,MS.StandardScheduleMinutes as StandardTime,MS.MaxScheduleMinutes as Maximumtime,
-format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as ToTime,APD.Minute as [Minute],MA.AssetCode,WC.UserName WorkCenter,
-Reverse(stuff(Reverse((Select EmployeeName + ',' from EmployeeInformation where 
-SystemId in (select ResponsiblePersonId from [TRN].[ResponsiblePlannedDetails] where PlannedId=APD.Id and IsActive=1) for xml PATH(''))),1,1,'')) as ResponsiblePerson,
-MI.ItemName as [Item Name],MI.SNO as ItemSNO,MI.CriticalLevel,MI.Remarks as ItemRemarks,
+                strSql = @"select distinct MS.ScheduleCode,MI.Id,MI.SNO,
+ROW_NUMBER() OVER(ORDER BY MI.ItemType ASC) as ItemSNO,MI.ItemName as [Item Name],MI.CriticalLevel,MI.Remarks as ItemRemarks,
 Reverse(stuff(Reverse((Select CheckPoints + '[ ],' from ItemParameterDetails where 
-ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,
-'' as StoresSNO,'' as StoreItemName,
-'' as UOM,
-'' as Article,
-0 EstimatedQty,'' Category,'' CostType,'' EstimationLevel,'' as StoresRemarks,
-isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id=APD.Id
- ORDER BY Id DESC),'') as LastMaintenanceDate,
-Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
-ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
-MA.AssetReference
-from TRN.Maintenancescheduling MS
-left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
+ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,MI.ItemType,MI.ItemMinutes
+from TRN.MaintenanceItem MI
+left join TRN.Maintenancescheduling MS ON MS.Id=MI.MaintenanceSchedulingId
 left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
-left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
-left join ORG.Entity E ON E.Id=MMA.EntityId
 left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
-left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
-left join TRN.MaintenanceItem MI ON MI.MaintenanceSchedulingId=MS.Id
-where APD.Id='" + PlannedId + @"' order by MI.SNO";
+where APD.Id='" + PlannedId + @"' order by MI.ItemType";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

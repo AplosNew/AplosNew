@@ -223,7 +223,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         $("#headchkB").ejCheckBox({ "change": CheckBoxSelectAllArticle });
     };
 
-    function CheckBoxSelectAllArticle(e) {
+    $scope.CheckBoxSelectAllArticle = function (e) {
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
@@ -295,12 +295,12 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
                     var ob = {};
                     ob.Id = null;
                     ob.ArticleName = a.ArticleName;
-                    ob.MaterialGroupMasterId = a.MaterialGroupMasterId;
+                    //ob.MaterialGroupMasterId = a.MaterialGroupMasterId;
                     ob.MaterialMaster = a.MaterialMaster;
                     ob.MaterialMasterId = a.MaterialMasterId;
                     ob.MaterialMasterArticleId = a.MaterialMasterArticleId;
-                    ob.MaterialType = a.MaterialType;
-                    ob.MaterialTypeId = a.MaterialTypeId;
+                    //ob.MaterialType = a.MaterialType;
+                    //ob.MaterialTypeId = a.MaterialTypeId;
                     ob.MaterialgroupName = a.MaterialgroupName;
                     ob.WorkCenterApplicable = a.WorkCenterApplicable;
                     ob.MachineApplicable = a.MachineApplicable;

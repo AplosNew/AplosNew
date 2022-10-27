@@ -7,7 +7,7 @@
 
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <fieldset class="scheduler-border">
-        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Medicine Receipt Head</span></legend>
+        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Medicine Receipt</span></legend>
         <input type="hidden" ng-model="ModelNew.Id">
         <div class="row">
             @*COLUMN 1*@
@@ -203,17 +203,18 @@
          e-detailsdatabound="detailgrid">
         <div e-columns>
             @*<div e-column e-headertext="Actions" e-width="60">
-                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
-            </div>*@
+            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+        </div>*@
             <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>
             <div e-column e-field="Party" e-headertext="Vendor" e-width="250"></div>
             <div e-column e-field="InvoiceNumber" e-headertext="Invoice Number" e-width="130"></div>
             <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="130"></div>
             <div e-column e-field="Medicine" e-headertext="Medicine" e-width="100"></div>
             <div e-column e-field="ExpiryDate" e-headertext="Expiry Date" e-width="100"></div>
-            <div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
+
             <div e-column e-field="Quantity" e-headertext="Quantity" e-width="100"></div>
             <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+            <div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
 
         </div>
     </div>
