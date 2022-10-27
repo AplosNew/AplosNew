@@ -20,7 +20,7 @@ namespace Library.MaterialManagement.Inventory
         void InsertOrUpdateGraphNewEdits(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId,string GRNType);
 		void InsertOrUpdateGraphNewEditsOnlyGRN(IEnumerable<InventoryMaterialViewModel> entityMat,string Id);
 		
-        void InsertOrUpdateGraph(InventoryMaterialViewModel entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList);
+        void InsertOrUpdateGraph(InventoryMaterialViewModel entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, IEnumerable<GRNBinAllocationMap> gRNBinAllocationMapList);
         void InsertFOCMaterial(InventoryMaterialViewModel itemDetail, IEnumerable<InventoryReceiveTax> taxCategoryList);
         void Delete(string receiveDetailId);
         void JWDelete(string receiveDetailId);

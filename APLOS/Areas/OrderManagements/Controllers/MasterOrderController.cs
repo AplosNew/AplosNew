@@ -1872,9 +1872,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
        
         [HttpGet, Authorize]
-        public ActionResult GetPackingDetail()
+        public ActionResult GetPackingDetail(string masterOderId)
         {
-            return Json(MasterOrder.GetPackingDetail(), JsonRequestBehavior.AllowGet);
+            return Json(MasterOrder.GetPackingDetail(masterOderId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
         public ActionResult DeletePackingDetail(string PackingDetailId)
@@ -1936,13 +1936,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetSOData()
+        public ActionResult GetSOData(string lineItem)
         {
             try
             {
-                JsonResult json = Json(_productionSummaryData.GetSOData(), JsonRequestBehavior.AllowGet);
-                json.MaxJsonLength = int.MaxValue;
-                return json;
+                return Json(MasterOrder.GetSOData(lineItem), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -1989,7 +1987,28 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 throw (ex);
             }
         }
-        
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteChildSO(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[PackingSODetail] Where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpPost, Authorize]
         public JsonResult CreatePackingType(Dictionary<string, object> data)
         {
@@ -2001,12 +2020,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     string _Id;
                     DataSet dsMaster;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                    con.OpenDataSetThroughAdapter("select * from dbo.PackingType where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from dbo.PackingTypeChild where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                     #region data update
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("PackingType", out _Id);
+                        genid.GenID("PackingTypeChild", out _Id);
 
                         data["Id"] = _Id;
                         AddNewRow(dsMaster.Tables[0], data);
@@ -2029,6 +2048,41 @@ namespace Aplos.Areas.OrderManagements.Controllers
             }
         }
         #endregion
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedPackingType(string PackingDetailId)
+        {
+            string sql = @"select PTC.*,PT.UserName PackingType 
+                                from  [dbo].[PackingTypeChild] PTC
+                                left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId
+                                Where PackingDetailId='" + PackingDetailId + "'";
+
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeletePackingType(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.PackingTypeChild where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
 
         #region Copy SO
 

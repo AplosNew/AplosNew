@@ -566,7 +566,7 @@ WHERE EI.EmployeeStatus='Active'";
                         sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].Merge();
                         sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                     }
-                    ColScheduleName = ROW;
+                    MaintenanceScheduleNameRow = ROW;
                 }
 
                 sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
@@ -789,7 +789,7 @@ WHERE EI.EmployeeStatus='Active'";
                         sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].Merge();
                         sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                     }
-                    ColScheduleName = ROW;
+                    MaintenanceScheduleNameRow = ROW;
                 }
 
                 sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
