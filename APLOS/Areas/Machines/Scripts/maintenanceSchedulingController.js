@@ -201,6 +201,37 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         $scope.Detail = removed;
         //$scope.Detail.pop();
     }
+
+    // #region For AutoSequenceNo
+    $scope.GeneratItemSequenceNo = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/MaintenanceScheduling/GetItemAutoSequence'
+        }).then(function successCallback(response) {
+            $scope.ItemNew.SNO = response.data;
+        });
+    }
+    $scope.GeneratItemSequenceNo();
+
+    $scope.GeneratStoresSequenceNo = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/MaintenanceScheduling/GetStoresAutoSequence'
+        }).then(function successCallback(response) {
+            $scope.StoresNew.SNO = response.data;
+        });
+    }
+    $scope.GeneratStoresSequenceNo();
+
+    $scope.GeneratPersonBudgetSequenceNo = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/MaintenanceScheduling/GetPersonBudgetAutoSequence'
+        }).then(function successCallback(response) {
+            $scope.PersonBudgetNew.SNO = response.data;
+        });
+    }
+    $scope.GeneratPersonBudgetSequenceNo();
    
     $scope.refreshTemplateMachineAsset = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllAsset });
@@ -762,16 +793,16 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         ScheduleClearFields();
     };
     $scope.ItemClear = function () {
-        ItemClearFields();
+        ItemClearFields($scope.GeneratItemSequenceNo());
     };
     $scope.SaveParameterClear = function () {
         ParameterClearFields();
     };
     $scope.StoresClear = function () {
-        StoresClearFields();
+        StoresClearFields($scope.GeneratStoresSequenceNo());
     };
     $scope.BudgetCodeClear = function () {
-        BudgetCodeClearFields();
+        BudgetCodeClearFields($scope.GeneratPersonBudgetSequenceNo());
     };
     
     function ScheduleClearFields() {
@@ -780,19 +811,22 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         $scope.ScheduleMachineList = [];
     }
 
-    function ItemClearFields() {
+    function ItemClearFields(seq) {
         $scope.Action = "Save";
-        $scope.ItemNew = Object.assign({}, $scope.item);  
+        $scope.ItemNew = Object.assign({}, $scope.item);
+        $scope.ItemNew.SNO = seq;
     }
 
-    function StoresClearFields() {
+    function StoresClearFields(seq) {
         $scope.Action = "Save";
         $scope.StoresNew = Object.assign({}, $scope.Stores);
+        $scope.StoresNew.SNO = seq;
     }
 
-    function BudgetCodeClearFields() {
+    function BudgetCodeClearFields(seq) {
         $scope.Action = "Save";
         $scope.PersonBudgetNew = Object.assign({}, $scope.PersonBudget);
+        $scope.PersonBudgetNew.SNO = seq;
     }
 
     function ParameterClearFields() {

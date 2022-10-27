@@ -31,6 +31,7 @@ using System.Web;
 using System.Linq;
 using Library.Model.Materials;
 using Library.Service.Materials;
+using Library.OrderManagement.Production;
 #endregion
 
 namespace Aplos.Areas.OrderManagements.Controllers
@@ -40,7 +41,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #region -- Constructor
         Library.Planning.OrderManagement.MasterOrder MasterOrder = new Library.Planning.OrderManagement.MasterOrder();
         private readonly string ExchangeRateTableName = "MasterOrderExchangeRates";
-
+        ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
         private readonly IMasterOrderService _masterOrderService;
         private readonly IPartyService _partyService;
         private readonly ICustomerPOService _customerPOService;
@@ -1855,11 +1856,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(MasterOrder.GetMasterOrderAmountAndQty(masterId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
-        public JsonResult CreatePackingDetail(Dictionary<string, object> data)
+        public JsonResult CreatePackingDetail(Dictionary<string, object> data,string MasterOrderId)
         {
             try
             {
-                MasterOrder.SavePackingDetailData(data);
+                MasterOrder.SavePackingDetailData(data, MasterOrderId);
 
                 return Json(new { Contract = data, Message = AplosMessage.Insert });
             }
@@ -1906,6 +1907,125 @@ namespace Aplos.Areas.OrderManagements.Controllers
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedSOData(string PackingDetailId)
+        {
+            string sql = @"select * from  [dbo].[PackingSODetail] Where PackingDetailId='" + PackingDetailId + "'";
+
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSODataList(string masterid)
+        {
+            try
+            {
+                string sql = @"Select * from [dbo].[BOMSODetail] Where BOMDetailChild1Id IN(Select ID from BOMDetailChild1 Where BOMDetailMasterId='" + masterid + "')";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSOData()
+        {
+            try
+            {
+                JsonResult json = Json(_productionSummaryData.GetSOData(), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateSOData(Dictionary<string, object> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+
+                    string _Id;
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("select * from dbo.PackingSODetail where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    #region data update
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("PackingSODetail", out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+                    #endregion data update
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        
+        [HttpPost, Authorize]
+        public JsonResult CreatePackingType(Dictionary<string, object> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+
+                    string _Id;
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("select * from dbo.PackingType where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    #region data update
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("PackingType", out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+                    #endregion data update
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
             }
         }
         #endregion
