@@ -366,7 +366,7 @@ WHERE EI.EmployeeStatus='Active'";
             dr.EndEdit();
         }
 
-        [HttpGet, Authorize]
+        [HttpGet, Authorize] 
         public ActionResult GetMaintenanceJobCardReportView(string PlannedId)
         {
             try
