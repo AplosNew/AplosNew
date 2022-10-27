@@ -244,6 +244,12 @@
                         <input type="text" name="SNO" ng-disabled="true" ng-model="ItemNew.SNO" class="form-control" required maxlength="100" autocomplete="off">
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Name" ng-model="ItemNew.ItemName" class="form-control" required maxlength="100" autocomplete="off">
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">IsAuditable</label>
                     <div class="col-sm-8">
@@ -265,20 +271,35 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Exception Days</label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Name" ng-model="ItemNew.ItemName" class="form-control" required maxlength="100" autocomplete="off">
+                        <input type="number" name="ExceptionDays" ng-model="ItemNew.ExceptionDays" class="form-control" required maxlength="10" autocomplete="off">
                     </div>
                 </div>
-
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Item Type</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ItemNew.ItemType" name="ItemType"
+                                    ng-options="item.Value as item.Text for item in ItemTypeList">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Item Minutes<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" name="ItemMinutes"  ng-model="ItemNew.ItemMinutes" class="form-control" required maxlength="10" autocomplete="off">
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label" ng-show="ItemNew.IsAuditable==true">By Whom</label>
                     <div class="col-sm-8">
                         <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="By Whome" ng-disabled="true" ng-show="ItemNew.IsAuditable==true" ng-model="ItemNew.ByWhom" class="form-control" maxlength="100"  autocomplete="off">
+                            <input type="text" name="By Whome" ng-disabled="true" ng-show="ItemNew.IsAuditable==true" ng-model="ItemNew.ByWhom" class="form-control" maxlength="100" autocomplete="off">
                         </div>
                         <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                             <button ng-click="selectEmployee();" ng-show="ItemNew.IsAuditable==true" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
@@ -288,7 +309,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Remarks</label>
                     <div class="col-sm-8">
-                        <input type="text" name="Remarks" ng-model="ItemNew.Remarks" class="form-control"  maxlength="100" autocomplete="off">
+                        <input type="text" name="Remarks" ng-model="ItemNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
                     </div>
                 </div>
             </div>
@@ -300,11 +321,14 @@
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="3"></div>
                         <div e-column e-field="SNO" e-headertext="SNO" e-width="3"></div>
+                        <div e-column e-field="ItemType" e-headertext="Item Type" e-width="3"></div>
                         <div e-column e-field="ItemName" e-headertext="Item Name" e-width="3"></div>
+                        <div e-column e-field="ItemMinutes" e-headertext="Item Minutes" e-width="3"></div>
                         <div e-column e-field="CriticalLevel" e-headertext="Critical Level" e-width="3"></div>
                         <div e-column e-field="IsAuditable" e-headertext="Is Auditable" e-width="3"></div>
                         <div e-column e-field="ByWhom" e-headertext="By Whom" e-width="3"></div>
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                        <div e-column e-field="ExceptionDays" e-headertext="Exception Days" e-width="3"></div>
                         <div e-column e-template="#Parameter" e-headertext="Child Parameter" e-width="2"></div>
                     </div>
                 </div>
