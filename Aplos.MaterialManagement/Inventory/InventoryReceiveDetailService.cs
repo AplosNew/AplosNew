@@ -4545,7 +4545,6 @@ namespace Library.MaterialManagement.Inventory
                     entity.ToCurrencyRate = 1;
             }
         }
-
         private void UpdateInventoryDetail(InventoryReceiveDetail detail, decimal ratio, decimal ratioServiceTax, decimal currencyRate, bool isNonCreditable)
         {
             var detailList = Query(t => t.InventoryReceiveId == detail.InventoryReceiveId).Select().ToList();// && t.Id != detail.Id
