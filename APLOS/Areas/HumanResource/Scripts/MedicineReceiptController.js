@@ -250,6 +250,7 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             else {
                 $scope.ModalNew.Id = response.data.Data.Id;                
                 ShowResult(response.data.Message, 'success');
+                $scope.Action = 'Update';
                 $scope.getMedicineReceipt();
             }
         }), function errorCallBack(response) {

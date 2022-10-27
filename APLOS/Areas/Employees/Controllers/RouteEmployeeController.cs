@@ -205,9 +205,9 @@ namespace Aplos.Areas.Employees.Controllers
 
 															from dbo.EmployeeTransportAllocation A
 														
-															LEFT JOIN (SELECT COUNT(SystemId) TBSEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='TBS' AND BudgetCode IS NOT NULL GROUP BY SystemId) TE ON TE.SystemId=A.EmployeeSystemId
-															LEFT JOIN (SELECT COUNT(SystemId) LONGEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='LONG ABSENTEEISM' AND BudgetCode IS NOT NULL GROUP BY SystemId) LA ON LA.SystemId=A.EmployeeSystemId
-															LEFT JOIN dbo.AttdnProcessData apd on apd.EmpSystemID=A.EmployeeSystemId AND apd.WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy')
+															 JOIN (SELECT COUNT(SystemId) TBSEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='TBS' AND BudgetCode IS NOT NULL GROUP BY SystemId) TE ON TE.SystemId=A.EmployeeSystemId
+															 JOIN (SELECT COUNT(SystemId) LONGEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='LONG ABSENTEEISM' AND BudgetCode IS NOT NULL GROUP BY SystemId) LA ON LA.SystemId=A.EmployeeSystemId
+															 JOIN dbo.AttdnProcessData apd on apd.EmpSystemID=A.EmployeeSystemId AND apd.WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy')
 															
 															where A.AssignStatus=1
 									                        Group BY TripId,TE.TBSEmp,LA.LONGEmp) O ON O.TripId=RS.Id
