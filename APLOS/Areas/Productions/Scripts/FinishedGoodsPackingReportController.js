@@ -27,12 +27,12 @@ function FinishedGoodsPackingReportController(cboService, commonMessage, $scope,
     }
 
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
-
+    $scope.fileName="GetFinishedGoodsPackingReport.xlsx";
     $scope.getFinishedStocksReport = function () {
 
         $http({
             method: 'POST',
-            url: $scope.path + "GetFinishedStocksReport",
+            url: $scope.path + "GetReport",
             
             data: {
                 'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate
@@ -43,7 +43,7 @@ function FinishedGoodsPackingReportController(cboService, commonMessage, $scope,
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FullPath + "&fileName=" + response.data.FileName);//downloadgriddataUrlPath
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
