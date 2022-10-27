@@ -4934,6 +4934,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.tab2 = 1;
         $scope.modelNewPD = obj.data;
         $scope.ModelSO.PackingDetailId = obj.data.Id;
+        $scope.ModelSO.SOId = obj.data.Id;
         $scope.ModelPTNew.PackingDetailId = obj.data.Id;
         $scope.GetSavedSOData($scope.ModelSO.PackingDetailId);
         $scope.GetSavedPackingType($scope.ModelPTNew.PackingDetailId);
@@ -5122,7 +5123,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.PackingTypeListData = [];
     $scope.GetSavedPackingType = function (packingDetailId) {
-        $scope.PackingTypeListData = [];
+        //$scope.PackingTypeListData = [];
         $http.get('OrderManagements/MasterOrder/GetSavedPackingType?PackingDetailId=' + packingDetailId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
@@ -5168,6 +5169,98 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }).finally(function () {
         });
 
+    };
+
+    $scope.GetPopUpTab2 = function (obj) {
+        $scope.tab2 = 1;
+        $scope.modelNewPD = obj.data;
+        $scope.ModelPTNew.PackingTypeId = obj.data.Id;
+        $scope.GetSavedPackingType($scope.ModelPTNew.PackingTypeId);
+        //$scope.ModelSO.PackingDetailId = obj.data.Id;
+        //$scope.GetSavedSOData($scope.ModelSO.PackingDetailId);
+        angular.element(document.querySelector('#SKUPopUp')).modal('show');
+    }
+
+    $scope.ModelSku = {
+        Id: null,
+        SKU1: null,
+        SKU2: null,
+        Quantity: null,
+        Plan: null
+    };
+    $scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
+
+    $scope.ClearSKUD = function () {
+        $scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
+    }
+
+    $scope.sku1List = [];
+    $scope.sku1 = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetSKU1List?SOId=' + $scope.ModelSO.Id
+        }).then(function successCallback(response) {
+            $scope.sku1List = response.data;
+        })
+    };
+
+    $scope.sku2List = [];
+    $scope.sku2 = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetSKU2List?SOId=' + $scope.ModelSO.Id
+        }).then(function successCallback(response) {
+            $scope.sku2List = response.data;
+        })
+    };
+
+    $scope.SaveSKUDetail = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/MasterOrder/CreateSKUDetail',
+                data: { 'data': $scope.ModelSKUDNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearSKUD();
+                    $scope.GetSavedPackingType($scope.ModelPTNew.PackingTypeId);
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SKUDetailList = [];
+    $scope.GetSavedSKUDetailData = function (PackingTypeId) {
+        $scope.SKUDetailList = [];
+        $http.get('OrderManagements/MasterOrder/GetSavedSKUDetail?PackingTypeId=' + PackingTypeId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SKUDetailList = response.data;
+                }
+            });
+    }
+
+    $scope.GetSKUDetailDblClick = function (args) {
+        try {
+            $scope.Action = 'Update';
+            $scope.ModelSKUDNew = Object.assign({}, args.data);
+
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
     };
 
     //#region   SO Copy    
