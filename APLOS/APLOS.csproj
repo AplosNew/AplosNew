@@ -4370,6 +4370,7 @@
     <Content Include="Areas\Materials\Views\MaterialIssueControl\Issue.cshtml" />
     <Content Include="Areas\Machines\Views\SpecialIssueControlReport\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\Incentive\IncentiveReceivable.cshtml" />
+    <Content Include="Areas\Materials\Views\StorageBinAllocation\_BinAllocationPopUp.cshtml" />
     <Content Include="Areas\Productions\Views\FinishedGoodsPackingReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

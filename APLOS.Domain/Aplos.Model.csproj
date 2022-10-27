@@ -247,6 +247,7 @@
     <Compile Include="Configurations\IE\SizeGroupConfiguration.cs" />
     <Compile Include="Configurations\IE\SubsectionStructureDetailConfiguration.cs" />
     <Compile Include="Configurations\IE\SubsectionStructureMasterConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\GRNBinAllocationMapConfiguration.cs" />
     <Compile Include="Configurations\Inventory\GRNBOQMAPConfiguration.cs" />
     <Compile Include="Configurations\Inventory\GRNAcceptanceMapConfiguration.cs" />
     <Compile Include="Configurations\Inventory\InventoryIssueHistoryBOQConfiguration.cs" />
@@ -689,6 +690,7 @@
     <Compile Include="Inventory\InventoryIssueReturnHistory.cs" />
     <Compile Include="Inventory\InventoryIssueReturnDetail.cs" />
     <Compile Include="Inventory\InventoryIssueReturn.cs" />
+    <Compile Include="Inventory\GRNBinAllocationMap.cs" />
     <Compile Include="Inventory\POBOQMap.cs" />
     <Compile Include="Inventory\GRNDocumentMap.cs" />
     <Compile Include="Inventory\ServiceAcknowledgementCharge.cs" />
