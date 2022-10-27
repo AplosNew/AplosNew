@@ -3402,6 +3402,8 @@ namespace Library.Service.HumanResources
                             int StoresRemarks = 0;
                             int ItemSNO = 0;
                             int ItemName = 0;
+                            int ItemType = 0;
+                            int ItemMinutes = 0;
                             int CriticalLevel = 0;
                             int CheckPoints = 0;
                             int ItemRemarks = 0;
@@ -3612,12 +3614,26 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, ItemSNO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ItemSNO].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                            ItemType = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, ItemType].Text = "Item Type";
+                            sheet1.Range[xlsRow, ItemType].ColumnWidth = 25;
+                            sheet1.Range[xlsRow, ItemType].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, ItemType].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                             ItemName = xlsCol;
                             xlsCol += 1;
                             sheet1.Range[xlsRow, ItemName].Text = "Item Name";
                             sheet1.Range[xlsRow, ItemName].ColumnWidth = 25;
                             sheet1.Range[xlsRow, ItemName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ItemName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            ItemMinutes = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, ItemMinutes].Text = "Item Minutes";
+                            sheet1.Range[xlsRow, ItemMinutes].ColumnWidth = 25;
+                            sheet1.Range[xlsRow, ItemMinutes].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, ItemMinutes].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             CriticalLevel = xlsCol;
                             xlsCol += 1;
@@ -3658,6 +3674,16 @@ namespace Library.Service.HumanResources
                                     sheet1.Range[xlsRow, ItemSNO].RowHeight = 20;
                                     sheet1.Range[xlsRow, ItemSNO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, ItemSNO].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, ItemType].Text = dvBioDvACitem[i]["ItemType"].ToString();
+                                    sheet1.Range[xlsRow, ItemType].RowHeight = 20;
+                                    sheet1.Range[xlsRow, ItemType].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, ItemType].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, ItemMinutes].Text = dvBioDvACitem[i]["ItemMinutes"].ToString();
+                                    sheet1.Range[xlsRow, ItemMinutes].RowHeight = 20;
+                                    sheet1.Range[xlsRow, ItemMinutes].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, ItemMinutes].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, ItemName].Text = dvBioDvACitem[i]["Item Name"].ToString();
                                     sheet1.Range[xlsRow, ItemName].RowHeight = 20;
