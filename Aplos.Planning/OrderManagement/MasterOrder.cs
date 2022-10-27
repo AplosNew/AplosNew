@@ -924,11 +924,12 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetPackingDetail()
+        public IEnumerable<object> GetPackingDetail(string masterOderId)
         {
             string sql = @"select PD.*,EI.EmployeeName ResponsiblePerson
                                 from PackingDetail PD
-                                left join EmployeeInformation EI on EI.SystemId=PD.ResponsiblePersonId";
+                                left join EmployeeInformation EI on EI.SystemId=PD.ResponsiblePersonId
+                                where PD.MasterOrderId= '" + masterOderId + "'";
             return _sqlRepository.GetDataCollection(sql);
         }
 

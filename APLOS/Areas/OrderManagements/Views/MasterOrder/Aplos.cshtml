@@ -732,108 +732,106 @@
                     <div class="form-elements form-horizontal" ng-form="modelNewForm">
                         <div class="row" id="mainGrid" ng-form="tab4">
 
-                                <div class="tab-content">
-                                        <div class="row">
-                                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                                <div class="form-group">
-                                                    <label class="col-sm-4 control-label">Line Item</label>
-                                                    <div class="col-sm-8">
-                                                        <div class="input-group">
-                                                            <input type="text" name="Line Item" ng-model="modelNewPD.MasterOrderItemId" class="form-control" readonly tabindex="115">
-                                                            <span class="input-group-btn">
-                                                                <button ng-click="MasterItemListPopUp();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="form-group">
-                                                    <label class="col-sm-4 control-label">Own Ref. No<sup>*</sup></label>
-                                                    <div class="col-sm-8">
-                                                        <input type="text" name="Own Ref. No" ng-model="modelNewPD.OwnRefNo" class="form-control" maxlength="50" tabindex="1">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group" show-errors>
-                                                    <label class="col-sm-4 control-label">Packing Level<sup>*</sup></label>
-                                                    <div class="col-sm-8 show-message">
-                                                        <div class="select-style">
-                                                            <select name="Packing Level" class="form-control" ng-model="modelNewPD.PackingLevel" required>
-                                                                <option value="">--Select--</option>
-                                                                <option value="Individual Packing">Individual Packing</option>
-                                                                <option value="Bulk Packing">Bulk Packing</option>
-                                                                <option value="Final Packing">Final Packing</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-4 control-label">Remarks</label>
-                                                    <div class="col-sm-8">
-                                                        <input type="text" name="Remarks" ng-model="modelNewPD.Remarks" class="form-control" maxlength="50" tabindex="1">
-                                                    </div>
+                            <div class="tab-content">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Line Item</label>
+                                            <div class="col-sm-8">
+                                                <div class="input-group">
+                                                    <input type="text" name="Line Item" ng-model="modelNewPD.MasterOrderItemId" class="form-control" readonly tabindex="115">
+                                                    <span class="input-group-btn">
+                                                        <button ng-click="MasterItemListPopUp();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                                <div class="form-group">
-                                                    <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
-                                                    <div class="col-sm-8">
-                                                        <input type="text" name="User Name" ng-model="modelNewPD.UserName" class="form-control" maxlength="50" tabindex="1">
-                                                    </div>
-                                                </div>
+                                        </div>
 
-                                                <div class="form-group">
-                                                    <label class="col-sm-4 control-label">Customer Ref. No<sup>*</sup></label>
-                                                    <div class="col-sm-8">
-                                                        <input type="text" name="Customer Ref. No" ng-model="modelNewPD.CustomerRefNo" class="form-control" maxlength="50" tabindex="1">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-4 control-label">Responsible Person</label>
-                                                    <div class="col-sm-8">
-                                                        <div class="input-group">
-                                                            <input type="text" name="Responsible Person" ng-model="modelNewPD.ResponsiblePerson" class="form-control" readonly tabindex="115">
-                                                            <span class="input-group-btn">
-                                                                <button ng-click="showEmployeeListPopUps('pd');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
-                                                            </span>
-                                                        </div>
-                                                    </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Own Ref. No<sup>*</sup></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="Own Ref. No" ng-model="modelNewPD.OwnRefNo" class="form-control" maxlength="50" tabindex="1">
+                                            </div>
+                                        </div>
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Packing Level<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select name="Packing Level" class="form-control" ng-model="modelNewPD.PackingLevel" required>
+                                                        <option value="">--Select--</option>
+                                                        <option value="Individual Packing">Individual Packing</option>
+                                                        <option value="Bulk Packing">Bulk Packing</option>
+                                                        <option value="Final Packing">Final Packing</option>
+                                                    </select>
                                                 </div>
                                             </div>
-
-
-
                                         </div>
-
-                                    <div class="clearfix"></div>
-
-                                    <div class="common-btn">
-                                        <ul class="list-inline text-right">
-                                            <li> <button ng-click="SavePackingDetail()" class="btn single-small-btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNewPD.Id.length>0?'Update':'Save'}}</button></li>
-                                            <li> <button ng-click="ClearPackingDetail();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                                        </ul>
-                                    </div>
-
-                                    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="PackingDetailDataList" e-recorddoubleclick="recorddoubleclicks" e-load="loadGridEdit"
-                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                                        <div e-columns>
-                                            <div e-column e-field="MasterOrderItemId" e-headertext="Line Item" e-width="2"></div>
-                                            <div e-column e-field="UserName" e-headertext="User Name" e-width="3"></div>
-                                            <div e-column e-field="OwnRefNo" e-headertext="Own Ref. No" e-width="3"></div>
-                                            <div e-column e-field="CustomerRefNo" e-headertext="Customer Ref. No" e-width="4"></div>
-                                            <div e-column e-field="PackingLevel" e-headertext="Packing Level" e-width="3"></div>
-                                            <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="5"></div>
-                                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
-                                            <div e-column e-headertext="Actions" e-template="#ShowActionButton" e-width="2"></div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Remarks</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="Remarks" ng-model="modelNewPD.Remarks" class="form-control" maxlength="50" tabindex="1">
+                                            </div>
                                         </div>
                                     </div>
-                                    <script type="text/ng-template" id="ShowActionButton">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.RemovePackingDetail(this);" style="margin: -6px;"></i></button>
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetPopUpTab(this)" style="margin: -6px;"></i></button>
-                                        @*<button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetDetailChild(this);" style="margin: -6px;"></i></button>*@
-                                        @*<button ng-click="AddSODetail(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Detail"><i class="glyphicon glyphicon-th-list"></i></button>*@
-                                    </script>
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="User Name" ng-model="modelNewPD.UserName" class="form-control" maxlength="50" tabindex="1">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Customer Ref. No<sup>*</sup></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="Customer Ref. No" ng-model="modelNewPD.CustomerRefNo" class="form-control" maxlength="50" tabindex="1">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Responsible Person</label>
+                                            <div class="col-sm-8">
+                                                <div class="input-group">
+                                                    <input type="text" name="Responsible Person" ng-model="modelNewPD.ResponsiblePerson" class="form-control" readonly tabindex="115">
+                                                    <span class="input-group-btn">
+                                                        <button ng-click="showEmployeeListPopUps('pd');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
                                 </div>
+
+                                <div class="clearfix"></div>
+
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="SavePackingDetail()" class="btn single-small-btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNewPD.Id.length>0?'Update':'Save'}}</button></li>
+                                        <li> <button ng-click="ClearPackingDetail();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    </ul>
+                                </div>
+
+                                <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="PackingDetailDataList" e-recorddoubleclick="recorddoubleclicks" e-load="loadGridEdit"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                    <div e-columns>
+                                        <div e-column e-field="MasterOrderItemId" e-headertext="Line Item" e-width="2"></div>
+                                        <div e-column e-field="UserName" e-headertext="User Name" e-width="3"></div>
+                                        <div e-column e-field="OwnRefNo" e-headertext="Own Ref. No" e-width="3"></div>
+                                        <div e-column e-field="CustomerRefNo" e-headertext="Customer Ref. No" e-width="4"></div>
+                                        <div e-column e-field="PackingLevel" e-headertext="Packing Level" e-width="3"></div>
+                                        <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="5"></div>
+                                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                                        <div e-column e-headertext="Actions" e-template="#ShowActionButton" e-width="2"></div>
+                                    </div>
+                                </div>
+                                <script type="text/ng-template" id="ShowActionButton">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.RemovePackingDetail(this);" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetPopUpTab(this)" style="margin: -6px;"></i></button>
+                                </script>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4058,23 +4056,23 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">Packing Define Detail<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements from-horizontal">
+            <div class="modal-body form-elements form-horizontal">
                 <div class="tab-content">
                     <div class="row">
                         <div class="site-tab">
                             <ul class="nav nav-tabs" role="tablist">
-                                <li role="presentation" ng-class="{ active: isSet2(5) }">
-                                    <a ng-click="setTab2(5)" href="" data-toggle="tab">SO Detail</a>
+                                <li role="presentation" ng-class="{ active: isSet2(1) }">
+                                    <a ng-click="setTab2(1)" href="" data-toggle="tab">SO Detail</a>
                                 </li>
 
-                                <li role="presentation" ng-class="{ active: isSet2(6) }">
-                                    <a ng-click="setTab2(6)" href="" data-toggle="tab">Packing Type</a>
+                                <li role="presentation" ng-class="{ active: isSet2(2) }">
+                                    <a ng-click="setTab2(2)" href="" data-toggle="tab">Packing Type</a>
                                 </li>
 
                             </ul>
                         </div>
                         <div class="tab-content" ng-form="tab5">
-                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(5), active: isSet2(5) }">
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
                                 <div class="row">
                                     <div class="col-xs-12 col-sm-6 col-md-6">
                                         <div class="form-group">
@@ -4098,41 +4096,45 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="clearfix"></div>
                                     <div class="common-btn">
                                         <ul class="list-inline text-right">
                                             <li> <button ng-click="SaveSOData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                                             <li> <button ng-click="ClearSO();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                         </ul>
                                     </div>
+
                                     <div class="col-xs-12">
-                                        <div id="GridSO" ej-grid e-datasource="SODataList" e-recorddoubleclick="GetSOData"
+                                        <div id="GridSO" ej-grid e-datasource="SODataList" e-recorddoubleclick="GetSODataDbl"
                                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                             <div e-columns>
-                                                @*<div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="2"></div>*@
+                                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsSO" e-width="2"></div>
                                                 <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
                                                 <div e-column e-field="SOId" e-headertext="SONo" e-width="5"></div>
                                                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
                                             </div>
                                         </div>
-
+                                        <script type="text/template" id="ShowActionButtonsSO">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeChildSO(this);" style="margin: -6px;"></i></button>
+                                        </script>
                                     </div>
                                 </div>
 
                             </div>
-                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(6), active: isSet2(6) }">
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
                                 <div class="row">
                                     <div class="col-xs-12 col-sm-6 col-md-6">
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Packing Code<sup>*</sup></label>
                                             <div class="col-sm-8">
-                                                <input type="text" name="CM" ng-model="ModelPTNew.PackingCode" class="form-control text-right" tabindex="101">
+                                                <input type="text" name="CM" ng-model="ModelPTNew.PackingCode" class="form-control" tabindex="101">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Customer Ref Code</label>
                                             <div class="col-sm-8">
-                                                <input type="text" name="CM" ng-model="ModelPTNew.CustomerRefCode" class="form-control text-right" tabindex="113">
+                                                <input type="text" name="CM" ng-model="ModelPTNew.CustomerRefCode" class="form-control" tabindex="113">
                                             </div>
                                         </div>
                                     </div>
@@ -4140,10 +4142,10 @@
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Packing Type</label>
                                             <div class="col-sm-8">
-                                                <input type="text" name="CM" ng-model="ModelPTNew.PackingType" class="form-control text-right" tabindex="113">
+                                                <input type="text" name="CM" ng-model="ModelPTNew.PackingType" class="form-control" tabindex="113">
                                             </div>
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Remarks</label>
                                             <div class="col-sm-8">
@@ -4158,17 +4160,20 @@
                                         </ul>
                                     </div>
                                     <div class="col-xs-12">
-                                        <div id="GridSO" ej-grid e-datasource="SODataList" e-recorddoubleclick="GetSOData"
+                                        <div id="GridSO" ej-grid e-datasource="PackingTypeList" e-recorddoubleclick="GetPT"
                                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                             <div e-columns>
-                                                @*<div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="2"></div>*@
-                                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
-                                                <div e-column e-field="SOId" e-headertext="SONo" e-width="5"></div>
+                                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonPT" e-width="2"></div>
+                                                <div e-column e-field="PackingCode" e-headertext="Packing Code" e-width="5"></div>
+                                                <div e-column e-field="PackingType" e-headertext="Packing Type" e-width="5"></div>
+                                                <div e-column e-field="CustomerRefCode" e-headertext="Customer Ref Code" e-width="5"></div>
                                                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
                                             </div>
                                         </div>
-
+                                        <script type="text/template" id="ShowActionButtonPT">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeChild2(this);" style="margin: -6px;"></i></button>
+                                        </script>
                                     </div>
                                 </div>
 
@@ -4274,4 +4279,7 @@
         </div>
     </div>
 </div>
+
+<confirm-archive-generic modalid="confirmChildSOPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteChildSO();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmChildPackingTypePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePackingType();"></confirm-archive-generic>
 

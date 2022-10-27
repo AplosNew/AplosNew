@@ -473,6 +473,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
         $scope.ExchangeDisplayExchangeRates($scope.fileNew.Id, $scope.fileNew.CurrencyId);//reloading currency exchange rates
         $scope.GetPaymentTermChangeable();
+        $scope.GetPackingDetail();
         //$scope.GetContractByMasterOrder();
     };
 
@@ -4849,9 +4850,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.PackingDetailDataList = [];
     $scope.GetPackingDetail = function () {
+        $scope.PackingDetailDataList = [];
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetPackingDetail'
+            url: 'OrderManagements/MasterOrder/GetPackingDetail?masterOderId=' + $scope.fileNew.MasterOrderNo
         }).then(function successCallback(response) {
             if (baseService.arrayLength(response.data) > 0)
             {
@@ -4929,10 +4931,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.GetCostingItemCbo();
 
     $scope.GetPopUpTab = function (obj) {
+        $scope.tab2 = 1;
         $scope.modelNewPD = obj.data;
         $scope.ModelSO.PackingDetailId = obj.data.Id;
         $scope.ModelPTNew.PackingDetailId = obj.data.Id;
         $scope.GetSavedSOData($scope.ModelSO.PackingDetailId);
+        $scope.GetSavedPackingType($scope.ModelPTNew.PackingDetailId);
         angular.element(document.querySelector('#SOPopUpData')).modal('show');
     }
 
@@ -4945,6 +4949,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.SODataList = [];
     $scope.GetSavedSOData = function (packingDetailId) {
+        $scope.SODataList = [];
         $http.get('OrderManagements/MasterOrder/GetSavedSOData?PackingDetailId=' + packingDetailId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
@@ -4967,6 +4972,19 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     ShowResult(response, 'failure');
                 });
         angular.element(document.querySelector('#SOItemPopup')).modal('show');
+    };
+
+    $scope.GetSODataDbl = function (args) {
+        try {
+            $scope.Action = 'Update';
+            $scope.ModelSO = Object.assign({}, args.data);
+
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
     };
 
     $scope.selectSOItem = function ($event) {
@@ -5033,6 +5051,32 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         };
     }
 
+    $scope.removeChildSO = function (obj) {
+        $scope.SODetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.SODetailNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmChildSOPopUp')).modal('show');
+    }
+
+    $scope.DeleteChildSO = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/MasterOrder/DeleteChildSO?id=' + $scope.SODetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedSOData($scope.modelNewPD.Id);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
     $scope.ModelPT = {
         Id: null,
         PackingCode: null,
@@ -5064,7 +5108,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.ClearPT();
-                    //$scope.GetSavedSOData($scope.modelNewPD.Id);
+                    $scope.GetSavedPackingType($scope.modelNewPD.Id);
 
                 }
             }), function errorCallBack(response) {
@@ -5073,6 +5117,56 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    };
+
+    $scope.PackingTypeList = [];
+    $scope.GetSavedPackingType = function (packingDetailId) {
+        $scope.PackingTypeList = [];
+        $http.get('OrderManagements/MasterOrder/GetSavedPackingType?PackingDetailId=' + packingDetailId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.PackingTypeList = response.data;
+                }
+            });
+    }
+
+    $scope.GetPT = function (args) {
+        try {
+            $scope.Action = 'Update';
+            $scope.ModelPTNew = Object.assign({}, args.data);
+
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.removeChild2 = function (obj) {
+        $scope.packingTypeNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.packingTypeNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmChildPackingTypePopUp')).modal('show');
+    }
+
+    $scope.DeletePackingType = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/MasterOrder/DeletePackingType?id=' + $scope.packingTypeNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedPackingType($scope.modelNewPD.Id);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
     };
 
     //#region   SO Copy    
