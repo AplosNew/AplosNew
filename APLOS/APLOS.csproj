@@ -2196,7 +2196,7 @@
     <Content Include="Areas\Materials\Scripts\DetentionLogoutController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
-    <Content Include="Areas\Materials\Scripts\IssueController.js" />
+    <Content Include="Areas\Materials\Scripts\InventoryIssueController.js" />
     <Content Include="Areas\Materials\Scripts\ProcessWiseMaterialAllocationController.js" />
     <Content Include="Areas\Materials\Scripts\RequisitionStatusController.js" />
     <Content Include="Areas\Materials\Scripts\StockRegisterController.js" />

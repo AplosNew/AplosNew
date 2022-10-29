@@ -119,8 +119,14 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-    
+
         #endregion SAVE
+
+        [HttpGet, Authorize]
+        public ActionResult CountEmployeeVisiting(string empSytemId)
+        {
+            return Json(ml.CountEmployeeVisiting(empSytemId), JsonRequestBehavior.AllowGet);
+        }
 
     }
 }

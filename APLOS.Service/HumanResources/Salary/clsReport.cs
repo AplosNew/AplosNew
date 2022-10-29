@@ -1861,14 +1861,14 @@ where APD.Id = '" + PlannedId + @"' order by MSC.SNO";
             try
             {
                 strSql = @"select distinct MS.ScheduleCode,MI.Id,MI.SNO,
-ROW_NUMBER() OVER(ORDER BY MI.ItemType ASC) as ItemSNO,MI.ItemName as [Item Name],MI.CriticalLevel,MI.Remarks as ItemRemarks,
+ROW_NUMBER() OVER(ORDER BY MI.SNO ASC) as ItemSNO,MI.ItemName as [Item Name],MI.CriticalLevel,MI.Remarks as ItemRemarks,
 Reverse(stuff(Reverse((Select CheckPoints + '[ ],' from ItemParameterDetails where 
 ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,MI.ItemType,MI.ItemMinutes
 from TRN.MaintenanceItem MI
 left join TRN.Maintenancescheduling MS ON MS.Id=MI.MaintenanceSchedulingId
 left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
 left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
-where APD.Id='" + PlannedId + @"' order by MI.ItemType";
+where APD.Id='" + PlannedId + @"' order by MI.SNO";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

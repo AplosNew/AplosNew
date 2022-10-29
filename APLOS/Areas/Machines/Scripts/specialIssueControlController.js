@@ -382,7 +382,7 @@ function specialIssueControlController(cboService, commonMessage, $scope, $rootS
             , Remarks: null
             , SpecialIssueControlId: null
         };
-        $scope.ItemNew = Object.assign({}, $scope.item);  
+        $scope.ItemNew = Object.assign({}, $scope.Item);
     }
 
     $scope.removeRowModal = function (index,data) {
