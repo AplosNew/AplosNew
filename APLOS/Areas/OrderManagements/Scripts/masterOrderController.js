@@ -3873,7 +3873,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.qboqModel = Object.assign({}, $scope.qboq);
 
     $scope.CalculateNetConsumption = function () {
-        $scope.qboqModel.GrossConsumption = parseFloat($scope.qboqModel.NetConsumptionPerUnit / (1 - ($scope.qboqModel.ValueLossPercentage / 100))).toFixed(2);
+        $scope.qboqModel.GrossConsumption = parseFloat($scope.qboqModel.NetConsumptionPerUnit / (1 - ($scope.qboqModel.ValueLossPercentage / 100))).toFixed(4);
         //$scope.qboqModel.GrossConsumption = parseFloat(($scope.qboqModel.NetConsumptionPerUnit / 100) - $scope.qboqModel.ValueLossPercentage).toFixed(2);
         //$scope.qboqModel.NetConsumptionPerUnit = (($scope.qboqModel.GrossConsumption / 100) - $scope.qboqModel.ValueLossPercentage);
     }
