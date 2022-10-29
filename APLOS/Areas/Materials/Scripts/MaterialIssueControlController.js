@@ -4,13 +4,13 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     $rootScope.title = "Material Issue Control";
     $scope.Action = 'Save';
     $scope.index = -1;
-   
+
     $scope.path = 'Materials/MaterialIssueControl/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
-  
+
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
@@ -31,15 +31,18 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     $scope.PRSearchValue = null;
     $scope.modelList = [];
     $scope.getData = function () {
-        $http({
-            method: 'POST',
-            data: {
-                'entityid': $scope.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
-            },
-            url: $scope.getListUrl
-        }).then(function successCallback(response) {
-            $scope.modelList = response.data;
-        });
+        $scope.modelList = [];
+        if (!baseService.isUndefinedOrNull($scope.EntityId)) {
+            $http({
+                method: 'POST',
+                data: {
+                    'entityid': $scope.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+                },
+                url: $scope.getListUrl
+            }).then(function successCallback(response) {
+                $scope.modelList = response.data;
+            });
+        }
     };
     $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
 
@@ -235,7 +238,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
         for (var i = 0; i < $scope.SOItemList.length; i++) {
             $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
-            $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate* $scope.SOItemList[i].PlannedQty;
+            $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
             $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
         }
         var gridObj = $("#SOGrid").data("ejGrid");
@@ -251,7 +254,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             $scope.QBOQCostingList[i].TotaPlanlAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].Rate;
             $scope.QBOQCostingList[i].ActualIssueAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].StockRate;
         }
-       
+
 
         if ($scope.ModelNew.Level == "Costing") {
             var gridObj = $("#CGrid").data("ejGrid");

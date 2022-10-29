@@ -15,7 +15,7 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
     $scope.modelList = [];
     $scope.GetData = function () {
         $scope.modelList = [];
-        $http.get('Materials/MaterialIssueControl/GetSavedUnApprovedData')
+        $http.get('Materials/MaterialIssueControl/GetApprovedData')
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
