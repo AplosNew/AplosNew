@@ -4304,7 +4304,7 @@
                                             <label class="col-sm-4 control-label">SKU1<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
                                                 <div class="select-style">
-                                                    <select name="PackingType" class="form-control" ng-model="ModelSKUDNew.SKU1" ng-options="item.Value as item.Text for item in sku1List" required tabindex="501" @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@">
+                                                    <select name="PackingType" class="form-control" ng-model="ModelSKUDNew.FGFirstCharacteristicsId" ng-options="item.Value as item.Text for item in sku1List" required tabindex="501" @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@">
                                                         <option value="">--Select--</option>
                                                     </select>
                                                 </div>
@@ -4323,7 +4323,7 @@
                                             <label class="col-sm-4 control-label">SKU2<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
                                                 <div class="select-style">
-                                                    <select name="PackingType" class="form-control" ng-model="ModelSKUDNew.SKU2" ng-options="item.Value as item.Text for item in sku2List" required tabindex="502" @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@">
+                                                    <select name="PackingType" class="form-control" ng-model="ModelSKUDNew.FGSecondCharacteristicsId" ng-options="item.Value as item.Text for item in sku2List" required tabindex="502" @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@">
                                                         <option value="">--Select--</option>
                                                     </select>
                                                 </div>
@@ -4333,7 +4333,7 @@
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Plan %</label>
                                             <div class="col-sm-8">
-                                                <textarea class="form-control" rows="3" ng-model="ModelSKUDNew.Plan" maxlength="250" tabindex="6"></textarea>
+                                                <input type="text" name="CM" ng-model="ModelSKUDNew.Plan" class="form-control" tabindex="503">
                                             </div>
                                         </div>
                                     </div>
@@ -4349,8 +4349,8 @@
                                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                             <div e-columns>
                                                 <div e-column e-headertext="Actions" e-template="#ShowActionButtonSKU" e-width="2"></div>
-                                                <div e-column e-field="SKU1" e-headertext="SKU1" e-width="5"></div>
-                                                <div e-column e-field="SKU2" e-headertext="SKU2" e-width="5"></div>
+                                                <div e-column e-field="FGFirstCharacteristicsId" e-headertext="SKU1" e-width="5"></div>
+                                                <div e-column e-field="FGSecondCharacteristicsId" e-headertext="SKU2" e-width="5"></div>
                                                 <div e-column e-field="Quantity" e-headertext="Quantity" e-width="5"></div>
                                                 <div e-column e-field="Plan" e-headertext="Plan %" e-width="2"></div>
                                             </div>

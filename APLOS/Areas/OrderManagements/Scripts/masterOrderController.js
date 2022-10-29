@@ -416,7 +416,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.isSet2 = function (tabNum) {
         return $scope.tab2 === tabNum;
     };
-
+    
    
     $scope.currency = null;
     $scope.Get = function (index) {
@@ -4932,9 +4932,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.GetPopUpTab = function (obj) {
         $scope.tab2 = 1;
+        $scope.ClearPT();
         $scope.modelNewPD = obj.data;
         $scope.ModelSO.PackingDetailId = obj.data.Id;
-        $scope.ModelSO.SOId = obj.data.Id;
+        //$scope.ModelSO.SOId = obj.data;
         $scope.ModelPTNew.PackingDetailId = obj.data.Id;
         $scope.GetSavedSOData($scope.ModelSO.PackingDetailId);
         $scope.GetSavedPackingType($scope.ModelPTNew.PackingDetailId);
@@ -5030,6 +5031,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.ModelSO = {
         Id: null,
+        PackingDetailId: $scope.modelNewPD.Id,
         Remarks: null,
         AddedBy: null,
         AddedDate: null,
@@ -5042,6 +5044,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.ClearSO = function () {
         $scope.ModelSO = {
             Id: null,
+            PackingDetailId: $scope.modelNewPD.Id,
             Remarks: null,
             AddedBy: null,
             AddedDate: null,
@@ -5080,6 +5083,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.ModelPT = {
         Id: null,
+        PackingDetailId: $scope.modelNewPD.Id,
         PackingCode: null,
         PackingTypeId: null,
         PackingType: null,
@@ -5089,7 +5093,15 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.ModelPTNew = Object.assign({}, $scope.ModelPT);
 
     $scope.ClearPT = function () {
-        $scope.ModelPTNew = Object.assign({}, $scope.ModelPT);
+        $scope.ModelPTNew = {
+            Id: null,
+            PackingDetailId: $scope.modelNewPD.Id,
+            PackingCode: null,
+            PackingTypeId: null,
+            PackingType: null,
+            CustomerRefCode: null,
+            Remarks: null
+        };
     }
 
     $scope.SavePackingType = function () {
@@ -5123,7 +5135,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.PackingTypeListData = [];
     $scope.GetSavedPackingType = function (packingDetailId) {
-        //$scope.PackingTypeListData = [];
+        $scope.PackingTypeListData = [];
         $http.get('OrderManagements/MasterOrder/GetSavedPackingType?PackingDetailId=' + packingDetailId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
@@ -5172,19 +5184,36 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
 
     $scope.GetPopUpTab2 = function (obj) {
-        $scope.tab2 = 1;
-        $scope.modelNewPD = obj.data;
-        $scope.ModelPTNew.PackingTypeId = obj.data.Id;
-        $scope.GetSavedPackingType($scope.ModelPTNew.PackingTypeId);
-        //$scope.ModelSO.PackingDetailId = obj.data.Id;
-        //$scope.GetSavedSOData($scope.ModelSO.PackingDetailId);
+        $scope.tab2 = 2;
+        $scope.PackingTypeId = obj.data.Id;
+        $scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
+        $scope.ModelSKUDNew.PackingTypeId = $scope.PackingTypeId;
+        //$scope.GetSavedPackingType$scope.ModelPTNew.PackingTypeId
+        if ($scope.SODataList.length > 0) {
+            var uniqueSalesOrderId = removeDuplicates($scope.SODataList, 'SOId');
+            var wcEmpCode = "";
+            if (uniqueSalesOrderId.length > 0) {
+                wcEmpCode = "IN(";
+                wcEmpCode += Array.prototype.map.call(uniqueSalesOrderId, function (item) { return "'" + item.SOId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcEmpCode;
+        }
+        $scope.sku1($scope.sqlInStatement);
+        $scope.sku2($scope.sqlInStatement);
         angular.element(document.querySelector('#SKUPopUp')).modal('show');
+    }
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
     }
 
     $scope.ModelSku = {
         Id: null,
-        SKU1: null,
-        SKU2: null,
+        PackingTypeId: $scope.PackingTypeId,
+        FGFirstCharacteristicsId: null,
+        FGSecondCharacteristicsId: null,
         Quantity: null,
         Plan: null
     };
@@ -5198,7 +5227,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.sku1 = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetSKU1List?SOId=' + $scope.ModelSO.Id
+            url: 'OrderManagements/MasterOrder/GetSKU1List?SOId=' + $scope.sqlInStatement
         }).then(function successCallback(response) {
             $scope.sku1List = response.data;
         })
@@ -5208,12 +5237,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.sku2 = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetSKU2List?SOId=' + $scope.ModelSO.Id
+            url: 'OrderManagements/MasterOrder/GetSKU2List?SOId=' + $scope.sqlInStatement
         }).then(function successCallback(response) {
             $scope.sku2List = response.data;
         })
     };
-
+    $scope.PackingTypeId = null;
     $scope.SaveSKUDetail = function () {
         try {
             $http({
@@ -5228,7 +5257,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.ClearSKUD();
-                    $scope.GetSavedPackingType($scope.ModelPTNew.PackingTypeId);
+                    $scope.GetSavedSKUDetailData($scope.ModelPTNew.PackingTypeId);
 
                 }
             }), function errorCallBack(response) {
