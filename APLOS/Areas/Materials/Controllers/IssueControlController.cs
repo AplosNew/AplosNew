@@ -95,6 +95,18 @@ namespace Aplos.Areas.Materials.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [Authorize, HttpPost]
+        public ActionResult GetItemApplicable()
+        {
+            try
+            {
+                return Json(isc.GetItemApplicable(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         #endregion GET FUN
 
         #region SAVE

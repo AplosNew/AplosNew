@@ -14,8 +14,16 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.deleteUrl = $scope.path + 'Delete/';
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.getSeqUrl = $scope.path + 'CountEmployeeVisiting';
 
-    // #REGION 
+    $scope.CountEmployeeVisiting = function () {
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.ModelTemp.Sequence = data;
+            $scope.ModelNew.Sequence = data;
+        });
+    };
+
+    // #region POP UP 
     $scope.openEmpPopUp = function () {
         angular.element(document.querySelector('#empPopUpId')).modal('show');
 
@@ -48,7 +56,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         angular.element(document.querySelector('#sicknessPopUpid')).modal('hide');
 
     }
-
+    // #endregion POP UP 
     
 
     // TAB CHANGE
