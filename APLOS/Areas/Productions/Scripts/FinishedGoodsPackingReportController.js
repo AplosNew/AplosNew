@@ -27,7 +27,7 @@ function FinishedGoodsPackingReportController(cboService, commonMessage, $scope,
     $scope.getAllEntities();
 
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
-    $scope.fileName="GetFinishedGoodsPackingReport.xlsx";
+    $scope.fileName="FinishedGoodsPackingReport.xlsx";
     $scope.getFinishedStocksReport = function () {
         var DropDownEntityListObj = $("#PurposeList").data("ejDropDownList");
         var PurposeId = DropDownEntityListObj.getSelectedValue();
