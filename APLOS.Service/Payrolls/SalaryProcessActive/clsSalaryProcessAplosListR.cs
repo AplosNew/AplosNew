@@ -1175,8 +1175,8 @@ public class clsSalaryProcessAplosR
                             spq.LoadLWP(sEmpSysIDColl, para.FromDate, para.ToDate, out dsLWP);
                             SendNotification("Fetching Specific Leave", TotProcComp, TotSelectEmpForProc);
                             spq.LoadSpecificLeave(sEmpSysIDColl, para.PlantId, para.FromDate, para.ToDate, out dsLeaveSpecific);
-                            SendNotification("Fetching Route Employee List", TotProcComp, TotSelectEmpForProc);
-                            spq.LoadRouteEmpList(sEmpSysIDColl, out dsRouteEmp);
+                            //SendNotification("Fetching Route Employee List", TotProcComp, TotSelectEmpForProc);
+                            //spq.LoadRouteEmpList(sEmpSysIDColl, out dsRouteEmp);
 
                             SendNotification("Fetching Attdn Bonus", TotProcComp, TotSelectEmpForProc);
                             List<dicAttdnBns> dicAttdnBns = new List<global::dicAttdnBns>();
