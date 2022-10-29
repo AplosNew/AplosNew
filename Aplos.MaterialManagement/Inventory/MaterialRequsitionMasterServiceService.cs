@@ -4477,13 +4477,13 @@ ORDER BY IR.ID DESC";
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='RequisitionCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='RequisitionCheckedBy' and E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='RequisitionApproveBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='RequisitionApproveBy' and E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {
