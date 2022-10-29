@@ -2086,10 +2086,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSKU1List(string SOId)
         {
-            string sql = @"select sku1.Id as Value,CV.UserName
+            string sql = @"select distinct CV.Id as Value,CV.UserName as Text
                                 from trn.FirstCharacteristics sku1
                                 left join HKP.CharacteristicsValue CV on CV.Id=sku1.CharacteristicsValueId
-                                where sku1.SalesOrderId='" + SOId + "'";
+                                where sku1.SalesOrderId " + SOId + "";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
@@ -2099,10 +2099,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSKU2List(string SOId)
         {
-            string sql = @"select sku2.Id as Value,CV.UserName
+            string sql = @"select distinct CV.Id as Value,CV.UserName as Text
                                 from trn.SecondCharacteristics sku2
                                 left join HKP.CharacteristicsValue CV on CV.Id=sku2.CharacteristicsValueId
-                                where sku2.SalesOrderId ='" + SOId + "'";
+                                where sku2.SalesOrderId " + SOId + "";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;

@@ -4,11 +4,14 @@ using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Model.Materials;
 using Library.Security.Core;
+using Library.Service.Helpers;
 using Library.Service.Materials;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
@@ -318,6 +321,84 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+
+        [HttpPost, Authorize]
+        public ActionResult SaveDefault(IEnumerable<System.Web.HttpPostedFileBase> UploadDefault, string UploadDefault_data)
+        {
+            try
+            {
+                UploadDefault_data = UploadDefault_data.Replace("\"", "");
+                if (string.IsNullOrEmpty(UploadDefault_data))
+                    throw new Exception("Save the order first");
+
+                foreach (var file in UploadDefault)
+                {
+
+                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    var fileN = file.FileName;
+                    var destinationPath = Path.Combine(ResourcesPathReader.GetMOIDocumentPath(), fileName);
+
+                    var directory = ResourcesPathReader.GetMOIDocumentPath();
+                    var path = Path.Combine(directory);
+
+                    if (System.IO.Directory.Exists(ResourcesPathReader.GetMOIDocumentPath()) == false)
+                    {
+                        try
+                        {
+                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetMOIDocumentPath());
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+
+
+                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                    string sql = "SELECT * FROM [TRN].[MachineAssetPlannedDetails] WHERE Id='" + UploadDefault_data + "'";
+                    DataSet dsLocal = null;
+                    connection.BeginTransaction();
+                    connection.getDataSet(sql, out dsLocal);
+                    connection.CommitTransaction();
+                    var FN = dsLocal.Tables[0].Rows[0]["FileName"].ToString();
+                    if (fileN != FN)
+                        if (System.IO.File.Exists(path + UploadDefault_data + Path.GetExtension(FN)))
+                            System.IO.File.Delete(path + UploadDefault_data + Path.GetExtension(FN));
+
+                    if (dsLocal.Tables[0].Rows.Count > 0)
+                    {
+                        dsLocal.Tables[0].Rows[0].BeginEdit();
+
+                        dsLocal.Tables[0].Rows[0]["FileName"] = fileN;
+
+                        dsLocal.Tables[0].Rows[0].EndEdit();
+
+                        file.SaveAs(destinationPath);
+                        clsStaticInfo info = new clsStaticInfo();
+                        info.SaveDataSets(dsLocal);
+
+
+
+                    }
+                }
+                return Content("");
+            }
+            catch (Exception ex)
+            {
+                HttpResponse Response = System.Web.HttpContext.Current.Response;
+                Response.Clear();
+                Response.ContentType = "application/json; charset=utf-8";
+                Response.StatusCode = 204;
+                Response.Status = "204 No Content";
+                Response.StatusDescription = ex.Message;
+                Response.End();
+
+                return Content("");
+            }
+
+        }
+
+
 
         #endregion -- Operations
     }
