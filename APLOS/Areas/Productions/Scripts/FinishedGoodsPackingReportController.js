@@ -5,37 +5,39 @@ function FinishedGoodsPackingReportController(cboService, commonMessage, $scope,
     $scope.path = 'Productions/FinishedGoodsPackingReport/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
-    $scope.LocList = [];
-
-    function getLocations() {
+    $scope.PurposeList = [];
+    $scope.getAllEntities = function () {
         $http({
-            method: 'GET',
-            url:  "Productions/Packing/getLocations"
-        }).then(function succ(resp) {
-            $scope.LocList = resp.data;
-        })
+            method: 'Get',
+            url: "Productions/MaterialMovementPurpose/GetCbo"
+        }).then(function successCallback(response) {
+            $scope.PurposeList = response.data;
+            var index = 0;
+            $('#PurposeList').ejDropDownList(
+                {
+                    dataSource: $scope.PurposeList,
+                    fields: { text: "Text", value: "Value" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
+            var DropDownEntityListObj = $("#PurposeList").data("ejDropDownList");
+            var PurposeId = DropDownEntityListObj.getSelectedValue();
+        });
     }
-    getLocations();
-
-    $rootScope.LocName = "All";
-    $rootScope.LocId = "All";
-
-    $scope.LocChange = function () {
-        var obj = $('#listLoc').data("ejDropDownList");
-        $rootScope.LocName = obj.option("text");
-        $rootScope.LocId = obj.option("value");
-    }
+    $scope.getAllEntities();
 
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
-    $scope.fileName="GetFinishedGoodsPackingReport.xlsx";
+    $scope.fileName="FinishedGoodsPackingReport.xlsx";
     $scope.getFinishedStocksReport = function () {
+        var DropDownEntityListObj = $("#PurposeList").data("ejDropDownList");
+        var PurposeId = DropDownEntityListObj.getSelectedValue();
 
         $http({
             method: 'POST',
             url: $scope.path + "GetReport",
             
             data: {
-                'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate
+                'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate, 'PurposeId': PurposeId
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

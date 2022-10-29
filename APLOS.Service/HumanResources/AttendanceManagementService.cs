@@ -3396,6 +3396,7 @@ namespace Library.Service.HumanResources
                             int UOM = 0;
                             int Article = 0;
                             int EstimatedQty = 0;
+                            int StockQty = 0;
                             int Category = 0;
                             int CostType = 0;
                             int EstimationLevel = 0;
@@ -3635,20 +3636,19 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, ItemMinutes].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ItemMinutes].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                            CheckPoints = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, CheckPoints].Text = "Check Points";
+                            sheet1.Range[xlsRow, CheckPoints].ColumnWidth = 30;
+                            sheet1.Range[xlsRow, CheckPoints].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, CheckPoints].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                             CriticalLevel = xlsCol;
                             xlsCol += 1;
                             sheet1.Range[xlsRow, CriticalLevel].Text = "Critical Level";
                             sheet1.Range[xlsRow, CriticalLevel].ColumnWidth = 15;
                             sheet1.Range[xlsRow, CriticalLevel].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, CriticalLevel].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            CheckPoints = xlsCol;
-                            xlsCol += 1;
-                            sheet1.Range[xlsRow, CheckPoints].Text = "Check Points";
-                            sheet1.Range[xlsRow, CheckPoints].ColumnWidth = 25;
-                            sheet1.Range[xlsRow, CheckPoints].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet1.Range[xlsRow, CheckPoints].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
                             ItemRemarks = xlsCol;
                             sheet1.Range[xlsRow, ItemRemarks].Text = "Item Remarks";
                             sheet1.Range[xlsRow, ItemRemarks].ColumnWidth = 30;
@@ -3770,16 +3770,16 @@ namespace Library.Service.HumanResources
                             xlsCol += 1;
                             EstimatedQty = xlsCol;
                             sheet1.Range[xlsRow, EstimatedQty].Text = "Estimated Qty";
-                            sheet1.Range[xlsRow, EstimatedQty].ColumnWidth = 12;
+                            sheet1.Range[xlsRow, EstimatedQty].ColumnWidth = 20;
                             sheet1.Range[xlsRow, EstimatedQty].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, EstimatedQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            //xlsCol += 1;
-                            //iOutTime = xlsCol;
-                            //sheet1.Range[xlsRow, iOutTime].Text = "Stock Qty";
-                            //sheet1.Range[xlsRow, iOutTime].ColumnWidth = 8;
-                            //sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            StockQty = xlsCol;
+                            sheet1.Range[xlsRow, StockQty].Text = "Stock Qty";
+                            sheet1.Range[xlsRow, StockQty].ColumnWidth = 20;
+                            sheet1.Range[xlsRow, StockQty].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, StockQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             xlsCol += 1;
                             CostType = xlsCol;
@@ -3847,6 +3847,11 @@ namespace Library.Service.HumanResources
                                     sheet1.Range[xlsRow, EstimatedQty].RowHeight = 20;
                                     sheet1.Range[xlsRow, EstimatedQty].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, EstimatedQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, StockQty].Text = dvBioDvAC[i]["StockQty"].ToString().Trim();
+                                    sheet1.Range[xlsRow, StockQty].RowHeight = 20;
+                                    sheet1.Range[xlsRow, StockQty].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, StockQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, CostType].Text = dvBioDvAC[i]["CostType"].ToString().Trim();
                                     sheet1.Range[xlsRow, CostType].RowHeight = 20;
@@ -3996,7 +4001,7 @@ namespace Library.Service.HumanResources
                             sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + username + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
                             sheet1.PageSetup.LeftMargin = 0.5;
                             sheet1.PageSetup.RightMargin = 0.2;
-                            sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                            sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
                             sheet1.PageSetup.FitToPagesTall = 0;
                             sheet1.PageSetup.FitToPagesWide = 1;
                             sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;

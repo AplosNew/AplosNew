@@ -842,7 +842,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
 
     function ItemClearFields(seq) {
         $scope.Action = "Save";
-        $scope.ItemNew = Object.assign({}, $scope.item);
+        $scope.ItemNew = Object.assign({}, $scope.Item);
         $scope.ItemNew.SNO = seq;
     }
 
