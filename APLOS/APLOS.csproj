@@ -2189,6 +2189,7 @@
     <Content Include="Areas\Machines\Scripts\pendingMaintenanceScheduleController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceStatusDetailsController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
+    <Content Include="Areas\Materials\Scripts\MaterialIssueController.js" />
     <Content Include="Areas\Materials\Scripts\MaterialIssueControlApprovalController.js" />
     <Content Include="Areas\Materials\Scripts\MaterialIssueControlController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogController.js" />
