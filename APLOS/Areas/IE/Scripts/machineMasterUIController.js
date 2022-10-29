@@ -54,7 +54,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         RunningSteam: null,
         ConnectedAir: null,
         RunningAir: null,
-        MaintanenceScheduleApplicable: false,
+        MaintanenceScheduleApplicable: true,
         Active: true,
         MachineMake: null,
         MachineModel: null,
