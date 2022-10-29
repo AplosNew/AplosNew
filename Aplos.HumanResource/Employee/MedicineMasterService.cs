@@ -1145,7 +1145,7 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
         {
             try
             {
-                #region commnet
+                
                 var sql = @"select distinct MM.UserName Medicine, MM.Id, 
 stuff((select ',' +  CONVERT(VARCHAR(20), SUM(x.Quantity)) 
 from TRN.MedicineReceiptChild x
@@ -1155,11 +1155,8 @@ from TRN.MedicineReceipt MR
 left join TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
 left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where MRC.Quantity is not null";
-                #endregion commnet
-                //var sql = @"select (SUM(MRC.Quantity)-SUM(ESM.Quantity)) Stock,MM.UserName, MM.Id, MM.Category, MM.SubCategory from TRN.EmployeeSicknessMedicines ESM
-                //            LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.Id=ESM.MedicineReceiptChildId
-                //            LEFT JOIN HKP.MedicineMaster MM ON MM.Id=MRC.MedicineMasterId
-                //            GROUP BY MM.UserName, MM.Id, MM.Category, MM.SubCategory";
+               
+                
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
@@ -1327,7 +1324,7 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 else
                 {
                     _Id = data["Id"].ToString();
-
+                    data["EmployeeSystemId"] = empSystemId;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion MEDICAL LOG HEAD
@@ -1338,10 +1335,10 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
                 conn.OpenDataSetThroughAdapter("select * from TRN.EmployeeSickness where MedicalLogId ='" + data["Id"].ToString() + "'", out dsMedicinePurposeChild, false, "1");
 
-                while (dsMedicinePurposeChild.Tables[0].DefaultView.Count > 0)
-                {
-                    dsMedicinePurposeChild.Tables[0].DefaultView[0].Delete();
-                }
+                //while (dsMedicinePurposeChild.Tables[0].DefaultView.Count > 0)
+                //{
+                //    dsMedicinePurposeChild.Tables[0].DefaultView[0].Delete();
+                //}
 
                 for (int i = 0; i < medicinepurposelist.Count; i++)
                 {
@@ -1363,10 +1360,10 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 ConnectionManager.DAL.ConManager Medicineconn = new ConnectionManager.DAL.ConManager("1");
                 Medicineconn.OpenDataSetThroughAdapter("select * from TRN.EmployeeSicknessMedicines where MedicalLogId ='" + data["Id"].ToString() + "'", out dsMedicineChild, false, "1");
 
-                while (dsMedicineChild.Tables[0].DefaultView.Count > 0)
-                {
-                    dsMedicineChild.Tables[0].DefaultView[0].Delete();
-                }
+                //while (dsMedicineChild.Tables[0].DefaultView.Count > 0)
+                //{
+                //    dsMedicineChild.Tables[0].DefaultView[0].Delete();
+                //}
 
                 for (int i = 0; i < medicinelist.Count; i++)
                 {
@@ -1439,6 +1436,17 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
             dr.EndEdit();
         }
         #endregion CREATE AND EDIT DEFAULT COLUMN
+
+        #region GET SEQUENCE
+        public double CountEmployeeVisiting(string empSytemId)
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(NoOfVisits),1) AS NoOfVisits FROM TRN.MedicalLog where EmployeeSystemId = '"+ empSytemId + "'");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["NoOfVisits"].ToString()) + 1;
+
+            return 1;
+        }
+        #endregion GET SEQUENCE
     }
     #endregion Medical Log
 

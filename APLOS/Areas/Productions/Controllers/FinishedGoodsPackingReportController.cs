@@ -53,12 +53,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetReport(string fromDate, string toDate)
+        public ActionResult GetReport(string fromDate, string toDate, string PurposeId)
         {
             try
             {
                 string fileName = "";
-                fileName = GetFinishedGoodsPackingReport(fromDate, toDate, "GetFinishedGoodsPackingReport");
+                fileName = GetFinishedGoodsPackingReport(fromDate, toDate, PurposeId, "GetFinishedGoodsPackingReport");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -68,7 +68,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-        public string GetFinishedGoodsPackingReport(string fromDate, string toDate, string SheetName)
+        public string GetFinishedGoodsPackingReport(string fromDate, string toDate, string PurposeId, string SheetName)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -84,7 +84,7 @@ namespace Aplos.Areas.Productions.Controllers
                 workbook.Worksheets[1].Name = "Data";
                 sheet = workbook.Worksheets[1];
                 DataTable dtOrder;
-                det.GetFinishedGoodsPackingReportData(fromDate, toDate, out dtOrder);
+                det.GetFinishedGoodsPackingReportData(fromDate, toDate, PurposeId, out dtOrder);
                 int ROW = 6; int COL = 1;
 
                 #region columns
