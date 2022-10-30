@@ -61,6 +61,21 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId";
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetApprovedData()
+        {
+            try
+            {
+                string sql = @"SELECT M.*,E.EmployeeName ByWhom FROM [dbo].[MaterialIssueControlMaster] M
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId Where M.IsApproved=1";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetSavedSODetailData(string masterId)
         {
             try
@@ -162,12 +177,12 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         {
             try
             {
-                string sql = @"select D.*,D.CostingItemId,I.UserName Item,A.StandardName QBOQArticle,A.Id AtricleId,M.Id MaterialMasterId
+                string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY D.Id) SrNo,D.*,D.CostingItemId,I.UserName Item,A.StandardName QBOQArticle,A.Id AtricleId,M.Id MaterialMasterId
 ,M.UserName MaterialMaster from dbo.MaterialIssueControlDetail D 
 INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
 LEFT JOIN MST.MaterialMaster M ON M.Id=D.MaterialMasterId
 LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.AtricleId
-Where D.MaterialIssueControlMasterId='" + masterId + "'";
+WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -295,7 +310,7 @@ Where D.MaterialIssueControlMasterId='" + masterId + "'";
 													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
                                                     group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE PO.entityid='" + entityid + @"' AND S.UserName<>'Closed') AS TEMP WHERE " + strkey + " ORDER BY ProductionPriority";
+                            WHERE PO.entityid='" + entityid + @"' AND S.UserName<>'Closed' AND PO.Id NOT IN(Select POId from dbo.MaterialIssueControlMaster)) AS TEMP WHERE " + strkey + " ORDER BY ProductionPriority";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -385,7 +400,7 @@ LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
 
-                                WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName = 'Running' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "'";
 
 
             return Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);

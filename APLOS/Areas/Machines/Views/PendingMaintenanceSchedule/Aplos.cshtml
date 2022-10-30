@@ -211,7 +211,7 @@
                                             <label class="col-sm-4 control-label" ng-click="$parent.FileDownload(data)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{data.FileName}}" target="_self">{{data.FileName}}</a></label>
                                         </div>
                                         <div class="col-md-5">
-                                            <div id="UploadDefault" e-id="{{data.Id}}" e-data="data.Id" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" @*e-height="30"*@ e-autoupload="true" e-begin="onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" @*e-error="errorUpload"*@></div>
+                                            <div id="UploadDefault" e-id="{{data.Id}}" e-data="data.Id"  e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" @*e-height="30"*@ e-autoupload="true" e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" e-error="errorUpload"></div>
                                         </div>
                                     </div>
                                 </script>
@@ -274,3 +274,5 @@
         </div>
     </div>
 </div>
+
+

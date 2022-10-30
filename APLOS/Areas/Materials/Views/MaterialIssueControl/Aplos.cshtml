@@ -10,7 +10,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Code<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="User Code" ng-model="ModelNew.UserCode" class="form-control" maxlength="15" required tabindex="3">
+                        <input type="text" name="User Code" ng-model="ModelNew.UserCode" class="form-control" maxlength="15" required tabindex="1">
                     </div>
                 </div>
                 <div class="form-group" show-errors>
@@ -22,14 +22,14 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Plan(%)<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Plan Percentage" ng-model="ModelNew.PlanPercentage" only-numbers class="form-control" ng-change="CalculationByPlan();" required tabindex="3">
+                        <input type="text" name="Plan Percentage" ng-model="ModelNew.PlanPercentage" only-numbers class="form-control" ng-change="CalculationByPlan();" required tabindex="5">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                     <div class="col-sm-8">
                         <div class="input-group">
-                            <input type="text" name="ByWhom" ng-model="ModelNew.ByWhom" class="form-control" readonly tabindex="115">
+                            <input type="text" name="ByWhom" ng-model="ModelNew.ByWhom" class="form-control" readonly tabindex="7">
                             <span class="input-group-btn">
                                 <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
                             </span>
@@ -41,20 +41,20 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" maxlength="50" required tabindex="3">
+                        <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" maxlength="50" required tabindex="2">
                     </div>
                 </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Lot No<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="LotNo" ng-model="ModelNew.LotNo" class="form-control" maxlength="50" required tabindex="3">
+                        <input type="text" name="LotNo" ng-model="ModelNew.LotNo" class="form-control" maxlength="50" required tabindex="4">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Level</label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="ModelNew.Level" name="Level" ng-change="GetQBOQCostingData();">
+                            <select class="form-control" ng-model="ModelNew.Level" name="Level"  tabindex="6" ng-change="GetQBOQCostingData();">
                                 <option value="">--Select--</option>
                                 <option value="Costing">Costing</option>
                                 <option value="QBOQ">QBOQ</option>
@@ -65,7 +65,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Remarks</label>
                     <div class="col-sm-8">
-                        <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                        <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
                     </div>
                 </div>
             </div>
