@@ -2,9 +2,11 @@
     .modellgModify {
         width: 1550px;
     }
+
     .modelwith {
         width: 1250px;
     }
+
     .table-fixed thead > tr > th {
         float: left;
         position: relative;
@@ -1155,11 +1157,12 @@
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
                                         <li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                        <li><button ng-click="GetbinAllocationPopUp(x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="Bin Allocation"><i class="glyphicon glyphicon-info-sign"></i></button></li>
                                         @*<li><button ng-click="GRNAllowcationForSOInSavingTime(x, MaterialMasterId,x.InventoryReceiveDetailId,x.PODetailsID)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation For SO" ng-hide="x.PurchaseDocumentAcceptanceId===null">Allocation For SO</button></li>*@
                                         @*<li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
                                         @*<li><button ng-click="PODetailsUpdatePOPUp(x.PODetailsID,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation to Requisition"><i class="glyphicon glyphicon-zoom-out"></i></button></li>*@
                                         @*<li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
-                                        <li><button ng-click="ViewRequisitionDetail(x.InventoryReceiveDetailId,x.TransactionQty)" class="btn btn-action tooltip-here" ng-disabled="x.TransactionQty==0||x.TransactionQty==''" data-placement="top" id="MEdit" title="View Requisition Detail" >View Requisition Detail</button></li>
+                                        <li><button ng-click="ViewRequisitionDetail(x.InventoryReceiveDetailId,x.TransactionQty)" class="btn btn-action tooltip-here" ng-disabled="x.TransactionQty==0||x.TransactionQty==''" data-placement="top" id="MEdit" title="View Requisition Detail">View Requisition Detail</button></li>
                                     </ul>
                                 </td>
                                 <td></td>
@@ -2888,6 +2891,7 @@
 </div>
 @*@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")*@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/StorageBinAllocation/_BinAllocationPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 <div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
@@ -3401,8 +3405,8 @@
                             </tr>
                             <tr>
                                 <td colspan="4">Total</td>
-                                <td  class="text-right"><strong>{{requisitionDetailList | sumByKey : 'Qty'| setDecimal:2| number:2 }}</strong></td>
-                                <td  class="text-right"><strong>{{requisitionDetailList | sumByKey : 'TransactionQty'| setDecimal:2| number:2 }}</strong></td>
+                                <td class="text-right"><strong>{{requisitionDetailList | sumByKey : 'Qty'| setDecimal:2| number:2 }}</strong></td>
+                                <td class="text-right"><strong>{{requisitionDetailList | sumByKey : 'TransactionQty'| setDecimal:2| number:2 }}</strong></td>
                                 <td></td>
                             </tr>
 

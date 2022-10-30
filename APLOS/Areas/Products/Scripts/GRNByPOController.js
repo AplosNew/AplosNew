@@ -4580,4 +4580,19 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         }
 
     };
+    $scope.binMasterList = [];
+    $scope.GetbinAllocationPopUp = function(materialMasterId) {
+        $scope.binMasterList = [];
+        $http({
+            method: 'Post'
+            , url: 'Materials/StorageBinAllocation/GetBinAllocationByMaterialId?materialMasterId=' + materialMasterId + '&materialStorageId=' + $scope.productNew.MaterialStorageId
+        }).then(function (response) {
+            $scope.binMasterList = response.data;
+        });
+        angular.element(document.querySelector('#binAllocationPopUp')).modal('show');
+    }
+    
+    $scope.CloseBinAllocationPopUp = function () {
+        angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
+    }
 }
