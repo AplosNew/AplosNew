@@ -157,6 +157,7 @@ function MaterialIssueControlApprovalController(cboService, commonMessage, $scop
                         else {
                             ShowResult(response.data.Message, 'success');
                             $scope.Clear();
+                            $scope.GetData();
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');

@@ -121,15 +121,15 @@
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="ValueLoss" e-headertext="ValueLoss" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="GrossConsumption" e-headertext="GrossConsumption" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalConsumption" e-headertext="TotalConsumption" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="number" e-format="{0:0.00}" e-template="#AdditionReductionTemplate" e-field="AdditionReduction" e-headertext="AdditionReduction" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="PlanConsumption" e-headertext="PlanConsumption" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-template="#IssueTemplate" e-field="IssueQty" e-headertext="IssueQty" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="number" e-format="{0:0.00}" e-field="TotaPlanlAmount" e-headertext="TotaPlanlAmount" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="StockRate" e-headertext="StockRate" e-textalign="right" e-width="80"></div>
+                        @*<div e-column e-type="number" e-format="{0:0.00}" e-field="TotaPlanlAmount" e-headertext="TotaPlanlAmount" e-textalign="right" e-width="80"></div>*@
                         <div e-column e-type="string" e-field="QBOQArticle" e-headertext="Article" e-width="200px"></div>
                         <div e-column e-template="#SearchArticleTemplate" e-headertext="Article" e-width="32px"></div>
                         <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="180"></div>
-                        <div e-column e-type="number" e-format="{0:0.00}" e-field="StockRate" e-headertext="StockRate" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="number" e-format="{0:0.00}" e-field="ActualIssueAmount" e-headertext="ActualIssueAmount" e-textalign="right" e-width="80"></div>
+                        @*<div e-column e-type="number" e-format="{0:0.00}" e-field="ActualIssueAmount" e-headertext="ActualIssueAmount" e-textalign="right" e-width="80"></div>*@
                         <div e-column e-type="string" e-field="Remarks" e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
                     </div>
                 </div>
@@ -152,9 +152,9 @@
                 </ul>
             </div>
         </script>
-        <script type="text/template" id="AdditionReductionTemplate">
+        <script type="text/template" id="IssueTemplate">
             <div class="col-sm-10" style="padding:0px; width:70px;">
-                <input type="text" ej-numerictextbox e-decimalplaces="4" disabled e-value="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />
+                <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.IssueQty" e-width="80" />
             </div>
         </script>
 
