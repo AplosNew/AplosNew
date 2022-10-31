@@ -22095,16 +22095,15 @@ group by Id) O60 ON O60.Id=IV.Id
 
         public List<Dictionary<string, object>> GetReceiptPaymentStatusDataList()
         {
-            var sql = @"select distinct P.UserName Customer,MO.Id MasterOrderNo,MO.AddedDate MasterOrderDate ,S.InvoiceNo,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
-                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,0 taxableValue
-												,I.Amount,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate,IWOD.Amount ReceiveAgainstInvoice
-						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate),I.Amount-IWOD.Amount  BalancePaymentAgainstInvoice,C.Code Currency
-						                        ,0 BalanceAmountAfterAdjustCommission,0 Commission
-												,IWOD.Amount*ISNULL(MOC.[Value],0) CommissionAmount,0 CashDiscount
+            var sql = @"select distinct S.InvoiceNo,P.Code CustomerCode,P.UserName Customer ,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
+												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
+						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate),C.Code Currency,I.Amount
+						                        ,MO.Id,IWOD.Amount*ISNULL(MOC.[Value],0) CommissionAmount
 												,IWOD.Amount*ISNULL(MOCD.[Value],0) CDAmount
 												,(IWOD.Amount-(IWOD.Amount*(ISNULL(MOC.[Value],0)/100)+IWOD.Amount*(ISNULL(MOCD.[Value],0)/100)))[NetAmount_IfPaymet_Ontime]
 												,(IWOD.Amount-(IWOD.Amount*(ISNULL(MOC.[Value],0)/100)))[NetAmount_IfPaymet_Delay]
-												
+												,IWOD.Amount ReceiveAgainstInvoice,I.Amount-IWOD.Amount  BalancePaymentAgainstInvoice
 						                        from TRN.InvoiceWriteOffDetail IWOD
 						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
 						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
@@ -22130,16 +22129,16 @@ group by Id) O60 ON O60.Id=IV.Id
                                                 where IWO.SourceType = 'CustomerReceipt' and IWO.PartyType = 'Customer' and S.SourceType in ('MasterOrderSales','Sales')
 												union 
 
-												select distinct P.UserName Customer,MOC.MasterOrderNo,MOC.MasterOrderDate,S.InvoiceNo,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
-                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,0 taxableValue
-												,I.Amount,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate,IWOD.Amount ReceiveAgainstInvoice
-						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate),I.Amount-IWOD.Amount  BalancePaymentAgainstInvoice,C.Code Currency
-						                        ,0 BalanceAmountAfterAdjustCommission,0 Commission
-												,MOC.CommissionAmount CommissionAmount,0 CashDiscount
+												select distinct S.InvoiceNo,P.Code CustomerCode,P.UserName Customer,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
+												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
+						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate),C.Code Currency,I.Amount
+						                        ,NULL  Id
+												,MOC.CommissionAmount CommissionAmount
 												,MOCD.CDAmount CDAmount
 												,(IWOD.Amount-(MOC.CommissionAmount)+IWOD.Amount*(ISNULL(MOC.CommissionAmount,0)))[NetAmount_IfPaymet_Ontime]
 												,(IWOD.Amount-(MOC.CommissionAmount))[NetAmount_IfPaymet_Delay]
-												
+												,IWOD.Amount ReceiveAgainstInvoice,I.Amount-IWOD.Amount  BalancePaymentAgainstInvoice
 						                        from TRN.InvoiceWriteOffDetail IWOD
 						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
 						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
@@ -22148,19 +22147,13 @@ group by Id) O60 ON O60.Id=IV.Id
 						                         join TRN.Sales S on S.VoucherId=I.VoucherId
 												
 												
-												LEFT JOIN (select --distinct MOI.MasterOrderNo,MOI.MasterOrderDate,
-												NULL MasterOrderNo,NULL MasterOrderDate,0 taxableValue,
-												SM.SalesId,SUM(SM.TransactionAmount*(MC.[Value]/100)) CommissionAmount 
+												LEFT JOIN (select  SM.SalesId,SUM(SM.TransactionAmount*(MC.[Value]/100)) CommissionAmount 
 															from TRN.SalesMaterial SM
 															left join   TRN.SalesOrder SO ON SO.Id=SalesOrderId
 															LEFT JOIN dbo.MasterOrderItemCostingRate MC ON MC.MasterOrderItemId=SO.MasterOrderItemId
-															 --join (select distinct MO.Id MasterOrderNo,MO.AddedDate MasterOrderDate,MOI.Id from TRN.MasterOrderItem MOI 
-															 --join TRN.MasterOrder MO on MO.Id=MOI.MasterOrderId)MOI on MOI.Id=SO.MasterOrderItemId
-															 
 															LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
 															WHERE OLC.SOItemName='Commission' 
 															group by SM.SalesId
-															--,MOI.MasterOrderNo,MOI.MasterOrderDate
 												) MOC ON MOC.SalesId=S.Id
 												LEFT JOIN (select  SM.SalesId,SUM(SM.TransactionAmount*(MC.[Value]/100)) CDAmount 
 															from TRN.SalesMaterial SM
@@ -22209,7 +22202,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
             worksheet[ROW, COL].Text = "Customer";
             int colCustomer = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].ColumnWidth = 20;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
@@ -22238,13 +22231,13 @@ group by Id) O60 ON O60.Id=IV.Id
 
             worksheet[ROW, COL].Text = "Invoice Date";
             int colInvoiceDate = COL;
-            worksheet[ROW, COL].ColumnWidth = 30;
+            worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "Base On Due Date";
             int colBaseOnDueDate = COL;
-            worksheet[ROW, COL].ColumnWidth = 30;
+            worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
@@ -22339,10 +22332,11 @@ group by Id) O60 ON O60.Id=IV.Id
             worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
             //ROW++;
             int StartRow = ROW;
-
+            //int margeRow = 0;
             List<string> list = new List<string>();
             for (int i = 0; i < dtGatenntryRegisterList.Rows.Count; i++)
             {
+                //margeRow = ROW +1;
                 ROW++;
                 var rcvid = dtGatenntryRegisterList.Rows[i]["InvoiceNo"].ToString();
                 if (list.Contains(rcvid))
@@ -22352,16 +22346,18 @@ group by Id) O60 ON O60.Id=IV.Id
                 else//nai
                 {
                     list.Add(rcvid);
-                    // int i = 0; i < dtMasterOrderItem.Rows.Count; i++
+
                     worksheet[ROW, colCustomer].Text = dtGatenntryRegisterList.Rows[i]["Customer"].ToString();
-                    worksheet[ROW, colMasterOrderNo].Text = dtGatenntryRegisterList.Rows[i]["CustomerCode"].ToString();
-                    worksheet[ROW, colMasterOrderDate].Text = dtGatenntryRegisterList.Rows[i]["CustomerCode"].ToString();
+                    //worksheet.Range[margeRow, colCustomer, ROW, colCustomer].Merge();
+
+                    worksheet[ROW, colMasterOrderNo].Text = dtGatenntryRegisterList.Rows[i]["MasterOrderNo"].ToString();
+                    worksheet[ROW, colMasterOrderDate].Text = dtGatenntryRegisterList.Rows[i]["MasterOrderDate"].ToString();
                     worksheet[ROW, colInvoiceNo].Text = dtGatenntryRegisterList.Rows[i]["InvoiceNo"].ToString();
                     worksheet[ROW, colInvoiceDate].Text = dtGatenntryRegisterList.Rows[i]["InvoiceDate"].ToString();
                     worksheet[ROW, colBaseOnDueDate].Text = (dtGatenntryRegisterList.Rows[i]["BaseOnDueDate"].ToString());
                     worksheet[ROW, colMaturityDate].Text = dtGatenntryRegisterList.Rows[i]["MaturityDate"].ToString();
 
-                    worksheet[ROW, coltaxableValue].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["Amount"].ToString());
+                    worksheet[ROW, coltaxableValue].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["taxableValue"].ToString());
                     worksheet[ROW, coltaxableValue].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                     worksheet[ROW, colCurrency].Text = dtGatenntryRegisterList.Rows[i]["Currency"].ToString();
@@ -22371,10 +22367,10 @@ group by Id) O60 ON O60.Id=IV.Id
                 
                     worksheet[ROW, colBalancePaymentAgainstInvoice].Text = dtGatenntryRegisterList.Rows[i]["BalancePaymentAgainstInvoice"].ToString();
 
-                    worksheet[ROW, colBalanceAmountAfterAdjustCommission].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["Amount"].ToString());
+                    worksheet[ROW, colBalanceAmountAfterAdjustCommission].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BalanceAmountAfterAdjustCommission"].ToString());
                     worksheet[ROW, colBalanceAmountAfterAdjustCommission].NumberFormat = clsStaticInfo.NumberFormat(2);
 
-                    worksheet[ROW, colCommission].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["CommissionAmount"].ToString());
+                    worksheet[ROW, colCommission].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["Commission"].ToString());
                     worksheet[ROW, colCommission].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                     worksheet[ROW, colCommissionAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["CommissionAmount"].ToString());
@@ -22390,15 +22386,6 @@ group by Id) O60 ON O60.Id=IV.Id
 
 
                 }
-
-                ////Purchase Return
-                //report.SetText(ref sheet1, _rowL, colPOReturnDate, inventoryMaterialList.Rows[n]["PurchaseReturnDate"].ToString());
-                //report.SetText(ref sheet1, _rowL, colPurchaseReturnNo, inventoryMaterialList.Rows[n]["PurchaseReturnNo"].ToString());
-                //report.SetText(ref sheet1, _rowL, colPurchaseReturnQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PurchaseReturnQty"].ToString()));
-                //report.SetText(ref sheet1, _rowL, colPurchaseReturnRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PurchaseReturnRate"].ToString()));
-                //sheet1.Range[_rowL, colPurchaseReturnRate].NumberFormat = report.NumberFormatDecimalFour();
-                //report.SetText(ref sheet1, _rowL, colPurchaseReturnAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PurchaseReturnAmount"].ToString()));
-
 
                 worksheet[ROW, colReceiveDate].Text = dtGatenntryRegisterList.Rows[i]["ReceiveDate"].ToString();
 
@@ -22451,16 +22438,16 @@ group by Id) O60 ON O60.Id=IV.Id
         }
         public DataTable GetReceiptPaymentStatusDataSql()
         {
-            var sql = @"select distinct S.InvoiceNo,P.Code CustomerCode,P.UserName Customer ,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
-                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
-												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
-						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate),C.Code Currency,I.Amount
-						                        ,MO.Id MasterOrderNo,MO.AddedDate MasterOrderDate,0 taxableValue,0 CashDiscount
-												,IWOD.Amount*ISNULL(MOC.[Value],0) CommissionAmount
+            var sql = @"select distinct P.UserName Customer,MO.Id MasterOrderNo,MO.AddedDate MasterOrderDate ,S.InvoiceNo,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,0 taxableValue
+												,I.Amount,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate,IWOD.Amount ReceiveAgainstInvoice
+						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate),I.Amount-IWOD.Amount  BalancePaymentAgainstInvoice,C.Code Currency
+						                        ,0 BalanceAmountAfterAdjustCommission,0 Commission
+												,IWOD.Amount*ISNULL(MOC.[Value],0) CommissionAmount,0 CashDiscount
 												,IWOD.Amount*ISNULL(MOCD.[Value],0) CDAmount
 												,(IWOD.Amount-(IWOD.Amount*(ISNULL(MOC.[Value],0)/100)+IWOD.Amount*(ISNULL(MOCD.[Value],0)/100)))[NetAmount_IfPaymet_Ontime]
 												,(IWOD.Amount-(IWOD.Amount*(ISNULL(MOC.[Value],0)/100)))[NetAmount_IfPaymet_Delay]
-												,IWOD.Amount ReceiveAgainstInvoice,I.Amount-IWOD.Amount  BalancePaymentAgainstInvoice
+												
 						                        from TRN.InvoiceWriteOffDetail IWOD
 						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
 						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
@@ -22486,16 +22473,16 @@ group by Id) O60 ON O60.Id=IV.Id
                                                 where IWO.SourceType = 'CustomerReceipt' and IWO.PartyType = 'Customer' and S.SourceType in ('MasterOrderSales','Sales')
 												union 
 
-												select distinct S.InvoiceNo,P.Code CustomerCode,P.UserName Customer,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
-                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
-												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
-						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate),C.Code Currency,I.Amount
-						                        ,MOC.MasterOrderNo,MOC.MasterOrderDate,0 taxableValue,0 CashDiscount
-												,MOC.CommissionAmount CommissionAmount
+												select distinct P.UserName Customer,MOC.MasterOrderNo,MOC.MasterOrderDate,S.InvoiceNo,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,0 taxableValue
+												,I.Amount,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate,IWOD.Amount ReceiveAgainstInvoice
+						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate),I.Amount-IWOD.Amount  BalancePaymentAgainstInvoice,C.Code Currency
+						                        ,0 BalanceAmountAfterAdjustCommission,0 Commission
+												,MOC.CommissionAmount CommissionAmount,0 CashDiscount
 												,MOCD.CDAmount CDAmount
 												,(IWOD.Amount-(MOC.CommissionAmount)+IWOD.Amount*(ISNULL(MOC.CommissionAmount,0)))[NetAmount_IfPaymet_Ontime]
 												,(IWOD.Amount-(MOC.CommissionAmount))[NetAmount_IfPaymet_Delay]
-												,IWOD.Amount ReceiveAgainstInvoice,I.Amount-IWOD.Amount  BalancePaymentAgainstInvoice
+												
 						                        from TRN.InvoiceWriteOffDetail IWOD
 						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
 						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
