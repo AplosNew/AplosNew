@@ -67,8 +67,6 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     };
     $scope.getData();
 
-   
-
     $scope.SOItemList = [];
     $scope.Get = function (obj) {
         $scope.ModelNew.POId = obj.data.Id;
@@ -306,4 +304,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         gridObj.refreshTemplate();
 
     }
+
+
+
 }
