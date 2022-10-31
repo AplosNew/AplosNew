@@ -22106,6 +22106,7 @@ group by Id) O60 ON O60.Id=IV.Id
 						                        ,MO.Id,IWOD.Amount*ISNULL(MOC.[Value],0) CommissionAmount
 												,I.Amount-IWOD.Amount-(IWOD.Amount*ISNULL(MOC.[Value],0)) [Balance Amount after adjust commission]
 												,IWOD.Amount*ISNULL(MOCD.[Value],0) CDAmount
+                                                ,NULL MasterOrderDate,0 BalanceAmountAfterAdjustCommission
 
 						                        from TRN.InvoiceWriteOffDetail IWOD
 						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
@@ -22144,7 +22145,8 @@ group by Id) O60 ON O60.Id=IV.Id
 												,ISNULL(MOC.CommissionAmount,0) CommissionAmount
 												,I.Amount-IWOD.Amount-(ISNULL(MOC.CommissionAmount,0)) [Balance Amount after adjust commission]
 												,ISNULL(MOCD.CDAmount,0) CDAmount
-												
+												,NULL MasterOrderDate,0 BalanceAmountAfterAdjustCommission
+
 						                        from TRN.InvoiceWriteOffDetail IWOD
 						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
 						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
@@ -22436,7 +22438,7 @@ group by Id) O60 ON O60.Id=IV.Id
 						                        ,MO.Id MasterOrderNo,IWOD.Amount*ISNULL(MOC.[Value],0) CommissionAmount
 												,I.Amount-IWOD.Amount-(IWOD.Amount*ISNULL(MOC.[Value],0)) [Balance Amount after adjust commission]
 												,IWOD.Amount*ISNULL(MOCD.[Value],0) CDAmount
-
+                                                ,NULL MasterOrderDate,0 BalanceAmountAfterAdjustCommission
 						                        from TRN.InvoiceWriteOffDetail IWOD
 						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
 						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
@@ -22470,11 +22472,11 @@ group by Id) O60 ON O60.Id=IV.Id
 												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
 						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate)
 												,IWOD.Amount ReceiveAgainstInvoice,I.Amount-IWOD.Amount  BalancePaymentAgainstInvoice
-						                        ,NULL  MasterOrderNo
+						                        ,NULL  MasterOrderNo,0 BalanceAmountAfterAdjustCommission
 												,ISNULL(MOC.CommissionAmount,0) CommissionAmount
 												,I.Amount-IWOD.Amount-(ISNULL(MOC.CommissionAmount,0)) [Balance Amount after adjust commission]
 												,ISNULL(MOCD.CDAmount,0) CDAmount
-												
+												,NULL MasterOrderDate
 						                        from TRN.InvoiceWriteOffDetail IWOD
 						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
 						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
