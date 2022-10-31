@@ -4960,6 +4960,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.ReceiptPaymentStatusSummaryReport = function () {
         try {
             $scope.reportFormat = "Excel";
+            $scope.fileName = 'ReceiptPaymentStatus.xls';
             //var ReportFileName = "Receipt Payment Status";
             var gridObj = $("#GridReceiptPaymentStatus").data("ejGrid");
             var data = gridObj.model.dataSource();
@@ -4977,14 +4978,15 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             //}
             $http({
                 method: 'POST',
-                url: 'Accounts/InventoryPayable/ReceiptPaymentStatusSummaryReport',
-                data: { 'data': data, 'reportFormat': $scope.reportFormat}
+                url: $scope.path + 'ReceiptPaymentStatusSummaryReport',
+                data: { 'data': data}
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    window.location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
+                    //window.location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                 }
             });
             

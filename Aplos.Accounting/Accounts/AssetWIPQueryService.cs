@@ -903,5 +903,7 @@ WHERE IR.[Status]='Posting' AND IIHD.IsAsset=1 AND ird.IsAsset=1 and isnull(IIHD
                 throw ex;
             }
         }
+
+
     }
 }
