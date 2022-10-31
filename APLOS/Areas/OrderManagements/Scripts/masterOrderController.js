@@ -5200,6 +5200,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
         $scope.sku1($scope.sqlInStatement);
         $scope.sku2($scope.sqlInStatement);
+        $scope.GetSavedSKUDetailData($scope.PackingTypeId);
         angular.element(document.querySelector('#SKUPopUp')).modal('show');
     }
 
@@ -5213,7 +5214,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         Id: null,
         PackingTypeId: $scope.PackingTypeId,
         FGFirstCharacteristicsId: null,
+        FirstCharacteristics: null,
         FGSecondCharacteristicsId: null,
+        SecondCharacteristics: null,
         Quantity: null,
         Plan: null
     };
@@ -5221,6 +5224,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.ClearSKUD = function () {
         $scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
+        $scope.ModelSKUDNew.PackingTypeId = $scope.PackingTypeId;
     }
 
     $scope.sku1List = [];
@@ -5257,7 +5261,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.ClearSKUD();
-                    $scope.GetSavedSKUDetailData($scope.ModelPTNew.PackingTypeId);
+                    $scope.GetSavedSKUDetailData($scope.PackingTypeId);
 
                 }
             }), function errorCallBack(response) {
