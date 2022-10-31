@@ -14,29 +14,50 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
-
+    $scope.ModelNew = { Id: null, POId: null, EntityId: null, Entity: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
 
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
-            method: 'POST',
-            url: "OrderManagements/productionOrderSchedulingParametersType1/GetAllEntityForPlanningType1"
+            method: 'Get',
+            url: "Materials/MaterialIssueControl/EntityList"
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
         });
     }
     $scope.getAllEntities();
 
+    $scope.GetEntityName = function () {
+        for (var i = 0; i < $scope.entityList.length; i++) {
+            if ($scope.entityList[i].Value == $scope.ModelNew.EntityId) {
+                $scope.ModelNew.Entity = $scope.entityList[i].Text;
+                break;
+            }
+        }
+       
+    }
+    $scope.storageList = [];
+
+    $scope.Getstorage= function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialStorage/getcbo'
+        }).then(function (response) {
+            $scope.storageList = response.data;
+        });
+    }
+    $scope.Getstorage();
+
     $scope.PRSearchColumn = 'Id';
     $scope.PRSearchValue = null;
     $scope.modelList = [];
     $scope.getData = function () {
         $scope.modelList = [];
-        if (!baseService.isUndefinedOrNull($scope.EntityId)) {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.EntityId)) {
             $http({
                 method: 'POST',
                 data: {
-                    'entityid': $scope.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+                    'entityid': $scope.ModelNew.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
                 },
                 url: $scope.getListUrl
             }).then(function successCallback(response) {
@@ -44,13 +65,16 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             });
         }
     };
-    $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+    $scope.getData();
+
+   
 
     $scope.SOItemList = [];
     $scope.Get = function (obj) {
         $scope.ModelNew.POId = obj.data.Id;
+       
         $scope.SOItemList = [];
-        $http.get('Materials/MaterialIssueControl/GetSOItemList?entityid=' + $scope.EntityId + '&ProductionOrderId=' + obj.data.Id)
+        $http.get('Materials/MaterialIssueControl/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + obj.data.Id)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {

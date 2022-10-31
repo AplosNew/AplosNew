@@ -368,35 +368,35 @@ namespace HRService
                 #region cmnt
                
 
-                strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.AddedDate, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
-                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose,
+                strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,DL.AddedDate, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
                             MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedDate, DL.AddedFromIP
-							,DL.UpdatedBy, DL.UpdatedDate, DL.UpdatedFromIP,
-							STUFF((select ',' +  X.SystemId
-							From TRN.DetentionLogResponsiblePerson DLR
-							left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
-							where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
-							FOR XML PATH('')
-							),1,1,'') ResponsiblePersonId,
-							STUFF((select ',' +  X.EmployeeName
-							From TRN.DetentionLogResponsiblePerson DLR
-							left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
-							where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
-							FOR XML PATH('')
-							),1,1,'') ResponsiblePersonName,
-							STUFF((select ',' +  X.CellPhnNo
-							From TRN.DetentionLogResponsiblePerson DLR
-							left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
-							where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
-							FOR XML PATH('')
-							),1,1,'') ContactNo
+                            , DLR.Id DLRPId,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo
                             from TRN.DetentionLog DL
-							--left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
                             left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                             left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
-						    left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-						    left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+                            left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
                             where isClose = 0
 ";
                 #endregion cmnt
@@ -419,15 +419,15 @@ namespace HRService
                         Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
                         WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
                         DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
-                        isClose = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["DetentionTypeId"]),
+                        isClose = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isClose"]),
+                        isUpdate = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isUpdate"]),
                         MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
                         ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
                         AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
                         AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
                         AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
-                        UpdatedBy = dsRef.Tables[0].Rows[i]["UpdatedBy"].ToString(),
-                        UpdatedFromIP = dsRef.Tables[0].Rows[i]["UpdatedFromIP"].ToString(),
-                        UpdatedDate = dsRef.Tables[0].Rows[i]["UpdatedDate"].ToString(),
+                        DLRPId = dsRef.Tables[0].Rows[i]["DLRPId"].ToString(),
+                        
                     });
                 }
             }
@@ -1245,14 +1245,13 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string WorkCenterId { get; set; }
         public string DetentionTypeId { get; set; }
         public bool isClose { get; set; }
+        public bool isUpdate { get; set; }
         public string MachineMaster { get; set; }
         public string ProcessId { get; set; }
         public string AddedBy { get; set; }
         public string AddedFromIP { get; set; }
-        public string UpdatedFromIP { get; set; }
         public string AddedDate { get; set; }
-        public string UpdatedBy { get; set; }
-        public string UpdatedDate { get; set; }
+        public string DLRPId { get; set; }
     }
 
     public class GetDetentionLog

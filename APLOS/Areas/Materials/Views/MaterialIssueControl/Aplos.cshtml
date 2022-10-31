@@ -8,6 +8,12 @@
         <div ng-form name="ModelNewForm">
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">PO Id<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="PO Id" disabled ng-model="ModelNew.POId" class="form-control" maxlength="15" required tabindex="1">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Code<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <input type="text" name="User Code" ng-model="ModelNew.UserCode" class="form-control" maxlength="15" required tabindex="1">
@@ -25,6 +31,22 @@
                         <input type="text" name="Plan Percentage" ng-model="ModelNew.PlanPercentage" only-numbers class="form-control" ng-change="CalculationByPlan();" required tabindex="5">
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select name="Storage" ng-model="ModelNew.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="1" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Issue Date" ng-model="ModelNew.IssueDate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                     <div class="col-sm-8">
@@ -38,6 +60,12 @@
                 </div>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Entity" disabled ng-model="ModelNew.Entity" class="form-control" maxlength="15" required tabindex="1">
+                    </div>
+                </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
@@ -54,10 +82,22 @@
                     <label class="col-sm-4 control-label">Level</label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="ModelNew.Level" name="Level"  tabindex="6" ng-change="GetQBOQCostingData();">
+                            <select class="form-control" ng-model="ModelNew.Level" name="Level" tabindex="6" ng-change="GetQBOQCostingData();">
                                 <option value="">--Select--</option>
                                 <option value="Costing">Costing</option>
                                 <option value="QBOQ">QBOQ</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select id="paymentTermId" class="form-control" name="Requisition Type" ng-change="changeType(ModelNew.IssueType)" ng-model="ModelNew.IssueType" tabindex="12" required>
+                                <option value="Capital">Capital </option>
+                                <option value="Revenue">Revenue</option>
                             </select>
                         </div>
                     </div>
@@ -199,7 +239,7 @@
 </div>
 
 <div class="aplos-grid-toggle" id="maincontainer">
-    <div class="row">
+    <div class="form-horizontal form-element-ctrl row" ng-form="localform">
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
@@ -213,8 +253,8 @@
                 <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select name="EntityId" ng-model="EntityId" ng-change="getData();" class="form-control"
-                                ng-options="item.Id as item.UserName for item in entityList" tabindex="1" required>
+                        <select name="entityId" ng-model="ModelNew.EntityId" ng-change="getData();GetEntityName();" class="form-control"
+                                ng-options="item.Value as item.Text for item in entityList" tabindex="1" required>
                             <option value=""></option>
                         </select>
                     </div>
