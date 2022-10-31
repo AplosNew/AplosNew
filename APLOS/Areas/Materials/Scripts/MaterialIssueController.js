@@ -237,4 +237,85 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
             gridObj.refreshTemplate();
         }
     }
+
+    $scope.Getstorage = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialStorage/getcbo'
+        }).then(function (response) {
+            $scope.storageList = response.data;
+        });
+    }
+    $scope.Getstorage();
+
+    $scope.materialStockList = [];
+    $scope.specificStockList = [];
+    $scope.newData = {};
+    $scope.newDatum = {};
+    $scope.getSpecificMaterialStock = function (data) {
+        $scope.newDatum = data.data;
+        $scope.selectedRowQty = data.data.TotalConsumption;
+        $scope.newData.MaterialMasterId = data.data.MaterialMasterId;
+        $scope.newData.ArticleId = data.data.ArticleId;
+        $scope.newData.MaterialStorageId = $scope.ModelNew.MaterialStorageId;
+        
+      //  $scope.productNew.Id = null;
+        $http({
+            method: 'POST'
+            , url: 'Products/InventoryIssue/GetSpecificMaterialStock'
+            , data: { entity: $scope.newData, issueDate: $scope.ModelNew.IssueDate }
+            , dataType: 'JSON'
+        }).then(function (response) {
+            $scope.materialStockList = response.data;
+
+            for (var i = 0; i < baseService.arrayLength($scope.specificStockList); i++) {
+                var row = $scope.specificStockList[i];
+                for (var t = 0; t < baseService.arrayLength($scope.materialStockList); t++) {
+                    var newRow = $scope.materialStockList[t];
+                    if (newRow.InventoryReceiveDetailId === row.InventoryReceiveDetailId) {
+                        newRow.Flag = true;
+                        newRow.RequisitionQty = row.RequisitionQty;
+                        break;
+                    }
+                }
+            }
+            for (var i1 = 0; i1 < $scope.materialStockList.length; i1++) {
+                $scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / data.BaseUoMFactor;
+                $scope.materialStockList[i1].IssueTransactionUoMId = data.TransactionUoMId;
+                $scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
+                $scope.materialStockList[i1].TransactionUoMId = data.TransactionUoMId;
+                $scope.materialStockList[i1].BaseUoMFactor = data.BaseUoMFactor;
+            }
+            angular.element(document.querySelector('#stockPopUp')).modal('show');
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+
+
+    };
+
+    $scope.closeStockPopUp = function () {
+        angular.element(document.querySelector('#stockPopUp')).modal('hide');
+    }
+
+    $scope.CalTotalQty = function () {
+        var totalQty = 0;
+        for (var i = 0; i < $scope.materialStockList.length; i++) {
+            totalQty += $scope.materialStockList[i].RequisitionQty;
+        }
+        $scope.newDatum.IssueQty = totalQty;
+        if ($scope.ModelNew.Level == "Costing") {
+            var gridObj = $("#CGrid").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        } else {
+            var gridObj = $("#BGrid").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        }
+    }
+
+
+
+
 }
