@@ -15,7 +15,7 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
     $scope.modelList = [];
     $scope.GetData = function () {
         $scope.modelList = [];
-        $http.get('Materials/MaterialIssueControl/GetSavedUnApprovedData')
+        $http.get('Materials/MaterialIssueControl/GetApprovedData')
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -169,8 +169,9 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.Clear = function () {
-        $scope.ModelNew = { Id: null, POId: null };
+        $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.SOItemList = [];
+        $scope.QBOQCostingList = [];
     }
 
     $scope.tab = 1;

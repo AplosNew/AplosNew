@@ -157,6 +157,7 @@ function MaterialIssueControlApprovalController(cboService, commonMessage, $scop
                         else {
                             ShowResult(response.data.Message, 'success');
                             $scope.Clear();
+                            $scope.GetData();
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -169,8 +170,9 @@ function MaterialIssueControlApprovalController(cboService, commonMessage, $scop
     };
 
     $scope.Clear = function () {
-        $scope.ModelNew = { Id: null, POId: null };
+        $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.SOItemList = [];
+        $scope.QBOQCostingList = [];
     }
 
     $scope.tab = 1;
