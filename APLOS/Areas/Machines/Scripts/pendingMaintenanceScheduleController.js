@@ -320,7 +320,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         $scope.dwonloadUrl = null;
         var str = data.FileName;
         var extention = str.substr(str.indexOf('.'));
-        $scope.dwonloadUrl = virtualPath.MOIPath + '/' + data.Id + extention;
+        $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.Id + extention;
     };
 
     //#endregion
