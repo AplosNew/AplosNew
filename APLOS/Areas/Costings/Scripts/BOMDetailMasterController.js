@@ -593,4 +593,84 @@ function BOMDetailMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.Child2New = Object.assign({}, args.data);
     };
 
+    $scope.message_confirmation = null;
+    $scope.removeChild1 = function (obj) {
+        $scope.bomDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently [ ' + $scope.bomDetailNew.PartyName + ' ]';
+        angular.element(document.querySelector('#confirmChild1PopUp')).modal('show');
+    }
+
+    $scope.DeleteChild1 = function () {
+        $http({
+            method: 'POST',
+            url: 'Costings/BOMDetailMaster/DeleteChild1?id=' + $scope.bomDetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetChild1Data();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+    $scope.removeChildSO = function (obj) {
+        $scope.bomDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently [ ' + $scope.bomDetailNew.SOId + ' ]';
+        angular.element(document.querySelector('#confirmChildSOPopUp')).modal('show');
+    }
+
+    $scope.DeleteChildSO = function () {
+        $http({
+            method: 'POST',
+            url: 'Costings/BOMDetailMaster/DeleteChildSO?id=' + $scope.bomDetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedSOData($scope.BOMDetailChild1.Id);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+    $scope.removeChild2 = function (obj) {
+
+        $scope.bomDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently [ ' + $scope.bomDetailNew.CostingItem + ' ]';
+        angular.element(document.querySelector('#confirmChild2PopUp')).modal('show');
+    }
+
+    $scope.DeleteChild2 = function () {
+        $http({
+            method: 'POST',
+            url: 'Costings/BOMDetailMaster/DeleteChild2?id=' + $scope.bomDetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetChild2Data();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
 }

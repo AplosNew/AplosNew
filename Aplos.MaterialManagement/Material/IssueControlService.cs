@@ -57,6 +57,20 @@ namespace Library.MaterialManagement.Material
             }
         }
 
+        public IEnumerable<object> GetItemApplicable()
+        {
+            try
+            {
+                var SQL = @"select IC.*, ISNULL(DE.Category, 'Bulk Packing') Category from TRN.IssueControlItemApplicable IC
+                        left join dbo.DefineEnum DE on DE.Id = IC.OrderLevel";
+                return _sqlRepository.GetDataCollection(SQL);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> getMaterial(string materialgroupid)
         {
             try

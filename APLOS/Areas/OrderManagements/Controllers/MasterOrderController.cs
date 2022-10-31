@@ -1856,11 +1856,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(MasterOrder.GetMasterOrderAmountAndQty(masterId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
-        public JsonResult CreatePackingDetail(Dictionary<string, object> data)
+        public JsonResult CreatePackingDetail(Dictionary<string, object> data,string MasterOrderId)
         {
             try
             {
-                MasterOrder.SavePackingDetailData(data);
+                MasterOrder.SavePackingDetailData(data, MasterOrderId);
 
                 return Json(new { Contract = data, Message = AplosMessage.Insert });
             }
@@ -1872,9 +1872,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
        
         [HttpGet, Authorize]
-        public ActionResult GetPackingDetail()
+        public ActionResult GetPackingDetail(string masterOderId)
         {
-            return Json(MasterOrder.GetPackingDetail(), JsonRequestBehavior.AllowGet);
+            return Json(MasterOrder.GetPackingDetail(masterOderId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
         public ActionResult DeletePackingDetail(string PackingDetailId)
@@ -1936,13 +1936,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetSOData()
+        public ActionResult GetSOData(string lineItem)
         {
             try
             {
-                JsonResult json = Json(_productionSummaryData.GetSOData(), JsonRequestBehavior.AllowGet);
-                json.MaxJsonLength = int.MaxValue;
-                return json;
+                return Json(MasterOrder.GetSOData(lineItem), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -1990,7 +1988,178 @@ namespace Aplos.Areas.OrderManagements.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult DeleteChildSO(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[PackingSODetail] Where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreatePackingType(Dictionary<string, object> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+
+                    string _Id;
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("select * from dbo.PackingTypeChild where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    #region data update
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("PackingTypeChild", out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+                    #endregion data update
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         #endregion
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedPackingType(string PackingDetailId)
+        {
+            string sql = @"select PTC.*,PT.UserName PackingType 
+                                from  [dbo].[PackingTypeChild] PTC
+                                left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId
+                                Where PackingDetailId='" + PackingDetailId + "'";
+
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeletePackingType(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.PackingTypeChild where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSKU1List(string SOId)
+        {
+            string sql = @"select distinct CV.Id as Value,CV.UserName as Text
+                                from trn.FirstCharacteristics sku1
+                                left join HKP.CharacteristicsValue CV on CV.Id=sku1.CharacteristicsValueId
+                                where sku1.SalesOrderId " + SOId + "";
+
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSKU2List(string SOId)
+        {
+            string sql = @"select distinct CV.Id as Value,CV.UserName as Text
+                                from trn.SecondCharacteristics sku2
+                                left join HKP.CharacteristicsValue CV on CV.Id=sku2.CharacteristicsValueId
+                                where sku2.SalesOrderId " + SOId + "";
+
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateSKUDetail(Dictionary<string, object> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+
+                    string _Id;
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("select * from dbo.SKUDetail where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    #region data update
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("SKUDetail", out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+                    #endregion data update
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedSKUDetail(string PackingTypeId)
+        {
+            string sql = @"select PTC.*,PT.UserName PackingType 
+                                from  [dbo].[PackingTypeChild] PTC
+                                left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId
+                                Where PackingDetailId='" + PackingTypeId + "'";
+
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
 
         #region Copy SO
 

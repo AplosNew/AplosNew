@@ -25,7 +25,7 @@ namespace Library.MaterialManagement.InventoryManagements
             try
             {
                 string TableName = "hkp.MaterialMovementPurpose";
-                string sql = "SELECT Id as Value,UserName AS Text FROM " + TableName + "";
+                string sql = "SELECT Id as Value,UserName AS Text FROM " + TableName + " ORDER BY Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception e)

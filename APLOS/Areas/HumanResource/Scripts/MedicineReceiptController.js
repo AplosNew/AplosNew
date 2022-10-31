@@ -216,9 +216,6 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     $scope.ob = {};
     $scope.calcAmount = function (data1, index) {
 
-
-
-
         if (data1.Quantity == null || data1.Quantity == '') {
             $scope.userMedicineList[index].Rate = data1.Amount / 1
         }
@@ -230,7 +227,23 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         }
     }
 
-    // #REGION SAVE
+    // #region Update
+    // #region Double tab on row
+    $scope.Get = function (args) {
+        //$scope.ModelNew.Id = args.data.Id;
+        $scope.ModalNew = Object.assign({}, args.data);
+
+        $scope.Action = 'Update';
+
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+
+        }
+    };
+     // #endregion Double tab on row
+    // #endregion Update
+
+    // #region SAVE
 
     $scope.SaveHeader = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -250,13 +263,14 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             else {
                 $scope.ModalNew.Id = response.data.Data.Id;                
                 ShowResult(response.data.Message, 'success');
+                $scope.Action = 'Update';
                 $scope.getMedicineReceipt();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
     }
-    // #ENDREGION SAVE
+    // #endregion SAVE
 
    
 }

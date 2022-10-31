@@ -1100,6 +1100,8 @@ upanelApp.controller("MaterialIssueControlController", MaterialIssueControlContr
 upanelApp.controller("specialIssueControlRegisterController", specialIssueControlRegisterController)
 upanelApp.controller("MaterialIssueControlApprovalController", MaterialIssueControlApprovalController)
 upanelApp.controller("specialIssueControlReportController", specialIssueControlReportController)
+upanelApp.controller("FinishedGoodsPackingReportController", FinishedGoodsPackingReportController)
+upanelApp.controller("MaterialIssueController", MaterialIssueController)
 
 
 upanelApp.config(AccessControllerConfig);

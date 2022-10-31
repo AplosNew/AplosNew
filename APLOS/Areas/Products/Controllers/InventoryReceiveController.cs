@@ -202,7 +202,7 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-        public JsonResult DetailCreate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
+        public JsonResult DetailCreate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList, IEnumerable<GRNBinAllocationMap> gRNBinAllocationMapList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             entity.CompanyGroupId = identity.CompanyGroupId;
@@ -225,7 +225,7 @@ namespace Aplos.Areas.Products.Controllers
 
                 }
             }
-            _inventoryDetailService.InsertOrUpdateGraph(entity, taxCategoryList);
+            _inventoryDetailService.InsertOrUpdateGraph(entity, taxCategoryList, gRNBinAllocationMapList);
             return Json(new { entity.Id, Message = AplosMessage.Success });
         }
 
