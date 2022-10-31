@@ -36,6 +36,17 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         }
        
     }
+    $scope.storageList = [];
+
+    $scope.Getstorage= function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialStorage/getcbo'
+        }).then(function (response) {
+            $scope.storageList = response.data;
+        });
+    }
+    $scope.Getstorage();
 
     $scope.PRSearchColumn = 'Id';
     $scope.PRSearchValue = null;
