@@ -290,8 +290,6 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
         };
-
-
     };
 
     $scope.closeStockPopUp = function () {
