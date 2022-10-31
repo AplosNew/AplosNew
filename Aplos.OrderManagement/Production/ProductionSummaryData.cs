@@ -2683,7 +2683,7 @@ LEFT JOIN MST.CompliedShiftGrouping AS csg ON csg.Id = A.ProductionShiftId";
         {
             try
             {
-                string sql = @"SELECT  P.Id, P.UserName FROM dbo.ProductionQualityProcess AS qp	
+                string sql = @"SELECT DISTINCT P.Id, P.UserName FROM dbo.ProductionQualityProcess AS qp	
 LEFT JOIN [HKP].[QualityProcess] AS P ON P.Id=qp.ProcessId
 LEFT JOIN dbo.ProductionBookingProcessParameter PP ON PP.Id=qp.ProductionBookingProcessParameterId  
 WHERE qp.[Active]=1 AND pp.ProcessId='" + ProcessId + "'";
@@ -2704,7 +2704,7 @@ WHERE qp.[Active]=1 AND pp.ProcessId='" + ProcessId + "'";
 ,P.Id QualityProcessParameterId,P.GradeLot,P.ParameterGrade
 FROM dbo.QualityProcessParameter P
 LEFT JOIN [dbo].[QuaityProcessBookingParameterValue] A ON A.QualityProcessParameterId=P.Id AND ISNULL(A.QuaityProcessBookingId,'" + masterId + @"')='" + masterId + @"'
-WHERE p.QualityProcessId=(select Id from dbo.ProductionQualityProcess where ProcessId='" + processId + "')";
+WHERE p.QualityProcessId IN(select Id from dbo.ProductionQualityProcess where ProcessId='" + processId + "')";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

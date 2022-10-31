@@ -80,8 +80,10 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
         {
             try
             {
-                string sql = @"SELECT M.*,E.EmployeeName ByWhom FROM [dbo].[MaterialIssueControlMaster] M
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId";
+                string sql = @"SELECT M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage FROM [dbo].[MaterialIssueControlMaster] M
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
+LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
+LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -95,8 +97,10 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId";
         {
             try
             {
-                string sql = @"SELECT M.*,E.EmployeeName ByWhom FROM [dbo].[MaterialIssueControlMaster] M
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId Where M.IsApproved=1";
+                string sql = @"SELECT M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage FROM [dbo].[MaterialIssueControlMaster] M
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
+LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
+LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId Where M.IsApproved=1";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -207,11 +211,11 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         {
             try
             {
-                string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY D.Id) SrNo,D.*,D.CostingItemId,I.UserName Item,A.StandardName QBOQArticle,A.Id AtricleId,M.Id MaterialMasterId
+                string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY D.Id) SrNo,D.*,D.CostingItemId,I.UserName Item,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
 ,M.UserName MaterialMaster from dbo.MaterialIssueControlDetail D 
 INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
 LEFT JOIN MST.MaterialMaster M ON M.Id=D.MaterialMasterId
-LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.AtricleId
+LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
 WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
@@ -771,7 +775,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         {
             string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,Q.UoM,Q.Consumption NetConsumptionPerUnit,Q.ValueLoss,Q.GrossConsumption,
  TotalConsumption=Q.GrossConsumption*SO.Qty,SO.Qty, 0 AdditionReduction,0 PlanConsumption
- ,Q.Rate,0 TotaPlanlAmount,A.StandardName QBOQArticle,A.Id AtricleId,M.Id MaterialMasterId,M.UserName MaterialMaster,ISNULL(SR.StockRate,0)StockRate,0 ActualIssueAmount, NULL Remarks
+ ,Q.Rate,0 TotaPlanlAmount,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId,M.UserName MaterialMaster,ISNULL(SR.StockRate,0)StockRate,0 ActualIssueAmount, NULL Remarks
  FROM OrderProcurementCostingDirectMaterial AS Q  
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial'
@@ -793,8 +797,8 @@ Where SO.Id " + soId + "";
         [HttpGet, Authorize]
         public ActionResult GetQBOQDataList(string soId)
         {
-            string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,U.Code UoM,Q.NetConsumptionPerUnit,Q.ValueLossPercentage ValueLoss,Q.GrossConsumption,SO.Qty
-,TotalConsumption=Q.GrossConsumption*SO.Qty, 0 AdditionReduction,0 PlanConsumption,Q.MaterialCostPerUnit Rate,0 TotaPlanlAmount,A.StandardName QBOQArticle,A.Id AtricleId,M.Id MaterialMasterId
+            string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,U.Code UoM,Q.UoMId,Q.NetConsumptionPerUnit,Q.ValueLossPercentage ValueLoss,Q.GrossConsumption,SO.Qty
+,TotalConsumption=Q.GrossConsumption*SO.Qty, 0 AdditionReduction,0 PlanConsumption,Q.MaterialCostPerUnit Rate,0 TotaPlanlAmount,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
 ,M.UserName MaterialMaster,ISNULL(SR.StockRate,0)StockRate,0 ActualIssueAmount, NULL Remarks
 FROM [dbo].[QuickBOQ] Q
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
