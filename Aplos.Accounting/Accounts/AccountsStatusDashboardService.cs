@@ -22256,14 +22256,14 @@ group by Id) O60 ON O60.Id=IV.Id
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Taxable Amount";
-            int coltaxableValue = COL;
+            worksheet[ROW, COL].Text = "Currency";
+            int colCurrency = COL;
             worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Currency";
-            int colCurrency = COL;
+            worksheet[ROW, COL].Text = "Taxable Amount";
+            int coltaxableValue = COL;
             worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
@@ -22352,10 +22352,10 @@ group by Id) O60 ON O60.Id=IV.Id
                     worksheet[ROW, colBaseOnDueDate].Text = (dtGatenntryRegisterList.Rows[i]["BaseOnDueDate"].ToString());
                     worksheet[ROW, colMaturityDate].Text = dtGatenntryRegisterList.Rows[i]["MaturityDate"].ToString();
 
-                    worksheet[ROW, colCurrency].Text = dtGatenntryRegisterList.Rows[i]["Currency"].ToString();
-
                     worksheet[ROW, colInvoiceAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["Amount"].ToString());
                     worksheet[ROW, colInvoiceAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                   
+                    worksheet[ROW, colCurrency].Text = dtGatenntryRegisterList.Rows[i]["Currency"].ToString();
 
                     worksheet[ROW, coltaxableValue].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["TaxableAmount"].ToString());
                     worksheet[ROW, coltaxableValue].NumberFormat = clsStaticInfo.NumberFormat(2);
@@ -22439,7 +22439,8 @@ group by Id) O60 ON O60.Id=IV.Id
 												,I.Amount-IWOD.Amount-(IWOD.Amount*ISNULL(MOC.[Value],0)) [Balance Amount after adjust commission]
 												,IWOD.Amount*ISNULL(MOCD.[Value],0) CDAmount
                                                 ,NULL MasterOrderDate,0 BalanceAmountAfterAdjustCommission
-						                        from TRN.InvoiceWriteOffDetail IWOD
+						                        
+                                                from TRN.InvoiceWriteOffDetail IWOD
 						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
 						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
 						                        left join TRN.Invoice I on I.Id=IWOD.InvoiceId

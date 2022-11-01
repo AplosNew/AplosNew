@@ -5296,6 +5296,34 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
+
+    $scope.removeSKUDetail = function (obj) {
+        $scope.SKUDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.SKUDetailNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmSKUDetailPopUp')).modal('show');
+    }
+
+    $scope.DeleteSKUDetail = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/MasterOrder/DeleteSKUDetail?id=' + $scope.SKUDetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedSKUDetailData($scope.PackingTypeId);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+
     //#region   SO Copy    
     $scope.CopySO = function (data) {
         $http({
