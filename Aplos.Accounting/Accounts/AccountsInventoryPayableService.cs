@@ -2915,6 +2915,27 @@ UNION
 					LEFT JOIN [HKP].[Activity] AS A ON ITD.ActivityId= A.Id
 					WHERE IRD.PurchaseReturnId=@receiveId  AND IRT.PurchaseReturnDetailId<>'' AND ITD.AType='Dr'
 					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
+					UNION
+					SELECT 'Tax' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId
+						, ITD.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+						, ITD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
+						, ITD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+						,  NULL Dr
+						, SUM(IRT.TaxAmount) AS  Cr
+						, SUM(IRT.TaxAmount) AS Amount
+                        ,0 IsAsset, NULL InventoryReceiveDetailId
+					FROM [TRN].[PurchaseReturnTax] AS IRT
+					LEFT JOIN [TRN].[PurchaseReturnService] AS IRD ON IRT.PurchaseReturnServiceId=IRD.Id
+                    LEFT JOIN [TRN].[PurchaseReturn] AS PR ON IRD.PurchaseReturnId=PR.Id
+					LEFT JOIN TRN.[InventoryReceive] AS IR ON IR.Id=PR.InventoryReceiveId
+					LEFT JOIN TRN.InvoiceTax IT ON IT.VoucherId=IR.VoucherId and IRT.TaxCategoryId=IT.TaxCategoryId
+					LEFT JOIN TRN.InvoiceTaxDetail ITD ON ITD.InvoiceTaxId=IT.Id 
+					LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON ITD.GLGeneralInfoId=GL.Id
+					LEFT JOIN [MST].[BudgetMaster] AS BM ON ITD.BudgetMasterId= BM.Id
+					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+					LEFT JOIN [HKP].[Activity] AS A ON ITD.ActivityId= A.Id
+					WHERE IRD.PurchaseReturnId=@receiveId  AND IRT.PurchaseReturnServiceId<>'' AND ITD.AType='Dr'
+					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
 					
 					
 					--UNION
@@ -3436,8 +3457,8 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 							,MAT.GLGeneralInfoId, MAT.GLGeneralInfoCode, MAT.GLGeneralInfoName
 							, MAT.BudgetMasterId, MAT.BudgetCode, MAT.BudgetName
 							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName
-							, MAT.Dr, MAT.Cr+ISNULL(TCS.TCSAmount,0) Cr
-							, MAT.Amount+ISNULL(TCS.TCSAmount,0) Amount,  MAT.ServiceAcknowledgementDetailId
+							, MAT.Dr, MAT.Cr+ISNULL(TCS.TCSAmount,0)+ISNULL(charges.ChargesAmount,0)+ISNULL(chargestax.ChargesTaxAmount,0) Cr
+							, MAT.Amount+ISNULL(TCS.TCSAmount,0)+ISNULL(charges.ChargesAmount,0)+ISNULL(chargestax.ChargesTaxAmount,0) Amount,  MAT.ServiceAcknowledgementDetailId
 					FROM (
 					SELECT  'Vendor' AS OtherName, 'Cr' AS TrnType, NULL AS MaterialGroupMasterId, NULL AS TaxCategoryId, NULL AS TaxCodeId
 							, CPGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
@@ -3467,14 +3488,29 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						LEFT JOIN TRN.ServiceAcknowledgementMaster AS IR ON IR.Id=INS.ServicePOAckMasterId 
                         where ServicePOAckMasterId=@serviceAcknowledgementMasterId group by INS.ServicePOAckMasterId
 						) AS TCS on TCS.ServicePOAckMasterId=MAT.ServiceAcknowledgementMasterId
+
+						LEFT OUTER JOIN (
+						SELECT INS.ServiceAcknowledgementMasterId, sum(INS.Amount) AS ChargesAmount--,sum(spt.TaxAmount) chargesTax
+						from  [TRN].[ServiceAcknowledgementCharge] AS INS
+						LEFT JOIN TRN.ServiceAcknowledgementMaster AS IR ON IR.Id=INS.ServiceAcknowledgementMasterId 
+                        where INS.ServiceAcknowledgementMasterId=@serviceAcknowledgementMasterId group by INS.ServiceAcknowledgementMasterId
+						) AS charges on charges.ServiceAcknowledgementMasterId=MAT.ServiceAcknowledgementMasterId
+
+						LEFT OUTER JOIN (
+						SELECT INS.ServiceAcknowledgementMasterId, sum(INS.TaxAmount) AS ChargesTaxAmount
+						from  [TRN].[ServicePOAckTax] AS INS
+						LEFT JOIN TRN.ServiceAcknowledgementMaster AS IR ON IR.Id=INS.ServiceAcknowledgementMasterId 
+                        where INS.ServiceAcknowledgementMasterId=@serviceAcknowledgementMasterId and INS.ServiceAcknowledgementDetailId is null and INS.ServiceAcknowledgementChargeId<>'' group by INS.ServiceAcknowledgementMasterId
+						) AS chargestax on chargestax.ServiceAcknowledgementMasterId=MAT.ServiceAcknowledgementMasterId
+						
 					UNION
 					SELECT MAT.OtherName,MAT.TrnType,MAT.MaterialGroupMasterId, 
 					MAT.TaxCategoryId, MAT.TaxCodeId
 							,MAT.GLGeneralInfoId, MAT.GLGeneralInfoCode, MAT.GLGeneralInfoName
 							, MAT.BudgetMasterId, MAT.BudgetCode, MAT.BudgetName
 							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName
-							, MAT.Dr, MAT.Cr+ISNULL(TCS.TCSAmount,0) Cr
-							, MAT.Amount+ISNULL(TCS.TCSAmount,0) Amount,  MAT.ServiceAcknowledgementDetailId
+							, MAT.Dr, MAT.Cr+ISNULL(TCS.TCSAmount,0)+ISNULL(charges.ChargesAmount,0)+ISNULL(chargestax.ChargesTaxAmount,0) Cr
+							, MAT.Amount+ISNULL(TCS.TCSAmount,0)+ISNULL(charges.ChargesAmount,0)+ISNULL(chargestax.ChargesTaxAmount,0) Amount,  MAT.ServiceAcknowledgementDetailId
 					FROM (
 					SELECT  'GIRI' AS OtherName, 'Cr' AS TrnType, NULL AS MaterialGroupMasterId, NULL AS TaxCategoryId, NULL AS TaxCodeId
 							, MGGL.ClearingAccountGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
@@ -3504,6 +3540,59 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						LEFT JOIN TRN.ServiceAcknowledgementMaster AS IR ON IR.Id=INS.ServicePOAckMasterId 
                         where ServicePOAckMasterId=@serviceAcknowledgementMasterId group by INS.ServicePOAckMasterId
 						) AS TCS on TCS.ServicePOAckMasterId=MAT.ServiceAcknowledgementMasterId
+						LEFT OUTER JOIN (
+						SELECT INS.ServiceAcknowledgementMasterId, sum(INS.Amount) AS ChargesAmount--,sum(spt.TaxAmount) chargesTax
+						from  [TRN].[ServiceAcknowledgementCharge] AS INS
+						LEFT JOIN TRN.ServiceAcknowledgementMaster AS IR ON IR.Id=INS.ServiceAcknowledgementMasterId 
+                        where INS.ServiceAcknowledgementMasterId=@serviceAcknowledgementMasterId group by INS.ServiceAcknowledgementMasterId
+						) AS charges on charges.ServiceAcknowledgementMasterId=MAT.ServiceAcknowledgementMasterId
+
+						LEFT OUTER JOIN (
+						SELECT INS.ServiceAcknowledgementMasterId, sum(INS.TaxAmount) AS ChargesTaxAmount
+						from  [TRN].[ServicePOAckTax] AS INS
+						LEFT JOIN TRN.ServiceAcknowledgementMaster AS IR ON IR.Id=INS.ServiceAcknowledgementMasterId 
+                        where INS.ServiceAcknowledgementMasterId=@serviceAcknowledgementMasterId and INS.ServiceAcknowledgementDetailId is null and INS.ServiceAcknowledgementChargeId<>'' group by INS.ServiceAcknowledgementMasterId
+						) AS chargestax on chargestax.ServiceAcknowledgementMasterId=MAT.ServiceAcknowledgementMasterId
+						
+                        --ORDER BY TrnType DESC 
+						UNION
+						SELECT  'Charges' AS OtherName, 'Dr' AS TrnType, MM.Id as MaterialGroupMasterId, NULL AS TaxCategoryId, NULL AS TaxCodeId
+							, MGGL.ServiceGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+							, MGGL.ServiceBudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
+							, MGGL.ServiceActivityId AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+							, SUM(IM.Amount) AS Dr, NULL Cr
+							, SUM(IM.Amount) AS Amount,  NULL ServiceAcknowledgementDetailId
+						FROM [TRN].[ServiceAcknowledgementCharge] AS IM
+						LEFT JOIN [TRN].ServiceAcknowledgementMaster AS IR ON IM.ServiceAcknowledgementMasterId=IR.Id
+						LEFT JOIN [HKP].[ServiceMaster] AS SM ON IM.ServiceMasterId=SM.Id
+						LEFT JOIN [HKP].[ServiceGroup] AS MM ON SM.ServiceGroupId=MM.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[ServiceGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.Id = MGGL.ServiceGroupId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.ServiceGLId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.ServiceBudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGGL.ServiceActivityId= A.Id
+						WHERE IM.ServiceAcknowledgementMasterId=@serviceAcknowledgementMasterId
+						GROUP BY MM.Id, MGGL.ServiceGLId, GL.AccountCode, GL.UserName, MGGL.ServiceBudgetMasterId, B.Code, B.UserName, MGGL.ServiceActivityId, A.Code, A.UserName,IM.Id
+						UNION
+						SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId, NULL AS TaxCodeId
+						, TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+						, TCGL.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
+						, TCGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+						, SUM(IRT.TaxAmount) AS  Dr, NULL Cr
+						, SUM(IRT.TaxAmount) AS Amount
+                        ,  NULL ServiceAcknowledgementDetailId
+					FROM [TRN].[ServicePOAckTax] AS IRT
+					LEFT JOIN [TRN].[ServiceAcknowledgementCharge] AS IRD ON IRT.ServiceAcknowledgementChargeId=IRD.Id
+                    LEFT JOIN [TRN].[ServiceAcknowledgementMaster] AS IR ON IRD.ServiceAcknowledgementMasterId=IR.Id
+					LEFT JOIN [MST].[TaxCategoryGL] AS TCGL ON TCGL.TaxCategoryId=IRT.TaxCategoryId
+					LEFT JOIN [MST].[TaxCategory] AS TC ON TCGL.TaxCategoryId=TC.Id
+					LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON TCGL.GLGeneralInfoId=GL.Id
+					LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.BudgetMasterId= BM.Id
+					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+					LEFT JOIN [HKP].[Activity] AS A ON TCGL.ActivityId= A.Id
+					WHERE IRD.ServiceAcknowledgementMasterId=@serviceAcknowledgementMasterId AND TCGL.InputTaxOutPutTax='Input' AND ISNULL(TCGL.TaxType,'')<>'RCM'  
+					GROUP BY  IRT.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName
                         --ORDER BY TrnType DESC ";
                 return _sqlRepository.GetDataCollection(sql);
             }

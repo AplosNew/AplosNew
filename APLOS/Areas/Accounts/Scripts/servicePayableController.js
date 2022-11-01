@@ -335,6 +335,20 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
                 if (!has)
                     newList.push(list[i]);
             }
+            else if (row.OtherName === 'Charges' && row.TrnType === 'Dr') {
+                newInvRecDetailList.push(list[i]);
+                var has = false;
+                for (var a = 0; a < baseService.arrayLength(newList); a++) {
+                    if (row.OtherName === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId && row.BudgetMasterId === newList[a].BudgetMasterId && row.ActivityId === newList[a].ActivityId) {
+                        newList[a].Dr += row.Dr;
+                        newList[a].Amount += row.Dr;
+                        has = true;
+                        break;
+                    }
+                }
+                if (!has)
+                    newList.push(list[i]);
+            }
             else if (row.OtherName !== 'Svc' && row.OtherName === 'Vendor' && $scope.AcceptanceId === null)
                 newList.push(list[i]);
             //else if (row.OtherName !== 'Svc' && row.OtherName === 'GIRI' && $scope.AcceptanceId !== null)

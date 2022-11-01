@@ -2,74 +2,96 @@
     <h5>{{title}}</h5>
     <br/>
 </div>
-<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
-
-    <div class="row">
-        <div class="col-xs-12 col-sm-8 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">From</label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" ng-model="ModalNew.FromDate" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-
-                        <input type="text" name="Responsible Person" ng-model="ModalNew.EmployeeName" class="form-control" required readonly>
-                        <span class="input-group-btn">
-                            <button name="submit" ng-click="openEmpPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-8 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">To<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" ng-model="ModalNew.ToDate" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
-                </div>
-            </div>
-
-        </div>
-        <div class="common-btn" style="position:relative; right:240px; bottom:30px">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="medicallogGridView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
-
-            </ul>
-        </div>
-    </div>
-</div>
-<div class="">
-    <div style="color:black;" id="Grid" ej-grid e-datasource="MedicalLogGridList"
-         e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick" e-allowfiltering="true" e-allowpaging="true"
-         e-allowsorting="true" e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="true"
-         e-allowselection="true" e-detailsdatabound="detailgrid">
-        <div e-columns>
-            <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="true" e-width="50"></div>
-            <div e-column e-field="Date" e-headertext="Date" e-width="80"></div>
-            <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="100"></div>
-
-            <div e-column e-field="Sickness" e-headertext="Sickness" e-width="150"></div>
-            <div e-column e-field="Medicines" e-headertext="Medicines" e-width="150"></div>
-            <div e-column e-field="Days" e-headertext="Days" e-width="100"></div>
-            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
-            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
-            <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
-            <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
-            <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
-            <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
-            <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
-        </div>
-    </div>
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="XlsMedicalLogReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
+<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Service" role="tab" data-toggle="tab">Medical Log</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Medicine Stock</a></li>
 
         </ul>
     </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">From<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="ModalNew.FromDate" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Employee</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+
+                                    <input type="text" name="Responsible Person" ng-model="ModalNew.EmployeeName" class="form-control" required readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="openEmpPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">To<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="ModalNew.ToDate" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="common-btn" style="position:relative; right:240px; bottom:30px">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="medicallogGridView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="MedicalLogGridList"
+                     e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick" e-allowfiltering="true" e-allowpaging="true"
+                     e-allowsorting="true" e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+                     e-allowselection="true" e-detailsdatabound="detailgrid">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="true" e-width="50"></div>
+                        <div e-column e-field="Date" e-headertext="Date" e-width="80"></div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="100"></div>
+
+                        <div e-column e-field="Sickness" e-headertext="Sickness" e-width="150"></div>
+                        <div e-column e-field="Medicines" e-headertext="Medicines" e-width="150"></div>
+                        <div e-column e-field="Days" e-headertext="Days" e-width="100"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                        <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                        <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
+                        <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                        <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="XlsMedicalLogReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
+
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+           
+        </div>
+ 
+    </div>
+
 </div>
+
+
 @Html.Partial("~/Areas/HumanResource/Views/MedicalLog/_EmployeePopUp.cshtml")

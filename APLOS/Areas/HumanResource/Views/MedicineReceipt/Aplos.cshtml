@@ -1,4 +1,4 @@
-﻿<style>
+﻿ <style>
     #medicinereceiptchildId {
         display: none
     }
@@ -7,7 +7,7 @@
 
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <fieldset class="scheduler-border">
-        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Medicine Receipt Head</span></legend>
+        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Medicine Receipt</span></legend>
         <input type="hidden" ng-model="ModelNew.Id">
         <div class="row">
             @*COLUMN 1*@
@@ -62,7 +62,8 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Invoice No.<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="number" name="InvoiceNo" ng-model="ModalNew.InvoiceNumber" class="form-control" maxlength="15" required tabindex="3">
+                   
+                    <input type="text" name="InvoiceNo" ng-model="ModalNew.InvoiceNumber" class="form-control" maxlength="15" required tabindex="3">
                 </div>
             </div>
             <div class="form-group" show-errors>
@@ -80,19 +81,14 @@
             </div>
            
         </div>
-            @*<div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button class="btn" ng-click="displaychild();" tabindex="9"><i class="glyphicon glyphicon-circle-arrow-right"></i> Go</button></li>
-                </ul>
-            </div>*@
-
+           
         </div>
 
 
         @*---------------------------------------------------------------------------------------------------------*@
     <div class="table-responsive modal-table">
         <table class="table table-responsive table-striped">
-            <thead ng-show="userMedicineList.length">
+            <thead ng-show="userMedicineList.length > 0">
                 <tr>
                     <th>User Name</th>
                     <th>Expiry Date</th>
@@ -137,50 +133,7 @@
             </ul>
         </div>
     </div>
-        @*---------------------------------------------------------------------------------------------------------*@
-        <!--<div class="table-responsive" id="medicinereceiptchildId" style="margin-top:20px">
-        <div id="GridEdit" ej-grid e-datasource="userMedicineList" e-recorddoubleclick="Get" e-load="loadGridEdit"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-            <div e-columns>
-
-                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                <div e-column e-field="UserName" e-headertext="Medicine" e-width="50"></div>
-                <div e-column e-headertext="Expiry Date" e-template="#checkbxExpDate" e-textalign="center" e-width="30"></div>
-                <div e-column e-headertext="Quantity" e-template="#checkboxQty" e-textalign="center" e-width="30"></div>
-                <div e-column e-headertext="Amount" e-template="#checkboxAmount" e-textalign="center" e-width="30"></div>
-                <div e-column e-headertext="Rate" e-template="#checkboxRate" e-textalign="center" e-width="30"></div>
-
-
-            </div>
-        </div>-->
-        @*Expiry Date*@
-        <!--<script type="text/template" id="checkbxExpDate">
-        <input type="text" ng-model="data.ExpiryDate" name="ExpiryDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
-    </script>-->
-        @*Qty*@
-        <!--<script type="text/template" id="checkboxQty">
-        <input type="number" id="quantityId" name="Quantity" ng-keyup="$parent.calcAmount(this)" ng-model="data.Quantity" class="form-control" maxlength="15" required tabindex="4">
-    </script>-->
-        @*Amount*@
-        <!--<script type="text/template" id="checkboxAmount">
-        <input type="number" ng-model="data.Amount" name="Amount" ng-change="$parent.calcAmount(this)" class="form-control" maxlength="50" tabindex="3" required>
-
-    </script>-->
-        @*Rate*@
-        <!--<script type="text/template" id="checkboxRate">
-            <input type="text" id="rateId" ng-model="data.Rate" name="Rate" class="form-control" maxlength="50" tabindex="3" required>
-
-        </script>
-        <div class="common-btn" style="margin-top:10px">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
-        </div>
-
-    </div>-->
+       
     </fieldset>
 
 
@@ -196,24 +149,25 @@
 <div class="aplos-grid-toggle">
 
     <div style="color:black;" id="Grid" ej-grid e-datasource="MedicineReceiptList"
-         e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick"
+         e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
          e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
          
          e-detailsdatabound="detailgrid">
         <div e-columns>
             @*<div e-column e-headertext="Actions" e-width="60">
-                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
-            </div>*@
+            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+        </div>*@
             <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>
-            <div e-column e-field="Party" e-headertext="Vendor" e-width="250"></div>
+            <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
             <div e-column e-field="InvoiceNumber" e-headertext="Invoice Number" e-width="130"></div>
             <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="130"></div>
             <div e-column e-field="Medicine" e-headertext="Medicine" e-width="100"></div>
             <div e-column e-field="ExpiryDate" e-headertext="Expiry Date" e-width="100"></div>
-            <div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
+
             <div e-column e-field="Quantity" e-headertext="Quantity" e-width="100"></div>
             <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+            <div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
 
         </div>
     </div>

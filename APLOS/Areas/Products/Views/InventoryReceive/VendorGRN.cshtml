@@ -1545,7 +1545,15 @@
                             <div class="col-sm-8 show-message">
                                 <input type="text" name="LotNo" maxlength="200" ng-model="detailModel.LotNo" class="form-control text-left">
                             </div>
+                        </div>
 
+                        <div class="form-group" >
+                            <label class="col-sm-4 control-label" ng-show="binMasterList.length">Bin Allocation</label>
+                            <div class="col-sm-8 input-group">
+                                <span class="input-group-btn">
+                                    <button tabindex="1" ng-click="getbinAllocationPopUp();" ng-show="binMasterList.length" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -1555,7 +1563,6 @@
                                 <span class="input-group-btn">
                                     <button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
                                     <button ng-click="ClearMasterOrder()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
-                                    @*<button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>*@
                                 </span>
                             </div>
                         </div>
@@ -1811,6 +1818,7 @@
     @*@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")*@
     @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
     @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
+    @Html.Partial("~/Areas/Materials/Views/StorageBinAllocation/_BinAllocationPopUp.cshtml")
     @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 
     <div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">

@@ -289,5 +289,40 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
             ShowResult(ex, 'Info');
         }
     };
+
+    //#region MOI File 
+    $scope.ItemId = null;
+    $scope.onBeginUpload = function (args) {
+        try {
+            if (angular.isUndefinedOrNull(args.model.Data))
+                throw 'Please select/save the order first'
+            $scope.ItemId = args.model.Data;
+            args.data = args.model.Data;
+        } catch (e) {
+
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+
+    }
+    $scope.uploadUrl = "Machines/PendingMaintenanceSchedule/SaveDefault";
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.ItemId))
+            ShowResult('Please select/save the order first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+
+    $scope.FileDownload = function (data) {
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.Id + extention;
+    };
+
+    //#endregion
 }
 

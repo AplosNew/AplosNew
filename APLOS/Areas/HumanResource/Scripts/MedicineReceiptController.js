@@ -120,6 +120,7 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         $http({
             method: 'POST',
             url: $scope.path + 'getMedicineReceipt',
+            data: { 'masterId': $scope.ModalNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.MedicineReceiptList = response.data;
@@ -216,9 +217,6 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     $scope.ob = {};
     $scope.calcAmount = function (data1, index) {
 
-
-
-
         if (data1.Quantity == null || data1.Quantity == '') {
             $scope.userMedicineList[index].Rate = data1.Amount / 1
         }
@@ -230,7 +228,35 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         }
     }
 
-    // #REGION SAVE
+    // #region Update
+    // #region Double tab on row
+    $scope.GetChildValue = function () {
+        $http.get('HumanResource/MedicineReceipt/GetChildValue?masterId=' + $scope.ModalNew.Id)
+            .then(
+                function successCallback(response) {                    
+                    $scope.userMedicineList = response.data;                    
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    }
+
+    $scope.Get = function (args) {
+        $scope.ModalNew.Id = args.data.Id;
+        $scope.GetChildValue();
+        $scope.ModalNew = Object.assign({}, args.data);
+
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+
+        }
+    };
+     // #endregion Double tab on row
+    // #endregion Update
+
+    // #region SAVE
 
     $scope.SaveHeader = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -250,13 +276,14 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             else {
                 $scope.ModalNew.Id = response.data.Data.Id;                
                 ShowResult(response.data.Message, 'success');
+                $scope.Action = 'Update';
                 $scope.getMedicineReceipt();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
     }
-    // #ENDREGION SAVE
+    // #endregion SAVE
 
    
 }

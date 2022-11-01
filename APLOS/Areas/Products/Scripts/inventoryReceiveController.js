@@ -1189,6 +1189,12 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 			$scope.binMasterList = response.data;
 		});
 	}
+    $scope.getbinAllocationPopUp = function() {
+		angular.element(document.querySelector('#binAllocationPopUp')).modal('show');
+	}
+	$scope.CloseBinAllocationPopUp = function () {
+		angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
+	}
 	$scope.LoadMaterialStatusLoad = function (ob) {
 		////debugger;
 		$http({
@@ -1231,7 +1237,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		$scope[$scope.charValueSearchFor].FlagDisable = $scope.isSearch;
 		angular.element(document.querySelector('#searchcharactervaluepopup')).modal('hide');
 	};
-
+	$scope.selectedBinAllocationList = [];
 	$scope.detailSave = function () {
 		//debugger;
 		try {
@@ -1351,7 +1357,14 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 			$scope.detailModel.ThirdCharacteristicsId = $scope.char3.CharacteristicsId;
 			$scope.detailModel.ThirdCharacteristicsValueId = $scope.char3.CharacteristicsValueId;
 
-
+			if ($scope.binMasterList.length) {
+				$scope.selectedBinAllocationList = [];
+				for (var b = 0; b < $scope.binMasterList.length; b++) {
+					if ($scope.binMasterList[b].check == true) {
+						$scope.selectedBinAllocationList.push($scope.binMasterList[b]);
+                    }
+                }
+            }
 
 			for (var i = 0; i < baseService.arrayLength($scope.inventoryMaterialList); i++) {
 				if ($scope.detailModel.MaterialMasterId === $scope.inventoryMaterialList[i].MaterialMasterId &&
@@ -1376,6 +1389,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 				data: {
 					entity: $scope.detailModel
 					, taxCategoryList: $scope.taxCategoryList
+					, gRNBinAllocationMapList: $scope.selectedBinAllocationList
 				},
 				dataType: 'JSON'
 			}).then(function successCallback(response) {
@@ -1400,6 +1414,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 						, RejectionQty: null
 					};
 					$scope.taxCategoryList = [];
+					$scope.selectedBinAllocationList = [];
 					getInventoryMaterialList($scope.productNew.Id);
 					$scope.getDataList();
 					$scope.clearCharNames();

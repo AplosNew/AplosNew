@@ -20,6 +20,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         return $scope.tab === tabNum;
     };
     // #endregion TAB CHANGE
+
     //  #region Objects
     $scope.ModelTemp = {
         Id: null,
@@ -94,6 +95,16 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     $scope.getEnum();
      // #endregion get Define Enum
 
+    $scope.ItemApplicableList = [];
+    $scope.getItemApplicable = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetItemApplicable",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ItemApplicableList = response.data;
+        });
+    }
     // #region ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
 
 
@@ -112,7 +123,8 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         }).then(function successCallback(response) {
             $scope.MaterialArticleList = response.data;
             // #region cmnt
-            $scope.hideshow();
+            $scope.getItemApplicable();
+           $scope.hideshow();
             for (var i = 0; i < $scope.userMaterialArticleList.length; i++) {
                 for (var j = 0; j < $scope.MaterialArticleList.length; j++) {
                     if ($scope.userMaterialArticleList[i].Id === $scope.MaterialArticleList[j].Id) {
@@ -174,7 +186,146 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     }
      // #endregion Send
 
+    // #region checkbox all for Material
+    
+    $scope.refreshMaterialArticle = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllMaterialArticle });
+    };
+
+     function CheckBoxSelectAllMaterialArticle(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#GridEdit").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.MaterialArticleList.length; i++) {
+                $scope.MaterialArticleList[i].chk = ChkOrUnchk;
+                $scope.MaterialArticleList[i].MachineApplicable = $scope.MachineApplicable;
+                $scope.MaterialArticleList[i].WorkCenterApplicable = $scope.WorkCenterApplicable;
+                $scope.MaterialArticleList[i].OrderLevel = $scope.OrderLevel;
+
+
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+           }
+
+        }
+        var gridObj = $("#GridEdit").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+   // #endregion checkbox all
+
+    // #region checkbox all for Article
+
+    $scope.refreshArticle = function (args) {
+        $("#headchkB").ejCheckBox({ "change": CheckBoxSelectAllArticle });
+    };
+
+    function CheckBoxSelectAllArticle (e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEditB").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.MaterialArticleList.length; i++) {
+                $scope.MaterialArticleList[i].chk = ChkOrUnchk;
+                $scope.MaterialArticleList[i].MachineApplicable = $scope.MachineApplicable;
+                $scope.MaterialArticleList[i].WorkCenterApplicable = $scope.WorkCenterApplicable;
+                $scope.MaterialArticleList[i].OrderLevel = $scope.OrderLevel;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEditB").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+
+   // #endregion checkbox all for Article
+
+    // #region
+    $scope.changeDropDown = function () {
+        $scope.MAObject.OrderLevelText = $("#OrderLevelIdPOP option:selected").text();
+    }
+
+    function checkExistTempList(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Id === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.tempList = [];
+    $scope.OrderLevelText = $("#OrderLevelId option:selected").text();
+    $scope.selectChValueId = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                if (checkExistTempList($scope.tempList, data.MaterialMasterId) === false) {
+                    
+                    data.WorkCenterApplicable = $scope.WorkCenterApplicable;
+                    data.MachineApplicable = $scope.MachineApplicable;
+                    data.OrderLevel = $scope.OrderLevel;
+                    data.OrderLevelText = $("#OrderLevelId option:selected").text();
+                    $scope.tempList.push(data);
+                }
+            }
+            else {
+                for (var i = 0; i < $scope.tempList.length; i++) {
+                    if ($scope.tempList[i].Id === data.MaterialMasterId) {
+                        $scope.tempList.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            event.currentTarget.checked = false;
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    $scope.CheckAll = function (event) {
+        var _isselected = event.target.checked;
+
+
+        for (var i = 0; i < $scope.MaterialArticleList.length; i++) {
+            $scope.MaterialArticleList[i].chk = _isselected;
+        }
+
+        for (var i = 0; i < baseService.arrayLength($scope.MaterialArticleList); i++) {
+            if (_isselected)
+                $scope.tempList.push($scope.MaterialArticleList[i]);
+            else
+                for (var j = 0; j < $scope.tempList.length; j++) {
+                    if ($scope.tempList[j].Id === $scope.MaterialArticleList[i].MaterialMasterId) {
+                        $scope.tempList.splice(j, 1);
+                        break;
+                    }
+                }
+        }
+    };
+    // #endregion
+
     // #region SAVE CHILD
+
+    // #region Save Item Applicable
     $scope.SaveItemApplicable = function () {
         
         $scope.$broadcast('show-errors-check-validity');
@@ -196,7 +347,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-
+                $scope.getMaterialArticleId();
                 
             }
         }), function errorCallBack(response) {
@@ -204,32 +355,36 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         }
 
     };
-    $scope.SaveIssueControlChild = function () {
-        if (baseService.arrayLength($scope.MaterialArticleList) > 0) {
-            angular.forEach($scope.MaterialArticleList, function (a) {
+     // #endregion Save Item Applicable
 
-                if (a.chk) {
-                    var ob = {};
-                    ob.Id = null;
-                    ob.ArticleName = a.ArticleName;
-                    ob.MaterialGroupMasterId = a.MaterialGroupMasterId;
-                    ob.MaterialMaster = a.MaterialMaster;
-                    ob.MaterialMasterId = a.MaterialMasterId;
-                    ob.MaterialMasterArticleId = a.MaterialMasterArticleId;
-                    ob.MaterialType = a.MaterialType;
-                    ob.MaterialTypeId = a.MaterialTypeId;
-                    ob.MaterialgroupName = a.MaterialgroupName;
-                    ob.WorkCenterApplicable = a.WorkCenterApplicable;
-                    ob.MachineApplicable = a.MachineApplicable;
-                    ob.OrderLevel = a.OrderLevel;
-                    ob.chk = a.chk;
-                    ob.StorageBinMasterId = a.StorageBinMasterId;
-                    $scope.userMaterialArticleList.push(ob);
-                    ob = {};
-                    a.chk = false;
-                }
-            });
-        }
+    $scope.SaveIssueControlChild = function () {
+        // #region Commented
+        //if (baseService.arrayLength($scope.MaterialArticleList) > 0) {
+        //    angular.forEach($scope.MaterialArticleList, function (a) {
+
+        //        if (a.chk) {
+        //            var ob = {};
+        //            ob.Id = null;
+        //            ob.ArticleName = a.ArticleName;
+        //            //ob.MaterialGroupMasterId = a.MaterialGroupMasterId;
+        //            ob.MaterialMaster = a.MaterialMaster;
+        //            ob.MaterialMasterId = a.MaterialMasterId;
+        //            ob.MaterialMasterArticleId = a.MaterialMasterArticleId;
+        //            //ob.MaterialType = a.MaterialType;
+        //            //ob.MaterialTypeId = a.MaterialTypeId;
+        //            ob.MaterialgroupName = a.MaterialgroupName;
+        //            ob.WorkCenterApplicable = a.WorkCenterApplicable;
+        //            ob.MachineApplicable = a.MachineApplicable;
+        //            ob.OrderLevel = a.OrderLevel;
+        //            ob.chk = a.chk;
+        //            ob.StorageBinMasterId = a.StorageBinMasterId;
+        //            $scope.userMaterialArticleList.push(ob);
+        //            ob = {};
+        //            a.chk = false;
+        //        }
+        //    });
+        //}
+         // #endregion Commented
         
         $scope.$broadcast('show-errors-check-validity');
         
@@ -237,8 +392,8 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             method: 'POST',
             url: $scope.path + 'SaveChild',
             data: {
-                'headerId': $scope.ModelNew.Id,
-                'data': $scope.userMaterialArticleList,
+                'data': $scope.tempList,
+                'headerId': $scope.ModelNew.Id,                
                 'materiallevel': $scope.ModelNew.MaterialLevel
                 
             },
@@ -249,7 +404,7 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                
+                $scope.tempList = [];
                 $scope.GetIssue();
             }
         }), function errorCallBack(response) {
@@ -324,32 +479,40 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     }
     // #endregion Hide & show Material/Article
 
-
+    // #region MAObject
     $scope.MAObject = {
         Id: null,
         WorkCenterApplicable: false,
         MachineApplicable: false,
-        OrderLevel :null
+        OrderLevel: null,
+        OrderLevelText:null
+        
     }
+     // #endregion MAObject
 
     // #region Item Applicable Pop Up
     $scope.openItemApplicablePopUp = function (obj) {
-        $scope.MAObject = obj.data;
+        $scope.MAObject = obj.x;
+       
         angular.element(document.querySelector('#itemApplicablePopUpid')).modal('show');
+        
     }
 
     $scope.closeItemApplicablePopUp = function () {
+       
         angular.element(document.querySelector('#itemApplicablePopUpid')).modal('hide');
-        if ($scope.ModelNew.MaterialLevel == "Material") {
-            var gridObj = $("#GridEdit").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-        }
-        else {
-            var gridObj = $("#GridEditB").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-        }
+        //if ($scope.ModelNew.MaterialLevel == "Material") {
+        //    var gridObj = $("#GridEdit").data("ejGrid");
+        //    gridObj.refreshContent(true);
+        //    gridObj.refreshTemplate();
+        //}
+        //else {
+        //    var gridObj = $("#GridEditB").data("ejGrid");
+        //    gridObj.refreshContent(true);
+        //    gridObj.refreshTemplate();
+        //}
     }
     // #endregion Item Applicable Pop Up
+
+    
 }

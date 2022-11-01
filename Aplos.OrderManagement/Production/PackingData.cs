@@ -163,7 +163,7 @@ namespace Library.OrderManagement.Production
                 var str = @"Select  distinct ToLocation as text, ToStorageLocId as value from mst.MaterialMovementMaster";
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw e;
             }
@@ -725,7 +725,7 @@ namespace Library.OrderManagement.Production
                 }
 
                 string loc = "";
-                if(Loc == "All")
+                if (Loc == "All")
                 {
                     loc = "";
                 }
@@ -795,7 +795,7 @@ left join dbo.ItemScan isch on isch.Id = isc.MasterId
 where isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
 group by isc.POId, isc.ProductCode , isc.LotNo
 ) as fp on fp.ProductCode = sc.ProductCode and fp.POId = sc.POId and fp.LotNo = sc.LotNo
-"+loc+@"
+" + loc + @"
 group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty , ud.ud ,fd.fd, fp.fp
 
 ) as Scan
@@ -887,7 +887,7 @@ order by pk.Date  DESC";
 							left join
 							(Select sum(NetWeight) as booked , PackingId from dbo.ItemScanChild where Booked = 1 
 							group by PackingId) as bk on bk.PackingId = pol.Id
-                            where PackingLineItemId = '"+PackingLineItemId+@"'";
+                            where PackingLineItemId = '" + PackingLineItemId + @"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -925,7 +925,7 @@ order by pk.Date  DESC";
 							 where pli.PackingId = '" + PackingId + @"'
 							group by pli.PackingLineItemId,pol.LotNo,pol.PONo,pol.ProductCode
 							) as pp on pp.PackingLineItemId = pli.PackingLineItemId and pp.LotNo = pol.LotNo and pp.ProductCode = pol.ProductCode and pp.PONo = pol.PONo
-                            where pol.Status = 'Active' and pli.PackingId = '" + PackingId+@"'
+                            where pol.Status = 'Active' and pli.PackingId = '" + PackingId + @"'
 
                             ";
                 return _sqlRepository.GetDataTable(str);
@@ -1015,7 +1015,7 @@ order by pk.Date  DESC";
             }
         }
 
-        public DataTable GetStockData(string ToDate, string FromDate, string type, string group, string column, string value , string Loc)
+        public DataTable GetStockData(string ToDate, string FromDate, string type, string group, string column, string value, string Loc)
         {
             try
             {
@@ -1152,7 +1152,7 @@ order by pk.Date  DESC";
         {
             try
             {
-                
+
                 var str = @"SELECT MMA.StandardName, POLR.netWeight, POLR.GWeight,POLR.RefNo,POLR.LotNo
 ,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate,pc.UserName as ConsigneeBilltoName
 FROM [TRN].[SalesOrder] AS SO
@@ -1171,7 +1171,7 @@ LEFT JOIN
 Select ISNULL((sc.NetWeight),0) netWeight, ISNULL((sc.GWeight),0) GWeight,sc.RefNo,sc.LotNo,PackingLineItemId from trn.POLotReference po
 left join dbo.ItemScanChild sc on sc.PackingId = po.Id
 )POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId							
-WHERE  PLI.PackingId ='"+ packingId + "' ORDER BY MMA.StandardName";
+WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
                 return _sqlRepository.GetDataTable(str);
             }
             catch (Exception e)
@@ -1204,19 +1204,53 @@ WHERE  PLI.PackingId ='"+ packingId + "' ORDER BY MMA.StandardName";
                             LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
-                            WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' AND R.ToLocation <> 'JW Sale-Dye' " + loc+ @"
+                            WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' AND R.ToLocation <> 'JW Sale-Dye' " + loc + @"
                             and M.StandardName is not null
                             group by  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
                             order by M.StandardName , S.LotNo";
                 return _sqlRepository.GetDataTable(str);
             }
-            catch(Exception e)
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        public void GetFinishedGoodsPackingReportData(string fromDate, string toDate, string PurposeId, out DataTable dtOrder)
+        {
+            try
+            {
+                string purposeId = "'" + PurposeId.Replace(",", "','") + "'";//replaced with ""
+                var str = @"select distinct MP.UserName AS 'PROD_TYPE',
+S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation 
+FROM ItemScanChild S 
+LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
+LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
+WHERE R.PurposeId IN("+ purposeId + ") AND ISM.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+union all
+select distinct MP.UserName AS 'PROD_TYPE',
+S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation 
+FROM ItemScanChildHistory S 
+LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
+LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
+WHERE R.PurposeId IN("+ purposeId + ") AND ISM.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+";
+                dtOrder = _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
             {
                 throw e;
             }
         }
 
-        public DataTable getAllFinishedStocksReport(string Loc , string ToDate , string FromDate)
+        public DataTable getAllFinishedStocksReport(string Loc, string ToDate, string FromDate)
         {
             try
             {
@@ -1235,7 +1269,7 @@ WHERE  PLI.PackingId ='"+ packingId + "' ORDER BY MMA.StandardName";
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
                             WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING'  " + loc + @"
-                            AND S.AddedDate between '"+FromDate+@"' and '"+ToDate+@"'";
+                            AND S.AddedDate between '" + FromDate + @"' and '" + ToDate + @"'";
                 return _sqlRepository.GetDataTable(str);
             }
             catch (Exception e)
@@ -1244,7 +1278,7 @@ WHERE  PLI.PackingId ='"+ packingId + "' ORDER BY MMA.StandardName";
             }
         }
 
-    } 
+    }
 
 }
 

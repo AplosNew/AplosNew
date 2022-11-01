@@ -1,35 +1,57 @@
 ﻿<div id="tarekcontainer">
 
 </div>
-<togglable name="Material Issue Control"></togglable>
+<togglable name="Material Issue"></togglable>
 
 <div class="form-horizontal form-elements" id="entrycontainer">
     <div class="row">
         <div ng-form name="ModelNewForm">
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">PO Id<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="PO Id" disabled ng-model="ModelNew.POId" class="form-control" maxlength="15" required tabindex="1">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Code<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="User Code" ng-model="ModelNew.UserCode" class="form-control" maxlength="15" required tabindex="3">
+                        <input type="text" name="User Code" disabled ng-model="ModelNew.UserCode" class="form-control" maxlength="15" required tabindex="1">
                     </div>
                 </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Ref#<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="User Ref" ng-model="ModelNew.UserRef" class="form-control" maxlength="15" required tabindex="3">
+                        <input type="text" name="User Ref" disabled ng-model="ModelNew.UserRef" class="form-control" maxlength="15" required tabindex="3">
                     </div>
                 </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Plan(%)<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Plan Percentage" ng-model="ModelNew.PlanPercentage" only-numbers class="form-control" required tabindex="3">
+                        <input type="text" name="Plan Percentage" disabled ng-model="ModelNew.PlanPercentage" only-numbers class="form-control" ng-change="CalculationByPlan();" required tabindex="5">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select name="Storage" ng-model="ModelNew.MaterialStorageId" disabled class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="1" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Issue Date" ng-model="ModelNew.IssueDate" disabled datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                     <div class="col-sm-8">
                         <div class="input-group">
-                            <input type="text" name="ByWhom" ng-model="ModelNew.ByWhom" class="form-control" readonly tabindex="115">
+                            <input type="text" name="ByWhom" ng-model="ModelNew.ByWhom" disabled class="form-control" readonly tabindex="7">
                             <span class="input-group-btn">
                                 <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
                             </span>
@@ -39,22 +61,28 @@
             </div>
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Entity" disabled ng-model="ModelNew.Entity" class="form-control" maxlength="15" required tabindex="1">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" maxlength="50" required tabindex="3">
+                        <input type="text" name="User Name" ng-model="ModelNew.UserName" disabled class="form-control" maxlength="50" required tabindex="2">
                     </div>
                 </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Lot No<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="LotNo" ng-model="ModelNew.LotNo" class="form-control" maxlength="50" required tabindex="3">
+                        <input type="text" name="LotNo" ng-model="ModelNew.LotNo" disabled class="form-control" maxlength="50" required tabindex="4">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Level</label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="ModelNew.Level" name="Level">
+                            <select class="form-control" ng-model="ModelNew.Level" disabled name="Level" tabindex="6" ng-change="GetQBOQCostingData();">
                                 <option value="">--Select--</option>
                                 <option value="Costing">Costing</option>
                                 <option value="QBOQ">QBOQ</option>
@@ -62,10 +90,22 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select id="paymentTermId" class="form-control" disabled name="Requisition Type" ng-change="changeType(ModelNew.IssueType)" ng-model="ModelNew.IssueType" tabindex="12" required>
+                                <option value="Capital">Capital </option>
+                                <option value="Revenue">Revenue</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Remarks</label>
                     <div class="col-sm-8">
-                        <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                        <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" disabled maxlength="250" tabindex="8"></textarea>
                     </div>
                 </div>
             </div>
@@ -74,7 +114,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">SODetail</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetQBOQCostingData();" href="" data-toggle="tab">{{ModelNew.Level}}</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" data-toggle="tab">{{ModelNew.Level}}</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -89,8 +129,7 @@
                         <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
                         <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
                         <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="160px"></div>
-                        @*<div e-column e-template="#SearchArticleTemplate" e-headertext="" e-width="32px"></div>*@
+                        <div e-column e-type="string" e-field="SOArticle" e-headertext="Article" e-width="160px"></div>
                         <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
                         <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="75"></div>
                         <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
@@ -102,61 +141,36 @@
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="SOTotalMaterailCost" e-headertext="SOTotalMaterailCost" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="CostingTotalMaterialCost" e-headertext="CostingTotalMaterialCost" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.00}" e-field="BOQTotalCost" e-headertext="BOQTotalCost" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalVarianceCostingVsSO" e-headertext="TotalVarianceCostingVsSO" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalVarianceCostingVsBOQ" e-headertext="TotalVarianceCostingVsBOQ" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Remarks" e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
+                        <div e-column e-type="number" e-field="TotalVarianceCostingVsSO" e-headertext="TotalVarianceCostingVsSO" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-field="TotalVarianceCostingVsBOQ" e-headertext="TotalVarianceCostingVsBOQ" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="PlanRate" e-headertext="PlanRate" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="PlantCost" e-headertext="PlantCost" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-field="TotalSOCostVsTotalPlanCost" e-headertext="TotalSOCostVsTotalPlanCost" e-textalign="right" e-width="80"></div>
                     </div>
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div ng-show="ModelNew.Level == 'QBOQ'">
-                    <div style="color:black;" id="BGrid" ej-grid e-datasource="QBOQCostingList" e-allowscrolling="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-allowselection="false" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-type="string" e-field="SrNo" e-headertext="SrNo" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Item" e-headertext="Item" e-width="80"></div>
-                            <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="80"></div>
-                            <div e-column e-type="string" e-field="NetConsumptionPerUnit" e-headertext="Consumption" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="ValueLossPercentage" e-headertext="ValueLoss" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="GrossConsumption" e-headertext="GrossConsumption" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalConsumption" e-headertext="TotalConsumption" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-template="#AdditionReductionTemplate" e-field="AdditionReduction" e-headertext="AdditionReduction" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="PlanConsumption" e-headertext="PlanConsumption" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="TotaPlanlAmount" e-headertext="TotaPlanlAmount" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="200px"></div>
-                            <div e-column e-template="#SearchArticleTemplate" e-headertext="Article" e-width="32px"></div>
-                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="180"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="StockRate" e-headertext="StockRate" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="ActualIssueAmount" e-headertext="ActualIssueAmount" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Remarks" e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
-                        </div>
-                    </div>
-                </div>
-                <div ng-show="ModelNew.Level == 'Costing'">
-                    <div style="color:black;" id="CGrid" ej-grid e-datasource="QBOQCostingList" e-allowscrolling="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-allowselection="false" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-type="string" e-field="SrNo" e-headertext="SrNo" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Item" e-headertext="Item" e-width="80"></div>
-                            <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Consumption" e-headertext="NetConsumption" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="ValueLoss" e-headertext="ValueLoss" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="GrossConsumption" e-headertext="GrossConsumption" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalConsumption" e-headertext="TotalConsumption" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-template="#AdditionReductionTemplate" e-field="AdditionReduction" e-headertext="AdditionReduction" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="PlanConsumption" e-headertext="PlanConsumption" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="TotaPlanlAmount" e-headertext="TotaPlanlAmount" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="200px"></div>
-                            <div e-column e-template="#SearchArticleTemplate" e-headertext="Article" e-width="32px"></div>
-                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="180"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="StockRate" e-headertext="StockRate" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="ActualIssueAmount" e-headertext="ActualIssueAmount" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Remarks" e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
-                        </div>
+                <div style="color:black;" id="BGrid" ej-grid e-datasource="QBOQCostingList" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowselection="false" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="SrNo" e-headertext="SrNo" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Item" e-headertext="Item" e-width="80"></div>
+                        <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="80"></div>
+                        <div e-column e-type="string" e-field="NetConsumptionPerUnit" e-headertext="Consumption" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="ValueLoss" e-headertext="ValueLoss" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="GrossConsumption" e-headertext="GrossConsumption" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalConsumption" e-headertext="TotalConsumption" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="PlanConsumption" e-headertext="PlanConsumption" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-template="#IssueTemplate" e-field="IssueQty" e-headertext="IssueQty" e-textalign="right" e-width="140"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="StockRate" e-headertext="StockRate" e-textalign="right" e-width="80"></div>
+                        @*<div e-column e-type="number" e-format="{0:0.00}" e-field="TotaPlanlAmount" e-headertext="TotaPlanlAmount" e-textalign="right" e-width="80"></div>*@
+                        <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="180"></div>
+                        <div e-column e-type="string" e-field="QBOQArticle" e-headertext="Article" e-width="200px"></div>
+                        <div e-column e-template="#SearchArticleTemplate" e-headertext="Article" e-width="32px"></div>
+                        @*<div e-column e-type="number" e-format="{0:0.00}" e-field="ActualIssueAmount" e-headertext="ActualIssueAmount" e-textalign="right" e-width="80"></div>*@
+                        <div e-column e-type="string" e-field="Remarks" e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
                     </div>
                 </div>
             </div>
@@ -164,23 +178,39 @@
 
         <script type="text/template" id="Remarks">
             <div class="text-left" style="width:100%">
-                <input type="text" name="Remarks" ng-model="data.Remarks" class="form-control" maxlength="250" tabindex="3">
+                <input type="text" name="Remarks" disabled ng-model="data.Remarks" class="form-control" maxlength="250" tabindex="3">
             </div>
         </script>
         <script type="text/template" id="SearchArticleTemplate">
             <div class="common-btn">
                 <ul class="list-inline small">
                     <li>
-                        <button ng-click="$parent.getArticle(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                        <button ng-click="$parent.getArticle(data);" disabled class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
                             <i class="glyphicon glyphicon-search"></i>
                         </button>
                     </li>
                 </ul>
             </div>
         </script>
-        <script type="text/template" id="AdditionReductionTemplate">
-            <div class="col-sm-10" style="padding:0px; width:70px;">
-                <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />
+        <script type="text/template" id="IssueTemplate">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-sm-4">
+                        @*<input type="text" ej-numerictextbox e-decimalplaces="4" e-enabled="false" e-value="data.IssueQty" style="width: 75px;" />*@
+                        <input type="text" ng-model="data.IssueQty" disabled style="color:black;width: 75px;" class="form-control" />
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="common-btn">
+                            <ul class="list-inline small">
+                                <li>
+                                    <button ng-click="$parent.getSpecificMaterialStock(this);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </script>
 
@@ -192,123 +222,40 @@
         </div>
 
     </div>
-
-
-
 </div>
 
 <div class="aplos-grid-toggle" id="maincontainer">
     <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
-                <div class="col-sm-8">
-                    <input type="text" title="Least Start days" name="Least Start days" ng-model="Days" class="form-control" maxlength="15" only-numbers tabindex="3">
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-                <div class="col-sm-8">
-                    <div class="select-style">
-                        <select name="EntityId" ng-model="EntityId" ng-change="getData();" class="form-control"
-                                ng-options="item.Id as item.UserName for item in entityList" tabindex="1" required>
-                            <option value=""></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div id="Tab" ej-tab e-itemactive="onactivetab" e-create="oncreatetab">
             <ul><li><a href="#TabEdit">Production Orders</a></li> </ul>
             <div id="TabEdit">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="PRSearchColumn">
-                                            <option ng-repeat="option in modelFilterByList" value="{{option.value}}">{{option.name}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="PRSearchValue" ng-enter="getData()">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
                 <div class="row">
 
                     <div class="col-xs-12" style="color:black;">
-                        <div id="Gridunassigned" e-load="actionCompleteSearch" ej-grid e-datasource="modelList" e-recorddoubleclick="Get" e-rowdatabound="rowDataBoundOrder"
+                        <div id="Gridunassigned" e-load="actionCompleteSearch" ej-grid e-datasource="modelList" e-recorddoubleclick="Get"
                              e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                              e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
                              e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                              e-allowselection="false" e-filtersettings-filterType="excel">
                             <div e-columns>
-                                @*<div e-column e-template="#showPRPlanList" e-headertext="" e-width="28"></div>*@
-                                <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
-                                <div e-column e-type="number" e-field="ProductionPriority" e-headertext="Priority" e-format="{0:N2}" e-width="30"></div>
-                                <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Cust. Order#" e-width="100"></div>
-                                <div e-column e-type="string" e-field="SONo" e-headertext="SO Nos" e-width="100"></div>
-                                <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
-                                <div e-column e-type="text" e-field="SOCount" e-headertext="NoOfSO" e-width="80" style="height: 20px;"></div>
-                                <div e-column e-type="text" e-field="ItemCount" e-headertext="NoOfLineItem" e-width="80" style="height: 20px;"></div>
-                                <div e-column e-type="string" e-field="SODesc" e-headertext="SO Desc" e-width="100"></div>
-                                <div e-column e-type="string" e-field="TargetPerDay" e-headertext="Target Per Day" e-width="80"></div>
-                                <div e-column e-type="string" e-field="POQuantity" e-headertext="Qty" e-width="80"></div>
-                                <div e-column e-type="string" e-field="SOQuantity" e-headertext="Plan SO Qty" e-width="80"></div>
-
-                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="FirstShipmentDate" e-headertext="First Delivery Date" e-width="80"></div>
-                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LastShipmentDate" e-headertext="Last Delivery Date" e-width="80"></div>
-
-                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
-
-                                <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
-                                <div e-column e-type="string" e-field="EntityName" e-headertext="Entity" e-width="90"></div>
-
-                                <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="180"></div>
-                                <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="180"></div>
-                                <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
-                                <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
-
-                                <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
-                                <div e-column e-type="string" e-field="OwnRefNo" e-headertext="Own Order#" e-width="100"></div>
-                                <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="100"></div>
-                                <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
-
-                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
-                                <div e-column e-type="string" e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
-
-
+                                <div e-column e-type="string" e-field="Id" e-headertext="ID" e-visible="false" e-width="50"></div>
+                                <div e-column e-type="string" e-field="POId" e-headertext="POId" e-width="100"></div>
+                                <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                                <div e-column e-type="string" e-field="UserCode" e-headertext="User Code" e-width="50"></div>
+                                <div e-column e-type="string" e-field="UserRef" e-headertext="User Ref" e-width="80"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="100"></div>
+                                <div e-column e-type="text" e-field="PlanPercentage" e-headertext="Plan  Percentage" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-type="text" e-field="ByWhom" e-headertext="ByWhom" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-type="string" e-field="Level" e-headertext="Level" e-width="80"></div>
+                                <div e-column e-type="string" e-field="LotNo" e-headertext="LotNo" e-width="80"></div>
+                                <div e-column e-type="string" e-field="MaterialStorage" e-headertext="Material Storage" e-width="80"></div>
+                                <div e-column e-field="IsApproved" e-headertext="IsApproved" e-width="80"></div>
                             </div>
-
                         </div>
-                        @*<script type="text/template" id="SOCount">
-                                <div class="text-left" style="width:100%">
-                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetSOItemList(data);">{{data.SOCount}}</a>
-                                </div>
-                            </script>
-                            <script type="text/template" id="ItemCount">
-                                <div class="text-left" style="width:100%">
-                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetMOIItemList(data);">{{data.ItemCount}}</a>
-                                </div>
-                            </script>*@
                     </div>
                 </div>
             </div>
-
-
-
-
-
         </div>
     </div>
 
@@ -352,39 +299,140 @@
         <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
     </script>
 </div>
-@*<div class="modal site-modal in" id="MasterOrderItemPopup" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">Master Order Item<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-                <div class="modal-body text-center">
-                    <div class="row">
-                        <div style="color:black;" id="MasterOrderItemGrid" ej-grid e-datasource="MOIItemList" e-allowscrolling="true"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-allowselection="false" e-filtersettings-filterType="excel">
-                            <div e-columns>
-                                <div e-column e-type="string" e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="75"></div>
-                                <div e-column e-type="string" e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="80"></div>
-                                <div e-column e-type="string" e-field="POId" e-headertext="PrO" e-width="80"></div>
-                                <div e-column e-type="string" e-field="OrderCostingMasterTemplateId" e-headertext="CostingId" e-width="80"></div>
-                                <div e-column e-type="string" e-field="CostingBOQMasterId" e-headertext="BOQId" e-width="80"></div>
-                                <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
-                                <div e-column e-type="string" e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
-                                <div e-column e-type="string" e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
-                                <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
-                                <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="SO Qty" e-width="80" e-textalign="right"></div>
-                                <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalProductionQty" e-headertext="Booked Qty" e-textalign="right" e-width="80"></div>
-                                <div e-column e-type="number" e-format="{0:0.00}" e-field="RemainingQty" e-headertext="Remaining Qty" e-textalign="right" e-width="80"></div>
-                                <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
-                                <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
-                                <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
-                            </div>
-                        </div>
+<div class="modal fade site-modal in" id="stockPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content" style="overflow:scroll">
+            <div class="modal-header" style="width:1960px;"> Material Stock<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped" style="font-size: 12px;white-space: nowrap; ">
+                            <thead>
+                                <tr>
+                                    <th ng-hide="productNew.Id!=null">Select</th>
+                                    <th>IsOpeningBalance</th>
+                                    <th>Vendor</th>
+                                    <th>Entry Date</th>
+                                    <th>PO No</th>
+                                    <th>GRN Date</th>
+                                    <th>GRN No</th>
+                                    <th>SO No</th>
+                                    <th>Balance Qty</th>
+                                    <th class="col-md-3" style="width:300px;">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th></th>
+                                    <th></th>
+
+                                    <th>TransferedFromGrnId</th>
+                                    <th>Receive Qty</th>
+                                    @*<th>Base Qty</th>*@
+                                    <th>Issue Qty</th>
+
+                                    <th>Purchase Return Qty</th>
+                                    <th>Issue Return Qty</th>
+                                    <th>Adjustment Qty</th>
+                                    <th>InventorySales Qty</th>
+                                    <th>InventoryScrap Qty</th>
+                                    <th>InventoryTransfer Qty</th>
+
+
+                                    <th>Rate</th>
+                                    <th>Base Rate</th>
+                                    <th>Approved</th>
+                                    <th>Posting</th>
+                                    <th>IssueByUoM</th>
+                                    @*<th class="col-md-3">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in materialStockList">
+                                    <td ng-hide="productNew.Id!=null">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{x.IsOpeningBalance}}</td>
+                                    <td>{{x.PartyCode}}-{{x.PartyName}}</td>
+                                    <td>{{x.ReceiveDate}}</td>
+                                    <td>{{x.PONo}}</td>
+                                    <td>{{x.GRNDate}}</td>
+                                    <td>{{x.InventoryReceiveDetailId}}</td>
+                                    <td>{{x.SalesOrderId}}</td>
+                                    <td>{{x.BalanceStock}} {{x.BUoM}}</td>
+                                    <td class="text-right" colspan="3">
+                                        <div class="input-group">
+                                            <input type="text" n-decimals="20" ng-model="x.RequisitionQty" class="form-control text-right" ng-keyup="CalTotalQty()" width="200" />
+                                            <span class="input-group-addon">{{x.TrasactopmUomQty}}</span>
+                                            <span class="input-group-addon">{{x.IssueTransactionUoM}}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{x.TransferedFromGrnId}}</td>
+                                    <td>{{x.TransactionQty}} {{x.TUoM}}</td>
+                                    @*<td>{{x.BaseQty}} {{x.BUoM}}</td>*@
+                                    <td>{{x.BaseIssueQty}} {{x.BUoM}}</td>
+
+                                    <td>{{x.PurchaseReturnQty}} {{x.BUoM}}</td>
+                                    <td>{{x.IssueReturnQty}} {{x.BUoM}}</td>
+                                    <td>{{x.ReductionByAdjustmentQty}} {{x.BUoM}}</td>
+
+                                    <td>{{x.InventorySalesQty}} {{x.BUoM}}</td>
+                                    <td>{{x.InventoryScrapQty}} {{x.BUoM}}</td>
+                                    <td>{{x.InventoryTransferQty}} {{x.BUoM}}</td>
+
+
+                                    <td>{{x.BaseRate|setDecimal:4}} {{x.TCurrency}}</td>
+                                    <td>{{x.BaseCurrencyRate|setDecimal:4}} {{x.BCurrency}}</td>
+                                    <td>{{x.IsApproved}}</td>
+                                    <td>{{x.IsPosting}}</td>
+                                    <td>{{x.IssueByUoM}}</td>
+
+
+                                    @*<td class="text-right" colspan="3">
+                                            <div class="input-group">
+                                                <input type="text" n-decimals="20" ng-model="x.RequisitionQty" class="form-control text-right"  ng-disabled="productNew.Id!=null" width="200" />
+                                                <span class="input-group-addon">{{x.TrasactopmUomQty}}</span>
+                                                <span class="input-group-addon">{{x.IssueTransactionUoM}}</span>
+                                            </div>
+                                        </td>*@
+                                </tr>
+                                <tr>
+                                    <td colspan="8" class="text-right"><strong>Total : </strong></td>
+                                    <td class="text-left"><strong>{{materialStockList | sumByKey : 'BalanceStock' }}</strong></td>
+                                    <td class="text-center"><strong>{{materialStockList | sumByKey : 'RequisitionQty' }}</strong></td>
+                                    <td colspan="3"></td>
+                                    <td class="text-left"><strong>{{materialStockList | sumByKey : 'TransactionQty' }}</strong></td>
+                                    @*<td class="text-left"><strong>{{materialStockList | sumByKey : 'BaseQty' }}</strong></td>*@
+                                    <td class="text-left"><strong>{{materialStockList | sumByKey : 'IssueQty' }}</strong></td>
+
+                                    <td class="text-left"><strong>{{materialStockList | sumByKey : 'PurchaseReturnQty' }}</strong></td>
+                                    <td class="text-left"><strong>{{materialStockList | sumByKey : 'IssueReturnQty' }}</strong></td>
+                                    <td class="text-left"><strong>{{materialStockList | sumByKey : 'ReductionByAdjustmentQty' }}</strong></td>
+
+                                    <td class="text-left"><strong>{{materialStockList | sumByKey : 'InventorySalestQty' }}</strong></td>
+                                    <td class="text-left"><strong>{{materialStockList | sumByKey : 'InventoryScraptQty' }}</strong></td>
+                                    <td class="text-left"><strong>{{materialStockList | sumByKey : 'InventoryTransfertQty' }}</strong></td>
+
+
+
+                                    <td class="text-left"><strong>&nbsp;@*{{materialStockList | sumByKey : 'BaseQty' }}*@</strong></td>
+                                    <td colspan="4"></td>
+
+
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-left" @*style="width:1960px;"*@>
+                        @*<li><button ng-hide="productNew.Id!=null" ng-click="addMaterialStock();" class="btn"><i class="glyphicon glyphicon-plus"></i> Submit</button></li>*@
+                        <li><button @*ng-hide="productNew.Id==null"*@ ng-click="closeStockPopUp();" class="btn">Close</button></li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </div>*@
+    </div>
+</div>

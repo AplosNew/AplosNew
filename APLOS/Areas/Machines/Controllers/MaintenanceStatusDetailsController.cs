@@ -163,7 +163,7 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end) = 0 and (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
-MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,(CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END) as [Status],Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,APD.Remarks
+MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,(CASE WHEN APD.ActualDate IS NULL THEN 0 ELSE 1 END) as [Status],Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,APD.Remarks
  from TRN.Maintenancescheduling MS
  left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
@@ -200,7 +200,8 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where Id='" + MaintenanceId + @"'
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
 MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,isnull(APD.[Status],1) as [Status],APD.Remarks,
-Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as	ToTime,APD.Minute as [Minute],APD.ActualRemark
+Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as	ToTime,APD.Minute as [Minute],APD.ActualRemark,
+APD.FileName
  from TRN.Maintenancescheduling MS
  left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
@@ -366,7 +367,7 @@ WHERE EI.EmployeeStatus='Active'";
             dr.EndEdit();
         }
 
-        [HttpGet, Authorize]
+        [HttpGet, Authorize] 
         public ActionResult GetMaintenanceJobCardReportView(string PlannedId)
         {
             try
@@ -566,7 +567,7 @@ WHERE EI.EmployeeStatus='Active'";
                         sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].Merge();
                         sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                     }
-                    ColScheduleName = ROW;
+                    MaintenanceScheduleNameRow = ROW;
                 }
 
                 sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
@@ -789,7 +790,7 @@ WHERE EI.EmployeeStatus='Active'";
                         sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].Merge();
                         sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                     }
-                    ColScheduleName = ROW;
+                    MaintenanceScheduleNameRow = ROW;
                 }
 
                 sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();

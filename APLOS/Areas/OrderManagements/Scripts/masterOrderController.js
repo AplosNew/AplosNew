@@ -416,7 +416,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.isSet2 = function (tabNum) {
         return $scope.tab2 === tabNum;
     };
-
+    
    
     $scope.currency = null;
     $scope.Get = function (index) {
@@ -473,6 +473,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
         $scope.ExchangeDisplayExchangeRates($scope.fileNew.Id, $scope.fileNew.CurrencyId);//reloading currency exchange rates
         $scope.GetPaymentTermChangeable();
+        $scope.GetPackingDetail();
         //$scope.GetContractByMasterOrder();
     };
 
@@ -522,7 +523,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
         angular.copy($scope.fileNew, $scope.file);
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.fileNewForm.$valid) {
+        if ($scope.tab1.$valid) {
 
             if ($scope.ExchangeSaveExchangeRates($scope.fileNew.CurrencyId) == false) {
                 return;
@@ -3872,7 +3873,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.qboqModel = Object.assign({}, $scope.qboq);
 
     $scope.CalculateNetConsumption = function () {
-        $scope.qboqModel.GrossConsumption = parseFloat($scope.qboqModel.NetConsumptionPerUnit / (1 - ($scope.qboqModel.ValueLossPercentage / 100))).toFixed(2);
+        $scope.qboqModel.GrossConsumption = parseFloat($scope.qboqModel.NetConsumptionPerUnit / (1 - ($scope.qboqModel.ValueLossPercentage / 100))).toFixed(4);
         //$scope.qboqModel.GrossConsumption = parseFloat(($scope.qboqModel.NetConsumptionPerUnit / 100) - $scope.qboqModel.ValueLossPercentage).toFixed(2);
         //$scope.qboqModel.NetConsumptionPerUnit = (($scope.qboqModel.GrossConsumption / 100) - $scope.qboqModel.ValueLossPercentage);
     }
@@ -4819,12 +4820,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
 
     $scope.SavePackingDetail = function () {
+    $scope.MasterOrderId = $scope.fileNew.Id;
         try {
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
                     url: 'OrderManagements/MasterOrder/CreatePackingDetail',
-                    data: { 'data': $scope.modelNewPD },
+                    data: { 'data': $scope.modelNewPD, 'MasterOrderId': $scope.MasterOrderId },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
                 }).then(function successCallback(response) {
@@ -4848,9 +4850,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.PackingDetailDataList = [];
     $scope.GetPackingDetail = function () {
+        $scope.PackingDetailDataList = [];
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetPackingDetail'
+            url: 'OrderManagements/MasterOrder/GetPackingDetail?masterOderId=' + $scope.fileNew.MasterOrderNo
         }).then(function successCallback(response) {
             if (baseService.arrayLength(response.data) > 0)
             {
@@ -4928,9 +4931,14 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.GetCostingItemCbo();
 
     $scope.GetPopUpTab = function (obj) {
+        $scope.tab2 = 1;
+        $scope.ClearPT();
         $scope.modelNewPD = obj.data;
         $scope.ModelSO.PackingDetailId = obj.data.Id;
+        //$scope.ModelSO.SOId = obj.data;
+        $scope.ModelPTNew.PackingDetailId = obj.data.Id;
         $scope.GetSavedSOData($scope.ModelSO.PackingDetailId);
+        $scope.GetSavedPackingType($scope.ModelPTNew.PackingDetailId);
         angular.element(document.querySelector('#SOPopUpData')).modal('show');
     }
 
@@ -4943,6 +4951,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.SODataList = [];
     $scope.GetSavedSOData = function (packingDetailId) {
+        $scope.SODataList = [];
         $http.get('OrderManagements/MasterOrder/GetSavedSOData?PackingDetailId=' + packingDetailId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
@@ -4954,7 +4963,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.SOItemList = [];
     $scope.GetSOPopUp = function () {
         $scope.SOItemList = [];
-        $http.get('OrderManagements/MasterOrder/GetSOData')
+        $http.get('OrderManagements/MasterOrder/GetSOData?lineItem=' + $scope.modelNewPD.MasterOrderItemId)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -4965,6 +4974,19 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     ShowResult(response, 'failure');
                 });
         angular.element(document.querySelector('#SOItemPopup')).modal('show');
+    };
+
+    $scope.GetSODataDbl = function (args) {
+        try {
+            $scope.Action = 'Update';
+            $scope.ModelSO = Object.assign({}, args.data);
+
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
     };
 
     $scope.selectSOItem = function ($event) {
@@ -5009,6 +5031,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.ModelSO = {
         Id: null,
+        PackingDetailId: $scope.modelNewPD.Id,
         Remarks: null,
         AddedBy: null,
         AddedDate: null,
@@ -5021,6 +5044,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.ClearSO = function () {
         $scope.ModelSO = {
             Id: null,
+            PackingDetailId: $scope.modelNewPD.Id,
             Remarks: null,
             AddedBy: null,
             AddedDate: null,
@@ -5030,6 +5054,275 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             UpdatedFromIP: null
         };
     }
+
+    $scope.removeChildSO = function (obj) {
+        $scope.SODetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.SODetailNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmChildSOPopUp')).modal('show');
+    }
+
+    $scope.DeleteChildSO = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/MasterOrder/DeleteChildSO?id=' + $scope.SODetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedSOData($scope.modelNewPD.Id);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+    $scope.ModelPT = {
+        Id: null,
+        PackingDetailId: $scope.modelNewPD.Id,
+        PackingCode: null,
+        PackingTypeId: null,
+        PackingType: null,
+        CustomerRefCode: null,
+        Remarks: null
+    };
+    $scope.ModelPTNew = Object.assign({}, $scope.ModelPT);
+
+    $scope.ClearPT = function () {
+        $scope.ModelPTNew = {
+            Id: null,
+            PackingDetailId: $scope.modelNewPD.Id,
+            PackingCode: null,
+            PackingTypeId: null,
+            PackingType: null,
+            CustomerRefCode: null,
+            Remarks: null
+        };
+    }
+
+    $scope.SavePackingType = function () {
+        try {
+            //if (baseService.isUndefinedOrNull($scope.ModelSO.SOId)) {
+            //    throw "Select SO No.";
+            //}
+
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/MasterOrder/CreatePackingType',
+                data: { 'data': $scope.ModelPTNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearPT();
+                    $scope.GetSavedPackingType($scope.modelNewPD.Id);
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.PackingTypeListData = [];
+    $scope.GetSavedPackingType = function (packingDetailId) {
+        $scope.PackingTypeListData = [];
+        $http.get('OrderManagements/MasterOrder/GetSavedPackingType?PackingDetailId=' + packingDetailId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.PackingTypeListData = response.data;
+                }
+            });
+    }
+
+    $scope.GetPT = function (args) {
+        try {
+            $scope.Action = 'Update';
+            $scope.ModelPTNew = Object.assign({}, args.data);
+
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.removeChild2 = function (obj) {
+        $scope.packingTypeNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.packingTypeNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmChildPackingTypePopUp')).modal('show');
+    }
+
+    $scope.DeletePackingType = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/MasterOrder/DeletePackingType?id=' + $scope.packingTypeNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedPackingType($scope.modelNewPD.Id);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+    $scope.GetPopUpTab2 = function (obj) {
+        $scope.tab2 = 2;
+        $scope.PackingTypeId = obj.data.Id;
+        $scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
+        $scope.ModelSKUDNew.PackingTypeId = $scope.PackingTypeId;
+        //$scope.GetSavedPackingType$scope.ModelPTNew.PackingTypeId
+        if ($scope.SODataList.length > 0) {
+            var uniqueSalesOrderId = removeDuplicates($scope.SODataList, 'SOId');
+            var wcEmpCode = "";
+            if (uniqueSalesOrderId.length > 0) {
+                wcEmpCode = "IN(";
+                wcEmpCode += Array.prototype.map.call(uniqueSalesOrderId, function (item) { return "'" + item.SOId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcEmpCode;
+        }
+        $scope.sku1($scope.sqlInStatement);
+        $scope.sku2($scope.sqlInStatement);
+        $scope.GetSavedSKUDetailData($scope.PackingTypeId);
+        angular.element(document.querySelector('#SKUPopUp')).modal('show');
+    }
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
+    $scope.ModelSku = {
+        Id: null,
+        PackingTypeId: $scope.PackingTypeId,
+        FGFirstCharacteristicsId: null,
+        FirstCharacteristics: null,
+        FGSecondCharacteristicsId: null,
+        SecondCharacteristics: null,
+        Quantity: null,
+        Plan: null
+    };
+    $scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
+
+    $scope.ClearSKUD = function () {
+        $scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
+        $scope.ModelSKUDNew.PackingTypeId = $scope.PackingTypeId;
+    }
+
+    $scope.sku1List = [];
+    $scope.sku1 = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetSKU1List?SOId=' + $scope.sqlInStatement
+        }).then(function successCallback(response) {
+            $scope.sku1List = response.data;
+        })
+    };
+
+    $scope.sku2List = [];
+    $scope.sku2 = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetSKU2List?SOId=' + $scope.sqlInStatement
+        }).then(function successCallback(response) {
+            $scope.sku2List = response.data;
+        })
+    };
+    $scope.PackingTypeId = null;
+    $scope.SaveSKUDetail = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/MasterOrder/CreateSKUDetail',
+                data: { 'data': $scope.ModelSKUDNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearSKUD();
+                    $scope.GetSavedSKUDetailData($scope.PackingTypeId);
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SKUDetailList = [];
+    $scope.GetSavedSKUDetailData = function (PackingTypeId) {
+        $scope.SKUDetailList = [];
+        $http.get('OrderManagements/MasterOrder/GetSavedSKUDetail?PackingTypeId=' + PackingTypeId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SKUDetailList = response.data;
+                }
+            });
+    }
+
+    $scope.GetSKUDetailDblClick = function (args) {
+        try {
+            $scope.Action = 'Update';
+            $scope.ModelSKUDNew = Object.assign({}, args.data);
+
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    $scope.removeSKUDetail = function (obj) {
+        $scope.SKUDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.SKUDetailNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmSKUDetailPopUp')).modal('show');
+    }
+
+    $scope.DeleteSKUDetail = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/MasterOrder/DeleteSKUDetail?id=' + $scope.SKUDetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedSKUDetailData($scope.PackingTypeId);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
 
     //#region   SO Copy    
     $scope.CopySO = function (data) {

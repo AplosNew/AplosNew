@@ -12,8 +12,8 @@ function authorizationConfigController(commonMessage, $scope, $rootScope, baseSe
         $http.get('employees/authorizationConfig/GetList?actionStatus=' + $scope.employeeInformation.ActionStatus)
             .then(
                 function successCallback(response) {
-                    if (baseService.arrayLength(response.data.Rows) > 0) {
-                        $scope.authorizationList = response.data.Rows;
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.authorizationList = response.data;
                     }
                 },
                 function errorCallback(response) {
