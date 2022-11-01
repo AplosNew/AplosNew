@@ -2151,14 +2151,39 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSavedSKUDetail(string PackingTypeId)
         {
-            string sql = @"select PTC.*,PT.UserName PackingType 
-                                from  [dbo].[PackingTypeChild] PTC
-                                left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId
-                                Where PackingDetailId='" + PackingTypeId + "'";
+            string sql = @"select Sku.Id,PT.Id PackingType,PT.UserName PackingType,Sku.FGFirstCharacteristicsId,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsId
+													,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan]
+													from  [dbo].[SKUDetail] Sku
+													left join [dbo].[PackingTypeChild] PTC on PTC.Id=Sku.PackingTypeId  
+													left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId                                
+													left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsId								
+													left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsId
+                                Where Sku.PackingTypeId = '" + PackingTypeId + "'";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
+        }
+       
+        [HttpPost, Authorize]
+        public ActionResult DeleteSKUDetail(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.SKUDetail where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         #region Copy SO

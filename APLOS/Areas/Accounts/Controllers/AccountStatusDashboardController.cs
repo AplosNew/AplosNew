@@ -2950,25 +2950,29 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { DATA = accountsStatusDashboardService.GetReceiptPaymentStatusDataList(), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
-        //[Authorize, HttpPost]
-        //public ActionResult ReceiptPaymentStatusSummaryReport(ReportFormat reportFormat, Dictionary<string,string> data)
-        //{
-           
-        //    var reportFileName = "Receipt Payment Status Summary";
-        //    AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
-        //    var workbook = accountsStatusDashboardService.CreateReceiptPaymentStatusSummaryReportSheet(data);
 
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
+        [HttpPost, Authorize]
+        public ActionResult ReceiptPaymentStatusSummaryReport(Dictionary<string, string> data)
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcel(workbook, reportFileName);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
 
-        //        default:
-        //            return View();
-        //    }
-        //}
+                string fileName = "";
+
+                fileName = accountsStatusDashboardService.CreateReceiptPaymentStatusSummaryReportSheet(data);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+
     }
 }

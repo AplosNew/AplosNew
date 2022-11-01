@@ -336,16 +336,16 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
 
                     var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
                     var fileN = file.FileName;
-                    var destinationPath = Path.Combine(ResourcesPathReader.GetMOIDocumentPath(), fileName);
+                    var destinationPath = Path.Combine(ResourcesPathReader.GetMSADocumentPath(), fileName);
 
-                    var directory = ResourcesPathReader.GetMOIDocumentPath();
+                    var directory = ResourcesPathReader.GetMSADocumentPath();
                     var path = Path.Combine(directory);
 
-                    if (System.IO.Directory.Exists(ResourcesPathReader.GetMOIDocumentPath()) == false)
+                    if (System.IO.Directory.Exists(ResourcesPathReader.GetMSADocumentPath()) == false)
                     {
                         try
                         {
-                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetMOIDocumentPath());
+                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetMSADocumentPath());
                         }
                         catch (Exception)
                         {

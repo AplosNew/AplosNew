@@ -22,7 +22,21 @@ namespace Aplos.Areas.HumanResource.Controllers
             return View();
         }
 
-        
+        #region GET SEQUENCE
+        [HttpPost, Authorize]
+        public JsonResult CountEmpVisits(string empsystemCode)
+        {
+            try
+            {
+                return Json(ml.CountEmpVisits(empsystemCode), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion GET SEQUENCE
+
         #endregion Views
         [Authorize, HttpPost]
         public ActionResult getMedicineList()
@@ -128,5 +142,18 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(ml.CountEmployeeVisiting(empSytemId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public JsonResult getSearchedEmployee(string column, string value)
+        {
+            try
+            {
+                return Json(ml.getSearchedEmployee(column, value), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
     }
 }

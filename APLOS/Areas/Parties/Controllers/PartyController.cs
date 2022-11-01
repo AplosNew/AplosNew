@@ -135,6 +135,7 @@ namespace Aplos.Areas.Parties.Controllers
             return Json(GetCompanyPartyListByGateEntryANDPO(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyType), JsonRequestBehavior.AllowGet);
         }
 
+
         [HttpGet, Authorize]
         public JsonResult GetCompanyPartyDataListByPlantId(GridParameter parameters, string CompanyId, string PlantId, string partyType)
         {

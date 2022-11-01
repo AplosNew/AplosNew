@@ -9,6 +9,17 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
+    // #region TAB CHANGE
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+    // #endregion TAB CHANGE
+
     $scope.openEmpPopUp = function () {
         angular.element(document.querySelector('#empPopUpId')).modal('show');
 
