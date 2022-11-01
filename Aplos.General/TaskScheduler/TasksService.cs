@@ -1142,7 +1142,7 @@ namespace Library.General.TaskScheduler
                         dr["UpdatedBy"] = DBNull.Value;
                         dr["UpdatedDate"] = DBNull.Value;
                         dr["UpdatedFromIP"] = DBNull.Value;
-                        dr["isActive"] = DBNull.Value;
+                        dr["isActive"] = item.isActive;
                         dsMaster.Tables[0].Rows.Add(dr);
                     }
                     else
@@ -1158,7 +1158,7 @@ namespace Library.General.TaskScheduler
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = item.UpdatedDate;
                         dr["UpdatedFromIP"] = item.UpdatedFromIP;
-                        dr["isActive"] = DBNull.Value;
+                        dr["isActive"] = item.isActive;
 
 
                         dr.EndEdit();
