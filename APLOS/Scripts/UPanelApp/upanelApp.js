@@ -1102,6 +1102,7 @@ upanelApp.controller("MaterialIssueControlApprovalController", MaterialIssueCont
 upanelApp.controller("specialIssueControlReportController", specialIssueControlReportController)
 upanelApp.controller("FinishedGoodsPackingReportController", FinishedGoodsPackingReportController)
 upanelApp.controller("MaterialIssueController", MaterialIssueController)
+upanelApp.controller("incedentCategoryController", incedentCategoryController)
 
 
 upanelApp.config(AccessControllerConfig);

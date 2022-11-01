@@ -117,7 +117,7 @@ function PartyConfig($routeProvider, $locationProvider) {
             templateUrl: 'Parties/BuyerProgram/aplos',
             controller: 'buyerProgramController'
         })
-        .when("/party-ledger", {
+        .when("i", {
             templateUrl: "Parties/PartyReport/PartyLedgerReport",
             controller: "partyLedgerReportController"
         })

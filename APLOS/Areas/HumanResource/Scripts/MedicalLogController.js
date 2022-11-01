@@ -16,10 +16,16 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.getSeqUrl = $scope.path + 'CountEmployeeVisiting';
 
+    $scope.CountNoOfVisits = [];
     $scope.CountEmployeeVisiting = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelTemp.Sequence = data;
-            $scope.ModelNew.Sequence = data;
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CountEmpVisits',
+            data: { 'empsystemCode': $scope.ModalNew.EmployeeSysId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModalNew.NoOfVisits = response.data[0].NoOfVisits;
+            $scope.ModalNew.NoOfVisits++;
         });
     };
 
@@ -94,7 +100,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         Id: null,
         Date: todaysDate,
         Time: curTime,
-        NoOfVisits:null,
+        NoOfVisits:0,
         Remarks: null,
         EmployeeName: null,
         EmployeeSysId:null
@@ -206,6 +212,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         $scope.ModalNew.EmployeeSysId = e.data.SystemId;
         $scope.ModalNew.EmployeeName = e.data.EmployeeName;
         $scope.closeEmpPopUp();
+        $scope.CountEmployeeVisiting();
         
     }
     // #endregion Get All Employee and select by double click
@@ -234,6 +241,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
                 ShowResult(response.data.Message, 'success');
                 ClearFields(response.data.Sequence);
                 $scope.getData();
+                $scope.Action = 'Update';
 
             }
         }), function errorCallBack(response) {
@@ -259,6 +267,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
 
     //--------------------------------------------------------LISTS FOR SEARCH-------------------------------------------------------------------
     $scope.searchByMedicine = "UserName"; $scope.searchMedicine = "";
+    
     $scope.MedicineSearchByList = [
         {
             'name': 'Code',
@@ -283,6 +292,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
 
     ];
 
+    
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -317,7 +327,33 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
             $scope.MedicinePurposeList = response.data;
         });
     }
-
+    // #region
+    $scope.searchByEmployee = "EmployeeName"; $scope.searchEmployee = "";
+    $scope.EmployeeSearchList = [
+        {
+            'name': 'EmployeeCode',
+            'value': 'EmployeeCode'
+        },
+        {
+            'name': 'EmployeeName',
+            'value': 'EmployeeName'
+        },
+        {
+            'name': 'DOJ',
+            'value': 'DOJ',
+        }
+    ]
+    $scope.getSearchedEmployee = function () {
+        $http({
+            method: 'POST',
+            url: 'HumanResource/MedicalLog/getSearchedEmployee',
+            data: { column: $scope.searchByEmployee, value: $scope.searchEmployee },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EmployeeList = response.data;
+        });
+    }
+    // #endregion
     // Get medicines pop up screen by medicine receipt 
     $scope.MedicineMasterId = null;
     $scope.MedicineByPurposeList = [];

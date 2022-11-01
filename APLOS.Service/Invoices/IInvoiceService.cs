@@ -43,7 +43,7 @@ namespace Library.Service.Invoices
            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList);
 
         string UpdateVendorInvoice(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
-      
+        string InsertIncentiveReceivableInvoice(VoucherViewModel voucherVM, IEnumerable<IncentiveReceivableMap> incentiveReceivableMapList);
 
         void InsertMultipleVendorAvailableApproved(IEnumerable<MultipleVendorIdViewModel> partyIdList, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList);
 
@@ -53,6 +53,7 @@ namespace Library.Service.Invoices
 
         InvoiceDetail FindInvoiceDetail(string invoiceDetailId);
         void DeleteInvoice(string invoiceId, string voucherId);
+        void DeleteIncentiveReceivableInvoice(string invoiceId, string voucherId);
         Invoice FindInvoice(string Id);
         void DeleteInvoice(string id);
         IQueryFluent<InvoiceDetail> QueryInvoiceDetail(string invoiceId);

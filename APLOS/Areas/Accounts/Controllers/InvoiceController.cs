@@ -329,6 +329,20 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoiceBeneficiaryEmployee(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList)) });
 
         }
+        [HttpPost]
+        public JsonResult InsertIncentiveReceivableInvoice(VoucherViewModel voucherVM,IEnumerable<IncentiveReceivableMap> incentiveReceivableMapList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            if (voucherVM.CompanyCurrencyRate == 0)
+                throw new CustomException("Rate can not Empty!");
+            voucherVM.SourceType = SourceType.ReceivableFromOthers.ToString();
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertIncentiveReceivableInvoice(voucherVM, incentiveReceivableMapList)) });
+            
+        }
 
         [HttpPost, Authorize]
         public JsonResult InsertAdditionalTaxPayable(string additionalTaxId, VoucherViewModel voucherVM)
@@ -378,6 +392,12 @@ namespace Aplos.Areas.Accounts.Controllers
                 _employeePayableService.Post(invoiceId);
             return Json(new { Message = AplosMessage.Posted });
         }
+        [HttpPost]
+        public ActionResult PostIncentiveReceivableInvoice(string invoiceId)
+        {
+            _invoiceService.Post(invoiceId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
 
         [HttpPost]
         public ActionResult DeleteVendorInvoice(string invoiceId, string voucherId, string type, string tDSVoucherId, string tDSVoucherNo)
@@ -392,7 +412,12 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-
+        [HttpPost]
+        public ActionResult DeleteIncentiveReceivableInvoice(string invoiceId, string voucherId)
+        {
+            _invoiceService.DeleteIncentiveReceivableInvoice(invoiceId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
 
 
         [HttpGet, Authorize]
@@ -400,6 +425,23 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var workbook = _invoiceReportService.GetVendorInvoiceReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult ReportIncentiveReceivableInvoice(ReportFormat reportFormat, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _invoiceReportService.GetIncentiveReceivableInvoiceReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
