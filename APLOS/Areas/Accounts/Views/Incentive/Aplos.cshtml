@@ -23,7 +23,7 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Description</label>
             <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
+                <textarea class="form-control" rows="2" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -33,6 +33,21 @@
                     <input tabindex="1" type="text" name="@Library.Model.Parties.PartyType.Customer.ToString()" ng-model="ModelNew.PartyName" class="form-control" readonly>
                     <span class="input-group-btn">
                         <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">@Library.Model.Parties.PartyType.Customer.ToString() Plant<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <div class="select-style">
+                        <select tabindex="1" class="form-control" name="PartyPlantId" ng-model="ModelNew.PartyPlantId" ng-options="item.Value as item.Text for item in partyPlantList| filter:{ PartyId: ModelNew.PartyId }"  required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    <span class="input-group-btn">
+                        <button ng-click="showPartyPlantPopUp(ModelNew.PartyPlantId);" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i></button>
                     </span>
                 </div>
             </div>
@@ -85,7 +100,7 @@
         <fieldset class="scheduler-border">
             <legend class="scheduler-border">Dr.</legend>
             <div class="form-group">
-                <label class="col-sm-3 control-label">GL<sup>*</sup></label>
+                <label class="col-sm-3 control-label">GL</label>
                 <div class="col-sm-6 pdr3">
                     <input type="text" class="form-control" ng-model="AssetGLInof" readonly>
                 </div>
@@ -118,7 +133,7 @@
         <fieldset class="scheduler-border">
             <legend class="scheduler-border">Cr.</legend>
             <div class="form-group">
-                <label class="col-sm-3 control-label">GL<sup>*</sup></label>
+                <label class="col-sm-3 control-label">GL</label>
                 <div class="col-sm-6" style="padding-right:0px;">
                     <input type="text" class="form-control" ng-model="RevenueGLInof" readonly>
                 </div>
