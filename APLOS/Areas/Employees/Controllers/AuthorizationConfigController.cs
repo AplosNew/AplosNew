@@ -36,10 +36,10 @@ namespace Aplos.Areas.Employees.Controllers
         
 
         [HttpGet, Authorize]
-        public ActionResult GetList(GridParameter parameters,string actionStatus)
+        public ActionResult GetList(string actionStatus)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_authorizationConfigService.Query(parameters, identity.CompanyId, identity.PlantId, actionStatus), JsonRequestBehavior.AllowGet);
+            return Json(_authorizationConfigService.Query(identity.CompanyId, identity.PlantId, actionStatus), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

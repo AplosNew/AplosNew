@@ -310,4 +310,8 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/MaterialIssueControl/Approval',
             controller: 'MaterialIssueControlApprovalController'
         })
+        .when('/material-issue', {
+            templateUrl: 'materials/MaterialIssueControl/issue',
+            controller: 'MaterialIssueController'
+        })
 };
