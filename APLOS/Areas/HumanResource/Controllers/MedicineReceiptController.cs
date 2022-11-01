@@ -54,6 +54,21 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetChildValue(string masterId)
+        {
+            try
+            {
+                return Json(mr.GetChildValue(masterId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         [Authorize, HttpPost]
         public ActionResult getPlant()
         {
