@@ -682,7 +682,7 @@ namespace Library.Service.Parties
                 row++;
                 reportUtility.SetText(ref sheet, row, 1, "Opening Balance", true);
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
-                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 30;
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 20;
                 // Get party opening balance data.
                 var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
                 if (obVal.Count > 0)
@@ -894,7 +894,7 @@ namespace Library.Service.Parties
                 row++;
                 reportUtility.SetText(ref sheet, row, 1, "Opening Balance", true);
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
-                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 30;
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 20;
                 // Get party opening balance data.
                 var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
                 if (obVal.Count > 0)
