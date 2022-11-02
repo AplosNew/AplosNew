@@ -424,7 +424,6 @@ namespace Library.Service.Parties
                 sheet.Range[row, colLast + 1, row, colLast + 4].BorderAround();
                 // Set Row Header
             row++;
-            row++;
 
                 reportUtility.SetHeaderText(ref sheet, row, col, "GL", 28); col++;
                 if (string.IsNullOrEmpty(partyPlantId))
@@ -613,7 +612,7 @@ namespace Library.Service.Parties
                 // sheet.Range[row, 3, row, 5].RowHeight = 30;
                 int colAccountGroup = 7;
                 reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Account Group");
-                //sheet.Range[row, colAccountGroup, row, colAccountGroup].Merge();
+                sheet.Range[row, 6].ColumnWidth = 13;
                 reportUtility.SetMiddleAlignmentText(ref sheet, row, colAccountGroup, partyMaster["PartyAccountGroupName"].ToString());
                 sheet.Range[row, colAccountGroup, row, colAccountGroup+2].Merge();
 
@@ -622,7 +621,7 @@ namespace Library.Service.Parties
                 {
                     var partyPlant = _partyPlantRepository.Find(partyPlantId);
                     reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Party Plant");
-                    //sheet.Range[row, 1, row, 2].Merge();
+                    sheet.Range[row, 1, row, 2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     reportUtility.SetMiddleAlignmentText(ref sheet, row, 2, partyPlant?.UserName);
                     sheet.Range[row, 2, row, 4].Merge();
 
@@ -676,14 +675,14 @@ namespace Library.Service.Parties
                 reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 12, ExcelHAlign.HAlignRight); col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 12, ExcelHAlign.HAlignRight); col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 12, ExcelHAlign.HAlignRight); col++;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Dr/Cr", 4, ExcelHAlign.HAlignRight);
+                reportUtility.SetHeaderText(ref sheet, row, col, "Dr/Cr", 10, ExcelHAlign.HAlignRight);
                 //sheet[row, 1, row, col].RowHeight = 70;
                 //  sheet[row, 1, row, col].WrapText = true;
 
                 row++;
                 reportUtility.SetText(ref sheet, row, 1, "Opening Balance", true);
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
-                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 30;
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 20;
                 // Get party opening balance data.
                 var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
                 if (obVal.Count > 0)
@@ -818,24 +817,25 @@ namespace Library.Service.Parties
                 var partyMaster = _partyService.Find(partyType, companyId, plantId, partyId);
                 // Set Header
                 reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Party");
-                sheet.Range[row, 1, row, 2].Merge();
-                reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, partyMaster["PartyCode"] + " - " + partyMaster["PartyName"]);
-                sheet.Range[row, 3, row, 5].Merge();
+                //sheet.Range[row, 1, row, 2].Merge();
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, 2, partyMaster["PartyCode"] + " - " + partyMaster["PartyName"]);
+                sheet.Range[row, 2, row, 4].Merge();
                 // sheet.Range[row, 3, row, 5].RowHeight = 30;
                 int colAccountGroup = 7;
-                reportUtility.SetMasterHeaderText(ref sheet, row, 7, "Account Group");
-                sheet.Range[row, colAccountGroup, row, colAccountGroup + 1].Merge();
-                reportUtility.SetMiddleAlignmentText(ref sheet, row, colAccountGroup + 2, partyMaster["PartyAccountGroupName"].ToString());
-                sheet.Range[row, colAccountGroup + 2, row, colAccountGroup + 4].Merge();
+                reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Account Group");
+                //sheet.Range[row, colAccountGroup, row, colAccountGroup + 1].Merge();
+                //sheet.Range[row, 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, colAccountGroup, partyMaster["PartyAccountGroupName"].ToString());
+                sheet.Range[row, colAccountGroup, row, colAccountGroup + 2].Merge();
 
                 row++;
                 if (!string.IsNullOrEmpty(partyPlantId))
                 {
                     var partyPlant = _partyPlantRepository.Find(partyPlantId);
                     reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Party Plant");
-                    sheet.Range[row, 1, row, 2].Merge();
-                    reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, partyPlant?.UserName);
-                    sheet.Range[row, 3, row, 5].Merge();
+                    sheet.Range[row, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    reportUtility.SetMiddleAlignmentText(ref sheet, row, 2, partyPlant?.UserName);
+                    sheet.Range[row, 2, row, 4].Merge();
 
                     colLast = colLast - 1;
                     colLast1 = colLast;
@@ -894,7 +894,7 @@ namespace Library.Service.Parties
                 row++;
                 reportUtility.SetText(ref sheet, row, 1, "Opening Balance", true);
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
-                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 30;
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 20;
                 // Get party opening balance data.
                 var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
                 if (obVal.Count > 0)
