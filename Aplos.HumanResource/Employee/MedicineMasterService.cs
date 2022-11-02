@@ -815,6 +815,7 @@ namespace Library.HumanResource.Employee
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var str = @"select Id Value, StandardName Text from ORG.Plant";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -827,14 +828,39 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var str = @"select M.Id MedicineMaster, M.StandardName Medicine, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
-FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, MRC.Quantity, MRC.Rate, MRC.Amount, P.UserName Party,
-MRC.Id MedicineReceiptChildId, MR.Id MedicineReceiptId
+                var str = @"select MR.Id, M.Id MedicineMaster, M.StandardName Medicine, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
+FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, MRC.Quantity, MRC.Rate, MRC.Amount, P.UserName PartyName,  P.Code PartyCode,
+MRC.Id MedicineReceiptChildId, MR.Id MedicineReceiptId, MR.PlantId, PL.StandardName PlantName
 from TRN.MedicineReceiptChild MRC
 left join TRN.MedicineReceipt MR on MR.Id = MRC.MedicineReceiptId
 left join HKP.MedicineMaster M on M.Id = MRC.MedicineMasterId
 left join HKP.Party P on P.Id = mR.PartyId
+left join ORG.Plant PL on PL.Id = MR.PartyId
 order by MRC.ExpiryDate";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetChildValue(string masterId)
+        {
+            try
+            {
+                var str = @"select M.Id MedicineMaster, M.StandardName UserName, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
+FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, MRC.Quantity, MRC.Rate, MRC.Amount, P.UserName PartyName,  P.Code PartyCode,
+MRC.Id MedicineReceiptChildId, MR.Id MedicineReceiptId, MR.PlantId, PL.StandardName PlantName
+from TRN.MedicineReceiptChild MRC
+left join TRN.MedicineReceipt MR on MR.Id = MRC.MedicineReceiptId
+left join HKP.MedicineMaster M on M.Id = MRC.MedicineMasterId
+left join HKP.Party P on P.Id = mR.PartyId
+left join ORG.Plant PL on PL.Id = MR.PartyId
+where MRC.MedicineReceiptId = '"+ masterId + @"'
+order by MRC.ExpiryDate";
+
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -1291,8 +1317,28 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 throw ex;
             }
         }
-        
+
         #endregion GET OP
+
+        #region Visit Count
+        public IEnumerable<object> CountEmpVisits(string empsystemCode)
+        {
+            //DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(NoOfVisits),0) AS NoOfVisits FROM TRN.MedicalLog where EmployeeSystemId = '" + empsystemCode + "'");
+            //if (dt.Rows.Count > 0)
+            //    return clsStaticInfo.dbl(dt.Rows[0]["NoOfVisits"].ToString()) + 1;
+
+            //return 1;
+            try
+            {
+                var sql = @"SELECT isnull(Max(NoOfVisits),0) AS NoOfVisits FROM TRN.MedicalLog where EmployeeSystemId = '"+ empsystemCode + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex) 
+            {
+                throw ex;
+            }
+        }
+        #endregion Visit Count
 
         #region SAVE
         public Dictionary<string, object> Save(Dictionary<string, object> data, List<Dictionary<string, object>> medicinepurposelist, List<Dictionary<string, object>> medicinelist, string empSystemId)
@@ -1304,8 +1350,6 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 DataSet dsMaster;
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-               
                 con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 string _Id = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1447,6 +1491,42 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
             return 1;
         }
         #endregion GET SEQUENCE
+
+        public IEnumerable<object> getSearchedEmployee(string column, string value)
+        {
+            try
+            {
+               string TableName = "dbo.EmployeeInformation";
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey =  column + " like '%" + value + "%'";
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string sql = @"select EMP.EmployeeCode as Code, EMP.SystemId, EMP.EmployeeName, SC.UserName as Section, SBC.UserName SubSection,
+                                LDSG.UserName Designation, EMP.DOJ,
+                                GDSG.UserName as GivenDesignation, UN.UserName as Entity
+                                from EmployeeInformation EMP
+                                LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+                                LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                                left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                                left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                                left join ORG.Department DP on DP.ID = POS.DepartmentId
+                                left join ORG.Section SC on SC.Id = POS.SectionId
+                                left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                                LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+                                LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                                LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+                                left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                                left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+                                where " + strkey + "";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
     #endregion Medical Log
 
@@ -1458,6 +1538,34 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
         {
             _sqlRepository = new SqlRepository();
         }
+
+        #region GET OP
+        public IEnumerable<object> GetMedicinePopUp()
+        {
+            try
+            {
+                var sql = @"select distinct MM.UserName, MRC.MedicineMasterId, MC.UserName Category,
+STUFF((select ',' + P.UserName 
+FROM HKP.MedicineMasterPurpose pp
+                            left join hkp.MedicinePurpose p on p.Id = pp.MedicinePurposeId
+                            where pp.MedicineMasterId = MM.Id
+                            FOR XML PATH('')
+
+                            ),1,1,'') AS MedicinePurpose
+
+from TRN.MedicineReceiptChild MRC
+left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+left join hkp.MedicineMasterPurpose X on X.MedicineMasterId = MM.Id
+left join HKP.MedicinePurpose Y on Y.Id = X.MedicinePurposeId
+left join HKP.MedicineCategory MC on MC.Id = Y.MedicineCategoryId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion GET OP
 
         #region Grid View Query
         public IEnumerable<object> medicallogGridView(string from, string to, string empSystemId)
@@ -1566,6 +1674,8 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
                 throw ex;
             }
         }
+        
+        
         #endregion Grid View Query
 
         #region Excel View Query

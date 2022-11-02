@@ -28,6 +28,21 @@ namespace Aplos.Areas.HumanResource.Controllers
             return View();
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetMedicinePopUp()
+        {
+            try
+            {
+                return Json(ml.GetMedicinePopUp(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         [Authorize, HttpPost]
         public ActionResult medicallogGridView(string from, string to, string empSystemId)
         {

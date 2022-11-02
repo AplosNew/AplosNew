@@ -9,6 +9,17 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
+    // #region TAB CHANGE
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+    // #endregion TAB CHANGE
+
     $scope.openEmpPopUp = function () {
         angular.element(document.querySelector('#empPopUpId')).modal('show');
 
@@ -17,6 +28,27 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
     $scope.closeEmpPopUp = function () {
 
         angular.element(document.querySelector('#empPopUpId')).modal('hide');
+
+    }
+
+    $scope.MedicineList = [];
+    $scope.openMedicinePopUp = function () {
+        angular.element(document.querySelector('#medicinePopUp')).modal('show');
+        $http.get('HumanResource/MedicalLogReport/GetMedicinePopUp')
+            .then(
+                function successCallback(response) {
+                    
+                    $scope.MedicineList = response.data;
+                    
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
+
+    $scope.closeMedicinePopUp = function () {
+
+        angular.element(document.querySelector('#medicinePopUp')).modal('hide');
 
     }
 

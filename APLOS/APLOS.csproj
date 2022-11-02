@@ -747,6 +747,7 @@
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
+    <Compile Include="Areas\Machines\Controllers\IncedentCategoryController.cs" />
     <Compile Include="Areas\Machines\Controllers\SpecialIssueControlReportController.cs" />
     <Compile Include="Areas\Machines\Controllers\SpecialIssueControlRegisterController.cs" />
     <Compile Include="Areas\Machines\Controllers\SpecialIssueControlUpdateController.cs" />
@@ -2182,6 +2183,7 @@
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
+    <Content Include="Areas\Machines\Scripts\incedentCategoryController.js" />
     <Content Include="Areas\Machines\Scripts\specialIssueControlReportController.js" />
     <Content Include="Areas\Machines\Scripts\specialIssueControlRegisterController.js" />
     <Content Include="Areas\Machines\Scripts\specialIssueControlUpdateController.js" />
@@ -4373,6 +4375,8 @@
     <Content Include="Areas\Accounts\Views\Incentive\IncentiveReceivable.cshtml" />
     <Content Include="Areas\Materials\Views\StorageBinAllocation\_BinAllocationPopUp.cshtml" />
     <Content Include="Areas\Productions\Views\FinishedGoodsPackingReport\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\IncedentCategory\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLogReport\_MedicinsListPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

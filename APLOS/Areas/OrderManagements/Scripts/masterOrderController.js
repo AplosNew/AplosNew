@@ -5200,6 +5200,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
         $scope.sku1($scope.sqlInStatement);
         $scope.sku2($scope.sqlInStatement);
+        $scope.GetSavedSKUDetailData($scope.PackingTypeId);
         angular.element(document.querySelector('#SKUPopUp')).modal('show');
     }
 
@@ -5213,7 +5214,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         Id: null,
         PackingTypeId: $scope.PackingTypeId,
         FGFirstCharacteristicsId: null,
+        FirstCharacteristics: null,
         FGSecondCharacteristicsId: null,
+        SecondCharacteristics: null,
         Quantity: null,
         Plan: null
     };
@@ -5221,6 +5224,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.ClearSKUD = function () {
         $scope.ModelSKUDNew = Object.assign({}, $scope.ModelSku);
+        $scope.ModelSKUDNew.PackingTypeId = $scope.PackingTypeId;
     }
 
     $scope.sku1List = [];
@@ -5257,7 +5261,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.ClearSKUD();
-                    $scope.GetSavedSKUDetailData($scope.ModelPTNew.PackingTypeId);
+                    $scope.GetSavedSKUDetailData($scope.PackingTypeId);
 
                 }
             }), function errorCallBack(response) {
@@ -5291,6 +5295,34 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ShowResult(e, "failure");
         }
     };
+
+
+    $scope.removeSKUDetail = function (obj) {
+        $scope.SKUDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.SKUDetailNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmSKUDetailPopUp')).modal('show');
+    }
+
+    $scope.DeleteSKUDetail = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/MasterOrder/DeleteSKUDetail?id=' + $scope.SKUDetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedSKUDetailData($scope.PackingTypeId);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
 
     //#region   SO Copy    
     $scope.CopySO = function (data) {

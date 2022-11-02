@@ -461,7 +461,7 @@ namespace Library.Service.Finances
                     vendorAdWrsql = @"declare @writeOffAmount decimal(18,2)=(select Amount from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.LoanPayment.ToString() + "' AND VoucherId = '" + voucherId + "'))";
                     vendorAdWr.Append(vendorAdWrsql);
 
-                    vendorAdWrsql = @"update TRN.Financing set WrittenOffAmount=(WrittenOffAmount - @writeOffAmount),IsWrittenOff=case when (WrittenOffAmount-@writeOffAmount) =0 then 1 else 0 end
+                    vendorAdWrsql = @"update TRN.Financing set WrittenOffAmount=(WrittenOffAmount - @writeOffAmount),IsWrittenOff= 0 
                                 where Id in (select FinancingId from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.LoanPayment.ToString() + "' AND VoucherId = '" + voucherId + "'))";
                     vendorAdWr.Append(vendorAdWrsql);
                     vendorAdWrsql = @"update TRN.FinancingDetail set WrittenOffAmount=(WrittenOffAmount - @writeOffAmount)

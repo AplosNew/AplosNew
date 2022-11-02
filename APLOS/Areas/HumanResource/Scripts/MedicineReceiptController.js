@@ -120,6 +120,7 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         $http({
             method: 'POST',
             url: $scope.path + 'getMedicineReceipt',
+            data: { 'masterId': $scope.ModalNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.MedicineReceiptList = response.data;
@@ -229,12 +230,24 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
 
     // #region Update
     // #region Double tab on row
+    $scope.GetChildValue = function () {
+        $http.get('HumanResource/MedicineReceipt/GetChildValue?masterId=' + $scope.ModalNew.Id)
+            .then(
+                function successCallback(response) {                    
+                    $scope.userMedicineList = response.data;                    
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    }
+
     $scope.Get = function (args) {
-        //$scope.ModelNew.Id = args.data.Id;
+        $scope.ModalNew.Id = args.data.Id;
+        $scope.GetChildValue();
         $scope.ModalNew = Object.assign({}, args.data);
 
         $scope.Action = 'Update';
-
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
 

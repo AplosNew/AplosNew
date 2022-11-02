@@ -1793,8 +1793,8 @@ namespace Library.OrderManagement.Production
                 //            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId
                 //            ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
 
-                string sql = @"SELECT PlannedQty=CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PSP.Qty)) ELSE PQ.Qty END
-                            ,(CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PSP.Qty)) ELSE PQ.Qty END-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
+                string sql = @"SELECT PlannedQty=CASE WHEN PQ.Qty=0 THEN (CASE WHEN CEILING(SUM(PO.PlannedQty))=0 THEN CEILING(SUM(PSP.Qty)) ELSE CEILING(SUM(PO.PlannedQty)) END) ELSE PQ.Qty END
+                            ,((CASE WHEN PQ.Qty=0 THEN (CASE WHEN CEILING(SUM(PO.PlannedQty))=0 THEN CEILING(SUM(PSP.Qty)) ELSE CEILING(SUM(PO.PlannedQty)) END) ELSE PQ.Qty END)-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
                             , ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
                             FROM trn.ProductionOrder AS PO
                             LEFT JOIN TRN.ProductionOrderProcessSet PQ ON PQ.ProductionOrderID=PO.Id AND PQ.ProcessId='" + processId + @"'
@@ -2683,7 +2683,7 @@ LEFT JOIN MST.CompliedShiftGrouping AS csg ON csg.Id = A.ProductionShiftId";
         {
             try
             {
-                string sql = @"SELECT  P.Id, P.UserName FROM dbo.ProductionQualityProcess AS qp	
+                string sql = @"SELECT DISTINCT P.Id, P.UserName FROM dbo.ProductionQualityProcess AS qp	
 LEFT JOIN [HKP].[QualityProcess] AS P ON P.Id=qp.ProcessId
 LEFT JOIN dbo.ProductionBookingProcessParameter PP ON PP.Id=qp.ProductionBookingProcessParameterId  
 WHERE qp.[Active]=1 AND pp.ProcessId='" + ProcessId + "'";
@@ -2704,7 +2704,7 @@ WHERE qp.[Active]=1 AND pp.ProcessId='" + ProcessId + "'";
 ,P.Id QualityProcessParameterId,P.GradeLot,P.ParameterGrade
 FROM dbo.QualityProcessParameter P
 LEFT JOIN [dbo].[QuaityProcessBookingParameterValue] A ON A.QualityProcessParameterId=P.Id AND ISNULL(A.QuaityProcessBookingId,'" + masterId + @"')='" + masterId + @"'
-WHERE p.QualityProcessId=(select Id from dbo.ProductionQualityProcess where ProcessId='" + processId + "')";
+WHERE p.QualityProcessId IN(select Id from dbo.ProductionQualityProcess where ProcessId='" + processId + "')";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
