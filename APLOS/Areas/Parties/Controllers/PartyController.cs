@@ -128,11 +128,75 @@ namespace Aplos.Areas.Parties.Controllers
             return Json(GetCompanyPartyListByGateEntry(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyType), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public JsonResult GetCompanyPartyDataListByGateEntryANDPO(GridParameter parameters, string partyType)
+
+        [HttpPost, Authorize]
+        public JsonResult GetCompanyPartyDataListByGateEntryANDPO(string column, string value, string partyType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(GetCompanyPartyListByGateEntryANDPO(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyType), JsonRequestBehavior.AllowGet);
+            var res = GetCompanyPartyListByGateEntryANDPO(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, partyType);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        public List<Dictionary<string, object>> GetCompanyPartyListByGateEntryANDPO(string companyGroupId, string companyId, string plantId, string column, string value, string partyType)
+        {
+            try
+            {
+                string temp = null;
+                if (partyType == "Vendor" || partyType == "Customer")
+                {
+                    temp = partyType;
+                }
+                if (partyType == null || partyType == "null")
+                {
+                    temp = "Vendor" + "','" + "Customer";
+                }
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"select top 100 * from (SELECT  P.Id AS PartyId, P.Code AS PartyCode, P.UserName AS PartyName, P.Id, P.Code, P.UserName, CP.PartyType, CP.PartyAccountGroupId, PAG.Code AS PartyAccountGroupCode, PAG.UserName AS PartyAccountGroupName, CP.CurrencyId, C.Code AS CurrencyCode, C.[Name] AS CurrencyName
+                                    , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
+                                    , NULL AS InvoicingPartyPlantId, NULL AS DeliveryPartyPlantId, CO.Code AS CountryCode, CO.UserName AS CountryName, S.Code AS StateCode, S.UserName AS StateName
+                                    , RGL.ReconciliationGLId, RGL.ReconciliationGLCode, RGL.ReconciliationGLName
+                                    , RGL.ReconciliationBudgetId, RGL.ReconciliationBudgetCode, RGL.ReconciliationBudgetName
+                                    , RGL.ReconciliationActivityId, RGL.ReconciliationActivityCode, RGL.ReconciliationActivityName
+                                    , CP.TaxApplicable, CP.IsTaxApplicableChangeable
+									, (SELECT COUNT(Id) FROM [HKP].[PartyPlant] WHERE PartyId=P.Id) AS TotalPartyPlant
+                                    FROM [HKP].[Party] AS P
+                                    LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
+                                    LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
+                                    LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
+                                    LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=P.AddressMasterId
+									LEFT JOIN [SCS].[Country] AS CO ON CO.Id=AM.CountryId
+									LEFT JOIN [SCS].[State] AS S ON S.Id=AM.StateId
+                                    LEFT JOIN(
+                                    SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS ReconciliationGLId, GL.AccountCode AS ReconciliationGLCode, GL.UserName AS ReconciliationGLName
+                                    , CPGL.BudgetMasterId AS ReconciliationBudgetId, B.Code AS ReconciliationBudgetCode, B.UserName AS ReconciliationBudgetName
+                                    , CPGL.ActivityId AS ReconciliationActivityId, A.Code AS ReconciliationActivityCode, A.UserName AS ReconciliationActivityName
+                                    FROM [HKP].[CompanyPartyGL] AS CPGL
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
+                                    WHERE CPGL.PartyGLType='" + PartyGLType.ReconciliationGL + @"'
+                                    ) AS RGL ON RGL.CompanyPartyId=CP.Id
+                                    JOIN (SELECT DISTINCT G.PartyId FROM TRN.GateEntry G   WHERE ISNULL(G.Id,'') NOT IN (SELECT ISNULL(GateEntryNo,'') FROM TRN.InventoryReceive ) AND G.PartyId<>'' AND G.FlagStatus='OK') GE ON GE.PartyId=P.Id
+                                    JOIN (SELECT DISTINCT po.PartyId FROM TRN.PurchaseOrder po join trn.PurchaseOrderDetail pod ON pod.InventoryReceiveId=po.Id 
+						            WHERE po.IsClosed=0 AND po.IsApproved=1 and pod.TransactionQty>(select isnull(sum(ird.TransactionQty),0) TransactionQty from trn.InventoryReceiveDetail ird 
+						            join trn.InventoryReceive Ir on ir.Id=ird.InventoryReceiveId
+						            where ird.PODetailsId=pod.Id and 
+						            (ir.AuthorizedByStatus!='Reject' OR ir.CheckedByStatus!='Reject'))) PO ON PO.PartyId=P.Id
+                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND P.PartyType IN ('" + PartyType.Party + "', '" + PartyType.Company + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + "' AND CP.PartyType in ('"+temp+"')) AS TEMP WHERE " + strkey + " ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
         }
 
 
@@ -264,58 +328,8 @@ namespace Aplos.Areas.Parties.Controllers
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
             }
         }
-        public GridModel GetCompanyPartyListByGateEntryANDPO(GridParameter parameters, string companyGroupId, string companyId, string plantId, string customerVendor)
-        {
-            try
-            {
-                parameters.CmdText = @"
-                                    SELECT top(300) P.Id AS PartyId, P.Code AS PartyCode, P.UserName AS PartyName, P.Id, P.Code, P.UserName, CP.PartyType, CP.PartyAccountGroupId, PAG.Code AS PartyAccountGroupCode, PAG.UserName AS PartyAccountGroupName, CP.CurrencyId, C.Code AS CurrencyCode, C.[Name] AS CurrencyName
-                                    , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
-                                    , NULL AS InvoicingPartyPlantId, NULL AS DeliveryPartyPlantId, CO.Code AS CountryCode, CO.UserName AS CountryName, S.Code AS StateCode, S.UserName AS StateName
-                                    , RGL.ReconciliationGLId, RGL.ReconciliationGLCode, RGL.ReconciliationGLName
-                                    , RGL.ReconciliationBudgetId, RGL.ReconciliationBudgetCode, RGL.ReconciliationBudgetName
-                                    , RGL.ReconciliationActivityId, RGL.ReconciliationActivityCode, RGL.ReconciliationActivityName
-                                    , CP.TaxApplicable, CP.IsTaxApplicableChangeable
-									, (SELECT COUNT(Id) FROM [HKP].[PartyPlant] WHERE PartyId=P.Id) AS TotalPartyPlant
-                                    FROM [HKP].[Party] AS P
-                                    LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
-                                    LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
-                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
-                                    LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
-                                    LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=P.AddressMasterId
-									LEFT JOIN [SCS].[Country] AS CO ON CO.Id=AM.CountryId
-									LEFT JOIN [SCS].[State] AS S ON S.Id=AM.StateId
-                                    LEFT JOIN(
-                                    SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS ReconciliationGLId, GL.AccountCode AS ReconciliationGLCode, GL.UserName AS ReconciliationGLName
-                                    , CPGL.BudgetMasterId AS ReconciliationBudgetId, B.Code AS ReconciliationBudgetCode, B.UserName AS ReconciliationBudgetName
-                                    , CPGL.ActivityId AS ReconciliationActivityId, A.Code AS ReconciliationActivityCode, A.UserName AS ReconciliationActivityName
-                                    FROM [HKP].[CompanyPartyGL] AS CPGL
-                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
-                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
-                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
-                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
-                                    WHERE CPGL.PartyGLType='" + PartyGLType.ReconciliationGL + @"'
-                                    ) AS RGL ON RGL.CompanyPartyId=CP.Id
-                                    JOIN (SELECT DISTINCT G.PartyId FROM TRN.GateEntry G   WHERE ISNULL(G.Id,'') NOT IN (SELECT ISNULL(GateEntryNo,'') FROM TRN.InventoryReceive ) AND G.PartyId<>'' AND G.FlagStatus='OK') GE ON GE.PartyId=P.Id
-                                    JOIN (SELECT DISTINCT po.PartyId FROM TRN.PurchaseOrder po join trn.PurchaseOrderDetail pod ON pod.InventoryReceiveId=po.Id 
-						            WHERE po.IsClosed=0 AND po.IsApproved=1 and pod.TransactionQty>(select isnull(sum(ird.TransactionQty),0) TransactionQty from trn.InventoryReceiveDetail ird 
-						            join trn.InventoryReceive Ir on ir.Id=ird.InventoryReceiveId
-						            where ird.PODetailsId=pod.Id and 
-						            (ir.AuthorizedByStatus!='Reject' OR ir.CheckedByStatus!='Reject'))) PO ON PO.PartyId=P.Id
-                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND P.PartyType IN ('" + PartyType.Party + "', '" + PartyType.Company + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + "' ";
-                // If this params null will return all customer and vendor list either specific.
-                if (!string.IsNullOrEmpty(customerVendor))
-                    parameters.CmdText += " AND CP.PartyType='" + customerVendor + "'";
-
-                return _sqlRepository.GetGridData(parameters);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
-            }
-        }
+       
+        
         [HttpPost, Authorize]
         public JsonResult GetCompanyPartyDataSearch(string column, string value,string partyType, string CompanyId, string PlantId)
         {
