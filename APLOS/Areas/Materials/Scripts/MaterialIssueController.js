@@ -6,7 +6,7 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
     $scope.index = -1;
     $scope.SOItemList = [];
     $scope.path = 'Materials/MaterialIssueControl/';
-    $scope.saveUrl = $scope.path + 'CreateApprove';
+    $scope.saveUrl = $scope.path + 'CreateIssue';
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
   
@@ -126,47 +126,6 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
     $scope.closePopUp = function () {
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
-
-    $scope.Action = 'Save';
-    $scope.Save = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
-                throw "Select Production Order.";
-            }
-            if (baseService.arrayLength($scope.SOItemList) === 0) {
-                throw "Select SO Detail.";
-            }
-
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.ModelNewForm.$valid) {
-                if ($scope.Action === 'Save' || $scope.Action === 'Update') {
-                    $http({
-                        method: 'POST',
-                        url: $scope.saveUrl,
-                        data: {
-                            'model': $scope.ModelNew
-                            , 'soList': $scope.SOItemList
-                            , 'dataList': $scope.QBOQCostingList
-                        },
-                        dataType: 'JSON'
-                        , contentType: "application/json charset=utf-8"
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.Clear();
-                        }
-                    }), function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    };
-                }
-            }
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
 
     $scope.Clear = function () {
         $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
@@ -313,7 +272,48 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         }
     }
 
+    $scope.Action = 'Save';
+    $scope.Save = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
+                throw "Select Production Order.";
+            }
+            if (baseService.arrayLength($scope.SOItemList) === 0) {
+                throw "Select SO Detail.";
+            }
 
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+                if ($scope.Action === 'Save' || $scope.Action === 'Update') {
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveUrl,
+                        data: {
+                            'model': $scope.ModelNew
+                            , 'soList': $scope.SOItemList
+                            , 'dataList': $scope.QBOQCostingList
+                            , 'dataLists': $scope.QBOQCostingList
+                            , 'specificStockList': $scope.specificStockList
+                        },
+                        dataType: 'JSON'
+                        , contentType: "application/json charset=utf-8"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.Clear();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    };
+                }
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 
 
 }

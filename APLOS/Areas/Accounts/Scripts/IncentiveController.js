@@ -43,6 +43,7 @@ function IncentiveController(cboService, commonMessage, $scope, $rootScope, base
         Percentage: null,
         COAId: null,
         PartyId: null,
+        PartyPlantId: null,
         DrGLGeneralInfoId: null,
         DrBudgetMasterId: null,
         DrActivityId: null,
@@ -75,6 +76,7 @@ function IncentiveController(cboService, commonMessage, $scope, $rootScope, base
         getAssetBudget();
         $scope.getAssetActivity();
         $scope.getRevenueActivity();
+        $scope.getPartyPlantList($scope.ModelNew.PartyId);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -328,7 +330,7 @@ function IncentiveController(cboService, commonMessage, $scope, $rootScope, base
             $scope.ModelNew.PartyCode = party.Code;
             $scope.ModelNew.PartyName = party.UserName;
             $scope.ModelNew.PartyType = $scope.partyType;
-            
+            $scope.getPartyPlantList($scope.ModelNew.PartyId);
         }
         $scope.hidePartyPopUp();
     };
