@@ -2091,7 +2091,7 @@
                     <ul class="list-inline text-right">
                         <li>Total Quantity : {{skuTwoMatQuantity | number : 2 }}</li>
                         <li>
-                            <button ng-click="charSave(2);" class="btn" ng-disabled="skuTwoMatQuantity > soItemCurentSkuQty"><i class=""></i> Save</button>
+                            <button ng-click="charSave(2);" class="btn" @*ng-disabled="skuTwoMatQuantity > soItemCurentSkuQty"*@><i class=""></i> Save</button>
                         </li>
                         <li>
                             <button ng-click="closeCharPopUp();" class="btn">Close</button>
