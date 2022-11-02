@@ -1,6 +1,6 @@
 ﻿<div>
     <h5>{{title}}</h5>
-    <br/>
+    <br />
 </div>
 <div class="tab-design">
     <div class="site-tab">
@@ -86,12 +86,46 @@
         </div>
 
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-           
+            <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Medicins</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+
+                                    <input type="text" name="Medicins" ng-model="ModalNew.Medicins" class="form-control" required readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="openMedicinePopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Expiry Date</label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="ModalNew.ToDate" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="common-btn" style="position:relative; right:240px; bottom:30px">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="medicallogGridView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
- 
+
     </div>
 
 </div>
 
+@Html.Partial("~/Areas/HumanResource/Views/MedicalLogReport/_MedicinsListPopUp.cshtml")
 
 @Html.Partial("~/Areas/HumanResource/Views/MedicalLog/_EmployeePopUp.cshtml")

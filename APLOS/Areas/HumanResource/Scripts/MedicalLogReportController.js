@@ -31,6 +31,27 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
 
     }
 
+    $scope.MedicineList = [];
+    $scope.openMedicinePopUp = function () {
+        angular.element(document.querySelector('#medicinePopUp')).modal('show');
+        $http.get('HumanResource/MedicalLogReport/GetMedicinePopUp')
+            .then(
+                function successCallback(response) {
+                    
+                    $scope.MedicineList = response.data;
+                    
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
+
+    $scope.closeMedicinePopUp = function () {
+
+        angular.element(document.querySelector('#medicinePopUp')).modal('hide');
+
+    }
+
     $scope.ModelTemp = {
         FromDate: null,
         ToDate: null,

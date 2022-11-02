@@ -240,8 +240,9 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
             else {
                 ShowResult(response.data.Message, 'success');
                 ClearFields(response.data.Sequence);
-                $scope.getData();
                 $scope.Action = 'Update';
+                $scope.getData();
+                
 
             }
         }), function errorCallBack(response) {

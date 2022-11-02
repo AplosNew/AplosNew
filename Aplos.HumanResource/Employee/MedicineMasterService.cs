@@ -1539,6 +1539,34 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
             _sqlRepository = new SqlRepository();
         }
 
+        #region GET OP
+        public IEnumerable<object> GetMedicinePopUp()
+        {
+            try
+            {
+                var sql = @"select distinct MM.UserName, MRC.MedicineMasterId, MC.UserName Category,
+STUFF((select ',' + P.UserName 
+FROM HKP.MedicineMasterPurpose pp
+                            left join hkp.MedicinePurpose p on p.Id = pp.MedicinePurposeId
+                            where pp.MedicineMasterId = MM.Id
+                            FOR XML PATH('')
+
+                            ),1,1,'') AS MedicinePurpose
+
+from TRN.MedicineReceiptChild MRC
+left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+left join hkp.MedicineMasterPurpose X on X.MedicineMasterId = MM.Id
+left join HKP.MedicinePurpose Y on Y.Id = X.MedicinePurposeId
+left join HKP.MedicineCategory MC on MC.Id = Y.MedicineCategoryId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion GET OP
+
         #region Grid View Query
         public IEnumerable<object> medicallogGridView(string from, string to, string empSystemId)
         {
@@ -1646,6 +1674,8 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
                 throw ex;
             }
         }
+        
+        
         #endregion Grid View Query
 
         #region Excel View Query

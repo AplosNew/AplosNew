@@ -4376,6 +4376,7 @@
     <Content Include="Areas\Materials\Views\StorageBinAllocation\_BinAllocationPopUp.cshtml" />
     <Content Include="Areas\Productions\Views\FinishedGoodsPackingReport\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\IncedentCategory\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLogReport\_MedicinsListPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
