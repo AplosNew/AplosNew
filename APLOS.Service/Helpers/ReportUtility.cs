@@ -777,7 +777,7 @@ namespace Library.Service.Helpers
             try
             {
                 sheet.PageSetup.TopMargin = 0.5;
-                sheet.PageSetup.BottomMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.6;
                 sheet.PageSetup.PrintTitleRows = "$" + xlsColumnHeader + ":$" + xlsColumnHeader + "";
                 sheet.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&P" + " of " + "&N";
                 //sheet.PageSetup.RightFooter = "&p";
