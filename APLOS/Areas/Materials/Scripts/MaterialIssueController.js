@@ -293,7 +293,7 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
                             , 'soList': $scope.SOItemList
                             , 'dataList': $scope.QBOQCostingList
                             , 'dataLists': $scope.QBOQCostingList
-                            , 'specificStockList': $scope.specificStockList
+                            , 'specificStockList': $scope.materialStockList
                         },
                         dataType: 'JSON'
                         , contentType: "application/json charset=utf-8"

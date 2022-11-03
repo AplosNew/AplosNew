@@ -125,7 +125,7 @@ namespace Library.MaterialManagement.Material
             {
                 var sql = @"
                         select BAH.Id,BAH.UserName ,SBM.UserName StorageBinMaster,MS.UserName StorageLocation,MT.UserName MaterialType,MGM.UserName MaterialGroup
-	                    ,MM.UserName MaterialName,BAH.MaterialMasterId,BAH.StorageLocationId,BA.StorageBinMasterId,BAH.AccessType ,0 [check]
+	                    ,MM.UserName MaterialName,BAH.MaterialMasterId,BAH.StorageLocationId,BA.StorageBinMasterId,BAH.AccessType ,0 [check],NULL PurchaseOrderDetailId
 	                    FROM TRN.BinAllocationHead BAH 
 	                    LEFT JOIN TRN.BinAllocation BA ON BA.BinAllocationHeadId=BAH.Id
 	                    LEFT JOIN MST.StorageBinMaster SBM ON SBM.Id=ba.StorageBinMasterId
