@@ -1675,7 +1675,24 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
             }
         }
         
-        
+        public IEnumerable<object> GetMedinceStockGrid(string medicineId, string to)
+        {
+            try
+            {
+                string sql = @"select MRC.MedicineMasterId, MM.UserName Medicine, FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, 
+                                FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy')InvoiceDate, 
+                                MRC.Quantity from TRN.MedicineReceipt MR
+                                left join TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+                                left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+                                left join TRN.EmployeeSicknessMedicines ESM on ESM.MedicineReceiptChildId = MRC.Id
+                                order by MRC.ExpiryDate";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion Grid View Query
 
         #region Excel View Query

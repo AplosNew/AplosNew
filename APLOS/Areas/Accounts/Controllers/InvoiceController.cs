@@ -329,7 +329,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoiceBeneficiaryEmployee(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList)) });
 
         }
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult InsertIncentiveReceivableInvoice(VoucherViewModel voucherVM,IEnumerable<IncentiveReceivableMap> incentiveReceivableMapList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

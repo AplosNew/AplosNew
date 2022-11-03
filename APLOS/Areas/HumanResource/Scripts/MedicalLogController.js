@@ -239,7 +239,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
+                //ClearFields();
                 $scope.Action = 'Update';
                 $scope.getData();
                 

@@ -273,9 +273,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 SaveSalaryLock(EmployeeList, Month, Year);
                 return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -312,7 +312,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     dr["EmpSystemId"] = sps.EmpSystemId;
                     dr["YearNo"] = sps.YearNo;
                     dr["MonthNo"] = sps.MonthNo;
-                    dr["IsLocked"] = sps.CheckBoxSelect;
+                    dr["IsLocked"] = true;
                     dr["IsDisbursed"] = false;
                     dr["SalaryStructureId"] = sps.SalaryStructureId;
 
@@ -325,7 +325,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     dr["EmpSystemId"] = sps.EmpSystemId;
                     dr["YearNo"] = sps.YearNo;
                     dr["MonthNo"] = sps.MonthNo;
-                    dr["IsLocked"] = sps.CheckBoxSelect;
+                    dr["IsLocked"] = true;
                     dr["IsDisbursed"] = false;
                     dr["SalaryStructureId"] = sps.SalaryStructureId;
 
@@ -378,26 +378,26 @@ namespace Aplos.Areas.HumanResource.Controllers
                     GetLoadSalaryLock(EmpIdLoop, Month, Year, out dsSaveSalaryLocked);
 
                     dsSaveSalaryLocked.Tables[0].DefaultView.RowFilter = "PayableVoucherId <> '' ";
-                    while (dsSaveSalaryLocked.Tables[0].DefaultView.Count > 0)
-                    {
-                        for (int i = 0; i < EmployeeList.Count; i++)
-                        {
-                            if (EmployeeList[i].EmpSystemId == dsSaveSalaryLocked.Tables[0].DefaultView[0]["EmpSystemId"].ToString() && EmployeeList[i].IsLocked == false)
-                            {
-                                //if (EmpCodeLoop == "")
-                                //{
-                                //    EmpCodeLoop = "" + EmployeeList[i].EmployeeCode + "";
-                                //}
-                                //else
-                                //{
-                                //    EmpCodeLoop += "," + EmployeeList[i].EmployeeCode + "";
-                                //}
-                                throw new Exception("Cannot Unlock Salary for Employee [" + EmployeeList[i].EmployeeCode + "]");
-                            }
-                        }
-                        //if (!string.IsNullOrEmpty(EmpIdLoop))
-                            //throw new Exception("Cannot Unlock Salary for Employee [" + EmpIdLoop + "]");
-                    }
+                    //while (dsSaveSalaryLocked.Tables[0].DefaultView.Count > 0)
+                    //{
+                    //    for (int i = 0; i < EmployeeList.Count; i++)
+                    //    {
+                    //        if (EmployeeList[i].EmpSystemId == dsSaveSalaryLocked.Tables[0].DefaultView[0]["EmpSystemId"].ToString() && EmployeeList[i].IsLocked == false)
+                    //        {
+                    //            //if (EmpCodeLoop == "")
+                    //            //{
+                    //            //    EmpCodeLoop = "" + EmployeeList[i].EmployeeCode + "";
+                    //            //}
+                    //            //else
+                    //            //{
+                    //            //    EmpCodeLoop += "," + EmployeeList[i].EmployeeCode + "";
+                    //            //}
+                    //            //throw new Exception("Cannot Unlock Salary for Employee [" + EmployeeList[i].EmployeeCode + "]");
+                    //        }
+                    //    }
+                    //    //if (!string.IsNullOrEmpty(EmpIdLoop))
+                    //        //throw new Exception("Cannot Unlock Salary for Employee [" + EmpIdLoop + "]");
+                    //}
                     
 
                     dtLocal = dsSaveSalaryLocked.Tables[0];
@@ -432,11 +432,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                         dvLocal.RowFilter = null;
                     }
 
-                    dsSaveSalaryLocked.Tables[0].DefaultView.RowFilter = "IsLocked = False";
-                    while (dsSaveSalaryLocked.Tables[0].DefaultView.Count > 0)
-                    {
-                        dsSaveSalaryLocked.Tables[0].DefaultView[0].Delete();
-                    }
+                    //dsSaveSalaryLocked.Tables[0].DefaultView.RowFilter = "IsLocked = False";
+                    //while (dsSaveSalaryLocked.Tables[0].DefaultView.Count > 0)
+                    //{
+                    //    dsSaveSalaryLocked.Tables[0].DefaultView[0].Delete();
+                    //}
 
 
                     clsStaticInfo obj = new clsStaticInfo();

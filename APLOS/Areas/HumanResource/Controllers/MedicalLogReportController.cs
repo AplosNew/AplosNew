@@ -57,6 +57,19 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
+        [Authorize, HttpGet]
+        public ActionResult GetMedinceStockGrid(string medicineId, string to)
+        {
+            try
+            {
+                return Json(ml.GetMedinceStockGrid(medicineId, to), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
         #region workbook Excel View
         [Authorize, HttpPost]
