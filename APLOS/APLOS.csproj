@@ -4380,6 +4380,7 @@
     <Content Include="Areas\Materials\Views\StorageBinAllocation\_BinAllocationPopUp.cshtml" />
     <Content Include="Areas\Productions\Views\FinishedGoodsPackingReport\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\IncedentCategory\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\MedicalLogReport\_MedicinsListPopUp.cshtml" />
     <Content Include="Areas\Machines\Views\IncedentCategoryUpdate\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\IncedentUpdate\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />

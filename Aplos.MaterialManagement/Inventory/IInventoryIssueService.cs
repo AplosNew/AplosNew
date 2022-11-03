@@ -82,7 +82,7 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> MaterialIssueDetailsData1(string inveReveiveId, string POID); 
 
         IEnumerable<object> GetDataByInventoryIssue(string plantId);
-
+        IEnumerable<object> GetInventoryIssueByProductionOrder(string plantId, string productionOrderId);
         IEnumerable<object> GetDataByPhysicalStockAdjustment(string plantId);
 
         

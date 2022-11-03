@@ -31,12 +31,12 @@ namespace Aplos.Areas.Accounts.Controllers
             _sqlRepository = sqlRepository;
         }
 
-        [Authorize]
+       
         public ActionResult Aplos()
         {
             return View("~/Areas/Accounts/Views/Incentive/Aplos.cshtml");
         }
-        [Authorize]
+      
         public ActionResult IncentiveReceivable()
         {
             return View("~/Areas/Accounts/Views/Incentive/IncentiveReceivable.cshtml");
@@ -72,7 +72,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";

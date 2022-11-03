@@ -1,19 +1,13 @@
 ﻿using Library.Core;
+using Library.Model.Invoices;
 using System;
 
-namespace Library.Model.Inventory
+namespace Library.Model.Accounts
 {
-    public class GRNBinAllocationMap : BaseModel  
+    public class IncentiveReceivableMap : BaseModel
     {
         #region Scalar Properties
-
         public string Id { get; set; }
-        public  InventoryReceiveDetail InventoryReceiveDetail { get; set; }     
-        public string InventoryReceiveDetailId { get; set; }
-      
-        public string StorageBinMasterId { get; set; }
-
-        public string PurchaseOrderDetailId { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
@@ -53,6 +47,15 @@ namespace Library.Model.Inventory
 
         #endregion Audit Properties
 
-  
+        #region Navigation Properties
+        public virtual Invoice IncentiveReceivableInvoice { get; set; }
+        public string IncentiveReceivableInvoiceId { get; set; }
+        public string IncentiveMasterId { get; set; }
+        public string InvoiceId { get; set; }
+        public string InvoiceDetailId { get; set; }
+        public string InvoiceType { get; set; }
+        public decimal Amount { get; set; }
+        public decimal DistributedAmount { get; set; }
+        #endregion Navigation Properties
     }
 }

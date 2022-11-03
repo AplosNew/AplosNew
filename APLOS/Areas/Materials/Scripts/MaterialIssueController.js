@@ -6,7 +6,7 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
     $scope.index = -1;
     $scope.SOItemList = [];
     $scope.path = 'Materials/MaterialIssueControl/';
-    $scope.saveUrl = $scope.path + 'CreateApprove';
+    $scope.saveUrl = $scope.path + 'CreateIssue';
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
   
@@ -66,6 +66,7 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         $scope.Action = 'Update';
         $scope.GetSavedSODetailData();
         $scope.GetSavedDetailData();
+        $scope.getdataInventoryIssue($scope.ModelNew.POId);
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -126,47 +127,6 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
     $scope.closePopUp = function () {
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
-
-    $scope.Action = 'Save';
-    $scope.Save = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
-                throw "Select Production Order.";
-            }
-            if (baseService.arrayLength($scope.SOItemList) === 0) {
-                throw "Select SO Detail.";
-            }
-
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.ModelNewForm.$valid) {
-                if ($scope.Action === 'Save' || $scope.Action === 'Update') {
-                    $http({
-                        method: 'POST',
-                        url: $scope.saveUrl,
-                        data: {
-                            'model': $scope.ModelNew
-                            , 'soList': $scope.SOItemList
-                            , 'dataList': $scope.QBOQCostingList
-                        },
-                        dataType: 'JSON'
-                        , contentType: "application/json charset=utf-8"
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.Clear();
-                        }
-                    }), function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    };
-                }
-            }
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
 
     $scope.Clear = function () {
         $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
@@ -258,6 +218,7 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         $scope.newData.MaterialMasterId = data.data.MaterialMasterId;
         $scope.newData.ArticleId = data.data.ArticleId;
         $scope.newData.MaterialStorageId = $scope.ModelNew.MaterialStorageId;
+        $scope.newData.TransactionUoMId = $scope.ModelNew.UoMId;
         
       //  $scope.productNew.Id = null;
         $http({
@@ -280,11 +241,11 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
                 }
             }
             for (var i1 = 0; i1 < $scope.materialStockList.length; i1++) {
-                $scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / data.BaseUoMFactor;
+                $scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / $scope.newDatum.BaseUoMFactor;
                 $scope.materialStockList[i1].IssueTransactionUoMId = data.TransactionUoMId;
                 $scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
-                $scope.materialStockList[i1].TransactionUoMId = data.TransactionUoMId;
-                $scope.materialStockList[i1].BaseUoMFactor = data.BaseUoMFactor;
+                $scope.materialStockList[i1].TransactionUoMId = $scope.newDatum.UoMId;
+                $scope.materialStockList[i1].BaseUoMFactor = $scope.newDatum.BaseUoMFactor;
             }
             angular.element(document.querySelector('#stockPopUp')).modal('show');
         }), function (response) {
@@ -313,7 +274,88 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         }
     }
 
+    $scope.Action = 'Save';
+    $scope.Save = function () {
+        $scope.QBOQCostingListNew = [];
+        for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
+            if ($scope.QBOQCostingList[p].IssueQty > 0) {
+                $scope.QBOQCostingList[p].RequisitionQty = $scope.QBOQCostingList[p].IssueQty;
+                $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
+                $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
+                $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
+            }
+        }
+        try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
+                throw "Select Production Order.";
+            }
+            if (baseService.arrayLength($scope.SOItemList) === 0) {
+                throw "Select SO Detail.";
+            }
 
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+                if ($scope.Action === 'Save' || $scope.Action === 'Update') {
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveUrl,
+                        data: {
+                            'model': $scope.ModelNew
+                            , 'soList': $scope.SOItemList
+                            , 'dataList': $scope.QBOQCostingListNew
+                            , 'dataLists': $scope.QBOQCostingListNew
+                            , 'specificStockList': $scope.materialStockList
+                        },
+                        dataType: 'JSON'
+                        , contentType: "application/json charset=utf-8"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.Clear();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    };
+                }
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 
+    $scope.GridInventoryIssuedata = [];
+    $scope.getdataInventoryIssue = function (productionOrderId) {
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Materials/MaterialIssueControl/GetInventoryIssueByProductionOrder?productionOrderId=' + productionOrderId,
+        }).then(function successCallback(response) {
+            $scope.GridInventoryIssuedata = response.data;
+        });
 
+    };
+
+    $scope.AllTabPrint = function (z) {
+        //debugger;
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = "Products/InventoryIssue/IssueReport?grnId=" + data.Id;
+
+    };
+
+    $scope.ConfirmIssueReportPrint = function (data) {
+        try {
+            //		$scope.PrintTabId = data.JWContractId;
+            $scope.IssueId = data.Id;
+            var reportFormat = "Excel";
+            window.open('OutSourcing/OSIssueReturn/GetIIPrintReport?reportFormat=' + reportFormat + '&IssueId=' + $scope.IssueId, '_blank');
+
+        } catch (e) {
+
+        }
+    };
 }

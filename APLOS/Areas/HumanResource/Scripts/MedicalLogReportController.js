@@ -9,6 +9,17 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
+    // #region TAB CHANGE
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+    // #endregion TAB CHANGE
+
     $scope.openEmpPopUp = function () {
         angular.element(document.querySelector('#empPopUpId')).modal('show');
 
@@ -19,6 +30,52 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
         angular.element(document.querySelector('#empPopUpId')).modal('hide');
 
     }
+    // #region Medince Stock 
+    $scope.ModelTempT = {
+        Id: null,
+        UserName: null,
+        To:null
+    };
+    $scope.ModalNewT = Object.assign({}, $scope.ModelTempT);
+    $scope.MedicineList = [];
+    $scope.openMedicinePopUp = function () {
+        angular.element(document.querySelector('#medicinePopUp')).modal('show');
+        $http.get('HumanResource/MedicalLogReport/GetMedicinePopUp?medicineId=' + $scope.ModalNewT.Id + '&to=' + $scope.ModalNewT.To)
+            .then(
+                function successCallback(response) {
+                    
+                    $scope.MedicineList = response.data;
+                    
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
+    $scope.doubleMedcine = function (e) {
+        $scope.ModalNewT.Id = e.data.Id;
+        $scope.ModalNewT.UserName = e.data.UserName;
+        $scope.closeMedicinePopUp();
+
+    }
+    $scope.closeMedicinePopUp = function () {
+
+        angular.element(document.querySelector('#medicinePopUp')).modal('hide');
+
+    }
+    $scope.MedicineStockList = [];
+    $scope.GetMedinceStockGrid = function () {
+        $http.get('HumanResource/MedicalLogReport/GetMedinceStockGrid')
+            .then(
+                function successCallback(response) {
+
+                    $scope.MedicineStockList = response.data;
+
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
+    // #endregion Medince Stock 
 
     $scope.ModelTemp = {
         FromDate: null,

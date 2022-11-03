@@ -449,7 +449,10 @@ namespace Aplos.Areas.Attendances.Controllers
                         dr["DevSystemID"] = DeviceId;
                         dr["LogDownLoadNum"] = AttendanceRawData[i].LogDownLoadNum;
                         dr["PDate"] = AttendanceRawData[i].PDate;
-                        dr["PTime"] = AttendanceRawData[i].PTime;
+
+                        TimeSpan time = new TimeSpan(0, Convert.ToDateTime(AttendanceRawData[i].PTime).TimeOfDay.Hours, Convert.ToDateTime(AttendanceRawData[i].PTime).TimeOfDay.Minutes, Convert.ToDateTime(AttendanceRawData[i].PTime).TimeOfDay.Seconds);
+
+                        dr["PTime"] =AttendanceRawData[i].PDate+" " + time;
                         dr["PType"] = AttendanceRawData[i].PType;
                         dr["ProcessedFlag"] = false;
                         dr["GroupID"] = identity.CompanyGroupId;
