@@ -159,6 +159,9 @@ function AttendanceRawDataUploadController($scope, $http, $location, $rootScope,
                     if (response.Error === true) {
 
                         ShowResult(response.Message, 'failure');
+                        $scope.ShowSaveBtn = false;
+                        $scope.disableSaveBtn = false;
+
                     }
                     else {
                         ShowResult(response.Message, 'success');
@@ -198,11 +201,11 @@ function AttendanceRawDataUploadController($scope, $http, $location, $rootScope,
     //        ShowResult(response.data.Message, 'failure');
     //    };
     //};
-     $scope.GetSampleFile = function () {
+    $scope.GetSampleFile = function () {
         var ReportFormat = 'Excel';
         location.href = 'Attendances/AttendanceRawDataUpload/GetSampleFile?reportFormat=' + ReportFormat;
     };
-    
+
 
 }
 
