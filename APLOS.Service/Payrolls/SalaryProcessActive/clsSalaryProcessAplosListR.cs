@@ -2166,13 +2166,13 @@ public class clsSalaryProcessAplosR
                                                 IsNetPayEffect = true;
 
                                                 //RouteAvailed
-                                                bool IsRouteAvailed = false;
-                                                DataView dvRoute = new DataView(dsRouteEmp.Tables[0]);
-                                                dvRoute.RowFilter = "EmployeeId='" + _emp_pk + "'";
-                                                if (dvRoute.Count > 0)
-                                                {
-                                                    IsRouteAvailed = true;
-                                                }
+                                                //bool IsRouteAvailed = false;
+                                                //DataView dvRoute = new DataView(dsRouteEmp.Tables[0]);
+                                                //dvRoute.RowFilter = "EmployeeId='" + _emp_pk + "'";
+                                                //if (dvRoute.Count > 0)
+                                                //{
+                                                //    IsRouteAvailed = true;
+                                                //}
 
                                                 //lunchOut
                                                 DataView dvLUNCHOUT = new DataView(dsEOLILU.Tables[0]);
@@ -2274,7 +2274,7 @@ public class clsSalaryProcessAplosR
                                                                 abdtype.AbsDay = AbsDay;
                                                                 abdtype.LateDay = LateDay;
                                                                 abdtype.LvDay = LvDay;
-                                                                abdtype.IsRouteAvailed = IsRouteAvailed;
+                                                              //  abdtype.IsRouteAvailed = IsRouteAvailed;
                                                                 //abdtype.LateInDay = dvLATEIN.Count;
                                                                 if (dvLATEIN.Count > 0)
                                                                 {

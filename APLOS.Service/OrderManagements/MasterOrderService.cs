@@ -1915,7 +1915,10 @@ namespace Library.Service.OrderManagements
         {
             try
             {
-                CheckUnique(salesOrderMaster);
+                if (salesOrderMaster.ParentId==null || string.IsNullOrEmpty(salesOrderMaster.ParentId))
+                {
+                    CheckUnique(salesOrderMaster); 
+                }
                 var itemQty = _itemRepository.Query(t => t.Id == salesOrderMaster.MasterOrderItemId).Select(t => t.TotalQty).FirstOrDefault();
                 var soTotalQty = _salesOrderRepository.Query(t => t.Id != salesOrderMaster.Id && t.MasterOrderItemId == salesOrderMaster.MasterOrderItemId).Select(t => t.Qty).Sum() + salesOrderMaster.Qty;
 
