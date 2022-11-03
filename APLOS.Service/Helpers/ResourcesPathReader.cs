@@ -163,6 +163,18 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+
+		public static string GetICUDocumentPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/ICUDocument/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 		public static string GetInvoiceDocumentPath()
 		{
 			try
