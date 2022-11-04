@@ -182,7 +182,9 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         , MaintenanceSchedulingId: null
         , ItemType:null
         , ItemMinutes: null
-        , ExceptionDays:null
+        , ExceptionDays: null
+        , ProductionQty: null
+        , ReportApplicable: true
     };
     $scope.ItemNew = Object.assign({}, $scope.Item);
 
