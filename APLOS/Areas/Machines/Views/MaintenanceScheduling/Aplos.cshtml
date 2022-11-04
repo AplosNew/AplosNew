@@ -277,6 +277,17 @@
                         <input type="number" name="ExceptionDays" ng-model="ItemNew.ExceptionDays" class="form-control" required maxlength="10" autocomplete="off">
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Report Applicable</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="ItemNew.ReportApplicable" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group">
@@ -292,7 +303,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Item Minutes<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="number" name="ItemMinutes"  ng-model="ItemNew.ItemMinutes" class="form-control" required maxlength="10" autocomplete="off">
+                        <input type="number" name="ItemMinutes" ng-model="ItemNew.ItemMinutes" class="form-control" required maxlength="10" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
@@ -310,6 +321,12 @@
                     <label class="col-sm-4 control-label">Remarks</label>
                     <div class="col-sm-8">
                         <input type="text" name="Remarks" ng-model="ItemNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Production Qty(If Applicable)</label>
+                    <div class="col-sm-8">
+                        <input type="number" name="Production Qty" ng-model="ItemNew.ProductionQty" class="form-control" maxlength="100" autocomplete="off">
                     </div>
                 </div>
             </div>

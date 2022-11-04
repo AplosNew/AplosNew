@@ -2157,6 +2157,54 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+
+        public IEnumerable<object> GetInventoryIssueByProductionOrder(string plantId,string productionOrderId)
+        {
+            try
+            {
+
+                var sql = @"SELECT * FROM (
+                            SELECT II.Id,II.IssueDate IssueDate1,E.UserName AS Entity 
+							,isnull(II.IssueType,'') issuetype
+							,  II.CompanyGroupId
+							, II.CompanyId, II.PlantId
+							, II.EntityId, II.MaterialStorageId
+							,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate
+							
+							, MS.UserName AS MaterialStorage 
+							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
+							,IIH.Qty
+							,IIh.TotalAmount Amount
+							,II.Remarks,II.Id AS IssueId
+							,II.OrderRefNo
+							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
+                            ,IsNULL(V.VoucherNo,'') VoucherNo ,IsPark=case when II.VoucherId<>'' then 0 else 1 end
+							FROM[TRN].[InventoryIssue] AS II
+							left join (
+									SELECT IID.InventoryIssueId,IID.IsAsset,IIH.IssueRequestDetailId,SUM(IIH.Qty) Qty, SUM(IIH.TotalAmount) TotalAmount
+									FROM trn.InventoryIssueHistory IIH JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+									WHERE IID.IsAsset= 0
+									GROUP BY IID.InventoryIssueId,IIH.IssueRequestDetailId,IID.IsAsset
+									) IIH ON IIH.InventoryIssueId=II.Id
+							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
+							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
+							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
+							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
+							left JOIN SCS.Country c ON C.Id=IR.CountryId
+							left join dbo.Contract Con On Con.Id=II.ContractId
+                            LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
+						WHERE II.PlantId= '" + plantId + @"' and II.ProductionOrderId='"+ productionOrderId + @"'
+						AND IIH.IsAsset= 0)X
+						Order BY 2 DESC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public IEnumerable<object> GetInventoryIssueBOQ(string plantId)
         {
             try

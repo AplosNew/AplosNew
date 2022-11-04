@@ -216,7 +216,8 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
             try
             {
                 string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY D.Id) SrNo,D.*,D.CostingItemId,I.UserName Item,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
-,M.UserName MaterialMaster,um.Code as UoM, um.Id as UoMId from dbo.MaterialIssueControlDetail D 
+,M.UserName MaterialMaster,um.Code as UoM, um.Id as UoMId, BaseUoMFactor=case when M.BaseUOMId=i.UnitOfMeasurementId then 1 else 1 end
+FROM dbo.MaterialIssueControlDetail D 
 INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
 left join [SCS].[UnitOfMeasurement] um on um.Id = i.UnitOfMeasurementId
 LEFT JOIN MST.MaterialMaster M ON M.Id=D.MaterialMasterId
@@ -745,6 +746,15 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
             {
                 return Json(new { Error = true, ex.Message });
             }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryIssueByProductionOrder(string productionOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(_inventoryIssueService.GetInventoryIssueByProductionOrder(identity.PlantId, productionOrderId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         private void SaveIssueData(Dictionary<string, object> data, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList)
