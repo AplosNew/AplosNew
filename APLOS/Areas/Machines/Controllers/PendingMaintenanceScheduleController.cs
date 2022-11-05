@@ -147,7 +147,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
  left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id
  where MMA.AssetId IN(" + parameters["AssetId"] + @") 
-            and MMA.WorkCenterMasterId IN(" + parameters["WorkCenterMasterId"] + @") 
+            --and MMA.WorkCenterMasterId IN(" + parameters["WorkCenterMasterId"] + @") 
             and MS.ResponsiblePersoneBgtCodeId IN(" + parameters["ResponsiblePersoneBgtCodeId"] + @") 
             and MMA.EntityId IN(" + parameters["EntityId"] + @") 
  and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
