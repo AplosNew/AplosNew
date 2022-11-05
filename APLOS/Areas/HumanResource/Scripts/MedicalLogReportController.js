@@ -32,7 +32,7 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
     }
     // #region Medince Stock 
     $scope.ModelTempT = {
-        Id: null,
+        MedicineMasterId: null,
         UserName: null,
         To:null
     };
@@ -40,7 +40,7 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
     $scope.MedicineList = [];
     $scope.openMedicinePopUp = function () {
         angular.element(document.querySelector('#medicinePopUp')).modal('show');
-        $http.get('HumanResource/MedicalLogReport/GetMedicinePopUp?medicineId=' + $scope.ModalNewT.Id + '&to=' + $scope.ModalNewT.To)
+        $http.get('HumanResource/MedicalLogReport/GetMedicinePopUp')
             .then(
                 function successCallback(response) {
                     
@@ -52,10 +52,9 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
                 });
     }
     $scope.doubleMedcine = function (e) {
-        $scope.ModalNewT.Id = e.data.Id;
+        $scope.ModalNewT.MedicineMasterId = e.data.MedicineMasterId;
         $scope.ModalNewT.UserName = e.data.UserName;
         $scope.closeMedicinePopUp();
-
     }
     $scope.closeMedicinePopUp = function () {
 
@@ -64,7 +63,7 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
     }
     $scope.MedicineStockList = [];
     $scope.GetMedinceStockGrid = function () {
-        $http.get('HumanResource/MedicalLogReport/GetMedinceStockGrid')
+        $http.get('HumanResource/MedicalLogReport/GetMedinceStockGrid?medicineId=' + $scope.ModalNewT.MedicineMasterId + '&to=' + $scope.ModalNewT.To)
             .then(
                 function successCallback(response) {
 
@@ -133,6 +132,23 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.XlsGetMedinceStockReport = function () {
+        
+        $http.get('HumanResource/MedicalLogReport/XlsGetMedinceStockReport?medicineId=' + $scope.ModalNewT.Id + '&to=' + $scope.ModalNewT.To)
+        .then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }

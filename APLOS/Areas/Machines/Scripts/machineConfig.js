@@ -117,6 +117,11 @@ function MachineConfig($routeProvider, $locationProvider) {
             controller: 'incedentUpdateController'
         })
 
+        .when('/maintenance-summary-report', {
+            templateUrl: 'Machines/MaintenanceSummaryReport/Aplos',
+            controller: 'maintenanceSummaryReportController'
+        })
+
         .when('/machine-masters', {
             templateUrl: 'Machines/MachineMas/aplos',
             controller: 'machineMasterControllers'
