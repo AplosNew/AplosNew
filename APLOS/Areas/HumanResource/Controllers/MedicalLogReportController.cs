@@ -131,6 +131,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColEmployeeCode = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeName = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Sickness Name", 50, ExcelHAlign.HAlignCenter);
             int ColSicknessName = COL;
             COL++;
@@ -200,6 +204,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColId].Text = data.Rows[i]["Id"].ToString();
                 sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
                 sheet[ROW, ColEmployeeCode].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
+                sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
                 sheet[ROW, ColSicknessName].Text = data.Rows[i]["Sickness"].ToString();
                 sheet[ROW, ColMedicines].Text = data.Rows[i]["Medicines"].ToString();
                 sheet[ROW, ColSDays].Number = clsStaticInfo.dbl(data.Rows[i]["Days"].ToString());
@@ -208,7 +213,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
                 sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
                 sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
-                //sheet[ROW, ColGivenDesignation].Text = data.Rows[i]["GivenDesignation"].ToString();
+                sheet[ROW, ColGivenDesignation].Text = data.Rows[i]["GivenDesignation"].ToString();
                 //sheet[ROW, ColSkill].Text = data.Rows[i]["Skill"].ToString();
                 sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
 
