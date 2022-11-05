@@ -1105,6 +1105,7 @@ upanelApp.controller("MaterialIssueController", MaterialIssueController)
 upanelApp.controller("incedentCategoryController", incedentCategoryController)
 upanelApp.controller("incedentCategoryUpdateController", incedentCategoryUpdateController)
 upanelApp.controller("incedentUpdateController", incedentUpdateController)
+upanelApp.controller("maintenanceSummaryReportController", maintenanceSummaryReportController)
 
 
 upanelApp.config(AccessControllerConfig);
