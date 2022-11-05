@@ -757,6 +757,7 @@
     <Compile Include="Areas\Machines\Controllers\MaintenanceStatusDetailsController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSchedulingController.cs" />
     <Compile Include="Areas\Machines\Controllers\PendingMaintenanceScheduleController.cs" />
+    <Compile Include="Areas\Materials\Controllers\UtilityGroupController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogoutController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
     <Compile Include="Areas\Materials\Controllers\MaterialIssueControlController.cs" />
