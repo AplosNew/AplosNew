@@ -453,7 +453,7 @@ WHERE EI.EmployeeStatus='Active'";
 
 
             #region sheet1
-            sheet.Name = "Maintenance Status Summary Report";
+            sheet.Name = "Maintenance Summary Report";
 
             int ROW = 1;
             int endCol = 1;
@@ -461,12 +461,20 @@ WHERE EI.EmployeeStatus='Active'";
 
             int COLHeader = 0;
 
-            report.SetHeaderText(ref sheet, ROW, COLHeader + 6, "Maintenance Status Summary Report :", 20, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COLHeader + 6, "Maintenance Summary Report :", 20, ExcelHAlign.HAlignCenter);
             sheet.Range[ROW, COLHeader + 6, ROW, COLHeader + 7].Merge();
             ROW++;
             #region Grid Headers
             report.SetHeaderText(ref sheet, ROW, COL, "Entity", 12, ExcelHAlign.HAlignCenter);
             int ColEntity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 12, ExcelHAlign.HAlignCenter);
+            int ColDepartment = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Schedule Code", 15, ExcelHAlign.HAlignCenter);
+            int ColScheduleCode = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Schedule Name", 12, ExcelHAlign.HAlignCenter);
@@ -485,44 +493,44 @@ WHERE EI.EmployeeStatus='Active'";
             int ColModel = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Schedule Code", 15, ExcelHAlign.HAlignCenter);
-            int ColScheduleCode = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person BudgetCode", 15, ExcelHAlign.HAlignCenter);
-            int ColResponsiblePersonBudgetCode = COL;
-            COL++;
-
             report.SetHeaderText(ref sheet, ROW, COL, "No Of Asset", 12, ExcelHAlign.HAlignCenter);
             int ColNoOfAsset = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Over Due", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "No Of Schedule ReqFP", 12, ExcelHAlign.HAlignCenter);
+            int ColNoOfScheduleReqFP = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Schedule CompletedFP", 12, ExcelHAlign.HAlignCenter);
+            int ColScheduleCompletedFP = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Difference", 12, ExcelHAlign.HAlignCenter);
+            int ColDifference = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Over Due As On Date", 12, ExcelHAlign.HAlignCenter);
             int ColOverDue = COL;
-            COL++;
+            //COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Due Today", 12, ExcelHAlign.HAlignCenter);
-            int ColDueToday = COL;
-            COL++;
+            //report.SetHeaderText(ref sheet, ROW, COL, "Due Today", 12, ExcelHAlign.HAlignCenter);
+            //int ColDueToday = COL;
+            //COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Future Due", 12, ExcelHAlign.HAlignCenter);
-            int ColFutureDue = COL;
-            COL++;
+            //report.SetHeaderText(ref sheet, ROW, COL, "Future Due", 12, ExcelHAlign.HAlignCenter);
+            //int ColFutureDue = COL;
+            //COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Plan Status", 12, ExcelHAlign.HAlignCenter);
-            int ColPlanStatus = COL;
-            COL++;
+            //report.SetHeaderText(ref sheet, ROW, COL, "Plan Status", 12, ExcelHAlign.HAlignCenter);
+            //int ColPlanStatus = COL;
+            //COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 12, ExcelHAlign.HAlignCenter);
-            int ColRemarks = COL;
-            COL++;
+            //report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 12, ExcelHAlign.HAlignCenter);
+            //int ColRemarks = COL;
+            //COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Department", 12, ExcelHAlign.HAlignCenter);
-            int ColDepartment = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Maintenance Group", 12, ExcelHAlign.HAlignCenter);
-            int ColMaintenanceGroup = COL;
+            //report.SetHeaderText(ref sheet, ROW, COL, "Maintenance Group", 12, ExcelHAlign.HAlignCenter);
+            //int ColMaintenanceGroup = COL;
 
             ROW++;
             endCol = COL;
@@ -579,16 +587,18 @@ WHERE EI.EmployeeStatus='Active'";
                 sheet[ROW, ColModel].Text = data.Rows[i]["Model"].ToString();
                 sheet[ROW, ColScheduleCode].Text = data.Rows[i]["ScheduleCode"].ToString();
 
-                sheet[ROW, ColResponsiblePersonBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["ResponsiblePersonBudgetCode"].ToString());
+                //sheet[ROW, ColResponsiblePersonBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["ResponsiblePersonBudgetCode"].ToString());
                 sheet[ROW, ColNoOfAsset].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfAsset"].ToString());
                 sheet[ROW, ColOverDue].Number = clsStaticInfo.dbl(data.Rows[i]["OverDue"].ToString());
-                sheet[ROW, ColDueToday].Number = clsStaticInfo.dbl(data.Rows[i]["DueToday"].ToString());
-                sheet[ROW, ColFutureDue].Number = clsStaticInfo.dbl(data.Rows[i]["FutureDue"].ToString());
-                sheet[ROW, ColPlanStatus].Number = clsStaticInfo.dbl(data.Rows[i]["PlanStatus"].ToString());
-                sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+                //sheet[ROW, ColDueToday].Number = clsStaticInfo.dbl(data.Rows[i]["DueToday"].ToString());
+                //sheet[ROW, ColFutureDue].Number = clsStaticInfo.dbl(data.Rows[i]["FutureDue"].ToString());
+                //sheet[ROW, ColPlanStatus].Number = clsStaticInfo.dbl(data.Rows[i]["PlanStatus"].ToString());
+                //sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
                 sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-                sheet[ROW, ColMaintenanceGroup].Text = data.Rows[i]["MaintenanceGroup"].ToString();
-
+                //sheet[ROW, ColMaintenanceGroup].Text = data.Rows[i]["MaintenanceGroup"].ToString();
+                sheet[ROW, ColNoOfScheduleReqFP].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfScheduleReqFP"].ToString());
+                sheet[ROW, ColScheduleCompletedFP].Number = clsStaticInfo.dbl(data.Rows[i]["ScheduleCompletedFP"].ToString());
+                sheet[ROW, ColDifference].Number = clsStaticInfo.dbl(data.Rows[i]["Difference"].ToString());
 
                 ROW++;
 
