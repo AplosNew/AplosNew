@@ -48,7 +48,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [Authorize, HttpGet]
         public JsonResult GetCbo()
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text,PackingType FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
