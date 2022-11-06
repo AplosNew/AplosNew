@@ -6,6 +6,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Details</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="asset" role="tab" data-toggle="tab">Asset</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -32,7 +33,9 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Utility Group<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="ModelNew.UtilityGroup" class="form-control" required autocomplete="off" tabindex="7" maxlength="50">
+                            <div class="select-style">
+                                <select name="UtilityGroup" ng-model="ModelNew.UtilityGroupId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in UtilityGroupList" tabindex="7"></select>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group" show-errors>
@@ -129,6 +132,12 @@
                             <input type="text" name="Standard Name" ng-model="ModelNew.UtilitySubCategory" class="form-control" required autocomplete="off" tabindex="10" maxlength="50">
                         </div>
                     </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">InPut Source<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="InPutSource" ng-model="ModelNew.InPutSource" class="form-control" required autocomplete="off" tabindex="10" maxlength="50">
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label">UoM<sup>*</sup> </label>
                         <div class="col-sm-8">
@@ -179,8 +188,8 @@
                     </ul>
                 </div>
             </div>
-            <div class="row">
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
                     <div class="form-horizontal form-elements" ng-form="modelNewForm">
                         <fieldset class="scheduler-border">
                             <legend class="scheduler-border"></legend>
@@ -244,9 +253,47 @@
                         </div>
                     </div>
                 </div>
-
             </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="GetAssetpDataList();" ng-disabled="ModelNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Asset</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table" ng-show="userReportGroupList.length>0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Short Name</th>
+                                        <th>Report Group</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in userReportGroupList" ng-class="{selected : x.Id==null}">
+                                        <td>{{x.Code}}</td>
+                                        <td>{{x.ShortName}}</td>
+                                        <td>{{x.UserName}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="removeRowModal(x.ProcessName, $index, 'userReportGroupList', 'Id', 'ReportingGroupId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
 
     </div>
 
@@ -279,7 +326,7 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
@@ -448,6 +495,38 @@
             </div>
             <div class="modal-footer common-btn">
                 <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="AssetPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Asset List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div id="GridAsset" ej-grid e-datasource="assetpDataList" e-recorddoubleclick="SetAsset"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="2"></div>
+                                <div e-column e-field="AssetCode" e-headertext="Code" e-width="3"></div>
+                                <div e-column e-field="AssetName" e-headertext="AssetName" e-width="5"></div>
+                                <div e-column e-field="AssetDetail" e-headertext="AssetDetail" e-width="5"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                                <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button type="button" class="btn btn-default" ng-click="addSFGInventory();">Add</button></li>
+                        <li><button type="button" class="btn btn-default" ng-click="closeSFGInventoryPopUp();">Cancel</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
