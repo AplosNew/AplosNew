@@ -415,6 +415,22 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetAssetData()
+        {
+            string sql = @"SELECT MMA.Id,MM.Id MachineMasterId,E.Id EntityId,E.UserName Entity,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference
+                                        ,MMA.IsOldCode,MMA.OldCode,CONVERT(NUMERIC(10,2),MMA.TargetUtilization) TargetUtilization
+										,CONVERT(NUMERIC(10,2),MMA.PlanUtilization) PlanUtilization,MMA.Remark,MMA.AssetCategory
+                                        ,CONVERT(NUMERIC(10,2),MMA.RepairAndMaintanenceBudget) RepairAndMaintanenceBudget
+										,CONVERT(NUMERIC(10,2),MMA.ConsumableBudget)ConsumableBudget,A.StandardName Article,wcm.UserName WorkCenterMaster
+                                        from MachineMasterAsset MMA
+                                        left join ORG.Entity E on E.Id=MMA.EntityId
+                                        left join MST.MachineMaster MM on MM.Id=MMA.MachineMasterId
+                                        left join MST.MaterialMasterArticle A ON A.Id=MMA.ArticleId
+                                        left join SCS.WorkCenterMaster AS wcm ON wcm.Id = MMA.WorkCenterMasterId";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult GetWorkCenterList(string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

@@ -48,7 +48,7 @@ namespace Aplos.Areas.Materials.Controllers
         [AllowAnonymous]
         public JsonResult GetCbo()
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM HKP.UtilityGroup  Where Active=1"), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]

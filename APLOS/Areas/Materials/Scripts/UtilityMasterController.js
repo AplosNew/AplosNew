@@ -49,7 +49,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         UtilityGroup: null,
         UtilitySubGroup: null,
         UtilityCategory: null,
-        UtilitySubGroup: null,
+        UtilityGroupId: null,
         Item: null,
         UoMId: null,
         UoM: null,
@@ -68,6 +68,11 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.UtilityGroupList = [];
+    cboService.getUtilityGroupCbo(function (response) {
+        $scope.UtilityGroupList = response;
+    });
 
     $scope.uOMList = [];
     cboService.getUoMCbo(function (response) {
@@ -369,4 +374,78 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     $scope.ClearUtilityDetail = function () {
         $scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
     }
+
+    $scope.GetAssetpDataList = function () {
+
+    }
+
+    // #region Asset
+
+    $scope.assetpDataList = [];
+    $scope.GetAssetpDataList = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterUI/GetAssetData'
+        }).then(function successCallback(response) {
+            $scope.assetpDataList = response.data;
+        });
+        angular.element(document.querySelector('#AssetPopUp')).modal('hide');
+
+    };
+
+    $scope.addSFGInventory = function () {
+        if (baseService.arrayLength($scope.SFGInventoryDataList) > 0) {
+            angular.forEach($scope.SFGInventoryDataList, function (a) {
+                // if (!baseService.valueCheckInList($scope.userSFGInventoryList, 'SFGInventoryId', a.Id)) {
+                if (checkSFGInventoryExist($scope.userSFGInventoryList, a.Id) === false) {
+                    if (a.Flag) {
+                        $scope.userSFGInventoryList.push({
+                            Id: null
+                            , SFGInventoryId: a.Id
+                            , UserId: $scope.userNew.Id
+                            , Code: a.Code
+                            , Sequence: a.Sequence
+                            , ShortName: a.ShortName
+                            , UserName: a.UserName
+                            , StandardName: a.StandardName
+                        });
+                    }
+                }
+            });
+        }
+        else
+            $scope.userSFGInventoryList = [];
+        angular.forEach($scope.userSFGInventoryList, function (a) {
+            if (!baseService.valueCheckInList($scope.SFGInventoryDataList, 'Id', a.SFGInventoryId))
+                $scope.userSFGInventoryList.splice(a, 1);
+        });
+        $scope.closeSFGInventoryPopUp();
+    };
+
+    $scope.closeSFGInventoryPopUp = function () {
+        $scope.SFGInventoryUpUrl = null;
+        $scope.SFGInventoryDataList = [];
+        $scope.SFGInventorySearchList = [];
+        angular.element(document.querySelector('#SFGInventoryPopUp')).modal('hide');
+    };
+
+    function getUserSFGInventoryList() {
+        $http({
+            method: 'GET',
+            url: 'Products/SFGMovement/GetUserSFGMovementList?userid=' + $scope.userNew.Id
+        }).then(function successCallback(response) {
+            $scope.userSFGInventoryList = response.data;
+        });
+    }
+
+    function checkSFGInventoryExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].SFGInventoryId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // #endregion Asset
 }
