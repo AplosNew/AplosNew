@@ -4137,30 +4137,65 @@
                                                 <input type="text" name="CM" ng-model="ModelPTNew.CustomerRefCode" class="form-control" tabindex="113">
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                        @*<div class="form-group">
-                                                <label class="col-sm-4 control-label">Packing Type</label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" name="CM" ng-model="ModelPTNew.PackingType" class="form-control" tabindex="113">
-                                                </div>
-                                            </div>*@
 
-                                        <div class="form-group" show-errors>
-                                            <label class="col-sm-4 control-label">Packing Type<sup>*</sup></label>
+                                        <div class="form-group" ng-show="showSku1">
+                                            <label class="col-sm-4 control-label">SKU1<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
                                                 <div class="select-style">
-                                                    <select name="PackingType" class="form-control" ng-model="ModelPTNew.PackingTypeId" ng-options="item.Value as item.Text for item in packingTypeList" required tabindex="105" ng-change="GetSOBookedQtyAndLevel(soModel.Id);">
+                                                    <select name="FirstCharacteristics" class="form-control" ng-model="ModelPTNew.FGFirstCharacteristicsId" ng-options="item.Value as item.Text for item in sku1List" required tabindex="501" @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@>
                                                         <option value="">--Select--</option>
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
 
+                                        <div class="form-group" ng-show="showQty">
+                                            <label class="col-sm-4 control-label">Quantity</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="Quantity" ng-model="ModelPTNew.Quantity" class="form-control" tabindex="503">
+                                            </div>
+                                        </div>
+                                    <div class="form-group" ng-show="showToPlanQty">
+                                        <label class="col-sm-4 control-label">To Plan Qty</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" name="Plan" ng-model="ModelPTNew.ToPlanQty" class="form-control" tabindex="503">
+                                        </div>
+                                    </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Packing Type<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select name="PackingType" class="form-control" ng-model="ModelPTNew.PackingTypeId" ng-options="item.Value as item.Text for item in packingTypeList" required tabindex="105" ng-change="GetPackingTypeChidChangeData();">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Remarks</label>
                                             <div class="col-sm-8">
-                                                <textarea class="form-control" rows="3" ng-model="ModelPTNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                                                <input type="text" name="Remarks" ng-model="ModelPTNew.Remarks" class="form-control" tabindex="503">
+                                            </div>
+                                        </div>
+                                        <div class="form-group" ng-show="showSku2">
+                                            <label class="col-sm-4 control-label">SKU2<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select name="SecondCharacteristics" class="form-control" ng-model="ModelPTNew.FGSecondCharacteristicsId" ng-options="item.Value as item.Text for item in sku2List" required tabindex="502" @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@>
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" ng-show="showPlan">
+                                            <label class="col-sm-4 control-label">Plan %</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="Plan" ng-model="ModelPTNew.Plan" class="form-control" tabindex="503">
                                             </div>
                                         </div>
                                     </div>
@@ -4176,15 +4211,20 @@
                                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                             <div e-columns>
                                                 <div e-column e-headertext="Actions" e-template="#ShowActionButtonPT" e-width="2"></div>
-                                                <div e-column e-field="PackingCode" e-headertext="Packing Code" e-width="5"></div>
+                                                <div e-column e-field="PackingCode" e-headertext="Packing Code" e-width="3"></div>
                                                 <div e-column e-field="PackingType" e-headertext="Packing Type" e-width="5"></div>
-                                                <div e-column e-field="CustomerRefCode" e-headertext="Customer Ref Code" e-width="5"></div>
-                                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+                                                <div e-column e-field="CustomerRefCode" e-headertext="Customer Ref Code" e-width="3"></div>
+                                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                                                <div e-column e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="3"></div>
+                                                <div e-column e-field="SecondCharacteristics" e-headertext="Second Characteristics" e-width="3"></div>
+                                                <div e-column e-field="Quantity" e-headertext="Quantity" e-width="3"></div>
+                                                <div e-column e-field="Plan" e-headertext="Plan" e-width="3"></div>
+                                                <div e-column e-field="ToPlanQuantity" e-headertext="To Plan Quantity" e-width="4"></div>
                                             </div>
                                         </div>
                                         <script type="text/template" id="ShowActionButtonPT">
                                             <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeChild2(this);" style="margin: -6px;"></i></button>
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetPopUpTab2(this)" style="margin: -6px;"></i></button>
+                                           @* <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetPopUpTab2(this)" style="margin: -6px;"></i></button>*@
                                         </script>
                                     </div>
                                 </div>
@@ -4292,7 +4332,7 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="SKUPopUp" role="dialog" data-backdrop="static">
+<!--<div class="modal fade site-modal in" id="SKUPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">SKU Detail<button type="button" class="close" data-dismiss="modal">&times;</button></div>
@@ -4304,7 +4344,7 @@
                                             <label class="col-sm-4 control-label">SKU1<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
                                                 <div class="select-style">
-                                                    <select name="FirstCharacteristics" class="form-control" ng-model="ModelSKUDNew.FGFirstCharacteristicsId" ng-options="item.Value as item.Text for item in sku1List" required tabindex="501" @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@">
+                                                    <select name="FirstCharacteristics" class="form-control" ng-model="ModelSKUDNew.FGFirstCharacteristicsId" ng-options="item.Value as item.Text for item in sku1List" required tabindex="501"--> @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@<!--">
                                                         <option value="">--Select--</option>
                                                     </select>
                                                 </div>
@@ -4323,7 +4363,7 @@
                                             <label class="col-sm-4 control-label">SKU2<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
                                                 <div class="select-style">
-                                                    <select name="SecondCharacteristics" class="form-control" ng-model="ModelSKUDNew.FGSecondCharacteristicsId" ng-options="item.Value as item.Text for item in sku2List" required tabindex="502" @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@">
+                                                    <select name="SecondCharacteristics" class="form-control" ng-model="ModelSKUDNew.FGSecondCharacteristicsId" ng-options="item.Value as item.Text for item in sku2List" required tabindex="502"--> @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@<!--">
                                                         <option value="">--Select--</option>
                                                     </select>
                                                 </div>
@@ -4363,7 +4403,7 @@
                 </div>
             </div>
         </div>
-</div>
+</div>-->
 
 
 <confirm-archive-generic modalid="confirmChildSOPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteChildSO();"></confirm-archive-generic>
