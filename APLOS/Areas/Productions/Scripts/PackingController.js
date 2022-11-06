@@ -633,7 +633,6 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
                     $scope.cartonDetail = response.data.Data;
 
                     $scope.inactiveCartons = response.data.Inactive;
-                    console.log($scope.cartonCollection);
                     fillCartons();
                     angular.element(document.querySelector('#cartonDetailModal')).modal('show');
                 });
@@ -754,11 +753,13 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             $scope.AllVals();
             var so = "";
             $scope.soqty = 0;
+            $scope.todispatchqty = 0;
             for (var i = 0; i < $scope.PackingLineItemGrid.length; i++) {
 
                 if ($scope.PackingLineItemGrid[i]["checked"] == true) {
                     so = $scope.PackingLineItemGrid[i]["SO"];
                     $scope.soqty = $scope.PackingLineItemGrid[i]["SoQty"];
+                    $scope.todispatchqty = $scope.PackingLineItemGrid[i]["toDespatch"];
                 }
             }
 
@@ -842,7 +843,9 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             if ($scope.POLotRef.PlanQty > $scope.soqty) {
                 throw "Plan Qty can't greater than SO Qty.";
             }
-
+            if ($scope.todispatchqty<=0) {
+                throw "Qty is not available.";
+            }
 
             $http({
                 method: 'POST',
