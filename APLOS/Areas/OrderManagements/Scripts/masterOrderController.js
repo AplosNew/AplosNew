@@ -5150,7 +5150,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         FGSecondCharacteristicsId: null,
         SecondCharacteristics: null,
         Quantity: null,
-        Plan: null
+        Plan: null,
+        ToPlanQuantity: null
     };
     $scope.ModelPTNew = Object.assign({}, $scope.ModelPT);
 
@@ -5170,7 +5171,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             FGSecondCharacteristicsId: null,
             SecondCharacteristics: null,
             Quantity: null,
-            Plan: null
+            Plan: null,
+            ToPlanQuantity: null
         };
     }
 
@@ -5219,7 +5221,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         try {
             $scope.Action = 'Update';
             $scope.ModelPTNew = Object.assign({}, args.data);
-
+            /*$scope.PackingTypeId = $scope.ModelPTNew.Id;*/
+            $scope.GetSavedSKUDetailData($scope.ModelPTNew.Id);
+            $scope.GetPackingTypeChidChangeData();
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -5227,6 +5231,20 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ShowResult(e, "failure");
         }
     };
+
+    $scope.GetSavedSKUDetailData = function (PackingTypeId) {
+        $scope.SKUDetailList = [];
+        $http.get('OrderManagements/MasterOrder/GetSavedSKUDetail?PackingTypeId=' + PackingTypeId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.ModelPTNew.FGFirstCharacteristicsId = response.data[0].FGFirstCharacteristicsId;
+                    $scope.ModelPTNew.FGSecondCharacteristicsId = response.data[0].FGSecondCharacteristicsId;
+                    $scope.ModelPTNew.Quantity = response.data[0].Quantity;
+                    $scope.ModelPTNew.Plan = response.data[0].Plan;
+                    $scope.ModelPTNew.ToPlanQty = response.data[0].ToPlanQuantity;
+                }
+            });
+    }
 
     $scope.removeChild2 = function (obj) {
         $scope.packingTypeNew = obj.data;
@@ -5343,16 +5361,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-    $scope.SKUDetailList = [];
-    $scope.GetSavedSKUDetailData = function (PackingTypeId) {
-        $scope.SKUDetailList = [];
-        $http.get('OrderManagements/MasterOrder/GetSavedSKUDetail?PackingTypeId=' + PackingTypeId)
-            .then(function (response) {
-                if (baseService.arrayLength(response.data) > 0) {
-                    $scope.SKUDetailList = response.data;
-                }
-            });
-    }
+   
 
     $scope.GetSKUDetailDblClick = function (args) {
         try {
@@ -5386,6 +5395,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.GetSavedSKUDetailData($scope.PackingTypeId);
+                $scope.ClearPT();
             }
         }, function () {
             ShowResult(commonMessage.NetworkError, 'failure');
