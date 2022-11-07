@@ -405,7 +405,7 @@ namespace HRService
                 strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,DL.AddedDate, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
                             MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedDate, DL.AddedFromIP
-                            , DLR.Id DLRPId,
+                            , DLR.Id DLRPId, DP.UserName Department, DL.DepartmentId,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
@@ -431,7 +431,10 @@ namespace HRService
                             left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+							left join ORG.Department DP on DP.Id = DL.DepartmentId
                             where isClose = 0
+
+
 ";
                 #endregion cmnt
                 objCon = new clsConnectionManager();
@@ -461,6 +464,9 @@ namespace HRService
                         AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
                         AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
                         DLRPId = dsRef.Tables[0].Rows[i]["DLRPId"].ToString(),
+                        Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
+                        DepartmentId = dsRef.Tables[0].Rows[i]["DepartmentId"].ToString(),
+                        
                         
                     });
                 }
@@ -1291,6 +1297,8 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string AddedFromIP { get; set; }
         public string AddedDate { get; set; }
         public string DLRPId { get; set; }
+        public string Department { get; set; }
+        public string DepartmentId { get; set; }
     }
 
     public class GetDetentionLog
