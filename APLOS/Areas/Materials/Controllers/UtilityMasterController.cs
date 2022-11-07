@@ -362,6 +362,49 @@ left join SCS.WorkCenterMaster AS wcm ON wcm.Id = MMA.WorkCenterMasterId where A
             }
         }
 
+        [HttpPost]
+        public ActionResult DeleteAsset(string id)
+        {
+            DeleteAssetData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteAssetData(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+
+                strSQL = "DELETE FROM [dbo].[UtilityMasterAsset] WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+
         #endregion
 
     }

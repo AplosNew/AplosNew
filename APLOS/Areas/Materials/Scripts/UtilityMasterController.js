@@ -370,6 +370,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
         $scope.utilityDetails = [];
+        $scope.SelectedassetpDataList = [];
     }
 
     $scope.ClearUtilityDetail = function () {
@@ -389,6 +390,13 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
             url: 'IE/MachineMasterUI/GetAssetData'
         }).then(function successCallback(response) {
             $scope.assetpDataList = response.data;
+            for (var i = 0; i < $scope.assetpDataList.length; i++) {
+                for (var j = 0; j < $scope.SelectedassetpDataList.length; j++) {
+                    if ($scope.assetpDataList[i].MachineMasterAssetId == $scope.SelectedassetpDataList[j].MachineMasterAssetId) {
+                        $scope.assetpDataList.splice(i, 1);
+                    }
+                }
+            }
         });
         angular.element(document.querySelector('#AssetPopUp')).modal('show');
     };
@@ -498,6 +506,34 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    };
+
+    $scope.message_detailconfirmation = null;
+    $scope.removeAsset = function (obj) {
+
+        $scope.bomDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.bomDetailNew.AssetName + ' ]';
+        angular.element(document.querySelector('#confirmAssetPopUp')).modal('show');
+    }
+
+    $scope.DeleteAsset = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/UtilityMaster/DeleteAsset?id=' + $scope.bomDetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                GetUtilityMasterAssetData();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
     };
     // #endregion Asset
 }
