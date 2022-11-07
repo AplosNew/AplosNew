@@ -282,6 +282,17 @@ namespace Library.Service.Extension.Accounts
 
             return cashTemp;
         }
+        public Dictionary<string, object> GetIncentiveMaster(string incentiveMasterId)
+        {
+
+            var sql = @"SELECT TOP(1) * FROM [MST].[IncentiveMaster]  
+                        WHERE Id='" + incentiveMasterId + "'";
+            var incentiveMasterTemp = _sqlRepository.GetData(sql);
+            if (null == incentiveMasterTemp || incentiveMasterTemp.Count == 0)
+                throw new CustomException("Incentive Master  not Found!");
+
+            return incentiveMasterTemp;
+        }
         public Dictionary<string, object> GetReverseGL(string voucherId)
         {
 

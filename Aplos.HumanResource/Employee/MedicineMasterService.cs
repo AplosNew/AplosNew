@@ -1172,7 +1172,7 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
             try
             {
                 
-                var sql = @"select distinct MM.UserName Medicine, MM.Id, 
+                var sql = @"select distinct MM.UserName Medicine, MM.Id, MM.Remarks,
 stuff((select ',' +  CONVERT(VARCHAR(20), SUM(x.Quantity)) 
 from TRN.MedicineReceiptChild x
 where x.MedicineMasterId = MM.Id
@@ -1195,9 +1195,9 @@ where MRC.Quantity is not null";
         {
             try
             {
-                var sql = @"select MRC.Id, MM.UserName Medicine, MRC.Quantity Stock, FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate
-                        from TRN.MedicineReceipt MR
-                        left join TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+                var sql = @"select '' Id, MRC.Id MedicineReceiptChildId, MM.UserName Medicine, MRC.Quantity Stock, FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate
+                        from TRN.MedicineReceiptChild MRC
+                        
                         left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
                         where MRC.Quantity is not null and MM.Id = '" + medicinemasterId + "'order by MRC.ExpiryDate";
 
@@ -1213,7 +1213,7 @@ where MRC.Quantity is not null";
         {
             try
             {
-                var sql = @"select MP.Id, MP.UserName Sickness, MC.UserName Category, MP.Remarks PurposeRemarks,
+                var sql = @"select '' Id, MP.Id MedicinePurposeId, MP.UserName Sickness, MC.UserName Category, MP.Remarks PurposeRemarks,
 						MC.Remarks CategoryRemarks
 						from HKP.MedicinePurpose MP
 						left join HKP.MedicineCategory MC on MC.Id = MP.MedicineCategoryId";
@@ -1318,6 +1318,43 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
             }
         }
 
+        public IEnumerable<object> GetMedicineChildForUpdate(string masterId)
+        {
+            try
+            {
+                string sql = @"select ESM.Id, ML.Id MedicalLogId, MM.UserName Medicine, ESM.Quantity, ESM.NoOfDays, 
+ESM.Remarks, MRC.Id MedicineReceiptChildId
+from TRN.EmployeeSicknessMedicines ESM
+left join TRN.MedicalLog ML on ML.Id =  ESM.MedicalLogId
+left join TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
+left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+where ESM.MedicalLogId = '" + masterId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSicknessChildForUpdate(string masterId)
+        {
+            try
+            {
+                string sql = @"select ES.Id, ML.Id MedicalLogId, MC.UserName Category, MP.UserName Sickness, 
+MP.Id MedicinePurposeId, ES.Remarks
+from TRN.EmployeeSickness ES
+left join TRN.MedicalLog ML on ML.Id = ES.MedicalLogId
+left join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
+left join HKP.MedicineCategory MC on MC.Id = MP.MedicineCategoryId
+where ES.MedicalLogId = '" + masterId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion GET OP
 
         #region Visit Count
@@ -1367,7 +1404,7 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
+                    //_Id = data["Id"].ToString();
                     data["EmployeeSystemId"] = empSystemId;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
@@ -1379,23 +1416,62 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
                 conn.OpenDataSetThroughAdapter("select * from TRN.EmployeeSickness where MedicalLogId ='" + data["Id"].ToString() + "'", out dsMedicinePurposeChild, false, "1");
 
-                //while (dsMedicinePurposeChild.Tables[0].DefaultView.Count > 0)
-                //{
-                //    dsMedicinePurposeChild.Tables[0].DefaultView[0].Delete();
-                //}
-
-                for (int i = 0; i < medicinepurposelist.Count; i++)
+                int count = 0;
+                if (medicinepurposelist != null)
                 {
-                    DataRow dr = dsMedicinePurposeChild.Tables[0].NewRow();
-                    dr["Id"] = data["Id"].ToString() + i.ToString();
-                    dr["MedicalLogId"] = data["Id"].ToString();
-                    dr["MedicinePurposeId"] = medicinepurposelist[i]["Id"];
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-
-                    dsMedicinePurposeChild.Tables[0].Rows.Add(dr);
+                    foreach (var item in medicinepurposelist)
+                    {
+                        DataView dv = new DataView(dsMedicinePurposeChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = data["Id"].ToString() + '-' + count++;
+                            item["MedicalLogId"] =  data["Id"];
+                           
+                            AddNewRow(dsMedicinePurposeChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
                 }
+                #region commnet 1
+                /*for (int i = 0; i < medicinepurposelist.Count; i++)
+                {
+                   
+                    if (dsMedicinePurposeChild.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMedicinePurposeChild.Tables[0].NewRow();
+                        dr["Id"] = data["Id"].ToString() + '-' + i.ToString();
+                        dr["MedicalLogId"] = data["Id"].ToString();
+                        dr["MedicinePurposeId"] = medicinepurposelist[i]["Id"];
+                        dr["Remarks"] = medicinepurposelist[i]["Remarks"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsMedicinePurposeChild.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMedicinePurposeChild.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["MedicalLogId"] = data["Id"].ToString();
+                        dr["MedicinePurposeId"] = medicinepurposelist[i]["Id"];
+                        dr["Remarks"] = medicinepurposelist[i]["Remarks"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+
+                        
+                    }
+
+                }*/
+                #endregion commnet 1
 
                 #endregion sickness child
 
@@ -1404,25 +1480,69 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 ConnectionManager.DAL.ConManager Medicineconn = new ConnectionManager.DAL.ConManager("1");
                 Medicineconn.OpenDataSetThroughAdapter("select * from TRN.EmployeeSicknessMedicines where MedicalLogId ='" + data["Id"].ToString() + "'", out dsMedicineChild, false, "1");
 
-                //while (dsMedicineChild.Tables[0].DefaultView.Count > 0)
-                //{
-                //    dsMedicineChild.Tables[0].DefaultView[0].Delete();
-                //}
-
-                for (int i = 0; i < medicinelist.Count; i++)
+                count = 0;
+                if (medicinelist != null)
                 {
-                    DataRow dr = dsMedicineChild.Tables[0].NewRow();
-                    dr["Id"] = data["Id"].ToString() + i.ToString();
-                    dr["MedicineReceiptChildId"] = medicinelist[i]["Id"].ToString();
-                    dr["MedicalLogId"] = data["Id"].ToString();
-                    dr["Quantity"] = medicinelist[i]["Quantity"];
-                    dr["NoOfDays"] = medicinelist[i]["NoOfDays"];
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
+                    foreach (var item in medicinelist)
+                    {
+                        DataView dv = new DataView(dsMedicineChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                    dsMedicineChild.Tables[0].Rows.Add(dr);
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = data["Id"].ToString() + '-' + count++;
+                            item["MedicalLogId"] = data["Id"];
+
+                            AddNewRow(dsMedicineChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
                 }
+
+                #region comment 2
+                /* for (int i = 0; i < medicinelist.Count; i++)
+                 {
+                     if (dsMedicineChild.Tables[0].Rows.Count == 0)
+                      {
+                          DataRow dr = dsMedicineChild.Tables[0].NewRow();
+                          dr["Id"] = data["Id"].ToString() + '-' + i.ToString();
+                          dr["MedicineReceiptChildId"] = medicinelist[i]["Id"].ToString();
+                          dr["MedicalLogId"] = data["Id"].ToString();
+                          dr["Quantity"] = medicinelist[i]["Quantity"];
+                          dr["NoOfDays"] = medicinelist[i]["NoOfDays"];
+                          dr["Remarks"] = medicinelist[i]["Remarks"];
+                          dr["AddedBy"] = identity.Name;
+                          dr["AddedDate"] = System.DateTime.Now.ToString();
+                          dr["AddedFromIP"] = identity.IPAddress;
+                          dsMedicineChild.Tables[0].Rows.Add(dr);
+                      }
+                      else
+                      {
+                          DataRow dr = dsMedicineChild.Tables[0].DefaultView[0].Row;
+                          dr.BeginEdit();
+                          //dr["Id"] = data["Id"].ToString() + i.ToString();
+                          dr["MedicineReceiptChildId"] = medicinelist[i]["Id"].ToString();
+                          dr["MedicalLogId"] = data["Id"].ToString();
+                          dr["Quantity"] = medicinelist[i]["Quantity"];
+                          dr["Quantity"] = medicinelist[i]["Quantity"];
+                          dr["NoOfDays"] = medicinelist[i]["NoOfDays"];
+                          dr["Remarks"] = medicinelist[i]["Remarks"];
+                          dr["UpdatedBy"] = identity.Name;
+                          dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                          dr["UpdatedFromIP"] = identity.IPAddress;
+
+                          dr.EndEdit();
+
+
+                      }
+
+                 }*/
+                #endregion comment 2
+
                 #endregion SAVE MEDICINE CHILD
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsMedicinePurposeChild, dsMedicineChild);
@@ -1434,6 +1554,7 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
                 throw ex;
             }
         }
+       
         #endregion SAVE
 
         #region CREATE AND EDIT DEFAULT COLUMN
@@ -1539,6 +1660,34 @@ GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfD
             _sqlRepository = new SqlRepository();
         }
 
+        #region GET OP
+        public IEnumerable<object> GetMedicinePopUp()
+        {
+            try
+            {
+                var sql = @"select distinct MM.UserName, MRC.MedicineMasterId, MC.UserName Category,
+STUFF((select ',' + P.UserName 
+FROM HKP.MedicineMasterPurpose pp
+                            left join hkp.MedicinePurpose p on p.Id = pp.MedicinePurposeId
+                            where pp.MedicineMasterId = MM.Id
+                            FOR XML PATH('')
+
+                            ),1,1,'') AS MedicinePurpose
+
+from TRN.MedicineReceiptChild MRC
+left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+left join hkp.MedicineMasterPurpose X on X.MedicineMasterId = MM.Id
+left join HKP.MedicinePurpose Y on Y.Id = X.MedicinePurposeId
+left join HKP.MedicineCategory MC on MC.Id = Y.MedicineCategoryId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion GET OP
+
         #region Grid View Query
         public IEnumerable<object> medicallogGridView(string from, string to, string empSystemId)
         {
@@ -1640,6 +1789,26 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
 
 
                 return _sqlRepository.GetDataCollection(SQL);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+        
+        public IEnumerable<object> GetMedinceStockGrid(string medicineId, string to)
+        {
+            try
+            {
+                string sql = @"select MRC.MedicineMasterId, MM.UserName Medicine, FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, 
+                                FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy')InvoiceDate, 
+                                MRC.Quantity from TRN.MedicineReceipt MR
+                                left join TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
+                                left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+                                left join TRN.EmployeeSicknessMedicines ESM on ESM.MedicineReceiptChildId = MRC.Id
+                                where MM.Id = '"+ medicineId + "' and MR.InvoiceDate = '" + to + "'order by MRC.ExpiryDate";
+
+                return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
             {
@@ -1753,11 +1922,22 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
                 throw ex;
             }
         }
+
+        public DataTable medicineStockExcelView(string medicineId, string to)
+        {
+            try
+            {
+                string sql = @"";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion Excel View Query
 
-        #region Medicine Stock
-
-        #endregion Medicine Stock
+       
 
     }
     #endregion Medical Log Report

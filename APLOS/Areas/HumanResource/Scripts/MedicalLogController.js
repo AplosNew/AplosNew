@@ -65,7 +65,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
     // #endregion POP UP 
     
 
-    // TAB CHANGE
+    // #region TAB CHANGE
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -85,7 +85,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
        
     };
 
-    // #ENDREGION
+    // #endregion TAB CHANGE
 
     var todaysDate = new Date();
     var curTime = todaysDate ;
@@ -94,7 +94,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         var now = new Date();
         curTime = now.getHours() + ": " + now.getMinutes() + ": " + now.getSeconds();
     }
-    $interval($scope.getTime, 1000); 
+   $interval($scope.getTime, 1000); 
     // Form Objects
     $scope.ModelTemp = {
         Id: null,
@@ -118,13 +118,13 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         }).then(function successCallback(response) {
             $scope.MedicinePurposeList = response.data;
 
-            for (var i = 0; i < $scope.UserSicknessList.length; i++) {
-                for (var j = 0; j < $scope.MedicinePurposeList.length; j++) {
-                    if ($scope.UserSicknessList[i].Id === $scope.MedicinePurposeList[j].Id) {
-                        $scope.MedicinePurposeList[j].chk = true;
-                    }
-                }
-            }
+            //for (var i = 0; i < $scope.UserSicknessList.length; i++) {
+            //    for (var j = 0; j < $scope.MedicinePurposeList.length; j++) {
+            //        if ($scope.UserSicknessList[i].Id === $scope.MedicinePurposeList[j].Id) {
+            //            $scope.MedicinePurposeList[j].chk = true;
+            //        }
+            //    }
+            //}
 
         });
     }
@@ -137,6 +137,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
                 if (a.chk) {
                     var ob = {};
                     ob.Id = a.Id;
+                    ob.MedicinePurposeId = a.MedicinePurposeId;
                     ob.Sickness = a.Sickness;
                     ob.Category = a.Category;
                     
@@ -172,26 +173,6 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         });
     }
     
-
-    $scope.SendMedicine = function () {
-        if (baseService.arrayLength($scope.MedicineList) > 0) {
-            angular.forEach($scope.MedicineList, function (a) {
-
-                if (a.chk) {
-                    var ob = {};
-                    ob.Id = a.Id;
-                    ob.Code = a.Code;
-                    ob.Medicine = a.Medicine;
-                    ob.Category = a.Category;
-                    ob.SubCategory = a.SubCategory;
-                    $scope.userMedicineList.push(ob);
-                    ob = {};
-                }
-
-            });
-        }
-        
-    };
     // #endregion Get Medicine list and send in child grid
 
     // #region Get All Employee and select by double click
@@ -217,7 +198,27 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
     }
     // #endregion Get All Employee and select by double click
 
-    //=======================================SAVE============================================
+    //#region Get Child Grida Data For Update 
+    $scope.GetMedicineChildForUpdate = function () {
+        $http.get('HumanResource/MedicalLog/GetMedicineChildForUpdate?masterId=' + $scope.ModalNew.Id)
+            .then(
+                function successCallback(response) {
+                    $scope.userMedicineList = response.data;
+                }
+            )
+    }
+
+    $scope.GetSicknessChildForUpdate = function () {
+        $http.get('HumanResource/MedicalLog/GetSicknessChildForUpdate?masterId=' + $scope.ModalNew.Id)
+            .then(
+                function successCallback(response) {
+                    $scope.UserSicknessList = response.data;
+                }
+            )
+    }
+    //#endregion Get Child Grida Data For Update
+
+    // #region =======================================SAVE============================================
 
     $scope.Save = function () {
        
@@ -239,9 +240,14 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
-                $scope.getData();
+                $scope.ModalNew.Id = response.data.Data.Id;
+                $scope.userMedicineList = [];
+                $scope.UserSicknessList = [];
                 $scope.Action = 'Update';
+                $scope.GetMedicineChildForUpdate();
+                $scope.GetSicknessChildForUpdate();
+                $scope.medicallogGridView();
+                
 
             }
         }), function errorCallBack(response) {
@@ -250,7 +256,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
     };
 
 
-    //=======================================SAVE CLOSE==========================================
+    // #endregion =======================================SAVE==========================================
 
     $scope.MedicalLogGridList = [];
     $scope.medicallogGridView = function () {
@@ -356,7 +362,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
     // #endregion
     // Get medicines pop up screen by medicine receipt 
     $scope.MedicineMasterId = null;
-    $scope.MedicineByPurposeList = [];
+    $scope.MedicineReceiptList = [];
 
     $scope.openMedicineReceiptPopUp = function (e) {
         $scope.MedicineMasterId = e.data.Id;
@@ -367,10 +373,10 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
             data: { 'medicinemasterId': e.data.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.MedicineByPurposeList = response.data;
+            $scope.MedicineReceiptList = response.data;
 
             for (var i = 0; i < $scope.UserSicknessList.length; i++) {
-                for (var j = 0; j < $scope.MedicineByPurposeList.length; j++) {
+                for (var j = 0; j < $scope.MedicineReceiptList.length; j++) {
                     if ($scope.UserSicknessList[i].Id === $scope.MedicineByPurposeList[j].Id) {
                         $scope.MedicineByPurposeList[j].chk = true;
                     }
@@ -382,15 +388,15 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
     }
 
     $scope.SendMedicine = function () {
-        if (baseService.arrayLength($scope.MedicineByPurposeList) > 0) {
-            angular.forEach($scope.MedicineByPurposeList, function (a) {
+        if (baseService.arrayLength($scope.MedicineReceiptList) > 0) {
+            angular.forEach($scope.MedicineReceiptList, function (a) {
 
                 if (a.chk) {
                     var ob = {};
-                    ob.Id = a.Id;                  
+                    ob.Id = a.Id;
+                    ob.MedicineReceiptChildId = a.MedicineReceiptChildId;                  
                     ob.Medicine = a.Medicine;
-                    ob.Category = a.Category;
-                    ob.SubCategory = a.SubCategory;
+                   
                     ob.Quantity = a.Quantity;
                     ob.NoOfDays = a.NoOfDays;
                     ob.Remarks = a.Remarks;
@@ -401,7 +407,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
 
             });
         }
-
+        $scope.closeMedicineReceiptPopUp();
     };
 
     $scope.closeMedicineReceiptPopUp = function () {
@@ -416,5 +422,28 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         var gridObj = $("#GridEdit").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();
+    }
+
+   
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+
+    function ClearFields() {
+        $scope.Action = 'Save';
+        $scope.userMedicineList = [];
+        $scope.UserSicknessList = [];
+        $scope.ModelTemp = {
+            Id: null,
+            Date: todaysDate,
+            Time: curTime,
+            NoOfVisits: 0,
+            Remarks: null,
+            EmployeeName: null,
+            EmployeeSysId: null
+        };
+        $scope.ModalNew = Object.assign({}, $scope.ModelTemp);
     }
 }

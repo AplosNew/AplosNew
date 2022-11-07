@@ -1065,7 +1065,7 @@ upanelApp.controller("FurnitureMasterController", FurnitureMasterController);
 upanelApp.controller("ResidenceMasterController", ResidenceMasterController);
 upanelApp.controller("ProcessWiseProductionBookingController", ProcessWiseProductionBookingController);
 upanelApp.controller("FuguaiZoneMasterController", FuguaiZoneMasterController);
-upanelApp.controller("ProductionBookingProcessparameterController", ProductionBookingProcessparameterController)
+//upanelApp.controller("ProductionBookingProcessparameterController", ProductionBookingProcessparameterController)
 upanelApp.controller("EOTController", EOTController)
 upanelApp.controller("QuaityProcessBookingController", QuaityProcessBookingController)
 upanelApp.controller("FurniturePolicyReportController", FurniturePolicyReportController)
@@ -1103,6 +1103,9 @@ upanelApp.controller("specialIssueControlReportController", specialIssueControlR
 upanelApp.controller("FinishedGoodsPackingReportController", FinishedGoodsPackingReportController)
 upanelApp.controller("MaterialIssueController", MaterialIssueController)
 upanelApp.controller("incedentCategoryController", incedentCategoryController)
+upanelApp.controller("incedentCategoryUpdateController", incedentCategoryUpdateController)
+upanelApp.controller("incedentUpdateController", incedentUpdateController)
+upanelApp.controller("maintenanceSummaryReportController", maintenanceSummaryReportController)
 
 
 upanelApp.config(AccessControllerConfig);

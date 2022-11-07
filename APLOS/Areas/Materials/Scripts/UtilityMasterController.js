@@ -49,7 +49,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         UtilityGroup: null,
         UtilitySubGroup: null,
         UtilityCategory: null,
-        UtilitySubGroup: null,
+        UtilityGroupId: null,
         Item: null,
         UoMId: null,
         UoM: null,
@@ -65,9 +65,15 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         Description: null,
         EntryLegDays: null,
         Remarks: null,
-        Active: true
+        Active: true,
+        MultiplyingFactor:0
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.UtilityGroupList = [];
+    cboService.getUtilityGroupCbo(function (response) {
+        $scope.UtilityGroupList = response;
+    });
 
     $scope.uOMList = [];
     cboService.getUoMCbo(function (response) {
@@ -230,7 +236,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.utilityDetails = response.data;
-            //$scope.ModelChildNew = Object.assign({}, response.data);
+            GetUtilityMasterAssetData();
         });
     }
 
@@ -364,9 +370,170 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
         $scope.utilityDetails = [];
+        $scope.SelectedassetpDataList = [];
     }
 
     $scope.ClearUtilityDetail = function () {
         $scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
     }
+
+    $scope.GetAssetpDataList = function () {
+
+    }
+
+    // #region Asset
+
+    $scope.assetpDataList = [];
+    $scope.GetAssetpDataList = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterUI/GetAssetData'
+        }).then(function successCallback(response) {
+            $scope.assetpDataList = response.data;
+            for (var i = 0; i < $scope.assetpDataList.length; i++) {
+                for (var j = 0; j < $scope.SelectedassetpDataList.length; j++) {
+                    if ($scope.assetpDataList[i].MachineMasterAssetId == $scope.SelectedassetpDataList[j].MachineMasterAssetId) {
+                        $scope.assetpDataList.splice(i, 1);
+                    }
+                }
+            }
+        });
+        angular.element(document.querySelector('#AssetPopUp')).modal('show');
+    };
+
+    $scope.closeAssetPopUp = function () {
+        MakeData();
+        $scope.SaveAssets();
+        angular.element(document.querySelector('#AssetPopUp')).modal('hide');
+    }
+
+    // #region checkbox all
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridAsset").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.assetpDataList.length; i++) {
+                $scope.assetpDataList[i].Active = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridAsset").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+    function GetUtilityMasterAssetData() {
+        $http({
+            method: 'GET',
+            url: 'Materials/UtilityMaster/GetUtilityMasterAssetData?UtilityMasterId=' + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            $scope.SelectedassetpDataList = response.data;
+        });
+    }
+
+    $scope.SelectedassetpDataList = [];
+    function MakeData() {
+        for (var i = 0; i < $scope.assetpDataList.length; i++) {
+            if ($scope.assetpDataList[i].Active == true) {
+                if (checkExists($scope.SelectedassetpDataList, $scope.assetpDataList[i].MachineMasterAssetId) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.UtilityMasterId = $scope.ModelNew.Id;
+                    ob.MachineMasterAssetId = $scope.assetpDataList[i].MachineMasterAssetId;
+                    ob.Entity = $scope.assetpDataList[i].Entity;
+                    ob.AssetCode = $scope.assetpDataList[i].AssetCode;
+                    ob.AssetName = $scope.assetpDataList[i].AssetName;
+                    ob.AssetDetail = $scope.assetpDataList[i].AssetDetail;
+                    ob.AssetReference = $scope.assetpDataList[i].AssetReference;
+                    ob.WorkCenterMaster = $scope.assetpDataList[i].WorkCenterMaster;
+
+                    $scope.SelectedassetpDataList.push(ob);
+                }
+                else {
+                    throw "This Asset " + $scope.assetpDataList[i].AssetName + " is already taken.";
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].MachineMasterAssetId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.SaveAssets = function () {
+        try {
+            if (baseService.arrayLength($scope.SelectedassetpDataList) < 0) {
+                throw "Select Asset.";
+            }
+
+            $http({
+                method: 'POST',
+                url: 'Materials/UtilityMaster/CreateAsset',
+                data: { 'assets': $scope.SelectedassetpDataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    GetUtilityMasterAssetData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.message_detailconfirmation = null;
+    $scope.removeAsset = function (obj) {
+
+        $scope.bomDetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.bomDetailNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.bomDetailNew.AssetName + ' ]';
+        angular.element(document.querySelector('#confirmAssetPopUp')).modal('show');
+    }
+
+    $scope.DeleteAsset = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/UtilityMaster/DeleteAsset?id=' + $scope.bomDetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                GetUtilityMasterAssetData();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+    // #endregion Asset
 }

@@ -40,12 +40,7 @@
                                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="50"></div>
                             </div>
                         </div>
-                        @*<script type="text/x-jsrender" id="headerTemplate">
-                            <input type="checkbox" id="headchk" />
-                        </script>
-                        <script type="text/template" id="checkboxTemplate">
-                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
-                        </script>*@
+                       
                         <script type="text/template" id="StockId">
                             <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.openMedicineReceiptPopUp(this);">{{data.stock}}</a>
                             
@@ -54,7 +49,7 @@
                     </div>
                 </div>
                 <ul class="common-btn list-inline text-right">
-                    <li><button ng-click="SendMedicine();" class="btn"> Add</button></li>
+                    @*<li><button ng-click="SendMedicine();" class="btn"> Add</button></li>*@
                     <li><button ng-click="closeMedicinePopUp();" class="btn"> Close</button></li>
                 </ul>
 

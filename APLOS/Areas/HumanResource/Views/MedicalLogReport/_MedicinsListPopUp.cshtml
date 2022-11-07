@@ -1,0 +1,54 @@
+﻿<div class="modal fade site-modal in" id="medicinePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> Medicine List <button type="button" class="close" ng-click="closeMedicinePopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByMedicine">
+                                            <option ng-repeat="option in MedicineSearchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchMedicine" ng-enter="getData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        @*style="color:black;overflow:scroll"*@
+                        <div style="color:black;" id="partyPopUpGrid" ej-grid e-datasource="MedicineList" e-recorddoubleclick="doubleMedcine"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                               
+                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                <div e-column e-field="UserName" e-headertext="Medicine" e-width="50"></div>
+                                <div e-column e-field="Category" e-headertext="Category" e-width="50"></div>
+                                <div e-column e-field="MedicinePurpose" e-headertext="Purpose" e-width="50"></div>
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    @*<li><button ng-click="SendMedicine();" class="btn"> Add</button></li>
+                    <li><button ng-click="closeMedicinePopUp();" class="btn"> Close</button></li>*@
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</div>
+

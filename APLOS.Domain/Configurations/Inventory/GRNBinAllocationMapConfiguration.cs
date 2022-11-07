@@ -11,6 +11,7 @@ namespace Library.Model.Configurations.Inventory
             // Primary Key
             HasKey(t => t.Id);
             ToTable(nameof(GRNBinAllocationMap), DbSchema.Transaction); 
+            Ignore(r => r.PurchaseOrderDetailId);
             Ignore(r => r.ModelState);
         }
     }

@@ -61,21 +61,23 @@ namespace Aplos.Areas.Parties.Controllers
                 }
                 else
                 {
-                    //if (reportFormat == ReportFormat.Pdf)
-                    //{
-                    //    var workbook = _partyReportService.GetPartyLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                    //    var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
+                    if (reportFormat == ReportFormat.Pdf)
+                    {
+                        //var workbook = _partyReportService.GetPartyLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                        //var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
+                        
+                        var workbook = _partyReportService.GetPartyLedgerReportLongSizeXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                        var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
 
-
-                    //    return RenderReportAsPdf(workbook, reportFileName);
-                    //}
-                    //else
-                    //{
+                        return RenderReportAsPdf(workbook, reportFileName);
+                    }
+                    else
+                    {
                         var workbook = _partyReportService.GetPartyLedgerReportLongSizeXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
                         var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
 
                         return RenderReportAsExcel(workbook, reportFileName);
-                    //}
+                    }
                 }
             }
             else
@@ -103,7 +105,10 @@ namespace Aplos.Areas.Parties.Controllers
                 {
                     if (reportFormat == ReportFormat.Pdf)
                     {
-                        var workbook = _partyReportService.GetPartyLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                        //var workbook = _partyReportService.GetPartyLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                        //var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
+
+                        var workbook = _partyReportService.GetPartyLedgerReportXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
                         var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
 
 

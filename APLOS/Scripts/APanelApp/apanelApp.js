@@ -508,6 +508,8 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("OTRegionController", OTRegionController)
     .controller("QualityProcessController", QualityProcessController)
     .controller("PackingTypeController", PackingTypeController)
+    .controller("ProductionBookingProcessparameterController", ProductionBookingProcessparameterController)
+    .controller("UtilityGroupController", UtilityGroupController)
     
     
   

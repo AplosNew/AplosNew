@@ -1793,9 +1793,9 @@ namespace Library.OrderManagement.Production
                 //            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId
                 //            ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
 
-                string sql = @"SELECT PlannedQty=CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PSP.Qty)) ELSE PQ.Qty END
-                            ,(CASE WHEN PQ.Qty=0 THEN CEILING(SUM(PSP.Qty)) ELSE PQ.Qty END-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
-                            , ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
+                string sql = @"SELECT PlannedQty=CASE WHEN PQ.Qty=0 THEN (CASE WHEN CEILING(SUM(PSP.Qty))=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE CEILING(SUM(PSP.Qty)) END) ELSE PQ.Qty END
+,((CASE WHEN PQ.Qty=0 THEN (CASE WHEN CEILING(SUM(PSP.Qty))=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE CEILING(SUM(PSP.Qty)) END) ELSE PQ.Qty END)-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
+, ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
                             FROM trn.ProductionOrder AS PO
                             LEFT JOIN TRN.ProductionOrderProcessSet PQ ON PQ.ProductionOrderID=PO.Id AND PQ.ProcessId='" + processId + @"'
 							LEFT JOIN ProductionOrderSchedulingParametersType1 PSP ON PSP.ProductionOrderID=PO.Id

@@ -125,10 +125,10 @@ namespace Aplos.Areas.Machines.Controllers
                     {
                         throw new Exception("User Name Already Exist.");
                     }
-                    else if (dsMaintenanceScheduleMNameValidation.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("Machine Name Already Exist.");
-                    }
+                    //else if (dsMaintenanceScheduleMNameValidation.Tables[0].Rows.Count > 0)
+                    //{
+                    //    throw new Exception("Machine Name Already Exist.");
+                    //}
                     else
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
