@@ -65,7 +65,8 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         Description: null,
         EntryLegDays: null,
         Remarks: null,
-        Active: true
+        Active: true,
+        MultiplyingFactor:0
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -235,7 +236,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.utilityDetails = response.data;
-            //$scope.ModelChildNew = Object.assign({}, response.data);
+            GetUtilityMasterAssetData();
         });
     }
 
@@ -389,63 +390,114 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         }).then(function successCallback(response) {
             $scope.assetpDataList = response.data;
         });
+        angular.element(document.querySelector('#AssetPopUp')).modal('show');
+    };
+
+    $scope.closeAssetPopUp = function () {
+        MakeData();
+        $scope.SaveAssets();
         angular.element(document.querySelector('#AssetPopUp')).modal('hide');
+    }
 
+    // #region checkbox all
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
     };
 
-    $scope.addSFGInventory = function () {
-        if (baseService.arrayLength($scope.SFGInventoryDataList) > 0) {
-            angular.forEach($scope.SFGInventoryDataList, function (a) {
-                // if (!baseService.valueCheckInList($scope.userSFGInventoryList, 'SFGInventoryId', a.Id)) {
-                if (checkSFGInventoryExist($scope.userSFGInventoryList, a.Id) === false) {
-                    if (a.Flag) {
-                        $scope.userSFGInventoryList.push({
-                            Id: null
-                            , SFGInventoryId: a.Id
-                            , UserId: $scope.userNew.Id
-                            , Code: a.Code
-                            , Sequence: a.Sequence
-                            , ShortName: a.ShortName
-                            , UserName: a.UserName
-                            , StandardName: a.StandardName
-                        });
-                    }
-                }
-            });
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
         }
-        else
-            $scope.userSFGInventoryList = [];
-        angular.forEach($scope.userSFGInventoryList, function (a) {
-            if (!baseService.valueCheckInList($scope.SFGInventoryDataList, 'Id', a.SFGInventoryId))
-                $scope.userSFGInventoryList.splice(a, 1);
-        });
-        $scope.closeSFGInventoryPopUp();
+
+        var filtered = $("#GridAsset").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.assetpDataList.length; i++) {
+                $scope.assetpDataList[i].Active = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridAsset").data("ejGrid");
+        gridObj.refreshContent();
     };
 
-    $scope.closeSFGInventoryPopUp = function () {
-        $scope.SFGInventoryUpUrl = null;
-        $scope.SFGInventoryDataList = [];
-        $scope.SFGInventorySearchList = [];
-        angular.element(document.querySelector('#SFGInventoryPopUp')).modal('hide');
-    };
+    // #endregion checkbox all
 
-    function getUserSFGInventoryList() {
+    function GetUtilityMasterAssetData() {
         $http({
             method: 'GET',
-            url: 'Products/SFGMovement/GetUserSFGMovementList?userid=' + $scope.userNew.Id
+            url: 'Materials/UtilityMaster/GetUtilityMasterAssetData?UtilityMasterId=' + $scope.ModelNew.Id
         }).then(function successCallback(response) {
-            $scope.userSFGInventoryList = response.data;
+            $scope.SelectedassetpDataList = response.data;
         });
     }
 
-    function checkSFGInventoryExist(list, Id) {
+    $scope.SelectedassetpDataList = [];
+    function MakeData() {
+        for (var i = 0; i < $scope.assetpDataList.length; i++) {
+            if ($scope.assetpDataList[i].Active == true) {
+                if (checkExists($scope.SelectedassetpDataList, $scope.assetpDataList[i].MachineMasterAssetId) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.UtilityMasterId = $scope.ModelNew.Id;
+                    ob.MachineMasterAssetId = $scope.assetpDataList[i].MachineMasterAssetId;
+                    ob.Entity = $scope.assetpDataList[i].Entity;
+                    ob.AssetCode = $scope.assetpDataList[i].AssetCode;
+                    ob.AssetName = $scope.assetpDataList[i].AssetName;
+                    ob.AssetDetail = $scope.assetpDataList[i].AssetDetail;
+                    ob.AssetReference = $scope.assetpDataList[i].AssetReference;
+                    ob.WorkCenterMaster = $scope.assetpDataList[i].WorkCenterMaster;
+
+                    $scope.SelectedassetpDataList.push(ob);
+                }
+                else {
+                    throw "This Asset " + $scope.assetpDataList[i].AssetName + " is already taken.";
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].SFGInventoryId === Id) {
+            if (list[i].MachineMasterAssetId === id) {
                 return true;
             }
         }
         return false;
     }
 
+    $scope.SaveAssets = function () {
+        try {
+            if (baseService.arrayLength($scope.SelectedassetpDataList) < 0) {
+                throw "Select Asset.";
+            }
+
+            $http({
+                method: 'POST',
+                url: 'Materials/UtilityMaster/CreateAsset',
+                data: { 'assets': $scope.SelectedassetpDataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    GetUtilityMasterAssetData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
     // #endregion Asset
 }
