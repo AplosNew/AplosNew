@@ -42,6 +42,12 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.getWorkcenter(out List<WorkCenterList> workcenterlst);
             return workcenterlst;
         }
+        public List<DepartmentList> GetDepartment()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.getDepartment(out List<DepartmentList> DepartmentList);
+            return DepartmentList;
+        }
 
         public List<DetentionTypeList> GetDetentionTypes()
         {

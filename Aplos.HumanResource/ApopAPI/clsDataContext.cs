@@ -234,6 +234,40 @@ namespace HRService
             }
         }
 
+        public void getDepartment(out List<DepartmentList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<DepartmentList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id,UserName from ORG.Department";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new DepartmentList
+                    {
+                        Department = dsRef.Tables[0].Rows[i]["UserName"].ToString(),
+                        DepartmentId = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void getDetentionType(out List<DetentionTypeList> DataList)
         {
             clsConnectionManager objCon = null;
@@ -1228,6 +1262,11 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
     {
         public string MachineMasterId { get; set; } = "";
         public string MachineMaster { get; set; } = "";
+    }
+    public class DepartmentList
+    {
+        public string DepartmentId { get; set; }
+        public string Department { get; set; }
     }
 
     public class DetentionLogGridList
