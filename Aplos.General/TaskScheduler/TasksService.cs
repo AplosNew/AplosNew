@@ -1066,6 +1066,7 @@ namespace Library.General.TaskScheduler
                         dr["isClose"] = item.isClose;
                         dr["LogoutTime"] = DBNull.Value;
                         dr["MachineMasterId"] = item.MachineMasterId;
+                        dr["DepartmentId"] = item.DepartmentId;
                         dsMaster.Tables[0].Rows.Add(dr);
                     }
                     else
@@ -4675,6 +4676,7 @@ public class DetentionMoidel
     public DateTime? LogoutTime { get; set; }
     public string MachineMasterId { get; set; }
     public bool isClose { get; set; }
+    public string DepartmentId { get; set; }
 }
 
 public class ResponsiblePersonModel

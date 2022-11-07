@@ -417,7 +417,7 @@ namespace Aplos.Areas.IE.Controllers
         [Authorize, HttpGet]
         public ActionResult GetAssetData()
         {
-            string sql = @"SELECT MMA.Id,MM.Id MachineMasterId,E.Id EntityId,E.UserName Entity,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference
+            string sql = @"SELECT CAST(0 AS BIT)Active,MMA.Id MachineMasterAssetId,MM.Id MachineMasterId,E.Id EntityId,E.UserName Entity,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference
                                         ,MMA.IsOldCode,MMA.OldCode,CONVERT(NUMERIC(10,2),MMA.TargetUtilization) TargetUtilization
 										,CONVERT(NUMERIC(10,2),MMA.PlanUtilization) PlanUtilization,MMA.Remark,MMA.AssetCategory
                                         ,CONVERT(NUMERIC(10,2),MMA.RepairAndMaintanenceBudget) RepairAndMaintanenceBudget
