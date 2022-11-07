@@ -1,7 +1,7 @@
 ﻿'use strict';
 UtilityMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'UtilityMaster';
+    $rootScope.title = 'Utility Master';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Materials/UtilityMaster/';
