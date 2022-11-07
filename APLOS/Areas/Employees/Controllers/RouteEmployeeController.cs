@@ -189,9 +189,7 @@ namespace Aplos.Areas.Employees.Controllers
 											,R.[From],R.[To],SD.UserName [Shift],TD.Capacity Vacancy,TD.PlanCapacity
 					                        ,isnull(O.Alloted,0)Alloted,R.PlantId
 					                        ,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
-											,O.InTimeCount
-											,o.TBS
-											,O.LAbs
+										
 					                        ,R.Remarks
 
 					                        from RouteSchedule RS
@@ -199,18 +197,10 @@ namespace Aplos.Areas.Employees.Controllers
 					                        left join TransportDetail TD on TD.Id=RS.TransportId
 					                        left join ShiftDefination SD on SD.SystemID=RS.ShiftId
 					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId
-															,count(FORMAT(apd.InTime,'hh:mm:tt')) InTimeCount
-															,ISNULL(TE.TBSEmp,0) TBS
-															,ISNULL(LA.LONGEmp,0) LAbs
-
-															from dbo.EmployeeTransportAllocation A
-														
-															 JOIN (SELECT COUNT(SystemId) TBSEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='TBS' AND BudgetCode IS NOT NULL GROUP BY SystemId) TE ON TE.SystemId=A.EmployeeSystemId
-															 JOIN (SELECT COUNT(SystemId) LONGEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='LONG ABSENTEEISM' AND BudgetCode IS NOT NULL GROUP BY SystemId) LA ON LA.SystemId=A.EmployeeSystemId
-															 JOIN dbo.AttdnProcessData apd on apd.EmpSystemID=A.EmployeeSystemId AND apd.WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy')
 															
+															from dbo.EmployeeTransportAllocation A
 															where A.AssignStatus=1
-									                        Group BY TripId,TE.TBSEmp,LA.LONGEmp) O ON O.TripId=RS.Id
+									                        Group BY TripId) O ON O.TripId=RS.Id
 
 											Where R.PlantId ='" + identity.PlantId+"'";
 
@@ -265,12 +255,12 @@ namespace Aplos.Areas.Employees.Controllers
 															LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
 															LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 															LEFT JOIN ShiftDefination MSD on MSD.SystemID=PMB.ShiftDefinationId 
-															--LEFT JOIN [dbo].[EmployeeShiftAssign] ESA on ESA.EmpSystemID=EMP.SystemId 
 															LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 															LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-															LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-															LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-															LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+															--LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+															LEFT JOIN HKP.LegalDesignation DEG ON EMP.LegalDesignationId=DEG.Id
+															LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+															LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 															LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
 															left join [dbo].[TransportGroup] TG on TG.Id=EMP.TransportGroupId
                                                             left join HKP.Stoppage ST on ST.Id=A.StoppageId

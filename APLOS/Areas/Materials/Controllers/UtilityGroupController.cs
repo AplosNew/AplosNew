@@ -17,13 +17,13 @@ using System.Web.Mvc;
 
 #endregion Using
 
-namespace Aplos.Areas.OrderManagements.Controllers
+namespace Aplos.Areas.Materials.Controllers
 {
-    public class PackingTypeController  : BaseController
+    public class UtilityGroupController : BaseController
     {
         //abcd
         //this is my code from tarek
-        string TableName = "hkp.PackingType";
+        string TableName = "hkp.UtilityGroup";
         //authentication for
         //GetList Create Delete
 
@@ -31,7 +31,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        public PackingTypeController(ISqlRepository R)
+        public UtilityGroupController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -45,10 +45,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
-        [Authorize, HttpGet]
+        [AllowAnonymous]
         public JsonResult GetCbo()
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text,PackingType FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM HKP.UtilityGroup  Where Active=1"), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -56,7 +56,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             try
             {
-                var _master = _sqlRepository.GetDataCollection("select * from hkp.PackingType wher Id = '" + Id + "' ");
+                var _master = _sqlRepository.GetDataCollection("select * from hkp.UtilityGroup wher Id = '" + Id + "' ");
 
 
                 return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
@@ -105,9 +105,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PackingType='" + data["PackingType"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same PackingType already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -119,7 +116,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "PT" + _Id;
+                    data["Id"] = "DZ" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -191,6 +188,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
 
             dt.Rows.Add(dr);
         }

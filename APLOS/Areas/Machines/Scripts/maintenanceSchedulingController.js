@@ -182,7 +182,9 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         , MaintenanceSchedulingId: null
         , ItemType:null
         , ItemMinutes: null
-        , ExceptionDays:null
+        , ExceptionDays: null
+        , ProductionQty: null
+        , ReportApplicable: true
     };
     $scope.ItemNew = Object.assign({}, $scope.Item);
 
@@ -766,7 +768,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         }).then(function successCallback(response) {
             $scope.scheduleNew = response.data.schedule[0];
             $scope.scheduleNew.MachineName = response.data.schedule[0].MachineName;
-            $scope.scheduleNew.MachineMasterId = response.data.schedule[0].MachineMasterId
+            $scope.scheduleNew.MachineMasterId = response.data.schedule[0].MachineMasterId;
             $scope.scheduleNew.ResponsiblePersoneBgtCode = response.data.schedule[0].ResponsiblePersoneBgtCode;
             $scope.LoadMachineDetails($scope.scheduleNew.MachineMasterId, $scope.ScheduleMasterId);
             $scope.LoadItemDetails($scope.ScheduleMasterId);
