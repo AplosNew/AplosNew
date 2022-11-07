@@ -2040,7 +2040,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             string _Ids;
                             //DataSet dscMaster;
                             ConnectionManager.DAL.ConManager connection = new ConnectionManager.DAL.ConManager("1");
-                            connection.OpenDataSetThroughAdapter("select * from dbo.SKUDetail where Id='" + data["Id"] + "'", out dscMaster, false, "1");
+                            connection.OpenDataSetThroughAdapter("select * from dbo.SKUDetail where PackingTypeChildId='" + data["Id"] + "'", out dscMaster, false, "1");
                             #region data update
                             if (dscMaster.Tables[0].Rows.Count == 0)
                             {
@@ -2106,6 +2106,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
+
+                con.executeQuery("delete from dbo.SKUDetail where PackingTypeChildId='" + id + "'");
+                //con.CommitTransaction();
+
                 con.executeQuery("delete from dbo.PackingTypeChild where Id='" + id + "'");
                 con.CommitTransaction();
 
@@ -2186,13 +2190,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public ActionResult GetSavedSKUDetail(string PackingTypeId)
         {
             string sql = @"select Sku.Id,PT.Id PackingType,PT.UserName PackingType,Sku.FGFirstCharacteristicsId,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsId
-													,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan]
+													,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan],Sku.ToPlanQuantity
 													from  [dbo].[SKUDetail] Sku
-													left join [dbo].[PackingTypeChild] PTC on PTC.Id=Sku.PackingTypeId  
+													left join [dbo].[PackingTypeChild] PTC on PTC.Id=Sku.PackingTypeChildId  
 													left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId                                
 													left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsId								
 													left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsId
-                                Where Sku.PackingTypeId = '" + PackingTypeId + "'";
+                                Where Sku.PackingTypeChildId = '" + PackingTypeId + "'";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
