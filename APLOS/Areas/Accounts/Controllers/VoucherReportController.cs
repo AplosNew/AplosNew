@@ -323,7 +323,7 @@ namespace Aplos.Areas.Accounts.Controllers
             /*28*/
             if (sourceType.ToUpper() == SourceType.FixedAssetCapitalizeJournal.ToString().ToUpper())
             {
-                workbook = _fixedAssetRegisterService.GetFixedAssetCapitalizeJournalReport(out reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+                workbook = _fixedAssetRegisterService.GetFixedAssetCapitalizeJournalReport(out reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, salesSourceType);
             }
             /*28*/
             if (sourceType.ToUpper() == SourceType.VendorAdvance.ToString().ToUpper())

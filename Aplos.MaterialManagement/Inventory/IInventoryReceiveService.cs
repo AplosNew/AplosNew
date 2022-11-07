@@ -125,6 +125,7 @@ namespace Library.MaterialManagement.Inventory
 
         IEnumerable<object> IssueSlipFilter();
 		IEnumerable<object> GetIssueSlipFilterData(string column, string value, string plantId);
+        IEnumerable<object> GetStockForMaterialIssue(string plantId, string materialMasterId, string articleId);
         IEnumerable<object> GetAssetIssueSlipFilterData();
         
 
