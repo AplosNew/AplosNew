@@ -354,7 +354,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     }
     $scope.getTaskList = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.fileNewForm.$valid) {
+        if ($scope.tab1.$valid) {
 
             if ($scope.fileNew.Id != null) {
                 $("#dialogViewTNADetail").data("ejDialog").open();
