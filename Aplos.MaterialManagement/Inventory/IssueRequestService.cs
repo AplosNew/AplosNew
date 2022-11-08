@@ -141,8 +141,9 @@ namespace Library.MaterialManagement.Products
                     Issentry.AuthorizedByStatus = null;
 
                 }
-
+                if(!string.IsNullOrEmpty(identity.EmployeeId))
                 Issentry.Preparedby = identity.EmployeeId;
+
                 Issentry.IssueSlipType = IssueSlipType;
 
                 _issueRequestMasterService.Insert(Issentry);
@@ -2736,5 +2737,198 @@ SELECT IRM.Id
         }
 
         #endregion
+
+        public IEnumerable<object> IssueListDataByProudctionOrder(string IssueStatus, string IssueSlipType,string productionOrderId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = "";
+                if (IssueSlipType == "InventorySlip" || IssueSlipType == "undefined")
+                {
+                    if (IssueStatus == "ForChecked")
+                    {
+
+                        sql = @" select x.Id 
+                                 ,x.PreparedBy
+                                 ,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate
+                                 ,Sum(x.RequestedQty) RequestedQty 
+                                 ,Sum(x.RejectedQty) RejectedQty
+                                 ,x.CheckedBy
+                                 ,CheckedByStatus
+                                 ,x.AuthorizedBy
+                                 ,AuthorizedByStatus,SalesOrderId
+								  ,x.ProcessId,x.ProcessName
+								 ,x.CheckedById
+									,x.ApprovedById,x.Orderspecific
+                                 FROM
+                                (
+                                    SELECT IRM.Id
+                                    ,CC.UserName AS CostCenterName
+	                                ,B.UserName ActivityName      
+	                                ,IR.RequisitionId
+                                    ,IR.RequisitionDetailId                           
+	                                ,EI.EmployeeName  PreparedBy	                          
+                                    ,IRM.AddedBy
+                                    ,IRM.AddedDate
+                                    ,IRM.AddedFromIP
+                                    ,IRM.UpdatedBy
+                                    ,IRM.UpdatedDate
+                                    ,IRM.UpdatedFromIP	  
+                                    -- ,IRM.Preparedby
+                                    ,EI1.EmployeeName CheckedBy
+                                    ,IRM.CheckedByStatus
+                                    ,EI2.EmployeeName AuthorizedBy
+                                    ,IRM.AuthorizedByStatus
+	                                ,RequestedQty,SalesOrderId
+								   ,RejectedQty
+									,map.ProcessId
+									,p.UserName ProcessName
+									,EI1.SystemId CheckedById
+									,EI2.SystemId ApprovedById
+									,isnull(irm.Orderspecific,'No') Orderspecific
+                                FROM TRN.IssueRequestMaster IRM
+                                Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
+                                Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
+                                Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
+                                LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
+                                LEFT JOIN EmployeeInformation EI1 On EI1.SystemId=IRM.CheckedBy
+                                LEFT JOIN EmployeeInformation EI2 On EI2.SystemId=IRM.AuthorizedBy
+								LEFT JOIN(
+											SELECT distinct PDAMAP.IssueRequestMasterId
+												,SalesOrderId=STUFF((select distinct ','+xPDAMAP.SalesOrderId from
+												trn.IssueRequestMaster xpo
+												INNER JOin trn.IssueRequestMasterSalesOrderMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+												where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')	
+												from  trn.IssueRequestMasterSalesOrderMap PDAMAP 
+												LEFT JOIN [TRN].IssueRequestMaster IR ON IR.Id = PDAMAP.IssueRequestMasterId
+							  
+												group by  PDAMAP.IssueRequestMasterId
+									)PDA ON PDA.IssueRequestMasterId=IRM.Id
+								left join trn.IssueRequestMasterProcessMap map on map.IssueRequestMasterId=IRM.Id
+									left JOIn hkp.Process p On p.Id=map.ProcessId
+                                Where IRM.CheckedBy IS NOT NULL 
+                                AND IRM.CheckedByStatus='ForChecked' 
+                                AND IRM.AuthorizedByStatus IS NULL 
+                                AND IRM.AuthorizedBy IS null  
+                                AND IRM.IssueSlipType='InventorySlip' 
+                                And IRM.PreparedBy='" + identity.EmployeeId + @"'
+
+                                UNION ALL
+                                SELECT IRM.Id
+                                    ,CC.UserName AS CostCenterName
+	                                ,B.UserName ActivityName      
+	                                ,IR.RequisitionId
+                                    ,IR.RequisitionDetailId                           
+	                                ,EI.EmployeeName  PreparedBy	                          
+                                    ,IRM.AddedBy
+                                    ,IRM.AddedDate
+                                    ,IRM.AddedFromIP
+                                    ,IRM.UpdatedBy
+                                    ,IRM.UpdatedDate
+                                    ,IRM.UpdatedFromIP	  
+                                    -- ,IRM.Preparedby
+                                    ,EI1.EmployeeName CheckedBy
+                                    ,IRM.CheckedByStatus
+                                    ,EI2.EmployeeName AuthorizedBy
+                                    ,IRM.AuthorizedByStatus
+	                                ,RequestedQty,SalesOrderId
+                                ,RejectedQty
+								,map.ProcessId
+									,p.UserName ProcessName
+								,EI1.SystemId CheckedById
+									,EI2.SystemId ApprovedById,isnull(irm.Orderspecific,'No') Orderspecific
+                                FROM TRN.IssueRequestMaster IRM
+                                Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
+                                Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
+                                Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
+                                LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
+                                LEFT JOIN EmployeeInformation EI1 On EI1.SystemId=IRM.CheckedBy
+                                LEFT JOIN EmployeeInformation EI2 On EI2.SystemId=IRM.AuthorizedBy
+								LEFT JOIN(
+											SELECT distinct PDAMAP.IssueRequestMasterId
+												,SalesOrderId=STUFF((select distinct ','+xPDAMAP.SalesOrderId from
+												trn.IssueRequestMaster xpo
+												INNER JOin trn.IssueRequestMasterSalesOrderMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+												where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')	
+												from  trn.IssueRequestMasterSalesOrderMap PDAMAP 
+												LEFT JOIN [TRN].IssueRequestMaster IR ON IR.Id = PDAMAP.IssueRequestMasterId
+							  
+												group by  PDAMAP.IssueRequestMasterId
+									)PDA ON PDA.IssueRequestMasterId=IRM.Id
+								left join trn.IssueRequestMasterProcessMap map on map.IssueRequestMasterId=IRM.Id
+									left JOIn hkp.Process p On p.Id=map.ProcessId
+                                Where  IRM.CheckedByStatus IS  NULL 
+                                AND IRM.AuthorizedByStatus ='For Approval' 
+                                AND IRM.IssueSlipType='InventorySlip' 
+                                And IRM.PreparedBy='" + identity.EmployeeId + @"'
+                                UNION ALL
+                                SELECT IRM.Id
+                                    ,CC.UserName AS CostCenterName
+	                                ,B.UserName ActivityName      
+	                                ,IR.RequisitionId
+                                    ,IR.RequisitionDetailId                           
+	                                ,EI.EmployeeName  PreparedBy	                          
+                                    ,IRM.AddedBy
+                                    ,IRM.AddedDate
+                                    ,IRM.AddedFromIP
+                                    ,IRM.UpdatedBy
+                                    ,IRM.UpdatedDate
+                                    ,IRM.UpdatedFromIP	  
+                                    -- ,IRM.Preparedby
+                                    ,EI1.EmployeeName CheckedBy
+                                    ,IRM.CheckedByStatus
+                                    ,EI2.EmployeeName AuthorizedBy
+                                    ,IRM.AuthorizedByStatus
+	                                ,RequestedQty,SalesOrderId
+                                ,RejectedQty
+								,map.ProcessId
+									,p.UserName ProcessName
+								,EI1.SystemId CheckedById
+									,EI2.SystemId ApprovedById,isnull(irm.Orderspecific,'No') Orderspecific
+                                FROM TRN.IssueRequestMaster IRM
+                                Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
+                                Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
+                                Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
+                                LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
+                                LEFT JOIN EmployeeInformation EI1 On EI1.SystemId=IRM.CheckedBy
+                                LEFT JOIN EmployeeInformation EI2 On EI2.SystemId=IRM.AuthorizedBy
+								LEFT JOIN(
+											SELECT distinct PDAMAP.IssueRequestMasterId
+												,SalesOrderId=STUFF((select distinct ','+xPDAMAP.SalesOrderId from
+												trn.IssueRequestMaster xpo
+												INNER JOin trn.IssueRequestMasterSalesOrderMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+												where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')	
+												from  trn.IssueRequestMasterSalesOrderMap PDAMAP 
+												LEFT JOIN [TRN].IssueRequestMaster IR ON IR.Id = PDAMAP.IssueRequestMasterId
+							  
+												group by  PDAMAP.IssueRequestMasterId
+									)PDA ON PDA.IssueRequestMasterId=IRM.Id
+									left join trn.IssueRequestMasterProcessMap map on map.IssueRequestMasterId=IRM.Id
+									left JOIn hkp.Process p On p.Id=map.ProcessId
+                                Where  IRM.CheckedByStatus IS  NULL 
+                                AND IRM.AuthorizedByStatus IS  NULL
+                                AND IRM.IssueSlipType='InventorySlip' 
+                                And IRM.PreparedBy='" + identity.EmployeeId + @"'
+                                )x 
+                                Group by Id ,x.PreparedBy,x.AddedDate,x.CheckedBy,x.CheckedBy
+                                 ,CheckedByStatus
+                                 ,x.AuthorizedBy
+                                 ,AuthorizedByStatus,SalesOrderId ,x.ProcessId,x.ProcessName,x.CheckedById
+									,x.ApprovedById,x.Orderspecific";
+                    }
+                }
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
     }
 }

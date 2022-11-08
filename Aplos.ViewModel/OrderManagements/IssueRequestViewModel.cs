@@ -59,6 +59,7 @@ namespace Library.ViewModel.OrderManagements
         public decimal PlanOrderQty { get; set; }
         public string Destination { get; set; }
         public string PONumber { get; set; }
+        public string EmployeeId { get; set; }
         public DateTime PODate { get; set; }
 
     }
