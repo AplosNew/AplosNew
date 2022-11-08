@@ -79,7 +79,7 @@ namespace Aplos.Areas.Materials.Controllers
                         LEFT JOIN org.Plant AS p ON p.Id=e.PlantId
                         LEFT JOIN org.Company AS c ON c.Id=e.CompanyId
                         WHERE E.UserId='" + identity.UserId + @"' AND e2.Id IN (
-SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SELECT pt.BaseProcessId FROM PlanningTypes AS pt)) AND E2.[Active]=1 ORDER BY E2.Code";
+                        SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SELECT pt.BaseProcessId FROM PlanningTypes AS pt)) AND E2.[Active]=1 ORDER BY E2.Code";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -89,9 +89,9 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
             try
             {
                 string sql = @"SELECT M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage FROM [dbo].[MaterialIssueControlMaster] M
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
-LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
-LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId";
+                            LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
+                            LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
+                            LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -220,12 +220,12 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
             try
             {
                 string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY D.Id) SrNo
-                ,D.MaterialIssueControlMasterId,D.CostingItemId,D.NetConsumptionPerUnit,D.ValueLoss,D.GrossConsumption,D.TotalConsumption,D.AdditionReduction
-				,D.PlanConsumption,D.Rate,D.TotaPlanlAmount,D.IssueQty,D.ArticleId,D.MaterialMasterId,D.StockRate,D.ActualIssueAmount,D.Remarks,D.AddedBy,D.AddedDate,D.AddedFromIP
+                ,D.Id MaterialIssueControlDetailId,D.MaterialIssueControlMasterId,D.CostingItemId,D.NetConsumptionPerUnit,D.ValueLoss,D.GrossConsumption,D.TotalConsumption,D.AdditionReduction
+				,D.PlanConsumption,D.Rate,D.TotaPlanlAmount,ISNULL(IR.IssueQty,0) IssueQty,D.ArticleId,D.MaterialMasterId,D.StockRate,D.ActualIssueAmount,D.Remarks,D.AddedBy,D.AddedDate,D.AddedFromIP
 				,I.UserName Item,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
                 ,M.UserName MaterialMaster,um.Code as UoM, um.Id as UoMId, BaseUoMFactor=case when M.BaseUOMId=i.UnitOfMeasurementId then 1 else 1 end
-                ,B.UserName BudgetName,ACT.UserName ActivityName,BM.Id BudgetMasterId,BM.GLGeneralInfoId,ACT.Id ActivityId,M.MaterialGroupMasterId
-                ,'' CostCenterName,''CostCenterId,'' Id
+                ,B.UserName BudgetName,ACT.UserName ActivityName,BM.Id BudgetMasterId,BM.GLGeneralInfoId,ACT.Id ExpenseActivityId,M.MaterialGroupMasterId
+                ,'' CostCenterName,''CostCenterId,'' Id,'' RequestedQty
                 FROM dbo.MaterialIssueControlDetail D 
                 INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
                 left join [SCS].[UnitOfMeasurement] um on um.Id = i.UnitOfMeasurementId
@@ -235,6 +235,8 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                 LEFT JOIN MST.BudgetMaster BM ON BM.Id=MGGL.InventoryBudgetMasterId
                 LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
                 LEFT JOIN HKP.Activity ACT ON ACT.Id=MGGL.InventoryActivityId
+				LEFT JOIN (SELECT MaterialIssueControlDetailId, SUM(ISNULL(RequestedQty,0)) IssueQty,TransactionUoMId 
+							FROM TRN.IssueRequest GROUP BY MaterialIssueControlDetailId,TransactionUoMId)IR ON IR.MaterialIssueControlDetailId=D.Id
                 WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
@@ -748,13 +750,15 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                 inventoryIssue.PlantId = identity.PlantId;
                 inventoryIssue.Orderspecific = "No";
                 inventoryIssue.IssueSlipType = "InventorySlip";
-                inventoryIssue.Preparedby = model["ByWhom"].ToString();
+                inventoryIssue.Preparedby = model["ByWhomId"].ToString();
+                inventoryIssue.ProductionOrderId = model["POId"].ToString();
 
                 SaveIssueData(model, soList, dataList);
                 List<IssueRequestViewModel> entityDetailVM = dataLists;
                 List<IssueRequestViewModel> entityGroupDataVM = dataLists;
                 List<IssueRequestViewModel> SOListSelectedNewDetailVM = null;
                 List<IssueRequestViewModel> MaterialColorListNewDetailVM = null;
+                
                 _issueRequestService.InsertOrUpdateGraphIssueSlipCreate(inventoryIssue, entityDetailVM, entityGroupDataVM, inventoryIssue.IssueSlipType, null, null, SOListSelectedNewDetailVM, MaterialColorListNewDetailVM, null);
                 return Json(new { Data = model, Message = AplosMessage.Insert });
             }

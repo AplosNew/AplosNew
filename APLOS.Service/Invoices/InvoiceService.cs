@@ -4195,6 +4195,7 @@ namespace Library.Service.Invoices
                 foreach (var item in voucherdetail)
                 {
                     var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
+                    var invoiceDetailCharges = _invoiceDetailChargesRepository.Query(r=>r.VoucherDetailId== item.Id).Select().ToList();
                     if (gltransaction.Count > 0)
                     {
                         foreach (var item1 in gltransaction)
@@ -4204,6 +4205,15 @@ namespace Library.Service.Invoices
                         }
 
                     }
+                    //if (invoiceDetailCharges.Count > 0)
+                    //{
+                    //    foreach (var item1 in invoiceDetailCharges)
+                    //    {
+                    //        _voucherService.DeleteGLTransactionDetail(item1.Id);
+
+                    //    }
+
+                    //}
                     _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 if (invoiceTax != null)

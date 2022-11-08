@@ -278,24 +278,13 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         }).then(function (response) {
             $scope.materialStockList = response.data;
 
-            for (var i = 0; i < baseService.arrayLength($scope.specificStockList); i++) {
-                var row = $scope.specificStockList[i];
-                for (var t = 0; t < baseService.arrayLength($scope.materialStockList); t++) {
-                    var newRow = $scope.materialStockList[t];
-                    if (newRow.InventoryReceiveDetailId === row.InventoryReceiveDetailId) {
-                        newRow.Flag = true;
-                        newRow.RequisitionQty = row.RequisitionQty;
-                        break;
-                    }
-                }
-            }
-            for (var i1 = 0; i1 < $scope.materialStockList.length; i1++) {
-                $scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / $scope.newDatum.BaseUoMFactor;
-                $scope.materialStockList[i1].IssueTransactionUoMId = data.TransactionUoMId;
-                $scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
-                $scope.materialStockList[i1].TransactionUoMId = $scope.newDatum.UoMId;
-                $scope.materialStockList[i1].BaseUoMFactor = $scope.newDatum.BaseUoMFactor;
-            }
+            //for (var i1 = 0; i1 < $scope.materialStockList.length; i1++) {
+            //    $scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / $scope.newDatum.BaseUoMFactor;
+            //    $scope.materialStockList[i1].IssueTransactionUoMId = data.TransactionUoMId;
+            //    $scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
+            //    $scope.materialStockList[i1].TransactionUoMId = $scope.newDatum.UoMId;
+            //    $scope.materialStockList[i1].BaseUoMFactor = $scope.newDatum.BaseUoMFactor;
+            //}
             angular.element(document.querySelector('#stockPopUp')).modal('show');
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
@@ -311,7 +300,8 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         for (var i = 0; i < $scope.materialStockList.length; i++) {
             totalQty += $scope.materialStockList[i].RequestedQty;
         }
-        $scope.newDatum.IssueQty = totalQty;
+        $scope.newDatum.RequestedQty = totalQty;
+        $scope.newDatum.InventoryMaterialId = $scope.materialStockList[0].InventoryMaterialId;
         if ($scope.ModelNew.Level == "Costing") {
             var gridObj = $("#CGrid").data("ejGrid");
             gridObj.refreshContent(true);
@@ -327,8 +317,7 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
     $scope.Save = function () {
         $scope.QBOQCostingListNew = [];
         for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
-            if ($scope.QBOQCostingList[p].IssueQty > 0) {
-                $scope.QBOQCostingList[p].RequestQty = $scope.QBOQCostingList[p].IssueQty;
+            if ($scope.QBOQCostingList[p].RequestedQty > 0) {
                 $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
                 $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
                 $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
@@ -391,21 +380,18 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        location.href = "Products/InventoryIssue/IssueReport?grnId=" + data.Id;
+        location.href = "Products/GoodsReceiveNote/IssueRequestReport?issueId=" + data.Id;
 
     };
+    $scope.IssueRequestReport = [{
+        type: "details", buttonOptions: {
+            text: "Print",
+            width: "50",
+            height: "20",
 
-    $scope.ConfirmIssueReportPrint = function (data) {
-        try {
-            //		$scope.PrintTabId = data.JWContractId;
-            $scope.IssueId = data.Id;
-            var reportFormat = "Excel";
-            window.open('OutSourcing/OSIssueReturn/GetIIPrintReport?reportFormat=' + reportFormat + '&IssueId=' + $scope.IssueId, '_blank');
-
-        } catch (e) {
-
+            click: $scope.IssueRequestReportprint
         }
-    };
+    }];
 
     //**********Expenses GL Budget Activity**************
     $scope.searchglByList = [
@@ -474,6 +460,7 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         $scope.tempData.BudgetMasterId = data.BudgetMasterId;
         $scope.tempData.BudgetName = data.BudgetName;
         $scope.tempData.ActivityName = data.ActivityName;
+        $scope.tempData.ExpenseActivityId = data.ActivityId;
         var gridObj = $("#BGrid").data("ejGrid");
         gridObj.refreshContent(true);
         gridObj.refreshTemplate();
