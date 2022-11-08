@@ -15,7 +15,8 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
     var LogTime = new Date();
     $scope.ModalTemp = {
         Id: null,
-        DetentionTypeId: null,        
+        DetentionTypeId: null,  
+        DepartmentId:null,
         WorkCenterId: null,
         CellPhnNo: null,
         IssueByNo: null,
@@ -198,6 +199,17 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
         })
     }
     $scope.getIssueByNo();
+
+    $scope.DepartmentList = [];
+    $scope.GetDepartment = function () {
+        $http.get('Materials/DetentionLog/GetDepartment')
+            .then(
+                function successCallback(response) {
+                    $scope.DepartmentList = response.data;
+                }
+        )
+    }
+    $scope.GetDepartment();
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
