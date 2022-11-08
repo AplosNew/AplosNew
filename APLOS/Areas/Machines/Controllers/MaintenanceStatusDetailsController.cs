@@ -62,7 +62,7 @@ namespace Aplos.Areas.Machines.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select MS.Id,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
-MM.MachineModel Model,MS.ScheduleCode,MB.Code ResponsiblePersonBudgetCode,MA.AssetName,MA.AssetCode,
+MM.MachineModel Model,MS.ScheduleCode,MB.Code ResponsiblePersonBudgetCode,MA.AssetName,MA.AssetCode,MA.AssetReference,
 WC.UserName WorkCenter,MS.ScheduleDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
@@ -145,7 +145,7 @@ MS.Remarks,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD whe
         public ActionResult LoadMaintenanceStatusPlannedList(string ToDate,string FromDate,string MaintenanceId,string MachineId,string Value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,
+            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
 WC.UserName WorkCenter,MS.ScheduleDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
  ORDER BY MPD.Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
@@ -174,7 +174,7 @@ MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and MA.MachineMasterId='"+ MachineId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "' and 1='" + Value + "'";
+ where MMA.Id is not null and MA.MachineMasterId='" + MachineId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "' and 1='" + Value + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

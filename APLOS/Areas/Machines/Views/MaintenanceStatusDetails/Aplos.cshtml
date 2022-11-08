@@ -56,7 +56,7 @@
                             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="3"></div>
                             <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="3"></div>
                             <div e-column e-type="string" e-field="ScheduleName" e-headertext="Schedule Name" e-width="3"></div>
-                            <div e-column e-type="string" e-field="MachineName" e-headertext="Machine Name" e-width="3"></div>
+                            <div e-column e-type="string" e-field="MachineName" e-headertext="Machine Name" e-width="5"></div>
                             <div e-column e-type="string" e-field="Make" e-headertext="Make" e-width="3"></div>
                             <div e-column e-type="string" e-field="Model" e-headertext="Model" e-width="3"></div>
                             <div e-column e-type="string" e-field="ScheduleCode" e-headertext="Schedule Code" e-width="3"></div>
@@ -133,13 +133,14 @@
                             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="3"></div>
                             <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="3"></div>
                             <div e-column e-type="string" e-field="ScheduleName" e-headertext="Schedule Name" e-width="3"></div>
-                            <div e-column e-type="string" e-field="MachineName" e-headertext="Machine Name" e-width="3"></div>
+                            <div e-column e-type="string" e-field="MachineName" e-headertext="Machine Name" e-width="5"></div>
                             <div e-column e-type="string" e-field="Make" e-headertext="Make" e-width="3"></div>
                             <div e-column e-type="string" e-field="Model" e-headertext="Model" e-width="3"></div>
                             <div e-column e-type="string" e-field="ScheduleCode" e-headertext="Schedule Code" e-width="3"></div>
                             <div e-column e-type="string" e-field="ResponsiblePersonBudgetCode" e-headertext="Responsible Person Bgt Code" e-width="3"></div>
                             <div e-column e-type="string" e-field="AssetName" e-headertext="Asset Name" e-width="3"></div>
                             <div e-column e-type="string" e-field="AssetCode" e-headertext="Asset Code" e-width="3"></div>
+                            <div e-column e-type="string" e-field="AssetReference" e-headertext="Asset Reference" e-width="3"></div>
                             <div e-column e-type="string" e-field="WorkCenter" e-headertext="Work Center" e-width="3"></div>
                             <div e-column e-type="string" e-field="ScheduleDays" e-headertext="Schedule Days" e-width="3"></div>
                             <div e-column e-type="string" e-field="LastMaintenanceDate" e-headertext="Last Maintenance Date" e-width="3"></div>
@@ -184,6 +185,7 @@
                                 <div e-column e-type="string" e-field="MaintenanceSchedulingId" e-visible="false" e-headertext="Maintenance Scheduling Id" e-width="2"></div>
                                 <div e-column e-type="string" e-field="AssetName" e-headertext="Asset Name" e-width="3"></div>
                                 <div e-column e-type="string" e-field="AssetCode" e-headertext="Asset Code" e-width="3"></div>
+                                <div e-column e-type="string" e-field="AssetReference" e-headertext="Asset Reference" e-width="3"></div>
                                 <div e-column e-type="string" e-field="WorkCenter" e-headertext="Work Center" e-width="3"></div>
                                 <div e-column e-type="string" e-field="ScheduleDays" e-headertext="Schedule Days" e-width="2"></div>
                                 <div e-column e-type="string" e-field="LastMaintenanceDate" e-headertext="Last Maintenance Date" e-width="2"></div>
@@ -239,7 +241,7 @@
                     </div>
                 </div>
                 <div class="common-btn">
-                    <ul class="list-inline text-right">
+                    <ul class="list-inline text-center">
                         <li>
                             <button ng-click="closeMachinePopUp();" class="btn"><i class=""></i> Close</button>
                             <button ng-click="SavePlannedDetails();" class="btn"><i class=""></i> Save</button>

@@ -61,6 +61,7 @@ namespace Library.ViewModel.OrderManagements
         public string PONumber { get; set; }
         public string EmployeeId { get; set; }
         public DateTime PODate { get; set; }
+        public string MaterialIssueControlDetailId { get; set; }
 
     }
 }

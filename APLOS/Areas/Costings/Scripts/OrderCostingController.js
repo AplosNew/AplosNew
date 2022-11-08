@@ -2784,12 +2784,12 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         var flag = false;
         if ($scope.DirectProcessList.length > 0) {
 
-            for (var i = 0; i < $scope.DirectProcessList.length; i++) {
-                if ($scope.DirectProcessList[i].Rate == 0 || baseService.isUndefinedOrNull($scope.DirectProcessList[i].Rate) || $scope.DirectProcessList[i].Rate == 'NaN') {
-                    ShowResult("Rate is required for '" + $scope.DirectProcessList[i].UserName + "'.", 'failure');
-                    return false;
-                }
-            }
+            //for (var i = 0; i < $scope.DirectProcessList.length; i++) {
+            //    if ($scope.DirectProcessList[i].Rate == 0 || baseService.isUndefinedOrNull($scope.DirectProcessList[i].Rate) || $scope.DirectProcessList[i].Rate == 'NaN') {
+            //        ShowResult("Rate is required for '" + $scope.DirectProcessList[i].UserName + "'.", 'failure');
+            //        return false;
+            //    }
+            //}
 
             if (flag == false) {
                 $scope.hideDirectProcessPopUp();
@@ -2998,9 +2998,9 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             try {
 
                 for (var i = 0; i < $scope.SalesExpenseList.length; i++) {
-                    if ($scope.SalesExpenseList[i].Value == 0 || baseService.isUndefinedOrNull($scope.SalesExpenseList[i].Value) || $scope.SalesExpenseList[i].Value == 'NaN') {
-                        throw "Value is required for '" + $scope.SalesExpenseList[i].UserName + "'.";
-                    }
+                    //if ($scope.SalesExpenseList[i].Value == 0 || baseService.isUndefinedOrNull($scope.SalesExpenseList[i].Value) || $scope.SalesExpenseList[i].Value == 'NaN') {
+                    //    throw "Value is required for '" + $scope.SalesExpenseList[i].UserName + "'.";
+                    //}
 
                     if ($scope.SalesExpenseList[i].Value > 0) {
                         if (angular.isUndefinedOrNull($scope.SalesExpenseList[i].Type))
