@@ -191,7 +191,7 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                      e-recorddoubleclick="" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"  e-templaterefresh="refreshTemplateMachineGroup">
                     <div e-columns>
-                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateMachineAsset" e-template="#checkboxTemplateMachineAsset" e-textalign="center" e-width="30"></div>
+                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateMachineGroup" e-template="#checkboxTemplateMachineGroup" e-textalign="center" e-width="30"></div>
                         <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
                         <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
                         <div e-column e-field="UserName" e-headertext="Machine Name" e-width="80"></div>
@@ -212,7 +212,7 @@
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                 </script>
                 <script type="text/x-jsrender" id="headerTemplateMachineGroup">
-                    <input type="checkbox" id="headchk" />
+                    <input type="checkbox" id="MGheadchk" />
                 </script>
             </div>
             <div class="common-btn">

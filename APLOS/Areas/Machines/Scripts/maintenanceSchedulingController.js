@@ -286,7 +286,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     };
 
     $scope.refreshTemplateMachineGroup = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllMachine });
+        $("#MGheadchk").ejCheckBox({ "change": CheckBoxSelectAllMachine });
     };
     function CheckBoxSelectAllMachine(e) {
         var ChkOrUnchk = false;
@@ -323,11 +323,11 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     $scope.LoadMaintenanceMasterList();
    
     $scope.ScheduleMachineList = [];
-    $scope.LoadMachineDetails = function (data,pid) {
+    $scope.LoadMachineDetails = function (pid) {
         $http({
 
             method: 'Get',
-            url: 'Machines/MaintenanceScheduling/LoadMachineDetails?MachineId=' + data + '&ScheduleId=' + pid
+            url: 'Machines/MaintenanceScheduling/LoadMachineDetails?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.ScheduleMachineList = response.data;
         }
@@ -373,6 +373,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
 
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadMachineGroupDetails($scope.scheduleNew.Id);
+                    $scope.LoadMachineDetails($scope.scheduleNew.Id);
                     $scope.Action = 'Save';
                 }
 
@@ -846,7 +847,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
             $scope.scheduleNew.MachineMasterId = response.data.schedule[0].MachineMasterId;
             $scope.scheduleNew.ResponsiblePersoneBgtCode = response.data.schedule[0].ResponsiblePersoneBgtCode;
             $scope.LoadMachineGroupDetails($scope.ScheduleMasterId);
-            $scope.LoadMachineDetails($scope.scheduleNew.MachineMasterId, $scope.ScheduleMasterId);
+            $scope.LoadMachineDetails($scope.ScheduleMasterId);
             $scope.LoadItemDetails($scope.ScheduleMasterId);
             $scope.LoadStoresDetails($scope.ScheduleMasterId);
             $scope.LoadBudgetCodeDetails($scope.ScheduleMasterId);
