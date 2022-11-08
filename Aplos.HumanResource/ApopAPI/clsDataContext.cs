@@ -234,6 +234,40 @@ namespace HRService
             }
         }
 
+        public void getDepartment(out List<DepartmentList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<DepartmentList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id,UserName from ORG.Department";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new DepartmentList
+                    {
+                        Department = dsRef.Tables[0].Rows[i]["UserName"].ToString(),
+                        DepartmentId = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void getDetentionType(out List<DetentionTypeList> DataList)
         {
             clsConnectionManager objCon = null;
@@ -371,7 +405,7 @@ namespace HRService
                 strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,DL.AddedDate, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
                             MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedDate, DL.AddedFromIP
-                            , DLR.Id DLRPId,
+                            , DLR.Id DLRPId, DP.UserName Department, DL.DepartmentId,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
@@ -397,7 +431,10 @@ namespace HRService
                             left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+							left join ORG.Department DP on DP.Id = DL.DepartmentId
                             where isClose = 0
+
+
 ";
                 #endregion cmnt
                 objCon = new clsConnectionManager();
@@ -427,6 +464,9 @@ namespace HRService
                         AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
                         AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
                         DLRPId = dsRef.Tables[0].Rows[i]["DLRPId"].ToString(),
+                        Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
+                        DepartmentId = dsRef.Tables[0].Rows[i]["DepartmentId"].ToString(),
+                        
                         
                     });
                 }
@@ -1229,6 +1269,11 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string MachineMasterId { get; set; } = "";
         public string MachineMaster { get; set; } = "";
     }
+    public class DepartmentList
+    {
+        public string DepartmentId { get; set; }
+        public string Department { get; set; }
+    }
 
     public class DetentionLogGridList
     {
@@ -1252,6 +1297,8 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string AddedFromIP { get; set; }
         public string AddedDate { get; set; }
         public string DLRPId { get; set; }
+        public string Department { get; set; }
+        public string DepartmentId { get; set; }
     }
 
     public class GetDetentionLog

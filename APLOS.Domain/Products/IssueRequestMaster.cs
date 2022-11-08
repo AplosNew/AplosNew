@@ -28,6 +28,7 @@ namespace Library.Model.Products
         public string CompanyId { get; set; }
 
         public string PlantId { get; set; }
+        public string ProductionOrderId { get; set; }
 
         public string Orderspecific { get; set; } 
         

@@ -865,7 +865,7 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
-        $window.open('FixedAssets/FixedAssetRegister/GetIssueFixedAssetCapitalizeJournalReport?reportFormat=' + reportFormat + '&voucherId=' + data.Id , '_blank');
+        $window.open('FixedAssets/FixedAssetRegister/GetIssueFixedAssetCapitalizeJournalReport?reportFormat=' + reportFormat + '&voucherId=' + data.Id + '&sourceType=' + data.SourceType , '_blank');
     };
 
     $scope.commandPDF = [{
@@ -883,7 +883,7 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Excel";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
-        $window.open('FixedAssets/FixedAssetRegister/GetIssueFixedAssetCapitalizeJournalReport?reportFormat=' + reportFormat + '&voucherId=' + data.Id, '_blank');
+        $window.open('FixedAssets/FixedAssetRegister/GetIssueFixedAssetCapitalizeJournalReport?reportFormat=' + reportFormat + '&voucherId=' + data.Id + '&sourceType='+ data.SourceType, '_blank');
 
     };
     $scope.commandExcel = [{

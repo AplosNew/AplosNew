@@ -2016,9 +2016,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 if (data != null)
                 {
+                    DataSet dsMaster, dscMaster;
 
                     string _Id;
-                    DataSet dsMaster;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                     con.OpenDataSetThroughAdapter("select * from dbo.PackingTypeChild where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                     #region data update
@@ -2035,10 +2035,38 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         _Id = data["Id"].ToString();
                         EditRow(dsMaster.Tables[0].Rows[0], data);
                     }
+              
+                            
+                            string _Ids;
+                            //DataSet dscMaster;
+                            ConnectionManager.DAL.ConManager connection = new ConnectionManager.DAL.ConManager("1");
+                            connection.OpenDataSetThroughAdapter("select * from dbo.SKUDetail where PackingTypeChildId='" + data["Id"] + "'", out dscMaster, false, "1");
+                            #region data update
+                            if (dscMaster.Tables[0].Rows.Count == 0)
+                            {
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID("SKUDetail", out _Ids);
+
+                                data["Id"] = _Ids;
+                                data["PackingTypeChildId"] = _Id;
+                        AddNewRow(dscMaster.Tables[0], data);
+                            }
+                            else
+                            {
+                                _Ids = data["Id"].ToString();
+                                EditRow(dscMaster.Tables[0].Rows[0], data);
+                            }
+                            #endregion data update
+
+                            //clsStaticInfo obje = new clsStaticInfo();
+                            //obje.SaveDataSets(dscMaster);
+                  
+                        //return Json(new { Error = false, Message = AplosMessage.Updated });
+                   
                     #endregion data update
 
                     clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
+                    obj.SaveDataSets(dsMaster, dscMaster);
                 }
                 return Json(new { Error = false, Message = AplosMessage.Updated });
             }
@@ -2052,9 +2080,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSavedPackingType(string PackingDetailId)
         {
-            string sql = @"select PTC.*,PT.UserName PackingType 
+            string sql = @"select PTC.*,PT.UserName PackingType,sku.Id SKUDetailId,sku.FGFirstCharacteristicsId
+								,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsId
+								,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan],sku.ToPlanQuantity
+
                                 from  [dbo].[PackingTypeChild] PTC
                                 left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId
+								left join SKUDetail sku on sku.PackingTypeChildId=PTC.Id
+								left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsId								
+								left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsId
                                 Where PackingDetailId='" + PackingDetailId + "'";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -2072,6 +2106,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
+
+                con.executeQuery("delete from dbo.SKUDetail where PackingTypeChildId='" + id + "'");
+                //con.CommitTransaction();
+
                 con.executeQuery("delete from dbo.PackingTypeChild where Id='" + id + "'");
                 con.CommitTransaction();
 
@@ -2152,13 +2190,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public ActionResult GetSavedSKUDetail(string PackingTypeId)
         {
             string sql = @"select Sku.Id,PT.Id PackingType,PT.UserName PackingType,Sku.FGFirstCharacteristicsId,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsId
-													,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan]
+													,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan],Sku.ToPlanQuantity
 													from  [dbo].[SKUDetail] Sku
-													left join [dbo].[PackingTypeChild] PTC on PTC.Id=Sku.PackingTypeId  
+													left join [dbo].[PackingTypeChild] PTC on PTC.Id=Sku.PackingTypeChildId  
 													left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId                                
 													left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsId								
 													left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsId
-                                Where Sku.PackingTypeId = '" + PackingTypeId + "'";
+                                Where Sku.PackingTypeChildId = '" + PackingTypeId + "'";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;

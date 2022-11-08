@@ -118,13 +118,13 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         }).then(function successCallback(response) {
             $scope.MedicinePurposeList = response.data;
 
-            for (var i = 0; i < $scope.UserSicknessList.length; i++) {
-                for (var j = 0; j < $scope.MedicinePurposeList.length; j++) {
-                    if ($scope.UserSicknessList[i].Id === $scope.MedicinePurposeList[j].Id) {
-                        $scope.MedicinePurposeList[j].chk = true;
-                    }
-                }
-            }
+            //for (var i = 0; i < $scope.UserSicknessList.length; i++) {
+            //    for (var j = 0; j < $scope.MedicinePurposeList.length; j++) {
+            //        if ($scope.UserSicknessList[i].Id === $scope.MedicinePurposeList[j].Id) {
+            //            $scope.MedicinePurposeList[j].chk = true;
+            //        }
+            //    }
+            //}
 
         });
     }

@@ -1162,7 +1162,7 @@ namespace Library.Accounting.FixedAssets
         {
             try
             {
-                var sql = @"SELECT V.Id, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId
+                var sql = @"SELECT V.Id, V.VoucherDate, V.PostingDate, V.DocRefNo,V.SourceType, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId
 									, C.Code AS CurrencyCode, IIH.TotalAmount , V.VoucherNo, V.IsPark, V.Narration
 									,GRNNo =  STUFF((select distinct ','+XIRD.InventoryReceiveId  from
 														 TRN.InventoryIssueHistory AS XIH  

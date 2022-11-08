@@ -1923,7 +1923,7 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
             }
         }
 
-        public DataTable XlsGetMedinceStockReport(string medicineId, string to)
+        public DataTable medicineStockExcelView(string medicineId, string to)
         {
             try
             {
@@ -1937,9 +1937,7 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
         }
         #endregion Excel View Query
 
-        #region Medicine Stock
-
-        #endregion Medicine Stock
+       
 
     }
     #endregion Medical Log Report

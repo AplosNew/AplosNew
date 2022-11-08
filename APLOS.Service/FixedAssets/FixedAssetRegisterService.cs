@@ -2433,7 +2433,7 @@ GROUP BY FAR.FABudgetMasterId
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-        private Dictionary<string, object> GetFixedAssetCapitalizeJournalHeader(string companyGroupId, string companyId, string plantId, string voucherId, SourceType sourceType)
+        private Dictionary<string, object> GetFixedAssetCapitalizeJournalHeader(string companyGroupId, string companyId, string plantId, string voucherId, string sourceType)
         {
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
                             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, V.AddedBy, V.PostedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
@@ -2457,7 +2457,7 @@ GROUP BY FAR.FABudgetMasterId
             return _sqlRepository.GetData(cmdText);
         }
 
-        public IWorkbook GetFixedAssetCapitalizeJournalReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId)
+        public IWorkbook GetFixedAssetCapitalizeJournalReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId,string sourceType)
         {
             var reportUtility = new ReportUtility();
             var excelEngine = new ExcelEngine();
@@ -2466,7 +2466,7 @@ GROUP BY FAR.FABudgetMasterId
             var sheet = workbook.Worksheets[0];
             sheet.Name = "Voucher";
 
-            var header = GetFixedAssetCapitalizeJournalHeader(companyGroupId, companyId, plantId, voucherId, SourceType.FixedAssetCapitalizeJournal);
+            var header = GetFixedAssetCapitalizeJournalHeader(companyGroupId, companyId, plantId, voucherId, sourceType);
 
             if (header.Count>0)
             {
@@ -3276,8 +3276,9 @@ GROUP BY FAR.FABudgetMasterId
         {
             try
             {
+                // have to modified. search option needed.
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"SELECT FAR.Id FixedAssetRegisterId,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName
+                var sql = @"SELECT top(5000)  FAR.Id FixedAssetRegisterId,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName
                     , FAM.UserName AS AssetMasterName,FAR.Price,FAR.CapitalizeRegisterNo,FAR.InvoiceNo,0 Active,0 Amount,NULL CapitalizationDate,NULL SubAssetTypeId 
                     FROM TRN.FixedAssetRegister FAR 
                     LEFT JOIN [MST].[MaterialMaster] MM ON FAR.MaterialMasterId=MM.Id

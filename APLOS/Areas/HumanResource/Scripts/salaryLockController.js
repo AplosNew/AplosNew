@@ -222,7 +222,9 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
         var dataList = [];
         var g = $("#empInfoGrid").data("ejGrid");
         dataList = g.getFilteredRecords();
-
+        if (baseService.arrayLength(dataList) == 0) {
+            dataList = $scope.EmployeeListTemp;
+        }
         if (baseService.arrayLength(dataList) > 0) {
             for (var i = 0; i < dataList.length; i++) {
                 if (dataList[i].isToBeSelect) {

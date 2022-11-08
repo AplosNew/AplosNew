@@ -6,6 +6,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Details</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="asset" role="tab" data-toggle="tab">Consumption Item</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -32,7 +33,9 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Utility Group<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="ModelNew.UtilityGroup" class="form-control" required autocomplete="off" tabindex="7" maxlength="50">
+                            <div class="select-style">
+                                <select name="UtilityGroup" ng-model="ModelNew.UtilityGroupId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in UtilityGroupList" tabindex="7"></select>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group" show-errors>
@@ -45,6 +48,12 @@
                         <label class="col-sm-4 control-label">Item<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Standard Name" ng-model="ModelNew.Item" class="form-control" required autocomplete="off" tabindex="11" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Multiplying Factor<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Multiplying Factor" ng-model="ModelNew.MultiplyingFactor" class="form-control" n-decimals="3" required autocomplete="off" tabindex="11" maxlength="50">
                         </div>
                     </div>
                     <div class="form-group">
@@ -129,6 +138,12 @@
                             <input type="text" name="Standard Name" ng-model="ModelNew.UtilitySubCategory" class="form-control" required autocomplete="off" tabindex="10" maxlength="50">
                         </div>
                     </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">InPut Source<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="InPutSource" ng-model="ModelNew.InPutSource" class="form-control" required autocomplete="off" tabindex="10" maxlength="50">
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label">UoM<sup>*</sup> </label>
                         <div class="col-sm-8">
@@ -179,8 +194,8 @@
                     </ul>
                 </div>
             </div>
-            <div class="row">
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
                     <div class="form-horizontal form-elements" ng-form="modelNewForm">
                         <fieldset class="scheduler-border">
                             <legend class="scheduler-border"></legend>
@@ -244,9 +259,37 @@
                         </div>
                     </div>
                 </div>
-
             </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="GetAssetpDataList();" ng-disabled="ModelNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Asset</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div id="GridAssets" ej-grid e-datasource="SelectedassetpDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonAsset" e-width="1"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="2"></div>
+                                <div e-column e-field="WorkCenterMaster" e-headertext="WorkCenterMaster" e-width="5"></div>
+                                <div e-column e-field="AssetCode" e-headertext="Code" e-width="3"></div>
+                                <div e-column e-field="AssetName" e-headertext="AssetName" e-width="5"></div>
+                                <div e-column e-field="AssetDetail" e-headertext="AssetDetail" e-width="5"></div>
+                                <div e-column e-field="AssetReference" e-headertext="AssetReference" e-width="5"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="ShowActionButtonAsset">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeAsset(this);" style="margin: -6px;"></i></button>
+                        </script>
+                    </div>
+                </div>
             </div>
+        </div>
 
     </div>
 
@@ -279,7 +322,7 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
@@ -452,3 +495,41 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="AssetPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Asset List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div id="GridAsset" ej-grid e-datasource="assetpDataList" e-templaterefresh="refreshTemplateemployee"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="1"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="2"></div>
+                                <div e-column e-field="WorkCenterMaster" e-headertext="WorkCenterMaster" e-width="5"></div>
+                                <div e-column e-field="AssetCode" e-headertext="Code" e-width="3"></div>
+                                <div e-column e-field="AssetName" e-headertext="AssetName" e-width="5"></div>
+                                <div e-column e-field="AssetDetail" e-headertext="AssetDetail" e-width="5"></div>
+                                <div e-column e-field="AssetReference" e-headertext="AssetReference" e-width="5"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button type="button" class="btn btn-default" ng-click="closeAssetPopUp();">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmAssetPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteAsset();"></confirm-archive-generic>
