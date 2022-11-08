@@ -84,10 +84,11 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
 MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup
  from TRN.Maintenancescheduling MS
- left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
+ --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
+ left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
  where MMA.Id is not null 
@@ -128,15 +129,16 @@ MS.Remarks,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD whe
 (select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup,
 DATEDIFF(Day,'" + FromDate + @"','" + ToDate + @"')/MS.ScheduleDays NoOfScheduleReqFP,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD where MPD.ActualDate is not null) ScheduleCompletedFP,DATEDIFF(day,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD where MPD.ActualDate is not null),(DATEDIFF(Day,'" + FromDate + @"','" + ToDate + @"')/MS.ScheduleDays)) Difference
  from TRN.Maintenancescheduling MS
- left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
+ --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
+ left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
  where MMA.Id is not null and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '"+ FromDate + "' and '"+ ToDate + "' group by MS.Id,MMA.Id,E.UserName,MS.UserName,MM.UserName,MM.MachineMake,MM.MachineModel,MS.ScheduleCode,MB.Code,MS.LastMaintenanceDate,MS.ScheduleDays,MS.Remarks,MS.DepartmentId,MS.MaintenanceGroup) X group by NoOfAsset,Id,Entity,ScheduleName,MachineName,Make,Model,ScheduleCode,ResponsiblePersonBudgetCode,Remarks,PlanStatus,Department,MaintenanceGroup,NoOfScheduleReqFP,ScheduleCompletedFP,Difference"; 
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '"+ ToDate + "' group by MS.Id,MMA.Id,E.UserName,MS.UserName,MM.UserName,MM.MachineMake,MM.MachineModel,MS.ScheduleCode,MB.Code,MS.LastMaintenanceDate,MS.ScheduleDays,MS.Remarks,MS.DepartmentId,MS.MaintenanceGroup) X group by NoOfAsset,Id,Entity,ScheduleName,MachineName,Make,Model,ScheduleCode,ResponsiblePersonBudgetCode,Remarks,PlanStatus,Department,MaintenanceGroup,NoOfScheduleReqFP,ScheduleCompletedFP,Difference"; 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -166,10 +168,11 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
 MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,(CASE WHEN APD.ActualDate IS NULL THEN 0 ELSE 1 END) as [Status],Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,APD.Remarks
  from TRN.Maintenancescheduling MS
- left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
+ --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
  left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
+ left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
  where MMA.Id is not null and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "' and 1='" + Value + "'";
@@ -204,10 +207,11 @@ MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,
 Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as	ToTime,APD.Minute as [Minute],APD.ActualRemark,
 APD.FileName
  from TRN.Maintenancescheduling MS
- left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
+ --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
  left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
+ left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
  where MMA.Id is not null and APD.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "'";

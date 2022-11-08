@@ -463,7 +463,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN MMA.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMA.Id,MMA.SNO,MMA.AssetGroup,MMA.Remarks,MMA.MaintenanceSchedulingId,
-MA.Id as AssetId,MA.AssetName,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA.MachineMasterId,
+MA.Id as AssetId,MA.AssetName,MA.AssetReference,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA.MachineMasterId,
 MM.UserName as MachineName,MM.MachineMake as Make,MM.MachineModel as Model,MA.AssetCode,E.UserName as Entity,MA.EntityId
  from MachineMasterAsset MA
  left Join SCS.WorkCenterMaster WC On WC.id=MA.WorkCenterMasterId

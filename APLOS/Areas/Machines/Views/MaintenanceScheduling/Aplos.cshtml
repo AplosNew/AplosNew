@@ -124,12 +124,12 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label">Particulars</label>
                 <div class="col-sm-8">
                     <input type="text" name="Model" ng-disabled="true" ng-model="scheduleNew.Particulars" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-            </div>
+            </div>*@
             @*<div class="form-group">
                 <label class="col-sm-4 control-label">Model</label>
                 <div class="col-sm-8">
@@ -232,12 +232,13 @@
                         <div e-column e-field="AssetId" e-headertext="Id" e-width="50" e-visible="false"></div>
                         <div e-column e-field="AssetName" e-headertext="Asset Name" e-width="100"></div>
                         <div e-column e-field="AssetCode" e-headertext="Asset Code" e-width="100"></div>
+                        <div e-column e-field="AssetReference" e-headertext="Asset Reference" e-width="100"></div>
                         <div e-column e-field="EntityId" e-headertext="EntityId" e-visible="false" e-width="100"></div>
                         <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
                         <div e-column e-field="WorkCenterMasterId" e-headertext="WCId" e-width="50" e-visible="false"></div>
                         <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
                         <div e-column e-field="MachineMasterId" e-headertext="WCId" e-width="50" e-visible="false"></div>
-                        <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="100"></div>
+                        <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="150"></div>
                         <div e-column e-field="Make" e-headertext="Make" e-width="100"></div>
                         <div e-column e-field="Model" e-headertext="Model" e-width="100"></div>
                         <div e-column e-template="#SNO" e-headertext="SNO" e-width="100"></div>
@@ -587,7 +588,7 @@
             <div e-column e-field="Category" e-headertext="Category" e-width="20"></div>
             <div e-column e-field="SubCategory" e-headertext="Sub Category " e-width="20"></div>
             <div e-column e-field="StandaredName" e-headertext="Standard Name" e-width="30"></div>
-            <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="30"></div>
+            <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="35"></div>
             <div e-column e-field="ScheduleDays" e-headertext="Schedule Days" e-width="20"></div>
             <div e-column e-field="MinScheduleMinutes" e-headertext="Min Schedule Minutes" e-width="20"></div>
             <div e-column e-field="ResponsiblePersoneBgtCode" e-headertext="Responsible Person Bgt Code" e-width="20"></div>
