@@ -15,7 +15,14 @@
                 </div>
             </div>
         </div>
-
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
+            <div class="col-sm-6">
+                <div class="select-style">
+                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNew.DetentionTypeId" e-enabled="false" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                </div>
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Logout Time<sup>*</sup></label>
             <div class="col-sm-6">
@@ -37,15 +44,14 @@
 
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group">
-            <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Department<sup>*</sup></label>
             <div class="col-sm-6">
                 <div class="select-style">
-                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNew.DetentionTypeId" e-enabled="false" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DepartmentList" e-value="ModalNew.DepartmentId" e-enabled="false" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                 </div>
             </div>
         </div>
-
-
+        
         <div class="form-group">
             <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
             <div class="col-sm-6">

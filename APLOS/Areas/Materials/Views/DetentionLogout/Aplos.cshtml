@@ -11,6 +11,8 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Machine Understoppage</a></li>
 
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Logout</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Machine Pending</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Machine Closed</a></li>
 
             </ul>
 
@@ -29,22 +31,22 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Machine Item</label>
+                            <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
                             <div class="col-sm-6">
                                 <div class="select-style">
-                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="MachineMasterAssetList" e-value="ModalNew.MachineMasterId" e-fields-value="Value" e-fields-text="Text" e-enabled="false" e-width="100%" />
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNew.DetentionTypeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-enabled="false" />
                                 </div>
                             </div>
                         </div>
+
 
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                             <div class="col-sm-6">
                                 @*<div class="col-sm-10" style="padding:0px;">
-                <input type="text" name="ResponsiblePersonD" ng-model="ModalNew.EmployeeName" ng-disabled="true" class="form-control" readonly>
-                        </div>*@
+                            <input type="text" name="ResponsiblePersonD" ng-model="ModalNew.EmployeeName" ng-disabled="true" class="form-control" readonly>
+                                    </div>*@
                                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                                     <button ng-click="openEmployeePopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                 </div>
@@ -61,16 +63,23 @@
                     </div>
 
                     <div class="col-xs-12 col-sm-6 col-md-6">
-
-
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Department<sup>*</sup></label>
                             <div class="col-sm-6">
                                 <div class="select-style">
-                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNew.DetentionTypeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-enabled="false"/>
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DepartmentList" e-value="ModalNew.DepartmentId" e-enabled="false" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Machine Item</label>
+                            <div class="col-sm-6">
+                                <div class="select-style">
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="MachineMasterAssetList" e-value="ModalNew.MachineMasterId" e-fields-value="Value" e-fields-text="Text" e-enabled="false" e-width="100%" />
+                                </div>
+                            </div>
+                        </div>
+
 
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
@@ -90,59 +99,59 @@
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
-                               
+
                             </ul>
 
                         </div>
                     </div>
 
                 </div>
-                
+
                 @*<div class="row">
 
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div class="table-responsive modal-table" ng-show="DetLogResPersonList.length>0">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Code</th>
-                                        <th>Name</th>
-                                        <th>CellPhnNo</th>
-                                        <th>Department</th>
-                                        <th>Section</th>
-                                        <th>Sub Section</th>
-                                        <th>Legal Designation</th>
-                                        <th>is Active</th>
-                                        <th>Update</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in DetLogResPersonList" ng-class="{selected : x.Id==null}">
-                                        <td>{{x.EmployeeCode}}</td>
-                                        <td>{{x.EmployeeName}}</td>
-                                        <td>{{x.CellPhnNo}}</td>
-                                        <td>{{x.Department}}</td>
-                                        <td>{{x.Section}}</td>
-                                        <td>{{x.SubSection}}</td>
-                                        <td>{{x.LegalDesignation}}</td>
-                                        <td>{{x.isActive}}</td>
-                                        <td class="text-right table-td">
-                                            <ul class="list-inline action-list">
-                                                <li>
-                                                    <button ng-click="removeDetentionLResPerson(x.EmployeeName, $index, 'DetLogResPersonList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Update"><i class="glyphicon glyphicon-remove"></i></button>
-                                                </li>
-                                            </ul>
-                                        </td>
-                                    </tr>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="table-responsive modal-table" ng-show="DetLogResPersonList.length>0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th>CellPhnNo</th>
+                                    <th>Department</th>
+                                    <th>Section</th>
+                                    <th>Sub Section</th>
+                                    <th>Legal Designation</th>
+                                    <th>is Active</th>
+                                    <th>Update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in DetLogResPersonList" ng-class="{selected : x.Id==null}">
+                                    <td>{{x.EmployeeCode}}</td>
+                                    <td>{{x.EmployeeName}}</td>
+                                    <td>{{x.CellPhnNo}}</td>
+                                    <td>{{x.Department}}</td>
+                                    <td>{{x.Section}}</td>
+                                    <td>{{x.SubSection}}</td>
+                                    <td>{{x.LegalDesignation}}</td>
+                                    <td>{{x.isActive}}</td>
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="removeDetentionLResPerson(x.EmployeeName, $index, 'DetLogResPersonList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Update"><i class="glyphicon glyphicon-remove"></i></button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
 
-                                </tbody>
+                            </tbody>
 
-                            </table>
+                        </table>
 
-                        </div>
-                        
                     </div>
-                </div>*@
+
+                </div>
+            </div>*@
                 <div class="modal fade site-modal in" id="ResponiblePersonPop" role="dialog" data-backdrop="static">
                     <div class="modal-dialog modal-lg modellgModify">
                         <div class="modal-content">
@@ -163,7 +172,7 @@
                                                 <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
                                                 <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
                                                 <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
-                                                
+
                                             </div>
                                         </div>
                                         <script type="text/x-jsrender" id="headerTemplate">
@@ -194,6 +203,17 @@
                 }
             </div>
 
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                @{
+                    Html.RenderPartial("_MachineUnderStoppageReport");
+                }
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                @{
+                    Html.RenderPartial("_DetentionClosedReport");
+                }
+            </div>
 
         </div>
     </div>
@@ -206,6 +226,7 @@
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="40" e-isprimarykey="true"></div>
             <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
+            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
             <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="100"></div>
             <div e-column e-field="MachineMaster" e-headertext="Machine Master" e-width="100"></div>
 

@@ -4346,8 +4346,8 @@
     <Content Include="Areas\Organizations\Views\PositionWiseMPStatus\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionLogout\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionLogout\_DetentionLogout.cshtml" />
-    <Content Include="Areas\Materials\Views\DetentionLogout\_MachineUnderStoppage.cshtml" />
-    <Content Include="Areas\Materials\Views\DetentionLogout\_Update.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLogout\_MachineUnderStoppageReport.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLogout\_DetentionClosedReport.cshtml" />
     <Content Include="Areas\Machines\Views\MaintenanceStatusDetails\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\MedicineMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\SicknessType\Aplos.cshtml" />

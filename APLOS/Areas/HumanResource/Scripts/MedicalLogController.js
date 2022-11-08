@@ -16,6 +16,19 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.getSeqUrl = $scope.path + 'CountEmployeeVisiting';
 
+    $scope.Get = function (args) {
+        
+        $scope.ModalNew = Object.assign({}, args.data);
+        $scope.GetMedicineChildForUpdate();
+        $scope.GetSicknessChildForUpdate();
+        //$scope.Action = 'Update';
+        document.getElementById("savebuttonId").style.display = "none";
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+
+        }
+    };
+
     $scope.CountNoOfVisits = [];
     $scope.CountEmployeeVisiting = function () {
         $http({
@@ -94,7 +107,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         var now = new Date();
         curTime = now.getHours() + ": " + now.getMinutes() + ": " + now.getSeconds();
     }
-   $interval($scope.getTime, 1000); 
+   //$interval($scope.getTime, 1000); 
     // Form Objects
     $scope.ModelTemp = {
         Id: null,
@@ -117,14 +130,6 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.MedicinePurposeList = response.data;
-
-            //for (var i = 0; i < $scope.UserSicknessList.length; i++) {
-            //    for (var j = 0; j < $scope.MedicinePurposeList.length; j++) {
-            //        if ($scope.UserSicknessList[i].Id === $scope.MedicinePurposeList[j].Id) {
-            //            $scope.MedicinePurposeList[j].chk = true;
-            //        }
-            //    }
-            //}
 
         });
     }
@@ -184,6 +189,7 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.EmployeeList = resp.data;
+            
         });
 
     }
@@ -193,7 +199,14 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         $scope.ModalNew.EmployeeSysId = e.data.SystemId;
         $scope.ModalNew.EmployeeName = e.data.EmployeeName;
         $scope.closeEmpPopUp();
+        $scope.Clear();
+        $scope.ModalNew.EmployeeSysId = e.data.SystemId;
+        $scope.ModalNew.EmployeeName = e.data.EmployeeName;
+        $scope.ModalNew.Time = curTime;
         $scope.CountEmployeeVisiting();
+        if (document.getElementById("savebuttonId").style.display == "none") {
+            document.getElementById("savebuttonId").style.display = "block";
+        }
         
     }
     // #endregion Get All Employee and select by double click
