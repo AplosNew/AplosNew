@@ -66,7 +66,8 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         $scope.Action = 'Update';
         $scope.GetSavedSODetailData();
         $scope.GetSavedDetailData();
-        $scope.getdataInventoryIssue($scope.ModelNew.POId);
+        $scope.IssueSlipGriddata('ForChecked', 'InventorySlip', $scope.ModelNew.POId);
+        /*$scope.getdataInventoryIssue($scope.ModelNew.POId);*/
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -208,6 +209,56 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
     }
     $scope.Getstorage();
 
+    $scope.NotificationSettingStatus = function () {
+        //debugger;
+        $http({
+            method: 'GET',
+            url: 'Products/GoodsReceiveNote/NotificationSetting',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.NotificationSetting = response.data;
+            $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
+            $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
+            if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
+                $scope.labelCheckAndApproved = 'To be checked by';
+            }
+            else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
+                $scope.labelCheckAndApproved = 'To be approved by';
+            }
+            else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
+                $scope.labelCheckAndApproved = 'To be checked by';
+            }
+            //else {
+            //    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
+            //}
+
+        });
+    }
+    $scope.NotificationSettingStatus();
+    $scope.checkedByList = [];
+    $scope.GetSupervisorCboList = function () {
+        //debugger;
+        $http({
+            method: 'GET',
+            url: 'Products/PurchaseOrder/GetSupervisorCbo'
+        }).then(function successCallback(response) {
+            $scope.checkedByList = response.data;
+        });
+    }
+    $scope.GetSupervisorCboList();
+    $scope.CostCenterLoad = function () {
+        cboService.getCostCenterCbo(function (result) {
+            $scope.costCenterList = result;
+        });
+    }
+    $scope.CostCenterLoad();
+
+    $scope.IssueSlipListPopup = [];
+
+    $scope.searchBySlipMaterial = "MaterialMasterName"; $scope.searchSlip = "";
+    $scope.searchBySlipList = [{ value: 'MaterialMasterGroupName', name: "MaterialMasterGroupName" }, { value: 'MaterialType', name: "MaterialType" }, { value: 'MaterialMasterName', name: "Material Master" }, { value: 'StandardName', name: "Article" }
+    ];
+
     $scope.materialStockList = [];
     $scope.specificStockList = [];
     $scope.newData = {};
@@ -219,12 +270,10 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         $scope.newData.ArticleId = data.data.ArticleId;
         $scope.newData.MaterialStorageId = $scope.ModelNew.MaterialStorageId;
         $scope.newData.TransactionUoMId = $scope.ModelNew.UoMId;
-        
-      //  $scope.productNew.Id = null;
         $http({
             method: 'POST'
-            , url: 'Products/InventoryIssue/GetSpecificMaterialStock'
-            , data: { entity: $scope.newData, issueDate: $scope.ModelNew.IssueDate }
+            , url: 'Products/GoodsReceiveNote/GetStockForMaterialIssue'
+            , data: { materialMasterId: $scope.newData.MaterialMasterId, articleId: $scope.newData.ArticleId }
             , dataType: 'JSON'
         }).then(function (response) {
             $scope.materialStockList = response.data;
@@ -260,7 +309,7 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
     $scope.CalTotalQty = function () {
         var totalQty = 0;
         for (var i = 0; i < $scope.materialStockList.length; i++) {
-            totalQty += $scope.materialStockList[i].RequisitionQty;
+            totalQty += $scope.materialStockList[i].RequestedQty;
         }
         $scope.newDatum.IssueQty = totalQty;
         if ($scope.ModelNew.Level == "Costing") {
@@ -279,9 +328,10 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         $scope.QBOQCostingListNew = [];
         for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
             if ($scope.QBOQCostingList[p].IssueQty > 0) {
-                $scope.QBOQCostingList[p].RequisitionQty = $scope.QBOQCostingList[p].IssueQty;
+                $scope.QBOQCostingList[p].RequestQty = $scope.QBOQCostingList[p].IssueQty;
                 $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
                 $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
+                $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
                 $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
             }
         }
@@ -304,7 +354,6 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
                             , 'soList': $scope.SOItemList
                             , 'dataList': $scope.QBOQCostingListNew
                             , 'dataLists': $scope.QBOQCostingListNew
-                            , 'specificStockList': $scope.materialStockList
                         },
                         dataType: 'JSON'
                         , contentType: "application/json charset=utf-8"
@@ -326,17 +375,16 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
         }
     };
 
-    $scope.GridInventoryIssuedata = [];
-    $scope.getdataInventoryIssue = function (productionOrderId) {
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            url: 'Materials/MaterialIssueControl/GetInventoryIssueByProductionOrder?productionOrderId=' + productionOrderId,
-        }).then(function successCallback(response) {
-            $scope.GridInventoryIssuedata = response.data;
-        });
-
-    };
+    //$scope.GridInventoryIssuedata = [];
+    //$scope.getdataInventoryIssue = function (productionOrderId) {
+    //    $http({
+    //        method: "GET",
+    //        dataType: 'JSON',
+    //        url: 'Materials/MaterialIssueControl/GetInventoryIssueByProductionOrder?productionOrderId=' + productionOrderId,
+    //    }).then(function successCallback(response) {
+    //        $scope.GridInventoryIssuedata = response.data;
+    //    });
+    //};
 
     $scope.AllTabPrint = function (z) {
         //debugger;
@@ -358,4 +406,99 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
 
         }
     };
+
+    //**********Expenses GL Budget Activity**************
+    $scope.searchglByList = [
+        {
+            "name": "GL",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Budget",
+            "value": "BudgetName"
+        },
+        {
+            "name": "Activity",
+            "value": "ActivityName"
+        },
+        {
+            "name": "Ref No",
+            "value": "RefNo"
+        }
+    ];
+
+    $scope.glListParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "GLGeneralInfoName",
+        searchBy: "ActivityName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.GLPopUp = function (data) {
+        //debugger;
+        $scope.customerInvoiceGLList = [];
+        //baseService.setCurrentPage("cOAICodeList");
+        $scope.GetCOAICodeListData = function (pageno) {
+            baseService.paginationBase("Accounts/GLItem/GetAllGLBudgetActivityPostingAutomaticOnly", pageno, $scope.glListParameters)
+                .then(function (result) {
+                    $scope.cOAICodeList = result.Rows;
+                    $scope.glListParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure", "GLPopUp");
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector("#GLPopUp")).modal("show");
+        $scope.GetCOAICodeListData();
+        $scope.tempData = data;
+    };
+
+    $scope.closeCOAICodeListPopUp = function () {
+        angular.element(document.querySelector("#GLPopUp")).modal("hide");
+    };
+
+    $scope.closeCOAICodeListPopUpSelected = function (x) {
+        if ($scope.rowSelected !== null) {
+            angular.element(document.querySelector("#GLPopUp")).modal("hide");
+        } else {
+            angular.element(document.querySelector("#cancelPopUp")).modal("show");
+        }
+    };
+    $scope.setSelected = function (data) {
+        $scope.tempData.GLGeneralInfoId = data.GLGeneralInfoId;
+        $scope.tempData.BudgetMasterId = data.BudgetMasterId;
+        $scope.tempData.BudgetName = data.BudgetName;
+        $scope.tempData.ActivityName = data.ActivityName;
+        var gridObj = $("#BGrid").data("ejGrid");
+        gridObj.refreshContent(true);
+        gridObj.refreshTemplate();
+        angular.element(document.querySelector("#GLPopUp")).modal("hide");
+    };
+    //********** End Expenses GL Budget Activity**************
+
+    $scope.IssueSlipList = [];
+    $scope.IssueSlipHoldRejectList = []
+    $scope.IssueSlipCheckedList = []
+    $scope.IssueStatus = 'ForChecked';
+
+    $scope.IssueSlipGriddata = function (issueStatus, issueSlipType,productionOrderId) {
+        $scope.IssueSlipList = [];
+        $scope.IssueSlipHoldRejectList = []
+        $scope.IssueSlipCheckedList = []
+        $scope.Status = 'InventorySlip';
+        $http({
+            method: 'GET',
+            url: 'Products/GoodsReceiveNote/IssueListDataByProudctionOrder?IssueStatus=' + issueStatus + '&IssueSlipType=' + issueSlipType + '&productionOrderId=' + productionOrderId
+        }).then(function successCallback(response) {
+            if (issueStatus == 'ForChecked') {
+                $scope.IssueSlipList = response.data;
+            }
+        });
+    }
+    
 }

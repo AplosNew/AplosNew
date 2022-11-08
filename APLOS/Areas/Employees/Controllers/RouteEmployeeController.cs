@@ -255,12 +255,12 @@ namespace Aplos.Areas.Employees.Controllers
 															LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
 															LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 															LEFT JOIN ShiftDefination MSD on MSD.SystemID=PMB.ShiftDefinationId 
-															--LEFT JOIN [dbo].[EmployeeShiftAssign] ESA on ESA.EmpSystemID=EMP.SystemId 
 															LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 															LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-															LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-															LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-															LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+															--LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+															LEFT JOIN HKP.LegalDesignation DEG ON EMP.LegalDesignationId=DEG.Id
+															LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+															LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
 															LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
 															left join [dbo].[TransportGroup] TG on TG.Id=EMP.TransportGroupId
                                                             left join HKP.Stoppage ST on ST.Id=A.StoppageId

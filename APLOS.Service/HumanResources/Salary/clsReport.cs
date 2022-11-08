@@ -1706,9 +1706,10 @@ Case when isnull((SELECT TOP 1 format(MPD.ActualDate,'dd-MMM-yyyy') from [TRN].[
 ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
 MA.AssetReference,Y.Closing as StockQty
 from TRN.Maintenancescheduling MS
-left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
+--left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
 left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
 left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
+left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
 left join ORG.Entity E ON E.Id=MMA.EntityId
 left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
 left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId

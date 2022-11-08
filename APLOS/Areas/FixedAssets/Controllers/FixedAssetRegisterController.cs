@@ -662,10 +662,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetFixedAssetCapitalizeJournalReport(ReportFormat reportFormat, string voucherId)
+        public ActionResult GetFixedAssetCapitalizeJournalReport(ReportFormat reportFormat, string voucherId,string sourceType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _fixedAssetRegisterService.GetFixedAssetCapitalizeJournalReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            var workbook = _fixedAssetRegisterService.GetFixedAssetCapitalizeJournalReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, sourceType);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -819,10 +819,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetIssueFixedAssetCapitalizeJournalReport(ReportFormat reportFormat, string voucherId)
+        public ActionResult GetIssueFixedAssetCapitalizeJournalReport(ReportFormat reportFormat, string voucherId,string sourceType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _fixedAssetRegisterService.GetFixedAssetCapitalizeJournalReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            var workbook = _fixedAssetRegisterService.GetFixedAssetCapitalizeJournalReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, sourceType);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -959,6 +959,38 @@ namespace Aplos.Areas.FixedAssets.Controllers
         public ActionResult ExpensesCapitalized()
         {
             return View("~/Areas/FixedAssets/Views/ExpensesCapitalized.cshtml");
+        }
+
+     
+        [HttpPost, Authorize]
+        public JsonResult GetExpensesCapitalizedList(string column, string value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(GetExpensesCapitalizedList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        public IEnumerable<object> GetExpensesCapitalizedList(string column, string value, string plantId)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"select top 100 * from (SELECT  V.Id ,V.VoucherNo ,V.SourceType,REPLACE(Convert(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
+                                    ,VD.Amount Amount
+                                    ,CU.Code CurrencyCode,V.CurrencyId
+                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                                    FROM  TRN.Voucher V 
+									LEFT JOIN (select VoucherId,SUM(DrAmount) Amount from  TRN.VoucherDetail where DrAmount>0 group by VoucherId) VD ON VD.VoucherId=V.Id
+                                    LEFT JOIN [SCS].Currency CU ON CU.Id=V.CurrencyId
+                                    WHERE V.SourceType='ExpensesCapitalizeJournal' AND V.PlantId='" + plantId + @"'
+                                    ) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
 
