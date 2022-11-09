@@ -200,7 +200,8 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                var sql = @"select Id Value, UserName Text from MST.MachineMaster";
+                var sql = @"select distinct MMA.MachineMasterId Value, MM.UserName Text from MachineMasterAsset MMA
+left join MST.MachineMaster MM on MM.Id = MMA.MachineMasterId";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
@@ -699,9 +700,10 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 var sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
 FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
-                            MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedDate, DL.AddedFromIP
+                            MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedFromIP
                             ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
 							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
@@ -755,6 +757,7 @@ FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Rema
                             MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedFromIP
                             ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
 							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
@@ -788,7 +791,7 @@ FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Rema
                             left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
                                 where DL.AddedDate between '" + from + "' and '" + to + "' and DL.DepartmentId = '" + departmentId + @"'
-								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 0";
+								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
