@@ -56,10 +56,10 @@ namespace Aplos.Controllers.ApopAPIHR
             return detentionTypeIdLst;
         }
 
-        public List<DetentionResponsiblePersonList> GetDetentionResponsible()
+        public List<DetentionResponsiblePersonList> GetDetentionResponsible(string detentiontypeid)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetDetentionResponsible(out List<DetentionResponsiblePersonList> detResPList);
+            clsData.GetDetentionResponsible(out List<DetentionResponsiblePersonList> detResPList, detentiontypeid);
             return detResPList;
         }
 

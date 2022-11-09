@@ -308,7 +308,7 @@ namespace HRService
             }
         }
 
-        public void GetDetentionResponsible(out List<DetentionResponsiblePersonList> DataList)
+        public void GetDetentionResponsible(out List<DetentionResponsiblePersonList> DataList, string detentiontypeid)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -319,14 +319,17 @@ namespace HRService
             {
                 strSQL = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
                            SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId
-						  
-						   from DetentionMasterResponsible DR
+                           --CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
+                           from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
-							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
-							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId						
-                            ";
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
+                            LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                            --Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
+                            left join dbo.DetentionMaster DM on DM.Id = DR.DetentionMasterId
+                            left join hkp.DetentionType DT on DT.Id = DM.DetentionTypeId
+                            where DT.Id = '"+ detentiontypeid +"'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -407,12 +410,12 @@ namespace HRService
 
                 strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,DL.AddedDate, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
-                            MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedDate, DL.AddedFromIP
+                            HK.UserName Process,  HK.Id ProcessId, DL.AddedBy, DL.AddedDate, DL.AddedFromIP
                             , DP.UserName Department, DL.DepartmentId,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
-                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            where DLR.DetentionLogId = DL.Id  and DLR.isActive = 1
                             FOR XML PATH('')
                             ),1,1,'') ResponsiblePersonId,
                             STUFF((select ',' +  X.EmployeeName
@@ -439,12 +442,9 @@ namespace HRService
                             left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
                             left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-                            left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+							left join HKP.Process HK on HK.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                            where isClose = 0
-
-
-";
+                            where isClose = 0";
                 #endregion cmnt
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -467,7 +467,7 @@ namespace HRService
                         DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
                         isClose = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isClose"]),
                         isUpdate = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isUpdate"]),
-                        MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
+                        Process = dsRef.Tables[0].Rows[i]["Process"].ToString(),
                         ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
                         AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
                         AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
@@ -1300,7 +1300,7 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string DetentionTypeId { get; set; }
         public bool isClose { get; set; }
         public bool isUpdate { get; set; }
-        public string MachineMaster { get; set; }
+        public string Process { get; set; }
         public string ProcessId { get; set; }
         public string AddedBy { get; set; }
         public string AddedFromIP { get; set; }
