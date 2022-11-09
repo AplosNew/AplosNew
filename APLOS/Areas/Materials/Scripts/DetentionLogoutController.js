@@ -61,16 +61,19 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
         DetentionTypeId: null,
         DepartmentId:null,
         WorkCenterId: null,
+        WorkCenter: null,
+        Department: null,
         CellPhnNo: null,
         IssueByNo: null,
         Remarks: null,
+        UpdateRemarks:null,
         LoginTime: LogTime,
         EmployeeName: null,
         isUpdate: false,
         isClose: false,
         LogoutTime: LogTime,
         ByWhom: null,
-        MachineMasterId:null
+        ProcessId: null
     };
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
@@ -97,7 +100,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     $scope.getsR = function () {
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLogout/GetDetentionResponsible',
+            url: 'Materials/DetentionLogout/GetDetentionResponsible?detentionTypeId=' + $scope.ModalNew.DetentionTypeId,
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.ResponsibleList = resp.data;
@@ -119,7 +122,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
             url: 'Materials/DetentionLog/getDetentionTypeListByDepartment'
         }).then(function successCallback(response) {
             $scope.DetentionTypeList = response.data;
-
+            $scope.GetDepartment();
         });
     }
     $scope.getDetentionType();
@@ -128,12 +131,13 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     $scope.getWorkCenter = function () {
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLog/GetWorkCenter',
+            url: 'Materials/DetentionLog/GetWorkCenter?processId=' + $scope.ModalNew.ProcessId,
         }).then(function successCallback(response) {
             $scope.WorkCenterList = response.data;
+
         })
     }
-    $scope.getWorkCenter();
+    //$scope.getWorkCenter();
 
     $scope.getRespPersonContactNo = function () {
         $http({
@@ -156,14 +160,14 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
 
     $scope.DepartmentList = [];
     $scope.GetDepartment = function () {
-        $http.get('Materials/DetentionLog/GetDepartment')
+        $http.get('Materials/DetentionLog/GetDepartment?detentiontypeId=' + $scope.ModalNew.DetentionTypeId)
             .then(
                 function successCallback(response) {
                     $scope.DepartmentList = response.data;
                 }
             )
     }
-    $scope.GetDepartment();
+    //$scope.GetDepartment();
 
     $scope.LogoutTime = null;
     $scope.UpdateTime = null;
@@ -429,6 +433,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.MachineMasterAssetList = response.data;
+           // $scope.getWorkCenter();
         });
     }
     $scope.getMachineMasterAsset();
