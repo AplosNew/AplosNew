@@ -2580,7 +2580,6 @@
     <Content Include="Areas\Productions\Scripts\recipeConfigController.js" />
     <Content Include="Areas\Productions\Scripts\recipeGlobalMasterController.js" />
     <Content Include="Areas\Productions\Scripts\recipeMaterialController.js" />
-    <Content Include="Areas\Productions\Views\TaskManagementReportController.js" />
     <Content Include="Areas\Products\Scripts\assetInventoryIssueController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionReportWithParameterController.js" />
     <Content Include="Areas\Products\Scripts\salesRegisterController.js" />
