@@ -36,16 +36,16 @@ namespace Aplos.Controllers.ApopAPIHR
 
         
 
-        public List<WorkCenterList> GetWorkCenter()
+        public List<WorkCenterList> GetWorkCenter(string processid)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.getWorkcenter(out List<WorkCenterList> workcenterlst);
+            clsData.getWorkcenter(out List<WorkCenterList> workcenterlst, processid);
             return workcenterlst;
         }
-        public List<DepartmentList> GetDepartment()
+        public List<DepartmentList> GetDepartment(string detentionid)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.getDepartment(out List<DepartmentList> DepartmentList);
+            clsData.getDepartment(out List<DepartmentList> DepartmentList, detentionid);
             return DepartmentList;
         }
 
@@ -98,11 +98,11 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
-        public List<MachineMasterList> GetMachineMastersAsset()
+        public List<Process> GetProcess()
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetMachineMasterAsset(out List<MachineMasterList> machinemstrlst);
-            return machinemstrlst;
+            clsData.GetProcess(out List<Process> Processlist);
+            return Processlist;
         }
 
     }
