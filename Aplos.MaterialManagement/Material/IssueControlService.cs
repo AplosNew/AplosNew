@@ -61,7 +61,7 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                var SQL = @"select IC.*, ISNULL(DE.Category, 'Bulk Packing') Category from TRN.IssueControlItemApplicable IC
+                var SQL = @"select IC.*, ISNULL(DE.UserName, 'Bulk Packing') Category from TRN.IssueControlItemApplicable IC
                         left join dbo.DefineEnum DE on DE.Id = IC.OrderLevel";
                 return _sqlRepository.GetDataCollection(SQL);
             }
@@ -395,7 +395,7 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                var str = @"Select Id Value, Category Text  from dbo.DefineEnum";
+                var str = @"Select Id Value, UserName Text  from dbo.DefineEnum";
 
                 return _sqlRepository.GetDataCollection(str);
             }

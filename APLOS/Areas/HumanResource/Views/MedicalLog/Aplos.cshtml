@@ -159,8 +159,8 @@
         </div>
         <div class="common-btn" style="margin-top:10px">
             <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                <li> <button ng-click="Clear();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Clear</button></li>
+                <li> <button ng-click="Save();" id="savebuttonId" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i>Clear</button></li>
                </ul>
         </div>
     </div>
@@ -168,7 +168,7 @@
 <confirm-modal></confirm-modal>
 <div class="table-responsive aplos-grid-toggle">
     <div style="color:black;" id="Grid" ej-grid e-datasource="MedicalLogGridList"
-         e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick" e-allowfiltering="true" e-allowpaging="true"
+         e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get" e-allowfiltering="true" e-allowpaging="true"
          e-allowsorting="true" e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="true"
          e-allowselection="true" e-detailsdatabound="detailgrid">
         <div e-columns>
@@ -176,10 +176,9 @@
             <div e-column e-field="Date" e-headertext="Date" e-width="80"></div>
             <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="100"></div>
             <div e-column e-field="EmployeeName" e-headertext="Name" e-width="100"></div>
-
             <div e-column e-field="Sickness" e-headertext="Sickness" e-width="100"></div>
-            <div e-column e-field="Medicines" e-headertext="Medicines" e-width="100"></div>
-            <div e-column e-field="Days" e-headertext="Days" e-width="100"></div>
+            <div e-column e-field="NoOfVisits" e-headertext="No Of Visits" e-width="100"></div>
+            @*<div e-column e-field="Days" e-headertext="Days" e-width="100"></div>*@
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
 
         </div>

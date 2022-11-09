@@ -225,7 +225,7 @@ namespace Library.MaterialManagement.Products
                             RequisitionDetailId = itemDetail.RequisitionDetailId,
                             CostCenterId = itemDetail.CostCenterId,
                             ExpenseActivityId = itemDetail.ExpenseActivityId,
-                            RequestedQty = Convert.ToDecimal(itemDetail.RequestedQtyNew),
+                            RequestedQty = Convert.ToDecimal(itemDetail.RequestedQty),
                             RejectedQty = itemDetail.RejectedQty,
                             BudgetMasterId = itemDetail.BudgetMasterId,
                             GLGeneralInfoId = itemDetail.GLGeneralInfoId,
@@ -239,6 +239,7 @@ namespace Library.MaterialManagement.Products
                             ThirdCharacteristicsValueId = itemDetail.BOQDThirdCharacteristicsValueId,
                             TransactionUoMId = itemDetail.TransactionUoMId,
                             InventoryMaterialId = itemDetail.InventoryMaterialId,
+                            MaterialIssueControlDetailId = itemDetail.MaterialIssueControlDetailId,
                             CountryId = itemDetail.CountryId
                         };
                         try
@@ -2812,7 +2813,7 @@ SELECT IRM.Id
                                 AND IRM.AuthorizedByStatus IS NULL 
                                 AND IRM.AuthorizedBy IS null  
                                 AND IRM.IssueSlipType='InventorySlip' 
-                                And IRM.PreparedBy='" + identity.EmployeeId + @"'
+                                AND IRM.ProductionOrderId='"+productionOrderId+ @"' 
 
                                 UNION ALL
                                 SELECT IRM.Id
@@ -2861,7 +2862,7 @@ SELECT IRM.Id
                                 Where  IRM.CheckedByStatus IS  NULL 
                                 AND IRM.AuthorizedByStatus ='For Approval' 
                                 AND IRM.IssueSlipType='InventorySlip' 
-                                And IRM.PreparedBy='" + identity.EmployeeId + @"'
+                                AND IRM.ProductionOrderId='" + productionOrderId + @"' 
                                 UNION ALL
                                 SELECT IRM.Id
                                     ,CC.UserName AS CostCenterName
@@ -2909,7 +2910,7 @@ SELECT IRM.Id
                                 Where  IRM.CheckedByStatus IS  NULL 
                                 AND IRM.AuthorizedByStatus IS  NULL
                                 AND IRM.IssueSlipType='InventorySlip' 
-                                And IRM.PreparedBy='" + identity.EmployeeId + @"'
+                                AND IRM.ProductionOrderId='" + productionOrderId + @"' 
                                 )x 
                                 Group by Id ,x.PreparedBy,x.AddedDate,x.CheckedBy,x.CheckedBy
                                  ,CheckedByStatus
