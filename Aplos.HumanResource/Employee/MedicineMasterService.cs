@@ -1284,19 +1284,19 @@ where MRC.Quantity is not null";
             try
             {
                 var SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], 
-EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks,
+EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks,  ML.NoOfVisits, FORMAT(ML.Time, 'hh:mm tt')Time,
 STUFF((select ', ' + MC.UserName
 from TRN.EmployeeSickness ES
 LEFT join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
 LEFT JOIN HKP.MedicineCategory MC ON MC.Id = MP.MedicineCategoryId
 where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Sickness,
-STUFF((Select ', ' + MM.UserName
-from TRN.EmployeeSicknessMedicines ESM
-LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
-LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
-where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Medicines,
+--STUFF((Select ', ' + MM.UserName
+--from TRN.EmployeeSicknessMedicines ESM
+--LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
+--LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+--where ESM.MedicalLogId = ML.Id
+--FOR XML PATH('')),1,1,'') Medicines,
 
 STUFF((Select ', ' +  CONVERT(VARCHAR(20),ESM.Quantity)
 from TRN.EmployeeSicknessMedicines ESM
@@ -1307,7 +1307,7 @@ FOR XML PATH('')),1,1,'') Quantity
 from TRN.MedicalLog ML
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
-GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays
+GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, ML.NoOfVisits, ML.Time
 ";
 
                 return _sqlRepository.GetDataCollection(SQL);

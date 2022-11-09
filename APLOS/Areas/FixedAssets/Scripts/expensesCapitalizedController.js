@@ -1,6 +1,6 @@
 ﻿"use strict";
-expensesCapitalizedController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "bankService"];
-function expensesCapitalizedController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, bankService) {
+expensesCapitalizedController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "bankService", "$window"];
+function expensesCapitalizedController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, bankService,$window) {
     $rootScope.title = "Expenses Capitalize";
     $scope.voucherDetailList = [];
     $scope.taxCodDataList = [];
@@ -134,17 +134,23 @@ function expensesCapitalizedController(cboService, commonMessage, $scope, $rootS
         TrnType: null
     };
 
-    baseService.init($scope.listUrl, null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
-    $scope.getData = function (pageno) {
-        baseService.pagination(pageno)
-            .then(function (result) {
-                $scope.invoiceList = result.Rows;
-            }, function () {
-                ShowResult(commonMessage.NetworkError, "failure");
-            }).finally(function () {
-            });
+    $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
+    $scope.searchByPostedGRNList = [ { value: 'VoucherNo', name: "VoucherNo" }
+        , { value: 'PostingDate', name: "PostingDate" }, { value: 'DocRefNo', name: "DocRef No" }
+        , { value: 'DocDate', name: "Doc Date" }];
+
+    $scope.products = [];
+    $scope.getDataList = function () {
+        $http({
+            method: 'POST',
+            url: 'FixedAssets/FixedAssetRegister/GetExpensesCapitalizedList',
+            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.products = response.data;
+        });
     };
-    //$scope.getData();
+    $scope.getDataList();
 
     $scope.searchInvoiceList = [
         {
@@ -897,5 +903,41 @@ function expensesCapitalizedController(cboService, commonMessage, $scope, $rootS
         $scope.voucher.ActivityName = null;
         $scope.voucher.ActivityId = null;
     };
+
+    $scope.onClickReportDownloadWord = function (args) {
+        debugger;
+        var gridObj = $("#GridPrint").data("ejGrid");
+        //getting corresponding record 
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('FixedAssets/FixedAssetRegister/GetIssueFixedAssetCapitalizeJournalReport?reportFormat=' + reportFormat + '&voucherId=' + data.Id + '&sourceType=' + data.SourceType, '_blank');
+    };
+
+    $scope.commandPDF = [{
+        type: "details", buttonOptions: {
+            text: "PDF",
+            width: "50",
+            height: "20",
+            click: $scope.onClickReportDownloadWord
+        }
+    }];
+    $scope.onClickReportDownloadExcel = function (args) {
+        debugger;
+        var gridObj = $("#GridPrint").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('FixedAssets/FixedAssetRegister/GetIssueFixedAssetCapitalizeJournalReport?reportFormat=' + reportFormat + '&voucherId=' + data.Id + '&sourceType=' + data.SourceType , '_blank');
+
+    };
+    $scope.commandExcel = [{
+        type: "details", buttonOptions: {
+            text: "Excel",
+            width: "50",
+            height: "20",
+            click: $scope.onClickReportDownloadExcel
+        }
+    }];
 
 }

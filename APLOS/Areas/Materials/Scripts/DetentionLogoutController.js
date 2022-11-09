@@ -11,6 +11,9 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'Delete';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+
+
     $scope.DepartmentList = [];
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -56,6 +59,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     $scope.ModalTemp = {
         Id: null,
         DetentionTypeId: null,
+        DepartmentId:null,
         WorkCenterId: null,
         CellPhnNo: null,
         IssueByNo: null,
@@ -149,6 +153,17 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
         })
     }
     $scope.getIssueByNo();
+
+    $scope.DepartmentList = [];
+    $scope.GetDepartment = function () {
+        $http.get('Materials/DetentionLog/GetDepartment')
+            .then(
+                function successCallback(response) {
+                    $scope.DepartmentList = response.data;
+                }
+            )
+    }
+    $scope.GetDepartment();
 
     $scope.LogoutTime = null;
     $scope.UpdateTime = null;
@@ -417,6 +432,71 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.getMachineMasterAsset();
+
+    // #region Reports
+
+    $scope.ModalTempClosedDetention = {
+        From: null,
+        To: null,
+        DepartmentId: null,
+        DetentionTypeId: null
+    };
+    $scope.ModalNewClosedDetention = Object.assign({}, $scope.ModalTempClosedDetention);
+    $scope.ClosedDetentionList = [];
+    $scope.GetClosedDetentionGridReport = function () {
+        $http.get('Materials/DetentionLogout/GetClosedDetentionGridReport?from=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId)
+            .then(function successCallback(response) {
+                $scope.ClosedDetentionList = response.data;
+            })
+    }
+
+    $scope.PendingDetentionList = [];
+    $scope.GetPendingDetentionGridView = function () {
+        $http.get('Materials/DetentionLogout/GetPendingDetentionGridView?from=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId)
+            .then(function successCallback(response) {
+                $scope.PendingDetentionList = response.data;
+            })
+    }
+
+    $scope.XlsGetClosedDetentionReport = function () {
+
+        //$http.get('Materials/DetentionLogout/XlsGetClosedDetentionReport?from=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId)
+        $http({
+            method: 'POST',
+            url: 'Materials/DetentionLogout/XlsGetClosedDetentionReport?from=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId,
+            dataType: 'JSON',
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
+
+    $scope.XlsGetPendingDetentionView = function () {
+
+        $http.get('Materials/DetentionLogout/XlsGetPendingDetentionView?from=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
+    // #endregion Reports
 }
 //-----------------------------------------------------------------------------------
 

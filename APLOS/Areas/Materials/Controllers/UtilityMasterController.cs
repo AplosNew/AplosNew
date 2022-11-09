@@ -67,6 +67,22 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetUtilityMasterData(string column, string value,string UtilityMasterId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT UM.*,P.UserName PartyName, ei.EmployeeName ResponsiblePersonName
+                        FROM [dbo].[UtilityMaster] UM
+                        LEFT JOIN HKP.Party AS p ON P.Id=UM.PartyId
+                        LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=UM.ResponsiblePersonId Where UM.Id<>'"+ UtilityMasterId + @"') AS TEMP WHERE " + strkey + " order by sequence";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {

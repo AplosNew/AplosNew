@@ -84,7 +84,7 @@ namespace Library.Service.FixedAssets
         IEnumerable<object> GetGRNFixedAssetList(string plantId);
         IEnumerable<object> GetGRNCapitalizeFixedAssetGL(string companyId, string inventoryDetailId);
         GridModel GetFixedAssetCapitalizeJournalData(GridParameter parameters, string plantId);
-        IWorkbook GetFixedAssetCapitalizeJournalReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId);
+        IWorkbook GetFixedAssetCapitalizeJournalReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId, string sourceType);
         IEnumerable<object> GetIssueAssetAUCList(string plantId);
         IEnumerable<object> GetIssueInventoryAUCList(string plantId);
 

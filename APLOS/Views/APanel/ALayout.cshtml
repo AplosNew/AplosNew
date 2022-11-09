@@ -69,9 +69,15 @@
             </div>
             <div class="navbar-collapse collapse" id="navbar">
                 <ul class="nav navbar-nav">
-                    <li><a ng-click="ShowHideSideBar()" class="nav-control"><span aria-hidden="true" class="glyphicon glyphicon-align-left"></span></a></li>
-                    <li><img class="logo center-block" src="{{companyGroupLogo}}" alt="" style="height: 30px;"></li>
-                    <li><strong>Panel:</strong> Administration</li>
+                    <li>
+                        <a ng-click="ShowHideSideBar()" class="nav-control"><span aria-hidden="true" class="glyphicon glyphicon-align-left"></span></a>
+                    </li>
+                    <li>
+                        <img class="logo center-block" src="{{companyGroupLogo}}" alt="" style="height: 30px;">
+                    </li>
+                    <li>
+                        <strong>Panel:</strong> Administration
+                    </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown">
@@ -80,10 +86,16 @@
                             @ViewBag.FullName <i class="fa fa-angle-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                            <li style="white-space: nowrap;font-size: 9px;"><strong>Last Login:</strong> @ViewBag.LastLoginTime</li>
+                            <li style="white-space: nowrap;font-size: 9px;">
+                                <strong>Last Login:</strong> @ViewBag.LastLoginTime
+                            </li>
                             @*<li><a href="{{bootPoint}}employee-job-description"><i class="glyphicon glyphicon-list-alt"></i> My Job Description</a></li>*@
-                            <li><a href="{{bootPoint}}user-password-change/@ViewBag.Name"><i class="fa fa-key"></i> Change Password</a></li>
-                            <li><a href="{{bootPoint}}logout"><i class="fa fa-power-off"></i>  Logout</a></li>
+                            <li>
+                                <a href="{{bootPoint}}user-password-change/@ViewBag.Name"><i class="fa fa-key"></i> Change Password</a>
+                            </li>
+                            <li>
+                                <a href="{{bootPoint}}logout"><i class="fa fa-power-off"></i>  Logout</a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -107,9 +119,15 @@
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>Report & Query</a>
                             <ul>
-                                <li><a href="{{bootPoint}}legal-salary-report">Legal Salary</a></li>
-                                <li><a href="{{bootPoint}}compliance-Document-report">Compliance Document</a></li>
-                                <li><a href="{{bootPoint}}gl-report">GL</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}legal-salary-report">Legal Salary</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}compliance-Document-report">Compliance Document</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}gl-report">GL</a>
+                                </li>
                                 @*<li><a href="{{bootPoint}}budget-master-report">Budget Master</a></li>*@
                                 @*<li><a href="{{bootPoint}}lc-reports">LC Reports</a></li>*@
                             </ul>
@@ -120,22 +138,42 @@
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>Auto Alert Setup</a>
                             <ul>
-                                <li><a href="{{bootPoint}}mail-receiver">Mail Recipient</a></li>
-                                <li><a href="{{bootPoint}}mail-receiver-service">Mail Recipient Service</a></li>
-                                <li><a href="{{bootPoint}}administrative-mail-reciepient-service">Administrative Mail Recipients Service</a></li>
-                                <li><a href="{{bootPoint}}mail-log">Mail Log</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}mail-receiver">Mail Recipient</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}mail-receiver-service">Mail Recipient Service</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}administrative-mail-reciepient-service">Administrative Mail Recipients Service</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}mail-log">Mail Log</a>
+                                </li>
                             </ul>
                         </li>
                         <li>
                             <a><span class="glyphicon glyphicon-usd"></span>Costings</a>
 
                             <ul>
-                                <li><a href="{{bootPoint}}costing-types">Costing Types</a></li>
-                                <li><a href="{{bootPoint}}costing-component">Costing Component</a></li>
-                                <li><a href="{{bootPoint}}costing-type-component">Costing Type Component</a></li>
-                                <li><a href="{{bootPoint}}boq-criteria">BOQ Criteria</a></li>
-                                <li><a href="{{bootPoint}}up-charge-matrix">Up Charge Matrix</a></li>
-                                <li><a href="{{bootPoint}}boq-cos-app-setting">BOQ Costing Approval Setting</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}costing-types">Costing Types</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}costing-component">Costing Component</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}costing-type-component">Costing Type Component</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}boq-criteria">BOQ Criteria</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}up-charge-matrix">Up Charge Matrix</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}boq-cos-app-setting">BOQ Costing Approval Setting</a>
+                                </li>
                             </ul>
 
                         </li>
@@ -146,30 +184,64 @@
                                 <li>
                                     <a>Administration Tasks</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}services-approving-authority">Service Approving Authority</a></li>
-                                        <li><a href="{{bootPoint}}vehicle-movement-locations">Vehicle Movement Locations</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}services-approving-authority">Service Approving Authority</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}vehicle-movement-locations">Vehicle Movement Locations</a>
+                                        </li>
                                     </ul>
                                 </li>
 
                                 <li>
                                     <a>Setups</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}brand">Brand</a></li>
-                                        <li><a href="{{bootPoint}}unit-of-measurement">Unit of Measurement</a></li>
-                                        <li><a href="{{bootPoint}}production-settings-uom">Production Settings UoM</a></li>
-                                        <li><a href="{{bootPoint}}uom-conversion">UoM Conversion</a></li>
-                                        <li><a href="{{bootPoint}}critical">Critical</a></li>
-                                        <li><a href="{{bootPoint}}lineday-criticality">Line Day Criticality</a></li>
-                                        <li><a href="{{bootPoint}}employee-location">Employee Location</a></li>
-                                        <li><a href="{{bootPoint}}employee-worktype">Employee WorkType</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}brand">Brand</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}unit-of-measurement">Unit of Measurement</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}production-settings-uom">Production Settings UoM</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}uom-conversion">UoM Conversion</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}critical">Critical</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}lineday-criticality">Line Day Criticality</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}employee-location">Employee Location</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}employee-worktype">Employee WorkType</a>
+                                        </li>
 
-                                        <li><a href="{{bootPoint}}tnasetting-master">TNA Setting</a></li>
-                                        <li><a href="{{bootPoint}}shift-group">Shift Group</a></li>
-                                        <li><a href="{{bootPoint}}shift-group-detail">Shift Group Tag</a></li>
-                                        <li><a href="{{bootPoint}}custom-weekend">Custom Weekend</a></li>
-                                        <li><a href="{{bootPoint}}attendance-group">Attendance Group</a></li>
-                                        <li><a href="{{bootPoint}}reporting-group">Reporting Group</a></li>
-                                        <li><a href="{{bootPoint}}accounts-group">Accounts Group</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}tnasetting-master">TNA Setting</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}shift-group">Shift Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}shift-group-detail">Shift Group Tag</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}custom-weekend">Custom Weekend</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}attendance-group">Attendance Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}reporting-group">Reporting Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}accounts-group">Accounts Group</a>
+                                        </li>
                                     </ul>
                                 </li>
 
@@ -178,31 +250,61 @@
                                 <li>
                                     <a>Work Centers</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}work-center-category">Work Center Category</a></li>
-                                        <li><a href="{{bootPoint}}work-center-sub-category">Work Center Subcategory</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}work-center-category">Work Center Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}work-center-sub-category">Work Center Subcategory</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Procurement</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}project-planning-category">Project Planning Category</a></li>
-                                        <li><a href="{{bootPoint}}project-planning-sub-category">Project Planning Subcategory</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}project-planning-category">Project Planning Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}project-planning-sub-category">Project Planning Subcategory</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Task Management</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}task-type">Task Type</a></li>
-                                        <li><a href="{{bootPoint}}task-dependent-dates">Task Dependent Dates</a></li>
-                                        <li><a href="{{bootPoint}}task-applied-on">Task Applied On</a></li>
-                                        <li><a href="{{bootPoint}}task-class">Task Class</a></li>
-                                        <li><a href="{{bootPoint}}task-category">Task Category</a></li>
-                                        <li><a href="{{bootPoint}}task-org-category">Task Org Category</a></li>
-                                        <li><a href="{{bootPoint}}delay-reason">Delay Reason</a></li>
-                                        <li><a href="{{bootPoint}}task-status">Task Status</a></li>
-                                        <li><a href="{{bootPoint}}task-revision-category">Task Revision Category </a></li>
-                                        <li><a href="{{bootPoint}}task-frequency">Task Frequency</a></li>
-                                        <li><a href="{{bootPoint}}fuguai-zone-master">Fuguai Zone Master</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}task-type">Task Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}task-dependent-dates">Task Dependent Dates</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}task-applied-on">Task Applied On</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}task-class">Task Class</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}task-category">Task Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}task-org-category">Task Org Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}delay-reason">Delay Reason</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}task-status">Task Status</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}task-revision-category">Task Revision Category </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}task-frequency">Task Frequency</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}fuguai-zone-master">Fuguai Zone Master</a>
+                                        </li>
 
 
                                     </ul>
@@ -210,7 +312,9 @@
                                 <li>
                                     <a>Meeting Management</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}meeting-type">Meeting Type</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}meeting-type">Meeting Type</a>
+                                        </li>
                                     </ul>
                                 </li>
                             </ul>
@@ -224,115 +328,269 @@
                                         <li>
                                             <a>COA Level</a>
                                             <ul>
-                                                <li><a href="{{bootPoint}}chart-of-account-level1">Chart of Account Level1</a></li>
-                                                <li><a href="{{bootPoint}}chart-of-account-level2">Chart of Account Level2</a></li>
-                                                <li><a href="{{bootPoint}}chart-of-account-level3">Chart of Account Level3</a></li>
-                                                <li><a href="{{bootPoint}}chart-of-account-level4">Chart of Account Level4</a></li>
-                                                <li><a href="{{bootPoint}}chart-of-account-level5">Chart of Account Level5</a></li>
-                                                <li><a href="{{bootPoint}}chart-of-account-level6">Chart of Account Level6</a></li>
+                                                <li>
+                                                    <a href="{{bootPoint}}chart-of-account-level1">Chart of Account Level1</a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{bootPoint}}chart-of-account-level2">Chart of Account Level2</a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{bootPoint}}chart-of-account-level3">Chart of Account Level3</a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{bootPoint}}chart-of-account-level4">Chart of Account Level4</a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{bootPoint}}chart-of-account-level5">Chart of Account Level5</a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{bootPoint}}chart-of-account-level6">Chart of Account Level6</a>
+                                                </li>
                                             </ul>
                                         </li>
-                                        <li><a href="{{bootPoint}}coa">COA</a></li>
-                                        <li><a href="{{bootPoint}}company-coa"> Company Config</a></li>
-                                        <li><a href="{{bootPoint}}account-group">Account Group</a></li>
-                                        <li><a href="{{bootPoint}}gl-item">GL</a></li>
-                                        <li><a href="{{bootPoint}}gl-companyinfo">Company GL</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}coa">COA</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}company-coa"> Company Config</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}account-group">Account Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}gl-item">GL</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}gl-companyinfo">Company GL</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Management Chart of Account</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}budget-group">Budget Group</a></li>
-                                        <li><a href="{{bootPoint}}budget-category">Budget Category</a></li>
-                                        <li><a href="{{bootPoint}}budget-sub-category">Budget Subcategory</a></li>
-                                        <li><a href="{{bootPoint}}budget">Budget</a></li>
-                                        <li><a href="{{bootPoint}}activity">Activity</a></li>
-                                        <li><a href="{{bootPoint}}activity-phone">Activity Phone</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}budget-group">Budget Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}budget-category">Budget Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}budget-sub-category">Budget Subcategory</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}budget">Budget</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}activity">Activity</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}activity-phone">Activity Phone</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Transaction Type</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}loan-type">Loan Type</a></li>
-                                        <li><a href="{{bootPoint}}investment-type">Investment Type</a></li>
-                                        <li><a href="{{bootPoint}}security-type">Security Type</a></li>
-                                        <li><a href="{{bootPoint}}employee-transactiontype">Emp. Transaction</a></li>
-                                        <li><a href="{{bootPoint}}inter-transaction-type">Inter Transaction</a></li>
-                                        <li><a href="{{bootPoint}}sales-type">Sales Type</a></li>
-                                        <li><a href="{{bootPoint}}invoice-deduction-type">Invoice Deduction</a></li>
-                                        <li><a href="{{bootPoint}}debit-note-type">Debit Note</a></li>
-                                        <li><a href="{{bootPoint}}credit-note-type">Credit Note</a></li>
-                                        <li><a href="{{bootPoint}}customer-trantype">Customer Tran Type</a></li>
-                                        <li><a href="{{bootPoint}}vendor-trantype">Vendor Tran Type</a></li>
-                                        <li><a href="{{bootPoint}}overhead-type"> OverHead Type</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}loan-type">Loan Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}investment-type">Investment Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}security-type">Security Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}employee-transactiontype">Emp. Transaction</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}inter-transaction-type">Inter Transaction</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}sales-type">Sales Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}invoice-deduction-type">Invoice Deduction</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}debit-note-type">Debit Note</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}credit-note-type">Credit Note</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}customer-trantype">Customer Tran Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}vendor-trantype">Vendor Tran Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}overhead-type"> OverHead Type</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Taxation</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}tax-fiscal-year">Tax Year</a></li>
-                                        <li><a href="{{bootPoint}}tax-fiscal-year-period">Tax Year Period</a></li>
-                                        <li><a href="{{bootPoint}}company-tax-year">Company Tax Year</a></li>
-                                        <li><a href="{{bootPoint}}company-tax-year-period">Company Tax Year Period</a></li>
-                                        <li><a href="{{bootPoint}}country-tax-year">Country Tax Year</a></li>
-                                        <li><a href="{{bootPoint}}country-tax-year-period">Country Tax Year Period</a></li>
-                                        <li><a href="{{bootPoint}}tax-code-category">Tax Category</a></li>
-                                        <li><a href="{{bootPoint}}tax-code">Tax Code</a></li>
-                                        <li><a href="{{bootPoint}}tax-code-year">Tax Code Year</a></li>
-                                        <li><a href="{{bootPoint}}hsn-code">HSN Code</a></li>
-                                        <li><a href="{{bootPoint}}country-hsn-code">Country HSN Code</a></li>
-                                        <li><a href="{{bootPoint}}hsn-tax-percentage">HSN Tax Percentage</a></li>
-                                        <li><a href="{{bootPoint}}tax-variant">Tax Variant</a></li>
-                                        <li><a href="{{bootPoint}}special-tax">Special Tax</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-fiscal-year">Tax Year</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-fiscal-year-period">Tax Year Period</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}company-tax-year">Company Tax Year</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}company-tax-year-period">Company Tax Year Period</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}country-tax-year">Country Tax Year</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}country-tax-year-period">Country Tax Year Period</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-code-category">Tax Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-code">Tax Code</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-code-year">Tax Code Year</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}hsn-code">HSN Code</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}country-hsn-code">Country HSN Code</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}hsn-tax-percentage">HSN Tax Percentage</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-variant">Tax Variant</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}special-tax">Special Tax</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Account Determinate</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}loan-type-gl">Loan Type</a></li>
-                                        <li><a href="{{bootPoint}}investment-type-gl">Investment Type</a></li>
-                                        <li><a href="{{bootPoint}}security-type-gl">Security Type</a></li>
-                                        <li><a href="{{bootPoint}}employee-transactiontype-gl">Employee Transaction Type</a></li>
-                                        <li><a href="{{bootPoint}}employee-expenses-booking">Employee Expenses Booking</a></li>
-                                        <li><a href="{{bootPoint}}salaryhead-gl">Salary Head GL</a></li>
-                                        <li><a href="{{bootPoint}}inter-transaction-type-gl">Inter Transaction Type</a></li>
-                                        <li><a href="{{bootPoint}}tax-category-gl">Input Tax Category</a></li>
-                                        <li><a href="{{bootPoint}}tax-category-gl-output">Output Tax Category</a></li>
-                                        <li><a href="{{bootPoint}}tax-category-rcm">Tax Category RCM</a></li>
-                                        <li><a href="{{bootPoint}}output-excluded-tax">Output Excluded Tax</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}loan-type-gl">Loan Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}investment-type-gl">Investment Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}security-type-gl">Security Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}employee-transactiontype-gl">Employee Transaction Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}employee-expenses-booking">Employee Expenses Booking</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}salaryhead-gl">Salary Head GL</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}inter-transaction-type-gl">Inter Transaction Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-category-gl">Input Tax Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-category-gl-output">Output Tax Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-category-rcm">Tax Category RCM</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}output-excluded-tax">Output Excluded Tax</a>
+                                        </li>
 
-                                        <li><a href="{{bootPoint}}tax-code-gl">Tax Code GL</a></li>
-                                        <li><a href="{{bootPoint}}material-group-accountdeterminate">Material Group</a></li>
-                                        <li><a href="{{bootPoint}}service-group-accountdeterminate">Service Group</a></li>
-                                        <li><a href="{{bootPoint}}fixedAssetMaster-gl">Fixed Asset Master GL</a></li>
-                                        <li><a href="{{bootPoint}}party-account-groupgl">Party Account Group</a></li>
-                                        <li><a href="{{bootPoint}}rounding-gl">Rounding</a></li>
-                                        <li><a href="{{bootPoint}}exchange-gainloss">Exchange Gain & Loss</a></li>
-                                        <li><a href="{{bootPoint}}payment-deduction-gl">Payment Deduction</a></li>
-                                        <li><a href="{{bootPoint}}debit-note-type-gl">Debit Note</a></li>
-                                        <li><a href="{{bootPoint}}credit-note-type-gl">Credit Note</a></li>
-                                        <li><a href="{{bootPoint}}customer-trantype-gl">Customer Tran Type</a></li>
-                                        <li><a href="{{bootPoint}}vendor-trantype-gl">Vendor Tran Type</a></li>
-                                        <li><a href="{{bootPoint}}overheadtypegl-purchases">OverHead Type GL Purchases</a></li>
-                                        <li><a href="{{bootPoint}}overheadtypegl-sales">OverHead Type GL Sales</a></li>
-                                        <li><a href="{{bootPoint}}discounttype-gl">Discount GL </a></li>
-                                        <li><a href="{{bootPoint}}general-account-determinate">General Account Determinate </a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-code-gl">Tax Code GL</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}material-group-accountdeterminate">Material Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}service-group-accountdeterminate">Service Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}fixedAssetMaster-gl">Fixed Asset Master GL</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}party-account-groupgl">Party Account Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}rounding-gl">Rounding</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}exchange-gainloss">Exchange Gain & Loss</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}payment-deduction-gl">Payment Deduction</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}debit-note-type-gl">Debit Note</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}credit-note-type-gl">Credit Note</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}customer-trantype-gl">Customer Tran Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}vendor-trantype-gl">Vendor Tran Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}overheadtypegl-purchases">OverHead Type GL Purchases</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}overheadtypegl-sales">OverHead Type GL Sales</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}discounttype-gl">Discount GL </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}general-account-determinate">General Account Determinate </a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Setting</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}fiscal-year">Fiscal Year</a></li>
-                                        <li><a href="{{bootPoint}}fiscal-year-period">Fiscal Year Period</a></li>
-                                        <li><a href="{{bootPoint}}company-fiscal-year">Company Fiscal Year</a></li>
-                                        <li><a href="{{bootPoint}}company-fiscal-year-period">Company Fiscal Year Period</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}fiscal-year">Fiscal Year</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}fiscal-year-period">Fiscal Year Period</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}company-fiscal-year">Company Fiscal Year</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}company-fiscal-year-period">Company Fiscal Year Period</a>
+                                        </li>
 
                                         @*<li><a href="{{bootPoint}}voucher-type-matrix">Voucher Type Matrix</a></li>
                         <li><a href="{{bootPoint}}voucher-type-config">Voucher Type Config</a></li>*@
-                                        <li><a href="{{bootPoint}}payment-mode">Payment Mode</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}payment-mode">Payment Mode</a>
+                                        </li>
 
-                                        <li><a href="{{bootPoint}}register">Register</a></li>
-                                        <li><a href="{{bootPoint}}department-responsible-person">Department Responsible Person</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}register">Register</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}department-responsible-person">Department Responsible Person</a>
+                                        </li>
 
                                     </ul>
                                 </li>
@@ -344,125 +602,249 @@
                                 <li>
                                     <a>House Keeping </a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}final-settlement-deduction-head">Final Settlement Head</a></li>
-                                        <li><a href="{{bootPoint}}gratuity-insurance-agreement">Gratuity Insurance Agreement</a></li>
-                                        <li><a href="{{bootPoint}}hourly-leave-reason">Hourly Leave Reason</a></li>
-                                        <li><a href="{{bootPoint}}job-location">Job Location</a></li>
-                                        <li><a href="{{bootPoint}}leave-type">Leave Type</a></li>
-                                        <li><a href="{{bootPoint}}rest-type">Rest Type</a></li>
-                                        <li><a href="{{bootPoint}}salary-head">Salary Head</a></li>
-                                        <li><a href="{{bootPoint}}tax-type">Tax Type</a></li>
-                                        <li><a href="{{bootPoint}}tax-saving-group">Tax Saving Group</a></li>
-                                        <li><a href="{{bootPoint}}tax-saving-item">Tax Saving Item</a></li>
-                                        <li><a href="{{bootPoint}}residence-group">Residence Group</a></li>
-                                        <li><a href="{{bootPoint}}transport-group">Transport Group</a></li>
-                                        <li><a href="{{bootPoint}}document-category">Document Category</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}final-settlement-deduction-head">Final Settlement Head</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}gratuity-insurance-agreement">Gratuity Insurance Agreement</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}hourly-leave-reason">Hourly Leave Reason</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}job-location">Job Location</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}leave-type">Leave Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}rest-type">Rest Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}salary-head">Salary Head</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-type">Tax Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-saving-group">Tax Saving Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-saving-item">Tax Saving Item</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}residence-group">Residence Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}transport-group">Transport Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}document-category">Document Category</a>
+                                        </li>
 
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Position Structure</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}department">Department</a></li>
-                                        <li><a href="{{bootPoint}}section">Section</a></li>
-                                        <li><a href="{{bootPoint}}sub-section">Subsection</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}department">Department</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}section">Section</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}sub-section">Subsection</a>
+                                        </li>
 
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Designations</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}employee-category">Employee Category</a></li>
-                                        <li><a href="{{bootPoint}}designation-group">Designation Group</a></li>
-                                        <li><a href="{{bootPoint}}designation">Designation</a></li>
-                                        <li><a href="{{bootPoint}}legal-designation">Legal Designation</a></li>
-                                        <li><a href="{{bootPoint}}designation-master">Designation Master</a></li>
-                                        <li><a href="{{bootPoint}}designation-configuration">Designation Configuration</a></li>
-                                        <li><a href="{{bootPoint}}retention-allowance">Retention Allowance</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}employee-category">Employee Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}designation-group">Designation Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}designation">Designation</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}legal-designation">Legal Designation</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}designation-master">Designation Master</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}designation-configuration">Designation Configuration</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}retention-allowance">Retention Allowance</a>
+                                        </li>
                                         @*<li><a href="{{bootPoint}}plantdesignationgroup-salaryrule">Designation Group Salary Rule</a></li>*@
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Attendance Setting</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}roster-pattern">Roster Pattern</a></li>
-                                        <li><a href="{{bootPoint}}weekly-off">Weekly Off</a></li>
-                                        <li><a href="{{bootPoint}}out-punch-configuration">Out Punch Configuration</a></li>
-                                        <li><a href="{{bootPoint}}day-status-master">Day Status Master</a></li>
-                                        <li><a href="{{bootPoint}}attdn-bonus-master">Attendance Bonus Master</a></li>
-                                        <li><a href="{{bootPoint}}ot-update-configuration">OT Update Config.</a></li>
-                                        <li><a href="{{bootPoint}}ot-resion">OT Region</a></li>
-                                        <li><a href="{{bootPoint}}attnd-source-config">Attendance Source Config</a></li>
-                                        <li><a href="{{bootPoint}}monthly-leave-balance">Monthly Leave Balance</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}roster-pattern">Roster Pattern</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}weekly-off">Weekly Off</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}out-punch-configuration">Out Punch Configuration</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}day-status-master">Day Status Master</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}attdn-bonus-master">Attendance Bonus Master</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}ot-update-configuration">OT Update Config.</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}ot-resion">OT Region</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}attnd-source-config">Attendance Source Config</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}monthly-leave-balance">Monthly Leave Balance</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Grades</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}legal-salary-grade">Legal Salary Grade</a></li>
-                                        <li><a href="{{bootPoint}}legal-salary-structure">Legal Salary Structure</a></li>
-                                        <li><a href="{{bootPoint}}legal-salary-grade-designation">Legal Salary Grade Designation</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}legal-salary-grade">Legal Salary Grade</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}legal-salary-structure">Legal Salary Structure</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}legal-salary-grade-designation">Legal Salary Grade Designation</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Employees</a>
                                     <ul>
 
-                                        <li><a href="{{bootPoint}}employee-group">Emp. Group</a></li>
-                                        <li><a href="{{bootPoint}}employee-budget-category">Emp. Budget Category</a></li>
-                                        <li><a href="{{bootPoint}}employee-budget-category-department">Emp. Budget Category Department</a></li>
-                                        <li><a href="{{bootPoint}}direct-tax-payment-head">Direct Tax Payment Head</a></li>
-                                        <li><a href="{{bootPoint}}work-Group">Work Group</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}employee-group">Emp. Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}employee-budget-category">Emp. Budget Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}employee-budget-category-department">Emp. Budget Category Department</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}direct-tax-payment-head">Direct Tax Payment Head</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}work-Group">Work Group</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Job Description</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}job-description-category">Job Description Category</a></li>
-                                        <li><a href="{{bootPoint}}job-description-subcategory">Job Description Subcategory</a></li>
-                                        <li><a href="{{bootPoint}}job-description-item">Job Description Item</a></li>
-                                        <li><a href="{{bootPoint}}job-description">Job Description</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}job-description-category">Job Description Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}job-description-subcategory">Job Description Subcategory</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}job-description-item">Job Description Item</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}job-description">Job Description</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Recruitment</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}recruitment-process">Recruitment Process Steps</a></li>
-                                        <li><a href="{{bootPoint}}recruitment-process-set">Recruitment Process Set</a></li>
-                                        <li><a href="{{bootPoint}}recruitment-group">Recruitment Group</a></li>
-                                        <li><a href="{{bootPoint}}interview-ranking">Interview Ranking</a></li>
-                                        <li><a href="{{bootPoint}}recruitment-planning">Recruitment Planning</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}recruitment-process">Recruitment Process Steps</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}recruitment-process-set">Recruitment Process Set</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}recruitment-group">Recruitment Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}interview-ranking">Interview Ranking</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}recruitment-planning">Recruitment Planning</a>
+                                        </li>
                                     </ul>
                                 </li>
 
                                 <li>
                                     <a>Performance Management</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}performance-group">Performance Group</a></li>
-                                        <li><a href="{{bootPoint}}performance-management-master">Performance Master</a></li>
-                                        <li><a href="{{bootPoint}}performance-period">Performance Period</a></li>
-                                        <li><a href="{{bootPoint}}performance-attribute-master">Performance Attribute</a></li>
-                                        <li><a href="{{bootPoint}}performance-grade-master">Performance Grade</a></li>
-                                        <li><a href="{{bootPoint}}productive-allowance-rate-setup">Employee Wise Performance Setting</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}performance-group">Performance Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}performance-management-master">Performance Master</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}performance-period">Performance Period</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}performance-attribute-master">Performance Attribute</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}performance-grade-master">Performance Grade</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}productive-allowance-rate-setup">Employee Wise Performance Setting</a>
+                                        </li>
                                     </ul>
                                 </li>
 
                                 <li>
                                     <a>New Testing</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}leave-year-defination">Leave Year Defination</a></li>
-                                        <li><a href="{{bootPoint}}annual-leave-process">Annual Leave Process</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}leave-year-defination">Leave Year Defination</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}annual-leave-process">Annual Leave Process</a>
+                                        </li>
                                     </ul>
                                 </li>
 
                                 <li>
                                     <a>Payrolls</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}payroll-group">Payroll Group</a></li>
-                                        <li><a href="{{bootPoint}}annual-non-cash">Annual Non Cash</a></li>
-                                        <li><a href="{{bootPoint}}salary-fixation-setting">Salary Fixation Setting</a></li>
-                                        <li><a href="{{bootPoint}}salary-fixation-mail">Salary Fixation Mail</a></li>
-                                        <li><a href="{{bootPoint}}plantSalaryHead-sequence">Plant Salary Head Sequence</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}payroll-group">Payroll Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}annual-non-cash">Annual Non Cash</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}salary-fixation-setting">Salary Fixation Setting</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}salary-fixation-mail">Salary Fixation Mail</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}plantSalaryHead-sequence">Plant Salary Head Sequence</a>
+                                        </li>
 
 
 
@@ -471,47 +853,105 @@
                                 <li>
                                     <a>Policy</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}attendance-bonus-policy">Attendance Bonus Policy</a></li>
-                                        <li><a href="{{bootPoint}}bonus-policy">Bonus Policy</a></li>
-                                        <li><a href="{{bootPoint}}monthly-retain-bonus">Bonus Policy Monthly Retain</a></li>
-                                        <li><a href="{{bootPoint}}currency-rule">Currency Policy</a></li>
-                                        <li><a href="{{bootPoint}}esic-policy">ESIC Policy</a></li>
-                                        <li><a href="{{bootPoint}}gratuity-policy">Gratuity Policy</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}attendance-bonus-policy">Attendance Bonus Policy</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}bonus-policy">Bonus Policy</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}monthly-retain-bonus">Bonus Policy Monthly Retain</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}currency-rule">Currency Policy</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}esic-policy">ESIC Policy</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}gratuity-policy">Gratuity Policy</a>
+                                        </li>
 
-                                        <li><a href="{{bootPoint}}leave-policy">Leave Policy</a></li>
-                                        <li><a href="{{bootPoint}}maternity-leave-policy">Maternity Leave Policy</a></li>
-                                        <li><a href="{{bootPoint}}ot-policy">OT Policy</a></li>
-                                        <li><a href="{{bootPoint}}pf-policy">PF Policy</a></li>
-                                        <li><a href="{{bootPoint}}salary-head-wise-payment-mode-policy">SalaryHead Wise Payment Mode</a></li>
-                                        <li><a href="{{bootPoint}}tax-policy-master">Tax Policy Master</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}leave-policy">Leave Policy</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}maternity-leave-policy">Maternity Leave Policy</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}ot-policy">OT Policy</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}pf-policy">PF Policy</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}salary-head-wise-payment-mode-policy">SalaryHead Wise Payment Mode</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}tax-policy-master">Tax Policy Master</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Settings</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}bank-cash-setting">Bank Cash Percentage Setting</a></li>
-                                        <li><a href="{{bootPoint}}compliance-attendance-setting">Compliance Attendance Setting</a></li>
-                                        <li><a href="{{bootPoint}}employee-fixed-service-master">Employee Fixed Service Master</a></li>
-                                        <li><a href="{{bootPoint}}emp-service-type">Employee Service Type</a></li>
-                                        <li><a href="{{bootPoint}}holiday-pay-day">Holiday Pay Day</a></li>
-                                        <li><a href="{{bootPoint}}ot-limit-setting">OT Limit Setting</a></li>
-                                        <li><a href="{{bootPoint}}ot-slab">OT Slab</a></li>
-                                        <li><a href="{{bootPoint}}ot-formula">OT Formula</a></li>
-                                        <li><a href="{{bootPoint}}plant-wise-hrms-setting">Plant Wise HRMS Setting</a></li>
-                                        <li><a href="{{bootPoint}}notice-period-setting">Notice Period Setting</a></li>
-                                        <li><a href="{{bootPoint}}plantsetting">Plant Signatory</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}bank-cash-setting">Bank Cash Percentage Setting</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}compliance-attendance-setting">Compliance Attendance Setting</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}employee-fixed-service-master">Employee Fixed Service Master</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}emp-service-type">Employee Service Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}holiday-pay-day">Holiday Pay Day</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}ot-limit-setting">OT Limit Setting</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}ot-slab">OT Slab</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}ot-formula">OT Formula</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}plant-wise-hrms-setting">Plant Wise HRMS Setting</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}notice-period-setting">Notice Period Setting</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}plantsetting">Plant Signatory</a>
+                                        </li>
 
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Compliance Document</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}compliance-Document-Category">Compliance Document Category</a></li>
-                                        <li><a href="{{bootPoint}}compliance-Document-subcategory">Compliance Document Subcategory</a></li>
-                                        <li><a href="{{bootPoint}}compliance-document-proof-type">Compliance Document Proof Type</a></li>
-                                        <li><a href="{{bootPoint}}compliance-Document">Compliance Document</a></li>
-                                        <li><a href="{{bootPoint}}compliance-DocumentSet">Compliance Document Set</a></li>
-                                        <li><a href="{{bootPoint}}documentConfiguration-DesignationGroup">Document Set Assignment</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}compliance-Document-Category">Compliance Document Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}compliance-Document-subcategory">Compliance Document Subcategory</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}compliance-document-proof-type">Compliance Document Proof Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}compliance-Document">Compliance Document</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}compliance-DocumentSet">Compliance Document Set</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}documentConfiguration-DesignationGroup">Document Set Assignment</a>
+                                        </li>
                                     </ul>
                                 </li>
                             </ul>
@@ -522,23 +962,47 @@
                                 <li>
                                     <a>House Keeping</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}size-group">Size Group</a></li>
-                                        <li><a href="{{bootPoint}}attachment">Attachment</a></li>
-                                        <li><a href="{{bootPoint}}gauge-folder">Gauge Folder</a></li>
-                                        <li><a href="{{bootPoint}}operation-consumption">Operation Consumption</a></li>
-                                        <li><a href="{{bootPoint}}operation-type">Operation Type</a></li>
-                                        <li><a href="{{bootPoint}}operation-category">Operation Category</a></li>
-                                        <li><a href="{{bootPoint}}operation-activity">Operation Activity</a></li>
-                                        <li><a href="{{bootPoint}}fg-zone">FG-Zone</a></li>
-                                        <li><a href="{{bootPoint}}fg-component">FG-Component</a></li>
-                                        <li><a href="{{bootPoint}}skill-category">Skill Category</a></li>
-                                        <li><a href="{{bootPoint}}detention-type">Detention Type</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}size-group">Size Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}attachment">Attachment</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}gauge-folder">Gauge Folder</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}operation-consumption">Operation Consumption</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}operation-type">Operation Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}operation-category">Operation Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}operation-activity">Operation Activity</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}fg-zone">FG-Zone</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}fg-component">FG-Component</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}skill-category">Skill Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}detention-type">Detention Type</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Settings</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}additional-element-code-settings">Additional Element Code</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}additional-element-code-settings">Additional Element Code</a>
+                                        </li>
 
                                     </ul>
                                 </li>
@@ -551,106 +1015,216 @@
                                 <li>
                                     <a>Processes</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}process-group">Process Group</a></li>
-                                        <li><a href="{{bootPoint}}process-category">Process Category</a></li>
-                                        <li><a href="{{bootPoint}}process-criteria">Process Criteria</a></li>
-                                        <li><a href="{{bootPoint}}process">Process</a></li>
-                                        <li><a href="{{bootPoint}}company-process">Company Process</a></li>
-                                        <li><a href="{{bootPoint}}company-sub-process">Company Subprocess</a></li>
-                                        <li><a href="{{bootPoint}}sub-process-category">Subprocess Category</a></li>
-                                        <li><a href="{{bootPoint}}sub-process">Subprocess</a></li>
-                                        <li><a href="{{bootPoint}}process-type">Process Type</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}process-group">Process Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}process-category">Process Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}process-criteria">Process Criteria</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}process">Process</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}company-process">Company Process</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}company-sub-process">Company Subprocess</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}sub-process-category">Subprocess Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}sub-process">Subprocess</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}process-type">Process Type</a>
+                                        </li>
                                         @*<li><a href="{{bootPoint}}utility">Utility</a></li>*@
-                                        <li><a href="{{bootPoint}}process-set">Process Set</a></li>
-                                        <li><a href="{{bootPoint}}sub-process-set">Subprocess Set</a></li>
-                                        <li><a href="{{bootPoint}}production-process-group">Production Process Group</a></li>
-                                        <li><a href="{{bootPoint}}entity-process-tag">Entity Process</a></li>
-                                        <li><a href="{{bootPoint}}process-uom">Process UoM</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}process-set">Process Set</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}sub-process-set">Subprocess Set</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}production-process-group">Production Process Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}entity-process-tag">Entity Process</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}process-uom">Process UoM</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Parties</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}party-group-category">PartyGroup Category</a></li>
-                                        <li><a href="{{bootPoint}}party-group-sub-category">PartyGroup Subcategory</a></li>
-                                        <li><a href="{{bootPoint}}party-group-class">PartyGroup Class</a></li>
-                                        <li><a href="{{bootPoint}}party-group">PartyGroup</a></li>
-                                        <li><a href="{{bootPoint}}party-category">Party Category</a></li>
-                                        <li><a href="{{bootPoint}}party-sub-category">Party Subcategory</a></li>
-                                        <li><a href="{{bootPoint}}party-account-group">Party Account Group</a></li>
-                                        <li ng-hide="true"><a href="{{bootPoint}}partner-function">Partner Function</a></li>
-                                        <li><a href="{{bootPoint}}partner-determination-procedure">Partner Deter. Procedure</a></li>
-                                        <li ng-hide="true"><a href="{{bootPoint}}pdpfunction">PDP Function</a></li>
-                                        <li><a href="{{bootPoint}}party-director">Director</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}party-group-category">PartyGroup Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}party-group-sub-category">PartyGroup Subcategory</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}party-group-class">PartyGroup Class</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}party-group">PartyGroup</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}party-category">Party Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}party-sub-category">Party Subcategory</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}party-account-group">Party Account Group</a>
+                                        </li>
+                                        <li ng-hide="true">
+                                            <a href="{{bootPoint}}partner-function">Partner Function</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}partner-determination-procedure">Partner Deter. Procedure</a>
+                                        </li>
+                                        <li ng-hide="true">
+                                            <a href="{{bootPoint}}pdpfunction">PDP Function</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}party-director">Director</a>
+                                        </li>
                                         @*<li><a href="{{bootPoint}}party">Party</a></li>*@
-                                        <li><a href="{{bootPoint}}party-other">Other</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}party-other">Other</a>
+                                        </li>
                                         @*<li><a href="{{bootPoint}}party-company">Inter Company Party</a></li>*@
-                                        <li><a href="{{bootPoint}}party-report">Report</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}party-report">Report</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Buyer</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}buyercategory">Buyer Category</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}buyercategory">Buyer Category</a>
+                                        </li>
                                         @*<li><a href="{{bootPoint}}buyer">Buyer</a></li>*@
                                         @*<li><a href="{{bootPoint}}buyer-program">Buyer Program</a></li>*@
                                         @*<li><a href="{{bootPoint}}buyer-division">Buyer Division</a></li>
                         <li><a href="{{bootPoint}}buyer-department">Buyer Department</a></li>
                         <li><a href="{{bootPoint}}buyer-brand">Buyer Brand</a></li>*@
-                                        <li><a href="{{bootPoint}}buyer-activity">Buyer Activity</a></li>
-                                        <li><a href="{{bootPoint}}intermediate-item">Intermediate Item</a></li>
-                                        <li><a href="{{bootPoint}}intermediateItem-entity">Intermediate Item Entity</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}buyer-activity">Buyer Activity</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}intermediate-item">Intermediate Item</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}intermediateItem-entity">Intermediate Item Entity</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Banks</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}bank-category">Bank Category</a></li>
-                                        <li><a href="{{bootPoint}}bank-sub-category">Bank Subcategory</a></li>
-                                        <li><a href="{{bootPoint}}bank-account-type">Bank Account Type</a></li>
-                                        <li><a href="{{bootPoint}}bank">Bank</a></li>
-                                        <li><a href="{{bootPoint}}bank-branch">Bank Branch</a></li>
-                                        <li><a href="{{bootPoint}}bank-master">Bank Master</a></li>
-                                        <li><a href="{{bootPoint}}cash-master">Cash Master</a></li>
-                                        <li><a href="{{bootPoint}}bank-charge-type">Bank Charge Type</a></li>
-                                        <li><a href="{{bootPoint}}bank-charge-type-gl">Bank Charge Type GL</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}bank-category">Bank Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}bank-sub-category">Bank Subcategory</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}bank-account-type">Bank Account Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}bank">Bank</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}bank-branch">Bank Branch</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}bank-master">Bank Master</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}cash-master">Cash Master</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}bank-charge-type">Bank Charge Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}bank-charge-type-gl">Bank Charge Type GL</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Currencies</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}transaction-currency">Transaction Currency</a></li>
-                                        <li><a href="{{bootPoint}}exchange-rate">Exchange Rate</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}transaction-currency">Transaction Currency</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}exchange-rate">Exchange Rate</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>SOP</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}sop-category">SOP Category</a></li>
-                                        <li><a href="{{bootPoint}}sop-subcategory">SOP SubCategory</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}sop-category">SOP Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}sop-subcategory">SOP SubCategory</a>
+                                        </li>
 
-                                        <li><a href="{{bootPoint}}sop-item">SOP</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}sop-item">SOP</a>
+                                        </li>
                                     </ul>
                                 </li>
 
                                 <li>
                                     <a>Document</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}sop-document-category">Document Category</a></li>
-                                        <li><a href="{{bootPoint}}sop-document-subcategory">Document SubCategory</a></li>
-                                        <li><a href="{{bootPoint}}document-type">Document Type</a></li>
-                                        <li><a href="{{bootPoint}}document-source">Document Source</a></li>
-                                        <li><a href="{{bootPoint}}document-location">Document Location</a></li>
-                                        <li><a href="{{bootPoint}}sop-document">Document</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}sop-document-category">Document Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}sop-document-subcategory">Document SubCategory</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}document-type">Document Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}document-source">Document Source</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}document-location">Document Location</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}sop-document">Document</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Settings</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}local-language-master-entry">Local Language Master Entry</a></li>
-                                        <li><a href="{{bootPoint}}payment-term">Payment Term</a></li>
-                                        <li><a href="{{bootPoint}}terms-and-conditions">Terms And Conditions</a></li>
-                                        <li><a href="{{bootPoint}}notification-setting">Notification Setting</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}local-language-master-entry">Local Language Master Entry</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}payment-term">Payment Term</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}terms-and-conditions">Terms And Conditions</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}notification-setting">Notification Setting</a>
+                                        </li>
                                     </ul>
                                 </li>
 
@@ -662,55 +1236,101 @@
                                 <li>
                                     <a>House Keeping</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}material-category">Material Category</a></li>
-                                        <li><a href="{{bootPoint}}material-subcategory">Material SubCategory</a></li>
-                                        <li><a href="{{bootPoint}}materialtype">Material Type</a></li>
-                                        <li><a href="{{bootPoint}}packing-form">Packing Form</a></li>
-                                        <li><a href="{{bootPoint}}testing-category">Testing Category</a></li>
-                                        <li><a href="{{bootPoint}}material-master-type">Material Master Type</a></li>
-                                        <li><a href="{{bootPoint}}scan-item">Product Library Scan Item</a></li>
-                                        <li><a href="{{bootPoint}}utility-group">Utility Group</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}material-category">Material Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}material-subcategory">Material SubCategory</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}materialtype">Material Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}packing-form">Packing Form</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}testing-category">Testing Category</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}material-master-type">Material Master Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}scan-item">Product Library Scan Item</a>
+                                        </li>
+                                       
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Setting</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}characteristics">Characteristics</a></li>
-                                        <li><a href="{{bootPoint}}material-setting">Material Setting</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}characteristics">Characteristics</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}material-setting">Material Setting</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Material Groups</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}materialgroup1">Material Group1</a></li>
-                                        <li><a href="{{bootPoint}}materialgroup2">Material Group2</a></li>
-                                        <li><a href="{{bootPoint}}materialgroup3">Material Group3</a></li>
-                                        <li><a href="{{bootPoint}}materialgroup4">Material Group4</a></li>
-                                        <li><a href="{{bootPoint}}material-group-master">Material Group Master</a></li>
-                                        <li><a href="{{bootPoint}}material-group-article">Material Group Article</a></li>
-                                        <li><a href="{{bootPoint}}material-storage">Material Storage</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}materialgroup1">Material Group1</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}materialgroup2">Material Group2</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}materialgroup3">Material Group3</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}materialgroup4">Material Group4</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}material-group-master">Material Group Master</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}material-group-article">Material Group Article</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}material-storage">Material Storage</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Material Attribute</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}material-attribute">Material Attribute Entry</a></li>
-                                        <li><a href="{{bootPoint}}material-attribute-master">Material Attribute Master</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}material-attribute">Material Attribute Entry</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}material-attribute-master">Material Attribute Master</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Service</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}service-type">Service Type</a></li>
-                                        <li><a href="{{bootPoint}}service-group">Service Group</a></li>
-                                        <li><a href="{{bootPoint}}service-master">Service Master</a></li>
-                                        <li><a href="{{bootPoint}}company-service-master">Company Service Master</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}service-type">Service Type</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}service-group">Service Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}service-master">Service Master</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}company-service-master">Company Service Master</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Storage Master</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}storage-bin-master">Storage Bin Master</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}storage-bin-master">Storage Bin Master</a>
+                                        </li>
                                     </ul>
                                 </li>
                             </ul>
@@ -720,46 +1340,104 @@
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>Machines Management</a>
                             <ul>
-                                <li><a href="{{bootPoint}}machine-category">Machine Category</a></li>
-                                <li><a href="{{bootPoint}}machine-subcategory">Machine SubCategory</a></li>
-                                <li><a href="{{bootPoint}}machine-variant">Machine Variant</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}machine-category">Machine Category</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}machine-subcategory">Machine SubCategory</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}machine-variant">Machine Variant</a>
+                                </li>
                             </ul>
                         </li>
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>Quality Management</a>
                             <ul>
-                                <li><a href="{{bootPoint}}qms-activity-category">Activity Category</a></li>
-                                <li><a href="{{bootPoint}}quality-activity-checkType">Activity Check Type</a></li>
-                                <li><a href="{{bootPoint}}business-process">Business Process</a></li>
-                                <li><a href="{{bootPoint}}business-process-type">Business Process Type</a></li>
-                                <li><a href="{{bootPoint}}defect-type">Defect Type</a></li>
-                                <li><a href="{{bootPoint}}defect-check-level">Defect Check Level</a></li>
-                                <li><a href="{{bootPoint}}defect-zone">Defect Zone</a></li>
-                                <li><a href="{{bootPoint}}repair-type">Repair Type</a></li>
-                                <li><a href="{{bootPoint}}qmstesting-master">Testing Master</a></li>
-                                <li><a href="{{bootPoint}}grade-master">Grade Master</a></li>
-                                <li><a href="{{bootPoint}}inspection-type">InspectionType</a></li>
-                                <li><a href="{{bootPoint}}qms-inspection">QMS Inspection</a></li>
-                                <li><a href="{{bootPoint}}inspection-master">Inspection Master</a></li>
-                                <li><a href="{{bootPoint}}quality-status">Quality Status</a></li>
-                                <li><a href="{{bootPoint}}stock-keeping-unit">Stock Keeping Unit</a></li>
-                                <li><a href="{{bootPoint}}process-parameter">Process Parameter</a></li>
-                                <li><a href="{{bootPoint}}quality-process">Quality Process</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}qms-activity-category">Activity Category</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}quality-activity-checkType">Activity Check Type</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}business-process">Business Process</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}business-process-type">Business Process Type</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}defect-type">Defect Type</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}defect-check-level">Defect Check Level</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}defect-zone">Defect Zone</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}repair-type">Repair Type</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}qmstesting-master">Testing Master</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}grade-master">Grade Master</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}inspection-type">InspectionType</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}qms-inspection">QMS Inspection</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}inspection-master">Inspection Master</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}quality-status">Quality Status</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}stock-keeping-unit">Stock Keeping Unit</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}process-parameter">Process Parameter</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}quality-process">Quality Process</a>
+                                </li>
 
                             </ul>
                         </li>
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>Fixed Assets</a>
                             <ul>
-                                <li><a href="{{bootPoint}}fixed-asset-category">Category</a></li>
-                                <li><a href="{{bootPoint}}fixed-asset-sub-category">Subcategory</a></li>
-                                <li><a href="{{bootPoint}}fixed-asset-class">Class</a></li>
-                                <li><a href="{{bootPoint}}fixed-asset-subclass">Subclass</a></li>
-                                <li><a href="{{bootPoint}}fixed-asset-master">Master</a></li>
-                                <li><a href="{{bootPoint}}depreciation-rule">Depreciation Rule</a></li>
-                                <li><a href="{{bootPoint}}company-depreciation-rule">Company Depreciation Rule</a></li>
-                                <li><a href="{{bootPoint}}fixedAssetMaster-budget-tag">Fixed Asset Master Budget Tag</a></li>
-                                <li><a href="{{bootPoint}}subAssetType">Sub Asset Type</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}fixed-asset-category">Category</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}fixed-asset-sub-category">Subcategory</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}fixed-asset-class">Class</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}fixed-asset-subclass">Subclass</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}fixed-asset-master">Master</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}depreciation-rule">Depreciation Rule</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}company-depreciation-rule">Company Depreciation Rule</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}fixedAssetMaster-budget-tag">Fixed Asset Master Budget Tag</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}subAssetType">Sub Asset Type</a>
+                                </li>
                             </ul>
                         </li>
                         <li>
@@ -768,35 +1446,71 @@
                                 <li>
                                     <a>House Keeping</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}defect-code">Defect Code</a></li>
-                                        <li><a href="{{bootPoint}}movement-items">Movement Items</a></li>
-                                        <li><a href="{{bootPoint}}movement-master">Movement Master</a></li>
-                                        <li><a href="{{bootPoint}}material-purpose">Movement Purpose</a></li>
-                                        <li><a href="{{bootPoint}}shrinkage-group">Shrinkage Group</a></li>
-                                        <li><a href="{{bootPoint}}fabric-width">Fabric Width</a></li>
-                                        <li><a href="{{bootPoint}}shade">Shade</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}defect-code">Defect Code</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}movement-items">Movement Items</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}movement-master">Movement Master</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}material-purpose">Movement Purpose</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}shrinkage-group">Shrinkage Group</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}fabric-width">Fabric Width</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}shade">Shade</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>SFG</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}sfginventory">SFG Inventory</a></li>
-                                        <li><a href="{{bootPoint}}sfgmovement">SFG Movement</a></li>
-                                        <li><a href="{{bootPoint}}entity-sfginventory">Entity SFG Inventory</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}sfginventory">SFG Inventory</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}sfgmovement">SFG Movement</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}entity-sfginventory">Entity SFG Inventory</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Setting</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}productionstatus">Production Status</a></li>
-                                        <li><a href="{{bootPoint}}recipe-config">Recipe Configuration</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}productionstatus">Production Status</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}recipe-config">Recipe Configuration</a>
+                                        </li>
                                         @*<li><a href="{{bootPoint}}recipe-operation">Recipe Operation</a></li>*@
-                                        <li><a href="{{bootPoint}}btn-rmconsumption" data-placement="top" title="Button Raw Material Consumption Configuration" tooltip>Btn RM Consumption Config</a></li>
-                                        <li><a href="{{bootPoint}}btn-output">Button Output Configuration</a></li>
-                                        <li><a href="{{bootPoint}}planning-types">Planning Types</a></li>
-                                        <li><a href="{{bootPoint}}production-booking-period">Production Booking Period</a></li>
-                                        <li><a href="{{bootPoint}}process-and-inventory-sequence">Process-Inventory Sequence</a></li>
-                                        <li><a href="{{bootPoint}}efficiency-slab">SPT Efficiency Slab</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}btn-rmconsumption" data-placement="top" title="Button Raw Material Consumption Configuration" tooltip>Btn RM Consumption Config</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}btn-output">Button Output Configuration</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}planning-types">Planning Types</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}production-booking-period">Production Booking Period</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}process-and-inventory-sequence">Process-Inventory Sequence</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}efficiency-slab">SPT Efficiency Slab</a>
+                                        </li>
 
 
                                     </ul>
@@ -806,21 +1520,45 @@
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>Order Management</a>
                             <ul>
-                                <li><a href="{{bootPoint}}seasons">Seasons</a></li>
-                                <li><a href="{{bootPoint}}order-category">Order Category</a></li>
-                                <li><a href="{{bootPoint}}order-status">Order Status</a></li>
-                                <li><a href="{{bootPoint}}dmm">DMM</a></li>
-                                <li><a href="{{bootPoint}}packing-type">Packing Type</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}seasons">Seasons</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}order-category">Order Category</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}order-status">Order Status</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}dmm">DMM</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}packing-type">Packing Type</a>
+                                </li>
                                 <li>
                                     <a>Settings</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}order-control-types">Order Control Types</a></li>
-                                        <li><a href="{{bootPoint}}order-control-stage">Order Control Stage</a></li>
-                                        <li><a href="{{bootPoint}}report-currency-exchange-rates">Report Exchange Rates</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}order-control-types">Order Control Types</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}order-control-stage">Order Control Stage</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}report-currency-exchange-rates">Report Exchange Rates</a>
+                                        </li>
                                     </ul>
                                 </li>
                             </ul>
 
+                        </li>
+                        <li>
+                            <a><span class="glyphicon glyphicon-book"></span>Utility</a>
+                            <ul>
+                                <li>
+                                    <a href="{{bootPoint}}utility-group">Utility Group</a>
+                                </li>
+                            </ul>
                         </li>
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>Commercial & Logistics</a>
@@ -828,7 +1566,9 @@
                                 <li>
                                     <a>House Keeping</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}commercial-add-info">Commercial Additional Info</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}commercial-add-info">Commercial Additional Info</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
@@ -843,53 +1583,117 @@
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>Address Setups</a>
                             <ul>
-                                <li><a href="{{bootPoint}}state">State</a></li>
-                                <li><a href="{{bootPoint}}district">District</a></li>
-                                <li><a href="{{bootPoint}}city">City</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}state">State</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}district">District</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}city">City</a>
+                                </li>
                             </ul>
                         </li>
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>Organization Structure</a>
                             <ul>
-                                <li><a href="{{bootPoint}}update-company-group">Company Group</a></li>
-                                <li><a href="{{bootPoint}}update-company">Company</a></li>
-                                <li><a href="{{bootPoint}}update-plant">Plant</a></li>
-                                <li><a href="{{bootPoint}}division">Division</a></li>
-                                <li><a href="{{bootPoint}}sub-division">Subdivision</a></li>
-                                <li><a href="{{bootPoint}}unit">Unit</a></li>
-                                <li><a href="{{bootPoint}}entity">Entity Setup</a></li>
-                                <li><a href="{{bootPoint}}entity-allowance">Entity Allowance</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}update-company-group">Company Group</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}update-company">Company</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}update-plant">Plant</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}division">Division</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}sub-division">Subdivision</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}unit">Unit</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}entity">Entity Setup</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}entity-allowance">Entity Allowance</a>
+                                </li>
                                 @*<li><a href="{{bootPoint}}entitycomponentcosting">Entity Component Costing</a></li>*@
-                                <li><a href="{{bootPoint}}purchase-organisation">Purchase Organization</a></li>
-                                <li><a href="{{bootPoint}}purchase-group">Purchase Group</a></li>
-                                <li><a href="{{bootPoint}}sales-organisation">Sales Organization</a></li>
-                                <li><a href="{{bootPoint}}sales-group">Sales Group</a></li>
-                                <li><a href="{{bootPoint}}subsection-structure">Subsection Structure</a></li>
-                                <li><a href="{{bootPoint}}costcenter-category">Cost Center Category</a></li>
-                                <li><a href="{{bootPoint}}costcenter-subcategory">Cost Center Subcategory</a></li>
-                                <li><a href="{{bootPoint}}cost-center">Cost Center</a></li>
-                                <li><a href="{{bootPoint}}cost-center-company-extension">Company Cost Center</a></li>
-                                <li><a href="{{bootPoint}}entity-costcenter">Entity Cost Center</a></li>
-                                <li><a href="{{bootPoint}}entity-config">Entity Config</a></li>
-                                <li><a href="{{bootPoint}}company-department">Company Department</a></li>
-                                <li><a href="{{bootPoint}}company-section">Company Section</a></li>
-                                <li><a href="{{bootPoint}}company-sub-section">Company Subsection</a></li>
-                                <li><a href="{{bootPoint}}line"> Line</a></li>
-                                <li><a href="{{bootPoint}}entity-line">Entity Line</a></li>
-                                <li><a href="{{bootPoint}}company-line">Company Line</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}purchase-organisation">Purchase Organization</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}purchase-group">Purchase Group</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}sales-organisation">Sales Organization</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}sales-group">Sales Group</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}subsection-structure">Subsection Structure</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}costcenter-category">Cost Center Category</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}costcenter-subcategory">Cost Center Subcategory</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}cost-center">Cost Center</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}cost-center-company-extension">Company Cost Center</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}entity-costcenter">Entity Cost Center</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}entity-config">Entity Config</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}company-department">Company Department</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}company-section">Company Section</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}company-sub-section">Company Subsection</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}line"> Line</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}entity-line">Entity Line</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}company-line">Company Line</a>
+                                </li>
                                 <li>
                                     <a>Budget</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}manpower-budget">Manpower Budget</a></li>
-                                        <li><a href="{{bootPoint}}manpower-budget-allowance">Manpower Budget Allowance</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}manpower-budget">Manpower Budget</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}manpower-budget-allowance">Manpower Budget Allowance</a>
+                                        </li>
 
                                     </ul>
                                 </li>
                                 <li>
                                     <a>Position</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}position">Position Setup</a></li>
-                                        <li><a href="{{bootPoint}}position-allowance">Position Allowance</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}position">Position Setup</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}position-allowance">Position Allowance</a>
+                                        </li>
                                     </ul>
                                 </li>
                             </ul>
@@ -897,18 +1701,32 @@
                         <li>
                             <a><span class="glyphicon glyphicon-lock"></span>Responsible Person Assignment</a>
                             <ul>
-                                <li><a href="{{bootPoint}}employee-budget-master">Responsible Person(Employee)</a></li>
-                                <li><a href="{{bootPoint}}department-responsible-person">Department Responsible Person</a></li>
-                                <li><a href="{{bootPoint}}approval-configuration">Approval Configuration</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}employee-budget-master">Responsible Person(Employee)</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}department-responsible-person">Department Responsible Person</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}approval-configuration">Approval Configuration</a>
+                                </li>
                             </ul>
                         </li>
                         <li>
                             <a><span class="glyphicon glyphicon-lock"></span>User Security</a>
                             <ul>
-                                <li><a href="{{bootPoint}}credential-policy">Credential Policy</a></li>
-                                <li><a href="{{bootPoint}}authtoken-lock">Auth Token Lock</a></li>
-                                <li><a href="{{bootPoint}}user-lock">User Lock</a></li>
-                                <li><a href="{{bootPoint}}mobile-apps" data-placement="top" title="Mobile App Auth" tooltip>Emp Mobile Apps Auth</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}credential-policy">Credential Policy</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}authtoken-lock">Auth Token Lock</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}user-lock">User Lock</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}mobile-apps" data-placement="top" title="Mobile App Auth" tooltip>Emp Mobile Apps Auth</a>
+                                </li>
                                 @*<li><a href="{{bootPoint}}employee-mobile-apps-authorization" data-placement="top" title="Employee Mobile App Authorization" tooltip>Emp Apps Authorization</a></li>*@
                             </ul>
                         </li>
@@ -918,10 +1736,18 @@
                                 <li>
                                     <a>Calendars</a>
                                     <ul>
-                                        <li><a href="{{bootPoint}}yearly-calendar">Yearly Calendar</a></li>
-                                        <li><a href="{{bootPoint}}weekend">Weekend</a></li>
-                                        <li><a href="{{bootPoint}}holiday">Holiday</a></li>
-                                        <li><a href="{{bootPoint}}entity-calendar">Entity Calendar</a></li>
+                                        <li>
+                                            <a href="{{bootPoint}}yearly-calendar">Yearly Calendar</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}weekend">Weekend</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}holiday">Holiday</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{bootPoint}}entity-calendar">Entity Calendar</a>
+                                        </li>
                                     </ul>
                                 </li>
                             </ul>
@@ -929,18 +1755,38 @@
                         <li>
                             <a><span class="glyphicon glyphicon-lock"></span>System Admin</a>
                             <ul>
-                                <li><a href="{{bootPoint}}guest-user">Guest User</a></li>
-                                <li><a href="{{bootPoint}}user">User</a></li>
-                                <li><a href="{{bootPoint}}role">Role</a></li>
-                                <li><a href="{{bootPoint}}role-detail">Role Privileges</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}guest-user">Guest User</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}user">User</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}role">Role</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}role-detail">Role Privileges</a>
+                                </li>
                                 @*<li><a href="{{bootPoint}}role-mapping-position">Role Mapping Position</a></li>
                 <li><a href="{{bootPoint}}role-mapping-manpower-budget">Role Mapping (MB)</a></li>*@
-                                <li><a href="{{bootPoint}}user-role">User Access Role</a></li>
-                                <li><a href="{{bootPoint}}user-access-plant">User Access Plant</a></li>
-                                <li><a href="{{bootPoint}}user-entity">User Entity</a></li>
-                                <li><a href="{{bootPoint}}additional-role">User Access</a></li>
-                                <li><a href="{{bootPoint}}user-access-app">User Access App</a></li>
-                                <li><a href="{{bootPoint}}menu-user-code">Menu User Code</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}user-role">User Access Role</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}user-access-plant">User Access Plant</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}user-entity">User Entity</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}additional-role">User Access</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}user-access-app">User Access App</a>
+                                </li>
+                                <li>
+                                    <a href="{{bootPoint}}menu-user-code">Menu User Code</a>
+                                </li>
                             </ul>
                         </li>
                         <li>
@@ -960,13 +1806,17 @@
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>Other Miscellaneous</a>
                             <ul>
-                                <li><a href="{{bootPoint}}item-consumption">Item Consumption</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}item-consumption">Item Consumption</a>
+                                </li>
                             </ul>
                         </li>
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>New Release</a>
                             <ul>
-                                <li><a href="{{bootPoint}}planning-typesNew">Planning Types</a></li>
+                                <li>
+                                    <a href="{{bootPoint}}planning-typesNew">Planning Types</a>
+                                </li>
                             </ul>
                         </li>
                     </ul>

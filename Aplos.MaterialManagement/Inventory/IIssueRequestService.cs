@@ -21,6 +21,7 @@ namespace Library.MaterialManagement.Products
         void InsertOrUpdateGraphIssueSlipUpdate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string Id,string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti);  
         //IEnumerable<object> IssueListData(string plantId);
         IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipType);
+        IEnumerable<object> IssueListDataByProudctionOrder(string IssueStatus, string IssueSlipType, string productionOrderId);
         IEnumerable<object> AssetIssueListData(string IssueStatus, string IssueSlipType);
         
         IEnumerable<object> ApprovedIssueSlipGridData(string IssueStatusApproval, string IssueSlipType);

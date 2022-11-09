@@ -16,6 +16,10 @@ using Library.Security.Core;
 using Library.MaterialManagement.Inventory;
 using Library.Model.Inventory;
 using Library.ViewModel.Materials;
+using Library.ViewModel.OrderManagements;
+using Newtonsoft.Json;
+using Library.MaterialManagement.Products;
+using Library.Model.Products;
 #endregion
 
 namespace Aplos.Areas.Materials.Controllers
@@ -24,11 +28,11 @@ namespace Aplos.Areas.Materials.Controllers
     {
         #region -- Constructor
         private readonly ISqlRepository _sqlRepository;
-        private readonly IInventoryIssueService _inventoryIssueService;
-        public MaterialIssueControlController(ISqlRepository R, IInventoryIssueService inventoryIssueService)
+        private readonly IIssueRequestService _issueRequestService;
+        public MaterialIssueControlController(ISqlRepository R, IIssueRequestService issueRequestService)
         {
             _sqlRepository = R;
-            _inventoryIssueService = inventoryIssueService;
+            _issueRequestService = issueRequestService;
         }
         #endregion
 
@@ -75,7 +79,7 @@ namespace Aplos.Areas.Materials.Controllers
                         LEFT JOIN org.Plant AS p ON p.Id=e.PlantId
                         LEFT JOIN org.Company AS c ON c.Id=e.CompanyId
                         WHERE E.UserId='" + identity.UserId + @"' AND e2.Id IN (
-SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SELECT pt.BaseProcessId FROM PlanningTypes AS pt)) AND E2.[Active]=1 ORDER BY E2.Code";
+                        SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SELECT pt.BaseProcessId FROM PlanningTypes AS pt)) AND E2.[Active]=1 ORDER BY E2.Code";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -85,9 +89,9 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
             try
             {
                 string sql = @"SELECT M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage FROM [dbo].[MaterialIssueControlMaster] M
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
-LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
-LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId";
+                            LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
+                            LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
+                            LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -215,14 +219,25 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         {
             try
             {
-                string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY D.Id) SrNo,D.*,D.CostingItemId,I.UserName Item,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
-,M.UserName MaterialMaster,um.Code as UoM, um.Id as UoMId, BaseUoMFactor=case when M.BaseUOMId=i.UnitOfMeasurementId then 1 else 1 end
-FROM dbo.MaterialIssueControlDetail D 
-INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
-left join [SCS].[UnitOfMeasurement] um on um.Id = i.UnitOfMeasurementId
-LEFT JOIN MST.MaterialMaster M ON M.Id=D.MaterialMasterId
-LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
-WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
+                string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY D.Id) SrNo
+                ,D.Id MaterialIssueControlDetailId,D.MaterialIssueControlMasterId,D.CostingItemId,D.NetConsumptionPerUnit,D.ValueLoss,D.GrossConsumption,D.TotalConsumption,D.AdditionReduction
+				,D.PlanConsumption,D.Rate,D.TotaPlanlAmount,ISNULL(IR.IssueQty,0) IssueQty,D.ArticleId,D.MaterialMasterId,D.StockRate,D.ActualIssueAmount,D.Remarks,D.AddedBy,D.AddedDate,D.AddedFromIP
+				,I.UserName Item,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
+                ,M.UserName MaterialMaster,um.Code as UoM, um.Id as UoMId, BaseUoMFactor=case when M.BaseUOMId=i.UnitOfMeasurementId then 1 else 1 end
+                ,B.UserName BudgetName,ACT.UserName ActivityName,BM.Id BudgetMasterId,BM.GLGeneralInfoId,ACT.Id ExpenseActivityId,M.MaterialGroupMasterId
+                ,'' CostCenterName,''CostCenterId,'' Id,'' RequestedQty
+                FROM dbo.MaterialIssueControlDetail D 
+                INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
+                left join [SCS].[UnitOfMeasurement] um on um.Id = i.UnitOfMeasurementId
+                LEFT JOIN MST.MaterialMaster M ON M.Id=D.MaterialMasterId
+                LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
+                LEFT JOIN HKP.MaterialGroupGL MGGL ON MGGL.Id=M.MaterialGroupMasterId
+                LEFT JOIN MST.BudgetMaster BM ON BM.Id=MGGL.InventoryBudgetMasterId
+                LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+                LEFT JOIN HKP.Activity ACT ON ACT.Id=MGGL.InventoryActivityId
+				LEFT JOIN (SELECT MaterialIssueControlDetailId, SUM(ISNULL(RequestedQty,0)) IssueQty,TransactionUoMId 
+							FROM TRN.IssueRequest GROUP BY MaterialIssueControlDetailId,TransactionUoMId)IR ON IR.MaterialIssueControlDetailId=D.Id
+                WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -720,26 +735,31 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         }
 
         [HttpPost]
-        public JsonResult CreateIssue(Dictionary<string, object> model, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList, List<InventoryMaterialViewModel> dataLists, IEnumerable<InventoryMaterialViewModel> specificStockList)
+        public JsonResult CreateIssue(Dictionary<string, object> model, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList, List<IssueRequestViewModel> dataLists)
         {
             try
             {
-                InventoryIssue inventoryIssue = new InventoryIssue();
+                IssueRequestMaster inventoryIssue = new IssueRequestMaster();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
                 inventoryIssue.CompanyId = identity.CompanyId;
                 inventoryIssue.PlantId = identity.PlantId;
+                inventoryIssue.CheckedBy = model["CheckedBy"].ToString(); 
+                inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
+                inventoryIssue.CompanyId = identity.CompanyId;
+                inventoryIssue.PlantId = identity.PlantId;
+                inventoryIssue.Orderspecific = "No";
+                inventoryIssue.IssueSlipType = "InventorySlip";
+                inventoryIssue.Preparedby = model["ByWhomId"].ToString();
                 inventoryIssue.ProductionOrderId = model["POId"].ToString();
-                inventoryIssue.EntityId = model["EntityId"].ToString();
-                inventoryIssue.EmployeeId = model["ByWhomId"].ToString();
-                inventoryIssue.MaterialStorageId = model["MaterialStorageId"].ToString();
-                inventoryIssue.IssueDate = Convert.ToDateTime(model["IssueDate"].ToString());
-                inventoryIssue.IssueType = model["IssueType"].ToString();
 
-                SaveApproveData(model, soList, dataList);
-                List<InventoryMaterialViewModel> entitiesVM = dataLists;
-                List<InventoryMaterialViewModel> entitiesAllVM = dataLists;
-                _inventoryIssueService.InsertGraph(entitiesVM, specificStockList, inventoryIssue, "Inventory", entitiesAllVM);
+                SaveIssueData(model, soList, dataList);
+                List<IssueRequestViewModel> entityDetailVM = dataLists;
+                List<IssueRequestViewModel> entityGroupDataVM = dataLists;
+                List<IssueRequestViewModel> SOListSelectedNewDetailVM = null;
+                List<IssueRequestViewModel> MaterialColorListNewDetailVM = null;
+                
+                _issueRequestService.InsertOrUpdateGraphIssueSlipCreate(inventoryIssue, entityDetailVM, entityGroupDataVM, inventoryIssue.IssueSlipType, null, null, SOListSelectedNewDetailVM, MaterialColorListNewDetailVM, null);
                 return Json(new { Data = model, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -748,14 +768,14 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
             }
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetInventoryIssueByProductionOrder(string productionOrderId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryIssueService.GetInventoryIssueByProductionOrder(identity.PlantId, productionOrderId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-        }
+        //[Authorize, HttpGet]
+        //public JsonResult GetInventoryIssueByProductionOrder(string productionOrderId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    var jsondata = Json(_inventoryIssueService.GetInventoryIssueByProductionOrder(identity.PlantId, productionOrderId), JsonRequestBehavior.AllowGet);
+        //    jsondata.MaxJsonLength = int.MaxValue;
+        //    return jsondata;
+        //}
 
         private void SaveIssueData(Dictionary<string, object> data, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList)
         {
@@ -785,65 +805,65 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
 
                 _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                #region MaterialIssueControlSODetail 
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlSODetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsSOChild, false, "1");
-                int socount = 0;
-                if (soList != null)
-                {
-                    foreach (var item in soList)
-                    {
-                        socount++;
-                        DataView dv = new DataView(dsSOChild.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                //#region MaterialIssueControlSODetail 
+                //objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlSODetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsSOChild, false, "1");
+                //int socount = 0;
+                //if (soList != null)
+                //{
+                //    foreach (var item in soList)
+                //    {
+                //        socount++;
+                //        DataView dv = new DataView(dsSOChild.Tables[0]);
+                //        dv.RowFilter = "Id='" + item["Id"] + "'";
 
 
-                        if (dv.Count == 0)
-                        {
-                            item["Id"] = _Id + "-" + socount;
-                            item["MaterialIssueControlMasterId"] = _Id;
-                            item["SOQty"] = item["PlannedQty"];
+                //        if (dv.Count == 0)
+                //        {
+                //            item["Id"] = _Id + "-" + socount;
+                //            item["MaterialIssueControlMasterId"] = _Id;
+                //            item["SOQty"] = item["PlannedQty"];
 
-                            AddNewRow(dsSOChild.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
-                    }
-                }
+                //            AddNewRow(dsSOChild.Tables[0], item);
+                //        }
+                //        else
+                //        {
+                //            DataRow drmo = dv[0].Row;
+                //            EditRow(drmo, item);
+                //        }
+                //    }
+                //}
 
-                #endregion
+                //#endregion
 
-                #region MaterialIssueControlDetail 
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlDetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsChild, false, "1");
-                int ccount = 0;
-                if (dataList != null)
-                {
-                    foreach (var item in dataList)
-                    {
-                        ccount++;
-                        DataView dv = new DataView(dsChild.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                //#region MaterialIssueControlDetail 
+                //objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlDetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsChild, false, "1");
+                //int ccount = 0;
+                //if (dataList != null)
+                //{
+                //    foreach (var item in dataList)
+                //    {
+                //        ccount++;
+                //        DataView dv = new DataView(dsChild.Tables[0]);
+                //        dv.RowFilter = "Id='" + item["Id"] + "'";
 
 
-                        if (dv.Count == 0)
-                        {
-                            item["Id"] = _Id + "-" + ccount;
-                            item["MaterialIssueControlMasterId"] = _Id;
-                            AddNewRow(dsChild.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
-                    }
-                }
+                //        if (dv.Count == 0)
+                //        {
+                //            item["Id"] = _Id + "-" + ccount;
+                //            item["MaterialIssueControlMasterId"] = _Id;
+                //            AddNewRow(dsChild.Tables[0], item);
+                //        }
+                //        else
+                //        {
+                //            DataRow drmo = dv[0].Row;
+                //            EditRow(drmo, item);
+                //        }
+                //    }
+                //}
 
-                #endregion
+                //#endregion
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsSOChild, dsChild);
+                obj.SaveDataSets(dsMaster);
 
             }
             catch (Exception ex)

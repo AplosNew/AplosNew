@@ -13,6 +13,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     $scope.Action = 'Save';
     $scope.path = 'Machines/MaintenanceScheduling/';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrlMachine = $scope.path + 'createMachineGroup';
     $scope.saveUrlAsset = $scope.path + 'createAsset';
     $scope.saveUrlItem = $scope.path + 'createItem';
     $scope.saveUrlParameter = $scope.path + 'createParameter';
@@ -284,6 +285,29 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         var gridObj = $("#GridMachine").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
+    $scope.refreshTemplateMachineGroup = function (args) {
+        $("#MGheadchk").ejCheckBox({ "change": CheckBoxSelectAllMachine });
+    };
+    function CheckBoxSelectAllMachine(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridMachineGroup").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ScheduleMachineGroupList.length; i++) {
+                $scope.ScheduleMachineGroupList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridMachineGroup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
     $scope.MaintenanceMasterList = [];
     $scope.LoadMaintenanceMasterList = function () {
         $http({
@@ -299,16 +323,67 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     $scope.LoadMaintenanceMasterList();
    
     $scope.ScheduleMachineList = [];
-    $scope.LoadMachineDetails = function (data,pid) {
+    $scope.LoadMachineDetails = function (pid) {
         $http({
 
             method: 'Get',
-            url: 'Machines/MaintenanceScheduling/LoadMachineDetails?MachineId=' + data + '&ScheduleId=' + pid
+            url: 'Machines/MaintenanceScheduling/LoadMachineDetails?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.ScheduleMachineList = response.data;
         }
         )
     }
+
+    $scope.ScheduleMachineGroupList = [];
+    $scope.LoadMachineGroupDetails = function (pid) {
+        $http({
+
+            method: 'Get',
+            url: 'Machines/MaintenanceScheduling/LoadMachineGroupDetails?ScheduleId=' + pid
+        }).then(function successCallback(response) {
+            $scope.ScheduleMachineGroupList = response.data;
+        }
+        )
+    }
+
+    $scope.MachineGroupSave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.ScheduleMachineGroupList.length; i++) {
+                if ($scope.ScheduleMachineGroupList[i].Flag == true) {
+                    $scope.ScheduleMachineGroupList[i].MaintenanceSchedulingId = $scope.scheduleNew.Id;
+                    $scope.SaveList.push($scope.ScheduleMachineGroupList[i]);
+                }
+            }
+
+
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlMachine,
+                data: {
+                    "DataList": $scope.SaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadMachineGroupDetails($scope.scheduleNew.Id);
+                    $scope.LoadMachineDetails($scope.scheduleNew.Id);
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
 
     $scope.MachineSave = function () {
         try {
@@ -336,7 +411,8 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    $scope.LoadMachineDetails($scope.scheduleNew.MachineMasterId, $scope.scheduleNew.Id);
+                    //$scope.LoadMachineDetails($scope.scheduleNew.MachineMasterId, $scope.scheduleNew.Id);
+                    $scope.LoadMachineDetails($scope.scheduleNew.Id);
                     $scope.Action = 'Save';
                 }
 
@@ -751,7 +827,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     };
 
 
-    $scope.tab = 1;
+    $scope.tab = 5;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
 
@@ -770,7 +846,8 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
             $scope.scheduleNew.MachineName = response.data.schedule[0].MachineName;
             $scope.scheduleNew.MachineMasterId = response.data.schedule[0].MachineMasterId;
             $scope.scheduleNew.ResponsiblePersoneBgtCode = response.data.schedule[0].ResponsiblePersoneBgtCode;
-            $scope.LoadMachineDetails($scope.scheduleNew.MachineMasterId, $scope.ScheduleMasterId);
+            $scope.LoadMachineGroupDetails($scope.ScheduleMasterId);
+            $scope.LoadMachineDetails($scope.ScheduleMasterId);
             $scope.LoadItemDetails($scope.ScheduleMasterId);
             $scope.LoadStoresDetails($scope.ScheduleMasterId);
             $scope.LoadBudgetCodeDetails($scope.ScheduleMasterId);

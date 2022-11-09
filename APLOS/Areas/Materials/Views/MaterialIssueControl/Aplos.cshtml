@@ -431,3 +431,81 @@
             </div>
         </div>
     </div>*@
+
+<div class="modal site-modal" id="ListIssueSlipPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Inventory Issue Slip<button type="button" class="close" ng-click="IssueSlipTypeHide();">&times;</button></div>
+            <div class="modal-body" style="width:900px;">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchBySlipMaterial">
+                                            <option ng-repeat="option in searchBySlipList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchSlip" ng-enter="GetIssueSlipFilterData();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetIssueSlipFilterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="color:black;width:800px;" id="GridPopup" ej-grid e-datasource="IssueSlipListPopup" e-templaterefresh="refreshIssueSlip"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-gridlines="vertical" e-allowtouch="true" e-allowResizing="true">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate2" e-template="#checkboxTemplate2" e-textalign="center" e-width="30"></div>
+                        <div e-column e-type="string" e-field="MaterialType" e-headertext="Material Type" e-width="100"></div>
+                        <div e-column e-type="string" e-field="MaterialMasterGroupName" e-headertext="Material Group Name" e-width="200"></div>
+                        <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material Name" e-width="80"></div>
+                        <div e-column e-type="string" e-field="StandardName" e-headertext="Article" e-width="80"></div>
+                        <div e-column e-type="string" e-field="FirstCharacteristicsValue" e-headertext="Sku1" e-width="80"></div>
+                        <div e-column e-type="string" e-field="SecondCharacteristicsValue" e-headertext="Sku2" e-width="80"></div>
+                        <div e-column e-type="string" e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
+                        <div e-column e-type="string" e-field="CountryName" e-headertext="Country" e-width="80"></div>
+                        <div e-column e-type="string" e-field="SalesOrderId" e-headertext="Sales Order" e-width="80"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="RequisitionQty" e-headertext="Requested Qty" e-width="70" e-textalign="right"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalQty" e-headertext="StockQty" e-width="80" e-textalign="right"></div>
+                        <div e-column e-type="string" e-field="StockUOM" e-headertext="S.B.UoM" e-width="70"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="IssuedQty" e-headertext="IssuedQty" e-width="80" e-textalign="right"></div>
+                        <div e-column e-type="string" e-field="consumptionUoM" e-headertext="Con.UOM" e-width="60"></div>
+                        <div e-column e-type="string" e-field="TransactionUoMName" e-headertext="TranUOM" e-width="60"></div>
+                        <div e-column e-type="string" e-field="POUoMName" e-headertext="POUoM" e-width="60"></div>
+                        <div e-column e-type="string" e-field="Consumption" e-headertext="Consumption" e-width="150"></div>
+                        <div e-column e-type="string" e-field="WastagePer" e-headertext="WastagePer" e-width="80"></div>
+
+                    </div>
+                </div>
+                <script type="text/x-jsrender" id="headerTemplate2">
+                    <input type="checkbox" id="headchk10" />
+                </script>
+
+                <script type="text/template" id="checkboxTemplate2">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.check" e-value="data.check" />
+                </script>
+
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="AddRow();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Add</button></li>
+                        <li><button ng-click="IssueSlipTypeHide();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+
+                    </ul>
+                </div>
+            </div>
+            <i>**Showing top 500   order by Stock Qty</i>
+        </div>
+
+    </div>
+
+
+</div>

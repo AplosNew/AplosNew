@@ -87,6 +87,13 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(dl.GetWorkCenter(), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetDepartment()
+        {
+
+            return Json(dl.GetDepartment(), JsonRequestBehavior.AllowGet);
+        }
+
         #region Save Operations
         [Authorize, HttpPost]
         public JsonResult Save(Dictionary<string, object> data)
