@@ -24,12 +24,7 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
 
-        [Authorize, HttpPost]
-        public JsonResult GetEntity()
-        {
-
-            return Json(dl.GetEntity(), JsonRequestBehavior.AllowGet);
-        }
+        
 
         [Authorize, HttpPost]
         public ActionResult GetDetentionDepartment()
@@ -39,10 +34,10 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetDetentionResponsible(string detentionId)
+        public ActionResult GetDetentionResponsible(string detentionTypeId)
         {
 
-            return Json(dl.GetDetentionResponsible(detentionId), JsonRequestBehavior.AllowGet);
+            return Json(dl.GetDetentionResponsible(detentionTypeId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -60,10 +55,10 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getDetentionTypeListByDepartment(string departmentid)
+        public ActionResult getDetentionTypeListByDepartment()
         {
 
-            return Json(dl.getDetentionTypeListByDepartment(departmentid), JsonRequestBehavior.AllowGet);
+            return Json(dl.getDetentionTypeListByDepartment(), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -81,10 +76,17 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetWorkCenter()
+        public ActionResult GetWorkCenter(string processId)
         {
 
-            return Json(dl.GetWorkCenter(), JsonRequestBehavior.AllowGet);
+            return Json(dl.GetWorkCenter(processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetDepartment(string detentiontypeId)
+        {
+
+            return Json(dl.GetDepartment(detentiontypeId), JsonRequestBehavior.AllowGet);
         }
 
         #region Save Operations

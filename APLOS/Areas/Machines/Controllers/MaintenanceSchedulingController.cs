@@ -125,10 +125,10 @@ namespace Aplos.Areas.Machines.Controllers
                     {
                         throw new Exception("User Name Already Exist.");
                     }
-                    else if (dsMaintenanceScheduleMNameValidation.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("Machine Name Already Exist.");
-                    }
+                    //else if (dsMaintenanceScheduleMNameValidation.Tables[0].Rows.Count > 0)
+                    //{
+                    //    throw new Exception("Machine Name Already Exist.");
+                    //}
                     else
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
@@ -459,18 +459,60 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public ActionResult LoadMachineDetails(string MachineId, string ScheduleId)
+        public ActionResult LoadMachineDetails(string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN MMA.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMA.Id,MMA.SNO,MMA.AssetGroup,MMA.Remarks,MMA.MaintenanceSchedulingId,
-MA.Id as AssetId,MA.AssetName,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA.MachineMasterId,
-MM.UserName as MachineName,MA.AssetCode,E.UserName as Entity,MA.EntityId
+MA.Id as AssetId,MA.AssetName,MA.AssetReference,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA.MachineMasterId,
+MM.UserName as MachineName,MM.MachineMake as Make,MM.MachineModel as Model,MA.AssetCode,E.UserName as Entity,MA.EntityId
  from MachineMasterAsset MA
  left Join SCS.WorkCenterMaster WC On WC.id=MA.WorkCenterMasterId
  left Join MST.MachineMaster MM ON MM.Id=MA.MachineMasterId
  left Join ORG.Entity E on E.Id=MA.EntityId
  left Join [TRN].[MaintenanceMachineAsset] MMA ON MMA.AssetId=MA.Id and MMA.MaintenanceSchedulingId='" + ScheduleId + @"'
- where MA.MachineMasterId = '"+ MachineId + "'";
+ where MA.MachineMasterId in (select MachineMasterId from [TRN].[MaintenanceMachineGroup] where MaintenanceSchedulingId='" + ScheduleId + "')";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadMachineGroupDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT CAST (CASE WHEN MMG.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMG.Id,MM.Id as MachineMasterId
+                                  ,CG.StandardName As CompanyGroup
+                                  ,MM.Sequence
+                                  ,MM.Code
+                                  ,MM.ShortName
+	                              ,MM.StandardName
+                                  ,MM.UserName
+	                              ,MC.UserName AS MachineCategory
+	                              ,MSC.UserName AS MachineSubCategory
+	                              ,SK.UserName AS Skill
+                                  ,MM.Description
+                                  ,MM.MachineMake
+                                  ,MM.MachineModel
+                                  ,MM.MachinePerticulars
+                                  ,MM.Remarks
+                                  ,MM.ProductionMachineQty
+                                  ,MM.SampleMachineQty
+                                  ,MM.TrainingMachineQty
+                                  ,MM.RentMachineQty
+                                  ,MM.OtherMachineQty
+								  ,MM.ConnectedPower
+								  ,MM.RunningLoad
+								  ,MM.ConnectedSteam
+								  ,MM.RunningSteam
+								  ,MM.ConnectedAir
+								  ,MM.RunningAir
+								  ,MM.MaintanenceScheduleApplicable
+                                  ,MM.Active
+     
+                              FROM MST.MachineMaster As MM
+                             LEFT JOIN ORG.CompanyGroup AS CG on CG.ID=MM.CompanyGroupID
+                             LEFT JOIN  HKP.MachineCategory AS MC on MC.Id=MM.MachineCategoryId
+                             LEFT JOIN HKP. MachineSubCategory AS MSC  on MSC.ID=MM.MachineSubCategoryID
+                             LEFT JOIN [TRN].[MaintenanceMachineGroup] MMG ON MMG.MachineMasterId=MM.id and MMG.MaintenanceSchedulingId='" + ScheduleId + @"'
+                             LEFT JOIN HKP.Skill AS SK ON SK.ID=MM.SkillId  order by MMG.MachineMasterId  desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
@@ -524,6 +566,51 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                             (select UserName from [HKP].[DetentionType] where Id=DetentionTypeId) as DetentionType
                             FROM DetentionMaster";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult CreateMachineGroup(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[MaintenanceMachineGroup]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and MaintenanceSchedulingId='" + item["MaintenanceSchedulingId"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "MMG" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
         }
         [Authorize, HttpPost]
         public ActionResult CreateAsset(List<Dictionary<string, object>> DataList)

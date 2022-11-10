@@ -412,9 +412,14 @@ function cboService($http, $window, $rootScope, baseService) {
         , getContractFundCbo: getContractFundCbo
         , getPerformanceGroupListCbo: getPerformanceGroupListCbo
         , getbyDesignationMasterCbo: getbyDesignationMasterCbo
+        , getUtilityGroupCbo: getUtilityGroupCbo
 
     };
 
+
+    function getUtilityGroupCbo(callback) {
+        base('Materials/UtilityGroup/GetCbo', callback);
+    }
 
     function getbyDesignationMasterCbo(callback) {
         base('Organizations/Designation/GetbyDesignationMasterCbo', callback);

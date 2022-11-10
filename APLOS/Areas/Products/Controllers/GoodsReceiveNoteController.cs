@@ -1659,7 +1659,12 @@ namespace Aplos.Areas.Products.Controllers
 
         }
 
-
+        [HttpGet, Authorize]
+        public JsonResult IssueListDataByProudctionOrder(string IssueStatus, string IssueSlipType,string productionOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.IssueListDataByProudctionOrder(IssueStatus, IssueSlipType, productionOrderId), JsonRequestBehavior.AllowGet);
+        }
 
         #region Requisition Inventory IssueUI Or Request
 
@@ -1782,6 +1787,14 @@ namespace Aplos.Areas.Products.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_inventoryReveiveService.GetIssueSlipFilterData(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetStockForMaterialIssue(string materialMasterId,string articleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetStockForMaterialIssue(identity.PlantId, materialMasterId, articleId), JsonRequestBehavior.AllowGet);
 
         }
         #endregion

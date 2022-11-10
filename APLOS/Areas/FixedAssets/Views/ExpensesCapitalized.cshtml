@@ -122,66 +122,47 @@
         </ul>
     </div>
 </div>
-<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="$root.parameters.searchBy">
-                            <option ng-repeat="option in searchInvoiceList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
+
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchByPostedGRN">
+                                <option ng-repeat="option in searchByPostedGRNList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
-                </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchGRN" ng-enter="getDataList();">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<div class="table-responsive modal-table aplos-grid-toggle">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>VoucherNo</th>
-                <th>@Library.Model.Parties.PartyType.Vendor.ToString()</th>
-                <th>Invoicing @Library.Model.Parties.PartyType.Vendor.ToString()</th>
-                <th>Posting Date</th>
-                <th>Currency</th>
-                <th>Amount</th>
-                <th>Written-off Amount</th>
-                <th>Balance</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr dir-paginate="x in invoiceList |itemsPerPage:$root.pageSize" total-items="$root.total_count" @*ng-dblclick="Get($index);"*@>
-                <td>{{x.VoucherNo}}</td>
-                <td>{{x.PartyCode}} - {{x.PartyName}}</td>
-                <td>{{x.PartyPlantName}}</td>
-                <td>{{x.PostingDate | dateFiltering}}</td>
-                <td>{{x.CurrencyCode}}</td>
-                <td class="text-right">{{x.Amount | number:2}}</td>
-                <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
-                <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>
-                <td>{{x.IsPark?'Parked':'Posted'}}</td>
-                <td class="text-right">
-                    <ul class="list-inline action-list">
-                        <li ng-show="x.IsPoste || x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
-                        <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
-                        <li><a class="btn btn-action" href="Accounts/Invoice/ReportVendorInvoice?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                        <li><a class="btn btn-action" href="Accounts/Invoice/ReportVendorInvoice?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
-                    </ul>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+    <div class="content-container-fluid" style="color:black;">
+        <div style="color:black;" id="GridPrint" ej-grid e-datasource="products" e-allowfiltering="true" e-allowpaging="true"
+             e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+             e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+            <div e-columns>
+                <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60" textAlign='Right'></div>
+                <div e-column e-field="Amount" e-headertext="Amount" e-width="100" textAlign='Right'></div>
+                <div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
+                <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
+                @*<div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>*@
+            </div>
+        </div>
+    </div>
+    @*<i>**Showing top 100 Posted GRN  order by PostingDate</i>*@
 </div>
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLMappingPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_AssetMasterGLBudgetActivityPopUp.cshtml")

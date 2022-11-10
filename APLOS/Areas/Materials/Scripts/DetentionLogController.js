@@ -15,7 +15,8 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
     var LogTime = new Date();
     $scope.ModalTemp = {
         Id: null,
-        DetentionTypeId: null,        
+        DetentionTypeId: null,  
+        DepartmentId:null,
         WorkCenterId: null,
         CellPhnNo: null,
         IssueByNo: null,
@@ -23,14 +24,14 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
         LoginTime: LogTime,
         isClose: false,
         isUpdate: 0,
-        MachineMasterId:null
+        ProcessId:null
     };
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
    
     // Responsible Person
     $scope.openEmployeePopUp = function () {
-        $scope.getsR();
+        //$scope.getsR();
         angular.element(document.querySelector('#ResponiblePersonPop')).modal('show');
     }
     $scope.ResponsibleList = [];
@@ -38,7 +39,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
     $scope.getsR = function () {
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLog/GetDetentionResponsible?detentionId=' + $scope.ModalNew.DetentionId,
+            url: 'Materials/DetentionLog/GetDetentionResponsible?detentionTypeId=' + $scope.ModalNew.DetentionTypeId,
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.ResponsibleList = resp.data;
@@ -46,7 +47,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
             for (var i = 0; i < $scope.userResponsiblePersonList.length; i++) {
                 for (var j = 0; j < $scope.ResponsibleList.length; j++) {
                     if ($scope.userResponsiblePersonList[i].Id === $scope.ResponsibleList[j].Id) {
-                        $scope.ResponsibleList[j].chk = true;
+                        $scope.ResponsibleList[j].isActive = true;
                     }
                 }
             }
@@ -68,8 +69,8 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
         }
 
         for (var i = 0; i < $scope.ResponsibleList.length; i++) {
-            $scope.ResponsibleList[i].chk = ChkOrUnchk;
-            $scope.chkdResponsiblePersonList = $scope.ResponsibleList[i].chk;
+            $scope.ResponsibleList[i].isActive = ChkOrUnchk;
+            $scope.chkdResponsiblePersonList = $scope.ResponsibleList[i].isActive;
         }
 
         var gridObj = $("#GridResponsible").data("ejGrid");
@@ -92,7 +93,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
             if (baseService.arrayLength($scope.ResponsibleList) > 0) {
                 angular.forEach($scope.ResponsibleList, function (a) {
                     //if (checkResponsiblePersonExist($scope.userResponsiblePersonList, a.Id) === false) {
-                        if (a.chk) {
+                    if (a.isActive) {
                             var ob = {};
                             ob.Id = null;
                             ob.ResponsiblePersonId = a.ResponsiblePersonId; 
@@ -165,13 +166,13 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
     $scope.WorkCenter = function () {
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLog/GetWorkCenter',
+            url: 'Materials/DetentionLog/GetWorkCenter?processId=' + $scope.ModalNew.ProcessId,
         }).then(function successCallback(response) {
             $scope.WorkCenterList = response.data;
 
         });
     }
-    $scope.WorkCenter();
+    
     // Get Workcenter by pressing on key suggest
     
    
@@ -198,6 +199,17 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
         })
     }
     $scope.getIssueByNo();
+
+    $scope.DepartmentList = [];
+    $scope.GetDepartment = function () {
+        $http.get('Materials/DetentionLog/GetDepartment?detentiontypeId='+$scope.ModalNew.DetentionTypeId)
+            .then(
+                function successCallback(response) {
+                    $scope.DepartmentList = response.data;
+                }
+        )
+    }
+    //$scope.GetDepartment();
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -241,8 +253,8 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
         }
 
         for (var i = 0; i < $scope.ResponsibleList.length; i++) {
-            $scope.ResponsibleList[i].chk = ChkOrUnchk;
-            $scope.chkdResponsiblePersonList = $scope.ResponsibleList[i].chk;
+            $scope.ResponsibleList[i].isActive = ChkOrUnchk;
+            $scope.chkdResponsiblePersonList = $scope.ResponsibleList[i].isActive;
         }
 
         var gridObj = $("#GridResponsible").data("ejGrid");
@@ -267,7 +279,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
             if (baseService.arrayLength($scope.BudgetCodeList) > 0) {
                 angular.forEach($scope.ResponsibleList, function (a) {
                     if (checkResponsiblePersonExist($scope.userResponsiblePersonList, a.Id) === false) {
-                        if (a.chk) {
+                        if (a.isActive) {
                             var ob = {};
                             ob.Id = null;
                             //ob.EmployeeCode = a.EmployeeCode;
@@ -361,6 +373,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
             dataType:'JSON',
         }).then(function successCallback(response) {
             $scope.MachineMasterAssetList = response.data;
+            
         });
     }
     $scope.getMachineMasterAsset();

@@ -76,15 +76,16 @@ namespace Aplos.Areas.Materials.Controllers
         [Authorize, HttpPost]
         public ActionResult getUtilityTransactionData(string ToDate, string FromDate)
         {
-            var str = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category,UM.Item
+            var str = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UG.UserName [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category,UM.Item
 							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
 							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
 							from UtilityTransaction UT
 							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
 							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
+                            left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
                              where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
                              group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
-							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks";
+							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -170,6 +171,10 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColReading = COL;
                 COL++;
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColAmount = COL;
+                COL++;
 
                 sheet[ROW, COL].Text = "Remarks";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -198,10 +203,13 @@ namespace Aplos.Areas.Materials.Controllers
                     sheet[ROW, ColItem].Text = data.Rows[i]["Item"].ToString();
                     sheet[ROW, ColGroup].Text = data.Rows[i]["Group"].ToString();
                     sheet[ROW, ColSubGroup].Text = data.Rows[i]["SubGroup"].ToString();
-                    sheet[ROW, ColQuantity].Text = data.Rows[i]["Quantity"].ToString();
-                    sheet[ROW, ColReading].Text = data.Rows[i]["Reading"].ToString();
+                    sheet[ROW, ColQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
+                    sheet[ROW, ColQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColReading].Number = clsStaticInfo.dbl(data.Rows[i]["Reading"].ToString());
+                    sheet[ROW, ColReading].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
+                    sheet[ROW, ColAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
-
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -262,15 +270,16 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                string strSQL = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
+                string strSQL = @"SELECT UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UG.UserName [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
 							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
-							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
+							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks,UM.MultiplyingFactor*UT.Reading Amount
 							from UtilityTransaction UT
 							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
+                            left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
 							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
 							where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
 							group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
-							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks";
+							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName,UM.MultiplyingFactor";
 
                 data = _sqlRepository.GetDataTable(strSQL);
             }

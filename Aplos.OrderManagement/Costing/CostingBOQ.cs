@@ -45,12 +45,15 @@ namespace Library.OrderManagement.Costing
             //                           LEFT JOIN CostingBOQItems ITM ON itm.OrderProcurementCostingDirectMaterialId=cm.Id AND isnull(ITM.CostingBOQMasterId,'')='" + CostingBOQMasterId + @"'
             //                           LEFT JOIN CostingBOQItems PRE ON pre.OrderProcurementCostingDirectMaterialId=cm.Id AND isnull(pre.CostingBOQMasterId,'')<>'" + CostingBOQMasterId + @"'
             //Order By PRE.Id, ci.Sequence";
-
+            string costingStage = "";
             string soIds = "''";
+            string sql = "";
             for (int i = 0; i < SelectedSalesOrderIds.Count; i++)
                 soIds += ",'" + SelectedSalesOrderIds[i]["SalesOrderId"].ToString() + "'";
 
-            string sql = @"SELECT 
+            costingStage = SelectedSalesOrderIds[0]["CostingStage"].ToString();
+
+            sql = @"SELECT 
                             convert(bit,CASE WHEN isnull(cb.Id,'')='' THEN 0 ELSE 1 END,0) AS Saved, convert(bit,CASE WHEN isnull(cb.Id,'')='' THEN 0 ELSE 1 END,0) AS Selected,cm.OrderCostingMasterTemplateId,
                             ci.Sequence,isnull(tr.SOCount,0) SOCount,
                              cm.Id, cm.CostingItemId, cm.Consumption,uom.UserName AS UOM,CM.GrossConsumption,CM.GrossAmount,
@@ -75,7 +78,9 @@ namespace Library.OrderManagement.Costing
                             --LEFT JOIN CostingBOQItems PRE ON pre.OrderProcurementCostingDirectMaterialId=cm.Id AND isnull(pre.CostingBOQMasterId,'')<>''
                         Order By  ci.Sequence ";
 
-            sql = @"SELECT 
+            if (costingStage== "ProcurementCosting")
+            {
+                sql = @"SELECT 
                             convert(bit,CASE WHEN isnull(cb.SOCount,0)=0 THEN 0 ELSE 1 END,0) AS Saved, convert(bit,CASE WHEN isnull(cb.SOCount,0)=0 THEN 0 ELSE 1 END,0) AS Selected,cm.OrderCostingMasterTemplateId,
                             ci.Sequence,isnull(tr.SOCount,0) SOCount,
                              cm.Id, cm.CostingItemId, cm.Consumption,uom.UserName AS UOM,CM.GrossConsumption,CM.GrossAmount,
@@ -101,6 +106,36 @@ namespace Library.OrderManagement.Costing
 									 GROUP BY cb.OrderProcurementCostingDirectMaterialId) AS CB ON CB.OrderProcurementCostingDirectMaterialId=cm.Id
                           
                       Order BY  CASE WHEN convert(bit,CASE WHEN isnull(cb.SOCount,0)=0 THEN 0 ELSE 1 END,0)=0 AND isnull(tr.SOCount,0)=" + SelectedSalesOrderIds.Count + @" THEN 1 ELSE 0 END,ci.Sequence ";
+            }
+            else
+            {
+                sql = @"SELECT 
+                            convert(bit,CASE WHEN isnull(cb.SOCount,0)=0 THEN 0 ELSE 1 END,0) AS Saved, convert(bit,CASE WHEN isnull(cb.SOCount,0)=0 THEN 0 ELSE 1 END,0) AS Selected,cm.OrderCostingMasterTemplateId,
+                            ci.Sequence,isnull(tr.SOCount,0) SOCount,
+                             cm.Id, cm.CostingItemId, cm.Consumption,uom.UserName AS UOM,CM.GrossConsumption,CM.GrossAmount,
+                            ci.UserName AS ItemDescription,
+                                   CM.[Description], CM.SourcingType, CM.Remarks,ei.EmployeeName AS ResponsiblePerson,
+                                   mm.UserName AS Material,mma.StandardName AS Article
+                              FROM OrderPreCostingDirectMaterial AS CM
+                         INNER JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=cm.OrderCostingMasterTemplateId
+                            INNER JOIN trn.SalesOrder AS so ON  so.Id='" + SalesOrderId + @"' and so.MasterOrderItemId=moi.id
+                               INNER JOIN hkp.CostingItem AS ci ON ci.Id=cm.CostingItemId
+                            LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=cm.MaterialMasterId
+                            LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=cm.ArticleId
+                            LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=cm.ResponsiblePersonId
+                            LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=ci.UnitOfMeasurementId
+                            LEFT JOIN ( SELECT cb.OrderProcurementCostingDirectMaterialId,COUNT(DISTINCT cb.SalesOrderId) AS SOCount
+									   FROM CostingBOQItems AS cb
+									 WHERE cb.SalesOrderId IN (" + soIds + @")
+									 GROUP BY cb.OrderProcurementCostingDirectMaterialId) AS TR ON tr.OrderProcurementCostingDirectMaterialId=cm.Id
+									 
+							LEFT JOIN ( SELECT cb.OrderProcurementCostingDirectMaterialId,COUNT(DISTINCT cb.SalesOrderId) AS SOCount
+									   FROM CostingBOQItems AS cb
+									 WHERE cb.SalesOrderId IN (" + soIds + @") AND cb.CostingBOQMasterId='" + CostingBOQMasterId + @"'
+									 GROUP BY cb.OrderProcurementCostingDirectMaterialId) AS CB ON CB.OrderProcurementCostingDirectMaterialId=cm.Id
+                          
+                      Order BY  CASE WHEN convert(bit,CASE WHEN isnull(cb.SOCount,0)=0 THEN 0 ELSE 1 END,0)=0 AND isnull(tr.SOCount,0)=" + SelectedSalesOrderIds.Count + @" THEN 1 ELSE 0 END,ci.Sequence ";
+            }
 
             return _sqlRepository.GetDataCollection(sql);
         }

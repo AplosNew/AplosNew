@@ -4195,12 +4195,24 @@ namespace Library.Service.Invoices
                 foreach (var item in voucherdetail)
                 {
                     var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
+                    var invoiceDetailCharges = _invoiceDetailChargesRepository.Query(r=>r.VoucherDetailId== item.Id).Select().ToList();
                     if (gltransaction.Count > 0)
                     {
                         foreach (var item1 in gltransaction)
                         {
                             _voucherService.DeleteGLTransactionDetail(item1.Id);
 
+                        }
+
+                    }
+                    if (invoiceDetailCharges.Count > 0)
+                    {
+                        foreach (var invDeChar in invoiceDetailCharges)
+                        {
+                            var rdBuilder = new System.Text.StringBuilder();
+                            var builderSql = @"DELETE [TRN].InvoiceDetailCharges  WHERE VoucherDetailId='" + invDeChar.VoucherDetailId + "'";
+                            rdBuilder.Append(builderSql);
+                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                         }
 
                     }

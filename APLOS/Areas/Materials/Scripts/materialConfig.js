@@ -314,4 +314,8 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/MaterialIssueControl/issue',
             controller: 'MaterialIssueController'
         })
+        .when('/utility-group', {
+            templateUrl: 'Materials/UtilityGroup',
+            controller: 'UtilityGroupController'
+        })
 };

@@ -13000,6 +13000,165 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
+
+        public IEnumerable<object> GetStockForMaterialIssue(string plantId,string materialMasterId,string articleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = @"select top 500 * from ( SELECT MGM.UserName MaterialMasterGroupName
+                                	,GRN.InventoryMaterialId
+                                	,MT.UserName MaterialType
+                                	,NULL AS uoMList
+                                	,mm.Id MaterialMasterId
+                                	,mm.UserName MaterialMasterName
+                                	,MRD.ArticleId
+                                	,ART.StandardName
+                                	,MRD.FirstCharacteristicsId
+                                	,FC.UserName AS FirstCharacteristics
+                                	,MRD.FirstCharacteristicsValueId
+                                	,isnull(FCV.UserName, '') AS FirstCharacteristicsValue
+                                	,MRD.SecondCharacteristicsId
+                                	,SC.UserName AS SecondCharacteristics
+                                	,MRD.SecondCharacteristicsValueId
+                                	,isnull(SCV.UserName, '') AS SecondCharacteristicsValue
+                                	,MRD.ThirdCharacteristicsId
+                                	,TC.UserName AS ThirdCharacteristics
+                                	,MRD.ThirdCharacteristicsValueId
+                                	,isnull(TCV.UserName, '') AS ThirdCharacteristicsValue
+                                	,Isnull(C.UserName, '') CountryName
+                                	,C.Id CountryId
+                                	,TUoM.Id AS TransactionUoMId
+                                	,TUoM.UserName AS UOM
+                                	,(0) RequestedQty
+                                	,(0) RejectedQty
+                                	,(isnull(GRN.TransactionQty, 0) - (isnull(Issue.IssueQty, 0) - isnull(PurchaseReturnData.Qty, 0) - isnull(InventorySalesData.Qty, 0) - isnull(InventoryTransferData.Qty, 0))) TotalQty
+                                	,0 RequisitionQty
+                                    ,GRN.ShortageQty
+                                	,GRN.RejectionQty
+                                FROM [TRN].[InventoryMaterial] AS MRD
+                                LEFT JOIN MST.MaterialMaster AS MM ON MRD.MaterialMasterId = MM.Id
+                                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                                LEFT JOIN MST.MaterialMasterArticle AS ART ON MRD.ArticleId = ART.Id
+                                LEFT JOIN HKP.Characteristics AS FC ON MRD.FirstCharacteristicsId = FC.Id
+                                LEFT JOIN HKP.Characteristics AS SC ON MRD.SecondCharacteristicsId = SC.Id
+                                LEFT JOIN HKP.Characteristics AS TC ON MRD.ThirdCharacteristicsId = TC.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS FCV ON MRD.FirstCharacteristicsValueId = FCV.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS SCV ON MRD.SecondCharacteristicsValueId = SCV.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS TCV ON MRD.ThirdCharacteristicsValueId = TCV.Id
+                                LEFT JOIN (
+                                	SELECT IRD.InventoryMaterialId
+                                		,Sum(IRD.BaseQty) AS TransactionQty
+                                		,SUM(ird.ShortageQty) ShortageQty
+                                		,SUM(ird.RejectionQty) RejectionQty
+                                	FROM [TRN].[InventoryReceiveDetail] IRD
+                                	LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id = IRD.InventoryReceiveId
+                                	WHERE IR.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY IRD.InventoryMaterialId
+                                	) AS GRN ON GRN.InventoryMaterialId = MRD.Id
+                                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
+                                LEFT JOIN (
+                                	SELECT IID.InventoryMaterialId
+                                		,Sum(IH.Qty) IssueQty
+                                		,Sum(IID.PolicyAmount) PolicyAmount
+                                	FROM TRN.InventoryIssueDetail IID
+                                	LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId = II.Id
+                                	LEFT JOIN TRN.InventoryIssueHistory IH ON IH.InventoryIssueDetailId = IID.Id
+                                	WHERE II.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY IID.InventoryMaterialId
+                                	) Issue ON Issue.InventoryMaterialId = MRD.Id
+                                --Issue Return
+                                LEFT JOIN (
+                                	SELECT IH.InventoryMaterialId
+                                		,sum(IH.Qty) Qty
+                                		,sum(IRD.MaterialTranRate) MaterialTranRate
+                                		,(sum(IH.Qty) * sum(IRD.MaterialTranRate)) IssueReturnAmount
+                                	FROM trn.InventoryIssueReturnHistory IH
+                                	LEFT JOIN trn.InventoryIssueReturn II ON II.Id = IH.InventoryIssueReturnId
+                                	LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.Id = IH.InventoryReceiveDetailId
+                                	WHERE II.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY IH.InventoryMaterialId
+                                	) IssueReturnData ON IssueReturnData.InventoryMaterialId = MRD.Id
+                                --Purchase return
+                                LEFT JOIN (
+                                	SELECT IH.InventoryMaterialId
+                                		,sum(IH.TransactionQty) Qty
+                                		,sum(IRD.MaterialTranRate) MaterialTranRate
+                                		,(sum(IH.TransactionQty) * sum(IRD.MaterialTranRate)) PurchaseReturnAmount
+                                	FROM trn.PurchaseReturnDetail IH
+                                	LEFT JOIN trn.PurchaseReturn II ON II.Id = IH.PurchaseReturnId
+                                	LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.Id = IH.InventoryReceiveDetailId
+                                	WHERE II.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY IH.InventoryMaterialId
+                                	) PurchaseReturnData ON PurchaseReturnData.InventoryMaterialId = MRD.Id
+                                -- InventorySales
+                                LEFT JOIN (
+                                	SELECT ISD.InventoryMaterialId
+                                		,sum(ISH.Qty) Qty
+                                		,sum(ISH.BaseRate) Rate
+                                		,(sum(ISH.Qty) * sum(ISH.BaseRate)) InventorySalesAmount
+                                	FROM [TRN].[InventorySalesHistory] ISH
+                                	LEFT JOIN [TRN].[InventorySalesDetail] ISD ON ISD.Id = ISH.InventorySalesDetailId
+                                	LEFT JOIN [TRN].[InventorySales] Ins ON Ins.Id = ISD.InventorySalesId
+                                	--Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
+                                	WHERE Ins.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY ISD.InventoryMaterialId
+                                	) InventorySalesData ON InventorySalesData.InventoryMaterialId = MRD.Id
+                                --InventoryTransfer
+                                LEFT JOIN (
+                                	SELECT IRD.InventoryMaterialId
+                                		,sum(IRD.InventoryTransferQty) Qty
+                                		,sum(IRD.MaterialTranRate) Rate
+                                		,(sum(IRD.InventoryTransferQty) * sum(IRD.MaterialTranRate)) InventoryTransferAmount
+                                	FROM [TRN].[InventoryTransferHistory] ITH
+                                	LEFT JOIN [TRN].[InventoryReceiveDetail] IRD ON IRD.Id = ITH.InventoryReceiveDetailId
+                                	LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id = IRD.InventoryReceiveId
+                                	WHERE IR.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY IRD.InventoryMaterialId
+                                	) InventoryTransferData ON InventoryTransferData.InventoryMaterialId = MRD.Id
+                                LEFT JOIN SCS.Country C ON C.Id = MRD.CountryId
+                                WHERE MM.IsAsset = 0 and MRD.MaterialMasterId='"+materialMasterId+@"' AND MRD.ArticleId='"+articleId+@"'
+                                ) AS TEMP  order by  TotalQty desc,MaterialMasterName asc
+                                ";
+
+
+                List<Dictionary<string, object>> Data = _sqlRepository.GetDataCollection(sql);
+
+                StringCollection strCol = new StringCollection();
+                string MaterialMasterList = "''";
+                for (int i = 0; i < Data.Count; i++)
+                {
+                    if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
+                        continue;
+                    strCol.Add(Data[i]["MaterialMasterId"].ToString());
+                    MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
+
+                }
+
+                var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
+																	union
+																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
+																	) AS M
+																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
+																	 where m.Id in (" + MaterialMasterList + @")");
+
+                for (int i = 0; i < Data.Count; i++)
+                {
+                    var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
+                    Data[i]["uoMList"] = temp;
+                }
+
+
+                return Data;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
         #endregion
 
 

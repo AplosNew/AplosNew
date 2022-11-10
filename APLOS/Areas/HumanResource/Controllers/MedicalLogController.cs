@@ -112,6 +112,36 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetMedicineChildForUpdate(string masterId)
+        {
+            try
+            {
+                return Json(ml.GetMedicineChildForUpdate(masterId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetSicknessChildForUpdate(string masterId)
+        {
+            try
+            {
+                return Json(ml.GetSicknessChildForUpdate(masterId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         #region SEARCH SAVED DATA IN GRID 
         [HttpPost, Authorize]
         public ActionResult getSearchSicknessData(string column, string value)

@@ -14,7 +14,7 @@
                     <input type="text" name="Standared Nam" ng-model="scheduleNew.StandaredName" class="form-control" maxlength="100" required autocomplete="off">
                 </div>
             </div>
-            <div class="form-group" show-errors>
+            @*<div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Machine Name<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="col-sm-10" style="padding:0px;">
@@ -24,7 +24,7 @@
                         <button ng-click="selectMachine();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                     </div>
                 </div>
-            </div>
+            </div>*@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Schedule Days<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -81,12 +81,12 @@
                     <input type="text" name="User Name" ng-model="scheduleNew.UserName" class="form-control" required maxlength="100" autocomplete="off">
                 </div>
             </div>
-            <div class="form-group">
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label">Make</label>
                 <div class="col-sm-8">
                     <input type="text" name="Make" ng-disabled="true" ng-model="scheduleNew.Make" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-            </div>
+            </div>*@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Min Schedule Days<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -124,18 +124,18 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label">Particulars</label>
                 <div class="col-sm-8">
                     <input type="text" name="Model" ng-disabled="true" ng-model="scheduleNew.Particulars" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-            </div>
-            <div class="form-group">
+            </div>*@
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label">Model</label>
                 <div class="col-sm-8">
                     <input type="text" name="Model" ng-disabled="true" ng-model="scheduleNew.Model" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-            </div>
+            </div>*@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Max Schedule Days<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -177,6 +177,7 @@
     <div class="clearfix"></div>
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="doc" role="tab" data-toggle="tab">Machine Group</a></li>
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Machine/Asset Name</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Item</a></li>
             <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Stores & Consumable</a></li>
@@ -184,6 +185,43 @@
         </ul>
     </div>
     <div class="tab-content">
+        <div role="tabpanel"  class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div style="color:black;" id="GridMachineGroup" ej-grid e-datasource="ScheduleMachineGroupList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-recorddoubleclick="" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"  e-templaterefresh="refreshTemplateMachineGroup">
+                    <div e-columns>
+                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateMachineGroup" e-template="#checkboxTemplateMachineGroup" e-textalign="center" e-width="30"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                        <div e-column e-field="UserName" e-headertext="Machine Name" e-width="80"></div>
+                        <div e-column e-field="StandardName" e-headertext="Machine Name" e-width="80"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                        <div e-column e-field="MachineCategory" e-headertext="MachineCategory" e-width="50"></div>
+                        <div e-column e-field="MachineSubCategory" e-headertext="MachineSubCategory" e-width="50"></div>
+                        <div e-column e-field="Skill" e-headertext="Skill" e-width="80"></div>
+                        <div e-column e-field="Description" e-headertext="Description" e-width="50"></div>
+                        <div e-column e-field="ProductionMachineQty" e-headertext="ProductionMachineQty" e-width="50"></div>
+                        <div e-column e-field="SampleMachineQty" e-headertext="SampleMachineQty" e-width="50"></div>
+                        <div e-column e-field="TrainingMachineQty" e-headertext="TrainingMachineQty" e-width="50"></div>
+                        <div e-column e-field="RentMachineQty" e-headertext="RentMachineQty" e-width="80"></div>
+                    </div>
+                </div>
+
+                <script type="text/template" id="checkboxTemplateMachineGroup">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplateMachineGroup">
+                    <input type="checkbox" id="MGheadchk" />
+                </script>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="MachineGroupSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                </ul>
+            </div>
+        </div>
+
         <div role="tabpanel" ng-form="MaintenanceScheduleMachineForm" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div id="GridMachine" ej-grid e-datasource="ScheduleMachineList" e-templaterefresh="refreshTemplateMachineAsset" e-recorddoubleclick=""
@@ -194,12 +232,15 @@
                         <div e-column e-field="AssetId" e-headertext="Id" e-width="50" e-visible="false"></div>
                         <div e-column e-field="AssetName" e-headertext="Asset Name" e-width="100"></div>
                         <div e-column e-field="AssetCode" e-headertext="Asset Code" e-width="100"></div>
+                        <div e-column e-field="AssetReference" e-headertext="Asset Reference" e-width="100"></div>
                         <div e-column e-field="EntityId" e-headertext="EntityId" e-visible="false" e-width="100"></div>
                         <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
                         <div e-column e-field="WorkCenterMasterId" e-headertext="WCId" e-width="50" e-visible="false"></div>
                         <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
                         <div e-column e-field="MachineMasterId" e-headertext="WCId" e-width="50" e-visible="false"></div>
-                        <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="100"></div>
+                        <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="150"></div>
+                        <div e-column e-field="Make" e-headertext="Make" e-width="100"></div>
+                        <div e-column e-field="Model" e-headertext="Model" e-width="100"></div>
                         <div e-column e-template="#SNO" e-headertext="SNO" e-width="100"></div>
                         <div e-column e-template="#AssetGroup" e-headertext="Asset Group" e-width="100"></div>
                         <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
@@ -231,7 +272,7 @@
                 <ul class="list-inline text-right">
                     <li> <button ng-click="MachineSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
                     @*<li> <button ng-click="MachineDelete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
-                        <li> <button ng-click="MachineClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                    <li> <button ng-click="MachineClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                 </ul>
             </div>
         </div>
@@ -277,6 +318,17 @@
                         <input type="number" name="ExceptionDays" ng-model="ItemNew.ExceptionDays" class="form-control" required maxlength="10" autocomplete="off">
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Report Applicable</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="ItemNew.ReportApplicable" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group">
@@ -292,7 +344,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Item Minutes<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="number" name="ItemMinutes"  ng-model="ItemNew.ItemMinutes" class="form-control" required maxlength="10" autocomplete="off">
+                        <input type="number" name="ItemMinutes" ng-model="ItemNew.ItemMinutes" class="form-control" required maxlength="10" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
@@ -312,8 +364,20 @@
                         <input type="text" name="Remarks" ng-model="ItemNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Production Qty(If Applicable)</label>
+                    <div class="col-sm-8">
+                        <input type="number" name="Production Qty" ng-model="ItemNew.ProductionQty" class="form-control" maxlength="100" autocomplete="off">
+                    </div>
+                </div>
             </div>
-
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="ItemSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                    <li> <button ng-click="removeRowModal($index,ItemNew.Id);" ng-disabled="ItemNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
+                    <li> <button ng-click="ItemClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div id="GridItem" ej-grid e-datasource="ScheduleItemList" e-recorddoubleclick="GetItemDetails"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -344,13 +408,6 @@
                     </div>
                 </script>
             </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="ItemSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                    <li> <button ng-click="removeRowModal($index,ItemNew.Id);" ng-disabled="ItemNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
-                    <li> <button ng-click="ItemClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>
         </div>
 
         <div role="tabpanel" ng-form="MaintenanceScheduleStoresForm" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
@@ -358,26 +415,26 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">SNO</label>
                     <div class="col-sm-8">
-                        <input type="text" name="SNO" ng-disabled="true" ng-model="StoresNew.SNO" class="form-control"  maxlength="100" autocomplete="off">
+                        <input type="text" name="SNO" ng-disabled="true" ng-model="StoresNew.SNO" class="form-control" maxlength="100" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Item Name</label>
                     <div class="col-sm-8">
-                        <input type="text" name="Item Name" ng-model="StoresNew.ItemName" class="form-control"  maxlength="100" autocomplete="off">
+                        <input type="text" name="Item Name" ng-model="StoresNew.ItemName" class="form-control" maxlength="100" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Estimated Qty</label>
                     <div class="col-sm-8">
-                        <input type="text" name="Estimated Qty" ng-model="StoresNew.EstimatedQty" class="form-control"  maxlength="100" autocomplete="off">
+                        <input type="text" name="Estimated Qty" ng-model="StoresNew.EstimatedQty" class="form-control" maxlength="100" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Cost Type</label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="StoresNew.CostType" name="Cost Type" 
+                            <select class="form-control" ng-model="StoresNew.CostType" name="Cost Type"
                                     ng-options="item.Value as item.Text for item in CostTypeList">
                             </select>
                         </div>
@@ -386,7 +443,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Remarks</label>
                     <div class="col-sm-8">
-                        <input type="text" name="Remarks" ng-model="StoresNew.Remarks" class="form-control"  maxlength="100" autocomplete="off">
+                        <input type="text" name="Remarks" ng-model="StoresNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
                     </div>
                 </div>
             </div>
@@ -395,7 +452,7 @@
                     <label class="col-sm-4 control-label">Item Category</label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="StoresNew.Category" name="Item Category" 
+                            <select class="form-control" ng-model="StoresNew.Category" name="Item Category"
                                     ng-options="item.Value as item.Text for item in ItemCategoryList">
                             </select>
                         </div>
@@ -405,7 +462,7 @@
                     <label class="col-sm-4 control-label">Article</label>
                     <div class="col-sm-8">
                         <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="Article" ng-disabled="true" ng-model="StoresNew.Article" class="form-control" maxlength="100"  autocomplete="off">
+                            <input type="text" name="Article" ng-disabled="true" ng-model="StoresNew.Article" class="form-control" maxlength="100" autocomplete="off">
                         </div>
                         <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                             <button ng-click="selectArticle();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
@@ -427,12 +484,19 @@
                     <label class="col-sm-4 control-label">Estimation Level</label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="StoresNew.EstimationLevel" name="Estimation Level" 
+                            <select class="form-control" ng-model="StoresNew.EstimationLevel" name="Estimation Level"
                                     ng-options="item.Value as item.Text for item in EstimationLevelList">
                             </select>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="StoresSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                    <li> <button ng-click="removeStoresModal($index,StoresNew.Id);" ng-disabled="StoresNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
+                    <li> <button ng-click="StoresClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div id="GridStores" ej-grid e-datasource="ScheduleStoresList" e-recorddoubleclick="GetStoresDetails"
@@ -452,13 +516,6 @@
                     </div>
                 </div>
             </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="StoresSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                    <li> <button ng-click="removeStoresModal($index,StoresNew.Id);" ng-disabled="StoresNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
-                    <li> <button ng-click="StoresClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>
         </div>
         <div role="tabpanel" ng-form="MaintenanceScheduleBudgetForm" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
             <div class="col-xs-12 col-sm-4 col-md-4">
@@ -472,7 +529,7 @@
                     <label class="col-sm-4 control-label">Group</label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="PersonBudgetNew.Group" name="Group" 
+                            <select class="form-control" ng-model="PersonBudgetNew.Group" name="Group"
                                     ng-options="item.Value as item.Text for item in GroupList">
                             </select>
                         </div>
@@ -490,7 +547,13 @@
                     </div>
                 </div>
             </div>
-
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="BudgetCodeSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                    <li> <button ng-click="removeBudgetCodeModal($index,PersonBudgetNew.Id);" ng-disabled="PersonBudgetNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
+                    <li> <button ng-click="BudgetCodeClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div id="GridPersonBudgetCode" ej-grid e-datasource="ScheduleBudgetCodeList" e-recorddoubleclick="GetBudgetCodeDetails"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -510,13 +573,6 @@
                     </div>
                 </div>
             </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="BudgetCodeSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                    <li> <button ng-click="removeBudgetCodeModal($index,PersonBudgetNew.Id);" ng-disabled="PersonBudgetNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
-                    <li> <button ng-click="BudgetCodeClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>
         </div>
     </div>
 </div>
@@ -525,26 +581,26 @@
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridMaintenanceSchedulingMaster" ej-grid e-datasource="MaintenanceMasterList" e-recorddoubleclick="GetDetails"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Maintenance Id" e-width="3"></div>
-            <div e-column e-field="ScheduleCode" e-headertext="Schedule Code" e-width="3"></div>
-            <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
-            <div e-column e-field="SubCategory" e-headertext="Sub Category " e-width="3"></div>
-            <div e-column e-field="StandaredName" e-headertext="Standared Name" e-width="3"></div>
-            <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="3"></div>
-            <div e-column e-field="ScheduleDays" e-headertext="Schedule Days" e-width="3"></div>
-            <div e-column e-field="MinScheduleMinutes" e-headertext="Min Schedule Minutes" e-width="3"></div>
-            <div e-column e-field="ResponsiblePersoneBgtCode" e-headertext="Responsible Persone Bgt Code" e-width="3"></div>
-            <div e-column e-field="UserName" e-headertext="User Name" e-width="3"></div>
-            <div e-column e-field="MinScheduleDays" e-headertext="Min Schedule Days" e-width="3"></div>
-            <div e-column e-field="MaxScheduleMinutes" e-headertext="Max Schedule Minutes" e-width="3"></div>
-            <div e-column e-field="MaxScheduleDays" e-headertext="Max Schedule Days" e-width="3"></div>
-            <div e-column e-field="StandardScheduleMinutes" e-headertext="Standard Schedule Minutes" e-width="3"></div>
-            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
-            <div e-column e-field="Department" e-headertext="Department" e-width="3"></div>
-            <div e-column e-field="MaintenanceGroup" e-headertext="Maintenance Group" e-width="3"></div>
-            <div e-column e-field="IsActive" e-headertext="Is Active" e-width="3"></div>
+            <div e-column e-field="Id" e-headertext="Maintenance Id" e-visible="false" e-width="10"></div>
+            <div e-column e-field="ScheduleCode" e-headertext="Schedule Code" e-width="20"></div>
+            <div e-column e-field="Category" e-headertext="Category" e-width="20"></div>
+            <div e-column e-field="SubCategory" e-headertext="Sub Category " e-width="20"></div>
+            <div e-column e-field="StandaredName" e-headertext="Standard Name" e-width="30"></div>
+            <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="35"></div>
+            <div e-column e-field="ScheduleDays" e-headertext="Schedule Days" e-width="20"></div>
+            <div e-column e-field="MinScheduleMinutes" e-headertext="Min Schedule Minutes" e-width="20"></div>
+            <div e-column e-field="ResponsiblePersoneBgtCode" e-headertext="Responsible Person Bgt Code" e-width="20"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="20"></div>
+            <div e-column e-field="MinScheduleDays" e-headertext="Min Schedule Days" e-width="20"></div>
+            <div e-column e-field="MaxScheduleMinutes" e-headertext="Max Schedule Minutes" e-width="20"></div>
+            <div e-column e-field="MaxScheduleDays" e-headertext="Max Schedule Days" e-width="20"></div>
+            <div e-column e-field="StandardScheduleMinutes" e-headertext="Standard Schedule Minutes" e-width="20"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="20"></div>
+            <div e-column e-field="Department" e-headertext="Department" e-width="20"></div>
+            <div e-column e-field="MaintenanceGroup" e-headertext="Maintenance Group" e-width="10"></div>
+            <div e-column e-field="IsActive" e-headertext="Is Active" e-width="4"></div>
         </div>
     </div>
 </div>
