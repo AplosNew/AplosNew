@@ -91,7 +91,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
 
     // Responsible Person
     $scope.openEmployeePopUp = function () {
-        $scope.getsR();
+       // $scope.getsR();
         angular.element(document.querySelector('#ResponiblePersonPop')).modal('show');
     }
 
@@ -164,6 +164,15 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
             .then(
                 function successCallback(response) {
                     $scope.DepartmentList = response.data;
+                    
+                    if (!baseService.isUndefinedOrNull($scope.ModalNew.DepartmentId)) {
+                        for (var i = 0; i < $scope.DepartmentList.length; i++) {
+                            if ($scope.DepartmentList[i].Value == $scope.ModalNew.DepartmentId) {
+                                $scope.ModalNew.DepartmentId = $scope.DepartmentList[i].Value;
+                                break;
+                            }
+                        }
+                    }
                 }
             )
     }
@@ -175,11 +184,15 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
 
         $scope.ModalNew = Object.assign({}, args.data);
         $scope.ModalNew.EmployeeName = args.data.EmployeeName;
+        
         $scope.LogoutTime = LogTime;
         $scope.UpdateTime = LogTime;
         $scope.ModalNew.Id = args.data.Id;
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
+            $scope.getWorkCenter();
+            $scope.GetDepartment();
+            $scope.getsR();
             $scope.getDetentionLogResponsiblePerson();
             $scope.getByWhom();
             $rootScope.toggle();
