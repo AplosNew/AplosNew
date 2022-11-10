@@ -14,7 +14,7 @@
                     <label class="col-sm-4 control-label">Utility Master<sup>*</sup> </label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select id="CategoryId" class="form-control" ng-model="ModelNew.UtilityMasterId" ng-change="GetUoMAndReadingApplicable()" name="Category" tabindex="1">
+                            <select id="CategoryId" class="form-control" ng-model="ModelNew.UtilityMasterId" ng-change="GetEditReadingList();" name="Category" tabindex="1">
                                 <option value="">--Select--</option>
                                 <option ng-repeat="option in utilityMasterList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
@@ -52,7 +52,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Reading<sup>*</sup></label>
                     <div class="col-sm-8">
-                        <input type="text" ng-model="ModelNew.Reading" ng-change="GetQuantity();" class="form-control" maxlength="250" tabindex="8" required>
+                        <input type="text" ng-model="ModelNew.Reading" ng-change="GetQuantity();" only-numbers class="form-control" maxlength="250" tabindex="8" required>
                     </div>
                 </div>
 

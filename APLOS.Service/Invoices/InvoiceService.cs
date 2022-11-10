@@ -4205,15 +4205,17 @@ namespace Library.Service.Invoices
                         }
 
                     }
-                    //if (invoiceDetailCharges.Count > 0)
-                    //{
-                    //    foreach (var item1 in invoiceDetailCharges)
-                    //    {
-                    //        _voucherService.DeleteGLTransactionDetail(item1.Id);
+                    if (invoiceDetailCharges.Count > 0)
+                    {
+                        foreach (var invDeChar in invoiceDetailCharges)
+                        {
+                            var rdBuilder = new System.Text.StringBuilder();
+                            var builderSql = @"DELETE [TRN].InvoiceDetailCharges  WHERE VoucherDetailId='" + invDeChar.VoucherDetailId + "'";
+                            rdBuilder.Append(builderSql);
+                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                        }
 
-                    //    }
-
-                    //}
+                    }
                     _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 if (invoiceTax != null)

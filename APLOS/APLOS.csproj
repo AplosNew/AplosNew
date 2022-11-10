@@ -804,6 +804,7 @@
     <Compile Include="Areas\Productions\Controllers\SalesOrderStatusReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAdjustmentController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAgeingReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\POWiseProductionStatusReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteLocationController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteIssueController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteTransactionReportController.cs" />
@@ -2254,6 +2255,7 @@
     <Content Include="Areas\Productions\Scripts\SalesOrderStatusReportController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAdjustmentController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAgeingReportController.js" />
+    <Content Include="Areas\Productions\Scripts\POWiseProductionStatusReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteLocationController.js" />
     <Content Include="Areas\Productions\Scripts\WasteIssueController.js" />
     <Content Include="Areas\Productions\Scripts\WasteTransactionReportController.js" />
@@ -4391,6 +4393,7 @@
     <Content Include="Areas\Machines\Views\IncedentUpdate\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\MaintenanceSummaryReport\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\UtilityGroup\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\POWiseProductionStatusReport\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\TeamDefinition\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

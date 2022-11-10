@@ -1065,8 +1065,9 @@ namespace Library.General.TaskScheduler
                         dr["isUpdate"] = item.isUpdate;
                         dr["isClose"] = item.isClose;
                         dr["LogoutTime"] = DBNull.Value;
-                        dr["MachineMasterId"] = item.MachineMasterId;
+                        dr["ProcessId"] = item.ProcessId;
                         dr["DepartmentId"] = item.DepartmentId;
+                        dr["UpdateRemarks"] = DBNull.Value;
                         dsMaster.Tables[0].Rows.Add(dr);
                     }
                     else
@@ -1088,7 +1089,9 @@ namespace Library.General.TaskScheduler
                         dr["isUpdate"] = item.isUpdate;
                         dr["isClose"] = item.isClose;
                         dr["LogoutTime"] = item.LogoutTime;
-                        dr["MachineMasterId"] = item.MachineMasterId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["DepartmentId"] = item.DepartmentId;
+                        dr["UpdateRemarks"] = item.UpdateRemarks;
 
 
                         dr.EndEdit();
@@ -1134,7 +1137,7 @@ namespace Library.General.TaskScheduler
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("TO DO", out _Id);
 
-                        dr["Id"] = "DLRP" + _Id;
+                        dr["Id"] = "DLRP-" + _Id;
                         dr["DetentionLogId"] = item.DetentionLogId;
                         dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
                         dr["AddedBy"] = item.AddedBy;
@@ -4674,9 +4677,11 @@ public class DetentionMoidel
     public string UpdatedFromIP { get; set; }
     public bool isUpdate { get; set; }
     public DateTime? LogoutTime { get; set; }
-    public string MachineMasterId { get; set; }
+    public string ProcessId { get; set; }
     public bool isClose { get; set; }
     public string DepartmentId { get; set; }
+    public string UpdateRemarks { get; set; }
+
 }
 
 public class ResponsiblePersonModel

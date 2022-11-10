@@ -23,37 +23,16 @@ namespace Library.MaterialManagement.Material
         {
             _sqlRepository = new SqlRepository();
         }
-        #region Entity Specific
-        public IEnumerable<object> GetEntity()
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-                string sql = @"";
-
-                sql = @"select Id as Value, UserName as Text from org.Entity
-                        where Active = 1 order by Text";
-                return _sqlRepository.GetDataCollection(sql);
-
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-        }
-
-        #endregion Entity Specific
+       
 
         // Workcenter
-        public IEnumerable<object> GetWorkCenter()
+        public IEnumerable<object> GetWorkCenter(string processId)
         {
             try
             {
-                var sql = @"select WM.StandardName Text, WM.Id Value from SCS.WorkCenterMaster WM
-                            order by Text
-                           -- where WM.Active = 'true'";
+                var sql = @"select WM.StandardName Text, WM.Id Value from SCS.WorkCenterMaster WM                          
+							where WM.ProcessId = '"+ processId + "'order by Text";
+
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -78,22 +57,24 @@ namespace Library.MaterialManagement.Material
         }
 
         // Responsible Person
-        public IEnumerable<object> GetDetentionResponsible(string detentionId)
+        public IEnumerable<object> GetDetentionResponsible(string detentionTypeId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string str = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
-                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId,
-						  CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
+                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId
+						   --CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
 						   from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
 							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
-							Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
-                            --where DetentionMasterId='" + detentionId + "'";
+							--Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
+							left join dbo.DetentionMaster DM on DM.Id = DR.DetentionMasterId
+							left join hkp.DetentionType DT on DT.Id = DM.DetentionTypeId
+							where DT.Id = '"+ detentionTypeId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -143,7 +124,7 @@ namespace Library.MaterialManagement.Material
         }
 
         // Detention Type
-        public IEnumerable<object> getDetentionTypeListByDepartment(string departmentid)
+        public IEnumerable<object> getDetentionTypeListByDepartment()
         {
             try
             {
@@ -152,7 +133,7 @@ namespace Library.MaterialManagement.Material
                         left join DetentionMaster DM ON DM.Id=DD.DetentionMasterId
                         left join hkp.DetentionType DT ON DT.id=DM.DetentionTypeId
                         order by Text
-            --where DepartmentId='" + departmentid + "'";
+            ";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -185,8 +166,8 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                var sql = @"select distinct DMP.ProcessId Value, P.UserName Text from  DetentionMasterProcess DMP
-                            left join HKP.Process P on P.Id = DMP.ProcessId";
+                var sql = @"select distinct WM.ProcessId Value, P.UserName Text from SCS.WorkCenterMaster WM
+                            left join HKP.Process P on P.Id = WM.ProcessId";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -200,7 +181,8 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                var sql = @"select Id Value, UserName Text from MST.MachineMaster";
+                var sql = @"select distinct WM.ProcessId Value, P.UserName Text from SCS.WorkCenterMaster WM
+                            left join HKP.Process P on P.Id = WM.ProcessId";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
@@ -209,11 +191,15 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> GetDepartment()
+        public IEnumerable<object> GetDepartment(string detentiontypeId)
         {
             try
             {
-                var sql = @"select Id Value, UserName Text from org.Department order by Text";
+                var sql = @"select distinct DMD.DepartmentId Value, D.UserName Text from org.Department D
+						left join dbo.DetentionMasterDepartment DMD on DMD.DepartmentId = D.Id
+						left join dbo.DetentionMaster DM on DM.Id = DMD.DetentionMasterId
+						where DM.DetentionTypeId = '"+ detentiontypeId + "'order by Text";
+
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -388,7 +374,7 @@ namespace Library.MaterialManagement.Material
             _sqlRepository = new SqlRepository();
         }
 
-        public IEnumerable<object> GetDetentionResponsible(string detentionId)
+        public IEnumerable<object> GetDetentionResponsible(string detentionTypeId)
         {
             try
             {
@@ -403,7 +389,9 @@ namespace Library.MaterialManagement.Material
 							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
 							Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
-                            --where DetentionMasterId='" + detentionId + "'";
+                            left join dbo.DetentionMaster DM on DM.Id = DR.DetentionMasterId
+							left join hkp.DetentionType DT on DT.Id = DM.DetentionTypeId
+							where DT.Id = '"+ detentionTypeId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -431,22 +419,16 @@ namespace Library.MaterialManagement.Material
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                /*string sql = @"select DL.Id, DL.CellPhnNo, DL.IssueByNo, WM.UserName WorkCenter, WM.Id WorkCenterId 
-                                ,DT.UserName DetentionType, DT.Id DetentionTypeId ,EI.EmployeeName, DL.Remarks,  GETUTCDATE()   AS LogoutTime 
-                                from TRN.DetentionLog DL
-                                left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
-                                left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
-                                left join EmployeeInformation EI on EI.SystemId = DL.ResponsiblePersonId";*/
-
+                
                 string sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.AddedDate, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
 WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose,
-MM.UserName MachineMaster,  MM.Id MachineMasterId, DL.DepartmentId, DP.UserName Department
+P.UserName Process,  DL.ProcessId, DL.DepartmentId, DP.UserName Department
 from TRN.DetentionLog DL
 left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                                 left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
 								left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                                 left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-								left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+								left join HKP.Process P on P.Id = DL.ProcessId
                                 left join ORG.Department DP on DP.Id = DL.DepartmentId
                                 where isClose = 0";
                 return _sqlRepository.GetDataCollection(sql);
@@ -699,9 +681,10 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 var sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
 FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
-                            MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedDate, DL.AddedFromIP
+                            MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedFromIP
                             ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
 							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
@@ -755,6 +738,7 @@ FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Rema
                             MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedFromIP
                             ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
 							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
@@ -788,7 +772,7 @@ FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Rema
                             left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
                                 where DL.AddedDate between '" + from + "' and '" + to + "' and DL.DepartmentId = '" + departmentId + @"'
-								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 0";
+								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)

@@ -309,5 +309,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/FinishedGoodsPackingReport/Aplos',
             controller: 'FinishedGoodsPackingReportController'
         })
+        .when('/po-wise-production-status-report', {
+            templateUrl: 'Productions/POWiseProductionStatusReport/Aplos',
+            controller: 'POWiseProductionStatusReportController'
+        })
         ;
 }
