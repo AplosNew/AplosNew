@@ -33,6 +33,7 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using OTSBD;
+using Library.Service.Advances;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -43,6 +44,7 @@ namespace Aplos.Areas.Accounts.Controllers
         private readonly IInvoiceReportService _invoiceReportService;
         private readonly ISqlRepository _sqlRepository;
         private readonly IEmployeePayableService _employeePayableService;
+        private readonly IAdvanceWriteOffService _advanceWriteOffService;
 
         public InvoiceController(
               IInvoiceService invoiceService
@@ -50,6 +52,7 @@ namespace Aplos.Areas.Accounts.Controllers
             , IInvoiceReportService invoiceReportService
             , ISqlRepository sqlRepository
             , IEmployeePayableService employeePayableService
+            , IAdvanceWriteOffService advanceWriteOffService
               )
         {
             _invoiceService = invoiceService;
@@ -57,6 +60,7 @@ namespace Aplos.Areas.Accounts.Controllers
             _invoiceReportService = invoiceReportService;
             _sqlRepository = sqlRepository;
             _employeePayableService = employeePayableService;
+            _advanceWriteOffService = advanceWriteOffService;
 
         }
 
@@ -734,7 +738,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [HttpPost]
         public JsonResult InsertVendorPayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList)
+            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList, IEnumerable<VoucherViewModel> advanceVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -754,6 +758,8 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException("Please select Vendor");
             if ((voucherVM.PaymentSource == "Vendor") && (voucherVM.FinancingTypeId == null))
                 throw new CustomException("Please select transaction type");
+            if ((voucherVM.PaymentSource == "Employee") && (voucherVM.AdvanceId == null))
+                throw new CustomException("Please select Employee Advance");
 
             foreach (var advanceDetailVM in voucherDetailVMList)
             {
@@ -762,7 +768,15 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (voucherVM.CurrencyId != advanceDetailVM.CurrencyId)
                     throw new CustomException("Transaction currency and Payable currency should be same.!!!");
             }
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorPayment(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList, glVMList)) });
+            if (voucherVM.PaymentSource == "Employee")
+            {
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertVendorPaymentEmployeeAdvanceWriteOff(voucherVM, voucherDetailVMList, bankChargeDetailVMList, advanceVMList)) });
+            }
+            else
+            {
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorPayment(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList, glVMList)) });
+            }
+                
         }
 
         [Authorize, HttpGet]
