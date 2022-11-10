@@ -34,10 +34,10 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetDetentionResponsible(string detentionId)
+        public ActionResult GetDetentionResponsible(string detentionTypeId)
         {
 
-            return Json(dl.GetDetentionResponsible(detentionId), JsonRequestBehavior.AllowGet);
+            return Json(dl.GetDetentionResponsible(detentionTypeId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, AllowAnonymous]
