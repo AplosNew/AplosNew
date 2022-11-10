@@ -1106,6 +1106,7 @@ upanelApp.controller("incedentCategoryController", incedentCategoryController)
 upanelApp.controller("incedentCategoryUpdateController", incedentCategoryUpdateController)
 upanelApp.controller("incedentUpdateController", incedentUpdateController)
 upanelApp.controller("maintenanceSummaryReportController", maintenanceSummaryReportController)
+upanelApp.controller("POWiseProductionStatusReportController", POWiseProductionStatusReportController)
 
 
 upanelApp.config(AccessControllerConfig);
