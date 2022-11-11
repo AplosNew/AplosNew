@@ -409,7 +409,7 @@ namespace HRService
 
 
                 strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,DL.AddedDate, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
-                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate, DL.UpdateRemarks,
                             HK.UserName Process,  HK.Id ProcessId, DL.AddedBy, DL.AddedDate, DL.AddedFromIP
                             , DP.UserName Department, DL.DepartmentId,
                             STUFF((select ',' +  X.SystemId
@@ -475,8 +475,7 @@ namespace HRService
                         DLRPId = dsRef.Tables[0].Rows[i]["DLRPId"].ToString(),
                         Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
                         DepartmentId = dsRef.Tables[0].Rows[i]["DepartmentId"].ToString(),
-
-
+                        UpdateRemarks = dsRef.Tables[0].Rows[i]["UpdateRemarks"].ToString(),
                     });
                 }
             }
@@ -1308,6 +1307,8 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string DLRPId { get; set; }
         public string Department { get; set; }
         public string DepartmentId { get; set; }
+        public string UpdateRemarks { get; set; }
+        
     }
 
     public class GetDetentionLog

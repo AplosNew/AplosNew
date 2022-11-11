@@ -81,6 +81,46 @@ function vendorPaymentController(bankService, accountService, cboService, common
         DiscountAmount: null,
         BaseCurrencyId: null
     };
+    $scope.advance = {
+        Id: null,
+        CompanyGroupId: null,
+        CompanyId: null,
+        EmployeeId: null,
+        EmployeeName: null,
+        PartyGLGeneralInfoId: null,
+        GLGeneralInfoId: null,
+        CurrencyId: null,
+        VoucherTypeId: null,
+        PartyType: 'Employee',
+        Type: null,
+        VoucherNo: null,
+        VoucherDate: $filter("dateFiltering")(Date.now()),
+        PostingDate: null,
+        DocDate: null,
+        DocRefNo: null,
+        FiscalYearId: null,
+        FiscalYearName: null,
+        FiscalYearPeriodId: null,
+        FiscalYearPeriodName: null,
+        IsExcludingTax: false,
+        VoucherDetailId: null,
+        Amount: null,
+        BaseOnDueDate: $filter("dateFiltering")(Date.now()),
+        BaseNoOfDays: null,
+        PaymentTermId: null,
+        Narration: null,
+        Remarks: null,
+        BankName: null,
+        BankAccountNumber: null,
+        BankGL: null,
+        BankGLGeneralInfoId: null,
+        AdvanceAmount: null,
+        SettlementType: 'SetOff',
+        PaymentSource: 'Bank',
+        CashMasterId: null,
+        BankMasterId: null,
+        JournalType: null
+    };
 
     $scope.voucherDetail = {
         EntityId: null
@@ -630,6 +670,8 @@ function vendorPaymentController(bankService, accountService, cboService, common
         $scope.calDiscountAmount();
         $scope.calCreditNoteVendorAmount();
         $scope.calGLBaseAmount();
+        $scope.calAdvanceBaseAmount();
+        
     }
     $scope.calPayableBaseAmount = function () {
         if ($scope.voucherDetailList.length) {
@@ -826,6 +868,24 @@ function vendorPaymentController(bankService, accountService, cboService, common
                 $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
         }
+    }
+    $scope.calAdvanceBaseAmount = function () {
+        if ($scope.advanceList.length) {
+            $scope.BaseAmountObj.Type = 'Advance';
+            $scope.BaseAmountObj.BaseCrAmount = Math.round(((Math.round($filter("sumByKey")($filter("filter")($scope.advanceList), "Amount") * 1000 + Number.EPSILON) / 1000) * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
+            $scope.BaseAmountObj.BaseDrAmount = null;
+            if ($scope.BaseAmountObj.BaseCrAmount > 0)
+                $scope.BaseAmountList.push($scope.BaseAmountObj);
+            $scope.BaseAmountObj = {};
+        }
+    }
+    $scope.calAdvanceBaseAmountValidation = function (data) {
+        var crbalance = parseFloat(data.AdvanceAmount), cramount = parseFloat(data.Amount);
+        if (cramount > crbalance) {
+            data.Amount = data.AdvanceAmount;
+            ShowResult("Advance Amount should not exceed Advance Balance Amount.", "failure");
+        }
+        
     }
     var CurrencyDifferentRate = 0.0000;
     $scope.exchangeGainLossAmount = function (data) {
@@ -1094,11 +1154,12 @@ function vendorPaymentController(bankService, accountService, cboService, common
         $scope.bankChargesList = [];
         $scope.advanceTaxesList = [];
         $scope.glList = [];
+        $scope.advanceList = [];
         $scope.advanceTax = {};
         $scope.bankCharge = {};
         $scope.TotalAdvanceAmount = 0;
-
         $scope.TotalDebitNoteAmount = 0;
+       
     };
 
     $scope.clearBankCashTaxPopUp = function () {
@@ -1261,7 +1322,8 @@ function vendorPaymentController(bankService, accountService, cboService, common
                         "voucherDetailVMList": $scope.voucherDetailList,
                         "bankChargeDetailVMList": $scope.bankChargesList,
                         "taxDetailVMList": $scope.TDSList,
-                        "glVMList": $scope.glList
+                        "glVMList": $scope.glList,
+                        "advanceVMList": $scope.advanceList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -1570,6 +1632,9 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.removeglRow = function (index, data) {
         $scope.glList.splice(index, 1);
     };
+    $scope.removeAdvanceRow = function (index, data) {
+        $scope.advanceList.splice(index, 1);
+    };
     $scope.searchglByList = [
         {
             "name": "GL Code",
@@ -1672,5 +1737,89 @@ function vendorPaymentController(bankService, accountService, cboService, common
             $scope.closeCOAICodeListPopUp();
         }
     };
+    //*********************** Employee Advance PopUp Start *************************************
+    $scope.employeeAdvanceSearchList = [
+        {
+            "Text": "VoucherNo",
+            "Value": "VoucherNo"
+        },
+        {
+            "Text": "Employee Code",
+            "Value": "EmployeeCode"
+        },
+        {
+            "Text": "Employee Name",
+            "Value": "EmployeeName"
+        },
+        {
+            "Text": "PostingDate",
+            "Value": "PostingDate"
+        },
+        {
+            "Text": "DocDate",
+            "Value": "DocDate"
+        },
+        {
+            "Text": "Currency",
+            "Value": "CurrencyCode"
+        }
+    ];
 
+    $scope.employeeAdvanceDataList = [];
+    $scope.employeeAdvanceSearch = [];
+    $scope.employeeAdvanceUrl = 'accounts/Advance/GetEmployeeAvilabeAdvanceList';
+    $scope.employeeAdvanceSelectedIndex = -1;
+    $scope.employeeAdvanceParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'ASC',
+        sort: 'VoucherNo',
+        searchBy: 'VoucherNo',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.showEmployeeAdvancePopUpList = function (employeeId) {
+        $scope.compareCurrencyId = $scope.advance.CurrencyId;
+        $scope.getEmployeeAdvanceData = function (pageno) {
+            baseService.paginationBase($scope.employeeAdvanceUrl, pageno, $scope.employeeAdvanceParameters)
+                .then(function (response) {
+                    $scope.employeeAdvanceDataList = response.Rows;
+                    $scope.employeeAdvanceParameters.total_count = response.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#employeeAdvancePopUp')).modal('show');
+        $scope.getEmployeeAdvanceData();
+    };
+
+    $scope.advanceList = [];
+    $scope.closeEmployeeAdvancePopUp = function (data) {
+        $scope.advanceList = [];
+        $scope.advance.EmployeeId = data.EmployeeId;
+        $scope.advance.EmployeeName = data.EmployeeName;
+        $scope.advance.AdvanceAmount = data.Balance;
+        $scope.advance.VoucherNo = data.VoucherNo;
+        $scope.advance.CompanyId = data.CompanyId;
+        $scope.advance.PlantId = data.PlantId;
+        $scope.advance.CurrencyId = data.CurrencyId;
+        $scope.voucher.CurrencyId = data.CurrencyId;
+        $scope.voucher.CompanyCurrencyRate = data.CompanyCurrencyRate;
+        $scope.voucher.AdvanceId = data.AdvanceId;
+        $scope.voucher.AdvanceDetailId = data.AdvanceDetailId;
+        $scope.advance.AdvanceId = data.AdvanceId;
+        $scope.advance.AdvanceDetailId = data.AdvanceDetailId;
+        $scope.advance.PartyType = data.PartyType;
+        $scope.advance.advancePostingDate = data.PostingDate;
+        $scope.advance.advanceDocRefNo = data.DocRefNo;
+        $scope.advance.CrAmount = null;
+        $scope.advance.JournalType = data.JournalType;
+        $scope.advanceList.push($scope.advance);
+        //$scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
+        angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
+    };
 }

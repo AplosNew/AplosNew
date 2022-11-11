@@ -69,7 +69,6 @@ namespace Library.Service.Invoices
         private readonly IFinancingService _financingService;
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
         private readonly IRepositoryAsync<FinancingWriteOff> _financingWriteOffRepository;
-
         public InvoiceWriteOffService(
               IRepositoryAsync<InvoiceWriteOff> invoiceWriteOffRepository
             , IUnitOfWork unitOfWork
@@ -103,7 +102,6 @@ namespace Library.Service.Invoices
             , IFinancingService financingService
             , IRepositoryAsync<FinancingSubsequentTransaction> loanInterestPayableRepository
             , IRepositoryAsync<FinancingWriteOff> financingWriteOffRepository
-
             ) : base(invoiceWriteOffRepository, unitOfWork, pkGeneratorService)
         {
             _sqlRepository = sqlRepository;
@@ -632,6 +630,7 @@ namespace Library.Service.Invoices
                     throw new CustomException("Bank Id not found!");
                 else if (string.IsNullOrEmpty(voucherVM.CashMasterId) && voucherVM.PaymentSource == PaymentSource.Cash.ToString())
                     throw new CustomException("Cash Id not found!");
+               
                 AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
@@ -677,7 +676,7 @@ namespace Library.Service.Invoices
                 var totalCurrencyAmountCr = 0.0M;
                 string voucherDetailTempId = null;
                 decimal taxDrAmount = 0;
-                var withholdgl = false;
+                
 
                 var invoiceIds = voucherDetailVMList.Select(r => r.InvoiceId);
                 var inviceDbList = _invoiceService.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
@@ -890,7 +889,7 @@ namespace Library.Service.Invoices
                     totalCurrencyAmountCr += voucherVM.ExchangeAmount;
                 }
                 decimal totalCharges = 0;
-                decimal totalChargesCurrencyAmount = 0;
+                
                 if (null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0)
                 {
                     var currentBankChargeDetailId = 0;
@@ -1445,7 +1444,7 @@ namespace Library.Service.Invoices
                         }
                     }
                 }
-                //totalCurrencyAmountCr = totalCurrencyAmountDr;
+                
                 totalAmountCr += taxDrAmount;
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
@@ -1473,6 +1472,60 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
+        //private AdvanceWriteOff InsertAdvanceWriteOff(AdvanceWriteOff advanceWriteOff)
+        //{
+        //    advanceWriteOff.Id = GetAutoNumber(nameof(AdvanceWriteOff), PKGeneratorEnum.Yearly, null, DateTime.Now);
+        //    AuditService.AddedLog(advanceWriteOff);
+        //    _advanceWriteOffRepository.Insert(advanceWriteOff);
+        //    return advanceWriteOff;
+        //}
+        //private AdvanceWriteOff InsertAdvanceWriteOff(VoucherViewModel voucherVM)
+        //{
+        //    return InsertAdvanceWriteOff(new AdvanceWriteOff
+        //    {
+        //        CompanyGroupId = voucherVM.CompanyGroupId,
+        //        CompanyId = voucherVM.CompanyId,
+        //        PlantId = voucherVM.PlantId,
+        //        EntityId = voucherVM.EntityId,
+        //        FiscalYearId = voucherVM.FiscalYearId,
+        //        FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+        //        TaxYearId = voucherVM.TaxYearId,
+        //        TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+        //        VoucherTypeId = voucherVM.VoucherTypeId,
+        //        CurrencyId = voucherVM.CurrencyId,
+        //        PartyType = voucherVM.PartyType,
+        //        PartyId = voucherVM.PartyId,
+        //        PartyPlantId = voucherVM.PartyPlantId,
+        //        EmployeeId = voucherVM.EmployeeId,
+        //        Amount = voucherVM.Amount,
+        //        VoucherDate = voucherVM.VoucherDate,
+        //        PostingDate = voucherVM.PostingDate,
+        //        DocDate = voucherVM.DocDate,
+        //        DocRefNo = voucherVM.DocRefNo,
+        //        Narration = voucherVM.Narration,
+        //        SourceType = voucherVM.SourceType,
+        //        IsPark = voucherVM.IsPark,
+        //        SettlementType = voucherVM.SettlementType,
+        //        PaymentSource = voucherVM.PaymentSource,
+        //        BankMasterId = voucherVM.BankMasterId,
+        //        CashMasterId = voucherVM.CashMasterId,
+        //        Archive = false
+        //    });
+        //}
+        //private void InsertAdvanceWriteOffDetail(AdvanceWriteOff advanceWriteOff, AdvanceWriteOffDetail advanceWriteOffDetail, int currentId)
+        //{
+        //    advanceWriteOffDetail.Id = MakePK(advanceWriteOff.Id, currentId, 2);
+        //    advanceWriteOffDetail.AddedBy = advanceWriteOff.AddedBy;
+        //    advanceWriteOffDetail.AddedDate = advanceWriteOff.AddedDate;
+        //    advanceWriteOffDetail.AddedFromIP = advanceWriteOff.AddedFromIP;
+        //    advanceWriteOffDetail.AdvanceWriteOffId = advanceWriteOff.Id;
+        //    advanceWriteOffDetail.Archive = advanceWriteOff.Archive;
+        //    _advanceWriteOffDetailRepository.Insert(advanceWriteOffDetail);
+        //}
+        //private string GetEmployeeSubsequentTransactionPK()
+        //{
+        //    return _pkGeneratorService.GetAutoNumber("EmployeeSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
+        //}
 
         public string InsertInvoiceToAcceptancePost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
                , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<VoucherDetailViewModel> glVMList)
