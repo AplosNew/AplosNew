@@ -95,7 +95,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.LastReading = 0;
     $scope.GetQuantity = function () {
         if ($scope.LastReading >0) {
-            $scope.ModelNew.Quantity = $scope.LastReading - $scope.ModelNew.Reading;
+            $scope.ModelNew.Quantity = $scope.ModelNew.Reading- $scope.LastReading;
         }
         else
             $scope.ModelNew.Quantity = $scope.ModelNew.Reading;
