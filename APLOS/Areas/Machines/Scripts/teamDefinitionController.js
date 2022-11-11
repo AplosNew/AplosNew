@@ -513,6 +513,4 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
     $scope.isSetteam = function (tabNum) {
         return $scope.tabteam === tabNum;
     };
-
-    
 }
