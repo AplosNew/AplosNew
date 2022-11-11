@@ -1,0 +1,175 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Machine Understoppage</a></li>
+
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Closed Machine</a></li>
+               
+            </ul>
+
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">From<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="ModalNewPendingDetention.From" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DepartmentList" e-value="ModalNewPendingDetention.DepartmentId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">To<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="ModalNewPendingDetention.To" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNewPendingDetention.DetentionTypeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetPendingDetentionGridView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
+                            <li> <button ng-click="XlsGetPendingDetentionView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Download</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+
+                <div class="table-responsive">
+                    <div id="GridEdit" ej-grid e-datasource="PendingDetentionList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="40" e-isprimarykey="true"></div>
+                            <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                            <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="100"></div>
+                            <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                            <div e-column e-field="ResponsiblePersonName" e-headertext="Responsible Person" e-width="100"></div>
+                            <div e-column e-field="ContactNo" e-headertext="Responsible Contact No." e-width="100"></div>
+                            <div e-column e-field="IssueByNo" e-headertext="Issue By No." e-width="100"></div>
+
+                            <div e-column e-field="AddedDate" e-headertext="Login Date" e-width="100"></div>
+                            <div e-column e-field="AddedTime" e-headertext="Login Time" e-width="100"></div>
+
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                            <div e-column e-field="isClose" e-headertext="is Close" e-width="100"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">From<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="ModalNewClosedDetention.From" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DepartmentList" e-value="ModalNewClosedDetention.DepartmentId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">To<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="ModalNewClosedDetention.To" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNewClosedDetention.DetentionTypeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetClosedDetentionGridReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
+                            <li> <button ng-click="XlsGetClosedDetentionReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Download</button></li>
+
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="table-responsive">
+                        <div id="GridEdit" ej-grid e-datasource="ClosedDetentionList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="40" e-isprimarykey="true"></div>
+                                <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="100"></div>
+                                <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                                <div e-column e-field="ResponsiblePersonName" e-headertext="Responsible Person" e-width="100"></div>
+                                <div e-column e-field="ContactNo" e-headertext="Responsible Contact No." e-width="100"></div>
+                                <div e-column e-field="IssueByNo" e-headertext="Issue By No." e-width="100"></div>
+
+                                <div e-column e-field="AddedDate" e-headertext="Login Date" e-width="100"></div>
+                                <div e-column e-field="AddedTime" e-headertext="Login Time" e-width="100"></div>
+                                <div e-column e-field="LogoutDate" e-headertext="Logout Date" e-width="100"></div>
+                                <div e-column e-field="LogoutTime" e-headertext="Logout Time" e-width="100"></div>
+                                <div e-column e-field="Duration" e-headertext="Duration" e-width="100"></div>
+
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                                <div e-column e-field="isClose" e-headertext="is Close" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<confirm-archive-generic modalid="confirmRemoveDetentionLRPersonPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeDetentiontRow();"></confirm-archive-generic>
+
+
+
+
+
+
+

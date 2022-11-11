@@ -353,7 +353,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.ResponsiblePopUpList = function () {
         $http({
             method: 'GET',
-            url: 'Materials/DetentionMaster/LoadResponsibleList'
+            url: 'Materials/DetentionMaster/LoadResponsibleList?DetentionId=' + $scope.detentionNew.Id
         }).then(function successCallback(response) {
             $scope.ResponsibleDataList = response.data;
             for (var i = 0; i < $scope.userResponsibleList.length; i++) {

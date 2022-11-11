@@ -56,6 +56,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     }
     $scope.GetUtilityMasterList();
 
+    $scope.LastReading = null;
     $scope.UoMName = null;
     $scope.IsReadingApp = false;
     $scope.GetUoMAndReadingApplicable = function () {
@@ -63,8 +64,20 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
             if ($scope.utilityMasterList[i].Value == $scope.ModelNew.UtilityMasterId) {
                 $scope.UoMName = $scope.utilityMasterList[i].UoM;
                 $scope.IsReadingApp = $scope.utilityMasterList[i].IsReadingApplicable;
+                $scope.LastReading = $scope.utilityMasterList[i].LastReading;
             }
         }
+    }
+
+    $scope.GetLastReadingList = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
+        }).then(function successCallback(response) {
+            $scope.LastReading = response.data[0].LastReading;
+            $scope.LastReadingDate = response.data[0].LastReadingDate;
+            $scope.LastReadingTime = response.data[0].LastReadingTime;
+        });
     }
 
     $scope.GetEditReadingList = function () {
