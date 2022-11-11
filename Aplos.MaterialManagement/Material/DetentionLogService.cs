@@ -381,7 +381,7 @@ namespace Library.MaterialManagement.Material
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string str = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
                            SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId,
-						  CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive, DLRP.Id
+					 DLRP.isActive, DLRP.Id
 						   from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
@@ -462,7 +462,22 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
             }
         }
 
+        public IEnumerable<object> GetDepartment()
+        {
+            try
+            {
+                var sql = @"select distinct DMD.DepartmentId Value, D.UserName Text from org.Department D
+						left join dbo.DetentionMasterDepartment DMD on DMD.DepartmentId = D.Id
+						left join dbo.DetentionMaster DM on DM.Id = DMD.DetentionMasterId
+						order by Text";
 
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
         #region update
@@ -681,7 +696,7 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                 var sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
 FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
-                            MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedFromIP
+                            P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
                             ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
 							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
 isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
@@ -715,10 +730,10 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
                             left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-                            left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+                            left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.AddedDate between '" + from+ " 00:00:00' and '" + to+ " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
-								and DL.DetentionTypeId = '"+ detentionTypeId + "' and  DL.isClose = 1";
+                                where DL.AddedDate between '" + from + "' and '" + to + "' and DL.DepartmentId = '" + departmentId + @"'
+								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -728,14 +743,14 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
         }
 
         #region FOR EXCEL VIEW DOWNLOAD
-        public DataTable GetClosedDetentionExcelReport(string from, string to, string departmentId, string detentionTypeId)
+        public void GetClosedDetentionExcelReport(string from, string to, string departmentId, string detentionTypeId, out DataTable data)
         {
             try
             {
                 var sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
 FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
-                            MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedFromIP
+                            P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
                             ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
 							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
 isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
@@ -769,11 +784,11 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
                             left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-                            left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+                            left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
                                 where DL.AddedDate between '" + from + "' and '" + to + "' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
-                return _sqlRepository.GetDataTable(sql);
+                data =  _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
             {
@@ -788,8 +803,8 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                 var sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
                             FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
-                            MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedDate, DL.AddedFromIP
-                            ,  DP.UserName Department, DL.DepartmentId,
+                            P.UserName MachineMaster,  DL.ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, P.UserName Process,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
@@ -820,7 +835,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
                             left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-                            left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+                            left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
                                 where DL.AddedDate between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose <> 1";
@@ -832,15 +847,15 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
             }
         }
 
-        public DataTable GetPendingDetentionExcelView(string from, string to, string departmentId, string detentionTypeId)
+        public void GetPendingDetentionExcelView(string from, string to, string departmentId, string detentionTypeId, out DataTable data)
         {
             try
             {
                 var sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
                             FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
-                            MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedFromIP
-                            ,  DP.UserName Department, DL.DepartmentId,
+                            P.UserName MachineMaster,  DL.ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, P.UserName Process,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
@@ -871,11 +886,11 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
                             left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-                            left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+                            left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
                                 where DL.AddedDate between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose <> 1";
-                return _sqlRepository.GetDataTable(sql);
+                data = _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
             {
