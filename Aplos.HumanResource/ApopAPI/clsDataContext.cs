@@ -271,6 +271,40 @@ namespace HRService
             }
         }
 
+        public void getAllDepartment(out List<AllDepartmentList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<AllDepartmentList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id Value, UserName Text from ORG.Department";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new AllDepartmentList
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void getDetentionType(out List<DetentionTypeList> DataList)
         {
             clsConnectionManager objCon = null;
@@ -502,7 +536,7 @@ namespace HRService
 
 
                     strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
-FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,  DL.UpdateRemarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
                             P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
                             ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
@@ -1325,6 +1359,11 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Text { get; set; } = "";
     }
     public class DepartmentList
+    {
+        public string Value { get; set; }
+        public string Text { get; set; }
+    }
+    public class AllDepartmentList
     {
         public string Value { get; set; }
         public string Text { get; set; }

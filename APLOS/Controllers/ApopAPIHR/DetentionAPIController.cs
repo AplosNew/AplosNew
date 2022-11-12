@@ -48,6 +48,12 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.getDepartment(out List<DepartmentList> DepartmentList, detentionid);
             return DepartmentList;
         }
+        public List<AllDepartmentList> GetAllDepartment()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.getAllDepartment(out List<AllDepartmentList> DepartmentList);
+            return DepartmentList;
+        }
 
         public List<DetentionTypeList> GetDetentionTypes()
         {
