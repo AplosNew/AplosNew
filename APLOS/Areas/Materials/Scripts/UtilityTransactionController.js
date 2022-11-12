@@ -7,7 +7,8 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.path = 'Materials/UtilityTransaction/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
-    
+    $scope.updateUrl = $scope.path + 'Update';
+
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
     baseService.init($scope.getListUrl);
@@ -44,7 +45,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         return $scope.tab === tabNum;
     };
 
-   
+
     $scope.utilityMasterList = [];
     $scope.GetUtilityMasterList = function () {
         $http({
@@ -56,6 +57,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     }
     $scope.GetUtilityMasterList();
 
+    $scope.LastReading = null;
     $scope.UoMName = null;
     $scope.IsReadingApp = false;
     $scope.GetUoMAndReadingApplicable = function () {
@@ -63,14 +65,15 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
             if ($scope.utilityMasterList[i].Value == $scope.ModelNew.UtilityMasterId) {
                 $scope.UoMName = $scope.utilityMasterList[i].UoM;
                 $scope.IsReadingApp = $scope.utilityMasterList[i].IsReadingApplicable;
+                $scope.LastReading = $scope.utilityMasterList[i].LastReading;
             }
         }
     }
 
-    $scope.GetEditReadingList = function () {
+    $scope.GetLastReadingList = function () {
         $http({
             method: 'GET',
-            url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId +'&utilityTransactionId='+ $scope.ModelNew.Id
+            url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
         }).then(function successCallback(response) {
             $scope.LastReading = response.data[0].LastReading;
             $scope.LastReadingDate = response.data[0].LastReadingDate;
@@ -78,11 +81,22 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
-  
+    $scope.GetEditReadingList = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId + '&utilityTransactionId=' + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            $scope.LastReading = response.data[0].LastReading;
+            $scope.LastReadingDate = response.data[0].LastReadingDate;
+            $scope.LastReadingTime = response.data[0].LastReadingTime;
+        });
+    }
+
+
     $scope.LastReading = 0;
     $scope.GetQuantity = function () {
-        if ($scope.LastReading >0) {
-            $scope.ModelNew.Quantity = $scope.LastReading - $scope.ModelNew.Reading;
+        if ($scope.LastReading > 0) {
+            $scope.ModelNew.Quantity = $scope.ModelNew.Reading - $scope.LastReading;
         }
         else
             $scope.ModelNew.Quantity = $scope.ModelNew.Reading;
@@ -103,23 +117,44 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
+            if ($scope.Action == 'Save') {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'data': $scope.ModelNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.getData();
+                        $scope.Clear();
+
+                    }
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.getData();
-                    $scope.Clear();
+            } else {
+                $http({
+                    method: 'POST',
+                    url: $scope.updateUrl,
+                    data: { 'data': $scope.ModelNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.getData();
+                        $scope.Clear();
 
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
                 }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
             }
 
         }
@@ -146,7 +181,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
             });
         }
     };
-    
+
 
     $scope.Clear = function () {
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);

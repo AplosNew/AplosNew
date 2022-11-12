@@ -1172,15 +1172,15 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
             try
             {
                 
-                var sql = @"select distinct MM.UserName Medicine, MM.Id, MM.Remarks,
-stuff((select ',' +  CONVERT(VARCHAR(20), SUM(x.Quantity)) 
-from TRN.MedicineReceiptChild x
-where x.MedicineMasterId = MM.Id
-FOR XML PATH('')),1,1,'') stock
-from TRN.MedicineReceipt MR
-left join TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
-left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
-where MRC.Quantity is not null";
+                var sql = @"select distinct MM.Id, MM.StandardName Medicine, MM.Remarks, isnull(MR.Receipt,0)-isnull(ESM.Issue,0) Stock  
+                            from hkp.MedicineMaster MM
+                            left join (select mm.Id,sum(MRC.Quantity) Receipt from hkp.MedicineMaster MM
+                            left join trn.MedicineReceiptChild MRC on MRC.MedicineMasterId = MM.id group by mm.Id) MR on MR.Id = MM.Id
+                            left join (SELECT MM.Id, SUM(ESM.Quantity) Issue FROM HKP.MedicineMaster MM
+                            LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.MedicineMasterId = MM.Id
+                            LEFT JOIN TRN.EmployeeSicknessMedicines ESM ON ESM.MedicineReceiptChildId = MRC.Id
+                            group by mm.id) ESM on ESM.Id = MM.Id
+                            WHERE (isnull(MR.Receipt,0)-isnull(ESM.Issue,0))>0";
                
                 
                 return _sqlRepository.GetDataCollection(sql);
@@ -1283,7 +1283,7 @@ where MRC.Quantity is not null";
         {
             try
             {
-                var SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], 
+                var SQL = @"select distinct ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], 
 EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks,  ML.NoOfVisits, FORMAT(ML.Time, 'hh:mm tt')Time,
 STUFF((select ', ' + MC.UserName
 from TRN.EmployeeSickness ES
@@ -1306,8 +1306,8 @@ where ESM.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Quantity
 from TRN.MedicalLog ML
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
-INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
-GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, ML.NoOfVisits, ML.Time
+--INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
+GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, ML.NoOfVisits, ML.Time
 ";
 
                 return _sqlRepository.GetDataCollection(SQL);

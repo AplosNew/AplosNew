@@ -11,9 +11,7 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Machine Understoppage</a></li>
 
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Logout</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Machine Pending</a></li>
-                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Machine Closed</a></li>
-
+                
             </ul>
 
         </div>
@@ -22,20 +20,25 @@
                 <div class="row">
                     <input type="hidden" name="Id" ng-model="ModalNew.Id">
                     <div class="col-xs-12 col-sm-6 col-md-6">
-
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Workcenter<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Process</label>
                             <div class="col-sm-6">
                                 <div class="select-style">
-                                    <input ej-dropdownlist e-enabled="false" e-enablefiltersearch="true" e-datasource="WorkCenterList" e-value="ModalNew.WorkCenterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="MachineMasterAssetList" e-value="ModalNew.ProcessId" e-fields-value="Value" e-fields-text="Text" e-change="getWorkCenter" e-enabled="false" e-width="100%" />
                                 </div>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
                             <div class="col-sm-6">
                                 <div class="select-style">
-                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNew.DetentionTypeId" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-enabled="false" />
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-change="GetDepartment" e-value="ModalNew.DetentionTypeId" e-fields-value="Value" e-fields-text="Text" e-enabled="false" e-width="100%" />
+                                    @*<select class="form-control" ng-model="ModalNew.DetentionTypeId" required name="Plant"
+                                            ng-disabled="true" tabindex="2">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in DetentionTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>*@
                                 </div>
                             </div>
                         </div>
@@ -45,8 +48,8 @@
                             <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                             <div class="col-sm-6">
                                 @*<div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="ResponsiblePersonD" ng-model="ModalNew.EmployeeName" ng-disabled="true" class="form-control" readonly>
-                                    </div>*@
+                <input type="text" name="ResponsiblePersonD" ng-model="ModalNew.EmployeeName" ng-disabled="true" class="form-control" readonly>
+                        </div>*@
                                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                                     <button ng-click="openEmployeePopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                 </div>
@@ -60,31 +63,39 @@
                                 <input type="text" ej-timepicker e-value="UpdateTime" e-width="100%" e-enabled="false" />
                             </div>
                         </div>
-                    </div>
-
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Department<sup>*</sup></label>
-                            <div class="col-sm-6">
-                                <div class="select-style">
-                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DepartmentList" e-value="ModalNew.DepartmentId" e-enabled="false" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Machine Item</label>
-                            <div class="col-sm-6">
-                                <div class="select-style">
-                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="MachineMasterAssetList" e-value="ModalNew.MachineMasterId" e-fields-value="Value" e-fields-text="Text" e-enabled="false" e-width="100%" />
-                                </div>
-                            </div>
-                        </div>
-
 
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-6">
-                                <textarea name="Remarks" ng-model="ModalNew.Remarks" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
+                                <textarea name="Remarks" ng-disabled="true" ng-model="ModalNew.Remarks" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Workcenter<sup>*</sup></label>
+                            <div class="col-sm-6">
+                                <div class="select-style">
+                                    @*<input ej-dropdownlist e-enabled="false" e-enablefiltersearch="true" e-datasource="WorkCenterList" e-value="ModalNew.WorkCenterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />*@
+                                    <select class="form-control" ng-model="ModalNew.WorkCenterId" ng-disabled="true" required name="Workcenter"
+                                            tabindex="2">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in WorkCenterList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+                            <div class="col-sm-6">
+                                <div class="select-style">
+                                    @*<input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DepartmentList" e-value="ModalNew.DepartmentId" e-enabled="false" e-fields-value="Value" e-fields-text="Text" e-width="100%" />*@
+                                    <select class="form-control" ng-model="ModalNew.DepartmentId" ng-disabled="true" required name="Department"
+                                            tabindex="2">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in DepartmentList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -94,6 +105,15 @@
                                 <input type="text" name="Workcenter" ng-model="ModalNew.IssueByNo" class="form-control" ng-disabled="true" maxlength="200" tabindex="5">
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Update Remarks</label>
+                            <div class="col-sm-6">
+                                <textarea name="Update Remarks" ng-model="ModalNew.UpdateRemarks" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
+                            </div>
+                        </div>
+
+
 
 
                         <div class="common-btn">
@@ -203,18 +223,7 @@
                 }
             </div>
 
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-                @{
-                    Html.RenderPartial("_MachineUnderStoppageReport");
-                }
-            </div>
-
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-                @{
-                    Html.RenderPartial("_DetentionClosedReport");
-                }
-            </div>
-
+           
         </div>
     </div>
 </div>
@@ -228,7 +237,7 @@
             <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
             <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
             <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="100"></div>
-            <div e-column e-field="MachineMaster" e-headertext="Machine Master" e-width="100"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
 
             <div e-column e-field="IssueByNo" e-headertext="Issue By No." e-width="100"></div>
             <div e-column e-field="LoginTime" e-headertext="Log Time" e-width="100"></div>

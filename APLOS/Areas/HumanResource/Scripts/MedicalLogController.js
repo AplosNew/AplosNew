@@ -102,12 +102,13 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
 
     var todaysDate = new Date();
     var curTime = todaysDate ;
-    
+
+    $scope.timechange = null;
     $scope.getTime = function () {
         var now = new Date();
-        curTime = now.getHours() + ": " + now.getMinutes() + ": " + now.getSeconds();
+        $scope.timechange = now.getHours() + ": " + now.getMinutes() + ": " + now.getSeconds();
     }
-   //$interval($scope.getTime, 1000); 
+   $interval($scope.getTime, 1000); 
     // Form Objects
     $scope.ModelTemp = {
         Id: null,
@@ -196,6 +197,8 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.getEmployee();
     
     $scope.doubleEmployee = function (e) {
+        todaysDate = new Date();
+        curTime = todaysDate;
         $scope.ModalNew.EmployeeSysId = e.data.SystemId;
         $scope.ModalNew.EmployeeName = e.data.EmployeeName;
         $scope.closeEmpPopUp();

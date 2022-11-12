@@ -271,6 +271,40 @@ namespace HRService
             }
         }
 
+        public void getAllDepartment(out List<AllDepartmentList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<AllDepartmentList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id Value, UserName Text from ORG.Department";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new AllDepartmentList
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void getDetentionType(out List<DetentionTypeList> DataList)
         {
             clsConnectionManager objCon = null;
@@ -308,7 +342,7 @@ namespace HRService
             }
         }
 
-        public void GetDetentionResponsible(out List<DetentionResponsiblePersonList> DataList)
+        public void GetDetentionResponsible(out List<DetentionResponsiblePersonList> DataList, string detentiontypeid)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -319,14 +353,17 @@ namespace HRService
             {
                 strSQL = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
                            SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId
-						  
-						   from DetentionMasterResponsible DR
+                           --CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
+                           from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
-							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
-							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId						
-                            ";
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
+                            LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                            --Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
+                            left join dbo.DetentionMaster DM on DM.Id = DR.DetentionMasterId
+                            left join hkp.DetentionType DT on DT.Id = DM.DetentionTypeId
+                            where DT.Id = '"+ detentiontypeid +"'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -406,13 +443,13 @@ namespace HRService
 
 
                 strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,DL.AddedDate, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
-                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
-                            MM.UserName MachineMaster,  MM.Id ProcessId, DL.AddedBy, DL.AddedDate, DL.AddedFromIP
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate, DL.UpdateRemarks,
+                            HK.UserName Process,  HK.Id ProcessId, DL.AddedBy, DL.AddedDate, DL.AddedFromIP
                             , DP.UserName Department, DL.DepartmentId,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
-                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            where DLR.DetentionLogId = DL.Id  and DLR.isActive = 1
                             FOR XML PATH('')
                             ),1,1,'') ResponsiblePersonId,
                             STUFF((select ',' +  X.EmployeeName
@@ -439,12 +476,9 @@ namespace HRService
                             left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
                             left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
-                            left join MST.MachineMaster MM on MM.Id = DL.MachineMasterId
+							left join HKP.Process HK on HK.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                            where isClose = 0
-
-
-";
+                            where isClose = 0";
                 #endregion cmnt
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -467,7 +501,7 @@ namespace HRService
                         DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
                         isClose = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isClose"]),
                         isUpdate = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isUpdate"]),
-                        MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
+                        Process = dsRef.Tables[0].Rows[i]["Process"].ToString(),
                         ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
                         AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
                         AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
@@ -475,8 +509,7 @@ namespace HRService
                         DLRPId = dsRef.Tables[0].Rows[i]["DLRPId"].ToString(),
                         Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
                         DepartmentId = dsRef.Tables[0].Rows[i]["DepartmentId"].ToString(),
-
-
+                        UpdateRemarks = dsRef.Tables[0].Rows[i]["UpdateRemarks"].ToString(),
                     });
                 }
             }
@@ -490,60 +523,107 @@ namespace HRService
             }
         }
         #region Aman
-        public void GetDetentionLogDetail(out List<GetDetentionLog> DataList)
+        public void GetDetentionLogDetail(out List<GetDetentionclose> DataList , string from, string to, string departmentId, string detentionTypeId)
         {
             clsConnectionManager objCon = null;
-            string strSQL = "";
-            DataList = new List<GetDetentionLog>();
+                string strSQL = "";
+                DataList = new List<GetDetentionclose>();
 
-            System.Data.DataSet dsRef;
-            try
-            {
-                #region cmnt
-
-
-                strSQL = @"select * from TRN.MobileDetentionLog where isClose = 0";
-                #endregion cmnt
-                objCon = new clsConnectionManager();
-                objCon.BeginTransaction();
-                objCon.getDataSet(strSQL, out dsRef);
-                objCon.CommitTransaction();
-                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                System.Data.DataSet dsRef;
+                try
                 {
-                    DataList.Add(new GetDetentionLog
+                    #region cmnt
+
+
+                    strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,  DL.UpdateRemarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
+							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                                where DL.LoginTime between '" + from + "' and '" + to + "' and DL.DepartmentId = '" + departmentId + @"'
+								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
+                    #endregion cmnt
+                    objCon = new clsConnectionManager();
+                    objCon.BeginTransaction();
+                    objCon.getDataSet(strSQL, out dsRef);
+                    objCon.CommitTransaction();
+                    for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                     {
-                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
-                        WorkCenter = dsRef.Tables[0].Rows[i]["WorkCenter"].ToString(),
-                        DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
-                        LoginTime = dsRef.Tables[0].Rows[i]["LoginTime"].ToString(),
-                        LogoutTime = dsRef.Tables[0].Rows[i]["LogoutTime"].ToString(),
-                        IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
-                        ResponsiblePersonName = dsRef.Tables[0].Rows[i]["ResponsiblePersonName"].ToString(),
-                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
-                        ContactNo = dsRef.Tables[0].Rows[i]["ContactNo"].ToString(),
-                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
-                        WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
-                        DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
-                        isClose = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["DetentionTypeId"]),
-                        MachineMaster = dsRef.Tables[0].Rows[i]["MachineMaster"].ToString(),
-                        MachineMasterId = dsRef.Tables[0].Rows[i]["MachineMasterId"].ToString(),
-                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
-                        AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
-                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
-                        UpdatedBy = dsRef.Tables[0].Rows[i]["UpdatedBy"].ToString(),
-                        UpdatedFromIP = dsRef.Tables[0].Rows[i]["UpdatedFromIP"].ToString(),
-                        UpdatedDate = dsRef.Tables[0].Rows[i]["UpdatedDate"].ToString(),
-                    });
+                        DataList.Add(new GetDetentionclose
+                        {
+                            Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                            WorkCenter = dsRef.Tables[0].Rows[i]["WorkCenter"].ToString(),
+                            DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
+                            LoginTime = dsRef.Tables[0].Rows[i]["LoginTime"].ToString(),
+                            IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
+                            ResponsiblePersonName = dsRef.Tables[0].Rows[i]["ResponsiblePersonName"].ToString(),
+                            ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                            ContactNo = dsRef.Tables[0].Rows[i]["ContactNo"].ToString(),
+                            Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                            WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
+                            DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
+                            isClose = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isClose"]),
+                            isUpdate = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isUpdate"]),
+                            Process = dsRef.Tables[0].Rows[i]["Process"].ToString(),
+                            ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
+                            AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                            AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
+                            AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                            AddedTime = dsRef.Tables[0].Rows[i]["AddedTime"].ToString(),
+                            LogoutDate = dsRef.Tables[0].Rows[i]["LogoutDate"].ToString(),
+                            LogoutTime = dsRef.Tables[0].Rows[i]["LogoutTime"].ToString(),
+                            Duration = dsRef.Tables[0].Rows[i]["Duration"].ToString(),
+                            DLRPId = dsRef.Tables[0].Rows[i]["DLRPId"].ToString(),
+                            Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
+                            DepartmentId = dsRef.Tables[0].Rows[i]["DepartmentId"].ToString(),
+                            UpdateRemarks = dsRef.Tables[0].Rows[i]["UpdateRemarks"].ToString(),
+                        });
+                    }
+
                 }
-            }
-            catch (System.Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
+                catch (System.Exception ex)
+                {
+                    throw (ex);
+                }
+                finally
+                {
+                    objCon = null;
+                }
+            
         }
 
         #endregion Aman
@@ -1283,6 +1363,11 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Value { get; set; }
         public string Text { get; set; }
     }
+    public class AllDepartmentList
+    {
+        public string Value { get; set; }
+        public string Text { get; set; }
+    }
 
     public class DetentionLogGridList
     {
@@ -1300,7 +1385,7 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string DetentionTypeId { get; set; }
         public bool isClose { get; set; }
         public bool isUpdate { get; set; }
-        public string MachineMaster { get; set; }
+        public string Process { get; set; }
         public string ProcessId { get; set; }
         public string AddedBy { get; set; }
         public string AddedFromIP { get; set; }
@@ -1308,6 +1393,8 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string DLRPId { get; set; }
         public string Department { get; set; }
         public string DepartmentId { get; set; }
+        public string UpdateRemarks { get; set; }
+        
     }
 
     public class GetDetentionLog
@@ -1335,7 +1422,35 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
     }
-
+    public class GetDetentionclose
+    {
+        public string Id { get; set; }
+        public string WorkCenter { get; set; }
+        public string DetentionType { get; set; }
+        public string AddedTime { get; set; }
+        public string LoginTime { get; set; }
+        public string IssueByNo { get; set; }
+        public string ResponsiblePersonName { get; set; }
+        public string ResponsiblePersonId { get; set; }
+        public string ContactNo { get; set; }
+        public string Remarks { get; set; }
+        public string WorkCenterId { get; set; }
+        public string DetentionTypeId { get; set; }
+        public bool isClose { get; set; }
+        public bool isUpdate { get; set; }
+        public string Process { get; set; }
+        public string ProcessId { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedFromIP { get; set; }
+        public string AddedDate { get; set; }
+        public string LogoutDate { get; set; }
+        public string LogoutTime { get; set; }
+        public string Duration { get; set; }
+        public string UpdateRemarks { get; set; }
+        public string DLRPId { get; set; }
+        public string Department { get; set; }
+        public string DepartmentId { get; set; }
+    }
     public class CreateDetentionList
     {
         public string Id { get; set; }

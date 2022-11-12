@@ -1,6 +1,6 @@
 ﻿'use strict';
-DetentionLogoutController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter"];
-function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+DetentionLogoutController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
+function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = "Detention Logout";
     $scope.Action = 'Save';
     $scope.path = 'Materials/DetentionLogout/';
@@ -11,7 +11,11 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'Delete';
-    $scope.downloadgriddataUrl = 'GridReports/Download';
+    //$scope.downloadgriddataUrl = 'GridReports/Download';
+
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
+
+
 
 
     $scope.DepartmentList = [];
@@ -61,16 +65,19 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
         DetentionTypeId: null,
         DepartmentId:null,
         WorkCenterId: null,
+        WorkCenter: null,
+        Department: null,
         CellPhnNo: null,
         IssueByNo: null,
         Remarks: null,
+        UpdateRemarks:null,
         LoginTime: LogTime,
         EmployeeName: null,
         isUpdate: false,
         isClose: false,
         LogoutTime: LogTime,
         ByWhom: null,
-        MachineMasterId:null
+        ProcessId: null
     };
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
@@ -88,7 +95,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
 
     // Responsible Person
     $scope.openEmployeePopUp = function () {
-        $scope.getsR();
+       // $scope.getsR();
         angular.element(document.querySelector('#ResponiblePersonPop')).modal('show');
     }
 
@@ -97,7 +104,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     $scope.getsR = function () {
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLogout/GetDetentionResponsible',
+            url: 'Materials/DetentionLogout/GetDetentionResponsible?detentionTypeId=' + $scope.ModalNew.DetentionTypeId,
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.ResponsibleList = resp.data;
@@ -119,7 +126,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
             url: 'Materials/DetentionLog/getDetentionTypeListByDepartment'
         }).then(function successCallback(response) {
             $scope.DetentionTypeList = response.data;
-
+            $scope.GetDepartment();
         });
     }
     $scope.getDetentionType();
@@ -128,12 +135,13 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
     $scope.getWorkCenter = function () {
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLog/GetWorkCenter',
+            url: 'Materials/DetentionLog/GetWorkCenter?processId=' + $scope.ModalNew.ProcessId,
         }).then(function successCallback(response) {
             $scope.WorkCenterList = response.data;
+
         })
     }
-    $scope.getWorkCenter();
+    //$scope.getWorkCenter();
 
     $scope.getRespPersonContactNo = function () {
         $http({
@@ -156,14 +164,23 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
 
     $scope.DepartmentList = [];
     $scope.GetDepartment = function () {
-        $http.get('Materials/DetentionLog/GetDepartment')
+        $http.get('Materials/DetentionLog/GetDepartment?detentiontypeId=' + $scope.ModalNew.DetentionTypeId)
             .then(
                 function successCallback(response) {
                     $scope.DepartmentList = response.data;
+                    
+                    //if (!baseService.isUndefinedOrNull($scope.ModalNew.DepartmentId)) {
+                    //    for (var i = 0; i < $scope.DepartmentList.length; i++) {
+                    //        if ($scope.DepartmentList[i].Value == $scope.ModalNew.DepartmentId) {
+                    //            $scope.ModalNew.DepartmentId = $scope.DepartmentList[i].Value;
+                    //            break;
+                    //        }
+                    //    }
+                    //}
                 }
             )
     }
-    $scope.GetDepartment();
+    //$scope.GetDepartment();
 
     $scope.LogoutTime = null;
     $scope.UpdateTime = null;
@@ -171,11 +188,15 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
 
         $scope.ModalNew = Object.assign({}, args.data);
         $scope.ModalNew.EmployeeName = args.data.EmployeeName;
+        
         $scope.LogoutTime = LogTime;
         $scope.UpdateTime = LogTime;
         $scope.ModalNew.Id = args.data.Id;
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
+            $scope.getWorkCenter();
+            $scope.GetDepartment();
+            $scope.getsR();
             $scope.getDetentionLogResponsiblePerson();
             $scope.getByWhom();
             $rootScope.toggle();
@@ -429,6 +450,7 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.MachineMasterAssetList = response.data;
+           // $scope.getWorkCenter();
         });
     }
     $scope.getMachineMasterAsset();
@@ -458,12 +480,13 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
             })
     }
 
+    $scope.fileName = "ClosedDetentionReport.xlsx";
     $scope.XlsGetClosedDetentionReport = function () {
 
         //$http.get('Materials/DetentionLogout/XlsGetClosedDetentionReport?from=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId)
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLogout/XlsGetClosedDetentionReport?from=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId,
+            url: 'Materials/DetentionLogout/XlsGetClosedDetentionReport?parameters=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId,
             dataType: 'JSON',
         })
             .then(function successCallback(response) {
@@ -472,7 +495,9 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
                 }
                 else {
 
-                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                 }
             }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -480,16 +505,18 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
 
     };
 
+    $scope.fileName = "PendingDetentionReport.xlsx";
     $scope.XlsGetPendingDetentionView = function () {
 
-        $http.get('Materials/DetentionLogout/XlsGetPendingDetentionView?from=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId)
+        $http.get('Materials/DetentionLogout/XlsGetPendingDetentionView?parameters=' + $scope.ModalNewClosedDetention)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
 
-                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                 }
             }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');

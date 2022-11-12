@@ -318,4 +318,8 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'Materials/UtilityGroup',
             controller: 'UtilityGroupController'
         })
+        .when('/detention-log-report', {
+            templateUrl: 'Materials/DetentionLogReport',
+            controller: 'DetentionLogReportController'
+        })
 };

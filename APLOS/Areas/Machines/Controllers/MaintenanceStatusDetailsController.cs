@@ -24,8 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Library.HumanResource.NewAttendanceProcess;
-
-
+using Library.Data;
 
 namespace Aplos.Areas.Machines.Controllers
 {
@@ -61,7 +60,7 @@ namespace Aplos.Areas.Machines.Controllers
         public ActionResult LoadMaintenanceStatusDetailsList(string ToDate,string FromDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select MS.Id,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
+            string sql = @"select MS.Id,E.UserName Entity,MS.UserName ScheduleName,MS.AdvancePlanningDays,MM.UserName MachineName,MM.MachineMake Make,
 MM.MachineModel Model,MS.ScheduleCode,MB.Code ResponsiblePersonBudgetCode,MA.AssetName,MA.AssetCode,MA.AssetReference,
 WC.UserName WorkCenter,MS.ScheduleDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'') as LastMaintenanceDate,
@@ -146,7 +145,7 @@ MS.Remarks,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD whe
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
-WC.UserName WorkCenter,MS.ScheduleDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+WC.UserName WorkCenter,MS.ScheduleDays,MS.AdvancePlanningDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
  ORDER BY MPD.Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
@@ -204,7 +203,7 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
 MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,isnull(APD.[Status],1) as [Status],APD.Remarks,
 Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as	ToTime,APD.Minute as [Minute],APD.ActualRemark,
-APD.FileName
+APD.FileName,'id' as test
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
@@ -256,11 +255,17 @@ WHERE EI.EmployeeStatus='Active'";
                 {
                     foreach (var item in DataList)
                     {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and AssetId='" + item["AssetId"] + "'", out dsProdBooked, false, "1");
+                        int PlanningDays = Convert.ToInt32(item["AdvancePlanningDays"]);
+                        DateTime PlanDate = Convert.ToDateTime(item["PlannedDate"]);
+                        DateTime NextDayDate = DateTime.Now.AddDays(PlanningDays);
+
+                        if (PlanDate <= NextDayDate)
+                        {
+                            objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and AssetId='" + item["AssetId"] + "'", out dsProdBooked, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
 
                         if (dv.Count == 0)
-                        {
+                        { 
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID(TableName, out _Id);
                             item["Id"] = "APD" + _Id;
@@ -275,6 +280,12 @@ WHERE EI.EmployeeStatus='Active'";
                         }
                         clsStaticInfo obj = new clsStaticInfo();
                         obj.SaveDataSets(dsProdBooked);
+                        }
+                        else
+                        {
+                            throw new CustomException("Plan Date Should Not Exceed More than " + PlanningDays + " Days of Today's Date!");
+                        }
+
                     }
                 }
                 return Json(new { Message = AplosMessage.Insert });
