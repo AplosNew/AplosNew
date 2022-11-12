@@ -316,12 +316,27 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
             ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
 
-    $scope.FileDownload = function (data) {
+    $scope.FileDownload = function (data,test) {
         $scope.dwonloadUrl = null;
         var str = data.FileName;
         var extention = str.substr(str.indexOf('.'));
-        $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.Id + extention;
+        if (test == 'id') {
+            $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.Id + extention;
+            test = null;
+        }
+        else {
+            $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.PlannedId + extention;
+            test = null;
+        }
     };
+
+    //$scope.FileDownloadPending = function (data) {
+    //    $scope.dwonloadUrl = null;
+    //    var str = data.FileName;
+    //    var extention = str.substr(str.indexOf('.'));
+    //    $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.PlannedId + extention;
+    //};
+
 
     //#endregion
 }
