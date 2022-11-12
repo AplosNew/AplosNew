@@ -83,7 +83,7 @@ function DetentionLogReportController(cboService, commonMessage, $scope, $rootSc
 
     $scope.fileName = "ClosedDetentionReport.xlsx";
     $scope.XlsGetClosedDetentionReport = function () {
-
+        $scope.fileName = "ClosedDetentionReport.xlsx";
         //$http.get('Materials/DetentionLogout/XlsGetClosedDetentionReport?from=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId)
         $http({
             method: 'POST',

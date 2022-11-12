@@ -365,7 +365,7 @@ namespace Aplos.Areas.Materials.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
-                workbook.Worksheets[0].Name = "Closed Machines";
+                workbook.Worksheets[0].Name = "Pending Machines";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
                 dl.GetPendingDetentionExcelView(from, to, departmentId, detentionTypeId, out data);
@@ -423,12 +423,6 @@ namespace Aplos.Areas.Materials.Controllers
                 int ColLoginTime = COL;
                 COL++;
 
-                
-                sheet[ROW, COL].Text = "Duration";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColDuration = COL;
-                COL++;
-
                 sheet[ROW, COL].Text = "Remarks";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColRemarks = COL;
@@ -473,7 +467,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Closed Machines", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Pending Machines", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
