@@ -298,6 +298,7 @@
     <Compile Include="Payroll\Tax\IncomeTaxProcessService.cs" />
     <Compile Include="Payroll\Tax\TaxPolicyMasterService.cs" />
     <Compile Include="Payroll\Tax\TaxSavingGroupService.cs" />
+    <Compile Include="Recruitement\ExperienceMasterService.cs" />
     <Compile Include="Report\Attendance\clsMonthlyAttendanceInformation.cs" />
     <Compile Include="Report\OT\SalarySheetCompanyService.cs" />
     <Compile Include="Report\OT\WeekOFFandHolidayOTOriginal.cs" />

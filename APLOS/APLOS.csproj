@@ -583,6 +583,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\EmployerMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FiveSZoneMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurnitureMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyController.cs" />
@@ -592,6 +593,7 @@
     <Compile Include="Areas\HumanResource\Controllers\MedicineCategoryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineReceiptController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicinePurposeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ExperienceMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SicknessTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTCompensatoryAllocationController.cs" />
@@ -2054,6 +2056,8 @@
     <Content Include="Areas\HumanResource\Scripts\AttendanceBonusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeGoalSettingController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeShiftUpdatesController.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployerMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ExperienceMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\FiveSZoneMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\FuguaiReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\FuguaiZoneMasterController.js" />
@@ -4398,6 +4402,8 @@
     <Content Include="Areas\Productions\Views\POWiseProductionStatusReport\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\TeamDefinition\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionLogReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ExperienceMaster\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\EmployerMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
