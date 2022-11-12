@@ -79,6 +79,7 @@ namespace Aplos.Areas.Machines.Controllers
         public JsonResult GetEActivityCategoryList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            
             var sql = @"select Id as Value,UserName as Text from HKP.EmployeeActivityCategory";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

@@ -209,5 +209,15 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     }
 
   
+    $scope.ProductionData = function () {
+
+        try {
+            var file_src = 'Productions/POWiseProductionStatusReport/ProductionDataXls';
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 
 }
