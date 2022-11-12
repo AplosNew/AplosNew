@@ -209,15 +209,37 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     }
 
   
+    //$scope.ProductionData = function () {
+
+    //    try {
+    //        var file_src = 'Productions/POWiseProductionStatusReport/ProductionDataXls';
+    //        $rootScope.report(file_src);
+
+    //    } catch (e) {
+
+    //    }
+    //}
+
     $scope.ProductionData = function () {
+      
+        $scope.fileName = "ProductionDataReport.xlsx";
 
-        try {
-            var file_src = 'Productions/POWiseProductionStatusReport/ProductionDataXls';
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
+        $http({
+            method: 'POST',
+            url: $scope.path + "ProductionDataXls",
+            //data: { 'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     }
 
 }

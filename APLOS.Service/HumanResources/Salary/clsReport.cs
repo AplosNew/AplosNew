@@ -1864,8 +1864,9 @@ where APD.Id = '" + PlannedId + @"' order by MSC.SNO";
                 strSql = @"select distinct MS.ScheduleCode,MI.Id,MI.SNO,
 ROW_NUMBER() OVER(ORDER BY MI.SNO ASC) as ItemSNO,MI.ItemName as [Item Name],MI.CriticalLevel,MI.Remarks as ItemRemarks,
 Reverse(stuff(Reverse((Select CheckPoints + '[ ],' from ItemParameterDetails where 
-ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,MI.ItemType,MI.ItemMinutes
+ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,EAC.UserName ItemType,MI.ItemMinutes
 from TRN.MaintenanceItem MI
+left join HKP.EmployeeActivityCategory EAC ON EAC.Id=MI.ItemType
 left join TRN.Maintenancescheduling MS ON MS.Id=MI.MaintenanceSchedulingId
 left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
 left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
