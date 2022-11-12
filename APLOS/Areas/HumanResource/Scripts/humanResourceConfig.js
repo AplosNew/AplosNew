@@ -844,6 +844,13 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/MedicineCategory/Aplos',
             controller: 'MedicineCategoryController'
         })
-
+        .when('/experience-master', {
+            templateUrl: 'humanResource/ExperienceMaster/Aplos',
+            controller: 'ExperienceMasterController'
+        })
+        .when('/employer-master', {
+            templateUrl: 'humanResource/EmployerMaster/Aplos',
+            controller: 'EmployerMasterController'
+        })
         ;
 }
