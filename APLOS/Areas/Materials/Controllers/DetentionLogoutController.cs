@@ -13,6 +13,7 @@ using Library.Service.Helpers;
 using System.Threading;
 using Library.Crosscutting.Security;
 using System.IO;
+using System.Data;
 
 namespace Aplos.Areas.Materials.Controllers
 {
@@ -153,160 +154,183 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                var workbook = ClosedDetentionExcelView(from, to, departmentId, detentionTypeId);
+                
+                string fileName = "";
+                fileName = ClosedDetentionExcelView(from, to, departmentId, detentionTypeId, "ClosedDetentionReport");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
-                var strFileName = DateTime.Now.ToString("yy-MMM-dd") + " " + "ClosedDetentionReport.xlsx";
-                //string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(strFileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
-
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
 
-        [HttpPost]
-        private IWorkbook ClosedDetentionExcelView(string from, string to, string departmentId, string detentionTypeId)
+        
+        public string ClosedDetentionExcelView(string from, string to, string departmentId, string detentionTypeId, string SheetName)
         {
-            var excelEngine = new ExcelEngine();
-            var report = new ReportUtility();
-            var workbook = report.GetWorkbook(ref excelEngine, 3);
-            workbook.Version = ExcelVersion.Excel2016;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
 
-
-            var data = dl.GetClosedDetentionExcelReport(from, to, departmentId, detentionTypeId);
-
-
-            var sheet = workbook.Worksheets[0];
-
-
-            #region sheet1
-            sheet.Name = "Closed Machine";
-
-            int ROW = 6;
-            int endCol = 1;
-            int COL = 1;
-
-
-            #region Grid Headers
-
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Id", 6, ExcelHAlign.HAlignCenter);
-            int ColId = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Work Center", 12, ExcelHAlign.HAlignCenter);
-            int ColWorkCenter = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Department", 20, ExcelHAlign.HAlignCenter);
-            int ColDepartment = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Machine", 20, ExcelHAlign.HAlignCenter);
-            int ColMachine = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person", 20, ExcelHAlign.HAlignCenter);
-            int ColResponsiblePerson = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person No", 20, ExcelHAlign.HAlignCenter);
-            int ColResPerNo = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Detention Type", 12, ExcelHAlign.HAlignCenter);
-            int ColDetentionType = COL;
-            COL++;
-           
-            report.SetHeaderText(ref sheet, ROW, COL, "Issue By No.", 20, ExcelHAlign.HAlignCenter);
-            int ColIssueByNo = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Login Date", 12, ExcelHAlign.HAlignCenter);
-            int ColLogDate = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Login Time", 12, ExcelHAlign.HAlignCenter);
-            int ColLogTime = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Logout Date", 12, ExcelHAlign.HAlignCenter);
-            int ColLogoutDate = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Logout Time", 12, ExcelHAlign.HAlignCenter);
-            int ColLogoutTime = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Duration", 10, ExcelHAlign.HAlignCenter);
-            int ColDuration = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 30, ExcelHAlign.HAlignCenter);
-            int ColRemarks = COL;
-            COL++;
-
-
-            ROW++;
-            endCol = COL;
-            #endregion Headers
-
-
-            var startRow = 0;
-            var endRow = 0;
-            int RowIndex = ROW;
-            startRow = ROW;
-
-            string Article = "";
-            string LotNum = "";
-            int ArtRow = 0;
-            int LotRow = 0;
-
-            double[] arr = new double[3];
-
-            for (int i = 0; i < data.Rows.Count; i++)
+            try
             {
-                sheet[ROW, ColId].Text = data.Rows[i]["Id"].ToString();
-                sheet[ROW, ColWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
-                sheet[ROW, ColMachine].Text = data.Rows[i]["MachineMaster"].ToString();
-                sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePersonName"].ToString();
-                sheet[ROW, ColResPerNo].Text = data.Rows[i]["ContactNo"].ToString();
-                sheet[ROW, ColDetentionType].Text = data.Rows[i]["DetentionType"].ToString();
-                sheet[ROW, ColIssueByNo].Text = data.Rows[i]["IssueByNo"].ToString();
-                sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
-                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-                sheet[ROW, ColLogDate].Text = data.Rows[i]["AddedDate"].ToString();
-                sheet[ROW, ColLogTime].Text = data.Rows[i]["AddedTime"].ToString();
-                sheet[ROW, ColLogoutDate].Text = data.Rows[i]["LogoutDate"].ToString();
-                sheet[ROW, ColLogoutTime].Text = data.Rows[i]["LogoutTime"].ToString();
-                sheet[ROW, ColDuration].Number = clsStaticInfo.dbl(data.Rows[i]["Duration"].ToString());
-                
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Closed Machines";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+               dl.GetClosedDetentionExcelReport(from, to, departmentId, detentionTypeId, out data);
+
+                int ROW = 6; int COL = 1;
+
+                #region Columns
+                sheet[ROW, COL].Text = "DetentenLog Id";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDLId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "WorkCenter";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColWorkCenter = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDepartment = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Process";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColProcess = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Responsible Person";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRP = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Responsible Person No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRPNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Detention Type";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDetentionType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Issue By No.";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColIssueByNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Login Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColLoginDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Login Time";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColLoginTime = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Logout Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColLogoutDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Logout Time";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColLogoutTime = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Duration";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDuration = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRemarks = COL;
+                COL++;
+                #endregion Columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
                 ROW++;
 
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColDLId].Text = data.Rows[i]["Id"].ToString();
+                    sheet[ROW, ColWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
+                    sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
+                    sheet[ROW, ColRP].Text = data.Rows[i]["ResponsiblePersonName"].ToString();
+                    sheet[ROW, ColRPNo].Text = data.Rows[i]["ContactNo"].ToString();
+                    sheet[ROW, ColDetentionType].Text = data.Rows[i]["DetentionType"].ToString();
+                    sheet[ROW, ColIssueByNo].Text = data.Rows[i]["IssueByNo"].ToString();
+                    sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColLoginDate].Text = data.Rows[i]["AddedDate"].ToString();
+                    sheet[ROW, ColLoginTime].Text = data.Rows[i]["AddedTime"].ToString();
+                    sheet[ROW, ColLogoutDate].Text = data.Rows[i]["LogoutDate"].ToString();
+                    sheet[ROW, ColLogoutTime].Text = data.Rows[i]["LogoutTime"].ToString();
+                    sheet[ROW, ColDuration].Number = clsStaticInfo.dbl(data.Rows[i]["Duration"].ToString());
+
+                    ROW++;
+                }
+
+                    sheet.UsedRange.WrapText = true;
+                    sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    sheet["A" + startRow.ToString()].FreezePanes();
+
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    ReportUtility reportUtility = new ReportUtility();
+                    reportUtility.PlantHeader(ref sheet, endCol, "Closed Machines", identity.PlantId);
+                    reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                    sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                    sheet.UsedRange.WrapText = true;
+                    sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.IsGridLinesVisible = false;
+                    sheet.PageSetup.TopMargin = 0.2;
+                    sheet.PageSetup.BottomMargin = 0.8;
+                    //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                    sheet.PageSetup.LeftMargin = 0.2;
+                    sheet.PageSetup.RightMargin = 0.2;
+                    sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                    sheet.PageSetup.FitToPagesTall = 0;
+                    sheet.PageSetup.FitToPagesWide = 1;
+                    sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                    sheet.PageSetup.CenterHorizontally = true;
+
+
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                    return filePath;
+                
             }
-
-            ROW++;
-
-            endRow = ROW - 1;
-            endRow = ROW - 1;
-            #endregion sheet1
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            sheet.UsedRange.WrapText = true;
-            sheet.UsedRange.CellStyle.Font.Size = 8;
-            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
-
-
-            sheet.Range[startRow - 1, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            ReportUtility reportUtility = new ReportUtility();
-            //reportUtility.CompanyHeader(ref sheet, endCol, "PendingForAllocation", identity.CompanyId);
-            //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-            return workbook;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            
         }
 
         [Authorize, HttpGet]
@@ -314,14 +338,10 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                var workbook = PendingDetentionExcelView(from, to, departmentId, detentionTypeId);
+                string fileName = "";
+                fileName = PendingDetentionExcelView(from, to, departmentId, detentionTypeId, "Pending Machine");
 
-                var strFileName = DateTime.Now.ToString("yy-MMM-dd") + " " + "PendingDetentionReport.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -330,129 +350,154 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        [HttpPost]
-        private IWorkbook PendingDetentionExcelView(string from, string to, string departmentId, string detentionTypeId)
+        
+        private string PendingDetentionExcelView(string from, string to, string departmentId, string detentionTypeId, string SheetName)
         {
-            var excelEngine = new ExcelEngine();
-            var report = new ReportUtility();
-            var workbook = report.GetWorkbook(ref excelEngine, 3);
-            workbook.Version = ExcelVersion.Excel2016;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
 
-
-            var data = dl.GetPendingDetentionExcelView(from, to, departmentId, detentionTypeId);
-
-
-            var sheet = workbook.Worksheets[0];
-
-
-            #region sheet1
-            sheet.Name = "Machine Understoppage";
-
-            int ROW = 6;
-            int endCol = 1;
-            int COL = 1;
-
-
-            #region Grid Headers
-
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Id", 6, ExcelHAlign.HAlignCenter);
-            int ColId = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Work Center", 12, ExcelHAlign.HAlignCenter);
-            int ColWorkCenter = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Department", 20, ExcelHAlign.HAlignCenter);
-            int ColDepartment = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Machine", 20, ExcelHAlign.HAlignCenter);
-            int ColMachine = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person", 20, ExcelHAlign.HAlignCenter);
-            int ColResponsiblePerson = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person No", 20, ExcelHAlign.HAlignCenter);
-            int ColResPerNo = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Detention Type", 12, ExcelHAlign.HAlignCenter);
-            int ColDetentionType = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Issue By No.", 20, ExcelHAlign.HAlignCenter);
-            int ColIssueByNo = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Login Date", 12, ExcelHAlign.HAlignCenter);
-            int ColLogDate = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Login Time", 12, ExcelHAlign.HAlignCenter);
-            int ColLogTime = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 30, ExcelHAlign.HAlignCenter);
-            int ColRemarks = COL;
-            COL++;
-
-
-            ROW++;
-            endCol = COL;
-            #endregion Headers
-
-
-            var startRow = 0;
-            var endRow = 0;
-            int RowIndex = ROW;
-            startRow = ROW;
-
-            string Article = "";
-            string LotNum = "";
-            int ArtRow = 0;
-            int LotRow = 0;
-
-            double[] arr = new double[3];
-
-            for (int i = 0; i < data.Rows.Count; i++)
+            try
             {
-                sheet[ROW, ColId].Text = data.Rows[i]["Id"].ToString();
-                sheet[ROW, ColWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
-                sheet[ROW, ColMachine].Text = data.Rows[i]["MachineMaster"].ToString();
-                sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePersonName"].ToString();
-                sheet[ROW, ColResPerNo].Text = data.Rows[i]["ContactNo"].ToString();
-                sheet[ROW, ColDetentionType].Text = data.Rows[i]["DetentionType"].ToString();
-                sheet[ROW, ColIssueByNo].Text = data.Rows[i]["IssueByNo"].ToString();
-                sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
-                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-                sheet[ROW, ColLogDate].Text = data.Rows[i]["AddedDate"].ToString();
-                sheet[ROW, ColLogTime].Text = data.Rows[i]["AddedTime"].ToString();
-                
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Pending Machines";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                dl.GetPendingDetentionExcelView(from, to, departmentId, detentionTypeId, out data);
+
+                int ROW = 6; int COL = 1;
+
+                #region Columns
+                sheet[ROW, COL].Text = "DetentenLog Id";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDLId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "WorkCenter";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColWorkCenter = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDepartment = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Process";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColProcess = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Responsible Person";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRP = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Responsible Person No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRPNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Detention Type";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDetentionType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Issue By No.";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColIssueByNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Login Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColLoginDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Login Time";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColLoginTime = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRemarks = COL;
+                COL++;
+                #endregion Columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
                 ROW++;
 
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColDLId].Text = data.Rows[i]["Id"].ToString();
+                    sheet[ROW, ColWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
+                    sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
+                    sheet[ROW, ColRP].Text = data.Rows[i]["ResponsiblePersonName"].ToString();
+                    sheet[ROW, ColRPNo].Text = data.Rows[i]["ContactNo"].ToString();
+                    sheet[ROW, ColDetentionType].Text = data.Rows[i]["DetentionType"].ToString();
+                    sheet[ROW, ColIssueByNo].Text = data.Rows[i]["IssueByNo"].ToString();
+                    sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColLoginDate].Text = data.Rows[i]["AddedDate"].ToString();
+                    sheet[ROW, ColLoginTime].Text = data.Rows[i]["AddedTime"].ToString();
+                    
+                    //sheet[ROW, ColDuration].Number = clsStaticInfo.dbl(data.Rows[i]["Duration"].ToString());
+
+                    ROW++;
+                }
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Pending Machines", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
             }
-
-            ROW++;
-
-            endRow = ROW - 1;
-            endRow = ROW - 1;
-            #endregion sheet1
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            sheet.UsedRange.WrapText = true;
-            sheet.UsedRange.CellStyle.Font.Size = 8;
-            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
-
-
-            sheet.Range[startRow - 1, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            ReportUtility reportUtility = new ReportUtility();
-            //reportUtility.CompanyHeader(ref sheet, endCol, "PendingForAllocation", identity.CompanyId);
-            //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-            return workbook;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
 

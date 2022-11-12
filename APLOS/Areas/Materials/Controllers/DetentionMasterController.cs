@@ -311,13 +311,13 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadResponsibleList()
+        public ActionResult LoadResponsibleList(string DetentionId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT distinct convert(bit,0) AS chk,DMR.Id,DMR.ResponsibleMasterId,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,DEP.UserName AS Department,S.UserName as Section,
                             SS.UserName as SubSection,DEG.UserName AS [LegalDesignation]
                             FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN DetentionMasterResponsible DMR ON DMR.ResponsibleMasterId=EI.SystemId
+                            LEFT JOIN DetentionMasterResponsible DMR ON DMR.ResponsibleMasterId=EI.SystemId and DetentionMasterId='"+ DetentionId + @"'
                             LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
 							LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId

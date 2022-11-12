@@ -583,6 +583,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\EmployerMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FiveSZoneMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurnitureMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyController.cs" />
@@ -592,6 +593,7 @@
     <Compile Include="Areas\HumanResource\Controllers\MedicineCategoryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineReceiptController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicinePurposeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ExperienceMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SicknessTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTCompensatoryAllocationController.cs" />
@@ -749,6 +751,7 @@
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
     <Compile Include="Areas\Machines\Controllers\IncedentCategoryController.cs" />
     <Compile Include="Areas\Machines\Controllers\IncedentUpdateController.cs" />
+    <Compile Include="Areas\Machines\Controllers\TeamDefinitionController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSummaryReportController.cs" />
     <Compile Include="Areas\Machines\Controllers\SpecialIssueControlReportController.cs" />
     <Compile Include="Areas\Machines\Controllers\SpecialIssueControlRegisterController.cs" />
@@ -758,6 +761,7 @@
     <Compile Include="Areas\Machines\Controllers\MaintenanceStatusDetailsController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSchedulingController.cs" />
     <Compile Include="Areas\Machines\Controllers\PendingMaintenanceScheduleController.cs" />
+    <Compile Include="Areas\Materials\Controllers\DetentionLogReportController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityGroupController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogoutController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
@@ -2052,6 +2056,8 @@
     <Content Include="Areas\HumanResource\Scripts\AttendanceBonusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeGoalSettingController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeShiftUpdatesController.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployerMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ExperienceMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\FiveSZoneMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\FuguaiReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\FuguaiZoneMasterController.js" />
@@ -2190,6 +2196,7 @@
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
     <Content Include="Areas\Machines\Scripts\incedentCategoryController.js" />
     <Content Include="Areas\Machines\Scripts\incedentUpdateController.js" />
+    <Content Include="Areas\Machines\Scripts\teamDefinitionController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSummaryReport.js" />
     <Content Include="Areas\Machines\Scripts\specialIssueControlReportController.js" />
     <Content Include="Areas\Machines\Scripts\specialIssueControlRegisterController.js" />
@@ -2199,6 +2206,7 @@
     <Content Include="Areas\Machines\Scripts\pendingMaintenanceScheduleController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceStatusDetailsController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
+    <Content Include="Areas\Materials\Scripts\DetentionLogReportController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityGroupController.js" />
     <Content Include="Areas\Materials\Scripts\MaterialIssueController.js" />
     <Content Include="Areas\Materials\Scripts\MaterialIssueControlApprovalController.js" />
@@ -4392,6 +4400,10 @@
     <Content Include="Areas\Machines\Views\MaintenanceSummaryReport\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\UtilityGroup\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\POWiseProductionStatusReport\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\TeamDefinition\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLogReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ExperienceMaster\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\EmployerMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

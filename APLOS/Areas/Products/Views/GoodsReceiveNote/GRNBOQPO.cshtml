@@ -1949,7 +1949,7 @@
                             <input type="number" class="input form-control" ng-keyup="calculateAmounts(data)" form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80"--> @*ng-keyup="$parent.refreshQtyTemplete(this)"*@ <!--/>
                         </script>-->
                         <script type="text/template" id="CurrentTextGRNRecvQty">
-                            <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmounts(data);" width="200" ng-model="data.GRNRcvQty" ng-disabled="true">
+                            <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="popupcalculateAmounts(data);" width="200" ng-model="data.GRNRcvQty" ng-disabled="true">
                         </script>
                         <script type="text/template" id="CurrentTextTRNQty">
                             <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="$parent.calculateAmounts(data);" width="200" ng-model="data.TransactionQty">
