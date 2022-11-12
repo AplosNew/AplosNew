@@ -1108,6 +1108,8 @@ upanelApp.controller("incedentUpdateController", incedentUpdateController)
 upanelApp.controller("maintenanceSummaryReportController", maintenanceSummaryReportController)
 upanelApp.controller("POWiseProductionStatusReportController", POWiseProductionStatusReportController)
 upanelApp.controller("teamDefinitionController", teamDefinitionController)
+upanelApp.controller("ExperienceMasterController", ExperienceMasterController)
+upanelApp.controller("EmployerMasterController", EmployerMasterController)
 
 
 upanelApp.config(AccessControllerConfig);

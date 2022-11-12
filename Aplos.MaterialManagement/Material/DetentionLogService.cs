@@ -63,7 +63,7 @@ namespace Library.MaterialManagement.Material
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string str = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
-                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId
+                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation]--,DR.DetentionMasterId
 						   --CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
 						   from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
@@ -699,7 +699,7 @@ FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Rema
                             P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
                             ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
 							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
-isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
@@ -732,7 +732,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.AddedDate between '" + from + "' and '" + to + "' and DL.DepartmentId = '" + departmentId + @"'
+                                where DL.LogoutTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -753,7 +753,7 @@ FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Rema
                             P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
                             ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
 							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
-isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
                             STUFF((select ',' +  X.SystemId
                             From TRN.DetentionLogResponsiblePerson DLR
                             left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
@@ -786,7 +786,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.AddedDate between '" + from + "' and '" + to + "' and DL.DepartmentId = '" + departmentId + @"'
+                                where DL.LogoutTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
                 data =  _sqlRepository.GetDataTable(sql);
             }
@@ -837,7 +837,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.AddedDate between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose <> 1";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -888,7 +888,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.AddedDate between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose <> 1";
                 data = _sqlRepository.GetDataTable(sql);
             }
