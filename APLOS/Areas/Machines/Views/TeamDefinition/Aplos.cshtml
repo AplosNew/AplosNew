@@ -2,6 +2,7 @@
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Team Definition</a></li>
         <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Employee Activity Category</a></li>
+        <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Team Category</a></li>
     </ul>
 </div>
 <div class="tab-content">
@@ -101,6 +102,7 @@
                     <li role="presentation" ng-class="{ active: isSetteam(1) }"><a ng-click="setTabTeam(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Budget Code</a></li>
                     <li role="presentation" ng-class="{ active: isSetteam(2) }"><a ng-click="setTabTeam(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Employee</a></li>
                     <li role="presentation" ng-class="{ active: isSetteam(3) }"><a ng-click="setTabTeam(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Entity</a></li>
+                    <li role="presentation" ng-class="{ active: isSetteam(4) }"><a ng-click="setTabTeam(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Team Category</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -136,7 +138,7 @@
                         </ul>
                     </div>
                 </div>
-                <div role="tabpanel"  class="tab-pane fade" ng-class="{ 'in':isSetteam(2), active: isSetteam(2) }">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetteam(2), active: isSetteam(2) }">
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div id="GridEmployee" ej-grid e-datasource="TeamEmployeeList" e-templaterefresh="refreshTemplateEmployee" e-recorddoubleclick=""
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -150,7 +152,7 @@
                                 <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="100"></div>
                                 <div e-column e-template="#PlanHours" e-headertext="Plan Hours" e-width="100"></div>
                                 <div e-column e-field="ResponsibilityLevel" e-template="#Responsibility" e-headertext="Responsibility Level" e-width="100"></div>
-                                <div e-column e-template="#EmployeeCategoryActiviy" e-headertext="Employee Activiy Category" e-width="100"></div>
+                                <div e-column e-template="#EmployeeActiviyCategory" e-headertext="Employee Activiy Category" e-width="100"></div>
                                 <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
                                 <div e-column e-field="Shift" e-headertext="Shift" e-width="100"></div>
                                 <div e-column e-field="Subsection" e-headertext="Sub Section" e-width="50"></div>
@@ -185,9 +187,9 @@
                                 <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
                             </div>
                         </script>
-                        <script type="text/template" id="EmployeeCategoryActiviy">
+                        <script type="text/template" id="EmployeeActiviyCategory">
                             <div class="select-style">
-                                <select class="form-control" ng-model="data.EmployeeActiviyCategory" name="Employee Category Activiy"
+                                <select class="form-control" ng-model="data.EmployeeActiviyCategory" name="Employee Activiy Category"
                                         ng-options="item.Value as item.Text for item in $parent.EActivityCategoryList">
                                 </select>
                             </div>
@@ -231,10 +233,41 @@
                         </ul>
                     </div>
                 </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetteam(4), active: isSetteam(4) }">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div id="GridTeamDefinitionCategory" ej-grid e-datasource="TeamDefinitionCategoryList" e-templaterefresh="refreshTemplateTeamDefinitionCategory" e-recorddoubleclick=""
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateTeamDefinitionCategory" e-template="#checkboxTemplateTeamDefinitionCategory" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="100"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="100"></div>
+                                <div e-column e-field="UserName" e-headertext="Team Category" e-width="100"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                                <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateTeamDefinitionCategory">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplateTeamDefinitionCategory">
+                            <input type="checkbox" id="TDCheadchk" />
+                        </script>
+                        <script type="text/template" id="Remarks">
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                            </div>
+                        </script>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="TeamDefinitionCategorySave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-
-
         <div class="table-responsive aplos-grid-toggle">
             <div id="GridTeamLeaderMaster" ej-grid e-datasource="TeamLeaderList" e-recorddoubleclick="GetDetails"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -254,130 +287,215 @@
                 </div>
             </div>
         </div>
-        <confirm-modal></confirm-modal>
     </div>
+    @*<confirm-modal></confirm-modal>*@
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-            <div class="row" ng-form="EmployeeActivityCategoryForm">
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Sequence" ng-model="EACategory.Sequence" class="form-control" required tabindex="1">
-                        </div>
+        <div class="row" ng-form="EmployeeActivityCategoryForm">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Sequence" ng-disabled="true" ng-model="EACategory.Sequence" class="form-control" required tabindex="1">
                     </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="EACategory.StandardName" class="form-control" required tabindex="4" maxlength="50">
-                        </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Standard Name" ng-model="EACategory.StandardName" class="form-control" required tabindex="4" maxlength="50">
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Description</label>
-                        <div class="col-sm-8">
-                            <textarea class="form-control" rows="3" ng-model="EACategory.Description" tabindex="7" maxlength="250"></textarea>
-                        </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Description</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control" rows="3" ng-model="EACategory.Description" tabindex="7" maxlength="250"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Active</label>
-                        <div class="col-sm-8">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-model="EACategory.Active" tabindex="8">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
-                            </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Active</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="EACategory.Active" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Short Name" ng-model="EACategory.ShortName" class="form-control" maxlength="15" required tabindex="3">
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Short Name" ng-model="EACategory.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="User Name" ng-model="EACategory.UserName" class="form-control" required tabindex="5" maxlength="50">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Code" ng-model="EACategory.Code" class="form-control" required tabindex="2" maxlength="10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control" rows="3" ng-model="EACategory.Remarks" maxlength="250" tabindex="6"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="EACategorySave();" class="btn"><i class=""></i> Save</button></li>
+                    <li> <button ng-click="EACategoryDelete();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Delete</button></li>
+                    <li> <button ng-click="EACategoryClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div id="GridEACategory" ej-grid e-datasource="EACategoryList" e-recorddoubleclick="GetEACategoryDetails"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Period Id" e-visible="false" e-width="3"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="3"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="3"></div>
+                        <div e-column e-field="StandardName" e-headertext="StandardName" e-width="3"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="3"></div>
+                        <div e-column e-field="Description" e-headertext="Description" e-width="3"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                        <div e-column e-field="Active" e-headertext="Active" e-width="3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+        <div class="row" ng-form="TeamCategoryForm">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Sequence" ng-model="TeamCategoryNew.Sequence" class="form-control" required tabindex="1">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Standard Name" ng-model="TeamCategoryNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Description</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control" rows="3" ng-model="TeamCategoryNew.Description" tabindex="7" maxlength="250"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Active</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="TeamCategoryNew.Active" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="User Name" ng-model="EACategory.UserName" class="form-control" required tabindex="5" maxlength="50">
-                        </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Short Name" ng-model="TeamCategoryNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
                     </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Code" ng-model="EACategory.Code" class="form-control" required tabindex="2" maxlength="10">
-                        </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="User Name" ng-model="TeamCategoryNew.UserName" class="form-control" required tabindex="5" maxlength="50">
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Remarks</label>
-                        <div class="col-sm-8">
-                            <textarea class="form-control" rows="3" ng-model="EACategory.Remarks" maxlength="250" tabindex="6"></textarea>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Code" ng-model="TeamCategoryNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control" rows="3" ng-model="TeamCategoryNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="TeamCategorySave();" class="btn"><i class=""></i> Save</button></li>
+                    <li> <button ng-click="TeamCategoryDelete();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Delete</button></li>
+                    <li> <button ng-click="TeamCategoryClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div id="GridTeamCategory" ej-grid e-datasource="TeamCategoryList" e-recorddoubleclick="GetTeamCategoryDetails"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Period Id" e-visible="false" e-width="3"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="3"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="3"></div>
+                        <div e-column e-field="StandardName" e-headertext="StandardName" e-width="3"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="3"></div>
+                        <div e-column e-field="Description" e-headertext="Description" e-width="3"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                        <div e-column e-field="Active" e-headertext="Active" e-width="3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="TeamLeaderPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridTeamLeader" ej-grid e-datasource="TeamLeaderList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleTeamLeader">
+                            <div e-columns>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="EACategorySave();" class="btn"><i class=""></i> Save</button></li>
-                        <li> <button ng-click="EACategoryClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li>
+                            <button ng-click="closeTeamLeaderPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
                     </ul>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div id="GridEACategory" ej-grid e-datasource="EACategoryList" e-recorddoubleclick="GetEACategoryDetails"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-field="Id" e-headertext="Period Id" e-visible="false" e-width="3"></div>
-                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="3"></div>
-                            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-                            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-                            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="3"></div>
-                            <div e-column e-field="StandardName" e-headertext="StandardName" e-width="3"></div>
-                            <div e-column e-field="UserName" e-headertext="User Name" e-width="3"></div>
-                            <div e-column e-field="Description" e-headertext="Description" e-width="3"></div>
-                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
-                            <div e-column e-field="Active" e-headertext="Active" e-width="3"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    </div>
-</div>
-        <div class="modal fade site-modal in" id="TeamLeaderPopup" role="dialog" data-backdrop="static">
-            <div class="modal-dialog modal-lg modellgModify">
-                <div class="modal-content">
-                    <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-                    <div class="modal-body form-elements form-horizontal">
-                        <div class="col-md-12">
-                            <div class="content-container-fluid" style="color:black;overflow:scroll">
-                                <p>Double click to Select an Employee</p>
-                                <div style="color:black;" id="GridTeamLeader" ej-grid e-datasource="TeamLeaderList"
-                                     e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
-                                     e-recorddoubleclick="doubleTeamLeader">
-                                    <div e-columns>
-                                        <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
-                                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
-                                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
-                                        <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
-                                        <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
-                                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
-                                        <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="common-btn">
-                            <ul class="list-inline text-right">
-                                <li>
-                                    <button ng-click="closeTeamLeaderPopUp();" class="btn"><i class=""></i> Close</button>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-      
+
 
 
