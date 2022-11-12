@@ -479,6 +479,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
                     ob.WorkCenterMaster = $scope.assetDataList[i].WorkCenterMaster;
 
                     $scope.SelectedAssetDataList.push(ob);
+                    ob = {};
                 }
                 else {
                     throw "This Asset " + $scope.assetDataList[i].AssetName + " is already taken.";
