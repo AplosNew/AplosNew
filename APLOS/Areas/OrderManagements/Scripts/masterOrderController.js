@@ -5072,7 +5072,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 }
             }
 
-            if (selectedSO+ == true) {
+            if (selectedSO == true) {
                 ShowResult("SO Id already exists!", 'failure');
             }
             else {
