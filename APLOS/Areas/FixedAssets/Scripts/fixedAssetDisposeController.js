@@ -667,13 +667,24 @@ function fixedAssetDisposeController(commonMessage, $scope, $rootScope, baseServ
     };
 
     $scope.calBooksNegotiationValue = function (data) {
+        var assetNegotiationValue = parseFloat(data.NegotiationValue);
+        if (assetNegotiationValue === 0 || assetNegotiationValue <0) {
+            data.NegotiationValue = "";
+            ShowResult("Negotiation Amount should be greater than 0(zero).", "failure");
+        }
         if ($scope.voucher.Status == 'CompensateByEmployee') {
             data.BaseNagotiationValue = data.NegotiationValue;
         }
         else {
             data.BaseNagotiationValue = data.NegotiationValue * $scope.voucher.CompanyCurrencyRate;
         }
-        
+    }
+    $scope.calBooksAdjustmentDepreciation = function (data) {
+        var assetNetBaseBookValue = parseFloat(data.NetBaseBookValue), assetAdjustmentDepreciation = parseFloat(data.AdjustmentDepreciationAmount);
+        if (assetAdjustmentDepreciation > assetNetBaseBookValue) {
+            data.AdjustmentDepreciationAmount = "";
+            ShowResult("Adjustment Depreciation Amount should not exceed Net Base Amount.", "failure");
+        }
     }
     $scope.updateBooksNegotiationValue = function () {
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {
