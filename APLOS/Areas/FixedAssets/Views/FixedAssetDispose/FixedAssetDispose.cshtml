@@ -155,6 +155,7 @@
                             <th style="width:100px">Total Base Amount</th>
                             <th class="text-center">Depreciation</th>
                             <th class="text-center">Net Base Amount</th>
+                            <th class="text-center">Adjustment Depreciation Amount</th>
                             <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Negotiation Amount</th>
                             <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Books Negotiation Amount</th>
                             <th>Vendor</th>
@@ -182,9 +183,9 @@
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchaseBaseAmount " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="ADBaseAmount" ng-model="x.ADBaseAmount " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBaseBookValue " n-decimals="2"></td>
-                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" id="NegotiationValue"  ng-model="x.NegotiationValue" ng-keyup="calBooksNegotiationValue(x,$index)" n-decimals="2" autocomplete="off"></td>
-                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" id="BaseNagotiationValue"  ng-disabled="true" ng-model="x.BaseNagotiationValue " n-decimals="2"></td>
-
+                            <td><input type="text" style="width:100px" class="form-control text-right" id="AdjustmentDepreciationAmount" ng-model="x.AdjustmentDepreciationAmount" ng-keyup="calBooksAdjustmentDepreciation(x)" n-decimals="2" autocomplete="off"></td>
+                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" id="NegotiationValue" ng-model="x.NegotiationValue" ng-keyup="calBooksNegotiationValue(x,$index)" n-decimals="2" autocomplete="off"></td>
+                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" id="BaseNagotiationValue" ng-disabled="true" ng-model="x.BaseNagotiationValue " n-decimals="2"></td>
                             <td>{{x.vendor}}</td>
                             <td>{{x.InvoiceNo}}</td>
                             @*<td>{{x.TrnCurrency}}</td>*@
@@ -205,6 +206,7 @@
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'PurchaseBaseAmount'| number:2 }}</b></td>
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'ADBaseAmount'| number:2 }}</b></td>
                             <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'NetBaseBookValue'| number:2 }}</b></td>
+                            <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'AdjustmentDepreciationAmount'| number:2 }}</b></td>
                             <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (voucherDetailList ) | sumByKey:'NegotiationValue'| number:2 }}</b></td>
                             <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (voucherDetailList ) | sumByKey:'BaseNagotiationValue'| number:2 }}</b></td>
                             @*<td></td>*@
