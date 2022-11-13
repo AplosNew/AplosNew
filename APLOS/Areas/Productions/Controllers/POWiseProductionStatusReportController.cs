@@ -50,31 +50,106 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
 
-        //[HttpGet, Authorize]
-        //public ActionResult getFiltersData(string fromDate, string todate)
-        //{
-        //    try
-        //    {
+        [HttpGet, Authorize]
+        public ActionResult getFilters()
+        {
+            return Json(filters(), JsonRequestBehavior.AllowGet);
+        }
 
-        //            try
-        //            {
-        //                var sql = @"";
 
-        //                //return _sqlRepository.GetDataCollection(sql);
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                throw e;
-        //            }
+        public IEnumerable<object> filters()
+        {
+            try
+            {
+                var sql = @"SELECT * FROM ( SELECT  
+                                        isnull(e.Id,'') AS EntityId,isnull(e.UserName,'') Entity,
+										pln.Id PlantId,Pln.UserName Plant,
+                                        isnull(ps.Id,'') AS ProductionStatusId, isnull(ps.UserName,'') AS ProductionStatus
+										,PO.Id ProductionOrderId
+                                      , ResponsiblePersonId=STUFF((select distinct ','+XMO.ResponsiblePersonId from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join dbo.EmployeeInformation XEmp on XEmp.SystemId=XMO.ResponsiblePersonId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+	                                         , ResponsiblePerson=STUFF((select distinct ','+XEmp.EmployeeName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join dbo.EmployeeInformation XEmp on XEmp.SystemId=XMO.ResponsiblePersonId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                   , Buyer=STUFF((select distinct ','+XB.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 
-        //        //return Json(tasksService.getFiltersData(fromDate, todate), JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        throw e;
-        //    }
-        //}
+														 SOStatusId=STUFF((select distinct ','+XB.Id from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].OrderStatus XB on XB.Id=XSO.OrderStatusId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 
+
+													
+																 MOStatusId=STUFF((select distinct ','+XB.Id from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].OrderStatus XB on XB.Id=XMO.OrderStatusId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+		
+													 BuyerId=STUFF((select distinct ','+XB.Id from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+																
+                                                    CustomerId=STUFF((select distinct ','+XP.Id from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),   
+                                                    Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')                                                 
+
+
+                                        from trn.ProductionOrder PO
+				                                inner join ProductionOrderSchedulingParametersType1 T1 on t1.ProductionOrderID=po.Id
+												
+				                              
+				                                left outer join org.Entity E on e.Id=PO.EntityID
+				                             
+				                                left outer join org.Plant PLN on pln.Id=E.PlantId
+				                                LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+
+                              WHERE  PO.ProductionStatusId<>'Closed'
+                                ) AS KK	";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
         [HttpPost, Authorize]
         public ActionResult GetPOWiseProductionStatusData()
         {
@@ -217,12 +292,12 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult ProductionDataXls()
+        public ActionResult ProductionDataXls(Dictionary<string, string> parameters)
         {
             try
             {
                 string fileName = "";
-                fileName = ProductionDataReport("Production Report");
+                fileName = ProductionDataReport(parameters,"Production Report");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -232,7 +307,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-        public string ProductionDataReport(string SheetName)
+        public string ProductionDataReport(Dictionary<string, string> parameters,string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -249,7 +324,7 @@ namespace Aplos.Areas.Productions.Controllers
                 workbook.Worksheets[0].Name = "ProductionDataReport";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
-                ReportSQL(out data);
+                ReportSQL(parameters,out data);
 
                 int ROW = 6; int COL = 1;
 
@@ -427,7 +502,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        public void ReportSQL(out DataTable data)
+        public void ReportSQL(Dictionary<string, string> parameters,out DataTable data)
         {
             try
             {
@@ -522,7 +597,10 @@ namespace Aplos.Areas.Productions.Controllers
                                                         group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
                                               ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
                                             LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
-                                            Where PS.UserName='Running' order by ActualDate ";
+                                            Where MO.EntityId in(" + parameters["EntityId"] + @")
+AND MO.PartyId in(" + parameters["CustomerId"] + @")
+AND MO.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")
+AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
 
 
                 data = _sqlRepository.GetDataTable(sql);
