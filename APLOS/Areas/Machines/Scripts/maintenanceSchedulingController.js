@@ -5,7 +5,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     $scope.CategoryList = [];
     $scope.SubCategoryList = [];
     $scope.CriticalLevelLists = [];
-    $scope.ItemTypeList = [];
+    //$scope.ItemTypeList = [];
     $scope.ItemCategoryList = [];
     $scope.CostTypeList = [];
     $scope.EstimationLevelList = [];
@@ -57,28 +57,38 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
             'Text': 'Critical'
         }
     ];
-    $scope.ItemTypeList = [
-        {
-            'Value': 'Electrical',
-            'Text': 'Electrical'
-        },
-        {
-            'Value': 'Electronics',
-            'Text': 'Electronics'
-        },
-        {
-            'Value': 'Mechanical',
-            'Text': 'Mechanical'
-        },
-        {
-            'Value': 'Production',
-            'Text': 'Production'
-        },
-        {
-            'Value': 'Other',
-            'Text': 'Other'
-        }
-    ];
+    //$scope.ItemTypeList = [
+    //    {
+    //        'Value': 'Electrical',
+    //        'Text': 'Electrical'
+    //    },
+    //    {
+    //        'Value': 'Electronics',
+    //        'Text': 'Electronics'
+    //    },
+    //    {
+    //        'Value': 'Mechanical',
+    //        'Text': 'Mechanical'
+    //    },
+    //    {
+    //        'Value': 'Production',
+    //        'Text': 'Production'
+    //    },
+    //    {
+    //        'Value': 'Other',
+    //        'Text': 'Other'
+    //    }
+    //];
+    $scope.ItemTypeList = [];
+    $scope.GetEActivityCategoryList = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/MaintenanceScheduling/GetEActivityCategoryList'
+        }).then(function successCallback(response) {
+            $scope.ItemTypeList = response.data;
+        });
+    }
+    $scope.GetEActivityCategoryList();
     $scope.ItemCategoryList = [
         {
             'Value': 'Consumable',
@@ -159,6 +169,8 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         , Department: null
         , DepartmentId: null
         , MaintenanceGroup: null
+        , AdvancePlanningDays: null
+
     };
     $scope.scheduleNew = Object.assign({}, $scope.schedule);
 

@@ -21,7 +21,6 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
     };
     // #endregion TAB CHANGE
 
-    //  #region Objects
     $scope.ModelTemp = {
         Id: null,
         UserName: null,
@@ -35,7 +34,6 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
         WorkCenter: null,
     };
     $scope.ModelNewC = Object.assign({}, $scope.ModelTempC);
-    //  #endregion Objects
 
     //  #region All Lists
     $scope.MaterialTypeList = [];

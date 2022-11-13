@@ -95,7 +95,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
  where MMA.Id is not null 
  and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "' " + Filter + @"";
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + FromDate + "' and '" + ToDate + "' " + Filter + @" order by MPD.PlannedDate";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -138,7 +138,7 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end) = 0 and (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
-MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup
+MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup,MPD.FileName,'Pid' as test
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
@@ -154,7 +154,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
             and MMA.EntityId IN(" + parameters["EntityId"] + @") 
  and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + fromdate + "' and '" + todate + "' " + Filter + @"";
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + fromdate + "' and '" + todate + "' " + Filter + @" order by MPD.PlannedDate";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

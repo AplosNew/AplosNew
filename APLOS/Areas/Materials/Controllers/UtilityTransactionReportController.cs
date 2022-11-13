@@ -193,6 +193,7 @@ namespace Aplos.Areas.Materials.Controllers
                 ROW++;
 
                 int startRow = ROW;
+                double reading = 0;
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
@@ -205,9 +206,19 @@ namespace Aplos.Areas.Materials.Controllers
                     sheet[ROW, ColSubGroup].Text = data.Rows[i]["SubGroup"].ToString();
                     sheet[ROW, ColQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
                     sheet[ROW, ColQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColReading].Number = clsStaticInfo.dbl(data.Rows[i]["Reading"].ToString());
+                    if (reading == 0)
+                    {
+                        reading= clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
+                        sheet[ROW, ColReading].Number = reading;
+                    }
+                    else
+                    {
+                        reading = clsStaticInfo.dbl(reading) + clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString()); 
+                        sheet[ROW, ColReading].Number = reading;
+                    }
+
                     sheet[ROW, ColReading].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
+                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["MultiplyingFactor"].ToString())* reading;
                     sheet[ROW, ColAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -272,7 +283,7 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 string strSQL = @"SELECT UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UG.UserName [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
 							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
-							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks,UM.MultiplyingFactor*UT.Reading Amount
+							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks,UM.MultiplyingFactor
 							from UtilityTransaction UT
 							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
                             left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId

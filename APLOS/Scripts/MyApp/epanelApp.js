@@ -55,6 +55,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("FuguaiReportController", FuguaiReportController)
     .controller("DetentionLogController", DetentionLogController)
     .controller("DetentionLogoutController", DetentionLogoutController)
+    .controller("DetentionLogReportController", DetentionLogReportController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -132,7 +133,10 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
                 templateUrl: 'TaskManagement/TaskList/',
                 controller: 'taskListController'
             })
-
+            .when('/detention-log-report', {
+                templateUrl: 'Materials/DetentionLogReport',
+                controller: 'DetentionLogReportController'
+            })
             
             //.when('/issue-transaction', {
             //    templateUrl: 'IssueTracker/IssueTransaction/Aplos',
