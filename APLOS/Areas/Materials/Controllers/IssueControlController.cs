@@ -115,6 +115,7 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
+
                 return Json(new { Error = false, Data = isc.Save(data), Message = AplosMessage.Success });
             }
             catch (Exception ex)
