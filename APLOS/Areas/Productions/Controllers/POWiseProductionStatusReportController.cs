@@ -475,7 +475,6 @@ namespace Aplos.Areas.Productions.Controllers
                 ROW++;
 
                 int startRow = ROW;
-                double reading = 0;
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
@@ -484,7 +483,6 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colProcess].Text = data.Rows[i]["Process"].ToString();
                     sheet[ROW, colBaseProcessApplicable].Text = data.Rows[i]["BaseProcess"].ToString();
                     sheet[ROW, colWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
-
 
                     sheet[ROW, colProductionOrderID].Number = clsStaticInfo.dbl(data.Rows[i]["PONo"].ToString());
                     sheet[ROW, colProduct].Text = data.Rows[i]["Product"].ToString();
@@ -500,6 +498,13 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colActualWorkHours].Number = clsStaticInfo.dbl(data.Rows[i]["ProductionHours"].ToString());
                     sheet[ROW, colActualQty].Number = clsStaticInfo.dbl(data.Rows[i]["ActualQty"].ToString());
                     sheet[ROW, colPOStatus].Number = clsStaticInfo.dbl(data.Rows[i]["POStatus"].ToString());
+                    sheet[ROW, colFirstProBookDate].Number = clsStaticInfo.dbl(data.Rows[i]["FirstBookDate"].ToString());
+                    sheet[ROW, colLastProBookDate].Number = clsStaticInfo.dbl(data.Rows[i]["LastBookDate"].ToString());
+                    sheet[ROW, colFirstshipmentDate].Number = clsStaticInfo.dbl(data.Rows[i]["FirstShipmentDate"].ToString());
+                    sheet[ROW, colLastshipmentDate].Number = clsStaticInfo.dbl(data.Rows[i]["LastShipmentDate"].ToString());
+                    sheet[ROW, colUptoDateProduction].Number = clsStaticInfo.dbl(data.Rows[i]["UptoDateProPercentage"].ToString());
+
+                    //sheet[ROW, colPlanCumilativeDay].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colPlanTarget) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPlanTarget) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colDate) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + ")";
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -507,8 +512,7 @@ namespace Aplos.Areas.Productions.Controllers
                     ROW++;
 
                 }
-                //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
-                //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+               
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -566,8 +570,10 @@ namespace Aplos.Areas.Productions.Controllers
                             isnull(p.UserName,FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,ISNULL(pp.StandardName,ord.Article ) Article                  
                             ,ord.Product,BaseProcess= CASE WHEN P.IsProductionProcess=1 THEN 'Yes' ELSE '' END,PS.UserName POStatus,
 							PP.FirstBookDate,PP.LastBookDate,so.FirstShipmentDate,SO.LastShipmentDate,
+							PlannedQty=CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END
+							,UptoDateProPercentage=(pp.Quantity/(CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END))/100
                             --additional info
-			                     buyer=STUFF((select distinct ','+XB.UserName from 
+			                     ,buyer=STUFF((select distinct ','+XB.UserName from 
 			                            trn.SalesOrder XSO 
 			                            JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 			                            left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
