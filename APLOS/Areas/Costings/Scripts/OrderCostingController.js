@@ -5161,5 +5161,61 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         } catch (e) {
         }
     }
+
+    $scope.removePreCosting = function (data) {
+        try {
+            $scope.OPCDMId = data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete";
+            angular.element(document.querySelector('#confirmPreCostingPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.DeletePreCosting = function () {
+        $http.get('Costings/OrderCosting/DeletePreCosting?OrderPreCostingDirectMaterialId=' + $scope.OPCDMId)
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        //$scope.SaveCostingComponentItems('PRE');
+                        $scope.GetDirectCostingMaterialWithItemByComponentId();
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+    };
+
+    $scope.removeProcurementCosting = function (data) {
+        try {
+            $scope.OPRCDMId = data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete";
+            angular.element(document.querySelector('#confirmProcurementCostingPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.DeleteProcurementCosting = function () {
+        $http.get('Costings/OrderCosting/DeleteProcurementCosting?OrderProcurementCostingDirectMaterialId=' + $scope.OPRCDMId)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.SaveCostingComponentItems('PRE');
+                    $scope.GetDirectCostingMaterialWithItemByComponentId();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+    };
     //#endregion
 }

@@ -49,6 +49,7 @@
 
                 <th>IsUDApplicable</th>
                 <th>Attachment</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -239,6 +240,13 @@
                         </a>
                     </div>
                 </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removeProcurementCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                        </li>
+                    </ul>
+                </td>
             </tr>
             <tr style="border:1px solid #dcdcdc !important">
                 <td>Total</td>
@@ -250,6 +258,8 @@
         </tbody>
     </table>
 </div>
+
+<confirm-archive-generic modalid="confirmProcurementCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteProcurementCosting();"></confirm-archive-generic>
 
 @*Operations*@
 <div class="table-responsive modal-table" ng-show="Segment=='Operation' && ModelNew.Id!='' ">
