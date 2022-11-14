@@ -330,15 +330,30 @@ namespace Aplos.Areas.Productions.Controllers
 
                 #region columns
 
-
-
                 sheet[ROW, COL].Text = "Entity";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colEntity = COL;
+
                 COL++;
                 sheet[ROW, COL].Text = "Process";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProcess = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "PO Process Sequence";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOProcessSeq = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Standard Process Sequence";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardProcessSeq = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "BaseProcessApplicable";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colBaseProcessApplicable = COL;
+
                 COL++;
                 sheet[ROW, COL].Text = "Work Center";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -353,11 +368,18 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].Text = "Date";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colPlanDate = COL;
+
                 COL++;
                 int colstart = COL;
                 sheet[ROW, COL].Text = "Prod. Order No";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProductionOrderID = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "PO Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOStatus = COL;
+
                 COL++;
                 sheet[ROW, COL].Text = "Buyer";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -388,7 +410,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                 COL++;
                 sheet[ROW, COL].Text = "Article";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 28;
                 int colArticle = COL;
 
                 COL++;
@@ -397,17 +419,58 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colWorkStation = COL;
 
-
                 COL++;
                 sheet[ROW, COL].Text = "Working Hours";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colActualWorkHours = COL;
-                COL++;
 
+                COL++;
                 sheet[ROW, COL].Text = "Production Qty";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colActualQty = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "WIP";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colWIP = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "First Book Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colFirstProBookDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Last Book Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLastProBookDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "First Shipment Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colFirstshipmentDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Last Shipment Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLastshipmentDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "UptoDate Production(%)";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colUptoDateProduction = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Relay Process";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colRelayProcess = COL;
 
                 #endregion columns
 
@@ -422,15 +485,16 @@ namespace Aplos.Areas.Productions.Controllers
                 ROW++;
 
                 int startRow = ROW;
-                double reading = 0;
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
                     SetDate(sheet[ROW, colPlanDate], data.Rows[i]["ActualDate"].ToString());
                     sheet[ROW, colEntity].Text = data.Rows[i]["Entity"].ToString();
                     sheet[ROW, colProcess].Text = data.Rows[i]["Process"].ToString();
+                    sheet[ROW, colPOProcessSeq].Number = clsStaticInfo.dbl(data.Rows[i]["POProcessSequence"].ToString());
+                    sheet[ROW, colStandardProcessSeq].Number = clsStaticInfo.dbl(data.Rows[i]["StandardProcessSequence"].ToString());
+                    sheet[ROW, colBaseProcessApplicable].Text = data.Rows[i]["BaseProcess"].ToString();
                     sheet[ROW, colWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
-
 
                     sheet[ROW, colProductionOrderID].Number = clsStaticInfo.dbl(data.Rows[i]["PONo"].ToString());
                     sheet[ROW, colProduct].Text = data.Rows[i]["Product"].ToString();
@@ -445,6 +509,16 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colWorkStation].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfWorkStation"].ToString());
                     sheet[ROW, colActualWorkHours].Number = clsStaticInfo.dbl(data.Rows[i]["ProductionHours"].ToString());
                     sheet[ROW, colActualQty].Number = clsStaticInfo.dbl(data.Rows[i]["ActualQty"].ToString());
+                    sheet[ROW, colPOStatus].Text = data.Rows[i]["POStatus"].ToString();
+                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["FirstBookDate"].ToString());
+                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["LastBookDate"].ToString());
+                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["FirstShipmentDate"].ToString());
+                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["LastShipmentDate"].ToString());
+                    sheet[ROW, colUptoDateProduction].Number = clsStaticInfo.dbl(data.Rows[i]["UptoDateProPercentage"].ToString());
+
+                    //sheet[ROW, colWIP].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colPlanTarget) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPlanTarget) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colDate) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + ")";
+
+                    sheet[ROW, colWIP].Formula = "IF(MAX(" + clsStaticInfo.GetxlsCol(colPlanDate) + @")<>" + startRow.ToString() + @",0,IF(" + startRow + @"=1,0,SUMIFS(" + colActualQty + @"," + colProductionOrderID + @"," + startRow + @"," + colPOProcessSeq + @"," + startRow + @")-SUMIFS(" + colActualQty + @"," + colProductionOrderID + @"," + startRow + @"," + colPOProcessSeq + @"," + startRow + @")))";
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -452,8 +526,7 @@ namespace Aplos.Areas.Productions.Controllers
                     ROW++;
 
                 }
-                //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
-                //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+               
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -506,12 +579,15 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                string sql = @"SELECT distinct PP.Id,trke.UserName AS Entity,PP.ProductionOrderID PONo,pp.WorkCenterMasterId--,POPS.[Sequence] POProcessSequence 
+                string sql = @"SELECT distinct PP.Id,trke.UserName AS Entity,PP.ProductionOrderID PONo,pp.WorkCenterMasterId,POPS.[Sequence] POProcessSequence 
                             ,wcm.UserName AS WorkCenter ,CPL.UserName AS ProductionShift,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,
                             isnull(p.UserName,FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,ISNULL(pp.StandardName,ord.Article ) Article                  
-                            ,ord.Product,
+                            ,ord.Product,BaseProcess= CASE WHEN P.IsProductionProcess=1 THEN 'Yes' ELSE '' END,PS.UserName POStatus,
+							PP.FirstBookDate,PP.LastBookDate,so.FirstShipmentDate,SO.LastShipmentDate,
+							PlannedQty=CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END
+							,UptoDateProPercentage=(pp.Quantity/(CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END))/100
                             --additional info
-			                     buyer=STUFF((select distinct ','+XB.UserName from 
+			                     ,buyer=STUFF((select distinct ','+XB.UserName from 
 			                            trn.SalesOrder XSO 
 			                            JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 			                            left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
@@ -551,31 +627,27 @@ namespace Aplos.Areas.Productions.Controllers
                             pt1.NoOfWorkStation,sn.ProductionHours  AS PlanHours,
                             ISNULL(ppt.ProductionHours,0) ProductionHours
                             
-                            FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
+                            FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity,PS.ResponsiblePersonId,PS.LotNumber
+							,FORMAT(MIN(ps.ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,
+                            FORMAT(MAX(ps.ProductionDate),'dd-MMM-yyyy') AS LastBookDate
                                     FROM trn.ProductionSummary AS ps 
                                   left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
                                   LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
-      		                            --WHERE ps.ProductionDate BETWEEN '01-Nov-2022' AND '30-Nov-2022' AND ps.EntityID in ('','14','15') 
-      		                            --AND ps.ProcessId=(select XX.ProcessId from trn.ProductionOrderProcessSet AS XX where XX.IsBaseProcess=1 and XX.ProductionOrderID=ps.ProductionOrderId)
-                                  GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId
+                                  GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,PS.ResponsiblePersonId,PS.LotNumber
                             ) AS pp
                             LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
-                            LEFT JOIN trn.SalesOrder AS so ON so.Id=pp.SalesOrderId
+                            LEFT JOIN(Select FORMAT(MIN(DeliveryDate),'dd-MMM-yyyy') FirstShipmentDate,  FORMAT(MAX(DeliveryDate),'dd-MMM-yyyy') LastShipmentDate,Id from trn.SalesOrder Group BY Id) AS so ON so.Id=pp.SalesOrderId
                             LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID=pp.ProductionOrderID
                             LEFT OUTER JOIN ProductionPlanningSnapshot2Type1 AS SN ON sn.ProductionOrderID=pp.ProductionOrderId AND sn.ProductionDate=pp.ProductionDate AND sn.WorkCenterMasterId=pp.WorkCenterMasterId AND sn.EntityID=pp.EntityId
                             LEFT OUTER JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=pp.WorkCenterMasterId
                             LEFT OUTER JOIN hkp.SFGInventory AS FSFG ON FSFG.Id=pp.FromSFGInventoryId
-                           
-                            LEFT OUTER JOIN scs.WorkCenterMaster AS Twcm ON Twcm.Id=pp.ToWorkCenterMasterId
-                            LEFT OUTER JOIN hkp.SFGInventory AS TSFG ON TSFG.Id=pp.ToSFGInventoryId
                         
                             left outer join ProductionPlanningType1 AS ppt on ppt.ProductionOrderID=pp.ProductionOrderId AND ppt.WorkCenterMasterId=PP.WorkCenterMasterId AND  ppt.ProcessId=PP.ProcessId AND ppt.EntityId=pp.EntityId and ppt.ProductionDate=PP.ProductionDate
-                            --left outer join ProductionPlanningCalendar AS ppc on ppc.ProcessId=PP.ProcessId AND ppc.EntityId=pp.EntityId and PPC.WorkingDate=PP.ProductionDate
                             left outer join TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
 							LEFT OUTER JOIN hkp.Process AS p ON p.Id=pp.ProcessId
                             LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
                             LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
-							--LEFT JOIN trn.ProductionOrderProcessSet POPS ON POPS.ProductionOrderId=PO.Id
+							LEFT JOIN trn.ProductionOrderProcessSet POPS ON POPS.ProductionOrderId=PO.Id AND POPS.ProcessId=pp.ProcessId
                              left outer join (
                                                         select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory,
                                                           SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
@@ -597,9 +669,9 @@ namespace Aplos.Areas.Productions.Controllers
                                                         group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
                                               ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
                                             LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
-                                            Where MO.EntityId in(" + parameters["EntityId"] + @")
-AND MO.PartyId in(" + parameters["CustomerId"] + @")
-AND MO.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")
+                                            Where TRKE.Id in(" + parameters["EntityId"] + @")
+--AND MO.PartyId in(" + parameters["CustomerId"] + @")
+--AND PP.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")
 AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
 
 

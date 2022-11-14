@@ -352,7 +352,7 @@ namespace Library.Accounting.FixedAssets
 									, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice
 									 ,ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue 
 								--	, 0 NegotiationValue
-
+                                    , ISNULL(FR.AdjustmentDepreciationAmount,0) AdjustmentDepreciationAmount
 								   , BC.Code BaseCurrency
 									,isnull(FR.FABaseAmount,0)FABaseAmount
 									,ISNULL(SAR.subAssetBaseAmount,0) SubAssetBaseAmount
