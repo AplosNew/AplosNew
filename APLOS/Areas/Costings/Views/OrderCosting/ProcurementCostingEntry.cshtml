@@ -272,7 +272,7 @@
                 <th>Res. Person</th>
                 <th>Remarks</th>
                 <th>Attachment</th>
-
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -320,6 +320,13 @@
 
 
                 </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removeOperationListProcurementCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                        </li>
+                    </ul>
+                </td>
             </tr>
             <tr>
                 <td style="color:blue">
@@ -331,6 +338,8 @@
         </tbody>
     </table>
 </div>
+
+<confirm-archive-generic modalid="confirmOperationListProcurementCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOperationListProcurementCosting();"></confirm-archive-generic>
 
 @*Direct Process*@
 <div class="table-responsive modal-table" ng-show="Segment=='DirectProcess' && ModelNew.Id!='' ">
@@ -350,7 +359,7 @@
                 <th>Res. Person</th>
                 <th>Remarks</th>
                 <th>Attachment</th>
-
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -413,11 +422,14 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
+                </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removeDirectProcessProcurementCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                        </li>
+                    </ul>
                 </td>
             </tr>
             <tr>
@@ -428,6 +440,8 @@
         </tbody>
     </table>
 </div>
+
+<confirm-archive-generic modalid="confirmDirectProcessProcurementCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteDirectProcessProcurementCosting();"></confirm-archive-generic>
 
 @*Sales Expenses*@
 <div class="table-responsive modal-table" ng-show="Segment=='SalesExpense' && ModelNew.Id!='' ">
