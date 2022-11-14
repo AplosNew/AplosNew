@@ -410,7 +410,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                 COL++;
                 sheet[ROW, COL].Text = "Article";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 28;
                 int colArticle = COL;
 
                 COL++;
@@ -449,13 +449,13 @@ namespace Aplos.Areas.Productions.Controllers
                 int colLastProBookDate = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "First shipment Date";
+                sheet[ROW, COL].Text = "First Shipment Date";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colFirstshipmentDate = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "Last shipment Date";
+                sheet[ROW, COL].Text = "Last Shipment Date";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colLastshipmentDate = COL;
@@ -491,8 +491,8 @@ namespace Aplos.Areas.Productions.Controllers
                     SetDate(sheet[ROW, colPlanDate], data.Rows[i]["ActualDate"].ToString());
                     sheet[ROW, colEntity].Text = data.Rows[i]["Entity"].ToString();
                     sheet[ROW, colProcess].Text = data.Rows[i]["Process"].ToString();
-                    sheet[ROW, colPOProcessSeq].Text = data.Rows[i]["POProcessSequence"].ToString();
-                    sheet[ROW, colStandardProcessSeq].Text = data.Rows[i]["StandardProcessSequence"].ToString();
+                    sheet[ROW, colPOProcessSeq].Number = clsStaticInfo.dbl(data.Rows[i]["POProcessSequence"].ToString());
+                    sheet[ROW, colStandardProcessSeq].Number = clsStaticInfo.dbl(data.Rows[i]["StandardProcessSequence"].ToString());
                     sheet[ROW, colBaseProcessApplicable].Text = data.Rows[i]["BaseProcess"].ToString();
                     sheet[ROW, colWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
 
@@ -509,15 +509,16 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colWorkStation].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfWorkStation"].ToString());
                     sheet[ROW, colActualWorkHours].Number = clsStaticInfo.dbl(data.Rows[i]["ProductionHours"].ToString());
                     sheet[ROW, colActualQty].Number = clsStaticInfo.dbl(data.Rows[i]["ActualQty"].ToString());
-                    sheet[ROW, colPOStatus].Number = clsStaticInfo.dbl(data.Rows[i]["POStatus"].ToString());
-                    sheet[ROW, colFirstProBookDate].Number = clsStaticInfo.dbl(data.Rows[i]["FirstBookDate"].ToString());
-                    sheet[ROW, colLastProBookDate].Number = clsStaticInfo.dbl(data.Rows[i]["LastBookDate"].ToString());
-                    sheet[ROW, colFirstshipmentDate].Number = clsStaticInfo.dbl(data.Rows[i]["FirstShipmentDate"].ToString());
-                    sheet[ROW, colLastshipmentDate].Number = clsStaticInfo.dbl(data.Rows[i]["LastShipmentDate"].ToString());
+                    sheet[ROW, colPOStatus].Text = data.Rows[i]["POStatus"].ToString();
+                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["FirstBookDate"].ToString());
+                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["LastBookDate"].ToString());
+                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["FirstShipmentDate"].ToString());
+                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["LastShipmentDate"].ToString());
                     sheet[ROW, colUptoDateProduction].Number = clsStaticInfo.dbl(data.Rows[i]["UptoDateProPercentage"].ToString());
 
                     //sheet[ROW, colWIP].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colPlanTarget) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPlanTarget) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colDate) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + ")";
-                    //sheet[ROW, colWIP].Formula = "IF(MAX("+ clsStaticInfo.GetxlsCol(colPlanDate) + @")<>"+ startRow.ToString() + @",0,IF("+ startRow + @"=1,0,SUMIFS("+ colActualQty + @","+ colProductionOrderID + @","+ startRow + @","+ colPOProcessSeq + @","+ startRow + @")-SUMIFS(" + colActualQty + @"," + colProductionOrderID + @"," + startRow + @"," + colPOProcessSeq + @"," + startRow + @")))";
+
+                    sheet[ROW, colWIP].Formula = "IF(MAX(" + clsStaticInfo.GetxlsCol(colPlanDate) + @")<>" + startRow.ToString() + @",0,IF(" + startRow + @"=1,0,SUMIFS(" + colActualQty + @"," + colProductionOrderID + @"," + startRow + @"," + colPOProcessSeq + @"," + startRow + @")-SUMIFS(" + colActualQty + @"," + colProductionOrderID + @"," + startRow + @"," + colPOProcessSeq + @"," + startRow + @")))";
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
