@@ -454,7 +454,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 }
             }).then(function successCallback(response) {
                 $scope.MasterListNew = response.data;
-                //console.log($scope.MasterListNew);
+                $scope.GetPOMaterialTaxData(POId);
             });
             angular.element(document.querySelector('#GRnBOQPoo')).modal('show');
         }
@@ -475,6 +475,17 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     cboService.getCboTransactionCurrencyByCompany('', function (result) {
         $scope.currencyList = result;
     });
+    $scope.POMaterialTaxList = [];
+    $scope.GetPOMaterialTaxData = function (poid) {
+        $scope.POMaterialTaxList = [];
+        $http({
+            method: "GET",
+            url: $scope.path + 'GetReceiveTaxListPO?receiveDetailId=' + poid
+        }).then(function (response) {
+            $scope.POMaterialTaxList = response.data;
+        });
+    };
+
     $scope.AcceptanceId = null;
     $scope.getToCurrencyRate = function () {
         if (baseService.isUndefinedOrNull($scope.productNew.GRNDate)) {
@@ -525,21 +536,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
         $scope.POPopUpCloseGateEntry();
     }
-    $scope.GetPOMaterialTaxData = function () {
-        $scope.POMaterialTaxList = [];
-        $http({
-            method: "GET",
-            url: $scope.path + 'GetReceiveTaxListPO?receiveDetailId=' + $scope.masterId
-        }).then(function (response) {
-            $scope.POMaterialTaxList = response.data;
 
-            for (var i = 0; i < $scope.MasterList.length; i++) {
-                var linepk = $scope.MasterList[i].InventoryReceiveDetailId;
-                var list = getPOMaterialtaxlist(linepk);
-                $scope.MasterList[i].POMaterialTaxList = list;
-            }
-        });
-    };
     $scope.GetPOServiceTaxData = function () {
         //debugger;
         $scope.POServiceTaxList = [];
@@ -688,7 +685,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                 {
                                     'entity': $scope.product,
                                     'entityMatAndImat': JSON.stringify(CheckList),
-                                    'receiveTaxList': $scope.POMaterialTaxList,
+                                    'receiveTaxList': $scope.NewPOMaterialTaxList,
                                     'chargesListPO': $scope.chargesListPOnew,
                                     'POServiceTaxList': $scope.POServiceTaxList,
                                     'GRNType': 'GRNBYPO',
@@ -708,8 +705,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                     $scope.SaveButtonDisable = true;
                                     $scope.setTabGRNList(1);
 
+                                    $scope.productNew.Id = response.data.entity.Id;
                                     $scope.productId = response.data.Id;
-                                    $scope.productNew.Id = response.data.Id;
                                     $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
                                 }
                             }), function (response) {
@@ -1156,7 +1153,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
         }
     };
-    $scope.calculateAmounts = function (data) {
+    $scope.popupcalculateAmounts = function (data) {
         if (baseService.isUndefinedOrNull(data.PurchaseDocumentAcceptanceId)) {
 
             var count = 0;
@@ -1286,81 +1283,6 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
 
 
-        }
-        else {
-            $scope.PreBal = data.Balance;
-            // data.TransactionRate = (data.TrnAmount / data.TransactionQty).toFixed(2);
-            data.TrnAmount = (data.NetQty * data.TransactionRate).toFixed(2);//(data.TransactionQty * data.TransactionRate).toFixed(2);
-            if (data.TrnAmount == 'NaN')
-                data.TrnAmount = 0;
-            data.TaxAmount = 0;
-            data.BaseTaxAmount = 0;
-            var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesListPO), 'Amount');
-            var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.MasterListNew), 'TrnAmount');
-            var TotalServiceTaxAmount = $filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount');
-
-            for (var i = 0; i < $scope.MasterListNew.length; i++) {
-                if ($scope.MasterListNew[i].TransactionQty > 0) {
-                    $scope.MasterListNew[i].Balance = '';
-                    var ToleranceQty = $scope.MasterListNew[i].POQty * $scope.MasterListNew[i].Tolerance / 100;
-                    var newpoQty = $scope.MasterListNew[i].POQty + ToleranceQty;
-
-                    if ($scope.MasterListNew[i].ShortageQty > $scope.MasterListNew[i].TransactionQty) {
-                        ShowResult('Shortage Qty quantity can not grater than current qty!', 'failure');
-                        return false;
-                    }
-                    else if ($scope.MasterListNew[i].RejectionQty > $scope.MasterListNew[i].TransactionQty) {
-                        ShowResult('Rejection Qty quantity can not grater than current qty!', 'failure');
-                        return false;
-                    }
-                    else {
-                        if ($scope.MasterListNew[i].PODetailsID == data.PODetailsID) {
-                            $scope.MasterListNew[i].TrnAmount = Math.round(data.TrnAmount * 100 + Number.EPSILON) / 100;
-                            if (TotalServiceAmount > 0) {
-                                $scope.MasterListNew[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.MasterListNew[i].TrnAmount;
-                                $scope.MasterListNew[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.MasterListNew[i].TrnAmount;
-                            }
-
-                            $scope.MasterListNew[i].Balance = ($scope.MasterListNew[i].POQty - ($scope.MasterListNew[i].GRNRcvQty + $scope.MasterListNew[i].TransactionQty));
-                            //$scope.MasterListNew[i].ShortageQty = ($scope.MasterListNew[i].POQty - ($scope.MasterListNew[i].GRNRcvQty + $scope.MasterListNew[i].TransactionQty));
-                            $scope.MasterListNew[i].ApprovedQty = ($scope.MasterListNew[i].TransactionQty - ($scope.MasterListNew[i].ShortageQty + $scope.MasterListNew[i].RejectionQty));
-                            //$scope.MasterListNew[i].ApprovedQty = ($scope.MasterListNew[i].TransactionQty - $scope.MasterListNew[i].RejectionQty);
-                            $scope.MasterListNew[i].NetQty = ($scope.MasterListNew[i].TransactionQty - $scope.MasterListNew[i].ShortageQty);
-
-                        }
-                        else {
-                            //$scope.MasterListNew[i].BaseTaxAmount = (($scope.MasterListNew[i].TotalTaxAmount / $scope.MasterListNew[i].POQty) * $scope.MasterListNew[i].TransactionQty).toFixed(2);
-                            if (TotalServiceAmount > 0) {
-                                $scope.MasterListNew[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.MasterListNew[i].TrnAmount;
-                                $scope.MasterListNew[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.MasterListNew[i].TrnAmount;
-                            }
-                            $scope.MasterListNew[i].Balance = ($scope.MasterListNew[i].POQty - ($scope.MasterListNew[i].GRNRcvQty + $scope.MasterListNew[i].TransactionQty));
-                            //$scope.MasterListNew[i].ShortageQty = ($scope.MasterListNew[i].POQty - ($scope.MasterListNew[i].GRNRcvQty+$scope.MasterListNew[i].TransactionQty));
-                            $scope.MasterListNew[i].ApprovedQty = ($scope.MasterListNew[i].TransactionQty - ($scope.MasterListNew[i].ShortageQty + $scope.MasterListNew[i].RejectionQty));
-                            //$scope.MasterListNew[i].ApprovedQty = ($scope.MasterListNew[i].TransactionQty - $scope.MasterListNew[i].RejectionQty);
-                            $scope.MasterListNew[i].NetQty = ($scope.MasterListNew[i].TransactionQty - $scope.MasterListNew[i].ShortageQty);
-                        }
-                        if ($scope.productNew.IsNonCreditable == 1) {
-                            $scope.MasterListNew[i].TrnAmount = ($scope.MasterListNew[i].NetQty * $scope.MasterListNew[i].TransactionRate).toFixed(2);
-                            $scope.MasterListNew[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.MasterListNew[i].TrnAmount) + parseFloat($scope.MasterListNew[i].ServiceTax) + parseFloat($scope.MasterListNew[i].ServiceCharge) + parseFloat(data.ServiceTax)) * 100 + Number.EPSILON) / 100;
-                            $scope.MasterListNew[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.MasterListNew[i].TrnAmount) + parseFloat($scope.MasterListNew[i].ServiceTax) + parseFloat($scope.MasterListNew[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.productNew.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
-                        }
-                        else {
-                            $scope.MasterListNew[i].TrnAmount = Math.round(($scope.MasterListNew[i].NetQty * $scope.MasterListNew[i].TransactionRate) * 100 + Number.EPSILON) / 100;
-                            $scope.MasterListNew[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.MasterListNew[i].TrnAmount) + parseFloat($scope.MasterListNew[i].ServiceCharge)) * 100 + Number.EPSILON) / 100;
-                            $scope.MasterListNew[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.MasterListNew[i].TrnAmount) + parseFloat($scope.MasterListNew[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
-                        }
-                    }
-                }
-            }
-            angular.forEach(data.POMaterialTaxList, function (item) {
-                item.TaxAmount = Math.round(((data.TrnAmount * item.Percentage) / 100) * 100 + Number.EPSILON) / 100;
-            });
-            for (var i1 = 0; i1 < $scope.MasterListNew.length; i1++) {
-                if ($scope.MasterListNew[i1].PODetailsID == data.PODetailsID) {
-                    $scope.MasterListNew[i1].BaseTaxAmount = Math.round($filter('sumByKey')($filter('filter')(data.POMaterialTaxList, { "PODetailId": data.PODetailsID }), 'TaxAmount') * 100 + Number.EPSILON) / 100;
-                }
-            }
         }
     };
 
@@ -1586,33 +1508,34 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             else return $scope.sumORnot = false;
         }
     }
-    $scope.MaterialTaxList = [];
-    $scope.GetMaterialTaxDataBOQ = function () {
-        //debugger;
-        $scope.MaterialTaxList = [];
-        $http({
-            method: "GET",
-            url: $scope.path + 'GetReceiveTaxListBOQ?receiveDetailId=' + $scope.masterId5
-        }).then(function (response) {
-            $scope.MaterialTaxList = response.data;
+    //$scope.MaterialTaxList = [];
+    //$scope.GetMaterialTaxDataBOQ = function () {
+    //    //debugger;
+    //    $scope.MaterialTaxList = [];
+    //    $http({
+    //        method: "GET",
+    //        url: $scope.path + 'GetReceiveTaxListBOQ?receiveDetailId=' + $scope.masterId5
+    //    }).then(function (response) {
+    //        $scope.MaterialTaxList = response.data;
 
-            for (var i = 0; i < $scope.MasterList.length; i++) {
-                var linepk = $scope.MasterList[i].InventoryReceiveDetailId;
-                var list = getMaterialtaxlistBOQ(linepk);
-                $scope.MasterList[i].MaterialTaxList = list;
-            }
-        });
-    };
-    function getMaterialtaxlistBOQ(linepk) {
-        //debugger;
-        var result4 = [];
-        for (var i = 0; i < $scope.MaterialTaxList.length; i++) {
-            if ($scope.MaterialTaxList[i].PODetailId === linepk) {
-                result4.push($scope.MaterialTaxList[i]);
-            }
-        }
-        return result4;
-    }
+    //        for (var i = 0; i < $scope.MasterList.length; i++) {
+    //            var linepk = $scope.MasterList[i].InventoryReceiveDetailId;
+    //            var list = getMaterialtaxlistBOQ(linepk);
+    //            $scope.MasterList[i].MaterialTaxList = list;
+    //        }
+    //    });
+    //};
+
+    //function getMaterialtaxlistBOQ(linepk) {
+    //    //debugger;
+    //    var result4 = [];
+    //    for (var i = 0; i < $scope.MaterialTaxList.length; i++) {
+    //        if ($scope.MaterialTaxList[i].PODetailId === linepk) {
+    //            result4.push($scope.MaterialTaxList[i]);
+    //        }
+    //    }
+    //    return result4;
+    //}
     function getServiceChargeListBOQ(inveReveiveId) {
         $scope.masterId12 = inveReveiveId;
         //debugger;
@@ -1772,7 +1695,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 $scope.inventoryMaterialListPO.BaseAmount = '0';
                 checkSameValueInColumnListBOQ($scope.inventoryMaterialListPO, 'TransactionUoM');
                 getGrossAmountBOQ($scope.inventoryMaterialListPO, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
-                $scope.GetPOMaterialTaxData();
+                //$scope.GetPOMaterialTaxData();
             });
     }
     $scope.chargesListPO = [];
@@ -1930,6 +1853,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         }
     };
     $scope.specific = [];
+    $scope.NewPOMaterialTaxList = [];
     $scope.SubmitList = function () {
         $scope.MasterList = [];
         try {
@@ -1945,7 +1869,24 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 nRow.BaseQty = $scope.MasterListNew[n].BaseQty;
                 nRow.BaseIssueQty = $scope.MasterListNew[n].BaseIssueQty;
                 if (!baseService.valueCheckInList($scope.MasterList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.check) {
+
+                    
+                    var taxAmount = 0;
+                    if ($scope.POMaterialTaxList.length > 0) {
+                        for (var j = 0; j < $scope.POMaterialTaxList.length; j++) {
+                            if (nRow.InventoryReceiveDetailId == $scope.POMaterialTaxList[j].InventoryReceiveDetailId) {
+                                $scope.POMaterialTaxList[j].TaxAmount = Math.round(($scope.MasterListNew[n].Qty * $scope.MasterListNew[n].TransactionRate) * ($scope.POMaterialTaxList[j].Percentage / 100) * 100 + Number.EPSILON) / 100;
+                                var taxAmount = + Math.round(($scope.MasterListNew[n].Qty * $scope.MasterListNew[n].TransactionRate) * ($scope.POMaterialTaxList[j].Percentage / 100) * 100 + Number.EPSILON) / 100;
+                                $scope.NewPOMaterialTaxList.push($scope.POMaterialTaxList[j]);
+                            }
+                        }
+                    }
+                    nRow.TrnCurrencyBaseRate = $scope.MasterListNew[n].ToCurrencyRate
+                    nRow.TrnAmount = Math.round(($scope.MasterListNew[n].Qty * $scope.MasterListNew[n].TransactionRate) * 100 + Number.EPSILON) / 100;
+
+                    nRow.BaseTaxAmount = taxAmount;
                     $scope.MasterList.push(nRow);
+                    taxAmount = 0;
                 }
                 else {
                     for (var x = 0; x < $scope.MasterList.length; x++) {
@@ -1962,12 +1903,14 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             //if ($scope.MasterList.length == 0) {
             //    throw "Noting selected";
             //}
-            $scope.POPopUpCloseGateEntry();
+            $scope.BOQPopUpClose();
         } catch (e) {
             ShowResult(e, 'failure')
         }
     }
-
+    $scope.BOQPopUpClose = function () {
+        angular.element(document.querySelector('#GRnBOQPoo')).modal('hide');
+    };
     $scope.GetgrnBOQPO = function (z) {
         //debugger;
         var x = "#" + z;

@@ -58,7 +58,7 @@ function MaterialIssueControlApprovalController(cboService, commonMessage, $scop
     $scope.QBOQCostingList = [];
     $scope.GetSavedDetailData = function () {
         $scope.QBOQCostingList = [];
-        $http.get('Materials/MaterialIssueControl/GetSavedDetailData?masterId=' + $scope.ModelNew.Id)
+        $http.get('Materials/MaterialIssueControl/GetSavedDetailDataToApprove?masterId=' + $scope.ModelNew.Id)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -183,6 +183,7 @@ function MaterialIssueControlApprovalController(cboService, commonMessage, $scop
         $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.SOItemList = [];
         $scope.QBOQCostingList = [];
+        $rootScope.toggle();
     }
 
     $scope.tab = 1;
@@ -197,40 +198,6 @@ function MaterialIssueControlApprovalController(cboService, commonMessage, $scop
         return myArr.filter((obj, pos, arr) => {
             return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
         });
-    }
-
-    $scope.QBOQCostingList = [];
-    $scope.GetQBOQCostingData = function () {
-        if ($scope.SOItemList.length > 0) {
-            var uniqueMasterOrderId = removeDuplicates($scope.SOItemList, 'SOId');
-            var wcEmpCode = "";
-            if (uniqueMasterOrderId.length > 0) {
-                wcEmpCode = "IN(";
-                wcEmpCode += Array.prototype.map.call(uniqueMasterOrderId, function (item) { return "'" + item.SOId + "'"; }).join(",") + ")";
-            }
-            $scope.sqlInStatement = wcEmpCode;
-        }
-
-
-        $scope.QBOQCostingList = [];
-        if ($scope.ModelNew.Level == "Costing") {
-            $http({
-                method: 'GET',
-                url: 'Materials/MaterialIssueControl/GetCostingDataList?soId=' + $scope.sqlInStatement
-
-            }).then(function successCallback(response) {
-                $scope.QBOQCostingList = response.data;
-            });
-        }
-        else {
-            $http({
-                method: 'GET',
-                url: 'Materials/MaterialIssueControl/GetQBOQDataList?soId=' + $scope.sqlInStatement
-
-            }).then(function successCallback(response) {
-                $scope.QBOQCostingList = response.data;
-            });
-        }
     }
 
     $scope.Calculation = function (obj) {

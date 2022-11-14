@@ -597,6 +597,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetpackingTypeDataList(string SOId,string PackingType)
+        {
+            return Json(_masterOrderService.GetpackingTypeList(SOId, PackingType), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetList(GridParameter parameters, string companyId)
         {
             return Json(_masterOrderService.Query(parameters, companyId), JsonRequestBehavior.AllowGet);
@@ -2010,7 +2016,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreatePackingType(Dictionary<string, object> data)
+        public JsonResult CreatePackingType(Dictionary<string, object> data, List<Dictionary<string, object>> SKUList)
         {
             try
             {
@@ -2037,33 +2043,34 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     }
               
                             
-                            string _Ids;
-                            //DataSet dscMaster;
-                            ConnectionManager.DAL.ConManager connection = new ConnectionManager.DAL.ConManager("1");
-                            connection.OpenDataSetThroughAdapter("select * from dbo.SKUDetail where PackingTypeChildId='" + data["Id"] + "'", out dscMaster, false, "1");
-                            #region data update
-                            if (dscMaster.Tables[0].Rows.Count == 0)
-                            {
-                                bplib.clsGenID genid = new bplib.clsGenID();
-                                genid.GenID("SKUDetail", out _Ids);
+                    #region FUND 
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SKUDetail where  PackingTypeChildId='" + data["Id"] + "'", out dscMaster, false, "1");
+                    if (SKUList != null)
+                    {
+                        foreach (var item in SKUList)
+                        {
+                            DataView dv = new DataView(dscMaster.Tables[0]);
+                            dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                                data["Id"] = _Ids;
-                                data["PackingTypeChildId"] = _Id;
-                        AddNewRow(dscMaster.Tables[0], data);
+                            item["PackingTypeChildId"] = _Id;
+                            if (dv.Count == 0)
+                            {
+                                item["Id"] = GetSKUListPK();
+                                item["PackingTypeChildId"] = _Id;
+
+                                AddNewRow(dscMaster.Tables[0], item);
                             }
                             else
                             {
-                                _Ids = data["Id"].ToString();
-                                EditRow(dscMaster.Tables[0].Rows[0], data);
+                                DataRow drmo = dv[0].Row;
+                                EditRow(drmo, item);
                             }
-                            #endregion data update
+                        }
+                    }
 
-                            //clsStaticInfo obje = new clsStaticInfo();
-                            //obje.SaveDataSets(dscMaster);
-                  
-                        //return Json(new { Error = false, Message = AplosMessage.Updated });
-                   
-                    #endregion data update
+                    #endregion
+
+
 
                     clsStaticInfo obj = new clsStaticInfo();
                     obj.SaveDataSets(dsMaster, dscMaster);
@@ -2077,18 +2084,27 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
         #endregion
 
+        private string GetSKUListPK()
+        {
+            string SKUID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SKUDetail", out SKUID);
+            return SKUID;
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetSavedPackingType(string PackingDetailId)
         {
-            string sql = @"select PTC.*,PT.UserName PackingType,sku.Id SKUDetailId,sku.FGFirstCharacteristicsId
-								,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsId
-								,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan],sku.ToPlanQuantity
+            string sql = @"select PTC.*,PT.UserName PackingType
+                                --,sku.Id SKUDetailId,sku.FGFirstCharacteristicsId
+								--,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsId
+								--,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan],sku.ToPlanQuantity
 
                                 from  [dbo].[PackingTypeChild] PTC
                                 left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId
-								left join SKUDetail sku on sku.PackingTypeChildId=PTC.Id
-								left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsId								
-								left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsId
+								--left join SKUDetail sku on sku.PackingTypeChildId=PTC.Id
+								--left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsId								
+								--left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsId
                                 Where PackingDetailId='" + PackingDetailId + "'";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -2202,7 +2218,24 @@ namespace Aplos.Areas.OrderManagements.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
-       
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedPackingTypeChild(string PTId)
+        {
+            string sql = @"select Sku.Id,Sku.FGFirstCharacteristicsId,CV1.UserName Color,Sku.FGSecondCharacteristicsId
+													,CV2.UserName Size,Sku.Quantity,Sku.[Plan],Sku.ToPlanQuantity
+													from  [dbo].[SKUDetail] Sku
+													                        
+													left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsId								
+													left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsId
+                                Where Sku.PackingTypeChildId = '" + PTId + "'";
+
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+
         [HttpPost, Authorize]
         public ActionResult DeleteSKUDetail(string id)
         {
@@ -2276,7 +2309,26 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
 
+        [HttpPost, Authorize]
+        public ActionResult SODataReport(string masterOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
 
+                string fileName = "";
+
+                fileName = MasterOrder.CreateSODataReportSheet(masterOrderId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
 
         #endregion
 
@@ -2336,3 +2388,4 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
     }
 }
+#endregion

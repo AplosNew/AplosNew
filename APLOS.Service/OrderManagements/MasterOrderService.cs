@@ -700,7 +700,58 @@ namespace Library.Service.OrderManagements
             }
         }
 
-       
+        public IEnumerable<object> GetpackingTypeList(string SOId,string PackingType)
+        {
+            try
+            {
+                string sql = "";
+                if (PackingType == "AssortedAssorted")
+                {
+                    sql = @"select NULL Id,CV1.Id FGFirstCharacteristicsId,CV1.UserName Color,CV2.Id FGSecondCharacteristicsId,CV2.UserName Size,sum(sku2.Qty) Quantity,0 ToPlanQuantity,0 [Plan]
+                                                from TRN.SalesOrder SO
+                                                left join TRN.FirstCharacteristics sku1 on sku1.SalesOrderId=SO.Id
+                                                left join [HKP].[CharacteristicsValue] CV1 on CV1.Id=sku1.CharacteristicsValueId
+                                                left join TRN.SecondCharacteristics sku2 on sku2.SalesOrderId=SO.Id
+                                                left join [HKP].[CharacteristicsValue] CV2 on CV2.Id=sku2.CharacteristicsValueId
+                                                where SO.Id " + SOId +@" and CV1.UserName is not null
+                                                group by CV1.Id,CV1.UserName ,CV2.Id ,CV2.UserName";
+                }
+                else if(PackingType == "AssortedSolid")
+                {
+                    sql = @"select NULL Id,CV1.Id FGFirstCharacteristicsId,CV1.UserName Color,sum(sku1.Qty) Quantity,0 ToPlanQuantity,0 [Plan]
+                                                from TRN.SalesOrder SO
+                                                left join TRN.FirstCharacteristics sku1 on sku1.SalesOrderId=SO.Id
+                                                left join [HKP].[CharacteristicsValue] CV1 on CV1.Id=sku1.CharacteristicsValueId
+
+                                                where SO.Id " + SOId + @" and CV1.UserName is not null
+                                                group by CV1.UserName,CV1.Id";
+                }
+                else if (PackingType == "SolidSolid")
+                {
+                    sql = @"select NULL Id,sum(SO.Qty) Quantity,0 ToPlanQuantity,0 [Plan]
+                                                from TRN.SalesOrder SO
+                                                where SO.Id " + SOId + @"";
+                }
+                else 
+                {
+                    sql = @"select NULL Id,CV2.Id FGSecondCharacteristicsId,CV2.UserName Size,sum(sku2.Qty) Quantity,0 ToPlanQuantity,0 [Plan]
+                                                from TRN.SalesOrder SO
+                                                left join TRN.SecondCharacteristics sku2 on sku2.SalesOrderId=SO.Id
+                                                left join [HKP].[CharacteristicsValue] CV2 on CV2.Id=sku2.CharacteristicsValueId
+                                                where SO.Id " + SOId + @" and CV2.UserName is not null
+                                                group by CV2.Id,CV2.UserName";
+                }
+                return _sqlRepository.GetDataCollection(sql);
+                
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
+
 
         public IEnumerable<object> GetFirstSkuSalesOrderId(string salesOrderId)
         {

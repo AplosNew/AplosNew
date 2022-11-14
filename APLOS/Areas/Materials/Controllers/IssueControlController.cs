@@ -71,11 +71,11 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getMaterialArticleId(string materialTypeId, string materialGroupMasterId, string materialMasterId, string storagelevel)
+        public ActionResult GetMaterialAndArticle(string materialTypeId, string materialGroupMasterId, string materialMasterId, string storagelevel)
         {
             try
             {
-                return Json(isc.getMaterialArticleId(materialTypeId, materialGroupMasterId, materialMasterId, storagelevel), JsonRequestBehavior.AllowGet);
+                return Json(isc.GetMaterialAndArticle(materialTypeId, materialGroupMasterId, materialMasterId, storagelevel), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -115,6 +115,7 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
+
                 return Json(new { Error = false, Data = isc.Save(data), Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -124,11 +125,11 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult SaveChild(List<Dictionary<string, object>> data, string headerId, string materiallevel)
+        public ActionResult UpdateMaterialMasterForIssueControl(List<Dictionary<string, object>> data, string materiallevel,string materialMasterIds)
         {
             try
             {
-                return Json(new { Error = false, Data = isc.SaveChild(data, headerId, materiallevel), Message = AplosMessage.Success });
+                return Json(new { Error = false, Data = isc.UpdateMaterialMasterForIssueControl(data,  materiallevel, materialMasterIds), Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {

@@ -52,6 +52,7 @@ namespace Library.Service.OrderManagements
         IEnumerable<object> GetOrderAttributeListByMasterId(string masterItemId, string materialMasterId);
 
         IEnumerable<object> GetSOList(string masterItemId);
+        IEnumerable<object> GetpackingTypeList(string SOId,string PackingType);
         IEnumerable<object> GetFirstSkuSalesOrderId(string salesOrderId);
 
         IEnumerable<object> GetSecondSkuSalesOrderId(string salesOrderId);
