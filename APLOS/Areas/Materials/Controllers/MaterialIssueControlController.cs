@@ -273,7 +273,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
 								Where pod.ProductionOrderId=po.Id)
                             FROM [TRN].[ProductionOrder] AS PO
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
-                            INNER JOIN ProductionOrderSchedulingParametersType1 t1 ON t1.ProductionOrderID=po.Id
+                            LEFT JOIN ProductionOrderSchedulingParametersType1 t1 ON t1.ProductionOrderID=po.Id
 
                              LEFT OUTER JOIN (
 												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR
@@ -398,7 +398,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
 	                                ,CEILING(SO.PlannedQty) PlannedQty
                                     ,SO.Description,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
 
-									,DMC.[Value] ItemMaterialCost,SDMC.[SOValue] SOMaterialCost,CMC.TotalGrossAmount CostingMaterialCost
+									,(DMC.[Value]*R.ExchangeRate) ItemMaterialCost,(SDMC.[SOValue]*R.ExchangeRate) SOMaterialCost,CMC.TotalGrossAmount CostingMaterialCost
 
 									,ISNULL(QBOQ.BOQMaterialCost,0) BOQMaterialCost,SOTotalMaterailCost=CEILING(SO.PlannedQty)*SDMC.[SOValue]
 
@@ -418,6 +418,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
 	                                ) so ON POD.SalesOrderId = SO.Id
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN [dbo].[MasterOrderExchangeRates] R ON R.TransactionId=mo.Id
                                 LEFT JOIN [dbo].[CostingBOQItems] CBI ON CBI.SalesOrderId=SO.Id
                                 LEFT JOIN HKP.Party b ON b.id = mo.PartyId
                                 LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId

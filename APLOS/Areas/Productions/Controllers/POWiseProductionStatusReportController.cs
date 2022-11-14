@@ -340,6 +340,16 @@ namespace Aplos.Areas.Productions.Controllers
                 int colProcess = COL;
 
                 COL++;
+                sheet[ROW, COL].Text = "PO Process Sequence";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOProcessSeq = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Standard Process Sequence";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardProcessSeq = COL;
+
+                COL++;
                 sheet[ROW, COL].Text = "BaseProcessApplicable";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colBaseProcessApplicable = COL;
@@ -481,6 +491,8 @@ namespace Aplos.Areas.Productions.Controllers
                     SetDate(sheet[ROW, colPlanDate], data.Rows[i]["ActualDate"].ToString());
                     sheet[ROW, colEntity].Text = data.Rows[i]["Entity"].ToString();
                     sheet[ROW, colProcess].Text = data.Rows[i]["Process"].ToString();
+                    sheet[ROW, colPOProcessSeq].Text = data.Rows[i]["POProcessSequence"].ToString();
+                    sheet[ROW, colStandardProcessSeq].Text = data.Rows[i]["StandardProcessSequence"].ToString();
                     sheet[ROW, colBaseProcessApplicable].Text = data.Rows[i]["BaseProcess"].ToString();
                     sheet[ROW, colWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
 
@@ -504,7 +516,8 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colLastshipmentDate].Number = clsStaticInfo.dbl(data.Rows[i]["LastShipmentDate"].ToString());
                     sheet[ROW, colUptoDateProduction].Number = clsStaticInfo.dbl(data.Rows[i]["UptoDateProPercentage"].ToString());
 
-                    //sheet[ROW, colPlanCumilativeDay].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colPlanTarget) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPlanTarget) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colDate) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + ")";
+                    //sheet[ROW, colWIP].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colPlanTarget) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPlanTarget) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colDate) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + ")";
+                    //sheet[ROW, colWIP].Formula = "IF(MAX("+ clsStaticInfo.GetxlsCol(colPlanDate) + @")<>"+ startRow.ToString() + @",0,IF("+ startRow + @"=1,0,SUMIFS("+ colActualQty + @","+ colProductionOrderID + @","+ startRow + @","+ colPOProcessSeq + @","+ startRow + @")-SUMIFS(" + colActualQty + @"," + colProductionOrderID + @"," + startRow + @"," + colPOProcessSeq + @"," + startRow + @")))";
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -657,7 +670,7 @@ namespace Aplos.Areas.Productions.Controllers
                                             LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
                                             Where TRKE.Id in(" + parameters["EntityId"] + @")
 --AND MO.PartyId in(" + parameters["CustomerId"] + @")
-AND PP.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")
+--AND PP.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")
 AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
 
 

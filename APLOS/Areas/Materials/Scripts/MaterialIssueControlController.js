@@ -11,6 +11,22 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
 
+    $scope.modelFilterByList = [
+        { 'name': 'Prod. Order#', 'value': 'Id' },
+        { 'name': 'Prod. Status', 'value': 'ProductionStatus' },
+        { 'name': 'Material', 'value': 'Material' },
+        { 'name': 'Product', 'value': 'Product' },
+        { 'name': 'Product Category', 'value': 'ProductCategory' },
+        { 'name': 'Master Order No', 'value': 'MasterOrderId' },
+        { 'name': 'Buyer Order#', 'value': 'BuyerRefNo' },
+        { 'name': 'Own Order#', 'value': 'OwnRefNo' },
+        { 'name': 'Buyer Item#', 'value': 'StyleNo' },
+        { 'name': 'Own Item#', 'value': 'OwnStyleNo' },
+        { 'name': 'SO No', 'value': 'SONo' },
+        { 'name': 'SO Desc', 'value': 'SODesc' },
+        { 'name': 'Buyer', 'value': 'buyer' },
+        { 'name': 'Customer', 'value': 'Customer' },
+    ];
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
@@ -34,11 +50,11 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                 break;
             }
         }
-       
+
     }
     $scope.storageList = [];
 
-    $scope.Getstorage= function () {
+    $scope.Getstorage = function () {
         $http({
             method: 'GET',
             url: 'Materials/MaterialStorage/getcbo'
@@ -70,7 +86,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     $scope.SOItemList = [];
     $scope.Get = function (obj) {
         $scope.ModelNew.POId = obj.data.Id;
-       
+
         $scope.SOItemList = [];
         $http.get('Materials/MaterialIssueControl/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + obj.data.Id)
             .then(
@@ -189,7 +205,10 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.SOItemList = [];
         $scope.QBOQCostingList = [];
-        $scope.ModelNew.Level= "Costing";
+        $scope.ModelNew.Level = "Costing";
+        $scope.modelList = [];
+        $rootScope.toggle();
+
     }
 
     $scope.tab = 1;
