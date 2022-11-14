@@ -14,7 +14,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
         Responsible: null,
         WorkCenter: null,
-        Status:'All',
+        Status:'Pending',
         Asset: null
     };
     $scope.statusNew = Object.assign({}, $scope.status);
@@ -119,6 +119,27 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    }
+
+    $scope.rowDataBound = function rowDataBound(e) {
+
+        if (new Date(e.data.PlannedDate) < new Date($scope.statusNew.ToDate))
+        {
+            e.row.css("background-color", '#FFA500');
+        }
+        else if (new Date(e.data.PlannedDate) > new Date($scope.statusNew.ToDate))
+        {
+           
+            e.row.css("background-color", '#FFFFFF');
+        }
+
+        else
+        {
+            e.row.css("background-color", '#d1e5ff');
+
+        }
+
+
     }
 
     $scope.refreshTemplateResponsiblePerson = function (args) {
