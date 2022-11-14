@@ -88,7 +88,24 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetDetentionLogDetail(out List<GetDetentionclose> detentionLoggridlist, from, to, departmentId, detentionTypeId);
             return detentionLoggridlist;
         }
-       
+        public List<GetDetentionclose> GetDetentionLogDetailfromto(string from, string to)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetDetentionLogDetailfromto(out List<GetDetentionclose> detentionLoggridlist, from, to);
+            return detentionLoggridlist;
+        }
+        public List<GetDetentionclose> GetDetentionLogDetailfromtodepartment(string from, string to, string departmentId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetDetentionLogDetailfromtodepartment(out List<GetDetentionclose> detentionLoggridlist, from, to, departmentId);
+            return detentionLoggridlist;
+        }
+        public List<GetDetentionclose> GetDetentionLogDetailfromtodetention(string from, string to, string detentionTypeId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetDetentionLogDetailfromtodetention(out List<GetDetentionclose> detentionLoggridlist, from, to, detentionTypeId);
+            return detentionLoggridlist;
+        }
 
         [HttpPost]
         public string PostGetDetentionLogGrid([FromBody] IEnumerable<CreateDetentionList> DataToSave)
