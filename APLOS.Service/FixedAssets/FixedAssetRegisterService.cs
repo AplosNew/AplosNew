@@ -4681,6 +4681,7 @@ GROUP BY FAR.FABudgetMasterId
                     detailId++;
                   var fixedAssetReg=  _fixedAssetRegisterRepository.Find(item.Id);
 
+                    fixedAssetReg.AdjustmentDepreciationAmount = item.AdjustmentDepreciationAmount;
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
                     fixedAssetReg.Status = fixedAssetDisposed.Status;
                     fixedAssetReg.Remarks = fixedAssetDisposed.Remarks;
@@ -4827,6 +4828,7 @@ GROUP BY FAR.FABudgetMasterId
                     detailId++;
                     var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.Id);
 
+                    fixedAssetReg.AdjustmentDepreciationAmount = item.AdjustmentDepreciationAmount;
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
                     fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
                     fixedAssetReg.Status = fixedAssetDisposed.Status;
@@ -4975,6 +4977,7 @@ GROUP BY FAR.FABudgetMasterId
                     detailId++;
                     var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.Id);
 
+                    fixedAssetReg.AdjustmentDepreciationAmount = item.AdjustmentDepreciationAmount;
                     fixedAssetReg.NegotiationValue = 0;
                     fixedAssetReg.BaseNagotiationValue = 0;
                     fixedAssetReg.Status = fixedAssetDisposed.Status;
