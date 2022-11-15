@@ -380,7 +380,6 @@ namespace HRService
                         Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
                         SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
                         LegalDesignation = dsRef.Tables[0].Rows[i]["LegalDesignation"].ToString(),
-                        DetentionMasterId = dsRef.Tables[0].Rows[i]["DetentionMasterId"].ToString(),
                     });
                 }
             }
@@ -1652,7 +1651,6 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Section { get; set; }
         public string SubSection { get; set; }
         public string LegalDesignation { get; set; }
-        public string DetentionMasterId { get; set; }
     }
 
     public class DetentionIssueByNo
