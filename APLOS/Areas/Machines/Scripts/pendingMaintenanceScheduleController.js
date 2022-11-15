@@ -123,19 +123,32 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
 
     $scope.rowDataBound = function rowDataBound(e) {
 
-        if (new Date(e.data.PlannedDate) < new Date($scope.statusNew.ToDate))
-        {
+        //if (new Date(e.data.PlannedDate) < new Date($scope.statusNew.ToDate))
+        //{
+        //    e.row.css("background-color", '#FFA500');
+        //}
+        //else if (new Date(e.data.PlannedDate) > new Date($scope.statusNew.ToDate))
+        //{
+           
+        //    e.row.css("background-color", '#FFFFFF');
+        //}
+
+        //else
+        //{
+        //    e.row.css("background-color", '#d1e5ff');
+
+        //}
+
+        if (e.data.OverDue > 0) {
             e.row.css("background-color", '#FFA500');
         }
-        else if (new Date(e.data.PlannedDate) > new Date($scope.statusNew.ToDate))
-        {
-           
-            e.row.css("background-color", '#FFFFFF');
+        else if (e.data.OverDue === 0 && e.data.DueToday > 0) {
+
+            e.row.css("background-color", '#d1e5ff');
         }
 
-        else
-        {
-            e.row.css("background-color", '#d1e5ff');
+        else {
+            e.row.css("background-color", '#FFFFFF');
 
         }
 
