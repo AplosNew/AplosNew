@@ -30,8 +30,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
-    $scope.ModelNew = { Id: null, POId: null, EntityId: null, Entity: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
-
+    $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
@@ -202,7 +201,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     };
 
     $scope.Clear = function () {
-        $scope.ModelNew = { Id: null, POId: null, UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+        $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.SOItemList = [];
         $scope.QBOQCostingList = [];
         $scope.ModelNew.Level = "Costing";
@@ -260,67 +259,81 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     }
 
     $scope.Calculation = function (obj) {
-        var totaPlanlAmount = 0;
-        obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
-        obj.data.TotaPlanlAmount = obj.data.PlanConsumption * obj.data.Rate;
-        obj.data.ActualIssueAmount = obj.data.PlanConsumption * obj.data.StockRate;
+        try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.PlanPercentage) || $scope.ModelNew.PlanPercentage == 0 || $scope.ModelNew.PlanPercentage == 'NaN') {
+                throw "Input Plan Percentage";
+            }
+            var totaPlanlAmount = 0;
+            obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+            obj.data.TotaPlanlAmount = obj.data.PlanConsumption * obj.data.Rate;
+            obj.data.ActualIssueAmount = obj.data.PlanConsumption * obj.data.StockRate;
 
-        if ($scope.ModelNew.Level == "Costing") {
-            var gridObj = $("#CGrid").data("ejGrid");
+            if ($scope.ModelNew.Level == "Costing") {
+                var gridObj = $("#CGrid").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+            } else {
+                var gridObj = $("#BGrid").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+            }
+
+            for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+                totaPlanlAmount += $scope.QBOQCostingList[i].TotaPlanlAmount;
+            }
+
+            for (var i = 0; i < $scope.SOItemList.length; i++) {
+                $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
+                $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
+                $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
+            }
+            var gridObj = $("#SOGrid").data("ejGrid");
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
-        } else {
-            var gridObj = $("#BGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-        }
 
-        for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
-            totaPlanlAmount += $scope.QBOQCostingList[i].TotaPlanlAmount;
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-
-        for (var i = 0; i < $scope.SOItemList.length; i++) {
-            $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
-            $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
-            $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
-        }
-        var gridObj = $("#SOGrid").data("ejGrid");
-        gridObj.refreshContent(true);
-        gridObj.refreshTemplate();
-
     }
 
     $scope.CalculationByPlan = function () {
-        var totaPlanlAmount = 0;
-        for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
-            $scope.QBOQCostingList[i].PlanConsumption = ($scope.QBOQCostingList[i].TotalConsumption + $scope.QBOQCostingList[i].AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
-            $scope.QBOQCostingList[i].TotaPlanlAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].Rate;
-            $scope.QBOQCostingList[i].ActualIssueAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].StockRate;
-        }
+        try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.PlanPercentage) || $scope.ModelNew.PlanPercentage == 0 || $scope.ModelNew.PlanPercentage == 'NaN') {
+                throw "Input Plan Percentage";
+            }
+            var totaPlanlAmount = 0;
+            for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+                $scope.QBOQCostingList[i].PlanConsumption = ($scope.QBOQCostingList[i].TotalConsumption + $scope.QBOQCostingList[i].AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+                $scope.QBOQCostingList[i].TotaPlanlAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].Rate;
+                $scope.QBOQCostingList[i].ActualIssueAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].StockRate;
+            }
 
 
-        if ($scope.ModelNew.Level == "Costing") {
-            var gridObj = $("#CGrid").data("ejGrid");
+            if ($scope.ModelNew.Level == "Costing") {
+                var gridObj = $("#CGrid").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+            } else {
+                var gridObj = $("#BGrid").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+            }
+
+            for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+                totaPlanlAmount += $scope.QBOQCostingList[i].TotaPlanlAmount;
+            }
+
+            for (var i = 0; i < $scope.SOItemList.length; i++) {
+                $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
+                $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
+                $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
+            }
+            var gridObj = $("#SOGrid").data("ejGrid");
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
-        } else {
-            var gridObj = $("#BGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-
-        for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
-            totaPlanlAmount += $scope.QBOQCostingList[i].TotaPlanlAmount;
-        }
-
-        for (var i = 0; i < $scope.SOItemList.length; i++) {
-            $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
-            $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
-            $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
-        }
-        var gridObj = $("#SOGrid").data("ejGrid");
-        gridObj.refreshContent(true);
-        gridObj.refreshTemplate();
 
     }
 
