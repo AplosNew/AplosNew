@@ -44,7 +44,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Issue Date" ng-model="ModelNew.IssueDate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
+                        <input type="text" name="Issue Date" ng-model="ModelNew.IssueDate" datepicker class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
                     </div>
                 </div>
                 <div class="form-group">
@@ -86,18 +86,6 @@
                                 <option value="">--Select--</option>
                                 <option value="Costing">Costing</option>
                                 <option value="QBOQ">QBOQ</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select id="paymentTermId" class="form-control" name="Requisition Type" ng-change="changeType(ModelNew.IssueType)" ng-model="ModelNew.IssueType" tabindex="12" required>
-                                <option value="Capital">Capital </option>
-                                <option value="Revenue">Revenue</option>
                             </select>
                         </div>
                     </div>
@@ -162,7 +150,7 @@
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="ValueLoss" e-headertext="ValueLoss" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="GrossConsumption" e-headertext="GrossConsumption" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="TotalConsumption" e-headertext="TotalConsumption" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.0000}" e-template="#AdditionReductionTemplate" e-field="AdditionReduction" e-headertext="AdditionReduction" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.0000}" e-template="#QAdditionReductionTemplate" e-field="AdditionReduction" e-headertext="AdditionReduction" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlanConsumption" e-headertext="PlanConsumption" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="TotaPlanlAmount" e-headertext="TotaPlanlAmount" e-textalign="right" e-width="80"></div>
@@ -187,7 +175,7 @@
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="ValueLoss" e-headertext="ValueLoss" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="GrossConsumption" e-headertext="GrossConsumption" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="TotalConsumption" e-headertext="TotalConsumption" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.0000}" e-template="#AdditionReductionTemplate" e-field="AdditionReduction" e-headertext="AdditionReduction" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.0000}" e-template="#CAdditionReductionTemplate" e-field="AdditionReduction" e-headertext="AdditionReduction" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlanConsumption" e-headertext="PlanConsumption" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="TotaPlanlAmount" e-headertext="TotaPlanlAmount" e-textalign="right" e-width="80"></div>
@@ -202,7 +190,7 @@
                 </div>
 
             </div>
-            
+
         </div>
 
         <script type="text/template" id="Remarks">
@@ -221,8 +209,15 @@
                 </ul>
             </div>
         </script>
-        <script type="text/template" id="AdditionReductionTemplate">
+        <script type="text/template" id="QAdditionReductionTemplate">
             <div class="col-sm-10" style="padding:0px; width:70px;">
+                @*<input type="text" class="form-control" n-decimals="4" ng-model="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />*@
+                <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />
+            </div>
+        </script>
+        <script type="text/template" id="CAdditionReductionTemplate">
+            <div class="col-sm-10" style="padding:0px; width:70px;">
+                @*<input type="text" class="form-control" n-decimals="4" ng-model="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />*@
                 <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />
             </div>
         </script>
@@ -396,7 +391,7 @@
     </script>
 </div>
 
-<div class="modal site-modal" id="ListIssueSlipPopup" role="dialog" data-backdrop="static">
+@*<div class="modal site-modal" id="ListIssueSlipPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">Inventory Issue Slip<button type="button" class="close" ng-click="IssueSlipTypeHide();">&times;</button></div>
@@ -472,4 +467,4 @@
     </div>
 
 
-</div>
+</div>*@

@@ -47,6 +47,7 @@
 
                 <th>IsUDApplicable</th>
                 <th>Attachment</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -238,6 +239,13 @@
                         </a>
                     </div>
                 </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removePreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                        </li>
+                    </ul>
+                </td>
             </tr>
             <tr style="border:1px solid #dcdcdc !important">
                 <td>Total</td>
@@ -250,6 +258,8 @@
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmPreCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePreCosting();"></confirm-archive-generic>
+
 @*Operations*@
 <div class="table-responsive modal-table" ng-show="Segment=='Operation' && ModelNew.Id!='' ">
     <table class="col-md-12">
@@ -261,6 +271,7 @@
                 <th>Res. Person</th>
                 <th>Description</th>
                 <th>Attachment</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -308,6 +319,13 @@
 
 
                 </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removeOperationListPreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                        </li>
+                    </ul>
+                </td>
             </tr>
             <tr>
                 <td style="color: blue">
@@ -320,6 +338,8 @@
         </tbody>
     </table>
 </div>
+
+<confirm-archive-generic modalid="confirmOperationListPreCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOperationListPreCosting();"></confirm-archive-generic>
 
 @*Direct Process*@
 <div class="table-responsive modal-table" ng-show="Segment=='DirectProcess' && ModelNew.Id!='' ">
@@ -339,6 +359,7 @@
                 <th>Res. Person</th>
                 <th>Description</th>
                 <th>Attachment</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -407,6 +428,13 @@
 
 
                 </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removePreCostingDirectProcess(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                        </li>
+                    </ul>
+                </td>
             </tr>
             <tr>
                 <td colspan="5" style="color:blue;">Total</td>
@@ -416,6 +444,8 @@
         </tbody>
     </table>
 </div>
+
+<confirm-archive-generic modalid="confirmPreCostingDirectProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOrderPreCostingDirectProces();"></confirm-archive-generic>
 
 @*Sales Expenses*@
 <div class="table-responsive modal-table" ng-show="Segment=='SalesExpense' && ModelNew.Id!='' ">

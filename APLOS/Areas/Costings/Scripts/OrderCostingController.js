@@ -5161,5 +5161,171 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         } catch (e) {
         }
     }
+
+    $scope.removePreCosting = function (data) {
+        try {
+            $scope.OPCDMId = data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete";
+            angular.element(document.querySelector('#confirmPreCostingPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.DeletePreCosting = function () {
+        $http.get('Costings/OrderCosting/DeletePreCosting?OrderPreCostingDirectMaterialId=' + $scope.OPCDMId)
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        //$scope.SaveCostingComponentItems('PRE');
+                        $scope.GetDirectCostingMaterialWithItemByComponentId();
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+    };
+
+    $scope.removeProcurementCosting = function (data) {
+        try {
+            $scope.OPRCDMId = data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete";
+            angular.element(document.querySelector('#confirmProcurementCostingPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.DeleteProcurementCosting = function () {
+        $http.get('Costings/OrderCosting/DeleteProcurementCosting?OrderProcurementCostingDirectMaterialId=' + $scope.OPRCDMId)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.SaveCostingComponentItems('PRE');
+                    $scope.GetDirectCostingMaterialWithItemByComponentId();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+    };
+
+    $scope.removePreCostingDirectProcess= function (data) {
+        try {
+            $scope.DPCPCId = data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete";
+            angular.element(document.querySelector('#confirmPreCostingDirectProcessPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.DeleteOrderPreCostingDirectProces = function () {
+        $http.get('Costings/OrderCosting/DeleteOrderPreCostingDirectProces?OrderPreCostingDirectProcessId=' + $scope.DPCPCId)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.SaveCostingComponentItems('PRE');
+                    $scope.GetDirectProcessWithItemByComponentId();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+    };
+
+    $scope.removeDirectProcessProcurementCosting = function (data) {
+        try {
+            $scope.DPPCId = data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete";
+            angular.element(document.querySelector('#confirmDirectProcessProcurementCostingPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.DeleteDirectProcessProcurementCosting = function () {
+        $http.get('Costings/OrderCosting/DeleteDirectProcessProcurementCosting?DirectProcessProcurementCostingId=' + $scope.DPPCId)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.SaveCostingComponentItems('PRE');
+                    $scope.GetDirectProcessWithItemByComponentId();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+    };
+
+    $scope.removeOperationListPreCosting = function (data) {
+        try {
+            $scope.OLPC = data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete";
+            angular.element(document.querySelector('#confirmOperationListPreCostingPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.DeleteOperationListPreCosting = function () {
+        $http.get('Costings/OrderCosting/DeleteOperationListPreCosting?OperationListPreCostingId=' + $scope.OLPC)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetOperationWithItemByComponentId();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+    };
+
+    $scope.removeOperationListProcurementCosting = function (data) {
+        try {
+            $scope.OLPRC = data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete";
+            angular.element(document.querySelector('#confirmOperationListProcurementCostingPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.DeleteOperationListProcurementCosting = function () {
+        $http.get('Costings/OrderCosting/DeleteOperationListProcurementCosting?OperationListProcurementCostingId=' + $scope.OLPRC)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetOperationWithItemByComponentId();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+    };
     //#endregion
 }

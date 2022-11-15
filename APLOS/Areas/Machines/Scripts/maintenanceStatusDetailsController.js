@@ -284,6 +284,41 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
         });
 
     };
- 
+
+    $scope.rowDataBound = function rowDataBound(e) {
+
+        if (e.data.OverDue > 0) {
+            e.row.css("background-color", '#FFA500');
+        }
+        else if (e.data.OverDue === 0 && e.data.DueToday > 0) {
+
+            e.row.css("background-color", '#d1e5ff');
+        }
+
+        else {
+            e.row.css("background-color", '#FFFFFF');
+
+        }
+
+
+    }
+
+    $scope.rowDataBoundDetails = function rowDataBoundDetails(e) {
+
+        if (e.data.OverDue > 0) {
+            e.row.css("background-color", '#FFA500');
+        }
+        else if (e.data.OverDue === 0 && e.data.DueToday > 0) {
+
+            e.row.css("background-color", '#d1e5ff');
+        }
+
+        else {
+            e.row.css("background-color", '#FFFFFF');
+
+        }
+
+
+    }
 }
 

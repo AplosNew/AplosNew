@@ -6080,6 +6080,126 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public ActionResult DeletePreCosting(string OrderPreCostingDirectMaterialId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsOPCDM;
+            try
+            {
+                string sqlStopage = @"delete from OrderPreCostingDirectMaterial where Id='" + OrderPreCostingDirectMaterialId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsOPCDM, false, "1");
+
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult DeleteProcurementCosting(string OrderProcurementCostingDirectMaterialId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsOPRCDM;
+            try
+            {
+                string sqlStopage = @"delete from OrderProcurementCostingDirectMaterial where Id='" + OrderProcurementCostingDirectMaterialId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsOPRCDM, false, "1");
+
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult DeleteOrderPreCostingDirectProces(string OrderPreCostingDirectProcessId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsOPRCDM;
+            try
+            {
+                string sqlStopage = @"delete from OrderPreCostingDirectProcess where Id='" + OrderPreCostingDirectProcessId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsOPRCDM, false, "1");
+
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult DeleteDirectProcessProcurementCosting(string DirectProcessProcurementCostingId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsOPRCDM;
+            try
+            {
+                string sqlStopage = @"delete from OrderProcurementCostingDirectProcess where Id='" + DirectProcessProcurementCostingId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsOPRCDM, false, "1");
+
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult DeleteOperationListPreCosting(string OperationListPreCostingId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsOLPC;
+            try
+            {
+                string sqlStopage = @"delete from OrderPreCostingOperation where Id='" + OperationListPreCostingId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsOLPC, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet]
+        public ActionResult DeleteOperationListProcurementCosting(string OperationListProcurementCostingId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsOLPRC;
+            try
+            {
+                string sqlStopage = @"delete from OrderProcurementCostingOperation where Id='" + OperationListProcurementCostingId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsOLPRC, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
     }
 
     public class OrderCostingBuyer

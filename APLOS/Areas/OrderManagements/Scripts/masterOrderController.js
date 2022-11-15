@@ -13,6 +13,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.attributeList = [];
     $scope.personList = [];
 
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    //$scope.exportgriddataUrl = 'GridReports/ExcelExport';
+    //$scope.downloadgriddataUrl = 'GridReports/Download';
+
     $scope.path = 'OrderManagements/masterorder/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
@@ -5988,6 +5992,69 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.itemList[$scope.itemIndex].OrderCostingMasterTemplateId = null;
         $scope.itemList[$scope.itemIndex].OrderCostingMasterTemplate = null;
     }
+
+    $scope.SODataReport = function () {
+        try {
+            $scope.reportFormat = "Excel";
+            $scope.fileName = 'SO Data Report.xls';
+
+            //var gridObj = $("#GridReceiptPaymentStatus").data("ejGrid");
+            //var data = gridObj.model.dataSource();
+
+            //var NewReceiptPaymentStatusList = [];
+            //for (var i = 0; i < $scope.ReceiptPaymentStatusList.length; i++) {
+            //    if ($scope.ReceiptPaymentStatusList[i].isSelected == true) {
+            //        if (NewReceiptPaymentStatusList, $scope.ReceiptPaymentStatusList[i].CustomerCode) {
+            //            NewReceiptPaymentStatusList.push($scope.ReceiptPaymentStatusList[i].CustomerCode);
+            //        }
+            //    }
+            //}
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SODataReport',
+                data: { 'masterOrderId': $scope.fileNew.Id }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SODataDetailReport = function () {
+        try {
+            $scope.reportFormat = "Excel";
+            $scope.fileName = 'SO Data Detail Report.xls';
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SODataDetailReport',
+                data: { 'masterOrderId': $scope.fileNew.Id }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
+
 }
 
 

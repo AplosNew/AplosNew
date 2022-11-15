@@ -42,6 +42,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return Json(em.GetList(column, value), JsonRequestBehavior.AllowGet);
         }
+        public ActionResult GetDepartment()
+        {
+            return Json(em.GetDepartment(), JsonRequestBehavior.AllowGet);
+        }
         #endregion SEARCH SAVED DATA IN GRID
         #region SAVE
         [HttpPost]

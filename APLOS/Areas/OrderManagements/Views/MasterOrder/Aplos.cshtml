@@ -799,17 +799,14 @@
                                             </div>
                                         </div>
                                     </div>
-
-
-
                                 </div>
-
-
 
                                 <div class="clearfix"></div>
 
                                 <div class="common-btn">
                                     <ul class="list-inline text-right">
+                                        <li> <button data-toggle="modal" ng-click="SODataReport()" class="btn btn-action"><i class="glyphicon glyphicon-print"></i> SO Data Report</button></li>
+                                        <li> <button data-toggle="modal" ng-click="SODataDetailReport()" class="btn btn-action"><i class="glyphicon glyphicon-print"></i> SO Data Detail Report</button></li>
                                         <li> <button ng-click="SavePackingDetail()" class="btn single-small-btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNewPD.Id.length>0?'Update':'Save'}}</button></li>
                                         <li> <button ng-click="ClearPackingDetail();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                     </ul>
@@ -834,6 +831,7 @@
                                     <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetPopUpTab(this)" style="margin: -6px;"></i></button>
                                 </script>
                             </div>
+                           
                         </div>
                     </div>
                 </div>

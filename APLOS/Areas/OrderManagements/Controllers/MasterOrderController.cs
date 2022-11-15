@@ -2309,8 +2309,47 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
 
+        [HttpPost, Authorize]
+        public ActionResult SODataReport(string masterOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
 
+                string fileName = "";
 
+                fileName = MasterOrder.CreateSODataReportSheet(masterOrderId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult SODataDetailReport(string masterOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                string fileName = "";
+
+                fileName = MasterOrder.CreateSODataDetailReportSheet(masterOrderId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
         #endregion
 
         [HttpPost,Authorize]
