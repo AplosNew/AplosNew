@@ -23,7 +23,7 @@
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-show="ModelNew.MaterialLevel=='Article'">
                 <label class="col-sm-4 control-label">Material</label>
                 <div class="col-sm-8 show-message">
 
@@ -38,7 +38,7 @@
                 <label class="col-sm-4 control-label">Material Level<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.MaterialLevel" ng-change="ViewMaterialAndArticle()" required name="Storage Location"
+                        <select class="form-control" ng-model="ModelNew.MaterialLevel" required name="Storage Location"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option value="Material">Material</option>
@@ -148,55 +148,72 @@
 
                 </div>
                 <div class="clearfix"></div>
-                <div class="table-responsive modal-table" id="MaterialId">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Material </th>
-                                <th ng-show="ModelNew.MaterialLevel=='Article'">Article </th>
-                                <th>WorkCener Applicable</th>
-                                <th>Machine Applicable</th>
-                                <th>Order Level</th>
-                                @*<th>Action</th>*@
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in MaterialArticleList">
-                                <td>{{x.MaterialName}}</td>
-                                <td ng-show="ModelNew.MaterialLevel=='Article'">{{x.ArticleName}}</td>
-                                <td>
-                                    <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="x.IsWorkCenterApplicable" e-checked="x.IsWorkCenterApplicable" e-value="x.IsWorkCenterApplicable" />
-                                </td>
-                                <td>
-                                    <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="x.IsMachineApplicable" e-checked="x.IsMachineApplicable" e-value="x.IsMachineApplicable" />
-                                </td>
-                                <td>
-                                    {{x.OrderLevelTex}}
-                                </td>
-                                @*<td>
-                                        <div class="common-btn">
+                <div class="table-responsive" ng-show="MaterialLevelList.length">
+                    <div id="GridMaterial"
+                         ej-grid e-datasource="MaterialLevelList"
+                         e-load="loadGridEdit"
+                         e-allowfiltering="true"
+                         e-allowpaging="true"
+                         e-allowsorting="true"
+                         e-enabletouch="false"
+                         e-responsive="true"
+                         e-allowselection="true"
+                         e-filtersettings-filterType="excel"
+                         e-templaterefresh="refreshMaterial"
+                         e-allowtextwrap="true">
 
-                                            <ul class="list-inline text-right">
-                                                <li> <button ng-click="$parent.openItemApplicablePopUp(this);" class="btn" tabindex="11"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
-                                            </ul>
-
-                                        </div>
-                                    </td>*@
-                            </tr>
-                        </tbody>
-                    </table>
+                        <div e-columns>
+                            <div e-column e-field="MaterialName" e-headertext="Material" e-width="80"></div>
+                            <div e-column e-headertext="Machine Applicable" e-template="#machineApplicableTempM" e-width="50"></div>
+                            <div e-column e-headertext="Workcenter Applicable" e-template="#WorkcenterApplicableTempM" e-width="50"></div>
+                            <div e-column e-field="OrderLevelText" e-headertext="Order Level" e-width="50"></div>
+                        </div>
+                    </div>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                    <script type="text/template" id="machineApplicableTempM">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.IsMachineApplicable" e-checked="data.IsMachineApplicable" e-value="data.IsMachineApplicable" />
+                    </script>
+                    <script type="text/template" id="WorkcenterApplicableTempM">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.IsWorkCenterApplicable" e-checked="data.IsWorkCenterApplicable" e-value="data.IsWorkcenterApplicable" />
+                    </script>
                 </div>
 
-                @*<div class="common-btn" style="margin-top:20px">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="SaveIssueControlChild();" ng-disabled="tempIdList.length===0" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                        </ul>
-                    </div>*@
+                <div class="table-responsive" ng-show="MaterialArticleList.length">
+                    <div id="GridArticle"
+                         ej-grid e-datasource="MaterialArticleList"
+                         e-load="loadGridEdit"
+                         e-allowfiltering="true"
+                         e-allowpaging="true"
+                         e-allowsorting="true"
+                         e-enabletouch="false"
+                         e-responsive="true"
+                         e-allowselection="true"
+                         e-filtersettings-filterType="excel"
+                         e-templaterefresh="refreshMaterialArticle"
+                         e-allowtextwrap="true">
+
+                        <div e-columns>
+                            <div e-column e-field="MaterialName" e-headertext="Material" e-width="80"></div>
+                            <div e-column e-field="ArticleName" e-headertext="Article" e-width="80"></div>
+                            <div e-column e-headertext="Machine Applicable" e-template="#machineApplicableTempM" e-width="50"></div>
+                            <div e-column e-headertext="Workcenter Applicable" e-template="#WorkcenterApplicableTempM" e-width="50"></div>
+                            <div e-column e-field="OrderLevelText" e-headertext="Order Level" e-width="50"></div>
+                        </div>
+                    </div>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                    <script type="text/template" id="machineApplicableTempM">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.IsMachineApplicable" e-checked="data.IsMachineApplicable" e-value="data.IsMachineApplicable" />
+                    </script>
+                    <script type="text/template" id="WorkcenterApplicableTempM">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.IsWorkCenterApplicable" e-checked="data.IsWorkCenterApplicable" e-value="data.IsWorkcenterApplicable" />
+                    </script>
+                </div>
             </div>
-
-
         </div>
-
     </div>
 </div>
 @*----------------------------------HEAD CLOSED------------------------------------------------------*@

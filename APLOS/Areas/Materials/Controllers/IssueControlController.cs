@@ -129,7 +129,10 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                return Json(new { Error = false, Data = isc.UpdateMaterialMasterForIssueControl(data,  materiallevel, materialMasterIds), Message = AplosMessage.Success });
+                if(materiallevel== "Material")
+                return Json(new { Error = false, Data = isc.UpdateMaterialMasterForIssueControl(data, materialMasterIds), Message = AplosMessage.Success });
+            else
+                    return Json(new { Error = false, Data = isc.UpdateMaterialMasterArticleForIssueControl(data, materialMasterIds), Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
