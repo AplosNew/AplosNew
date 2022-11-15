@@ -164,6 +164,7 @@
                             <th style="width:100px">Total Base Amount</th>
                             <th class="text-center">Depreciation</th>
                             <th class="text-center">Net Base Amount</th>
+                            <th class="text-center">Adjustment Depreciation Amount</th>
                             <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Negotiation</th>
                             <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Base Negotiation</th>
                             <th>Vendor</th>
@@ -187,6 +188,7 @@
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchaseBaseAmount " n-decimals="2"></td>
                             <td><input type="text" class="form-control text-right" ng-disabled="true" id="ADBaseAmount" ng-model="x.ADBaseAmount " n-decimals="2"></td>
                             <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBaseBookValue " n-decimals="2"></td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="AdjustmentDepreciationAmount" ng-model="x.AdjustmentDepreciationAmount "  n-decimals="2" autocomplete="off"></td>
                             <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
                             <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" class="form-control text-right" ng-disabled="true" id="BaseNagotiationValue" ng-model="x.BaseNagotiationValue " n-decimals="2"></td>
                             <td>{{x.Vendor}}</td>
@@ -204,6 +206,7 @@
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'PurchaseBaseAmount' }}</b></td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'ADBaseAmount' }}</b></td>
                             <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NetBaseBookValue' }}</b></td>
+                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'AdjustmentDepreciationAmount' }}</b></td>
                             <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NegotiationValue' }}</b></td>
                             <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'BaseNagotiationValue' }}</b></td>
                         </tr>

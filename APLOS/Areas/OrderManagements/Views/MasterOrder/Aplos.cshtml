@@ -799,17 +799,14 @@
                                             </div>
                                         </div>
                                     </div>
-
-
-
                                 </div>
-
-
 
                                 <div class="clearfix"></div>
 
                                 <div class="common-btn">
                                     <ul class="list-inline text-right">
+                                        <li> <button data-toggle="modal" ng-click="SODataReport()" class="btn btn-action"><i class="glyphicon glyphicon-print"></i> SO Data Report</button></li>
+                                        <li> <button data-toggle="modal" ng-click="SODataDetailReport()" class="btn btn-action"><i class="glyphicon glyphicon-print"></i> SO Data Detail Report</button></li>
                                         <li> <button ng-click="SavePackingDetail()" class="btn single-small-btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNewPD.Id.length>0?'Update':'Save'}}</button></li>
                                         <li> <button ng-click="ClearPackingDetail();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                     </ul>
@@ -834,6 +831,7 @@
                                     <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetPopUpTab(this)" style="margin: -6px;"></i></button>
                                 </script>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -4140,7 +4138,7 @@
                                             </div>
                                         </div>
 
-                                       
+
                                     </div>
 
                                     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -4161,67 +4159,67 @@
                                                 <input type="text" name="Remarks" ng-model="ModelPTNew.Remarks" class="form-control" tabindex="503">
                                             </div>
                                         </div>
-                                       
+
                                     </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-12" ng-show="packingTypeDataList.length>0">
-                                            <div class="table-responsive modal-table">
-                                                <table class="table table-striped">
-                                                    <thead>
-                                                        <tr>
-                                                            <th ng-show="showSku1">Color</th>
-                                                            <th ng-show="showSku2">Size</th>
-                                                            <th ng-show="showQty">Quantity</th>
-                                                            <th ng-show="showToPlanQty">To Plan Quantity</th>
-                                                            <th ng-show="showPlan">Plan(%)</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr ng-repeat="x in packingTypeDataList">
-                                                            <td ng-show="showSku1">{{x.Color}}</td>
-                                                            <td ng-show="showSku2">{{x.Size}}</td>
-                                                            <td ng-show="showQty">{{x.Quantity}}</td>
-                                                            <td ng-show="showToPlanQty">
-                                                                <input type="text" name="ToPlanQuantity" ng-model="x.ToPlanQuantity" n-decimals="2" class="form-control">
-                                                            </td>
-                                                            <td ng-show="showPlan">
-                                                                <input type="text" name="Plan" ng-model="x.Plan" n-decimals="2" class="form-control">
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-12" ng-show="packingTypeDataList.length>0">
+                                        <div class="table-responsive modal-table">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th ng-show="showSku1">Color</th>
+                                                        <th ng-show="showSku2">Size</th>
+                                                        <th ng-show="showQty">Quantity</th>
+                                                        <th ng-show="showToPlanQty">To Plan Quantity</th>
+                                                        <th ng-show="showPlan">Plan(%)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr ng-repeat="x in packingTypeDataList">
+                                                        <td ng-show="showSku1">{{x.Color}}</td>
+                                                        <td ng-show="showSku2">{{x.Size}}</td>
+                                                        <td ng-show="showQty">{{x.Quantity}}</td>
+                                                        <td ng-show="showToPlanQty">
+                                                            <input type="text" name="ToPlanQuantity" ng-model="x.ToPlanQuantity" n-decimals="2" class="form-control">
+                                                        </td>
+                                                        <td ng-show="showPlan">
+                                                            <input type="text" name="Plan" ng-model="x.Plan" n-decimals="2" class="form-control">
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
+                                    </div>
 
 
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-right">
-                                                <li> <button ng-click="SavePackingType();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                                                <li> <button ng-click="ClearPT();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-xs-12">
-                                            <div id="GridSO" ej-grid e-datasource="PackingTypeListData" e-recorddoubleclick="GetPT"
-                                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                                                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                                                <div e-columns>
-                                                    <div e-column e-headertext="Actions" e-template="#ShowActionButtonPT" e-width="2"></div>
-                                                    <div e-column e-field="PackingCode" e-headertext="Packing Code" e-width="3"></div>
-                                                    <div e-column e-field="PackingType" e-headertext="Packing Type" e-width="5"></div>
-                                                    <div e-column e-field="CustomerRefCode" e-headertext="Customer Ref Code" e-width="3"></div>
-                                                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
-                                                    @*<div e-column e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="3"></div>
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="SavePackingType();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                            <li> <button ng-click="ClearPT();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-xs-12">
+                                        <div id="GridSO" ej-grid e-datasource="PackingTypeListData" e-recorddoubleclick="GetPT"
+                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                            <div e-columns>
+                                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonPT" e-width="2"></div>
+                                                <div e-column e-field="PackingCode" e-headertext="Packing Code" e-width="3"></div>
+                                                <div e-column e-field="PackingType" e-headertext="Packing Type" e-width="5"></div>
+                                                <div e-column e-field="CustomerRefCode" e-headertext="Customer Ref Code" e-width="3"></div>
+                                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                                                @*<div e-column e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="3"></div>
                                                     <div e-column e-field="SecondCharacteristics" e-headertext="Second Characteristics" e-width="3"></div>
                                                     <div e-column e-field="Quantity" e-headertext="Quantity" e-width="3"></div>
                                                     <div e-column e-field="Plan" e-headertext="Plan" e-width="3"></div>
                                                     <div e-column e-field="ToPlanQuantity" e-headertext="To Plan Quantity" e-width="4"></div>*@
-                                                </div>
                                             </div>
-                                            <script type="text/template" id="ShowActionButtonPT">
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeChild2(this);" style="margin: -6px;"></i></button>
-                                                @* <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetPopUpTab2(this)" style="margin: -6px;"></i></button>*@
-                                            </script>
                                         </div>
+                                        <script type="text/template" id="ShowActionButtonPT">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeChild2(this);" style="margin: -6px;"></i></button>
+                                            @* <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetPopUpTab2(this)" style="margin: -6px;"></i></button>*@
+                                        </script>
                                     </div>
+                                </div>
 
                             </div>
                         </div>
@@ -4338,26 +4336,30 @@
                                             <label class="col-sm-4 control-label">SKU1<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
                                                 <div class="select-style">
-                                                    <select name="FirstCharacteristics" class="form-control" ng-model="ModelSKUDNew.FGFirstCharacteristicsId" ng-options="item.Value as item.Text for item in sku1List" required tabindex="501"--> @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@<!--">
-                                                        <option value="">--Select--</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
+                                                    <select name="FirstCharacteristics" class="form-control" ng-model="ModelSKUDNew.FGFirstCharacteristicsValueId" ng-options="item.Value as item.Text for item in sku1List" required tabindex="501"-->
+@*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@
+<!--">
+                    <option value="">--Select--</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Quantity</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Quantity" ng-model="ModelSKUDNew.Quantity" class="form-control" tabindex="503">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">SKU2<sup>*</sup></label>
-                                            <div class="col-sm-8 show-message">
-                                                <div class="select-style">
-                                                    <select name="SecondCharacteristics" class="form-control" ng-model="ModelSKUDNew.FGSecondCharacteristicsId" ng-options="item.Value as item.Text for item in sku2List" required tabindex="502"--> @*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@<!--">
+    <div class="form-group">
+        <label class="col-sm-4 control-label">Quantity</label>
+        <div class="col-sm-8">
+            <input type="text" name="Quantity" ng-model="ModelSKUDNew.Quantity" class="form-control" tabindex="503">
+        </div>
+    </div>
+</div>
+<div class="col-xs-12 col-sm-6 col-md-6">
+    <div class="form-group">
+        <label class="col-sm-4 control-label">SKU2<sup>*</sup></label>
+        <div class="col-sm-8 show-message">
+            <div class="select-style">
+                <select name="SecondCharacteristics" class="form-control" ng-model="ModelSKUDNew.FGSecondCharacteristicsId" ng-options="item.Value as item.Text for item in sku2List" required tabindex="502"-->
+@*ng-change="GetSOBookedQtyAndLevel(soModel.Id);*@
+<!--">
                                                         <option value="">--Select--</option>
                                                     </select>
                                                 </div>

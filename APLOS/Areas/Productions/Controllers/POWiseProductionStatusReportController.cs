@@ -297,7 +297,7 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 string fileName = "";
-                fileName = ProductionDataReport(parameters,"Production Report");
+                fileName = ProductionDataReport(parameters, "Production Report");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -307,7 +307,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-        public string ProductionDataReport(Dictionary<string, string> parameters,string SheetName)
+        public string ProductionDataReport(Dictionary<string, string> parameters, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -324,7 +324,7 @@ namespace Aplos.Areas.Productions.Controllers
                 workbook.Worksheets[0].Name = "ProductionDataReport";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
-                ReportSQL(parameters,out data);
+                ReportSQL(parameters, out data);
 
                 int ROW = 6; int COL = 1;
 
@@ -485,10 +485,11 @@ namespace Aplos.Areas.Productions.Controllers
                 ROW++;
 
                 int startRow = ROW;
-
+                int LastRow = ROW + (data.Rows.Count - 1);
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
-                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["ActualDate"].ToString());
+                    sheet[ROW, colPlanDate].Text = GetDate(data.Rows[i]["ActualDate"].ToString());
+                    //sheet[ROW, colPlanDate].Text = data.Rows[i]["ActualDate"].ToString();
                     sheet[ROW, colEntity].Text = data.Rows[i]["Entity"].ToString();
                     sheet[ROW, colProcess].Text = data.Rows[i]["Process"].ToString();
                     sheet[ROW, colPOProcessSeq].Number = clsStaticInfo.dbl(data.Rows[i]["POProcessSequence"].ToString());
@@ -510,15 +511,19 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colActualWorkHours].Number = clsStaticInfo.dbl(data.Rows[i]["ProductionHours"].ToString());
                     sheet[ROW, colActualQty].Number = clsStaticInfo.dbl(data.Rows[i]["ActualQty"].ToString());
                     sheet[ROW, colPOStatus].Text = data.Rows[i]["POStatus"].ToString();
-                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["FirstBookDate"].ToString());
-                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["LastBookDate"].ToString());
-                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["FirstShipmentDate"].ToString());
-                    SetDate(sheet[ROW, colPlanDate], data.Rows[i]["LastShipmentDate"].ToString());
+                    sheet[ROW, colFirstProBookDate].Text = data.Rows[i]["FirstBookDate"].ToString();
+                    sheet[ROW, colLastProBookDate].Text = data.Rows[i]["LastBookDate"].ToString();
+                    sheet[ROW, colFirstshipmentDate].Text = data.Rows[i]["FirstShipmentDate"].ToString();
+                    sheet[ROW, colLastshipmentDate].Text = data.Rows[i]["LastShipmentDate"].ToString();
                     sheet[ROW, colUptoDateProduction].Number = clsStaticInfo.dbl(data.Rows[i]["UptoDateProPercentage"].ToString());
 
                     //sheet[ROW, colWIP].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colPlanTarget) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPlanTarget) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPRNo) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colPRNo) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colDate) + "$" + StartRow.ToString() + ":" + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + "," + clsStaticInfo.GetxlsCol(colDate) + ROW.ToString() + ")";
 
-                    sheet[ROW, colWIP].Formula = "IF(MAX(" + clsStaticInfo.GetxlsCol(colPlanDate) + @")<>" + startRow.ToString() + @",0,IF(" + startRow + @"=1,0,SUMIFS(" + colActualQty + @"," + colProductionOrderID + @"," + startRow + @"," + colPOProcessSeq + @"," + startRow + @")-SUMIFS(" + colActualQty + @"," + colProductionOrderID + @"," + startRow + @"," + colPOProcessSeq + @"," + startRow + @")))";
+                    //sheet[ROW, colWIP].Formula = "IF(MAX($" + clsStaticInfo.GetxlsCol(colPlanDate) + @")<> startRow.ToString() + @",0,IF(" + startRow + @" = 1, 0, SUMIFS(" + clsStaticInfo.GetxlsCol(colActualQty) + @", " + clsStaticInfo.GetxlsCol(colProductionOrderID) + @", " + startRow + @", " + clsStaticInfo.GetxlsCol(colPOProcessSeq) + @", " + startRow + @") - SUMIFS(" + clsStaticInfo.GetxlsCol(colActualQty) + @", " + clsStaticInfo.GetxlsCol(colProductionOrderID) + @", " + startRow + @", " + clsStaticInfo.GetxlsCol(colPOProcessSeq) + @", " + startRow + @")))";
+
+                    //    sheet[ROW, colWIP].Formula = "IF(MAX($H$7:$H$1799<>H40),0,IF(C40=1,0,SUMIFS($T$7:$T$1799,$C$7:$C$1799,C40-1,$I$7:$I$1799,I40)-SUMIFS($T$7:$T$1799,$C$7:$C$1799,C40,$I$7:$I$1799,I40)))";
+
+                    sheet[ROW, colWIP].Formula = "IF(MAX($" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + LastRow.ToString() + "<>" + clsStaticInfo.GetxlsCol(colPlanDate) +ROW.ToString() + "),0,IF(" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "=1,0,SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString()+"," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "-1,$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")-SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")))";
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -526,7 +531,7 @@ namespace Aplos.Areas.Productions.Controllers
                     ROW++;
 
                 }
-               
+
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -575,12 +580,12 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        public void ReportSQL(Dictionary<string, string> parameters,out DataTable data)
+        public void ReportSQL(Dictionary<string, string> parameters, out DataTable data)
         {
             try
             {
                 string sql = @"SELECT distinct PP.Id,trke.UserName AS Entity,PP.ProductionOrderID PONo,pp.WorkCenterMasterId,POPS.[Sequence] POProcessSequence 
-                            ,wcm.UserName AS WorkCenter ,CPL.UserName AS ProductionShift,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,
+                            ,wcm.UserName AS WorkCenter ,CPL.UserName AS ProductionShift,PP.ProductionDate AS ActualDate,pp.Quantity AS ActualQty,
                             isnull(p.UserName,FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,ISNULL(pp.StandardName,ord.Article ) Article                  
                             ,ord.Product,BaseProcess= CASE WHEN P.IsProductionProcess=1 THEN 'Yes' ELSE '' END,PS.UserName POStatus,
 							PP.FirstBookDate,PP.LastBookDate,so.FirstShipmentDate,SO.LastShipmentDate,
