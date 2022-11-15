@@ -5185,9 +5185,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         Remarks: null,
 
         PackingTypeId: $scope.PackingTypeId,
-        FGFirstCharacteristicsId: null,
+        FGFirstCharacteristicsValueId: null,
         FirstCharacteristics: null,
-        FGSecondCharacteristicsId: null,
+        FGSecondCharacteristicsValueId: null,
         SecondCharacteristics: null,
         Quantity: null,
         Plan: null,

@@ -1258,8 +1258,8 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
 								from dbo.SKUDetail SKUD --PackingDetail PD
 								left join PackingTypeChild PTC on PTC.Id=SKUD.PackingTypeChildId
 								left join PackingDetail PD on PD.Id=PTC.PackingDetailId
-								left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=SKUD.FGFirstCharacteristicsId								
-								left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=SKUD.FGSecondCharacteristicsId
+								left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=SKUD.FGFirstCharacteristicsValueId								
+								left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=SKUD.FGSecondCharacteristicsValueId
 								left join PackingSODetail PSO on PSO.PackingDetailId=PD.Id
 								left join TRN.MasterOrder MO on MO.Id=PD.MasterOrderId
 								left join HKP.Party P on P.Id=MO.PartyId
@@ -1509,8 +1509,8 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
 								left join PackingTypeChild PTC on PTC.PackingDetailId=PD.Id
 								left join HKP.PackingType PT on PT.Id=PTC.PackingTypeId
 								left join SKUDetail SKUD on SKUD.PackingTypeChildId=PTC.Id
-								left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=SKUD.FGFirstCharacteristicsId								
-								left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=SKUD.FGSecondCharacteristicsId
+								left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=SKUD.FGFirstCharacteristicsValueId								
+								left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=SKUD.FGSecondCharacteristicsValueId
                                 where PD.MasterOrderId='" + masterOrderId + @"'";
             return _sqlRepository.GetDataTable(sql);
         }
