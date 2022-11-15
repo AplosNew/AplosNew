@@ -352,7 +352,7 @@ namespace HRService
             try
             {
                 strSQL = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
-                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId
+                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation]
                            --CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
                            from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
@@ -574,7 +574,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.LoginTime between '" + from + "' and '" + to + "' and DL.DepartmentId = '" + departmentId + @"'
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
                 
                     #endregion cmnt
@@ -676,7 +676,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.LoginTime between '" + from + "' and '" + to + "'and DL.isClose = 1";
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59'and DL.isClose = 1";
 
                 #endregion cmnt
                 objCon = new clsConnectionManager();
@@ -778,7 +778,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.LoginTime between '" + from + "' and '" + to + "' and DL.DepartmentId = '" + departmentId + @"' and  DL.isClose = 1";
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"' and  DL.isClose = 1";
 
                 #endregion cmnt
                 objCon = new clsConnectionManager();
@@ -879,7 +879,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.LoginTime between '" + from + "' and '" + to + "'  and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59'  and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
                 #endregion cmnt
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
