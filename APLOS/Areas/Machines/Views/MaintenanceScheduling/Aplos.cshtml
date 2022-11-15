@@ -59,9 +59,6 @@
                     </div>
                 </div>
             </div>
-            @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Attachment<sup>*</sup></label>
-        </div>*@
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
@@ -125,17 +122,17 @@
                 </div>
             </div>
             @*<div class="form-group">
-                <label class="col-sm-4 control-label">Particulars</label>
-                <div class="col-sm-8">
-                    <input type="text" name="Model" ng-disabled="true" ng-model="scheduleNew.Particulars" class="form-control" maxlength="100" autocomplete="off">
-                </div>
-            </div>*@
+            <label class="col-sm-4 control-label">Particulars</label>
+            <div class="col-sm-8">
+                <input type="text" name="Model" ng-disabled="true" ng-model="scheduleNew.Particulars" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+        </div>*@
             @*<div class="form-group">
-                <label class="col-sm-4 control-label">Model</label>
-                <div class="col-sm-8">
-                    <input type="text" name="Model" ng-disabled="true" ng-model="scheduleNew.Model" class="form-control" maxlength="100" autocomplete="off">
-                </div>
-            </div>*@
+            <label class="col-sm-4 control-label">Model</label>
+            <div class="col-sm-8">
+                <input type="text" name="Model" ng-disabled="true" ng-model="scheduleNew.Model" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+        </div>*@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Max Schedule Days<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -146,6 +143,12 @@
                 <label class="col-sm-4 control-label">Standard Schedule Minutes<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <input type="text" name="Standard Schedule Minutes" ng-model="scheduleNew.StandardScheduleMinutes" class="form-control" required maxlength="100" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Advance Planning Days<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="Advance Planning Days" ng-model="scheduleNew.AdvancePlanningDays" class="form-control" required maxlength="100" autocomplete="off">
                 </div>
             </div>
             <div class="form-group" show-errors>
@@ -332,10 +335,10 @@
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Item Type</label>
+                    <label class="col-sm-4 control-label">Employee Activiy Category</label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="ItemNew.ItemType" name="ItemType"
+                            <select class="form-control" ng-model="ItemNew.ItemType" name="Employee Activiy Category"
                                     ng-options="item.Value as item.Text for item in ItemTypeList">
                             </select>
                         </div>
@@ -385,7 +388,7 @@
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="3"></div>
                         <div e-column e-field="SNO" e-headertext="SNO" e-width="3"></div>
-                        <div e-column e-field="ItemType" e-headertext="Item Type" e-width="3"></div>
+                        <div e-column e-field="EmployeeActivityCategory" e-headertext="Employee Activity Category" e-width="3"></div>
                         <div e-column e-field="ItemName" e-headertext="Item Name" e-width="3"></div>
                         <div e-column e-field="ItemMinutes" e-headertext="Item Minutes" e-width="3"></div>
                         <div e-column e-field="CriticalLevel" e-headertext="Critical Level" e-width="3"></div>

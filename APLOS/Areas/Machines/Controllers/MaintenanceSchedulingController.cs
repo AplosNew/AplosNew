@@ -92,6 +92,16 @@ namespace Aplos.Areas.Machines.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetEActivityCategoryList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,UserName as Text from HKP.EmployeeActivityCategory";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public JsonResult Create(Dictionary<string, object> ScheduleData)
         {
@@ -519,7 +529,7 @@ MM.UserName as MachineName,MM.MachineMake as Make,MM.MachineModel as Model,MA.As
         public ActionResult LoadItemDetails(string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,
+            string sql = @"SELECT *,(select UserName from HKP.EmployeeActivityCategory where Id=ItemType) as EmployeeActivityCategory,
 (select EmployeeName from EmployeeInformation where SystemId=ByWhomId) as ByWhom
 FROM [TRN].[MaintenanceItem] where MaintenanceSchedulingId ='" + ScheduleId + "' order by SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);

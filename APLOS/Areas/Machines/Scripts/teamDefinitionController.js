@@ -9,6 +9,8 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
     $scope.saveUrlEntity = $scope.path + 'createEntity';
     $scope.saveUrlEACategory = $scope.path + 'createEACategory';
     $scope.saveUrlEmployee = $scope.path + 'createEmployee';
+    $scope.saveUrlTeamCategory = $scope.path + 'createTeamCategory';
+    $scope.saveUrlTeamDefinitionCategory = $scope.path + 'createTeamDefinitionCategory';
     $scope.ResponsibilityLevelList = [];
 
     $scope.ResponsibilityLevelList = [
@@ -77,6 +79,19 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
         Active: true
     };
     $scope.EACategory = Object.assign({}, $scope.Category);
+
+    $scope.TeamCategory = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+    $scope.TeamCategoryNew = Object.assign({}, $scope.TeamCategory);
     
     $scope.GenerateSequenceNo = function () {
         $http({
@@ -97,6 +112,16 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
         });
     }
     $scope.GenerateCategroySequenceNo();
+
+    $scope.GenerateTeamCategroySequenceNo = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/TeamDefinition/GetTeamCategorySequenceNo'
+        }).then(function successCallback(response) {
+            $scope.TeamCategoryNew.Sequence = response.data;
+        });
+    }
+    $scope.GenerateTeamCategroySequenceNo();
 
     $scope.selectTeamLeader = function () {
         $scope.getEmployee();
@@ -151,12 +176,38 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
     }
     $scope.LoadEACategoryDetails();
 
+    $scope.TeamCategoryList = [];
+    $scope.LoadTeamCategoryDetails = function () {
+        $http({
+
+            method: 'Get',
+            url: 'Machines/TeamDefinition/LoadTeamCategoryDetails'
+        }).then(function successCallback(response) {
+            $scope.TeamCategoryList = response.data;
+        }
+        )
+    }
+    $scope.LoadTeamCategoryDetails();
+
     $scope.GetEACategoryDetails = function (args) {
         $http({
             method: 'Get',
             url: 'Machines/TeamDefinition/LoadEACategoryEditData?CategoryId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.EACategory = response.data.category[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.GetTeamCategoryDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'Machines/TeamDefinition/LoadTeamCategoryEditData?TeamCategoryId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.TeamCategoryNew = response.data.teamcategory[0];
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -174,13 +225,7 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
             $scope.LoadBudgetCodeDetails($scope.TeamMasterId);
             $scope.LoadEmployeeDetails($scope.TeamMasterId);
             $scope.LoadEntityDetails($scope.TeamMasterId);
-          
-            //$scope.LoadItemDetails($scope.ScheduleMasterId);
-            //$scope.LoadStoresDetails($scope.ScheduleMasterId);
-            //$scope.LoadBudgetCodeDetails($scope.ScheduleMasterId);
-            //$scope.GeneratItemSequenceNo($scope.ScheduleMasterId);
-            //$scope.GeneratStoresSequenceNo($scope.ScheduleMasterId);
-            //$scope.GeneratPersonBudgetSequenceNo($scope.ScheduleMasterId);
+            $scope.LoadTeamDefinitionCategoryDetails($scope.TeamMasterId);
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -238,12 +283,42 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.TeamCategorySave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.TeamCategoryForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlTeamCategory,
+                data: {
+                    'TeamCategoryData': $scope.TeamCategoryNew,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadTeamCategoryDetails();
+                    TeamCategoryFields($scope.GenerateTeamCategroySequenceNo());
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
     $scope.Clear = function () {
         TeamClearFields($scope.GenerateSequenceNo());
     };
 
     $scope.EACategoryClear = function () {
         EACategoryFields($scope.GenerateCategroySequenceNo());
+    };
+
+    $scope.TeamCategoryClear = function () {
+        TeamCategoryFields($scope.GenerateTeamCategroySequenceNo());
     };
 
     function TeamClearFields(seq) {
@@ -256,6 +331,12 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
         $scope.Action = "Save";
         $scope.EACategory = Object.assign({}, $scope.Category);
         $scope.EACategory.Sequence = seq;
+    }
+
+    function TeamCategoryFields(seq) {
+        $scope.Action = "Save";
+        $scope.TeamCategoryNew = Object.assign({}, $scope.TeamCategory);
+        $scope.TeamCategoryNew.Sequence = seq;
     }
 
     $scope.Delete = function () {
@@ -271,6 +352,46 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
                 ShowResult(response.data.Message, 'success');
                 $scope.LoadTeamLeaderList();
                 TeamClearFields($scope.GenerateSequenceNo());
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.EACategoryDelete = function () {
+        $http({
+            method: 'POST',
+            url: 'Machines/TeamDefinition/EACategoryDelete?id=' + $scope.EACategory.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadEACategoryDetails();
+                EACategoryFields($scope.GenerateCategroySequenceNo());
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.TeamCategoryDelete = function () {
+        $http({
+            method: 'POST',
+            url: 'Machines/TeamDefinition/TeamCategoryDelete?id=' + $scope.TeamCategoryNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadTeamCategoryDetails();
+                TeamCategoryFields($scope.GenerateTeamCategroySequenceNo());
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -310,6 +431,18 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
             url: 'Machines/TeamDefinition/LoadEntityDetails?TeamId=' + pid
         }).then(function successCallback(response) {
             $scope.TeamEntityList = response.data;
+        }
+        )
+    }
+
+    $scope.TeamDefinitionCategoryList = [];
+    $scope.LoadTeamDefinitionCategoryDetails = function (pid) {
+        $http({
+
+            method: 'Get',
+            url: 'Machines/TeamDefinition/LoadTeamDefinitionCategoryDetails?TeamId=' + pid
+        }).then(function successCallback(response) {
+            $scope.TeamDefinitionCategoryList = response.data;
         }
         )
     }
@@ -384,6 +517,28 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
         var gridObj = $("#GridEntity").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
+    $scope.refreshTemplateTeamDefinitionCategory = function (args) {
+        $("#TDCheadchk").ejCheckBox({ "change": CheckBoxSelectAllTeamCategory });
+    };
+    function CheckBoxSelectAllTeamCategory(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridTeamDefinitionCategory").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.TeamDefinitionCategoryList.length; i++) {
+                $scope.TeamDefinitionCategoryList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridTeamDefinitionCategory").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
 
     $scope.BudgetCodeSave = function () {
         try {
@@ -483,6 +638,42 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
 
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadEntityDetails($scope.ModelNew.Id);
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.TeamDefinitionCategorySave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.TeamDefinitionCategoryList.length; i++) {
+                if ($scope.TeamDefinitionCategoryList[i].Flag == true) {
+                    $scope.TeamDefinitionCategoryList[i].TeamDefinitionId = $scope.ModelNew.Id;
+                    $scope.SaveList.push($scope.TeamDefinitionCategoryList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlTeamDefinitionCategory,
+                data: {
+                    "DataList": $scope.SaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadTeamDefinitionCategoryDetails($scope.ModelNew.Id);
                     $scope.Action = 'Save';
                 }
 

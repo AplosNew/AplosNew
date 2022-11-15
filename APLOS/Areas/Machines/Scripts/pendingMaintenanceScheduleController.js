@@ -14,7 +14,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
         Responsible: null,
         WorkCenter: null,
-        Status:'All',
+        Status:'Pending',
         Asset: null
     };
     $scope.statusNew = Object.assign({}, $scope.status);
@@ -119,6 +119,27 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    }
+
+    $scope.rowDataBound = function rowDataBound(e) {
+
+        if (new Date(e.data.PlannedDate) < new Date($scope.statusNew.ToDate))
+        {
+            e.row.css("background-color", '#FFA500');
+        }
+        else if (new Date(e.data.PlannedDate) > new Date($scope.statusNew.ToDate))
+        {
+           
+            e.row.css("background-color", '#FFFFFF');
+        }
+
+        else
+        {
+            e.row.css("background-color", '#d1e5ff');
+
+        }
+
+
     }
 
     $scope.refreshTemplateResponsiblePerson = function (args) {
@@ -316,12 +337,27 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
             ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
 
-    $scope.FileDownload = function (data) {
+    $scope.FileDownload = function (data,test) {
         $scope.dwonloadUrl = null;
         var str = data.FileName;
         var extention = str.substr(str.indexOf('.'));
-        $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.Id + extention;
+        if (test == 'id') {
+            $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.Id + extention;
+            test = null;
+        }
+        else {
+            $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.PlannedId + extention;
+            test = null;
+        }
     };
+
+    //$scope.FileDownloadPending = function (data) {
+    //    $scope.dwonloadUrl = null;
+    //    var str = data.FileName;
+    //    var extention = str.substr(str.indexOf('.'));
+    //    $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.PlannedId + extention;
+    //};
+
 
     //#endregion
 }

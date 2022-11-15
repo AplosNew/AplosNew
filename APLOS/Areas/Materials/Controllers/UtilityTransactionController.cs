@@ -120,15 +120,10 @@ namespace Aplos.Areas.Materials.Controllers
                 try
                 {
                     objCon = new ConnectionManager.DAL.ConManager("1");
-                    //string mosql = "SELECT * FROM dbo.UtilityTransaction WHERE Id ='" + data["Id"] + "'";
-                    //objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
 
                     objCon.OpenDataSetThroughAdapter("select * from dbo.UtilityTransaction where Id='" + data["Id"] + "'", out dsMasterOrder, false, "1");
 
-                    string cId = string.Empty;
                     string UtilityTransactionId = "";
-
-
 
                     DataView dv = new DataView(dsMasterOrder.Tables[0]);
                     dv.RowFilter = "Id='" + data["Id"] + "'";
@@ -140,11 +135,6 @@ namespace Aplos.Areas.Materials.Controllers
 
                         data["Id"] = UtilityTransactionId;
                         AddNewRow(dsMasterOrder.Tables[0], data);
-                    }
-                    else
-                    {
-                        data["Id"] = UtilityTransactionId;
-                        EditRow(dsMasterOrder.Tables[0].Rows[0], data);
                     }
 
                     clsStaticInfo obj = new clsStaticInfo();
@@ -160,6 +150,44 @@ namespace Aplos.Areas.Materials.Controllers
             }
 
         }
+
+        [HttpPost]
+        public JsonResult Update(Dictionary<string, object> data)
+        {
+
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMasterOrder;
+                string id = string.Empty;
+                try
+                {
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+
+                    objCon.OpenDataSetThroughAdapter("select * from dbo.UtilityTransaction where Id='" + data["Id"] + "'", out dsMasterOrder, false, "1");
+
+                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                    dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                    if (dsMasterOrder.Tables[0].Rows.Count > 0)
+                    {
+                        EditRow(dsMasterOrder.Tables[0].Rows[0], data);
+                    }
+                    
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMasterOrder);
+
+                    return Json(new { Error = false, Message = AplosMessage.Insert });
+
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { Error = true, Message = ex.Message });
+                }
+            }
+
+        }
+
         public ActionResult Delete(string id)
         {
             try

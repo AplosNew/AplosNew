@@ -50,7 +50,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div id="maindiv" class="table-responsive modal-table">
                     <div id="GridMaintenanceStatusSummary" ej-grid e-datasource="MaintenanceStatusSummaryList" e-recorddoubleclick="GetDetails"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBound"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
                             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="3"></div>
@@ -127,12 +127,13 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div id="maindiv" class="table-responsive modal-table">
                     <div id="GridMaintenanceStatusDetails" ej-grid e-datasource="MaintenanceStatusDetailsList" e-recorddoubleclick="GetDetails"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBoundDetails"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
                             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="3"></div>
                             <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="3"></div>
                             <div e-column e-type="string" e-field="ScheduleName" e-headertext="Schedule Name" e-width="3"></div>
+                            <div e-column e-type="string" e-field="AdvancePlanningDays" e-headertext="Planning Days" e-width="3"></div>
                             <div e-column e-type="string" e-field="MachineName" e-headertext="Machine Name" e-width="5"></div>
                             <div e-column e-type="string" e-field="Make" e-headertext="Make" e-width="3"></div>
                             <div e-column e-type="string" e-field="Model" e-headertext="Model" e-width="3"></div>
@@ -265,7 +266,8 @@
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
                              e-recorddoubleclick="doubleEmployee" e-templaterefresh="refreshTemplateResponsiblePerson">
                             <div e-columns>
-                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateResponsiblePerson" e-template="#checkboxTemplateResponsiblePerson" e-textalign="center" e-width="100"></div>
+                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateResponsiblePerson" e-template="#checkboxTemplateResponsiblePerson" e-textalign="center" e-width="50"></div>
+                                <div e-column e-template="#PlanMinutes" e-headertext="Plan Minutes" e-width="50"></div>
                                 <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
                                 <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
@@ -279,6 +281,11 @@
                             </script>
                             <script type="text/x-jsrender" id="headerTemplateResponsiblePerson">
                                 <input type="checkbox" id="headchk" />
+                            </script>
+                            <script type="text/template" id="PlanMinutes">
+                                <div class="col-sm-12" style="padding:0px;">
+                                    <input type="number" name="Plan Minutes" ng-model="data.PlanMinutes" ng-click="" class="form-control">
+                                </div>
                             </script>
                         </div>
                     </div>

@@ -76,6 +76,23 @@ namespace Aplos.Areas.Machines.Controllers
         }
 
         [Authorize, HttpGet]
+        public decimal GetTeamCategorySequenceNo()
+        {
+            try
+            {
+                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(Sequence),0) AS Sequence FROM HKP.TeamCategory");
+                if (dt.Rows.Count > 0)
+                    return (decimal)clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                return 1.00M;
+            }
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetEActivityCategoryList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -129,10 +146,10 @@ namespace Aplos.Areas.Machines.Controllers
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                //conRack.OpenDataSetThroughAdapter("select * from [Trn].[MaintenanceScheduling] where ScheduleCode='" + ScheduleData["ScheduleCode"] + "'", out DataSet dsMaintenanceScheduleCodeValidation, false, "1");
-                //conRack.OpenDataSetThroughAdapter("select * from [Trn].[MaintenanceScheduling] where StandaredName='" + ScheduleData["StandaredName"] + "'", out DataSet dsMaintenanceScheduleSNameValidation, false, "1");
-                //conRack.OpenDataSetThroughAdapter("select * from [Trn].[MaintenanceScheduling] where UserName='" + ScheduleData["UserName"] + "'", out DataSet dsMaintenanceScheduleUNameValidation, false, "1");
-                //conRack.OpenDataSetThroughAdapter("select * from [Trn].[MaintenanceScheduling] where MachineMasterId='" + ScheduleData["MachineMasterId"] + "'", out DataSet dsMaintenanceScheduleMNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.TeamDefinition where ShortName='" + TeamData["ShortName"] + "'", out DataSet dsTeamShortNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.TeamDefinition where StandardName='" + TeamData["StandardName"] + "'", out DataSet dsTeamStandardNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.TeamDefinition where UserName='" + TeamData["UserName"] + "'", out DataSet dsTeamUserNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.TeamDefinition where Code='" + TeamData["Code"] + "'", out DataSet dsTeamCodeValidation, false, "1");
 
                 DataSet dsTeamDefinition;
 
@@ -143,30 +160,30 @@ namespace Aplos.Areas.Machines.Controllers
                 #region data update
                 if (dsTeamDefinition.Tables[0].Rows.Count == 0)
                 {
-                    //if (dsMaintenanceScheduleCodeValidation.Tables[0].Rows.Count > 0)
-                    //{
-                    //    throw new Exception("Schedule Code Already Exist.");
-                    //}
-                    //else if (dsMaintenanceScheduleSNameValidation.Tables[0].Rows.Count > 0)
-                    //{
-                    //    throw new Exception("Standared Name Already Exist.");
-                    //}
-                    //else if (dsMaintenanceScheduleUNameValidation.Tables[0].Rows.Count > 0)
-                    //{
-                    //    throw new Exception("User Name Already Exist.");
-                    //}
-                    //else if (dsMaintenanceScheduleMNameValidation.Tables[0].Rows.Count > 0)
-                    //{
-                    //    throw new Exception("Machine Name Already Exist.");
-                    //}
-                    //else
-                    //{
+                    if (dsTeamShortNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Short Name Already Exist.");
+                    }
+                    else if (dsTeamStandardNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Standared Name Already Exist.");
+                    }
+                    else if (dsTeamUserNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("User Name Already Exist.");
+                    }
+                    else if (dsTeamCodeValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Code Already Exist.");
+                    }
+                    else
+                    {
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("TeamDefinition", out _Id);
                         _Id = "TD" + _Id;
                         TeamData["Id"] = _Id;
                         AddNewRow(dsTeamDefinition.Tables[0], TeamData);
-                    //}
+                    }
                 }
                 else
                 {
@@ -263,6 +280,44 @@ namespace Aplos.Areas.Machines.Controllers
             }
         }
 
+        [Authorize, HttpPost]
+        public ActionResult EACategoryDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                
+                conC.BeginTransaction();
+                conC.executeQuery("delete from HKP.EmployeeActivityCategory where Id ='" + id + @"'");
+                conC.CommitTransaction();
+               
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult TeamCategoryDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+
+                conC.BeginTransaction();
+                conC.executeQuery("delete from HKP.TeamCategory where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         [Authorize, HttpGet]
         public ActionResult LoadBudgetCodeDetails(string TeamId)
         {
@@ -293,10 +348,29 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         }
 
         [Authorize, HttpGet]
+        public ActionResult LoadTeamDefinitionCategoryDetails(string TeamId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN TDC.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,TDC.Id,TC.Id TeamCategoryId,TC.ShortName,TC.StandardName,TC.UserName,TC.Code,TDC.Remarks 
+                            from HKP.TeamCategory TC
+							LEFT JOIN TRN.TeamDefinitionCategory TDC ON TDC.TeamCategoryId=TC.Id and TDC.TeamDefinitionId='" + TeamId + @"'
+                            where TC.Active = 1 order by TDC.TeamCategoryId  desc";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult LoadEACategoryDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT * from HKP.EmployeeActivityCategory";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadTeamCategoryDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT * from HKP.TeamCategory";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -307,6 +381,15 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
             string sql = @"SELECT * from HKP.EmployeeActivityCategory where Id ='" + CategoryId + @"'";
             return Json(new { category = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadTeamCategoryEditData(string TeamCategoryId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"SELECT * from HKP.TeamCategory where Id ='" + TeamCategoryId + @"'";
+            return Json(new { teamcategory = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -420,6 +503,50 @@ where EI.BudgetCode in (select BudgetCodeId from [TRN].[TeamBudgetCode] where Te
             }
         }
 
+        [Authorize, HttpPost]
+        public ActionResult createTeamDefinitionCategory(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "TRN.TeamDefinitionCategory";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and TeamDefinitionId='" + item["TeamDefinitionId"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "TDC" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         [HttpPost, Authorize]
         public JsonResult createEACategory(Dictionary<string, object> EACategoryData)
         {
@@ -427,7 +554,10 @@ where EI.BudgetCode in (select BudgetCodeId from [TRN].[TeamBudgetCode] where Te
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from HKP.EmployeeActivityCategory where Id<>'" + EACategoryData["Id"] + "'", out DataSet dsEmployeeActivityCategoryValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from HKP.EmployeeActivityCategory where ShortName='" + EACategoryData["ShortName"] + "'", out DataSet dsTeamShortNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from HKP.EmployeeActivityCategory where StandardName='" + EACategoryData["StandardName"] + "'", out DataSet dsTeamStandardNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from HKP.EmployeeActivityCategory where UserName='" + EACategoryData["UserName"] + "'", out DataSet dsTeamUserNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from HKP.EmployeeActivityCategory where Code='" + EACategoryData["Code"] + "'", out DataSet dsTeamCodeValidation, false, "1");
 
                 DataSet dsEmployeeActivityCategory;
 
@@ -438,11 +568,30 @@ where EI.BudgetCode in (select BudgetCodeId from [TRN].[TeamBudgetCode] where Te
                 #region data update
                 if (dsEmployeeActivityCategory.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("EmployeeActivityCategory", out _Id);
-                    _Id = "EAC" + _Id;
-                    EACategoryData["Id"] = _Id;
-                    AddNewRow(dsEmployeeActivityCategory.Tables[0], EACategoryData);
+                    if (dsTeamShortNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Short Name Already Exist.");
+                    }
+                    else if (dsTeamStandardNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Standared Name Already Exist.");
+                    }
+                    else if (dsTeamUserNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("User Name Already Exist.");
+                    }
+                    else if (dsTeamCodeValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Code Already Exist.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("EmployeeActivityCategory", out _Id);
+                        _Id = "EAC" + _Id;
+                        EACategoryData["Id"] = _Id;
+                        AddNewRow(dsEmployeeActivityCategory.Tables[0], EACategoryData);
+                    }
                 }
                 else
                 {
@@ -457,6 +606,75 @@ where EI.BudgetCode in (select BudgetCodeId from [TRN].[TeamBudgetCode] where Te
                 _info.SaveDataSets(dsEmployeeActivityCategory);
 
                 return Json(new { Error = false, Data = EACategoryData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult createTeamCategory(Dictionary<string, object> TeamCategoryData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from HKP.TeamCategory where ShortName='" + TeamCategoryData["ShortName"] + "'", out DataSet dsTeamShortNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from HKP.TeamCategory where StandardName='" + TeamCategoryData["StandardName"] + "'", out DataSet dsTeamStandardNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from HKP.TeamCategory where UserName='" + TeamCategoryData["UserName"] + "'", out DataSet dsTeamUserNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from HKP.TeamCategory where Code='" + TeamCategoryData["Code"] + "'", out DataSet dsTeamCodeValidation, false, "1");
+
+                DataSet dsTeamCategory;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from HKP.TeamCategory where Id='" + TeamCategoryData["Id"] + "'", out dsTeamCategory, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsTeamCategory.Tables[0].Rows.Count == 0)
+                {
+                    if (dsTeamShortNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Short Name Already Exist.");
+                    }
+                    else if (dsTeamStandardNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Standared Name Already Exist.");
+                    }
+                    else if (dsTeamUserNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("User Name Already Exist.");
+                    }
+                    else if (dsTeamCodeValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Code Already Exist.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TeamCategory", out _Id);
+                        _Id = "TC" + _Id;
+                        TeamCategoryData["Id"] = _Id;
+                        AddNewRow(dsTeamCategory.Tables[0], TeamCategoryData);
+                    }
+                }
+                else
+                {
+                    _Id = TeamCategoryData["Id"].ToString();
+                    EditRow(dsTeamCategory.Tables[0].Rows[0], TeamCategoryData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsTeamCategory);
+
+                return Json(new { Error = false, Data = TeamCategoryData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
