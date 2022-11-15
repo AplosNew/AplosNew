@@ -15,36 +15,21 @@ using System.Reflection;
 
 namespace Library.HumanResource.Recruitement
 {
-   public class ExperienceMasterService
+  public class EmployerMasterService
     {
         SqlRepository _sqlRepository;
         #region Constructor
-        public ExperienceMasterService()
+        public EmployerMasterService()
         {
             _sqlRepository = new SqlRepository();
         }
         #endregion Constructor
-
-        public IEnumerable<object> GetDepartment()
-        {
-            try
-            {
-                var sql = @"select D.Id Value, D.UserName Text from org.Department D order by Text";
-
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
         #region GET
         public IEnumerable<object> Get(string Id)
         {
             try
             {
-                var sql = "select * from HKP.ExperienceMaster where Id = '" + Id + "' ";
+                var sql = "select * from HKP.EmployerMaster where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -59,7 +44,7 @@ namespace Library.HumanResource.Recruitement
         #region GET SEQUENCE
         public double GetSequence()
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(Sequence),0) AS Sequence FROM HKP.ExperienceMaster");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(Sequence),0) AS Sequence FROM HKP.EmployerMaster");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -72,15 +57,14 @@ namespace Library.HumanResource.Recruitement
         {
             try
             {
-                string TableName = "HKP.ExperienceMaster";
+                string TableName = "HKP.EmployerMaster";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"select EM.*, D.UserName Department from HKP.ExperienceMaster EM
-                               left join ORG.Department D on D.Id = EM.DepartmentId
+                string sql = @"SELECT EM.* FROM HKP.EmployerMaster EM
                                 where " + strkey + "order by Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -96,14 +80,14 @@ namespace Library.HumanResource.Recruitement
         {
             try
             {
-                string TableNameHead = "HKP.ExperienceMaster";
+                string TableNameHead = "HKP.EmployerMaster";
 
                 DataSet dsMaster;
 
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                
+
                 con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 string _Id = "";
 
@@ -144,7 +128,7 @@ namespace Library.HumanResource.Recruitement
             try
             {
 
-                string TableName = "HKP.ExperienceMaster";
+                string TableName = "HKP.EmployerMaster";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 

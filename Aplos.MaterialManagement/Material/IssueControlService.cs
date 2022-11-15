@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Library.MaterialManagement.Material
 {
-   public class IssueControlService
+    public class IssueControlService
     {
         private readonly SqlRepository _sqlRepository;
         public IssueControlService()
@@ -47,7 +47,7 @@ namespace Library.MaterialManagement.Material
                                left join hkp.MaterialType mt on mt.Id = mgm.MaterialTypeId
                                where mt.Id = '" + MaterialTypeId + "' and mt.Active = '1' order by Text ASC";
                 }
-                 
+
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -65,7 +65,7 @@ namespace Library.MaterialManagement.Material
                         left join dbo.DefineEnum DE on DE.Id = IC.OrderLevel";
                 return _sqlRepository.GetDataCollection(SQL);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -88,7 +88,7 @@ namespace Library.MaterialManagement.Material
                                left join mst.MaterialGroupMaster mg on mg.Id = mm.MaterialGroupMasterId
                                where  mg.Id = '" + materialgroupid + "' and mm.Active = '1' ORDER BY Text ASC";
                 }
-                
+
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -98,72 +98,46 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> getMaterialArticleId(string materialTypeId, string materialGroupMasterId, string materialMasterId, string storagelevel)
+        public IEnumerable<object> GetMaterialAndArticle(string materialTypeId, string materialGroupMasterId, string materialMasterId, string storagelevel)
         {
             try
             {
                 var sql = "";
+                var tempsql = "";
 
-                if(storagelevel == "Material" && materialTypeId == null && materialGroupMasterId == null && materialMasterId == null)
+                if (storagelevel == "Material" && !string.IsNullOrEmpty(materialTypeId) && string.IsNullOrEmpty(materialGroupMasterId) && string.IsNullOrEmpty(materialMasterId))
                 {
-                    sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
-                            mma.standardname as ArticleName, mm.Id as MaterialMasterId,
-                            mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId, bah.Id
-							from mst.MaterialMasterArticle mma
-							left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
-							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
-							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
-							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                           -- where mm.Id not in (SELECT M.MaterialMasterId FROM TRN.MaterialAlocation M) 
-                            --and mt.Id = '" + materialTypeId + "' and mgm.Id = '" + materialGroupMasterId + "' and mm.Id = '" + materialMasterId + "'";
+                    tempsql = "MM.MaterialMasterTypeId = '" + materialTypeId + "'";
                 }
-                else if (storagelevel == "Material")
+                else if (storagelevel == "Material" && !string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && string.IsNullOrEmpty(materialMasterId))
                 {
-                    sql = @"select distinct  mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
-                             mm.Id as MaterialMasterId, 
-                            mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId
-							from mst.MaterialMasterArticle mma
-							left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
-							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
-							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
-							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-							left join TRN.IssueControlChild ICC on ICC.MaterialMasterArticleId = MMA.Id
-							left join TRN.IssueControlHeader IC on IC.Id = ICC.IssueControlHeadId
-                            where
-                             mt.Id = '" + materialTypeId + "' and mgm.Id = '" + materialGroupMasterId + "' and mm.Id = '" + materialMasterId + "'";
+                    tempsql = "MM.MaterialMasterTypeId = '" + materialTypeId + "' AND MM.MaterialGroupMasterId='" + materialGroupMasterId + "'";
+                }
+                else if (storagelevel == "Material" && !string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && !string.IsNullOrEmpty(materialMasterId))
+                {
+                    tempsql = "MM.MaterialMasterTypeId = '" + materialTypeId + "' AND MM.MaterialGroupMasterId='" + materialGroupMasterId + "' AND MM.Id='" + materialMasterId + "'";
+                }
+                else if (storagelevel == "Material" && string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && !string.IsNullOrEmpty(materialMasterId))
+                {
+                    tempsql = " MM.MaterialGroupMasterId='" + materialGroupMasterId + "' AND MM.Id='" + materialMasterId + "'";
+                }
+                else if (storagelevel == "Material" && string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && string.IsNullOrEmpty(materialMasterId))
+                {
+                    tempsql = " MM.MaterialGroupMasterId='" + materialGroupMasterId + "' ";
+                }
+                if (storagelevel == "Material")
+                {
+                    sql = @"SELECT MM.Id MaterialMasterId,MM.MaterialMasterTypeId,MM.UserName MaterialName,MM.IsMachineApplicable,MM.IsWorkCenterApplicable,MM.OrderLevel 
+                            FROM MST.MaterialMaster MM
+                            WHERE " + tempsql + "";
                 }
                 else
                 {
-                    if (storagelevel == "Article" && materialTypeId == null && materialGroupMasterId == null && materialMasterId == null)
-                    {
-                        sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
-                            mma.standardname as ArticleName, mm.Id as MaterialMasterId,
-                            mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId, bah.Id
-							from mst.MaterialMasterArticle mma
-							left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
-							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
-							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
-							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                           -- where mm.Id not in (SELECT M.MaterialMasterId FROM TRN.MaterialAlocation M) 
-                            --and mt.Id = '" + materialTypeId + "' and mgm.Id = '" + materialGroupMasterId + "' and mm.Id = '" + materialMasterId + "'";
-                    }
-                    else if (storagelevel == "Article")
-                    {
-                        sql = @"select distinct mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
-                            mma.standardname as ArticleName, mma.Id as MaterialMasterArticleId, mm.Id as MaterialMasterId,
-                            mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId -- bah.Id
-							from mst.MaterialMasterArticle mma
-							left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
-							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
-							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
-							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-							left join TRN.IssueControlChild ICC on ICC.MaterialMasterId = MM.Id
-							left join TRN.IssueControlHeader IC on IC.Id = ICC.IssueControlHeadId
-                            where 
-                            mt.Id = '" + materialTypeId + "' and mgm.Id = '" + materialGroupMasterId + "' and mm.Id = '" + materialMasterId + "'";
-                    }
+                    sql = @"SELECT MMA.MaterialMasterId,MM.MaterialMasterTypeId,MM.UserName MaterialName,MMA.IsMachineApplicable,MMA.IsWorkCenterApplicable,MMA.OrderLevel 
+                           FROM  MST.MaterialMasterArticle MMA
+                           LEFT JOIN MST.MaterialMaster MM ON MM.Id=MMA.MaterialMasterId
+                           WHERE " + tempsql + "";
                 }
-                
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -183,7 +157,7 @@ namespace Library.MaterialManagement.Material
 
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                
+
                 con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 string _Id = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -195,7 +169,7 @@ namespace Library.MaterialManagement.Material
                     genid.GenID(TableNameHead, out _Id);
 
                     data["Id"] = "IC" + _Id;
-                   
+
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -206,7 +180,7 @@ namespace Library.MaterialManagement.Material
                 }
                 #endregion Medicine POLICY HEAD
 
-                
+
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
@@ -221,6 +195,7 @@ namespace Library.MaterialManagement.Material
         #endregion Save 
 
         #region Save Child
+        //Need to delete or update
         public string SaveItemApplicable(bool machineApplicable, bool worckcenterApplicable, int orderlevel, string headerId)
         {
             try
@@ -239,7 +214,7 @@ namespace Library.MaterialManagement.Material
                 DataRow dr = dsMaster.Tables[0].NewRow();
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                   
+
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableNameHead, out _Id);
 
@@ -254,7 +229,7 @@ namespace Library.MaterialManagement.Material
 
                     dsMaster.Tables[0].Rows.Add(dr);
                 }
-               
+
                 #endregion Medicine HEAD
 
                 clsStaticInfo _info = new clsStaticInfo();
@@ -267,56 +242,32 @@ namespace Library.MaterialManagement.Material
                 throw ex;
             }
         }
-        public List<Dictionary<string, object>> SaveChild(List<Dictionary<string, object>> data, string headerId, string materiallevel)
+        public List<Dictionary<string, object>> UpdateMaterialMasterForIssueControl(List<Dictionary<string, object>> data, string materiallevel, string materialIds)
         {
             try
             {
-                string TableNameHead = "TRN.IssueControlChild";
-
                 DataSet dsMaster;
 
-
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where IssueControlHeadId='" + headerId + "'", out dsMaster, false, "1");
-                string _Id = "";
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                #region Medicine HEAD
-                for (int i = 0; i < data.Count; i++)
+                con.OpenDataSetThroughAdapter("select * from MST.MaterialMaster where Id in (" + materialIds + ")", out dsMaster, false, "1");
+                if (materiallevel == "Material")
                 {
-                    DataRow dr = dsMaster.Tables[0].NewRow();
-                    if (materiallevel == "Material")
+                    for (int i = 0; i < data.Count; i++)
                     {
-                        dr["Id"] = headerId + '-' + i.ToString();
-                        dr["IssueControlHeadId"] = headerId;
-                        dr["MaterialMasterId"] = data[i]["MaterialMasterId"];
-                        //dr["MaterialMasterArticleId"] = data[i]["MaterialMasterArticleId"];
-                        dr["MachineApplicable"] = data[i]["MachineApplicable"];
-                        dr["WorkCenterApplicable"] = data[i]["WorkCenterApplicable"];
-                        dr["OrderLevel"] = data[i]["OrderLevel"];
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-
-                        dsMaster.Tables[0].Rows.Add(dr);
-                    }
-                    else
-                    {
-                        dr["Id"] = headerId + '-' + i.ToString();
-                        dr["IssueControlHeadId"] = headerId;
-                        //dr["MaterialMasterId"] = data[i]["MaterialMasterId"];
-                        dr["MaterialMasterArticleId"] = data[i]["MaterialMasterArticleId"];
-                        dr["MachineApplicable"] = data[i]["MachineApplicable"];
-                        dr["WorkCenterApplicable"] = data[i]["WorkCenterApplicable"];
-                        dr["OrderLevel"] = data[i]["OrderLevel"];
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dsMaster.Tables[0].Rows.Add(dr);
+                        dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + data[i]["MaterialMasterId"].ToString() + "'";
+                        if (dsMaster.Tables[0].DefaultView.Count > 0)
+                        {
+                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["Id"] = data[i]["MaterialMasterId"];
+                            dr["IsMachineApplicable"] = data[i]["IsMachineApplicable"];
+                            dr["IsWorkCenterApplicable"] = data[i]["IsWorkCenterApplicable"];
+                            dr["OrderLevel"] = data[i]["OrderLevel"];
+                            //dsMaster.Tables[0].Rows.Add(dr);
+                            dr.EndEdit();
+                        }
                     }
                 }
-                #endregion Medicine HEAD
-
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
@@ -328,7 +279,7 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-       
+
         #endregion SAVE Child
 
         #region CREATE AND EDIT DEFAULT COLUMN
@@ -382,7 +333,7 @@ namespace Library.MaterialManagement.Material
             try
             {
                 var str = @"Select * from TRN.IssueControlHeader";
-                
+
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)

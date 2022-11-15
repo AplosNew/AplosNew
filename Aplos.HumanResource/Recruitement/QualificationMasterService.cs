@@ -1,50 +1,41 @@
-﻿#region lib
+﻿using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
+using Library.Service.Helpers;
 using OTSBD;
+using Syncfusion.DocIO;
+using Syncfusion.DocIO.DLS;
+using Syncfusion.DocToPDFConverter;
+using Syncfusion.Pdf;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data;
-using System.Threading;
+using System.IO;
 using System.Linq;
-using Library.Data;
-using Library.Service.Logs;
-using Library.Service.Enums;
-using System.Reflection;
-#endregion lib
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Library.HumanResource.Recruitement
 {
-   public class ExperienceMasterService
+   public class QualificationMasterService
     {
-        SqlRepository _sqlRepository;
+        private readonly SqlRepository _sqlRepository;
         #region Constructor
-        public ExperienceMasterService()
+        public QualificationMasterService()
         {
             _sqlRepository = new SqlRepository();
         }
         #endregion Constructor
-
-        public IEnumerable<object> GetDepartment()
-        {
-            try
-            {
-                var sql = @"select D.Id Value, D.UserName Text from org.Department D order by Text";
-
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
         #region GET
         public IEnumerable<object> Get(string Id)
         {
             try
             {
-                var sql = "select * from HKP.ExperienceMaster where Id = '" + Id + "' ";
+                var sql = "select * from HKP.QualificationMaster where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -59,7 +50,7 @@ namespace Library.HumanResource.Recruitement
         #region GET SEQUENCE
         public double GetSequence()
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(Sequence),0) AS Sequence FROM HKP.ExperienceMaster");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(Sequence),0) AS Sequence FROM HKP.QualificationMaster");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -72,15 +63,14 @@ namespace Library.HumanResource.Recruitement
         {
             try
             {
-                string TableName = "HKP.ExperienceMaster";
+                string TableName = "HKP.QualificationMaster";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"select EM.*, D.UserName Department from HKP.ExperienceMaster EM
-                               left join ORG.Department D on D.Id = EM.DepartmentId
+                string sql = @"SELECT QM.* FROM HKP.QualificationMaster QM
                                 where " + strkey + "order by Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -96,14 +86,21 @@ namespace Library.HumanResource.Recruitement
         {
             try
             {
-                string TableNameHead = "HKP.ExperienceMaster";
+                string TableNameHead = "HKP.QualificationMaster";
 
                 DataSet dsMaster;
 
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where StandardName='" + data["StandardName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Standard Name already exists!!!");
+
                 con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 string _Id = "";
 
@@ -113,7 +110,7 @@ namespace Library.HumanResource.Recruitement
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableNameHead, out _Id);
 
-                    data["Id"] = "EM" + _Id;
+                    data["Id"] = "QM" + _Id;
 
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -144,7 +141,7 @@ namespace Library.HumanResource.Recruitement
             try
             {
 
-                string TableName = "HKP.ExperienceMaster";
+                string TableName = "HKP.QualificationMaster";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 

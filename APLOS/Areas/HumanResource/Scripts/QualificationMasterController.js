@@ -1,41 +1,26 @@
 ﻿'use strict';
-ExperienceMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', '$window', 'baseService', '$routeParams', '$location', '$http', '$controller', '$filter'];
-function ExperienceMasterController(cboService, commonMessage, $scope, $rootScope, $window, baseService, $routeParams, $location, $http, $controller, $filter) {
-    $rootScope.title = 'Experience Master';
+QualificationMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function QualificationMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Qualification Master';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'HumanResource/ExperienceMaster/';
+    $scope.path = 'HumanResource/QualificationMaster/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
-    $scope.saveUrlP = $scope.path + 'SavePurpose';
     $scope.deleteUrl = $scope.path + 'Delete/';
-    baseService.init($scope.getListUrl);
 
-    $scope.DepartmentList = [];
-    $scope.GetDepartment = function () {
-        $http.get('HumanResource/ExperienceMaster/GetDepartment')
-            .then(
-                function successCallback(response) {
-                    $scope.DepartmentList = response.data;
-
-                }
-            )
-    }
-    $scope.GetDepartment();
-
-    //  #region SEQUENCE
+    // #region Sequence
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.ModelTemp.Sequence = data;
-            $scope.ModalNew.Sequence = data;
+            $scope.ModelNew.Sequence = data;
         });
     };
     $scope.GetSequence();
-    //  #endregion SEQUENCE 
+    // #endregion Sequence
 
-    // #region  GET MAIN GRID DATA
-
+    // #region All Get Function
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -48,24 +33,24 @@ function ExperienceMasterController(cboService, commonMessage, $scope, $rootScop
         });
     }
     $scope.getData();
-    // #endregion  GET MAIN GRID DATA
+    // #endregion All Get Function
 
-    //  #region FORM OBJECT DECLARATION & INITIALIZATION
+    // #region Objects
     $scope.ModelTemp = {
         Id: null,
         Sequence: 0,
-        AreaOfExperience: null,
-        DepartmentId: null,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,        
         IsActive: true
     };
-    $scope.ModalNew = Object.assign({}, $scope.ModelTemp);
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    // #endregion Objects
 
-
-    //  #endregion FORM OBJECT DECLARATION & INITIALIZATION
-
-    // #region DOUBLE CLICK ON GRID OPEN FORM
+    // #region Double Click
     $scope.Get = function (args) {
-        $scope.ModalNew = Object.assign({}, args.data);
+        $scope.ModelNew = Object.assign({}, args.data);
         $scope.EmployeeId = args.data.ResponsiblePerson;
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -73,16 +58,17 @@ function ExperienceMasterController(cboService, commonMessage, $scope, $rootScop
             $scope.getResponsiblePersonId();
         }
     };
-    // #endregion DOUBLE CLICK ON GRID OPEN FORM CLOSE
+    // #endregion Double Click
 
-    // #region SAVE
+    // #region Save
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
+
         $http({
             method: 'POST',
             url: $scope.saveUrl,
             data: {
-                'data': $scope.ModalNew,
+                'data': $scope.ModelNew,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -99,16 +85,14 @@ function ExperienceMasterController(cboService, commonMessage, $scope, $rootScop
             ShowResult(response.data.Message, 'failure');
         }
     };
+    // #endregion Save
 
-   
-    // #endregion SAVE CLOSE
-
-    // #region DELETE 
+    // #region Delete
     $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModalNew.Id)) {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.ModalNew.Id,
+                url: $scope.deleteUrl + $scope.ModelNew.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -125,9 +109,9 @@ function ExperienceMasterController(cboService, commonMessage, $scope, $rootScop
             });
         }
     };
-    // #endregion DELETE 
+    // #endregion Delete
 
-    // #region CLEAR FORM
+    // #region Clear
     $scope.Clear = function () {
         ClearFields();
         return true;
@@ -137,19 +121,17 @@ function ExperienceMasterController(cboService, commonMessage, $scope, $rootScop
     function ClearFields() {
         $scope.Action = 'Save';
 
-
         $scope.ModelTemp = {
             Id: null,
             Sequence: 0,
-            AreaOfExperience: null,
-            DepartmentId: null,
+            Code:null,
+            ShortName: null,
+            StandardName: null,
+            UserName: null,            
             IsActive: true
         };
 
-        $scope.ModalNew = Object.assign({}, $scope.ModelTemp);
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
-
-
-    // #endregion CLEAR FORM
-    
+    // #endregion Clear
 }
