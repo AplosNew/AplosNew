@@ -13,9 +13,9 @@ using System.Data;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
-    public class EmployerMasterController : Controller
+    public class QualificationMasterController : BaseController
     {
-        EmployerMasterService em = new EmployerMasterService();
+        QualificationMasterService QM = new QualificationMasterService();
         public ActionResult Aplos()
         {
             return View();
@@ -27,7 +27,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(em.GetSequence(), JsonRequestBehavior.AllowGet);
+                return Json(QM.GetSequence(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -40,7 +40,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
-            return Json(em.GetList(column, value), JsonRequestBehavior.AllowGet);
+            return Json(QM.GetList(column, value), JsonRequestBehavior.AllowGet);
         }
         #endregion SEARCH SAVED DATA IN GRID
         #region SAVE
@@ -49,11 +49,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(new { Error = false, Data = em.Save(data), Message = AplosMessage.Success });
+                return Json(new { Error = false, Data = QM.Save(data), Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
-                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -65,7 +65,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
 
-                string ret = em.Delete(id);
+                string ret = QM.Delete(id);
 
                 if (ret == "Success")
                 {
@@ -87,9 +87,5 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
         #endregion DELETE
-
-        
     }
-
-    
 }

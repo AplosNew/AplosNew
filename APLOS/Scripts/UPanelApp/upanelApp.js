@@ -1110,6 +1110,7 @@ upanelApp.controller("POWiseProductionStatusReportController", POWiseProductionS
 upanelApp.controller("teamDefinitionController", teamDefinitionController)
 upanelApp.controller("ExperienceMasterController", ExperienceMasterController)
 upanelApp.controller("EmployerMasterController", EmployerMasterController)
+upanelApp.controller("QualificationMasterController", QualificationMasterController)
 
 
 upanelApp.config(AccessControllerConfig);
