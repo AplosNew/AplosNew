@@ -341,7 +341,39 @@ namespace HRService
                 objCon = null;
             }
         }
+        public void GetQualification(out List<QualificationList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<QualificationList>();
 
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id, StandardName from HKP.QualificationMaster";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new QualificationList
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         public void GetDetentionResponsible(out List<DetentionResponsiblePersonList> DataList, string detentiontypeid)
         {
             clsConnectionManager objCon = null;
@@ -380,7 +412,6 @@ namespace HRService
                         Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
                         SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
                         LegalDesignation = dsRef.Tables[0].Rows[i]["LegalDesignation"].ToString(),
-                        DetentionMasterId = dsRef.Tables[0].Rows[i]["DetentionMasterId"].ToString(),
                     });
                 }
             }
@@ -393,6 +424,7 @@ namespace HRService
                 objCon = null;
             }
         }
+
 
         public void GetIssueByNo(out List<DetentionIssueByNo> DataList, string EmployeeId)
         {
@@ -1521,8 +1553,10 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
 
 
         }
+        
 
     }
+
 
     public class ServerNotifications
     {
@@ -1636,6 +1670,12 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Value { get; set; } = "";
     }
 
+    public class QualificationList
+    {
+        public string Id { get; set; } = "";
+        public string StandardName { get; set; } = "";
+    }
+
     public class DetentionTypeList
     {
         public string DetentionTypeId { get; set; } = "";
@@ -1652,7 +1692,6 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Section { get; set; }
         public string SubSection { get; set; }
         public string LegalDesignation { get; set; }
-        public string DetentionMasterId { get; set; }
     }
 
     public class DetentionIssueByNo
