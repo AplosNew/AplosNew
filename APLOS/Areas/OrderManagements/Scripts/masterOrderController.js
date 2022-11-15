@@ -5993,9 +5993,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.itemList[$scope.itemIndex].OrderCostingMasterTemplate = null;
     }
 
-
- 
-
     $scope.SODataReport = function () {
         try {
             $scope.reportFormat = "Excel";
@@ -6031,6 +6028,32 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ShowResult(e, 'failure');
         }
     }
+
+    $scope.SODataDetailReport = function () {
+        try {
+            $scope.reportFormat = "Excel";
+            $scope.fileName = 'SO Data Detail Report.xls';
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SODataDetailReport',
+                data: { 'masterOrderId': $scope.fileNew.Id }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
 
 }
 
