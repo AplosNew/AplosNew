@@ -215,4 +215,45 @@ function MaterialIssueControlApprovalController(cboService, commonMessage, $scop
             gridObj.refreshTemplate();
         }
     }
+
+    $scope.CalculationByPlan = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.PlanPercentage) || $scope.ModelNew.PlanPercentage == 0 || $scope.ModelNew.PlanPercentage == 'NaN') {
+                throw "Input Plan Percentage";
+            }
+            var totaPlanlAmount = 0;
+            for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+                $scope.QBOQCostingList[i].PlanConsumption = ($scope.QBOQCostingList[i].TotalConsumption + $scope.QBOQCostingList[i].AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+                $scope.QBOQCostingList[i].TotaPlanlAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].Rate;
+                $scope.QBOQCostingList[i].ActualIssueAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].StockRate;
+            }
+
+
+            if ($scope.ModelNew.Level == "Costing") {
+                var gridObj = $("#CGrid").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+            } else {
+                var gridObj = $("#BGrid").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+            }
+
+            for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+                totaPlanlAmount += $scope.QBOQCostingList[i].TotaPlanlAmount;
+            }
+
+            for (var i = 0; i < $scope.SOItemList.length; i++) {
+                $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
+                $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
+                $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
+            }
+            var gridObj = $("#SOGrid").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    }
 }

@@ -205,7 +205,8 @@
         </script>
         <script type="text/template" id="AdditionReductionTemplate">
             <div class="col-sm-10" style="padding:0px; width:70px;">
-                <input type="text" ej-numerictextbox e-decimalplaces="4"  e-value="data.AdditionReduction" ng-change="$parent.Calculation(this)" e-width="80" />
+                <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-change="$parent.Calculation(this)" e-width="80" />
+                @*<input type="text" class="form-control" n-decimals="4" ng-model="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />*@
             </div>
         </script>
 
