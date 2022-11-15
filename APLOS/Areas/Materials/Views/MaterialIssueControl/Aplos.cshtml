@@ -44,7 +44,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Issue Date" ng-model="ModelNew.IssueDate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
+                        <input type="text" name="Issue Date" ng-model="ModelNew.IssueDate" datepicker class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
                     </div>
                 </div>
                 <div class="form-group">
@@ -86,18 +86,6 @@
                                 <option value="">--Select--</option>
                                 <option value="Costing">Costing</option>
                                 <option value="QBOQ">QBOQ</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select id="paymentTermId" class="form-control" name="Requisition Type" ng-change="changeType(ModelNew.IssueType)" ng-model="ModelNew.IssueType" tabindex="12" required>
-                                <option value="Capital">Capital </option>
-                                <option value="Revenue">Revenue</option>
                             </select>
                         </div>
                     </div>
@@ -223,7 +211,7 @@
         </script>
         <script type="text/template" id="AdditionReductionTemplate">
             <div class="col-sm-10" style="padding:0px; width:70px;">
-                <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />
+                <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-change="$parent.Calculation(this)" e-width="80" />
             </div>
         </script>
 
