@@ -123,10 +123,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                     objCon.OpenDataSetThroughAdapter("select * from dbo.UtilityTransaction where Id='" + data["Id"] + "'", out dsMasterOrder, false, "1");
 
-                    string cId = string.Empty;
                     string UtilityTransactionId = "";
-
-
 
                     DataView dv = new DataView(dsMasterOrder.Tables[0]);
                     dv.RowFilter = "Id='" + data["Id"] + "'";
@@ -169,17 +166,11 @@ namespace Aplos.Areas.Materials.Controllers
 
                     objCon.OpenDataSetThroughAdapter("select * from dbo.UtilityTransaction where Id='" + data["Id"] + "'", out dsMasterOrder, false, "1");
 
-                    string cId = string.Empty;
-                    string UtilityTransactionId = "";
-
-
-
                     DataView dv = new DataView(dsMasterOrder.Tables[0]);
                     dv.RowFilter = "Id='" + data["Id"] + "'";
 
                     if (dsMasterOrder.Tables[0].Rows.Count > 0)
                     {
-                        data["Id"] = UtilityTransactionId;
                         EditRow(dsMasterOrder.Tables[0].Rows[0], data);
                     }
                     
