@@ -335,6 +335,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
 
 
     function ClearFields() {
+        LogTime = new Date();
         $scope.Action = 'Save';
         $scope.ModalNew = {
             Id: null,

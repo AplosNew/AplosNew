@@ -54,6 +54,13 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.getAllDepartment(out List<AllDepartmentList> DepartmentList);
             return DepartmentList;
         }
+        public List<QualificationList> GetQualification()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualification(out List<QualificationList> Qualificationlist);
+            return Qualificationlist;
+        }
+
 
         public List<DetentionTypeList> GetDetentionTypes()
         {
@@ -129,5 +136,6 @@ namespace Aplos.Controllers.ApopAPIHR
             return Processlist;
         }
 
+       
     }
 }

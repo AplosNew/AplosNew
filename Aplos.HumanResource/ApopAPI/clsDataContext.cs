@@ -341,7 +341,39 @@ namespace HRService
                 objCon = null;
             }
         }
+        public void GetQualification(out List<QualificationList> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<QualificationList>();
 
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id, StandardName from HKP.QualificationMaster";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new QualificationList
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         public void GetDetentionResponsible(out List<DetentionResponsiblePersonList> DataList, string detentiontypeid)
         {
             clsConnectionManager objCon = null;
@@ -352,7 +384,7 @@ namespace HRService
             try
             {
                 strSQL = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
-                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId
+                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation]
                            --CAST (CASE WHEN DLRP.Id IS NULL THEN 0 ELSE 1 END AS bit) chk, DLRP.isActive
                            from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
@@ -380,7 +412,6 @@ namespace HRService
                         Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
                         SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
                         LegalDesignation = dsRef.Tables[0].Rows[i]["LegalDesignation"].ToString(),
-                        DetentionMasterId = dsRef.Tables[0].Rows[i]["DetentionMasterId"].ToString(),
                     });
                 }
             }
@@ -393,6 +424,7 @@ namespace HRService
                 objCon = null;
             }
         }
+
 
         public void GetIssueByNo(out List<DetentionIssueByNo> DataList, string EmployeeId)
         {
@@ -574,7 +606,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.LoginTime between '" + from + "' and '" + to + "' and DL.DepartmentId = '" + departmentId + @"'
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
                 
                     #endregion cmnt
@@ -676,7 +708,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.LoginTime between '" + from + "' and '" + to + "'and DL.isClose = 1";
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59'and DL.isClose = 1";
 
                 #endregion cmnt
                 objCon = new clsConnectionManager();
@@ -778,7 +810,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.LoginTime between '" + from + "' and '" + to + "' and DL.DepartmentId = '" + departmentId + @"' and  DL.isClose = 1";
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"' and  DL.isClose = 1";
 
                 #endregion cmnt
                 objCon = new clsConnectionManager();
@@ -879,7 +911,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
                             left join HKP.Process P on P.Id = DL.ProcessId
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
-                                where DL.LoginTime between '" + from + "' and '" + to + "'  and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59'  and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
                 #endregion cmnt
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -1521,8 +1553,10 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
 
 
         }
+        
 
     }
+
 
     public class ServerNotifications
     {
@@ -1636,6 +1670,12 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Value { get; set; } = "";
     }
 
+    public class QualificationList
+    {
+        public string Id { get; set; } = "";
+        public string StandardName { get; set; } = "";
+    }
+
     public class DetentionTypeList
     {
         public string DetentionTypeId { get; set; } = "";
@@ -1652,7 +1692,6 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Section { get; set; }
         public string SubSection { get; set; }
         public string LegalDesignation { get; set; }
-        public string DetentionMasterId { get; set; }
     }
 
     public class DetentionIssueByNo

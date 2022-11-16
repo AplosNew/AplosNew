@@ -2096,15 +2096,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public ActionResult GetSavedPackingType(string PackingDetailId)
         {
             string sql = @"select PTC.*,PT.UserName PackingType
-                                --,sku.Id SKUDetailId,sku.FGFirstCharacteristicsId
-								--,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsId
+                                --,sku.Id SKUDetailId,sku.FGFirstCharacteristicsValueId
+								--,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsValueId
 								--,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan],sku.ToPlanQuantity
 
                                 from  [dbo].[PackingTypeChild] PTC
                                 left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId
 								--left join SKUDetail sku on sku.PackingTypeChildId=PTC.Id
-								--left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsId								
-								--left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsId
+								--left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsValueId								
+								--left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsValueId
                                 Where PackingDetailId='" + PackingDetailId + "'";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -2205,12 +2205,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSavedSKUDetail(string PackingTypeId)
         {
-            string sql = @"select Sku.Id,PT.Id PackingType,PT.UserName PackingType,Sku.FGFirstCharacteristicsId,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsId
+            string sql = @"select Sku.Id,PT.Id PackingType,PT.UserName PackingType,Sku.FGFirstCharacteristicsValueId,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsId
 													,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan],Sku.ToPlanQuantity
 													from  [dbo].[SKUDetail] Sku
 													left join [dbo].[PackingTypeChild] PTC on PTC.Id=Sku.PackingTypeChildId  
 													left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId                                
-													left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsId								
+													left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsValueId								
 													left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsId
                                 Where Sku.PackingTypeChildId = '" + PackingTypeId + "'";
 
@@ -2222,12 +2222,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSavedPackingTypeChild(string PTId)
         {
-            string sql = @"select Sku.Id,Sku.FGFirstCharacteristicsId,CV1.UserName Color,Sku.FGSecondCharacteristicsId
+            string sql = @"select Sku.Id,Sku.FGFirstCharacteristicsValueId,CV1.UserName Color,Sku.FGSecondCharacteristicsValueId
 													,CV2.UserName Size,Sku.Quantity,Sku.[Plan],Sku.ToPlanQuantity
 													from  [dbo].[SKUDetail] Sku
 													                        
-													left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsId								
-													left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsId
+													left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsValueId								
+													left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsValueId
                                 Where Sku.PackingTypeChildId = '" + PTId + "'";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -2330,6 +2330,26 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult SODataDetailReport(string masterOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                string fileName = "";
+
+                fileName = MasterOrder.CreateSODataDetailReportSheet(masterOrderId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
         #endregion
 
         [HttpPost,Authorize]

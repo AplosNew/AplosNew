@@ -284,7 +284,7 @@ namespace Library.Accounting.FixedAssets
                                     , ISNULL(FR.Price,0) Price
 									,ISNULL(SAR.subAssetAmount,0) SubAssetAmount
 									, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice
-									 ,ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue 
+									 ,ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0)- ISNULL(FADP.FixedAssetDepreciationAmount,0) NetBookValue 
 								--	, 0 NegotiationValue
 
 								   , BC.Code BaseCurrency
@@ -350,15 +350,15 @@ namespace Library.Accounting.FixedAssets
                                     , ISNULL(FR.Price,0) Price
 									,ISNULL(SAR.subAssetAmount,0) SubAssetAmount
 									, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice
-									 ,ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue 
+									 ,ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0)  NetBookValue 
 								--	, 0 NegotiationValue
                                     , ISNULL(FR.AdjustmentDepreciationAmount,0) AdjustmentDepreciationAmount
 								   , BC.Code BaseCurrency
 									,isnull(FR.FABaseAmount,0)FABaseAmount
 									,ISNULL(SAR.subAssetBaseAmount,0) SubAssetBaseAmount
 									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount
-									,isnull( FR.ADBaseAmount,0)ADBaseAmount
-                                    , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
+									,isnull( FR.ADBaseAmount,0)+ISNULL(FADP.FixedAssetDepreciationAmount,0)ADBaseAmount
+                                    , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0) NetBaseBookValue 
 									,FARD.BaseNagotiationValue, FARD.NegotiationValue
 
                                     , MMA.StandardName Article, FR.IsFinancial,IsOpeningBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
@@ -396,6 +396,7 @@ namespace Library.Accounting.FixedAssets
 								   LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
                                     LEFT JOIN TRN.FixedAssetRegisterDisposedDetail FARD ON FARD.FixedAssetRegisterId=FR.Id
                                     LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=FARD.FixedAssetRegisterDisposedId
+									LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
                                    WHERE FR.CompanyId= '" + companyId + @"'  and FR.Archive= 0 and FR.IsAUC= 0 
                                     AND FARD.FixedAssetRegisterDisposedId='"+ fixedAssetRegisterDisposeId +@"'
                                        ) AS TEMP 
@@ -425,7 +426,7 @@ namespace Library.Accounting.FixedAssets
 									, ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0) PurchasePrice
 									 ,ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBookValue 
 								--	, 0 NegotiationValue
-
+									, ISNULL(FR.AdjustmentDepreciationAmount,0) AdjustmentDepreciationAmount
 								   , BC.Code BaseCurrency
 									,isnull(FR.FABaseAmount,0)FABaseAmount
 									,ISNULL(SAR.subAssetBaseAmount,0) SubAssetBaseAmount
@@ -474,26 +475,28 @@ namespace Library.Accounting.FixedAssets
 
             var sql = @"DECLARE @receiveId varchar(10)='"+ fixedAssetDisposeId + "', @companyId varchar(10)='"+ companyId + "', @plantId varchar(30)='"+ plantId + @"'
 
+						SELECT X.* FROM(
 						SELECT  'Depreciation' AS OtherName, 'Dr' AS TrnType
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
-							,BudgetMasterId =FR.ADBudgetMasterId
+							,BudgetMasterId =FAMG.DepreciationBudgetMasterId
 							,BudgetCode = B.Code
 							,BudgetName =B.UserName 
-							,ActivityId = FR.ADActivityId
+							,ActivityId = FAMG.DepreciationActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
-							, SUM(FR.ADBaseAmount)+SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) AS Dr
+							 ,SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Dr
 							, NULL Cr
-							, SUM(FR.ADBaseAmount)+SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) AS Amount
+							, SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON FR.ADBudgetMasterId= BM.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FR.FixedAssetMasterId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.DepreciationBudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.DepreciationGLId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON FR.ADActivityId= A.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FAMG.DepreciationActivityId= A.Id
 						LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
 						WHERE FRDD.FixedAssetRegisterDisposedId=@receiveId
 						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.ADBudgetMasterId, B.Code, B.UserName, FR.ADActivityId, A.Code, A.UserName
@@ -534,9 +537,9 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId = FGL.LossOnDisposalAssetBudgetMasterId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
-							, SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FRDD.NegotiationValue)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) AS Dr
+							, SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FRDD.NegotiationValue)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Dr
 							, NULL Cr
-							, SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FRDD.NegotiationValue)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) AS Amount
+							, SUM(FR.Price+SAR.subAssetAmount-FR.ADBaseAmount-FRDD.NegotiationValue)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -589,43 +592,45 @@ namespace Library.Accounting.FixedAssets
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
-							,BudgetMasterId =FR.ADBudgetMasterId
+							,BudgetMasterId =FAMG.DepreciationBudgetMasterId
 							,BudgetCode = B.Code
 							,BudgetName =B.UserName 
-							,ActivityId = FR.ADActivityId
+							,ActivityId = FAMG.DepreciationActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
-							, SUM(FR.ADBaseAmount) AS Dr
+							 ,SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Dr
 							, NULL Cr
-							, SUM(FR.ADBaseAmount) AS Amount
+							, SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON FR.ADBudgetMasterId= BM.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FR.FixedAssetMasterId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.DepreciationBudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.DepreciationGLId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON FR.ADActivityId= A.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FAMG.DepreciationActivityId= A.Id
+						LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
 						WHERE FRDD.FixedAssetRegisterDisposedId=@fixedAssetDisposeId
-						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.ADBudgetMasterId, B.Code, B.UserName, FR.ADActivityId, A.Code, A.UserName
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FAMG.DepreciationBudgetMasterId, B.Code, B.UserName, FAMG.DepreciationActivityId, A.Code, A.UserName
 						
 					    UNION
-						SELECT  OtherName=CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN 'LossOnSale' ELSE 'GainOnSale' End 
+						SELECT  OtherName=CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN 'LossOnSale' ELSE 'GainOnSale' End 
 						
-						,TrnType= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN 'Dr' ELSE 'Cr' End 
+						,TrnType= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN 'Dr' ELSE 'Cr' End 
 
-							,GLGeneralInfoId= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN FGL.LossOnSaleOfAssetGLId ELSE FGL.GainOnSaleOfAssetGLId END      
-							,GLGeneralInfoCode= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN GL.AccountCode ELSE GLG.AccountCode END      
-							,GLGeneralInfoName= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN GL.UserName ELSE GLG.UserName END      
-							,BudgetMasterId= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN FGL.LossOnSaleOfAssetBudgetMasterId ELSE FGL.GainOnSaleOfAssetBudgetMasterId END      
-							,BudgetCode= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN B.Code ELSE BG.Code END      
-							,BudgetName= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN B.UserName ELSE BG.UserName END      
-							,ActivityId= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN FGL.LossOnSaleOfAssetActivityId ELSE FGL.GainOnSaleOfAssetActivityId END      
-							,ActivityCode= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN A.Code ELSE AG.Code END      
-							,ActivityName= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN A.UserName ELSE AG.UserName END      
-							, Dr= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))> 0 THEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue)) ELSE 0 END 
-							, Cr= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue)) < 0 THEN SUM(FR.ADBaseAmount)+SUM(FR.BaseNagotiationValue)+SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) - SUM(FR.FABaseAmount)-SUM(ISNULL(SAR.subAssetAmount,0)) ELSE 0 END 
-							, Amount=CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))> 0 THEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM(FR.BaseNagotiationValue)) 
-									ELSE SUM(FR.ADBaseAmount)+SUM(FR.BaseNagotiationValue)+SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) - SUM(FR.FABaseAmount)-SUM(ISNULL(SAR.subAssetAmount,0)) END 
+							,GLGeneralInfoId= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN FGL.LossOnSaleOfAssetGLId ELSE FGL.GainOnSaleOfAssetGLId END      
+							,GLGeneralInfoCode= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN GL.AccountCode ELSE GLG.AccountCode END      
+							,GLGeneralInfoName= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN GL.UserName ELSE GLG.UserName END      
+							,BudgetMasterId= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN FGL.LossOnSaleOfAssetBudgetMasterId ELSE FGL.GainOnSaleOfAssetBudgetMasterId END      
+							,BudgetCode= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN B.Code ELSE BG.Code END      
+							,BudgetName= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN B.UserName ELSE BG.UserName END      
+							,ActivityId= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN FGL.LossOnSaleOfAssetActivityId ELSE FGL.GainOnSaleOfAssetActivityId END      
+							,ActivityCode= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN A.Code ELSE AG.Code END      
+							,ActivityName= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))>0 THEN A.UserName ELSE AG.UserName END      
+							, Dr= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))> 0 THEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue)) ELSE 0 END 
+							, Cr= CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue)) < 0 THEN SUM(FR.ADBaseAmount)+SUM(FR.BaseNagotiationValue)+SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))+SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) - SUM(FR.FABaseAmount)-SUM(ISNULL(SAR.subAssetAmount,0)) ELSE 0 END 
+							, Amount=CASE WHEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue))> 0 THEN (SUM(FR.FABaseAmount)+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))-SUM(FR.BaseNagotiationValue)) 
+									ELSE SUM(FR.ADBaseAmount)+SUM(FR.BaseNagotiationValue)+SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))+SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) - SUM(FR.FABaseAmount)-SUM(ISNULL(SAR.subAssetAmount,0)) END 
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -806,22 +811,23 @@ namespace Library.Accounting.FixedAssets
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
-							,BudgetMasterId =FR.ADBudgetMasterId
+							,BudgetMasterId =FAMG.DepreciationBudgetMasterId
 							,BudgetCode = B.Code
 							,BudgetName =B.UserName 
-							,ActivityId = FR.ADActivityId
+							,ActivityId = FAMG.DepreciationActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
-							, SUM(FR.ADBaseAmount)+SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) AS Dr
+							 ,SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Dr
 							, NULL Cr
-							, SUM(FR.ADBaseAmount)+SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) AS Amount
+							, SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON FR.ADBudgetMasterId= BM.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FR.FixedAssetMasterId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.DepreciationBudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.DepreciationGLId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON FR.ADActivityId= A.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FAMG.DepreciationActivityId= A.Id
 						LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
 						WHERE FRDD.FixedAssetRegisterDisposedId=@fixedAssetDisposeId
 						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.ADBudgetMasterId, B.Code, B.UserName, FR.ADActivityId, A.Code, A.UserName
@@ -840,9 +846,9 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId=  FGL.LossOnDisposalAssetActivityId     
 							,ActivityCode=  A.Code    
 							,ActivityName=  A.UserName    
-							, Dr=  SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))
+							, Dr=  SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))
 							, Cr=0
-							, Amount= SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))
+							, Amount= SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -899,22 +905,23 @@ namespace Library.Accounting.FixedAssets
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
-							,BudgetMasterId =FR.ADBudgetMasterId
+							,BudgetMasterId =FAMG.DepreciationBudgetMasterId
 							,BudgetCode = B.Code
 							,BudgetName =B.UserName 
-							,ActivityId = FR.ADActivityId
+							,ActivityId = FAMG.DepreciationActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
-							, SUM(FR.ADBaseAmount)+SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) AS Dr
+							 ,SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Dr
 							, NULL Cr
-							, SUM(FR.ADBaseAmount)+SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) AS Amount
+							, SUM( ISNULL(FR.AdjustmentDepreciationAmount,0)) AS Amount
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON FR.ADBudgetMasterId= BM.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FR.FixedAssetMasterId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.DepreciationBudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.DepreciationGLId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON FR.ADActivityId= A.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FAMG.DepreciationActivityId= A.Id
 						LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
 						WHERE FRDD.FixedAssetRegisterDisposedId=@fixedAssetDisposeId
 						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.ADBudgetMasterId, B.Code, B.UserName, FR.ADActivityId, A.Code, A.UserName
@@ -933,9 +940,9 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId=  FGL.LossOnDisposalAssetActivityId     
 							,ActivityCode=  A.Code    
 							,ActivityName=  A.UserName    
-							, Dr=  SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))
+							, Dr=  SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))
 							, Cr=0
-							, Amount= SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))
+							, Amount= SUM(FR.FABaseAmount+isnull(SAR.subAssetAmount,0))- SUM(FR.ADBaseAmount)-SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0))-SUM( ISNULL(FR.AdjustmentDepreciationAmount,0))
 						FROM  TRN.FixedAssetRegisterDisposedDetail FRDD
 						LEFT JOIN TRN.FixedAssetRegisterDisposed FRD ON FRD.Id=FRDD.FixedAssetRegisterDisposedId
 						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FRDD.FixedAssetRegisterId
@@ -1783,7 +1790,7 @@ namespace Library.Accounting.FixedAssets
 				 ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
 				  ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
 				  ,sum(ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) ) TotalBaseAmount
-				 ,sum( ISNULL(FAR.ADBaseAmount,0)) + SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) ADBaseAmount
+				 ,sum( ISNULL(FAR.ADBaseAmount,0)) + SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) + sum( ISNULL(FAR.AdjustmentDepreciationAmount,0)) ADBaseAmount
 				 ,sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ) - SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) NetFixedAssetsAmount
 				  --,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
 
@@ -1845,8 +1852,10 @@ namespace Library.Accounting.FixedAssets
 				,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
 
 				,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
-				,ISNULL(FR.ADBaseAmount,0)+ISNULL(FADP.FixedAssetDepreciationAmount,0) ADBaseAmount
-				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0) NetFixedAssetsBaseAmount
+				,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
+				,ISNULL(FADP.FixedAssetDepreciationAmount,0) ProcessDepreciationAmount
+				,ISNULL(FR.AdjustmentDepreciationAmount,0) AdjustmentDepreciationAmount
+				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0)-ISNULL(FR.AdjustmentDepreciationAmount,0) NetFixedAssetsBaseAmount
 
                 ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
                 ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
@@ -1860,7 +1869,7 @@ namespace Library.Accounting.FixedAssets
 				,CASE WHEN fard.IsPark=0 THEN 'Posted' ELSE 'Non Posted' END PostingStatus
 				,Customer.UserName CustomerName,CU.Code Currency,CAST(fard.ToCurrencyRate AS decimal(18,4))ToCurrencyRate,rdd.NegotiationValue
 				 ,rdd.BaseNagotiationValue
-				 ,(rdd.BaseNagotiationValue-( ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0)) )LossOrGain
+				 ,(rdd.BaseNagotiationValue-( ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0)-ISNULL(FR.AdjustmentDepreciationAmount,0)) )LossOrGain
 				 ,isnull(GP.Id,GPS.Id) GatePassNo,CASE WHEN GP.GatePassEntryDate IS NOT NULL THEN format( GP.GatePassEntryDate,'dd-MMM-yyyy') 
 				 ELSE format( GPS.GatePassEntryDate,'dd-MMM-yyyy') END GatePassDate
                 , ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
