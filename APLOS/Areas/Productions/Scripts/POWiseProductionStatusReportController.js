@@ -98,7 +98,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         }
         var k = 100;
     }
-
+    $scope.ProductionDataReportList = [];
     $scope.ProductionData = function () {
         $scope.filterComplete();
         $scope.fileName = "ProductionDataReport.xlsx";
@@ -113,7 +113,8 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                $scope.ProductionDataReportList = response.data;
+                //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');

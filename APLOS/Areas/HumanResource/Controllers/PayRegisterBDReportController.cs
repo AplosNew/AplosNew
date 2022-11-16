@@ -303,7 +303,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             string PdfLocation = string.Empty;
             try
             {
-
+                if (string.IsNullOrEmpty(languageId))
+                {
+                    throw new Exception("Select Language.");
+                }
 
                 clsReport objRpt = null;
 
