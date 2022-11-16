@@ -435,8 +435,6 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
                 ShowResult(response.data.Message, 'failure');
             }
         }
-       
-
     };
     // #endregion SAVE CHILD
 
