@@ -456,7 +456,7 @@
                 <th>Res. Person</th>
                 <th>Remarks</th>
                 <th>Attachment</th>
-
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -513,11 +513,14 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
+                </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removeOrderProcurementCostingSalesExpense(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                        </li>
+                    </ul>
                 </td>
             </tr>
             <tr>
@@ -529,6 +532,7 @@
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmOrderProcurementCostingSalesExpensePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOrderProcurementCostingSalesExpense();"></confirm-archive-generic>
 
 @*Value Loss*@
 <div class="table-responsive modal-table" ng-show="Segment=='ValueLoss' && ModelNew.Id!='' ">
@@ -543,7 +547,7 @@
                 <th>Res. Person</th>
                 <th>Remarks</th>
                 <th>Attachment</th>
-
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -598,11 +602,14 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
+                </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removeValueLossProcurementCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                        </li>
+                    </ul>
                 </td>
             </tr>
             <tr>
@@ -614,6 +621,7 @@
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmValueLossProcurementCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteValueLossProcurementCosting();"></confirm-archive-generic>
 
 @*Profit*@
 <div class="table-responsive modal-table" ng-show="Segment=='Profit' && ModelNew.Id!='' ">
@@ -628,7 +636,7 @@
                 <th>Res. Person</th>
                 <th>Remarks</th>
                 <th>Attachment</th>
-
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -685,11 +693,14 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
+                </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removeOrderProcurementCostingProfit(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                        </li>
+                    </ul>
                 </td>
             </tr>
             <tr>
@@ -700,6 +711,8 @@
         </tbody>
     </table>
 </div>
+
+<confirm-archive-generic modalid="confirmOrderProcurementCostingProfitPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOrderProcurementCostingProfit();"></confirm-archive-generic>
 
 <div class="modal-footer common-btn">
     <button ng-click="SaveCostingComponentItems('PROCUREMENT');" class="btn" tabindex="4"><i class=""></i> Update</button>
