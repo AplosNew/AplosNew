@@ -6,7 +6,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">User Name </label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="30">
+                    <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" autocomplete="off" maxlength="30">
                 </div>
             </div>
 
@@ -66,18 +66,15 @@
             </div>
         </div>
         <div class="common-btn">
-
             <div class="col-xs-12 col-lg-3 col-md-3"></div>
             <ul class="list-inline text-right">
-
-
                 <li> <button ng-click="ViewMaterialAndArticle();" class="btn" tabindex="11"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
                 <li> <button ng-click="Save();" class="btn" tabindex="11"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-floppy-disk"></i> Clear</button></li>
             </ul>
-
         </div>
     </div>
+
     <div class="tab-design">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
@@ -149,29 +146,40 @@
                 </div>
                 <div class="clearfix"></div>
                 <div class="table-responsive" ng-show="MaterialLevelList.length">
+
+                     
+                      @*
+                    e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true"*@
+
                     <div id="GridMaterial"
                          ej-grid e-datasource="MaterialLevelList"
-                         e-load="loadGridEdit"
+                         e-load="loadGrid"
                          e-allowfiltering="true"
                          e-allowpaging="true"
                          e-allowsorting="true"
                          e-enabletouch="false"
                          e-responsive="true"
-                         e-allowselection="true"
+                         e-allowselection="false"
                          e-filtersettings-filterType="excel"
                          e-templaterefresh="refreshMaterial"
-                         e-allowtextwrap="true">
+                         e-allowtextwrap="true" e-gridlines="vertical" e-allowscrolling="true">
 
                         <div e-columns>
+                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
                             <div e-column e-field="MaterialName" e-headertext="Material" e-width="80"></div>
                             <div e-column e-headertext="Machine Applicable" e-template="#machineApplicableTempM" e-width="50"></div>
                             <div e-column e-headertext="Workcenter Applicable" e-template="#WorkcenterApplicableTempM" e-width="50"></div>
                             <div e-column e-field="OrderLevelText" e-headertext="Order Level" e-width="50"></div>
                         </div>
                     </div>
+
                     <script type="text/x-jsrender" id="headerTemplate">
                         <input type="checkbox" id="headchk" />
                     </script>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                    </script>
+
                     <script type="text/template" id="machineApplicableTempM">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.IsMachineApplicable" e-checked="data.IsMachineApplicable" e-value="data.IsMachineApplicable" />
                     </script>
@@ -195,6 +203,7 @@
                          e-allowtextwrap="true">
 
                         <div e-columns>
+                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplateArticle" e-template="#checkboxTemplateArticle" e-textalign="center" e-width="10"></div>
                             <div e-column e-field="MaterialName" e-headertext="Material" e-width="80"></div>
                             <div e-column e-field="ArticleName" e-headertext="Article" e-width="80"></div>
                             <div e-column e-headertext="Machine Applicable" e-template="#machineApplicableTempM" e-width="50"></div>
@@ -202,8 +211,11 @@
                             <div e-column e-field="OrderLevelText" e-headertext="Order Level" e-width="50"></div>
                         </div>
                     </div>
-                    <script type="text/x-jsrender" id="headerTemplate">
+                    <script type="text/x-jsrender" id="headerTemplateArticle">
                         <input type="checkbox" id="headchk" />
+                    </script>
+                    <script type="text/template" id="checkboxTemplateArticle">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
                     </script>
                     <script type="text/template" id="machineApplicableTempM">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" ng-model="data.IsMachineApplicable" e-checked="data.IsMachineApplicable" e-value="data.IsMachineApplicable" />
