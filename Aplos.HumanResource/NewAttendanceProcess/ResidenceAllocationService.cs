@@ -1370,25 +1370,25 @@ group by EC.UserName,  RM.[Location], RM.Block, RM.ResidentType";
 count(X.NoOfAsset) as NoOfAsset,sum(X.OverDue) as OverDue,sum(X.DueToday) as DueToday,sum(X.FutureDue) as FutureDue,X.Remarks,X.PlanStatus,X.Department,X.MaintenanceGroup,X.NoOfScheduleReqFP,X.ScheduleCompletedFP,X.Difference from (
 select MS.Id,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
 MM.MachineModel Model,MS.ScheduleCode,MB.Code ResponsiblePersonBudgetCode,count(MMA.Id) NoOfAsset,
-MS.ScheduleDays,isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'') as LastMaintenanceDate,
-Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id)) end CurrentMaintanceDate,
-DateDiff(day,GETDATE(),Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id))end) DueDays,
- case when (Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id))end)<GETDATE() then 1 else 0 end OverDue,
- case when (Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id))end)=GETDATE() then 1 else 0 end DueToday,
- case when (case when (Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id))end)<GETDATE() then 1 else 0 end) = 0 and (case when (Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id))end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
+MS.ScheduleDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'') as LastMaintenanceDate,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end CurrentMaintanceDate,
+DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end) DueDays,
+ case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end OverDue,
+ case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end DueToday,
+ case when (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end) = 0 and (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
 MS.Remarks,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD where MPD.PlannedDate is null) as PlanStatus,
 (select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup,
 DATEDIFF(Day,'" + fromdate + @"','" + todate + @"')/MS.ScheduleDays NoOfScheduleReqFP,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD where MPD.ActualDate is not null) ScheduleCompletedFP,DATEDIFF(day,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD where MPD.ActualDate is not null),(DATEDIFF(Day,'" + fromdate + @"','" + todate + @"')/MS.ScheduleDays)) Difference
@@ -1400,9 +1400,9 @@ DATEDIFF(Day,'" + fromdate + @"','" + todate + @"')/MS.ScheduleDays NoOfSchedule
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id)) end between '" + fromdate + "' and '" + todate + "' group by MS.Id,MMA.Id,E.UserName,MS.UserName,MM.UserName,MM.MachineMake,MM.MachineModel,MS.ScheduleCode,MB.Code,MS.LastMaintenanceDate,MS.ScheduleDays,MS.Remarks,MS.DepartmentId,MS.MaintenanceGroup) X group by NoOfAsset,Id,Entity,ScheduleName,MachineName,Make,Model,ScheduleCode,ResponsiblePersonBudgetCode,Remarks,PlanStatus,Department,MaintenanceGroup,NoOfScheduleReqFP,ScheduleCompletedFP,Difference";
+ where MMA.Id is not null and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + fromdate + "' and '" + todate + "' group by MS.Id,MMA.Id,E.UserName,MS.UserName,MM.UserName,MM.MachineMake,MM.MachineModel,MS.ScheduleCode,MB.Code,MS.LastMaintenanceDate,MS.ScheduleDays,MS.Remarks,MS.DepartmentId,MS.MaintenanceGroup) X group by NoOfAsset,Id,Entity,ScheduleName,MachineName,Make,Model,ScheduleCode,ResponsiblePersonBudgetCode,Remarks,PlanStatus,Department,MaintenanceGroup,NoOfScheduleReqFP,ScheduleCompletedFP,Difference";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
@@ -1417,37 +1417,39 @@ DATEDIFF(Day,'" + fromdate + @"','" + todate + @"')/MS.ScheduleDays NoOfSchedule
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var sql = @"select format(X.LastMaintenanceDate,'dd-MMM-yyyy') as LMD,format(X.CurrentMaintanceDate,'dd-MMM-yyyy') as CMD,X.* from
-(select MS.Id,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
+                var sql = @"select MS.Id,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
 MM.MachineModel Model,MS.ScheduleCode,MB.Code ResponsiblePersonBudgetCode,MA.AssetName,MA.AssetCode,
-WC.UserName WorkCenter,MS.ScheduleDays,isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'') as LastMaintenanceDate,
-Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id)) end CurrentMaintanceDate,
-DateDiff(day,GETDATE(),Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id))end) DueDays,
- case when (Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id))end)<GETDATE() then 1 else 0 end OverDue,
- case when (Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id))end)=GETDATE() then 1 else 0 end DueToday,
- case when (case when (Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id))end)<GETDATE() then 1 else 0 end) = 0 and (case when (Case when isnull((SELECT Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id),'')='' then GETDATE() else (MS.ScheduleDays+(select Max(ActualDate) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- Group BY APD.Id))end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
+WC.UserName WorkCenter,MS.ScheduleDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'') as LastMaintenanceDate,
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end CurrentMaintanceDate,
+DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end) DueDays,
+ case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end OverDue,
+ case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end DueToday,
+ case when (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end) = 0 and (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
 MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup
  from TRN.Maintenancescheduling MS
+--left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null)X where X.CurrentMaintanceDate between '" + fromdate + "' and '" + todate + "' order by X.CurrentMaintanceDate"; ;
+ where MMA.Id is not null and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end between '" + fromdate + "' and '" + todate + "'";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
