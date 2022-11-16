@@ -242,7 +242,7 @@
                 <td>
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="removePreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                            <button ng-click="removePreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
                         </li>
                     </ul>
                 </td>
@@ -322,7 +322,7 @@
                 <td>
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="removeOperationListPreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                            <button ng-click="removeOperationListPreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
                         </li>
                     </ul>
                 </td>
@@ -431,7 +431,7 @@
                 <td>
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="removePreCostingDirectProcess(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+                            <button ng-click="removePreCostingDirectProcess(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
                         </li>
                     </ul>
                 </td>
@@ -460,6 +460,7 @@
                 <th>Res. Person</th>
                 <th>Description</th>
                 <th>Attachment</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -516,11 +517,14 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
+                </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removeOrderPreCostingSalesExpense(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
                 </td>
             </tr>
             <tr>
@@ -532,6 +536,7 @@
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmOrderPreCostingSalesExpensePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOrderPreCostingSalesExpense();"></confirm-archive-generic>
 
 @*Value Loss*@
 <div class="table-responsive modal-table" ng-show="Segment=='ValueLoss' && ModelNew.Id!='' ">
@@ -546,6 +551,7 @@
                 <th>Res. Person</th>
                 <th>Description</th>
                 <th>Attachment</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -600,11 +606,14 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
+                </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removeValueLossPreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
                 </td>
             </tr>
             <tr>
@@ -616,6 +625,7 @@
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmValueLossPreCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteValueLossPreCosting();"></confirm-archive-generic>
 
 @*Profit*@
 <div class="table-responsive modal-table" ng-show="Segment=='Profit' && ModelNew.Id!='' ">
@@ -630,6 +640,7 @@
                 <th>Res. Person</th>
                 <th>Description</th>
                 <th>Attachment</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -686,21 +697,25 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
+                </td>
+                <td>
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="removeOrderPreCostingProfit(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
                 </td>
             </tr>
             <tr>
                 <td style="color:blue;" colspan="4">Total</td>
                 <td class="text-right" style="color: blue;padding-right:4px!important;"><label>{{TotalSegmentedValueByComponent| number:4}}</label></td>
-
             </tr>
         </tbody>
     </table>
 </div>
+
+<confirm-archive-generic modalid="confirmOrderPreCostingProfitPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOrderPreCostingProfit();"></confirm-archive-generic>
 
 <div class="modal-footer common-btn">
     <button ng-click="SaveCostingComponentItems('PRE');" class="btn" tabindex="4"><i class=""></i> Update</button>

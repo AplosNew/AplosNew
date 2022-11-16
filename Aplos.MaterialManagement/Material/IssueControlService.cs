@@ -105,37 +105,41 @@ namespace Library.MaterialManagement.Material
                 var sql = "";
                 var tempsql = "";
 
-                if (storagelevel == "Material" && !string.IsNullOrEmpty(materialTypeId) && string.IsNullOrEmpty(materialGroupMasterId) && string.IsNullOrEmpty(materialMasterId))
+                if ( !string.IsNullOrEmpty(materialTypeId) && string.IsNullOrEmpty(materialGroupMasterId) && string.IsNullOrEmpty(materialMasterId))
                 {
                     tempsql = "MM.MaterialMasterTypeId = '" + materialTypeId + "'";
                 }
-                else if (storagelevel == "Material" && !string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && string.IsNullOrEmpty(materialMasterId))
+                else if ( !string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && string.IsNullOrEmpty(materialMasterId))
                 {
-                    tempsql = "MM.MaterialMasterTypeId = '" + materialTypeId + "' AND MM.MaterialGroupMasterId='" + materialGroupMasterId + "'";
+                    tempsql = "MG.MaterialTypeId = '" + materialTypeId + "' AND MM.MaterialGroupMasterId='" + materialGroupMasterId + "'";
                 }
-                else if (storagelevel == "Material" && !string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && !string.IsNullOrEmpty(materialMasterId))
+                else if ( !string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && !string.IsNullOrEmpty(materialMasterId))
                 {
-                    tempsql = "MM.MaterialMasterTypeId = '" + materialTypeId + "' AND MM.MaterialGroupMasterId='" + materialGroupMasterId + "' AND MM.Id='" + materialMasterId + "'";
+                    tempsql = "MG.MaterialTypeId = '" + materialTypeId + "' AND MM.MaterialGroupMasterId='" + materialGroupMasterId + "' AND MM.Id='" + materialMasterId + "'";
                 }
-                else if (storagelevel == "Material" && string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && !string.IsNullOrEmpty(materialMasterId))
+                else if ( string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && !string.IsNullOrEmpty(materialMasterId))
                 {
                     tempsql = " MM.MaterialGroupMasterId='" + materialGroupMasterId + "' AND MM.Id='" + materialMasterId + "'";
                 }
-                else if (storagelevel == "Material" && string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && string.IsNullOrEmpty(materialMasterId))
+                else if ( string.IsNullOrEmpty(materialTypeId) && !string.IsNullOrEmpty(materialGroupMasterId) && string.IsNullOrEmpty(materialMasterId))
                 {
                     tempsql = " MM.MaterialGroupMasterId='" + materialGroupMasterId + "' ";
                 }
                 if (storagelevel == "Material")
                 {
-                    sql = @"SELECT MM.Id MaterialMasterId,MM.MaterialMasterTypeId,MM.UserName MaterialName,MM.IsMachineApplicable,MM.IsWorkCenterApplicable,MM.OrderLevel 
+                    sql = @"SELECT MM.Id MaterialMasterId,MM.MaterialMasterTypeId,MM.UserName MaterialName,MM.IsMachineApplicable,MM.IsWorkCenterApplicable,MM.OrderLevel,DE.UserName OrderLevelText
                             FROM MST.MaterialMaster MM
+                            LEFT JOIN MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
+							LEFT JOIN dbo.DefineEnum DE ON DE.Id=MM.OrderLevel
                             WHERE " + tempsql + "";
                 }
                 else
                 {
-                    sql = @"SELECT MMA.MaterialMasterId,MM.MaterialMasterTypeId,MM.UserName MaterialName,MMA.IsMachineApplicable,MMA.IsWorkCenterApplicable,MMA.OrderLevel 
+                    sql = @"SELECT MMA.Id,MMA.MaterialMasterId,MG.MaterialTypeId,MM.UserName MaterialName,MMA.StandardName ArticleName,MMA.IsMachineApplicable,MMA.IsWorkCenterApplicable,MMA.OrderLevel ,DE.UserName OrderLevelText
                            FROM  MST.MaterialMasterArticle MMA
                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=MMA.MaterialMasterId
+                           LEFT JOIN MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
+                           LEFT JOIN dbo.DefineEnum DE ON DE.Id=MMA.OrderLevel
                            WHERE " + tempsql + "";
                 }
                 return _sqlRepository.GetDataCollection(sql);
@@ -242,16 +246,17 @@ namespace Library.MaterialManagement.Material
                 throw ex;
             }
         }
-        public List<Dictionary<string, object>> UpdateMaterialMasterForIssueControl(List<Dictionary<string, object>> data, string materiallevel, string materialIds)
+        public List<Dictionary<string, object>> UpdateMaterialMasterForIssueControl(List<Dictionary<string, object>> data, string materialIds)
         {
             try
             {
                 DataSet dsMaster;
+                DataSet dsArticleMaster;
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from MST.MaterialMaster where Id in (" + materialIds + ")", out dsMaster, false, "1");
-                if (materiallevel == "Material")
-                {
+                con.OpenDataSetThroughAdapter("select * from MST.MaterialMasterArticle where MaterialMasterId in (" + materialIds + ")", out dsArticleMaster, false, "1");
+                
                     for (int i = 0; i < data.Count; i++)
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + data[i]["MaterialMasterId"].ToString() + "'";
@@ -263,13 +268,60 @@ namespace Library.MaterialManagement.Material
                             dr["IsMachineApplicable"] = data[i]["IsMachineApplicable"];
                             dr["IsWorkCenterApplicable"] = data[i]["IsWorkCenterApplicable"];
                             dr["OrderLevel"] = data[i]["OrderLevel"];
-                            //dsMaster.Tables[0].Rows.Add(dr);
                             dr.EndEdit();
+                        DataView dv = new DataView(dsArticleMaster.Tables[0]);
+                        dv.RowFilter = "MaterialMasterId='" + data[i]["MaterialMasterId"].ToString() + "'";
+
+                        for (int j = 0; j < dv.Count; j++)
+                        {
+                                DataRow drmo = dv[j].Row;
+                                drmo.BeginEdit();
+                                drmo["MaterialMasterId"] = data[i]["MaterialMasterId"];
+                                drmo["IsMachineApplicable"] = data[i]["IsMachineApplicable"];
+                                drmo["IsWorkCenterApplicable"] = data[i]["IsWorkCenterApplicable"];
+                                drmo["OrderLevel"] = data[i]["OrderLevel"];
+                                drmo.EndEdit();
                         }
                     }
-                }
+                    }
+                   
+                
+               
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsArticleMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<Dictionary<string, object>> UpdateMaterialMasterArticleForIssueControl(List<Dictionary<string, object>> data, string materialIds)
+        {
+            try
+            {
+                DataSet dsArticleMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from MST.MaterialMasterArticle where Id in (" + materialIds + ")", out dsArticleMaster, false, "1");
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        dsArticleMaster.Tables[0].DefaultView.RowFilter = "Id='" + data[i]["Id"].ToString() + "'";
+                        if (dsArticleMaster.Tables[0].DefaultView.Count > 0)
+                        {
+                            DataRow dra = dsArticleMaster.Tables[0].DefaultView[0].Row;
+                            dra.BeginEdit();
+                            dra["IsMachineApplicable"] = data[i]["IsMachineApplicable"];
+                            dra["IsWorkCenterApplicable"] = data[i]["IsWorkCenterApplicable"];
+                            dra["OrderLevel"] = data[i]["OrderLevel"];
+                            //dsMaster.Tables[0].Rows.Add(dr);
+                            dra.EndEdit();
+                        }
+                    }
+              
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsArticleMaster);
 
                 return data;
             }

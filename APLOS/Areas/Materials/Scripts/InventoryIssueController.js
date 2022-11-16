@@ -110,7 +110,10 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
 
     $scope.MaterialArticleList = [];
+    $scope.MaterialLevelList = [];
     $scope.ViewMaterialAndArticle = function () {
+        $scope.MaterialArticleList = [];
+        $scope.MaterialLevelList = [];
         $http({
             method: 'POST',
             url: $scope.path + "GetMaterialAndArticle",
@@ -122,7 +125,10 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.MaterialArticleList = response.data;
+            if ($scope.ModelNew.MaterialLevel =='Article')
+                $scope.MaterialArticleList = response.data;
+            else
+                $scope.MaterialLevelList = response.data;
         })
     }
 
@@ -313,15 +319,32 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
 
     // #region Save Item Applicable
     $scope.Apply = function () {
-        var orderLevelTex = $.grep($scope.EnumList, function (item) {
+        var orderLevelText = $.grep($scope.EnumList, function (item) {
             return item.Value == $scope.ModelNew.OrderLevel;
         })[0].Text;
-        for (var i = 0; i < $scope.MaterialArticleList.length; i++) {
-            $scope.MaterialArticleList[i].IsMachineApplicable = $scope.ModelNew.IsMachineApplicable
-            $scope.MaterialArticleList[i].IsWorkCenterApplicable = $scope.ModelNew.IsWorkCenterApplicable
-            $scope.MaterialArticleList[i].OrderLevelTex = orderLevelTex
-            $scope.MaterialArticleList[i].OrderLevel = $scope.ModelNew.OrderLevel
+        if ($scope.ModelNew.MaterialLevel == 'Article') {
+            for (var i = 0; i < $scope.MaterialArticleList.length; i++) {
+                $scope.MaterialArticleList[i].IsMachineApplicable = $scope.ModelNew.IsMachineApplicable
+                $scope.MaterialArticleList[i].IsWorkCenterApplicable = $scope.ModelNew.IsWorkCenterApplicable
+                $scope.MaterialArticleList[i].OrderLevelText = orderLevelText
+                $scope.MaterialArticleList[i].OrderLevel = $scope.ModelNew.OrderLevel
+            }
         }
+        if ($scope.ModelNew.MaterialLevel == 'Material') {
+            for (var i = 0; i < $scope.MaterialLevelList.length; i++) {
+                $scope.MaterialLevelList[i].IsMachineApplicable = $scope.ModelNew.IsMachineApplicable
+                $scope.MaterialLevelList[i].IsWorkCenterApplicable = $scope.ModelNew.IsWorkCenterApplicable
+                $scope.MaterialLevelList[i].OrderLevelText = orderLevelText
+                $scope.MaterialLevelList[i].OrderLevel = $scope.ModelNew.OrderLevel
+            }
+        }
+        
+        var gridObj = $("#GridMaterial").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        var gridArticleObj = $("#GridArticle").data("ejGrid");
+        gridArticleObj.refreshContent(true);
+        gridArticleObj.refreshTemplate();
     }
     //have to update
     $scope.SaveItemApplicable = function () {
@@ -356,33 +379,62 @@ function IssueControlController(cboService, commonMessage, $scope, $rootScope, b
      // #endregion Save Item Applicable
 
     $scope.SaveIssueControlChild = function () {
-        var materialMasterIds = "''";
-        for (var m = 0; m < $scope.MaterialArticleList.length; m++) {
-            materialMasterIds += ",'" + $scope.MaterialArticleList[m].MaterialMasterId + "'";
-        }
-        $scope.$broadcast('show-errors-check-validity');
-        $http({
-            method: 'POST',
-            url: $scope.path + 'UpdateMaterialMasterForIssueControl',
-            data: {
-                'data': $scope.MaterialArticleList,
-                'materiallevel': $scope.ModelNew.MaterialLevel,
-                'materialMasterIds': materialMasterIds
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+        if ($scope.ModelNew.MaterialLevel == 'Material') {
+            var materialMasterIds = "''";
+            for (var m = 0; m < $scope.MaterialLevelList.length; m++) {
+                materialMasterIds += ",'" + $scope.MaterialLevelList[m].MaterialMasterId + "'";
+            }
+            $scope.$broadcast('show-errors-check-validity');
+            $http({
+                method: 'POST',
+                url: $scope.path + 'UpdateMaterialMasterForIssueControl',
+                data: {
+                    'data': $scope.MaterialLevelList,
+                    'materiallevel': $scope.ModelNew.MaterialLevel,
+                    'materialMasterIds': materialMasterIds
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.tempList = [];
+                    $scope.GetIssue();
+                }
+            }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.tempList = [];
-                $scope.GetIssue();
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
         }
-
+        else {
+            var materialMasterIds = "''";
+            for (var m = 0; m < $scope.MaterialArticleList.length; m++) {
+                materialMasterIds += ",'" + $scope.MaterialArticleList[m].Id + "'";
+            }
+            $scope.$broadcast('show-errors-check-validity');
+            $http({
+                method: 'POST',
+                url: $scope.path + 'UpdateMaterialMasterForIssueControl',
+                data: {
+                    'data': $scope.MaterialArticleList,
+                    'materiallevel': $scope.ModelNew.MaterialLevel,
+                    'materialMasterIds': materialMasterIds
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.tempList = [];
+                    $scope.GetIssue();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
     };
     // #endregion SAVE CHILD
 
