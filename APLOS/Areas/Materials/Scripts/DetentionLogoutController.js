@@ -1,6 +1,6 @@
 ﻿'use strict';
-DetentionLogoutController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
-function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+DetentionLogoutController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window", "$route"];
+function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $route) {
     $rootScope.title = "Detention Logout";
     $scope.Action = 'Save';
     $scope.path = 'Materials/DetentionLogout/';
@@ -221,7 +221,8 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
             else {
                 //$scope.SaveResponsiblePerson();
                 ShowResult(response.data.Message, 'success');
-
+                $scope.Clear();
+                $route.reload();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -454,6 +455,29 @@ function DetentionLogoutController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.getMachineMasterAsset();
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+
+    function ClearFields() {
+        LogTime = new Date();
+        $scope.Action = 'Save';
+        $scope.ModalNew = {
+            Id: null,
+            DetentionTypeId: null,
+            WorkCenterId: null,
+            Remarks: null,
+
+        };
+        $scope.getIssueByNo();
+        $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
+        $scope.userResponsiblePersonList = [];
+
+        //ob = {};
+    }
 
     // #region Reports
 

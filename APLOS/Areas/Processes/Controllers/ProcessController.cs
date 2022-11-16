@@ -84,10 +84,10 @@ namespace Aplos.Areas.Processes.Controllers
 		}
 		[HttpGet, Authorize]
 
-		public JsonResult GetProductionProcessList(GridParameter parameters)
+		public JsonResult GetProductionProcessList(GridParameter parameters, string productionOrderId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_processService.GetProductionProcessList(parameters, identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+			return Json(_processService.GetProductionProcessList(parameters, identity.CompanyGroupId, identity.CompanyId, productionOrderId), JsonRequestBehavior.AllowGet);
 		}
 
 		[HttpPost]

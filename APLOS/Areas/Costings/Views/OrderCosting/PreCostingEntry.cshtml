@@ -8,6 +8,7 @@
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th style="width: 150px !important">Costing Item</th>
                 <th style="width: 60px !important">Sub Material</th>
                 <th style="width: 15px !important">Seq.No.</th>
@@ -47,12 +48,19 @@
 
                 <th>IsUDApplicable</th>
                 <th>Attachment</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
 
             <tr ng-repeat="x in DirectMaterialList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removePreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
+
                 <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
                 <td style="min-width:60px;">
                     <span class="input-group-btn">
@@ -239,13 +247,6 @@
                         </a>
                     </div>
                 </td>
-                <td>
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="removePreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
-                        </li>
-                    </ul>
-                </td>
             </tr>
             <tr style="border:1px solid #dcdcdc !important">
                 <td>Total</td>
@@ -265,17 +266,24 @@
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Costing Item</th>
                 <th>Seq.No.</th>
                 <th class="text-right">Value</th>
                 <th>Res. Person</th>
                 <th>Description</th>
                 <th>Attachment</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat="x in OperationList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removeOperationListPreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
                 <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
 
                 <td>
@@ -313,18 +321,7 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
-                </td>
-                <td>
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="removeOperationListPreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
-                        </li>
-                    </ul>
                 </td>
             </tr>
             <tr>
@@ -350,6 +347,7 @@
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Costing Item</th>
                 <th>Seq.No.</th>
                 <th>Execution Type</th>
@@ -359,11 +357,17 @@
                 <th>Res. Person</th>
                 <th>Description</th>
                 <th>Attachment</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat="x in DirectProcessList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removePreCostingDirectProcess(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
                 <td style="width:160px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
 
                 <td>
@@ -422,19 +426,8 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
-                </td>
-                <td>
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="removePreCostingDirectProcess(x);" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
-                        </li>
-                    </ul>
-                </td>
+                  </td>
             </tr>
             <tr>
                 <td colspan="5" style="color:blue;">Total</td>
@@ -452,6 +445,7 @@
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Costing Item</th>
                 <th>Seq.No.</th>
                 <th>Type</th>
@@ -464,6 +458,13 @@
         </thead>
         <tbody>
             <tr ng-repeat="x in SalesExpenseList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removeOrderPreCostingSalesExpense(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
                 <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
 
                 <td style="width:40px!important;">
@@ -516,11 +517,7 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
                 </td>
             </tr>
             <tr>
@@ -532,12 +529,14 @@
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmOrderPreCostingSalesExpensePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOrderPreCostingSalesExpense();"></confirm-archive-generic>
 
 @*Value Loss*@
 <div class="table-responsive modal-table" ng-show="Segment=='ValueLoss' && ModelNew.Id!='' ">
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Costing Item</th>
                 <th>Seq.No.</th>
                 <th>Type</th>
@@ -550,6 +549,13 @@
         </thead>
         <tbody>
             <tr ng-repeat="x in ValueLossList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removeValueLossPreCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
                 <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
                 <td style="width:40px!important;">
 
@@ -600,11 +606,7 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
                 </td>
             </tr>
             <tr>
@@ -616,12 +618,14 @@
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmValueLossPreCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteValueLossPreCosting();"></confirm-archive-generic>
 
 @*Profit*@
 <div class="table-responsive modal-table" ng-show="Segment=='Profit' && ModelNew.Id!='' ">
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Costing Item</th>
                 <th>Seq.No.</th>
                 <th>Type</th>
@@ -634,6 +638,13 @@
         </thead>
         <tbody>
             <tr ng-repeat="x in ProfitList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removeOrderPreCostingProfit(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
                 <td style="width:102px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
 
                 <td style="width:80px!important;">
@@ -686,21 +697,18 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
                 </td>
             </tr>
             <tr>
                 <td style="color:blue;" colspan="4">Total</td>
                 <td class="text-right" style="color: blue;padding-right:4px!important;"><label>{{TotalSegmentedValueByComponent| number:4}}</label></td>
-
             </tr>
         </tbody>
     </table>
 </div>
+
+<confirm-archive-generic modalid="confirmOrderPreCostingProfitPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOrderPreCostingProfit();"></confirm-archive-generic>
 
 <div class="modal-footer common-btn">
     <button ng-click="SaveCostingComponentItems('PRE');" class="btn" tabindex="4"><i class=""></i> Update</button>

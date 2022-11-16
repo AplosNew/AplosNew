@@ -380,18 +380,18 @@ namespace Library.MaterialManagement.Material
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string str = @"select distinct E.SystemId as ResponsiblePersonId, E.CellPhnNo ,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
-                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId,
-					 DLRP.isActive, DLRP.Id
+                           SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],
+					 DLRP.isActive
 						   from DetentionMasterResponsible DR
                            left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
                             LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
 							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
-							Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
+							Left join (select * from TRN.DetentionLogResponsiblePerson where Id in ('DLRP-16', 'DLRP-2114')) DLRP on DLRP.ResponsiblePersonId = E.SystemId
                             left join dbo.DetentionMaster DM on DM.Id = DR.DetentionMasterId
 							left join hkp.DetentionType DT on DT.Id = DM.DetentionTypeId
-							where DT.Id = '"+ detentionTypeId + "'";
+							--where DT.Id = '" + detentionTypeId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -422,7 +422,7 @@ namespace Library.MaterialManagement.Material
                 
                 string sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType, format(DL.AddedDate, 'dd-MMM-yyyy hh:mm') LoginTime, DL.IssueByNo, DL.Remarks , 
 WM.Id WorkCenterId ,  DT.Id DetentionTypeId, format(DL.LogoutTime, 'dd-MMM-yyyy hh:mm') CloseTime,  ISNULL(DL.isClose,0) isClose,
-P.UserName Process,  DL.ProcessId, DL.DepartmentId, DP.UserName Department
+P.UserName Process,  DL.ProcessId, DL.DepartmentId, DP.UserName Department, DL.UpdateRemarks
 from TRN.DetentionLog DL
 left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
                                 left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
@@ -691,9 +691,146 @@ left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
         #region REPORTS
         public IEnumerable<object> GetClosedDetentionGridReport(string from, string to, string departmentId, string detentionTypeId)
         {
+            var sql = "";
             try
             {
-                var sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+                if (departmentId == "null" && detentionTypeId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
+							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                            where DL.LogoutTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.isClose = 1";
+
+
+                }
+                else if (departmentId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
+							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                                where DL.LogoutTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
+
+                }
+                else if (detentionTypeId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
+							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                                where DL.LogoutTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
+								 and  DL.isClose = 1";
+                }
+                
+                else
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
 FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
                             P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
@@ -734,6 +871,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
                                 where DL.LogoutTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
+                }
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -745,9 +883,146 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
         #region FOR EXCEL VIEW DOWNLOAD
         public void GetClosedDetentionExcelReport(string from, string to, string departmentId, string detentionTypeId, out DataTable data)
         {
+            var sql = "";
             try
             {
-                var sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+                if (departmentId == "null" && detentionTypeId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
+							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                            where DL.LogoutTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.isClose = 1";
+
+
+                }
+                else if (departmentId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
+							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                                where DL.LogoutTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
+
+                }
+                else if (detentionTypeId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, FORMAT(DL.LogoutTime, 'dd-MMM-yyyy')LogoutDate,
+							FORMAT(DL.LogoutTime, 'hh:mm tt')LogoutTime,
+isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                                where DL.LogoutTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
+								 and  DL.isClose = 1";
+                }
+                
+                else
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
 FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
                             P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
@@ -788,6 +1063,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
                                 where DL.LogoutTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
+                }
                 data =  _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
@@ -798,9 +1074,140 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
 
         public IEnumerable<object> GetPendingDetentionGridView(string from, string to, string departmentId, string detentionTypeId)
         {
+            var sql = "";
             try
             {
-                var sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+                if (departmentId == "null" && detentionTypeId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+                            FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName MachineMaster,  DL.ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, P.UserName Process,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and  DL.isClose <> 1";
+
+
+                }
+                else if (departmentId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+                            FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName MachineMaster,  DL.ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, P.UserName Process,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                            where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose <> 1";
+
+                }
+                else if (detentionTypeId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+                            FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName MachineMaster,  DL.ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, P.UserName Process,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
+								 and  DL.isClose <> 1";
+                }
+                
+                else
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
                             FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
                             P.UserName MachineMaster,  DL.ProcessId, DL.AddedBy, DL.AddedFromIP
@@ -839,6 +1246,8 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
                                 where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose <> 1";
+                }
+
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -851,7 +1260,138 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
         {
             try
             {
-                var sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+                var sql = "";
+                if (departmentId == "null" && detentionTypeId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+                            FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName MachineMaster,  DL.ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, P.UserName Process,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and  DL.isClose <> 1";
+
+
+                }
+                else if (departmentId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+                            FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName MachineMaster,  DL.ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, P.UserName Process,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                            where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose <> 1";
+
+                }
+                else if (detentionTypeId == "null")
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+                            FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
+                            WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
+                            P.UserName MachineMaster,  DL.ProcessId, DL.AddedBy, DL.AddedFromIP
+                            ,  DP.UserName Department, DL.DepartmentId, P.UserName Process,
+                            STUFF((select ',' +  X.SystemId
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonId,
+                            STUFF((select ',' +  X.EmployeeName
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ResponsiblePersonName,
+                            STUFF((select ',' +  X.CellPhnNo
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') ContactNo,
+							STUFF((select ',' +  DLR.Id
+                            From TRN.DetentionLogResponsiblePerson DLR
+                            left join EmployeeInformation X on X.SystemId = DLR.ResponsiblePersonId
+                            where DLR.DetentionLogId = DL.Id and DLR.isActive = 1
+                            FOR XML PATH('')
+                            ),1,1,'') DLRPId
+                            from TRN.DetentionLog DL
+                            left join TRN.DetentionLogResponsiblePerson  DLR on DLR.DetentionLogId = DL.Id
+                            left join SCS.WorkCenterMaster WM on WM.Id = DL.WorkCenterId
+                            left join HKP.DetentionType DT on DT.Id = DL.DetentionTypeId
+                            left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.DetentionLogId = DL.Id
+                            left join EmployeeInformation EI on EI.SystemId = DLRP.ResponsiblePersonId
+                            left join HKP.Process P on P.Id = DL.ProcessId
+                            left join ORG.Department DP on DP.Id = DL.DepartmentId
+                                where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
+								 and  DL.isClose <> 1";
+                }
+
+                else
+                {
+                    sql = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
                             FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
                             P.UserName MachineMaster,  DL.ProcessId, DL.AddedBy, DL.AddedFromIP
@@ -890,6 +1430,7 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime)/60, 0)Duration,
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
                                 where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose <> 1";
+                }
                 data = _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
