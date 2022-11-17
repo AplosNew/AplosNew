@@ -59,6 +59,10 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
                 method: 'Get',
                 url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDateMD + '&FromDate=' + $scope.statusNew.FromDateMD
             }).then(function successCallback(response) {
+                //for (var i = 0; i < response.data.length; i++) {
+                //    response.data[i]["LMD"] = new Date(response.data[i]["LMD"]);
+                //    response.data[i]["CMD"] = new Date(response.data[i]["CMD"]);
+                //}
                 $scope.MaintenanceStatusDetailsList = response.data;
                 var gridObj = $("#GridMaintenanceStatusDetails").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
             }

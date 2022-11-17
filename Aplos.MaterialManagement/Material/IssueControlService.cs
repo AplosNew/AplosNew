@@ -127,7 +127,7 @@ namespace Library.MaterialManagement.Material
                 }
                 if (storagelevel == "Material")
                 {
-                    sql = @"SELECT MM.Id MaterialMasterId,MM.MaterialMasterTypeId,MM.UserName MaterialName,MM.IsMachineApplicable,MM.IsWorkCenterApplicable,MM.OrderLevel,DE.UserName OrderLevelText
+                    sql = @"SELECT MM.Id MaterialMasterId,MM.MaterialMasterTypeId,MM.UserName MaterialName,MM.IsMachineApplicable,MM.IsWorkCenterApplicable,MM.OrderLevel,DE.UserName OrderLevelText,0 isSelected
                             FROM MST.MaterialMaster MM
                             LEFT JOIN MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
 							LEFT JOIN dbo.DefineEnum DE ON DE.Id=MM.OrderLevel
@@ -135,7 +135,7 @@ namespace Library.MaterialManagement.Material
                 }
                 else
                 {
-                    sql = @"SELECT MMA.Id,MMA.MaterialMasterId,MG.MaterialTypeId,MM.UserName MaterialName,MMA.StandardName ArticleName,MMA.IsMachineApplicable,MMA.IsWorkCenterApplicable,MMA.OrderLevel ,DE.UserName OrderLevelText
+                    sql = @"SELECT MMA.Id,MMA.MaterialMasterId,MG.MaterialTypeId,MM.UserName MaterialName,MMA.StandardName ArticleName,MMA.IsMachineApplicable,MMA.IsWorkCenterApplicable,MMA.OrderLevel ,DE.UserName OrderLevelText,0 isSelected
                            FROM  MST.MaterialMasterArticle MMA
                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=MMA.MaterialMasterId
                            LEFT JOIN MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId

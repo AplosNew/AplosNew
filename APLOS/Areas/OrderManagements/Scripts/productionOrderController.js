@@ -1087,7 +1087,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             return ShowResult('Please at first select required time unit.', 'failure');
 
 
-        $scope.popUpProcessUrl = 'Processes/Process/GetProductionProcessList';
+        $scope.popUpProcessUrl = 'Processes/Process/GetProductionProcessList?productionOrderId=' + $scope.model.Id;
         $scope.getProcessData = function (pageno) {
             baseService.paginationBase($scope.popUpProcessUrl, pageno, $scope.processPopUpParameters)
                 .then(function (result) {
