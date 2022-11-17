@@ -9,17 +9,28 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
-    var firstDay = new Date(y, m, 1);
+    date.setDate(date.getDate() + 7);
+    /*var firstDay = new Date(y, m, 1);*/
+   
     $scope.status = {
         Id: null,
-        FromDate: $filter('dateFiltering')(firstDay),
-        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
-        FromDateMD: $filter('dateFiltering')(firstDay),
-        ToDateMD: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+        FromDate: null,
+        ToDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
+        FromDateMD: null,
+        ToDateMD: $filter('dateFiltering')(date, 'dd-MM-yyyy')
     };
     $scope.statusNew = Object.assign({}, $scope.status);
 
-    
+    $scope.GetFromDateList = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/MaintenanceStatusDetails/GetFromDateList'
+        }).then(function successCallback(response) {
+            $scope.statusNew.FromDate = response.data[0];
+            $scope.statusNew.FromDateMD = response.data[0];
+        });
+    }
+    $scope.GetFromDateList();
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {

@@ -56,6 +56,23 @@ namespace Aplos.Areas.Machines.Controllers
         #endregion -- Pages
 
         #region -- Operations
+
+        [Authorize, HttpGet]
+        public JsonResult GetFromDateList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Top 1
+ (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id ASC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id ASC)),'dd-MMM-yyyy')end) FromDate
+ from TRN.Maintenancescheduling MS
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left Join  [TRN].[MachineAssetPlannedDetails] MPD ON MPD.AssetId=MMA.Id
+ Order By MPD.Id ASC";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpGet]
         public ActionResult LoadMaintenanceStatusDetailsList(string ToDate,string FromDate)
         {
