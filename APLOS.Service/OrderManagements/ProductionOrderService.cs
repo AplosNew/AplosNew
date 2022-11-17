@@ -412,7 +412,7 @@ namespace Library.Service.OrderManagements
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-					   LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id
+					   --LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id
 
 
 							LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
