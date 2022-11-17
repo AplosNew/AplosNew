@@ -1700,11 +1700,15 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     };
     $scope.checkedOutBoundInvoiceList = [];
     $scope.CustomerAvailableInvoiceList = [];
+    $scope.searchByCustomer = "UserName"; $scope.searchCustomer = "";
+    $scope.searchByCustomerList = [{ value: 'VoucherNo', name: "VoucherNo" }, { value: 'EntityName', name: "Entity" }, { value: 'PartyPlantName', name: "Party" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'DocDate', name: "DocDate" }, { value: 'PostingDate', name: "PostingDate" }, { value: 'DocRefNo', name: "DocRefNo" }];
+
     $scope.showOutBoundInvoicePopUp = function () {
         try {
             $http({
-                method: 'GET',
-                url: 'accounts/CustomerInvoice/GetCustomerAvailableReceivableData',
+                method: 'POST',
+                url: 'accounts/CustomerInvoice/GetCustomerAllReceivableData',
+                data: { column: $scope.searchByCustomer, value: $scope.searchCustomer },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.CustomerAvailableInvoiceList = response.data;

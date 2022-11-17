@@ -609,6 +609,8 @@
     <Compile Include="SalaryDisbursement\ISalaryDisbursementService.cs" />
     <Compile Include="SalesManagements\ISalesService.cs" />
     <Compile Include="SalesManagements\SalesService.cs" />
+    <Compile Include="Securites\IUserAccessAppService.cs" />
+    <Compile Include="Securites\UserAccessAppService.cs" />
     <Compile Include="Setups\EntityConfigService.cs" />
     <Compile Include="Setups\IEntityConfigService.cs" />
     <Compile Include="Setups\IEmployeeAttendaceGroupService.cs" />
