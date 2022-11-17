@@ -68,7 +68,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsInvoiceService.GetCustomerAllInvoiceList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, string column, string value), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInvoiceService.GetCustomerAllInvoiceList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
         }
 
 
