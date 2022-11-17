@@ -105,7 +105,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
 
         $http({
             method: 'POST',
-            url: $scope.path + "ProductionDataXls",
+            url: $scope.path + "ViewData",
             data: { 'parameters': $scope.parameters },
             dataType: 'JSON'
         }).then(function successCallback(response) {

@@ -420,6 +420,18 @@ namespace Aplos.Areas.Productions.Controllers
                 int colWIP = COL;
 
                 COL++;
+                sheet[ROW, COL].Text = "UpToDate Production";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colUpToDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Current Production";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colCurrent = COL;
+
+                COL++;
                 sheet[ROW, COL].Text = "First Book Date";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -507,6 +519,10 @@ namespace Aplos.Areas.Productions.Controllers
                     //    sheet[ROW, colWIP].Formula = "IF(MAX($H$7:$H$1799<>H40),0,IF(C40=1,0,SUMIFS($T$7:$T$1799,$C$7:$C$1799,C40-1,$I$7:$I$1799,I40)-SUMIFS($T$7:$T$1799,$C$7:$C$1799,C40,$I$7:$I$1799,I40)))";
 
                     sheet[ROW, colWIP].Formula = "IF(MAX($" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + LastRow.ToString() + "<>" + clsStaticInfo.GetxlsCol(colPlanDate) + ROW.ToString() + "),0,IF(" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "=1,0,SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "-1,$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")-SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")))";
+
+                    sheet[ROW, colUpToDate].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "-1,$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + "))";
+
+                    sheet[ROW, colCurrent].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")";
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
