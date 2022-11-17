@@ -63,49 +63,16 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 var sql = @"SELECT * FROM ( SELECT  
                                         isnull(e.Id,'') AS EntityId,isnull(e.UserName,'') Entity,
-										pln.Id PlantId,Pln.UserName Plant,
                                         isnull(ps.Id,'') AS ProductionStatusId, isnull(ps.UserName,'') AS ProductionStatus
-										,PO.Id ProductionOrderId
-                                      , ResponsiblePersonId=STUFF((select distinct ','+XMO.ResponsiblePersonId from 
-	                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join dbo.EmployeeInformation XEmp on XEmp.SystemId=XMO.ResponsiblePersonId
-			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-	                                         , ResponsiblePerson=STUFF((select distinct ','+XEmp.EmployeeName from 
-	                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join dbo.EmployeeInformation XEmp on XEmp.SystemId=XMO.ResponsiblePersonId
-			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,PO.Id ProductionOrderId,PRS.LotNumber
+                                      , PRS.ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,PRS.ProductLibraryId, PL.Code ProductCode
                                                    , Buyer=STUFF((select distinct ','+XB.UserName from 
 	                                                    trn.SalesOrder XSO 
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-
-														 SOStatusId=STUFF((select distinct ','+XB.Id from 
-	                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join [HKP].OrderStatus XB on XB.Id=XSO.OrderStatusId
-			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-
-
-													
-																 MOStatusId=STUFF((select distinct ','+XB.Id from 
-	                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join [HKP].OrderStatus XB on XB.Id=XMO.OrderStatusId
-			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),																												
 		
 													 BuyerId=STUFF((select distinct ','+XB.Id from 
 	                                                    trn.SalesOrder XSO 
@@ -131,17 +98,13 @@ namespace Aplos.Areas.Productions.Controllers
 		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')                                                 
 
-
-                                        from trn.ProductionOrder PO
-				                                inner join ProductionOrderSchedulingParametersType1 T1 on t1.ProductionOrderID=po.Id
-												
-				                              
+                                        from TRN.ProductionSummary PRS
+												left join trn.ProductionOrder PO ON PO.Id=PRS.ProductionOrderId
+												left join dbo.EmployeeInformation EI ON EI.SystemId=PRS.ResponsiblePersonId
 				                                left outer join org.Entity E on e.Id=PO.EntityID
-				                             
-				                                left outer join org.Plant PLN on pln.Id=E.PlantId
 				                                LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
-
-                              WHERE  PO.ProductionStatusId<>'Closed'
+												LEFT OUTER JOIN dbo.ProductLibrary PL ON PL.Id=PRS.ProductLibraryId
+                              WHERE  PS.UserName<>'Closed'
                                 ) AS KK	";
                 return _sqlRepository.GetDataCollection(sql);
             }
