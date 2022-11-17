@@ -37,7 +37,6 @@ namespace Library.Service.Materials
         IEnumerable<object> GetMaterialMasterAttribute(string masterId);
 
         IEnumerable<object> GetMaterialMasterAttributeList(string materialMasterId);
-
         IEnumerable<object> GetMaterialMasterCharacteristics(string masterId);
 
         GridModel GetCommonMachineListByProcess(GridParameter parameters, string companyGroupId, string[] processIds);

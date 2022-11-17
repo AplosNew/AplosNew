@@ -36,7 +36,8 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
                     { field: 'AssetName', width: 20, headerText: "Asset/Machine", type: "string" },
                     { field: 'WorkCenter', width: 20, headerText: "Work Center", type: "string" },
                     { field: 'ResponsiblePersonBudgetCode', width: 20, headerText: "Responsible Person Budget Code", type: "string" },
-                    { field: 'Entity', width: 20, headerText: "Entity", type: "string" }
+                    { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                    { field: 'ActionableResponsiblePerson', width: 20, headerText: "Actionable Responsible Person", type: "string" }
                 ];
                 $("#filters").ejGrid({
                     dataSource: $scope.filters,
@@ -72,6 +73,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         parameters.push({ "Key": "WorkCenterMasterId", "Value": getString(fl, "WorkCenterMasterId") });
         parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
         parameters.push({ "Key": "ResponsiblePersoneBgtCodeId", "Value": getString(fl, "ResponsiblePersoneBgtCodeId") });
+        parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
        
 
         $scope.parameters = parameters;
@@ -123,36 +125,21 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
 
     $scope.rowDataBound = function rowDataBound(e) {
 
-        //if (new Date(e.data.PlannedDate) < new Date($scope.statusNew.ToDate))
-        //{
-        //    e.row.css("background-color", '#FFA500');
-        //}
-        //else if (new Date(e.data.PlannedDate) > new Date($scope.statusNew.ToDate))
-        //{
-           
-        //    e.row.css("background-color", '#FFFFFF');
-        //}
-
-        //else
-        //{
-        //    e.row.css("background-color", '#d1e5ff');
-
-        //}
-
-        if (e.data.OverDue > 0) {
+        if (new Date(e.data.PlannedDate) < new Date($scope.statusNew.ToDate))
+        {
             e.row.css("background-color", '#FFA500');
         }
-        else if (e.data.OverDue === 0 && e.data.DueToday > 0) {
-
-            e.row.css("background-color", '#d1e5ff');
-        }
-
-        else {
+        else if (new Date(e.data.PlannedDate) > new Date($scope.statusNew.ToDate))
+        {
+           
             e.row.css("background-color", '#FFFFFF');
-
         }
 
+        else
+        {
+            e.row.css("background-color", '#d1e5ff');
 
+        }
     }
 
     $scope.refreshTemplateResponsiblePerson = function (args) {
@@ -262,7 +249,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
   
     $scope.MaintenanceStatusPlannedDetailsList = [];
     $scope.GetAssetPopUp = function (data) {
-     
+        $scope.PlannedId = data.data.PlannedId;
         $http({
             method: 'Get',
             url: 'Machines/MaintenanceStatusDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + data.data.PlannedId
@@ -364,12 +351,19 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         }
     };
 
-    //$scope.FileDownloadPending = function (data) {
-    //    $scope.dwonloadUrl = null;
-    //    var str = data.FileName;
-    //    var extention = str.substr(str.indexOf('.'));
-    //    $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.PlannedId + extention;
-    //};
+    $scope.getFileList = function () {
+
+        $http({
+            method: 'Get',
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.PlannedId 
+        }).then(function successCallback(response) {
+            $scope.MaintenanceStatusPlannedDetailsList = response.data;
+            var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#MachineAssetPop')).modal('show');
+        }
+        )
+    }
+
 
 
     //#endregion
