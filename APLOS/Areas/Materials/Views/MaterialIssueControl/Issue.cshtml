@@ -138,7 +138,7 @@
                         <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Ref#" e-width="80"></div>
                         <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
                         <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
-                        <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
+                        <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="100"></div>
                         <div e-column e-type="string" e-field="SOArticle" e-headertext="Article" e-width="160px"></div>
                         <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
                         <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="75"></div>
@@ -151,13 +151,28 @@
                         <div e-column e-type="number" e-format="{0:0.0000}" e-field="SOTotalMaterailCost" e-headertext="SOTotalMaterailCost" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.0000}" e-field="CostingTotalMaterialCost" e-headertext="CostingTotalMaterialCost" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.0000}" e-field="BOQTotalCost" e-headertext="BOQTotalCost" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="number" e-field="TotalVarianceCostingVsSO" e-headertext="TotalVarianceCostingVsSO" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="number" e-field="TotalVarianceCostingVsBOQ" e-headertext="TotalVarianceCostingVsBOQ" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-template="#TotalVarianceCostingVsSOTemplate" e-field="TotalVarianceCostingVsSO" e-headertext="TotalVarianceCostingVsSO" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-template="#TotalVarianceCostingVsBOQTemplate" e-field="TotalVarianceCostingVsBOQ" e-headertext="TotalVarianceCostingVsBOQ" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlanRate" e-headertext="PlanRate" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlantCost" e-headertext="PlantCost" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="number" e-field="TotalSOCostVsTotalPlanCost" e-headertext="TotalSOCostVsTotalPlanCost" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-template="#TotalSOCostVsTotalPlanCostTemplate" e-field="TotalSOCostVsTotalPlanCost" e-headertext="TotalSOCostVsTotalPlanCost" e-textalign="right" e-width="80"></div>
                     </div>
                 </div>
+                <script type="text/template" id="TotalVarianceCostingVsSOTemplate">
+                    <div class="col-sm-10" style="padding:0px; width:70px;height:20px;">
+                        <input type="text" ng-model="data.TotalVarianceCostingVsSO" disabled style="color:black; background-color:{{data.TotalVarianceCostingVsSO<0?'Red':'#d8d7d7'}}" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="TotalSOCostVsTotalPlanCostTemplate">
+                    <div class="col-sm-10" style="padding:0px; width:70px;height:20px;">
+                        <input type="text" ng-model="data.TotalSOCostVsTotalPlanCost" disabled style="color:black; background-color:{{data.TotalSOCostVsTotalPlanCost<0?'Red':'#d8d7d7'}}" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="TotalVarianceCostingVsBOQTemplate">
+                    <div class="col-sm-10" style="padding:0px; width:70px;height:20px;">
+                        <input type="text" ng-model="data.TotalVarianceCostingVsBOQ" disabled style="color:black; background-color:{{data.TotalVarianceCostingVsBOQ<0?'Red':'#d8d7d7'}}" class="form-control" />
+                    </div>
+                </script>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div style="color:black;" id="BGrid" ej-grid e-datasource="QBOQCostingList" e-allowscrolling="true"
