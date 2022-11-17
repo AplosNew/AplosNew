@@ -298,6 +298,22 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 string fileName = "";
                 fileName = ProductionDataReport(parameters, "Production Report");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult ViewData(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = ProductionDataReport(parameters, "Production Report");
                 var data = ReadData(fileName);
                 JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
@@ -527,7 +543,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                     //    sheet[ROW, colWIP].Formula = "IF(MAX($H$7:$H$1799<>H40),0,IF(C40=1,0,SUMIFS($T$7:$T$1799,$C$7:$C$1799,C40-1,$I$7:$I$1799,I40)-SUMIFS($T$7:$T$1799,$C$7:$C$1799,C40,$I$7:$I$1799,I40)))";
 
-                    sheet[ROW, colWIP].Formula = "IF(MAX($" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + LastRow.ToString() + "<>" + clsStaticInfo.GetxlsCol(colPlanDate) +ROW.ToString() + "),0,IF(" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "=1,0,SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString()+"," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "-1,$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")-SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")))";
+                    sheet[ROW, colWIP].Formula = "IF(MAX($" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + LastRow.ToString() + "<>" + clsStaticInfo.GetxlsCol(colPlanDate) + ROW.ToString() + "),0,IF(" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "=1,0,SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "-1,$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")-SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")))";
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -701,7 +717,7 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
             {
                 DataSet dsMaster, dsDetail, dsGRNDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                
+
                 con.OpenDataSetThroughAdapter("SELECT * FROM BPDT.FabricRollManagementChild WHERE FabricRollManagementMasterId =''", out dsDetail, false, "1");
                 int count = 0;
                 foreach (var item in grnDetailList)
@@ -712,7 +728,7 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
 
                     if (dv.Count == 0)
                     {
-                       // item["Id"] = masterId + "-" + count;
+                        // item["Id"] = masterId + "-" + count;
                         //item["FabricRollManagementMasterId"] = masterId;
 
                         AddNewRow(dsDetail.Tables[0], item);
