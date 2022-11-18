@@ -145,15 +145,19 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
         var gridObj = $("#GridResponsiblePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
     $scope.Test = null;
+    $scope.MachineId = null;
+    $scope.MaintenanceId = null;
     $scope.MaintenanceStatusPlannedDetailsList = [];
     $scope.GetAssetPopUp = function (data, sample) {
         $scope.Test = sample;
         if ($scope.Test != 0) {
             $scope.Test = 1;
         }
+        $scope.MachineId = data.data.MachineId;
+        $scope.MaintenanceId = data.data.Id;
         $http({
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + data.data.Id + '&MachineId=' + data.data.MachineId + '&Value=' + $scope.Test
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&Value=' + $scope.Test
         }).then(function successCallback(response) {
             $scope.MaintenanceStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -161,6 +165,19 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
         }
         )
     }
+
+    $scope.GetAssetPopUpDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedListDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&Value=' + $scope.Test
+        }).then(function successCallback(response) {
+            $scope.MaintenanceStatusPlannedDetailsList = response.data;
+            var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#MachineAssetPop')).modal('show');
+        }
+        )
+    }
+
     $scope.PlannedId = null;
     $scope.ReponsiblePersonList = [];
     $scope.GetReponsiblePersonPopUp = function (data) {
@@ -170,7 +187,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
         $http({
 
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId
+            url: 'Machines/MaintenanceStatusDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId + '&MaintenanceId=' + data.data.MaintenanceSchedulingId
         }).then(function successCallback(response) {
             $scope.ReponsiblePersonList = response.data;
             var gridObj = $("#GridResponsiblePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -210,7 +227,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-
+                    $scope.GetAssetPopUpDetails();
                     ShowResult(response.data.Message, 'success');
                     $scope.Action = 'Save';
                 }
@@ -228,7 +245,9 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
 
             $scope.SaveResponsibleList = [];
             for (var i = 0; i < $scope.ReponsiblePersonList.length; i++) {
+                if ($scope.ReponsiblePersonList[i].IsActive == true) {
                     $scope.SaveResponsibleList.push($scope.ReponsiblePersonList[i]);
+                }
             }
 
 
