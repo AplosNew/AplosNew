@@ -180,8 +180,14 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsInvoiceService.GetVendorAvailableInvoiceList(identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost, Authorize]
+        public JsonResult GetVendorAllInvoiceList(string column, string value)
+        {
+            AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsInvoiceService.GetVendorAllInvoiceList(identity.CompanyGroupId, identity.CompanyId, column, value), JsonRequestBehavior.AllowGet);
+        }
 
-      
 
         [HttpGet, Authorize]
         public JsonResult GetInvoicePurchasesAvailable(string voucherId)
