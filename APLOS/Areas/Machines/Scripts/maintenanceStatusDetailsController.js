@@ -9,17 +9,28 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
-    var firstDay = new Date(y, m, 1);
+    date.setDate(date.getDate() + 7);
+    /*var firstDay = new Date(y, m, 1);*/
+   
     $scope.status = {
         Id: null,
-        FromDate: $filter('dateFiltering')(firstDay),
-        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
-        FromDateMD: $filter('dateFiltering')(firstDay),
-        ToDateMD: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+        FromDate: null,
+        ToDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
+        FromDateMD: null,
+        ToDateMD: $filter('dateFiltering')(date, 'dd-MM-yyyy')
     };
     $scope.statusNew = Object.assign({}, $scope.status);
 
-    
+    $scope.GetFromDateList = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/MaintenanceStatusDetails/GetFromDateList'
+        }).then(function successCallback(response) {
+            $scope.statusNew.FromDate = response.data[0];
+            $scope.statusNew.FromDateMD = response.data[0];
+        });
+    }
+    $scope.GetFromDateList();
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -59,10 +70,6 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
                 method: 'Get',
                 url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDateMD + '&FromDate=' + $scope.statusNew.FromDateMD
             }).then(function successCallback(response) {
-                //for (var i = 0; i < response.data.length; i++) {
-                //    response.data[i]["LMD"] = new Date(response.data[i]["LMD"]);
-                //    response.data[i]["CMD"] = new Date(response.data[i]["CMD"]);
-                //}
                 $scope.MaintenanceStatusDetailsList = response.data;
                 var gridObj = $("#GridMaintenanceStatusDetails").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
             }
@@ -138,15 +145,19 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
         var gridObj = $("#GridResponsiblePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
     $scope.Test = null;
+    $scope.MachineId = null;
+    $scope.MaintenanceId = null;
     $scope.MaintenanceStatusPlannedDetailsList = [];
     $scope.GetAssetPopUp = function (data, sample) {
         $scope.Test = sample;
         if ($scope.Test != 0) {
             $scope.Test = 1;
         }
+        $scope.MachineId = data.data.MachineId;
+        $scope.MaintenanceId = data.data.Id;
         $http({
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + data.data.Id + '&MachineId=' + data.data.MachineId + '&Value=' + $scope.Test
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&Value=' + $scope.Test
         }).then(function successCallback(response) {
             $scope.MaintenanceStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -154,6 +165,19 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
         }
         )
     }
+
+    $scope.GetAssetPopUpDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedListDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&Value=' + $scope.Test
+        }).then(function successCallback(response) {
+            $scope.MaintenanceStatusPlannedDetailsList = response.data;
+            var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#MachineAssetPop')).modal('show');
+        }
+        )
+    }
+
     $scope.PlannedId = null;
     $scope.ReponsiblePersonList = [];
     $scope.GetReponsiblePersonPopUp = function (data) {
@@ -163,7 +187,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
         $http({
 
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId
+            url: 'Machines/MaintenanceStatusDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId + '&MaintenanceId=' + data.data.MaintenanceSchedulingId
         }).then(function successCallback(response) {
             $scope.ReponsiblePersonList = response.data;
             var gridObj = $("#GridResponsiblePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -203,7 +227,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-
+                    $scope.GetAssetPopUpDetails();
                     ShowResult(response.data.Message, 'success');
                     $scope.Action = 'Save';
                 }
@@ -221,7 +245,9 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
 
             $scope.SaveResponsibleList = [];
             for (var i = 0; i < $scope.ReponsiblePersonList.length; i++) {
+                if ($scope.ReponsiblePersonList[i].IsActive == true) {
                     $scope.SaveResponsibleList.push($scope.ReponsiblePersonList[i]);
+                }
             }
 
 
