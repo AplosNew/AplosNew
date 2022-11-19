@@ -2371,17 +2371,39 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 				}
 
-				sql = @"SELECT 
-									ROW_NUMBER() Over(Order by SA.Id) As[S.N]
-									,SA.Id SalesId
+				sql = @"SELECT SA.Id SalesId
 									,SA.SourceType
 									,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') SalesDate ,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
 									,PPI.UserName AS BillTo
 									,PPD.UserName AS ShipTo
-									, SA.ToCurrencyRate
 									, SA.DocRefNo
 									,'' DocDate
-									, P.UserName AS PartyName,p.Code	
+									, P.UserName AS PartyName,p.Code
+									, PONumber=STUFF((select distinct ','+CPO.PONumber
+		                                         from trn.SalesMaterial SMX									 
+												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+												  LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
+									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									, MasterOrder=STUFF((select distinct ','+MO.MasterOrderNo
+		                                         from trn.SalesMaterial SMX									 
+												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,SONumber=STUFF((select distinct ','+XSO.Id 
+		                                         from trn.SalesMaterial SMX									 
+												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId                                     
+									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,Sum(SMD.BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+									,sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
+									,(Sum(SMD.BooksCurrencyTransactionAmount)+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
+									,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
+									,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
+									,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
+									,round(isnull(TAxInfo6.BooksTaxAmount,0),2) BooksTCS
+									,Sum(SMD.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) TotalReceivable
+									
+									, SA.ToCurrencyRate
 									,Sum(SMD.TransactionAmount) TransactionAmount
 									,ISNULL(v.VoucherNo,'') VoucherId
 									,V.VoucherNo
@@ -2403,18 +2425,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
 									,round(isnull(TAxInfo6.TaxAmount,0),2) TCS
 
-									,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
-									,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
-									,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
-									,round(isnull(TAxInfo6.BooksTaxAmount,0),2) BooksTCS
 
 									,sum(round(isnull(ServiceData.ServiceAmount,0),2))+Sum(SMD.TransactionAmount ) TotalTaxableAmt
-									,Sum(SMD.BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
 									,sum(ServiceData.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
 
-									,sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
-									,(Sum(SMD.BooksCurrencyTransactionAmount)+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
-									,Sum(SMD.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) TotalReceivable
 									,IV.WrittenOffAmount*IV.CompanyCurrencyRate Receipt
 									,(Sum(SMD.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)))-(IV.WrittenOffAmount*IV.CompanyCurrencyRate) Balance
 									,FORMAT(IV.ActualDueDate, 'dd-MMM-yyyy') MaturityDate
@@ -2425,21 +2439,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>1 then DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)
 												when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then DATEDIFF(DAY, GETDATE(),IV.ActualDueDate) end
 									,ISNULL(Adv.PendingAdvance,0) PendingAdvance
-									,SONumber=STUFF((select distinct ','+XSO.Id 
-		                                         from trn.SalesMaterial SMX									 
-												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId                                     
-									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									, PONumber=STUFF((select distinct ','+CPO.PONumber
-		                                         from trn.SalesMaterial SMX									 
-												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-												  LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
-									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									, MasterOrder=STUFF((select distinct ','+MO.MasterOrderNo
-		                                         from trn.SalesMaterial SMX									 
-												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
-												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
-									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									
+									
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 									FROM TRN.Sales AS SA
 									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
@@ -2524,18 +2525,27 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName
 								UNION ALL
 								SELECT 
-
-								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
-								,II.Id SalesId
+								II.Id SalesId
 								,'InventorySales' SourceType
 								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
 								
 								,PPI.UserName AS BillTo
 								,PPI1.UserName ShipTo
-								,II.ToCurrencyRate
 								, II.DocRefNo
-								,II.DocDate
+								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocDate
 								, P.UserName AS PartyName,p.Code
+								,'' PONumber
+								,'' MasterOrder
+								,'' SONumber
+								,Sum(IID.BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
+								,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
+								,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
+								,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
+								,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
+								,sum(round(isnull(TAxInfo6.BooksTaxAmount,0),2)) BooksTCS			
+								,II.ToCurrencyRate
+								,Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) TotalReceivable
 								,Sum(IID.Qty *IID.SalesRate) TransactionAmount
 								,v.VoucherNo VoucherId
 								,V.VoucherNo
@@ -2556,16 +2566,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
 								,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
 								,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS
-								,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
-								,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
-								,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
-								,sum(round(isnull(TAxInfo6.BooksTaxAmount,0),2)) BooksTCS			
 								,sum(round(isnull(SCr.ServiceAmount,0),2))+Sum(IID.TransactionAmount ) TotalTaxableAmt
-								,Sum(IID.BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
 								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
-								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
-								,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
-								,Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) TotalReceivable
 									,IV.WrittenOffAmount*IV.CompanyCurrencyRate Receipt
 									,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)))-(IV.WrittenOffAmount*IV.CompanyCurrencyRate) Balance
 									,FORMAT(IV.ActualDueDate, 'dd-MMM-yyyy') MaturityDate
@@ -2577,10 +2579,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then DATEDIFF(DAY, GETDATE(),IV.ActualDueDate) end
 									,ISNULL(Adv.PendingAdvance,0) PendingAdvance
 
-								,'' SONumber
-								,'' PONumber
-								,'' MasterOrder
-,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								FROM[TRN].[InventorySales] AS II
 								left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,Sum(SalesRate) SalesRate,(Sum(SalesRate)*sum(TransactionQty)) TransactionAmount, IsAsset,BaseUOMId,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
@@ -2664,16 +2663,26 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								
 								UNION ALL
                                 SELECT 
-								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
-								,II.Id SalesId
+								II.Id SalesId
 								,'Sales GL' SourceType
 								,FORMAT(II.PostingDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
 								,PPI.UserName AS BillTo
 								,PPI.UserName ShipTo
-								,II.CompanyCurrencyRate ToCurrencyRate
 								, II.DocRefNo
-								,II.DocDate
+								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocDate
 								, P.UserName AS PartyName,p.Code
+								,'' PONumber
+								,'' MasterOrder
+								,'' SONumber
+								,Sum(IID.TransactionAmount) BooksCurrencyTransactionAmount
+								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
+								,(Sum(IId.TransactionAmount*II.CompanyCurrencyRate)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
+								,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
+								,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
+								,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
+								,sum(round(isnull(TAxInfo6.BooksCurrencyTransactionAmount,0),2)) BooksTCS			
+								,Sum(SCr.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) TotalReceivable
+								,II.CompanyCurrencyRate ToCurrencyRate
 								,Sum(IID.TransactionAmount) TransactionAmount
 								,v.VoucherNo VoucherId
 								,V.VoucherNo
@@ -2696,16 +2705,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
 								,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
 								,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS
-								,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
-								,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
-								,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
-								,sum(round(isnull(TAxInfo6.BooksCurrencyTransactionAmount,0),2)) BooksTCS			
 								,sum(round(isnull(SCr.ServiceAmount,0),2))+Sum(IID.TransactionAmount ) TotalTaxableAmt
-								,Sum(IID.TransactionAmount) BooksCurrencyTransactionAmount
 								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
-								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
-								,(Sum(IId.TransactionAmount*II.CompanyCurrencyRate)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
-,Sum(SCr.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) TotalReceivable
 									,(IV.WrittenOffAmount*IV.CompanyCurrencyRate) Receipt
 									,(Sum(SCr.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)))-(IV.WrittenOffAmount*IV.CompanyCurrencyRate) Balance
 									,FORMAT(IV.ActualDueDate, 'dd-MMM-yyyy') MaturityDate
@@ -2717,9 +2718,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then DATEDIFF(DAY, GETDATE(),IV.ActualDueDate) end
 												,ISNULL(Adv.PendingAdvance,0) PendingAdvance
 
-								,'' SONumber
-								,'' PONumber
-								,'' MasterOrder
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								FROM [TRN].[Invoice] AS II
 								left JOIN (select  InvoiceId,sum(isnull(Amount,0)) TransactionAmount FROM  TRN.InvoiceDetail group by InvoiceId) AS IID ON IID.InvoiceId= II.Id 
