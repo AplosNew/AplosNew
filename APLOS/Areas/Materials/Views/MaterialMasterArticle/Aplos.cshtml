@@ -66,6 +66,9 @@
                     <th>Short Name</th>
                     <th>Standard Name</th>
                     <th>HSN Code</th>
+                    <th>Machine</th>
+                    <th>Work Center</th>
+                    <th>Order Level</th>
                     <th ng-repeat="x in articleHead">{{x.MaterialAttributeName}}</th>
                 </tr>
             </thead>
@@ -82,6 +85,9 @@
                     <td>{{x.ShortName}}</td>
                     <td>{{x.StandardName}}</td>
                     <td>{{x.HSNCode}}</td>
+                    <td>{{x.IsMachineApplicable}}</td>
+                    <td>{{x.IsWorkCenterApplicable}}</td>
+                    <td>{{x.OrderLevel}}</td>
                     <td ng-repeat="y in x.MaterialMasterArticleValues">{{y.MaterialAttributeValueFreeText}}</td>
                 </tr>
             </tbody>
@@ -206,53 +212,136 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-sm-2">
-                                <ul class="list-inline text-right">
-                                    <li><button ng-click="Generate();" class="btn" style="margin-top: -23px; background: #3e445a; color:#fff !important"><i class=""></i> Generate</button></li>
-                                </ul>
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <ul class="list-inline text-right">
+                                        <li><button ng-click="Generate();" class="btn" style="margin-top: -23px; background: #3e445a; color:#fff !important"><i class=""></i> Generate</button></li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="form-group">
+                            <label class="col-sm-8 control-label">Work Center</label>
+                            <div class="col-sm-4">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="articleNew.IsWorkCenterApplicable" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-3 col-md-3 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="form-group">
+                            <label class="col-sm-8 control-label">Machine</label>
+                            <div class="col-sm-4">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="articleNew.IsMachineApplicable" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">Order Level</label>
+                            <div class="col-sm-7">
+                                <div class="select-style">
+                                    <select id="OrderLevelId" class="form-control" ng-model="articleNew.OrderLevel" name="Order Level"
+                                            tabindex="2">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in EnumList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="col-xs-12 col-sm-2 col-md-2 form-element-ctrl form-horizontal" style="padding-left:0px;">
+            <div class="form-group">
+                <ul class="list-inline text-left">
+                    <li>
+                        <label class="col-sm-4 control-label">Work Center<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="articleNew.IsWorkCenterApplicable" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <label class="col-sm-4 control-label">Machine<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="articleNew.IsMachineApplicable" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <label class="col-sm-4 control-label">Order Level<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select id="OrderLevelId" class="form-control" ng-model="articleNew.OrderLevel" name="Order Level"
+                                        tabindex="2">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in EnumList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>*@
+
                 </div>
-                <div class="col-xs-12 col-sm-12 col-md-12" ng-show="attributeList.length>0">
-                    <div class="table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Material Attribute</th>
-                                    <th>Material Attribute Value</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in attributeList">
-                                    <td> {{x.MaterialAttributeName}}</td>
-                                    <td>
-                                        <div class="col-sm-10">
-                                            <div class="input-group" style="margin-top:-2px;">
-                                                <input type="text" ng-model="x.MaterialAttributeValueFreeText" class="form-control" ng-keyup="idNullByFreeText(x.MaterialAttributeId, $index)" ng-disabled="x.FlagDisable" ng-required="x.IsMandatory" maxlength="50">
-                                                <span class="input-group-btn">
-                                                    <button ng-click="valuePoUp(x, $index)" ng-disabled="!x.IsPreDefinedField" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="materialAttributeValueClear($index)" class="btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                </span>
+                    <div class="col-xs-12 col-sm-12 col-md-12" ng-show="attributeList.length>0">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Material Attribute</th>
+                                        <th>Material Attribute Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in attributeList">
+                                        <td> {{x.MaterialAttributeName}}</td>
+                                        <td>
+                                            <div class="col-sm-10">
+                                                <div class="input-group" style="margin-top:-2px;">
+                                                    <input type="text" ng-model="x.MaterialAttributeValueFreeText" class="form-control" ng-keyup="idNullByFreeText(x.MaterialAttributeId, $index)" ng-disabled="x.FlagDisable" ng-required="x.IsMandatory" maxlength="50">
+                                                    <span class="input-group-btn">
+                                                        <button ng-click="valuePoUp(x, $index)" ng-disabled="!x.IsPreDefinedField" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                        <button ng-click="materialAttributeValueClear($index)" class="btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <p class="msg-error" ng-show="IsMandatoryButNull(x.IsMandatory, x.MaterialAttributeValueFreeText)">
-                                            value is required.
-                                        </p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                            <p class="msg-error" ng-show="IsMandatoryButNull(x.IsMandatory, x.MaterialAttributeValueFreeText)">
+                                                value is required.
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="clearfix common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-show="index==-1" ng-click="AddArticle();" class="btn"><i class=""></i> Add</button></li>
+                            <li> <button ng-hide="index==-1" ng-click="updateArticle();" class="btn"><i class=""></i> Update</button></li>
+                            <li> <button type="button" class="btn btn-default" ng-click="CloseArticlePopUp();">Close</button></li>
+                        </ul>
                     </div>
                 </div>
-                <div class="clearfix common-btn" style="padding-right: 15px;">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-show="index==-1" ng-click="AddArticle();" class="btn"><i class=""></i> Add</button></li>
-                        <li> <button ng-hide="index==-1" ng-click="updateArticle();" class="btn"><i class=""></i> Update</button></li>
-                        <li> <button type="button" class="btn btn-default" ng-click="CloseArticlePopUp();">Close</button></li>
-                    </ul>
-                </div>
-            </div>
         </div>
     </div>
 </div>
