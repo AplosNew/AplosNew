@@ -283,7 +283,7 @@ from TRN.Maintenancescheduling MS
 left join TRN.MaintenancePersonBudgetCode PBC ON PBC.MaintenanceSchedulingId=MS.Id
 left Join [MST].[ManpowerBudget] AS MB ON MB.Id=PBC.PersonBudgetCodeId
 left join dbo.EmployeeInformation AS EI ON EI.BudgetCode=PBC.PersonBudgetCodeId
-LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId=EI.SystemId and RPD.PlannedId='" + Id + @"'
+LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId=EI.SystemId and RPD.IsActive=1 and RPD.PlannedId='" + Id + @"'
 LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
 LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
 LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
