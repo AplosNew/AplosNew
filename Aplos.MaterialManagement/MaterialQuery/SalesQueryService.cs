@@ -3781,26 +3781,27 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			try
 			{
-
-				var str = @"select ROW_NUMBER() Over(Order by   x.SalesMaterialId) As[S.N],x.* from (
-					SELECT  'Sales' ItemType,SM.Id SalesMaterialId
-								
+				var str = @"select x.* from (
+					SELECT  SM.Id SalesMaterialId
+								,SM.SalesId SalesNo
+								,'Sales' ItemType
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
+								,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
+								, SA.DocRefNo
+								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocRefDate
+								, P.UserName AS Party,p.Code PartyCode,p.PartyType
 								,PPI.GSTIN as GSTINNo
+								,HS.Code HSNCode
 								
 								,MGM.UserName AS MaterialGroup
 								,MM.UserName Material
 								--,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
 								--	WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
 								--	ELSE  SA.SourceType END SourceType
-								,SM.SalesId SalesNo
-								--,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') Invoi
-								,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
 								
-								, SA.DocRefNo
-								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocRefDate
-								, P.UserName AS Party,p.Code PartyCode,p.PartyType
+								--,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') Invoi
+								
 								,ART.StandardName AS Article
 								,FCV.UserName FirstCharacteristicsValue
 								,SCV.UserName SecondCharacteristicsValue
@@ -3809,11 +3810,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,SM.TransactionRate
 								,SM.TransactionQty
 								,SM.BooksCurrencyTransactionAmount TransactionAmount
+								,TUoM.UserName AS TransactionUoM
 
 								,SM.BooksCurrencyTaxAmount TaxAmount
 								
 								,BUoM.UserName AS BaseUoM
-								,TUoM.UserName AS TransactionUoM
 								,CU.Code AS Currency
 								,Posted=CASE WHEN SA.VoucherId IS NULL THEN 'No' ELSE 'YES'  END
 								--,ISNULL(SA.Narration,'') NoteForAccounts
@@ -3863,7 +3864,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
-									,HS.Code HSNCode
 									,So.Rate,So.SalesExpense,So.Discount,So.CM,So.DirectMaterialCost,So.DirectProcessCost,So.Commission,So.ValueLoss,So.Other,So.UpCharge
 								,PDC.UserName ProudctCategory,PDSC.UserName ProudctSubCategory,PM.UserName ProductGroup
 								FROM TRN.SalesMaterial AS SM 
@@ -3967,18 +3967,20 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									UNION ALL
 
 														Select                  
-								'Service' ItemType,ISs.Id SalesMaterialId
+								ISs.Id SalesMaterialId
+								,IR.Id SalesNo
+								,'Service' ItemType
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
-								,PP.GSTIN GSTINNo
-								,'' AS MaterialGroup
-								,SM.UserName Material
-								,IR.Id SalesNo
 								,FORMAT(IR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
-								
 								, IR.DocRefNo
 								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocRefDate
 								, P.UserName AS Party,p.Code PartyCode,p.PartyType
+								,PP.GSTIN GSTINNo
+								,'' HSNCode
+								,'' AS MaterialGroup
+								,SM.UserName Material
+								
 								,'' AS Article
 								,''FirstCharacteristicsValue
 								,'' SecondCharacteristicsValue
@@ -3986,9 +3988,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.BooksCurrencyTransactionAmount TransactionAmount
+								,''  TransactionUoM
 								,ISs.BooksCurrencyTaxAmount TaxAmount 
 								,''  BaseUoM
-								,''  TransactionUoM
 								,CUR.Code Currency,'' Posted
 								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
 								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
@@ -4033,7 +4035,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
-								,'' HSNCode
 								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 								,'' ProudctCategory,''ProudctSubCategory,'' ProductGroup
 								from trn.SalesService AS ISs
@@ -4106,18 +4107,19 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								UNION ALL
 
 								SELECT 
-								'InventorySales' ItemType,IID.Id SalesMaterialId
-								
+								IID.Id SalesMaterialId
+								,II.Id   SalesNo
+								,'InventorySales' ItemType
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
-								,PPI.GSTIN as GSTINNo
-								,MGM.UserName AS MaterialGroup
-								,MM.UserName Material
-								,II.Id   SalesNo
 								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') InvoiceDate
 								, II.DocRefNo
 								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocRefDate
 								, P.UserName AS Party,p.Code PartyCode,p.PartyType
+								,PPI.GSTIN as GSTINNo
+								,HSNC.Code HSNCode
+								,MGM.UserName AS MaterialGroup
+								,MM.UserName Material
 								,ART.StandardName AS Article
 								, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue							
 								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
@@ -4125,9 +4127,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,IID.SalesRate TransactionRate
 								,IID.BooksCurrencyTransactionAmount TransactionQty 
 								,IID.BooksCurrencyTransactionAmount *IID.SalesRate TransactionAmount
+								,TUoM.UserName AS TransactionUoM
 								,SCr1.TaxAmount TaxAmount
 								,TUoM.UserName AS BaseUoM
-								,TUoM.UserName AS TransactionUoM
 								,CURR.Code AS Currency
 								,Posted=CASE WHEN II.[Status]='Posting' then 'Yes' else 'No'  END
 								
@@ -4163,7 +4165,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,0 RealizeAmount
 								,''RealizeDate
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
-								,HSNC.Code HSNCode
 								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 								,PDC.UserName ProudctCategory,PDSC.UserName ProudctSubCategory,PM.UserName ProductGroup
 								FROM [TRN].[InventorySalesDetail] AS IID
@@ -4262,19 +4263,20 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								UNION ALL
 
 								Select                  
-								'InventoryService' ItemType,ISs.Id SalesMaterialId
-								
+								ISs.Id SalesMaterialId
+								,'' SalesNo
+								,'InventoryService' ItemType
 								--,'' GRNDate
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
-								,'' as GSTINNo
-								,'' AS MaterialGroup
-								,SM.UserName Material
-								,'' SalesNo
 								,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') InvoiceDate
 								, IR.DocRefNo
 								,FORMAT(IR.DocDate, 'dd-MMM-yyyy') DocRefDate
 								, P.UserName AS Party,p.Code PartyCode,p.PartyType
+								,'' as GSTINNo
+							,'' HSNCode
+								,'' AS MaterialGroup
+								,SM.UserName Material
 								,'' AS Article
 								,''FirstCharacteristicsValue
 								,'' SecondCharacteristicsValue
@@ -4282,9 +4284,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount*IR.ToCurrencyRate TransactionAmount
+								,'' AS TransactionUoM
 								,0 TaxAmount
 								,'' AS BaseUoM
-								,'' AS TransactionUoM
 								,CURRE.Code AS Currency
 								
 								,'' Posted
@@ -4321,7 +4323,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						,0 RealizeAmount
 					    ,''RealizeDate
 						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
-						,'' HSNCode
 						,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 						,'' ProudctCategory,''ProudctSubCategory,'' ProductGroup
 						from trn.InventoryService AS ISS
