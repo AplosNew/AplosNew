@@ -165,11 +165,39 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
         }
         )
     }
+    $scope.SD = null;
+    $scope.GetDetails = function (args) {
+        $scope.MachineAssetId = args.data.AssetId;
+        $scope.MaintenanceId = args.data.Id;
+        $scope.MachineId = args.data.MachineMasterId;
+        $scope.SD = args.data.SD;
+        $http({
+            method: 'Get',
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedListGetDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&AssetId=' + $scope.MachineAssetId
+        }).then(function successCallback(response) {
+            $scope.MaintenanceStatusPlannedDetailsList = response.data;
+            var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#MachineAssetPop')).modal('show');
+        }
+        )
+    }
 
     $scope.GetAssetPopUpDetails = function () {
         $http({
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedListDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&Value=' + $scope.Test
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedListDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId 
+        }).then(function successCallback(response) {
+            $scope.MaintenanceStatusPlannedDetailsList = response.data;
+            var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#MachineAssetPop')).modal('show');
+        }
+        )
+    }
+
+    $scope.GetAssetPopUpGetDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedListGetDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&AssetId=' + $scope.MachineAssetId
         }).then(function successCallback(response) {
             $scope.MaintenanceStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -227,7 +255,16 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    $scope.GetAssetPopUpDetails();
+                    if ($scope.SD == 'Status Details')
+                    {
+                        $scope.GetAssetPopUpGetDetails();
+                        $scope.SD = null;
+                    }
+                    else
+                    {
+                        $scope.GetAssetPopUpDetails();
+                        $scope.SD = null;
+                    }
                     ShowResult(response.data.Message, 'success');
                     $scope.Action = 'Save';
                 }
