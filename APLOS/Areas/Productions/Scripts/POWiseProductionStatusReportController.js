@@ -18,7 +18,6 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             $scope.filters = response.data;
             var columnList = [
                 { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
-
                 { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
                 { field: 'ProductionOrderId', width: 20, headerText: "PONo", type: "string" },
                 { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
@@ -105,7 +104,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
 
         $http({
             method: 'POST',
-            url: $scope.path + "ViewData",
+            url: $scope.path + "GetViewData",
             data: { 'parameters': $scope.parameters },
             dataType: 'JSON'
         }).then(function successCallback(response) {
