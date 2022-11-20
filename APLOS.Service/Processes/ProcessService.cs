@@ -169,7 +169,7 @@ namespace Library.Service.Processes
 							FROM [HKP].[Process] AS P
 							LEFT JOIN HKP.MaterialType AS MT ON P.MaterialTypeId=MT.Id
 							WHERE P.CompanyGroupId='"+ companyGroupId + @"' AND P.IsProductionProcess=1 AND P.Archive=0
-							AND P.Id NOT IN(Select ProcessId from TRN.ProductionOrderProcessSet Where  ProductionOrderId='22114')";
+							AND P.Id NOT IN(Select ProcessId from TRN.ProductionOrderProcessSet Where  ProductionOrderId='"+ productionOrderId + "')";
 				return _sqlRepository.GetGridData(parameters);
 			}
 			catch (Exception ex)

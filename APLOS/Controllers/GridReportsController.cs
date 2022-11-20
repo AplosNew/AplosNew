@@ -79,6 +79,56 @@ namespace Aplos.Controllers
         }
 
         [HttpPost, Authorize]
+        public JsonResult ExcelExportUpdate2(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                if (data == null)
+                    throw new Exception("No data found");
+
+                if (data.Count == 0)
+                    throw new Exception("No data found");
+
+
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+
+
+                string filename = GridToExcelReportUpd(dt, "", reportFileName);
+
+
+                return Json(new { FileName = filename, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+
+            //return View();
+        }
+
+        [HttpPost, Authorize]
         public JsonResult ExcelExport(List<Dictionary<string, object>> data)
         {
             try
@@ -204,7 +254,7 @@ namespace Aplos.Controllers
                     ROW++;
 
                     sheet.ImportDataTable(data, true, ROW, 1);
-                    sheet[ROW, 1, ROW, data.Columns.Count].ColumnWidth = 18;
+                    sheet[ROW, 1, ROW, data.Columns.Count].ColumnWidth = 20;
                     sheet[ROW, 1, ROW, data.Columns.Count].WrapText = true;
                     sheet[ROW, 1, ROW, data.Columns.Count].BorderAround(ExcelLineStyle.Hair);
                     sheet[ROW, 1, ROW, data.Columns.Count].BorderInside(ExcelLineStyle.Hair);
