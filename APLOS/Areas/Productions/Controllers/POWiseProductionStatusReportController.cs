@@ -53,7 +53,10 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpGet, Authorize]
         public ActionResult getFilters()
         {
-            return Json(filters(), JsonRequestBehavior.AllowGet);
+            //return Json(filters(), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(filters(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
 
@@ -299,8 +302,8 @@ namespace Aplos.Areas.Productions.Controllers
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(1);
-                workbook.Worksheets[0].Name = "ProductionDataReport";
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[0].Name = "ProductionData";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
                 ReportSQL(parameters, out data);
@@ -546,7 +549,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Production Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "PO Wise Production Status Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -592,7 +595,7 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 string partyId = "AND 1=1";
-                if (!string.IsNullOrEmpty(parameters["CustomerId"]))
+                if (!string.IsNullOrEmpty(parameters["CustomerId"].ToString()))
                 {
                     partyId = "AND XMO.PartyId in(" + parameters["CustomerId"] + @")";
                 }
@@ -695,7 +698,7 @@ group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrder
 ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
 LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
                                             Where TRKE.Id in(" + parameters["EntityId"] + @")
---AND PP.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")
+AND ISNULL(PP.ResponsiblePersonId,'') in(" + parameters["ResponsiblePersonId"] + @")
 AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
 
 
