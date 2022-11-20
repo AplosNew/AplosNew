@@ -164,6 +164,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         , StandardName: null
         , HSNCodeId: null
         , MaterialMasterArticleValues: []
+        , IsWorkCenterApplicable: false
+        , IsMachineApplicable: false
+        , OrderLevel: null
     };
     $scope.articleNew = Object.assign({}, $scope.article);
 
@@ -176,6 +179,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             , StandardName: null
             , HSNCodeId: null
             , MaterialMasterArticleValues: []
+            , IsWorkCenterApplicable: false
+            , IsMachineApplicable: false
+            , OrderLevel: null
         };
         getAttribute();
         angular.element(document.querySelector('#articlePoUp')).modal('show');
@@ -215,6 +221,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             //    articleFieldValidation($scope.articleNew.Code, 'Code');
             articleFieldValidation($scope.articleNew.ShortName, 'ShortName');
             articleFieldValidation($scope.articleNew.StandardName, 'StandardName');
+      
             for (var i = 0; i < $scope.attributeList.length; i++) {
                 var _invalid = $scope.IsMandatoryButNull($scope.attributeList[i].IsMandatory, $scope.attributeList[i].MaterialAttributeValueFreeText);
                 if (_invalid)
@@ -954,4 +961,17 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             return true;
     };
 
+    // #region get Define Enum
+    $scope.EnumList = [];
+    $scope.getEnum = function () {
+        $http({
+            method: 'POST',
+            url: "Materials/IssueControl/GetEnum",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EnumList = response.data;
+        });
+    }
+    $scope.getEnum();
+     // #endregion get Define Enum
 }

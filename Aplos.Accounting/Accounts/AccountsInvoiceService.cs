@@ -1014,6 +1014,61 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public List<Dictionary<string, object>> GetVendorAllInvoiceList(string companyGroupId, string companyId, string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"SELECT TOP 700 * from ( SELECT 0 Active, IVD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, IVD.BudgetMasterId, B.UserName AS BudgetName, IVD.ActivityId, EN.UserName AS EntityName, A.UserName AS ActivityName,
+                                        V.VoucherNo, Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate ,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo, IV.Narration, IV.Id AS InvoiceId,VD.EntityId,VD.PlantId, IVD.Id AS InvoiceDetailId, IV.VoucherId,
+                                        VD.Id AS VoucherDetailId, IV.CurrencyId, C.Code AS CurrencyCode, IV.PartyId, IVD.NetAmount AS Receivable,V.ExchangeType, 0 ExchangeAmount,
+                                        IVD.WrittenOffAmount AS Received, IVD.NetAmount-IVD.WrittenOffAmount AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
+										CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion,
+										GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion
+										,PDA.AcceptanceNo,PLC.ContractId,PDA.PurchaseLCId
+                                        FROM [TRN].[InvoiceDetail] AS IVD
+                                        LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                        LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=IVD.GLGeneralInfoId
+										LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=IVD.BudgetMasterId
+										LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+										LEFT JOIN [HKP].[Activity] AS A ON A.Id=IVD.ActivityId
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+
+                                        LEFT JOIN [TRN].[PurchaseDocAcceptance] AS PDA ON PDA.Id=IV.PurchaseDocAcceptanceId
+                                        LEFT JOIN [dbo].[PurchaseLC] AS PLC ON PLC.Id=PDA.PurchaseLCId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									LEFT JOIN (
+									SELECT VDC.ParallelCurrencyId AS CompanyGroupCurrencyId, VDC.FromCurrencyId AS CompanyGroupFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyGroupCurrencyRate, VDC.ToCurrencyConversion AS CompanyGroupCurrencyConversion, VDC.DrAmount AS CompanyGroupCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
+									) AS GC ON GC.VoucherDetailId=VD.Id
+                                        WHERE IV.Archive=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('" + SourceType.VendorInvoice + "','" + SourceType.InventoryPayable + "','" + SourceType.PurchaseDocAcceptance + "','" + SourceType.EmployeePayable + @"')
+                                        AND IV.CompanyGroupId='" + companyGroupId + @"' AND IV.CompanyId='" + companyId + @"'
+                                    ) AS TEMP WHERE " + strkey + " order by PostingDate DESC ";
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
 
         public GridModel GetVendorAvailableInvoiceList(GridParameter parameters, string companyGroupId, string companyId, string partyId)
         {
