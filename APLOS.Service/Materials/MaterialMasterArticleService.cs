@@ -53,7 +53,10 @@ namespace Library.Service.Materials
         {
             try
             {
-                var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName,HC.Code as HSNCode,MMA.HSNCodeId,MMA.RPM, MMA.MachineAllowance, MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster
+                var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName,HC.Code as HSNCode,MMA.HSNCodeId,MMA.RPM, MMA.MachineAllowance,             MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
+                            ,IsMachineApplicable=CASE WHEN MMA.IsMachineApplicable=0 THEN 'No' ELSE 'Yes' END
+							,IsWorkCenterApplicable=CASE WHEN MMA.IsWorkCenterApplicable=0 THEN 'No' ELSE 'Yes' END
+
 		                    FROM MST.MaterialMasterArticle MMA
                            LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId
 						   LEFT JOIN [HKP].[HSNCode] HC ON HC.id=MMA.HSNCodeId
@@ -816,5 +819,8 @@ namespace Library.Service.Materials
         public string HSNCodeId { get; set; }
         public string Id { get; set; }
         public string StitchCodeId { get; set; }
+        public bool IsWorkCenterApplicable { get; set; }
+        public bool IsMachineApplicable { get; set; }
+        public string OrderLevel { get; set; }
     }
 }

@@ -245,14 +245,10 @@ namespace Aplos.Areas.Productions.Controllers
                 return;
             }
         }
-
         private string CellAddr(int Col, int Row)
         {
             return clsStaticInfo.GetxlsCol(Col) + Row.ToString();
         }
-
-
-
 
         [HttpPost, Authorize]
         public ActionResult ProductionDataXls(Dictionary<string, string> parameters)
@@ -271,7 +267,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult ViewData(Dictionary<string, string> parameters)
+        public ActionResult GetViewData(Dictionary<string, string> parameters)
         {
             try
             {
@@ -367,6 +363,16 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].Text = "Buyer";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colbuyer = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colCustomer = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "LotNumber";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colLotNumber = COL;
 
                 COL++;
                 sheet[ROW, COL].Text = "Own Order No";
@@ -496,6 +502,8 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colProduct].Text = data.Rows[i]["Product"].ToString();
                     sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
                     sheet[ROW, colbuyer].Text = data.Rows[i]["buyer"].ToString();
+                    sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
+                    sheet[ROW, colLotNumber].Text = data.Rows[i]["LotNumber"].ToString();
                     sheet[ROW, colOwnOrderNo].Text = data.Rows[i]["OwnOrderNo"].ToString();
                     sheet[ROW, colStyleNo].Text = data.Rows[i]["StyleNo"].ToString();
                     sheet[ROW, colOwnStyleNo].Text = data.Rows[i]["OwnStyleNo"].ToString();
@@ -583,14 +591,27 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
+                string partyId = "AND 1=1";
+                if (!string.IsNullOrEmpty(parameters["CustomerId"]))
+                {
+                    partyId = "AND XMO.PartyId in(" + parameters["CustomerId"] + @")";
+                }
                 string sql = @"SELECT distinct PP.Id,trke.UserName AS Entity,PP.ProductionOrderID PONo,pp.WorkCenterMasterId,POPS.[Sequence] POProcessSequence 
 ,wcm.UserName AS WorkCenter ,CPL.UserName AS ProductionShift,PP.ProductionDate AS ActualDate,pp.Quantity AS ActualQty,
 isnull(p.UserName,FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,ISNULL(pp.StandardName,ord.Article ) Article                  
 ,ord.Product,BaseProcess= CASE WHEN P.IsProductionProcess=1 THEN 'Yes' ELSE '' END,PS.UserName POStatus,
 FLB.FirstBookDate,FLB.LastBookDate,ORD.FirstShipmentDate,ORD.LastShipmentDate,
 PlannedQty=CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END
-,UptoDateProPercentage=(pp.Quantity/(CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END))/100
+,UptoDateProPercentage=(pp.Quantity/(CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END))/100,PP.LotNumber
 --additional info
+		,Customer= REPLACE(REPLACE(
+										              STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pp.ProductionOrderId=Xpod.ProductionOrderId " + partyId + @" for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')	
 ,buyer=STUFF((select distinct ','+XB.UserName from 
 trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -674,7 +695,6 @@ group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrder
 ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
 LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
                                             Where TRKE.Id in(" + parameters["EntityId"] + @")
---AND MO.PartyId in(" + parameters["CustomerId"] + @")
 --AND PP.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")
 AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
 

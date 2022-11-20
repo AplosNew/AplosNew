@@ -9,6 +9,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
     $scope.path1 = 'Accounts/InventoryPayable/';
     //$scope.exportgriddataUrl = 'GridReports/ExcelExport';
     $scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
+    $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
@@ -224,41 +225,49 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
         var dataList = [];
         var g = $("#GridSalesPrint").data("ejGrid");
         dataList = g.getFilteredRecords();
-        var ids = "";
-        if (baseService.arrayLength(dataList) > 0) {
-            for (var i = 0; i < dataList.length; i++) {
-                if (ids == "") {
-                    ids = "'','" + dataList[i].SalesId + "'";
-                }
-                else {
-                    ids += ",'" + dataList[i].SalesId + "'";
-                }
-            }
+
+        if (dataList.length == 0) {
+            dataList = $scope.SalesRegisterLists;
         }
-        else {
-            for (var i = 0; i < $scope.SalesRegisterLists.length; i++) {
-                if (ids == "") {
-                    ids = "'','" + $scope.SalesRegisterLists[i].SalesId + "'";
-                }
-                else {
-                    ids += ",'" + $scope.SalesRegisterLists[i].SalesId + "'";
-                }
-            }
-        }
+
+        //var ids = "";
+        //if (baseService.arrayLength(dataList) > 0) {
+        //    for (var i = 0; i < dataList.length; i++) {
+        //        if (ids == "") {
+        //            ids = "'','" + dataList[i].SalesId + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + dataList[i].SalesId + "'";
+        //        }
+        //    }
+        //}
+        //else {
+        //    for (var i = 0; i < $scope.SalesRegisterLists.length; i++) {
+        //        if (ids == "") {
+        //            ids = "'','" + $scope.SalesRegisterLists[i].SalesId + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + $scope.SalesRegisterLists[i].SalesId + "'";
+        //        }
+        //    }
+        //}
         $scope.fileName = 'SalesRegisterSalesWise.xlsx';
         $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
         //$window.open('Products/SalesRegister/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.report.RcptIssue + '&Summary=' + $scope.productNew.Summary + '&WithTax=' + true + '&Type=' + Type);
 
         $http({
             method: 'POST',
-            url: $scope.path + "InventorySalesReportExcel",
+            //url: $scope.path + "InventorySalesReportExcel",
+            url: $scope.exportgriddataUrlUpd,
             data: {
-                'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate,
-                'SalesId': ids,
-                'Summary': $scope.report.Summary,
-                'Type': 'ForThePeriod',
-                'WithTax': true
+                //'ToDate': $scope.report.ToDate,
+                //'FromDate': $scope.report.FromDate,
+                //'SalesId': ids,
+                //'Summary': $scope.report.Summary,
+                //'Type': 'ForThePeriod',
+                //'WithTax': true
+                'reportFileName': $scope.fileName,
+                'data': dataList
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -267,7 +276,8 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             }
             else
             {
-                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
@@ -289,38 +299,47 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
         var dataList = [];
         var g = $("#GridItemPrint").data("ejGrid");
         dataList = g.getFilteredRecords();
-        var ids = "";
-        if (baseService.arrayLength(dataList) > 0) {
-            for (var i = 0; i < dataList.length; i++) {
-                if (ids == "") {
-                    ids = "'','" + dataList[i].SalesMaterialId + "'";
-                }
-                else {
-                    ids += ",'" + dataList[i].SalesMaterialId + "'";
-                }
-            }
+
+        if (dataList.length == 0) {
+            dataList = $scope.SalesRegisterItemList;
         }
-        else {
-            for (var i = 0; i < $scope.SalesRegisterItemList.length; i++) {
-                if (ids == "") {
-                    ids = "'','" + $scope.SalesRegisterItemList[i].SalesMaterialId + "'";
-                }
-                else {
-                    ids += ",'" + $scope.SalesRegisterItemList[i].SalesMaterialId + "'";
-                }
-            }
-        }
+
+        //var ids = "";
+        //if (baseService.arrayLength(dataList) > 0) {
+        //    for (var i = 0; i < dataList.length; i++) {
+        //        if (ids == "") {
+        //            ids = "'','" + dataList[i].SalesMaterialId + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + dataList[i].SalesMaterialId + "'";
+        //        }
+        //    }
+        //}
+        //else {
+        //    for (var i = 0; i < $scope.SalesRegisterItemList.length; i++) {
+        //        if (ids == "") {
+        //            ids = "'','" + $scope.SalesRegisterItemList[i].SalesMaterialId + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + $scope.SalesRegisterItemList[i].SalesMaterialId + "'";
+        //        }
+        //    }
+        //}
         $scope.fileName = 'SalesRegisterItemWise.xlsx';
         $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
         //$window.open('Products/SalesRegister/SalesRegisterItemWiseReport?reportFormat=' + 'Excel' + '&PlantId=' + null + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate);
 
         $http({
             method: 'POST',
-            url: $scope.path + "SalesRegisterItemWiseReport",
+            //url: $scope.path + "SalesRegisterItemWiseReport",
+            url: $scope.exportgriddataUrlUpd,
             data: {
-                'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate,
-                'SMId': ids,
+                //'ToDate': $scope.report.ToDate,
+                //'FromDate': $scope.report.FromDate,
+                //'SMId': ids,
+
+                'reportFileName': $scope.fileName,
+                'data': dataList
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -328,8 +347,8 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
