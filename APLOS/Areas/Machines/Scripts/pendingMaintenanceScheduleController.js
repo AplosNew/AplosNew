@@ -204,7 +204,9 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
 
             $scope.SaveResponsibleList = [];
             for (var i = 0; i < $scope.ReponsiblePersonList.length; i++) {
-                $scope.SaveResponsibleList.push($scope.ReponsiblePersonList[i]);
+                if ($scope.ReponsiblePersonList[i].IsActive == true) {
+                    $scope.SaveResponsibleList.push($scope.ReponsiblePersonList[i]);
+                }
             }
 
 
