@@ -2500,7 +2500,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
             method: 'POST',
             url: 'Costings/OrderCosting/SaveOrderPreCostingDirectMaterial',
-            data: { 'data': $scope.DirectMaterialList, OrderCostingMasterTemplateId: $scope.ModelNew.Id },
+            data: { 'data': $scope.DirectMaterialList, OrderCostingMasterTemplateId: $scope.ModelNew.Id, 'cs': $scope.ModelNew.CostingStage },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -2622,7 +2622,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                 $http({
                     method: 'POST',
                     url: 'Costings/OrderCosting/SaveOperation',
-                    data: { 'data': $scope.OperationList, OrderCostingMasterTemplateId: $scope.ModelNew.Id },
+                    data: { 'data': $scope.OperationList, OrderCostingMasterTemplateId: $scope.ModelNew.Id, 'cs': $scope.ModelNew.CostingStage  },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -2796,7 +2796,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                 $http({
                     method: 'POST',
                     url: 'Costings/OrderCosting/SaveDirectProcess',
-                    data: { 'data': $scope.DirectProcessList, OrderCostingMasterTemplateId: $scope.ModelNew.Id },
+                    data: { 'data': $scope.DirectProcessList, OrderCostingMasterTemplateId: $scope.ModelNew.Id, 'cs': $scope.ModelNew.CostingStage },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -3013,7 +3013,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                     $http({
                         method: 'POST',
                         url: 'Costings/OrderCosting/SaveSalesExpense',
-                        data: { 'data': $scope.SalesExpenseList, OrderCostingMasterTemplateId: $scope.ModelNew.Id },
+                        data: { 'data': $scope.SalesExpenseList, OrderCostingMasterTemplateId: $scope.ModelNew.Id, 'cs': $scope.ModelNew.CostingStage },
                         dataType: 'JSON'
                     }).then(function successCallback(response) {
                         if (response.data.Error === true) {
@@ -3252,7 +3252,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                     $http({
                         method: 'POST',
                         url: 'Costings/OrderCosting/SaveValueLoss',
-                        data: { 'data': $scope.ValueLossList, OrderCostingMasterTemplateId: $scope.ModelNew.Id },
+                        data: { 'data': $scope.ValueLossList, OrderCostingMasterTemplateId: $scope.ModelNew.Id, 'cs': $scope.ModelNew.CostingStage },
                         dataType: 'JSON'
                     }).then(function successCallback(response) {
                         if (response.data.Error === true) {
@@ -3343,7 +3343,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                     $http({
                         method: 'POST',
                         url: 'Costings/OrderCosting/SaveProfit',
-                        data: { 'data': $scope.ProfitList, OrderCostingMasterTemplateId: $scope.ModelNew.Id },
+                        data: { 'data': $scope.ProfitList, OrderCostingMasterTemplateId: $scope.ModelNew.Id, 'cs': $scope.ModelNew.CostingStage },
                         dataType: 'JSON'
                     }).then(function successCallback(response) {
                         if (response.data.Error === true) {
@@ -5174,7 +5174,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeletePreCosting = function () {
-        $http.get('Costings/OrderCosting/DeletePreCosting?OrderPreCostingDirectMaterialId=' + $scope.OPCDMId)
+        $http.post('Costings/OrderCosting/DeletePreCosting?OrderPreCostingDirectMaterialId=' + $scope.OPCDMId+ '&cs=' + $scope.ModelNew.CostingStage)
                 .then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
@@ -5202,7 +5202,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteProcurementCosting = function () {
-        $http.get('Costings/OrderCosting/DeleteProcurementCosting?OrderProcurementCostingDirectMaterialId=' + $scope.OPRCDMId)
+        $http.post('Costings/OrderCosting/DeleteProcurementCosting?OrderProcurementCostingDirectMaterialId=' + $scope.OPRCDMId)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5230,7 +5230,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteOrderPreCostingDirectProces = function () {
-        $http.get('Costings/OrderCosting/DeleteOrderPreCostingDirectProces?OrderPreCostingDirectProcessId=' + $scope.DPCPCId)
+        $http.post('Costings/OrderCosting/DeleteOrderPreCostingDirectProces?OrderPreCostingDirectProcessId=' + $scope.DPCPCId+ '&cs=' + $scope.ModelNew.CostingStage)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5258,7 +5258,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteDirectProcessProcurementCosting = function () {
-        $http.get('Costings/OrderCosting/DeleteDirectProcessProcurementCosting?DirectProcessProcurementCostingId=' + $scope.DPPCId)
+        $http.post('Costings/OrderCosting/DeleteDirectProcessProcurementCosting?DirectProcessProcurementCostingId=' + $scope.DPPCId)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5286,7 +5286,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteOperationListPreCosting = function () {
-        $http.get('Costings/OrderCosting/DeleteOperationListPreCosting?OperationListPreCostingId=' + $scope.OLPC)
+        $http.post('Costings/OrderCosting/DeleteOperationListPreCosting?OperationListPreCostingId=' + $scope.OLPC+ '&cs=' + $scope.ModelNew.CostingStage)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5313,7 +5313,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteOperationListProcurementCosting = function () {
-        $http.get('Costings/OrderCosting/DeleteOperationListProcurementCosting?OperationListProcurementCostingId=' + $scope.OLPRC)
+        $http.post('Costings/OrderCosting/DeleteOperationListProcurementCosting?OperationListProcurementCostingId=' + $scope.OLPRC)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5340,7 +5340,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteValueLossPreCosting = function () {
-        $http.get('Costings/OrderCosting/DeleteValueLossPreCosting?ValueLossPreCostingId=' + $scope.VLPC)
+        $http.post('Costings/OrderCosting/DeleteValueLossPreCosting?ValueLossPreCostingId=' + $scope.VLPC+ '&cs=' + $scope.ModelNew.CostingStage)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5367,7 +5367,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteValueLossProcurementCosting = function () {
-        $http.get('Costings/OrderCosting/DeleteValueLossProcurementCosting?ValueLossProcurementCostingId=' + $scope.VLPRC)
+        $http.post('Costings/OrderCosting/DeleteValueLossProcurementCosting?ValueLossProcurementCostingId=' + $scope.VLPRC)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5394,7 +5394,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteOrderPreCostingProfit = function () {
-        $http.get('Costings/OrderCosting/DeleteOrderPreCostingProfit?OrderPreCostingProfitId=' + $scope.OPCP)
+        $http.post('Costings/OrderCosting/DeleteOrderPreCostingProfit?OrderPreCostingProfitId=' + $scope.OPCP+ '&cs=' + $scope.ModelNew.CostingStage)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5421,7 +5421,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteOrderProcurementCostingProfit = function () {
-        $http.get('Costings/OrderCosting/DeleteOrderProcurementCostingProfit?OrderProcurementCostingProfitId=' + $scope.OPCP)
+        $http.post('Costings/OrderCosting/DeleteOrderProcurementCostingProfit?OrderProcurementCostingProfitId=' + $scope.OPCP)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5448,7 +5448,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteOrderPreCostingSalesExpense = function () {
-        $http.get('Costings/OrderCosting/DeleteOrderPreCostingSalesExpense?OrderPreCostingSalesExpenseId=' + $scope.OPCSE)
+        $http.post('Costings/OrderCosting/DeleteOrderPreCostingSalesExpense?OrderPreCostingSalesExpenseId=' + $scope.OPCSE+ '&cs=' + $scope.ModelNew.CostingStage)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5475,7 +5475,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteOrderProcurementCostingSalesExpense = function () {
-        $http.get('Costings/OrderCosting/DeleteOrderProcurementCostingSalesExpense?OrderProcurementCostingSalesExpenseId=' + $scope.OPRCSE)
+        $http.post('Costings/OrderCosting/DeleteOrderProcurementCostingSalesExpense?OrderProcurementCostingSalesExpenseId=' + $scope.OPRCSE)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
