@@ -7,17 +7,28 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
     $scope.savePlannedUrl = $scope.path + 'createPlanned';
     $scope.saveResponsibleUrl = $scope.path + 'createResponsible';
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
-    var firstDay = new Date(y, m, 1);
+    date.setDate(date.getDate() + 7);
+    /*var firstDay = new Date(y, m, 1);*/
     $scope.status = {
         Id: null,
-        FromDate: $filter('dateFiltering')(firstDay),
-        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
+        FromDate: null,
+        ToDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
         Responsible: null,
         WorkCenter: null,
         Status:'Pending',
         Asset: null
     };
     $scope.statusNew = Object.assign({}, $scope.status);
+
+    $scope.GetFromDateList = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/MaintenanceStatusDetails/GetFromDateList'
+        }).then(function successCallback(response) {
+            $scope.statusNew.FromDate = response.data[0];
+        });
+    }
+    $scope.GetFromDateList();
 
     $scope.filters = [];
     $scope.getFiltersData = function () {
@@ -174,7 +185,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         $http({
 
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId
+            url: 'Machines/MaintenanceStatusDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId + '&MaintenanceId='+ data.data.Id
         }).then(function successCallback(response) {
             $scope.ReponsiblePersonList = response.data;
             var gridObj = $("#GridResponsiblePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -193,7 +204,9 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
 
             $scope.SaveResponsibleList = [];
             for (var i = 0; i < $scope.ReponsiblePersonList.length; i++) {
-                $scope.SaveResponsibleList.push($scope.ReponsiblePersonList[i]);
+                if ($scope.ReponsiblePersonList[i].IsActive == true) {
+                    $scope.SaveResponsibleList.push($scope.ReponsiblePersonList[i]);
+                }
             }
 
 
