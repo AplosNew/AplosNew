@@ -490,6 +490,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	,TC.UserName AS ThirdCharacteristics
                             	,IRD.ThirdCharacteristicsValueId
                             	,TCV.UserName AS ThirdCharacteristicsValue
+                                ,IRD.TransactionQty AS TotalPOQty
                             	,poboq.TransactionQty AS POQty
                             	,ISNULL(aa.TransactionQty, 0) AS GRNRcvQty
                             	,'' AS TransactionQty

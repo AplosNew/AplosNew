@@ -3020,35 +3020,346 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        public double BOQPOmakeOrderDetailsTable(WordDocument document, DataTable dtOrderMaster, string grnBOQPOId)
+        //public double BOQPOmakeOrderDetailsTable(WordDocument document, DataTable dtOrderMaster, string grnBOQPOId)
+        //{
+        //     string replaceString = "{materialItems}";
+        //    ReportUtility ru = new ReportUtility();
+        //    DataTable dsOrderItems, dsTax;
+        //    //clsDataContext data = new clsDataContext();
+        //    dsOrderItems = loadOrderMasterItems(grnBOQPOId);
+        //    dsTax = loadOrderMasterTax(grnBOQPOId);
+        //    int LasColumnIndex = 16;
+        //    Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
+        //    DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
+            
+        //    WTable wTable = new WTable(document);
+        //    wTable.TableFormat.Borders.LineWidth = 1;
+        //    wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
+        //    int ROW = 0; int COL = 0;
+        //    wTable.ResetCells(1, LasColumnIndex);
+        //    WTableRow TemplateRow = wTable.Rows[0].Clone();
+        //    #region column headers
+        //    document.EnsureMinimal();
+        //    //wTable.Title = "Material Details";
+        //    WCharacterFormat FontBold = new WCharacterFormat(document);
+        //    FontBold.Bold = true;
+
+
+        //    IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SL");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colRo = COL; COL++;
+        //    wTable.Rows[ROW].Cells[colRo].Width = 25;
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Row Id");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colRowId = COL; COL++;
+        //    wTable.Rows[ROW].Cells[colRowId].Width = 50;
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colMaterialGroup = COL; COL++;
+        //    wTable.Rows[ROW].Cells[colMaterialGroup].Width = 80;
+
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article ");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colArticle = COL; COL++;
+        //    wTable.Rows[ROW].Cells[colArticle].Width = 100;
+
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colChar1 = COL; COL++;
+        //    wTable.Rows[ROW].Cells[colChar1].Width = 36;
+
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU2");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colChar2 = COL; COL++;
+        //    wTable.Rows[ROW].Cells[colChar2].Width = 36;
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colChar3 = COL; COL++;
+        //    wTable.Rows[ROW].Cells[colChar3].Width = 36;
+
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN Code");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colHSNCode = COL; COL++;
+        //    wTable.Rows[ROW].Cells[colHSNCode].Width = 70;
+
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colQty = COL; COL++;
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No.");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colLotNo = COL; COL++;
+        //    wTable.Rows[ROW].Cells[colHSNCode].Width = 30;
+
+
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dtOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colRate = COL; COL++;
+        //    wTable.Rows[ROW].Cells[colRate].Width = 60;
+
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colUoM = COL; COL++;
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colQualityStatus = COL; COL++;
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Gross Amount");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colGrossAmount = COL; COL++;
+        //    wTable.Rows[ROW].Cells[colGrossAmount].Width = 80;
+
+        //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Discount Amount");
+        //    range.ApplyCharacterFormat(FontBold);
+        //    int colDiscountAmount = COL;
+        //    wTable.Rows[ROW].Cells[colGrossAmount].Width = 80;
+
+        //    int colTotalTaxableAmount = COL;
+        //    if (dv.Count > 0)
+        //    {
+        //        COL++;
+        //        colTotalTaxableAmount = COL;
+        //        range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount");
+        //        wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 100;
+        //        range.ApplyCharacterFormat(FontBold);
+        //    }
+        //    else
+        //    {
+        //        //COL++;
+        //        //colTotalTaxableAmount = COL;
+        //        //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Amount");
+        //        //range.ApplyCharacterFormat(FontBold);
+        //    }
+
+
+        //    #endregion column headers
+       
+        //    double totalValue = 0;
+        //    int sl = 0;
+        //    int startRow = 0;
+        //    for (int i = 0; i < dtOrderMaster.Rows.Count; i++)
+        //    {
+        //        ROW++;
+        //        sl++;
+        //        wTable.AddRow();
+        //        WTableRow TROW = wTable.LastRow;
+
+        //        // WTableRow TROW = wTable.Rows[1].Clone();
+        //        for (int CE = 0; CE < TROW.Cells.Count; CE++)
+        //        {
+        //            foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+        //            {
+        //                item.Text = "";
+        //            }
+        //            TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+        //        }
+        //        TROW.Cells[colRo].AddParagraph().AppendText(sl.ToString());
+        //        TROW.Cells[colRowId].AddParagraph().AppendText(dtOrderMaster.Rows[i]["InventoryReceiveDetailId"].ToString());
+        //        TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dtOrderMaster.Rows[i]["MaterialMaster"].ToString());
+        //        TROW.Cells[colArticle].AddParagraph().AppendText(dtOrderMaster.Rows[i]["Article"].ToString());
+        //        TROW.Cells[colChar1].AddParagraph().AppendText(dtOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
+        //        TROW.Cells[colChar2].AddParagraph().AppendText(dtOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
+        //        TROW.Cells[colChar3].AddParagraph().AppendText(dtOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
+        //        TROW.Cells[colHSNCode].AddParagraph().AppendText(dtOrderMaster.Rows[i]["HSNCode"].ToString());
+        //        //TROW.Cells[colDescription].AddParagraph().AppendText(dtOrderMaster.Rows[i]["Description"].ToString());
+        //        //TROW.Cells[colGRNMaterialDetail].AddParagraph().AppendText(dtOrderMaster.Rows[i]["GRDDescrition"].ToString());
+        //        TROW.Cells[colLotNo].AddParagraph().AppendText(dtOrderMaster.Rows[i]["LotNo"].ToString());
+        //        TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
+        //        TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
+        //        TROW.Cells[colUoM].AddParagraph().AppendText(dtOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
+        //        //TROW.Cells[colExchangerate].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["ToCurrencyRate"].ToString()).ToString("#,##0.0000"));
+
+        //        TROW.Cells[colQualityStatus].AddParagraph().AppendText(dtOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
+        //        TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("#,##0.00"));
+        //        TROW.Cells[colDiscountAmount].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["DiscountAmount"].ToString()).ToString("#,##0.00"));
+        //        TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+        //        totalValue += clsStdLib.dbl(dtOrderMaster.Rows[i]["TrnAmount"].ToString());
+               
+        //    }
+
+        //    ROW++;
+        //    #region Total
+        //    int TotalRow = ROW;
+        //    wTable.AddRow();
+        //    WTableRow _TROW = wTable.LastRow;
+        //    _TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
+
+
+
+            
+
+        //    for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
+        //    {
+             
+        //        if (C == colRowId || C == colMaterialGroup || C == colRate || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colHSNCode || C == colLotNo || C == colUoM || C == colQualityStatus|| dicTaxes.ContainsValue(C))
+        //            continue;
+
+        //        double value = 0;
+        //        for (int i = startRow; i < TotalRow; i++)
+        //        {
+
+        //            foreach (WParagraph item in wTable.Rows[i].Cells[C].Paragraphs)
+        //            {
+        //                value += clsStdLib.dbl(item.Text);
+        //            }
+        //        }
+        //        _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+
+        //    }
+
+
+        //    #endregion Total
+        //    ROW++;
+        //    #region Sub Total
+        //    double total = clsStdLib.dbl(dtOrderMaster.Compute("SUM(TrnAmount)", "").ToString());
+                
+        //    #endregion Total
+        //    ROW++;
+        //    #region Total Payable
+
+
+        //    #endregion Total Payable
+        //    ROW++;
+        //    #region paragrpath formats
+        //    //Adds a new paragraph style named "MyStyle"
+        //    IWParagraphStyle myStyle = document.AddParagraphStyle("MyStyle");
+        //    //Sets the formatting of the style
+        //    myStyle.CharacterFormat.FontSize = 8f;
+        //    //myStyle.CharacterFormat.TextColor = Color.Black;
+        //    myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+        //    for (int R = 0; R < wTable.Rows.Count; R++)
+        //    {
+        //        WTableRow TROW = wTable.Rows[R];
+               
+        //        for (int CE = 0; CE < TROW.Cells.Count; CE++)
+        //        {
+        //            foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+        //            {
+        //                item.ApplyStyle("MyStyle");
+        //            }
+        //        }
+        //    }
+
+
+        //    IWParagraphStyle myStyleRightAlign = document.AddParagraphStyle("MyStyleRightAlign");
+        //    //Sets the formatting of the style
+        //    myStyleRightAlign.CharacterFormat.FontSize = 8f;
+        //    myStyleRightAlign.CharacterFormat.TextColor = Color.Black;
+        //    myStyleRightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+
+
+        //    for (int R = 1; R < wTable.Rows.Count; R++)
+        //    {
+        //        WTableRow TROW = wTable.Rows[R];
+
+
+
+        //        foreach (WParagraph item in TROW.Cells[colQty].Paragraphs)
+        //        {
+        //            item.ApplyStyle("MyStyleRightAlign");
+        //        }
+
+
+        //        foreach (WParagraph item in TROW.Cells[colRate].Paragraphs)
+        //        {
+        //            item.ApplyStyle("MyStyleRightAlign");
+        //        }
+
+
+        //        foreach (WParagraph item in TROW.Cells[colTotalTaxableAmount].Paragraphs)
+        //        {
+        //            item.ApplyStyle("MyStyleRightAlign");
+        //        }
+
+
+        //    }
+
+        //    #endregion paragrpath formats
+        //    //#region merging section
+
+        //    //tax codes merging (horizontal)
+        //    //ROW = 0;
+        //    //for (int i = 0; i < dv.Count; i++)
+        //    //    wTable.ApplyHorizontalMerge(ROW, dicTaxes[dv[i]["TaxCode"].ToString()], dicTaxes[dv[i]["TaxCode"].ToString()] + 1);
+
+        //    //primary cells merging (veritcal)
+        //    //ROW++;
+        //    //WTableRow TROWe = wTable.LastRow;
+        //    //for (int i = 0; i <= colTotalTaxableAmount; i++)
+        //    //{
+        //    //    TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
+        //    //    wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+        //    //}
+        //    //wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+
+
+
+
+        //    //IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
+        //    //style.CharacterFormat.Bold = true;
+        //    //style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
+        //    //Adds new paragraph to the section
+
+        //    #endregion merging section
+        //    TextBodyPart textBodyPart = new TextBodyPart(document);
+        //    textBodyPart.BodyItems.Add(wTable);
+        //    document.Replace(replaceString, textBodyPart, true, true);
+        //    return total;
+        //}
+
+        public double BOQPOmakeOrderDetailsTable(WordDocument document, DataTable dsOrderMaster, string grnBOQPOId)
         {
-             string replaceString = "{materialItems}";
-            ReportUtility ru = new ReportUtility();
+            string replaceString = "{materialItems}";
+
             DataTable dsOrderItems, dsTax;
-            //clsDataContext data = new clsDataContext();
+
             dsOrderItems = loadOrderMasterItems(grnBOQPOId);
             dsTax = loadOrderMasterTax(grnBOQPOId);
-            int LasColumnIndex = 16;
+
+            int LasColumnIndex = 15;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
-            
+            if (dv.Count > 0)
+            {
+                for (int i = 0; i < dv.Count; i++)
+                {
+                    LasColumnIndex++;
+                    dicTaxes.Add(dv[i]["TaxCode"].ToString(), LasColumnIndex);
+                    LasColumnIndex++;
+                }
+            }
             WTable wTable = new WTable(document);
             wTable.TableFormat.Borders.LineWidth = 1;
             wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
+            wTable.TableFormat.IsAutoResized = true;
+
             int ROW = 0; int COL = 0;
-            wTable.ResetCells(1, LasColumnIndex);
+            wTable.ResetCells(1, LasColumnIndex + 1);
+
             WTableRow TemplateRow = wTable.Rows[0].Clone();
             #region column headers
             document.EnsureMinimal();
-            //wTable.Title = "Material Details";
+
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
-
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SL");
             range.ApplyCharacterFormat(FontBold);
             int colRo = COL; COL++;
-            wTable.Rows[ROW].Cells[colRo].Width = 25;
+            wTable.Rows[ROW].Cells[colRo].Width = 30;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Row Id");
             range.ApplyCharacterFormat(FontBold);
@@ -3064,7 +3375,7 @@ namespace Library.MaterialManagement.Inventory
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article ");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 100;
+            wTable.Rows[ROW].Cells[colArticle].Width = 80;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
@@ -3087,7 +3398,24 @@ namespace Library.MaterialManagement.Inventory
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN Code");
             range.ApplyCharacterFormat(FontBold);
             int colHSNCode = COL; COL++;
-            wTable.Rows[ROW].Cells[colHSNCode].Width = 70;
+            wTable.Rows[ROW].Cells[colHSNCode].Width = 35;
+
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN NO");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colHSNCode = COL; COL++;
+            //wTable.Rows[ROW].Cells[colChar3].Width = 45;
+
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Po Material Detail");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colDescription = COL; COL++;
+            //wTable.Rows[ROW].Cells[colDescription].Width = 40;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GRN Material Detail");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colGRNMaterialDetail = COL; COL++;
+            //wTable.Rows[ROW].Cells[colGRNMaterialDetail].Width = 40;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
@@ -3101,10 +3429,10 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dtOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL; COL++;
-            wTable.Rows[ROW].Cells[colRate].Width = 60;
+            wTable.Rows[ROW].Cells[colRate].Width = 45;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
@@ -3118,12 +3446,11 @@ namespace Library.MaterialManagement.Inventory
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Gross Amount");
             range.ApplyCharacterFormat(FontBold);
             int colGrossAmount = COL; COL++;
-            wTable.Rows[ROW].Cells[colGrossAmount].Width = 80;
+            wTable.Rows[ROW].Cells[colGrossAmount].Width = 50;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Discount Amount");
             range.ApplyCharacterFormat(FontBold);
             int colDiscountAmount = COL;
-            wTable.Rows[ROW].Cells[colGrossAmount].Width = 80;
 
             int colTotalTaxableAmount = COL;
             if (dv.Count > 0)
@@ -3131,28 +3458,101 @@ namespace Library.MaterialManagement.Inventory
                 COL++;
                 colTotalTaxableAmount = COL;
                 range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount");
-                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 100;
+                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 60;
                 range.ApplyCharacterFormat(FontBold);
+                //COL++;
+                for (int i = 0; i < dv.Count; i++)
+                {
+                    try
+                    {
+                        //two columns required for tax
+                        COL++;
+                        range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText(dv[i]["TaxCode"].ToString());
+                        range.ApplyCharacterFormat(FontBold);
+                        COL++;
+                        range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+                        range.ApplyCharacterFormat(FontBold);
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+
+                }
             }
             else
             {
-                //COL++;
-                //colTotalTaxableAmount = COL;
-                //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Amount");
-                //range.ApplyCharacterFormat(FontBold);
+                COL++;
+                colTotalTaxableAmount = COL;
+                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Amount");
+                range.ApplyCharacterFormat(FontBold);
             }
 
 
+            if (dv.Count > 0)
+            {
+                wTable.Rows.Add(TemplateRow);
+                ROW++;
+                WTableRow TROW = wTable.LastRow;
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                for (int i = 0; i < dv.Count; i++)
+                {
+                    try
+                    {
+                        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()]].AddParagraph().AppendText("Rate(%)");
+                        range.ApplyCharacterFormat(FontBold);
+                        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()] + 1].AddParagraph().AppendText("Amount");
+                        range.ApplyCharacterFormat(FontBold);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
+                }
+            }
             #endregion column headers
-       
+            //if (dv.Count > 0)
+            //{
+            //    wTable.Rows.Add(TemplateRow);
+
+            //    WTableRow TROW = wTable.LastRow;
+            //    for (int CE = 0; CE < TROW.Cells.Count; CE++)
+            //    {
+            //        foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+            //        {
+            //            item.Text = "";
+            //        }
+            //        TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+            //    }
+            //    for (int i = 0; i < dv.Count; i++)
+            //    {
+
+            //        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()]].AddParagraph().AppendText("Rate(%)");
+            //        range.ApplyCharacterFormat(FontBold);
+            //        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()] + 1].AddParagraph().AppendText("Amount");
+            //        range.ApplyCharacterFormat(FontBold);
+            //    }
+            //    ROW++;
+            //}
+#endregion column headers
             double totalValue = 0;
+            //ROW++;
             int sl = 0;
+            wTable.AddRow();
             int startRow = 0;
-            for (int i = 0; i < dtOrderMaster.Rows.Count; i++)
+            for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
             {
                 ROW++;
                 sl++;
                 wTable.AddRow();
+                //wTable.AddRow();
                 WTableRow TROW = wTable.LastRow;
 
                 // WTableRow TROW = wTable.Rows[1].Clone();
@@ -3165,27 +3565,42 @@ namespace Library.MaterialManagement.Inventory
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
                 TROW.Cells[colRo].AddParagraph().AppendText(sl.ToString());
-                TROW.Cells[colRowId].AddParagraph().AppendText(dtOrderMaster.Rows[i]["InventoryReceiveDetailId"].ToString());
-                TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dtOrderMaster.Rows[i]["MaterialMaster"].ToString());
-                TROW.Cells[colArticle].AddParagraph().AppendText(dtOrderMaster.Rows[i]["Article"].ToString());
-                TROW.Cells[colChar1].AddParagraph().AppendText(dtOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
-                TROW.Cells[colChar2].AddParagraph().AppendText(dtOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
-                TROW.Cells[colChar3].AddParagraph().AppendText(dtOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
-                TROW.Cells[colHSNCode].AddParagraph().AppendText(dtOrderMaster.Rows[i]["HSNCode"].ToString());
-                //TROW.Cells[colDescription].AddParagraph().AppendText(dtOrderMaster.Rows[i]["Description"].ToString());
-                //TROW.Cells[colGRNMaterialDetail].AddParagraph().AppendText(dtOrderMaster.Rows[i]["GRDDescrition"].ToString());
-                TROW.Cells[colLotNo].AddParagraph().AppendText(dtOrderMaster.Rows[i]["LotNo"].ToString());
-                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
-                TROW.Cells[colUoM].AddParagraph().AppendText(dtOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-                //TROW.Cells[colExchangerate].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["ToCurrencyRate"].ToString()).ToString("#,##0.0000"));
+                TROW.Cells[colRowId].AddParagraph().AppendText(dsOrderMaster.Rows[i]["InventoryReceiveDetailId"].ToString());
+                TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
+                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
+                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
+                TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
+                TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
+                TROW.Cells[colHSNCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
+                //TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
+                //TROW.Cells[colGRNMaterialDetail].AddParagraph().AppendText(dsOrderMaster.Rows[i]["GRDDescrition"].ToString());
+                TROW.Cells[colLotNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
+                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
+                TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
+                //TROW.Cells[colExchangerate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["ToCurrencyRate"].ToString()).ToString("#,##0.0000"));
 
-                TROW.Cells[colQualityStatus].AddParagraph().AppendText(dtOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
-                TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colDiscountAmount].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["DiscountAmount"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dtOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
-                totalValue += clsStdLib.dbl(dtOrderMaster.Rows[i]["TrnAmount"].ToString());
-               
+                TROW.Cells[colQualityStatus].AddParagraph().AppendText(dsOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
+                TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colDiscountAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["DiscountAmount"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+                totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
+                //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
+                if (dv.Count > 0)
+                {
+                    //dsTax.Tables[0].DefaultView.RowFilter = "MasterOrderItemId='" + dsOrderItems.Tables[0].Rows[i]["MasterOrderItemId"].ToString() + "'";
+                    DataView dvtax = new DataView(dsTax.DefaultView.ToTable());
+                    //double totalTax = 0;
+                    for (int T = 0; T < dv.Count; T++)
+                    {
+                        dvtax.RowFilter = "TaxCode='" + dv[T]["TaxCode"].ToString() + "' AND InventoryReceiveDetailId ='" + dsOrderMaster.Rows[i]["InventoryReceiveDetailId"].ToString() + "'";
+                        if (dvtax.Count > 0)
+                        {
+                            TROW.Cells[dicTaxes[dv[T]["TaxCode"].ToString()]].AddParagraph().AppendText(Convert.ToDouble(dvtax[0]["Percentage"].ToString()).ToString("#,##0.0000"));
+                            TROW.Cells[dicTaxes[dv[T]["TaxCode"].ToString()] + 1].AddParagraph().AppendText(Convert.ToDouble(dvtax[0]["TaxAmount"].ToString()).ToString("#,##0.00"));
+                        }
+                    }
+                }
             }
 
             ROW++;
@@ -3197,12 +3612,9 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-            
-
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-             
-                if (C == colRowId || C == colMaterialGroup || C == colRate || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colHSNCode || C == colLotNo || C == colUoM || C == colQualityStatus|| dicTaxes.ContainsValue(C))
+                if (C == colHSNCode || C == colRate || C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate /*|| C == colUoM*/ || dicTaxes.ContainsValue(C))
                     continue;
 
                 double value = 0;
@@ -3217,17 +3629,32 @@ namespace Library.MaterialManagement.Inventory
                 _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
 
             }
-
-
             #endregion Total
             ROW++;
             #region Sub Total
-            double total = clsStdLib.dbl(dtOrderMaster.Compute("SUM(TrnAmount)", "").ToString());
-                
+            //int SubTotalRow = ROW;
+            //int SubTotalColumn = 0;//_TROW.Cells.Count - 5;
+            //wTable.AddRow();
+            //_TROW = wTable.LastRow;
+
+            //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
+
+            double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(TrnAmount)", "").ToString())
+                //- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
+                + clsStdLib.dbl(dsTax.Compute("SUM(TaxAmount)", "").ToString());
+
+            //_TROW.Cells[SubTotalColumn + 1].AddParagraph().AppendText(total.ToString("F2") + " (" + ru.InWord(total, dsOrderMaster.Rows[0]["CurrencyId"].ToString()) + ")");
+
             #endregion Total
             ROW++;
             #region Total Payable
+            //int TotalPayableRow = ROW;
+            //int TotalPayableColumn = 0;//_TROW.Cells.Count - 5;
+            //wTable.AddRow();
+            //_TROW = wTable.LastRow;
 
+            //_TROW.Cells[TotalPayableColumn].AddParagraph().AppendText("Total Amount Payable");
+            //_TROW.Cells[TotalPayableColumn + 1].AddParagraph().AppendText("Need To Discuss");
 
             #endregion Total Payable
             ROW++;
@@ -3242,7 +3669,10 @@ namespace Library.MaterialManagement.Inventory
             for (int R = 0; R < wTable.Rows.Count; R++)
             {
                 WTableRow TROW = wTable.Rows[R];
-               
+                // TROW.Cells[0].Width = 120;
+                //if (dv.Count < 3)
+                //    TROW.Cells[0].Width = 120 + ((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
+
                 for (int CE = 0; CE < TROW.Cells.Count; CE++)
                 {
                     foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
@@ -3288,29 +3718,29 @@ namespace Library.MaterialManagement.Inventory
             }
 
             #endregion paragrpath formats
-            //#region merging section
+            #region merging section
 
             //tax codes merging (horizontal)
-            //ROW = 0;
-            //for (int i = 0; i < dv.Count; i++)
-            //    wTable.ApplyHorizontalMerge(ROW, dicTaxes[dv[i]["TaxCode"].ToString()], dicTaxes[dv[i]["TaxCode"].ToString()] + 1);
+            ROW = 0;
+            for (int i = 0; i < dv.Count; i++)
+                wTable.ApplyHorizontalMerge(ROW, dicTaxes[dv[i]["TaxCode"].ToString()], dicTaxes[dv[i]["TaxCode"].ToString()] + 1);
 
             //primary cells merging (veritcal)
-            //ROW++;
-            //WTableRow TROWe = wTable.LastRow;
-            //for (int i = 0; i <= colTotalTaxableAmount; i++)
-            //{
-            //    TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
-            //    wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
-            //}
+            ROW++;
+            WTableRow TROWe = wTable.LastRow;
+            for (int i = 0; i <= colTotalTaxableAmount; i++)
+            {
+                TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
+                wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+            }
             //wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
 
 
 
 
-            //IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
-            //style.CharacterFormat.Bold = true;
-            //style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
+            IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
+            style.CharacterFormat.Bold = true;
+            style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
             //Adds new paragraph to the section
 
             #endregion merging section

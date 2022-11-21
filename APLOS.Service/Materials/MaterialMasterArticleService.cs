@@ -53,9 +53,9 @@ namespace Library.Service.Materials
         {
             try
             {
-                var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName,HC.Code as HSNCode,MMA.HSNCodeId,MMA.RPM, MMA.MachineAllowance,             MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
-                            ,IsMachineApplicable=CASE WHEN MMA.IsMachineApplicable=0 THEN 'No' ELSE 'Yes' END
-							,IsWorkCenterApplicable=CASE WHEN MMA.IsWorkCenterApplicable=0 THEN 'No' ELSE 'Yes' END
+                var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName,HC.Code as HSNCode,MMA.HSNCodeId,MMA.RPM,           MMA.MachineAllowance,MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
+                            ,MMA.IsMachineApplicable
+							,MMA.IsWorkCenterApplicable
 
 		                    FROM MST.MaterialMasterArticle MMA
                            LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId

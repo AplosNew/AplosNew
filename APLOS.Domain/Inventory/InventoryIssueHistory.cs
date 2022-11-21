@@ -75,6 +75,7 @@ namespace Library.Model.Inventory
         public VoucherDetail CapitalizeVoucherDetail { get; set; }
         public string CapitalizeVoucherDetailId { get; set; }
         public string IssueRequestDetailId { get; set; } 
+        public string MaterialStorageId { get; set; } 
         
         #endregion Navigation Properties
     }
