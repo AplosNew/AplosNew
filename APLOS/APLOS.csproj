@@ -594,7 +594,6 @@
     <Compile Include="Areas\HumanResource\Controllers\MedicineReceiptController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicinePurposeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ExperienceMasterController.cs" />
-    <Compile Include="Areas\HumanResource\Controllers\QualificationMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SicknessTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTCompensatoryAllocationController.cs" />
@@ -2077,7 +2076,6 @@
     <Content Include="Areas\HumanResource\Scripts\MedicineReceiptController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicineMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicinePurposeController.js" />
-    <Content Include="Areas\HumanResource\Scripts\QualificationMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\SicknessTypeController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTCompensatoryAllocationController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTControlLimitReportController.js" />
@@ -2592,6 +2590,7 @@
     <Content Include="Areas\Productions\Scripts\recipeMaterialController.js" />
     <Content Include="Areas\Products\Scripts\assetInventoryIssueController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionReportWithParameterController.js" />
+    <Content Include="Areas\Products\Scripts\inventoryIssueSlipBaseController.js" />
     <Content Include="Areas\Products\Scripts\salesRegisterController.js" />
     <Content Include="Areas\Products\Scripts\GatePassPotalController.js" />
     <Content Include="Areas\Products\Scripts\GatePassRegisterController.js" />
@@ -4406,7 +4405,6 @@
     <Content Include="Areas\Materials\Views\DetentionLogReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ExperienceMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployerMaster\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\QualificationMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

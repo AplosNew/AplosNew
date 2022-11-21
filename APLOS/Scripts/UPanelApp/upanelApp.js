@@ -205,6 +205,7 @@ upanelApp.controller("intSalesOrderInvoiceController", intSalesOrderInvoiceContr
 upanelApp.controller("intSalesOrderInvoiceEditController", intSalesOrderInvoiceEditController);
 upanelApp.controller("intSalesOrderInvoicePostController", intSalesOrderInvoicePostController);
 upanelApp.controller("inventoryIssueController", inventoryIssueController);
+upanelApp.controller("inventoryIssueSlipBaseController", inventoryIssueSlipBaseController);
 upanelApp.controller("inventoryIssueJournalController", inventoryIssueJournalController);
 upanelApp.controller("inventoryPayableController", inventoryPayableController);
 upanelApp.controller("inventoryReceiveController", inventoryReceiveController);
