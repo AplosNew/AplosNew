@@ -241,7 +241,7 @@ function ProductConfig($routeProvider, $locationProvider) {
         })
         .when('/slip-issue', {
             templateUrl: 'Products/inventoryIssue/SlipIssue',
-            controller: 'inventoryIssueController'
+            controller: 'inventoryIssueSlipBaseController'
         })
         .when('/issue-return', {
             templateUrl: 'Products/inventoryIssue/IssueReturn',

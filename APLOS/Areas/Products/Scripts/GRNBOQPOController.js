@@ -1890,9 +1890,12 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 }
                 else {
                     for (var x = 0; x < $scope.MasterList.length; x++) {
-                        if ($scope.MasterList[x].InventoryReceiveDetailId == nRow.InventoryReceiveDetailId) {
+                        if ($scope.MasterList[x].InventoryReceiveDetailId == nRow.InventoryReceiveDetailId  && nRow.check) {
                             var Qty = nRow.TransactionQty;
                             $scope.MasterList[x].TransactionQty = $scope.MasterList[x].TransactionQty + parseFloat(Qty);
+                            $scope.MasterList[x].POQty += $scope.MasterList[x].POQty;
+                            $scope.MasterList[x].Balance += $scope.MasterList[x].Balance;
+                            $scope.MasterList[x].GRNRcvQty += $scope.MasterList[x].GRNRcvQty;
                             $scope.MasterList[x].ApprovedQty = $scope.MasterList[x].TransactionQty + parseFloat(Qty);
                             $scope.MasterList[x].NetQty = $scope.MasterList[x].TransactionQty + parseFloat(Qty);
                             Qty = 0;

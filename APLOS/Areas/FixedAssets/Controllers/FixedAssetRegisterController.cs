@@ -1003,6 +1003,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetDispose/FixedAssetDisposePost.cshtml");
         }
+        public ActionResult FixedAssetDepreciationPost()
+        {
+            return View("~/Areas/FixedAssets/Views/FixedAssetDepreciationPost.cshtml");
+        }
         [HttpPost, Authorize]
         public ActionResult GetFixedAssetRegisterPopUpList(string column, string value, string companyId)
         {
