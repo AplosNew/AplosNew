@@ -3543,7 +3543,7 @@ namespace Library.MaterialManagement.Inventory
             //}
 #endregion column headers
             double totalValue = 0;
-            //ROW++;
+            ROW=ROW-1;
             int sl = 0;
             wTable.AddRow();
             int startRow = 0;
