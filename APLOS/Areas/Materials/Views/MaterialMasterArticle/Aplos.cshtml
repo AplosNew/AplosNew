@@ -85,8 +85,8 @@
                     <td>{{x.ShortName}}</td>
                     <td>{{x.StandardName}}</td>
                     <td>{{x.HSNCode}}</td>
-                    <td>{{x.IsMachineApplicable}}</td>
-                    <td>{{x.IsWorkCenterApplicable}}</td>
+                    <td>{{x.IsMachineApplicable?'Yes':'No'}}</td>
+                    <td>{{x.IsWorkCenterApplicable?'Yes':'No'}}</td>
                     <td>{{x.OrderLevel}}</td>
                     <td ng-repeat="y in x.MaterialMasterArticleValues">{{y.MaterialAttributeValueFreeText}}</td>
                 </tr>
