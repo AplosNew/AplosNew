@@ -199,21 +199,6 @@ namespace Aplos.Areas.Products.Controllers
 
         }
 
-        [Authorize, HttpPost]
-        public ActionResult InventorySalesReportExcel(string FromDate, string ToDate, string Summary, string Type,bool WithTax)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            //var reportFileName = "Sales Register.xls" + FromDate + "To" + ToDate + "";
-            ExcelEngine excelEngine = new ExcelEngine();
-            SalesQueryService salesQueryService = new SalesQueryService(_sqlRepository);
-
-            string fileName = "";
-            fileName= salesQueryService.InventorySalesReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, FromDate, ToDate, Summary, Type, WithTax, "Sales Register Sales Wise.xls" + FromDate + "To" + ToDate + "");
-            return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-        }
-
-
-
         #endregion Pages
         #region material-ledger Reports
 
@@ -380,25 +365,7 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-        [Authorize, HttpPost]
-        public ActionResult SalesRegisterCustomerWiseReport(string PlantId, string FromDate, string ToDate,string PartyId)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                SalesQueryService obj = new SalesQueryService(_sqlRepository);
-                string fileName = "";
-
-                fileName= obj.CreateSalesOrderCustomerWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, PartyId, "Sales Register Report Party Wise" + FromDate + "To" + ToDate + "");
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-        }
-
+        
         [HttpPost, Authorize]
         public ActionResult GetSalesRegisterItemWiseData(string PlantId, string ToDate, string FromDate)
         {
@@ -413,25 +380,6 @@ namespace Aplos.Areas.Products.Controllers
             }
             catch (Exception ex)
             {
-                throw ex;
-            }
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult SalesRegisterItemWiseReport(string PlantId, string FromDate, string ToDate)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                SalesQueryService obj = new SalesQueryService(_sqlRepository);
-
-                string fileName = "";
-                fileName= obj.CreateSalesRegisterItemWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, "Sales Register.xls" + FromDate + "To" + ToDate + "");
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
                 throw ex;
             }
         }
