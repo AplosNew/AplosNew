@@ -419,10 +419,12 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
                     $scope.userMedicineList.push(ob);
                     ob = {};
                     a.chk = false;
+                    //$scope.ValidateMedicineQuantity(ob.Quantity);
                 }
 
             });
         }
+        $scope.ValidateMedicineQuantity(a.Quantity);
         $scope.closeMedicineReceiptPopUp();
     };
 
@@ -462,4 +464,17 @@ function MedicalLogController(cboService, commonMessage, $scope, $rootScope, bas
         };
         $scope.ModalNew = Object.assign({}, $scope.ModelTemp);
     }
-}
+
+    $scope.ValidateMedicineQuantity = function (e) {
+        
+        for (var i = 0; i < $scope.MedicineList.length; i++) {
+            $scope.stock = $scope.MedicineList[i].Stock;
+            $scope.selectedId = $scope.MedicineList[i].Id;
+            
+            if (e.data.Quantity < $scope.stock) {
+                ShowResult('Entered medicine quantity is greater then medicne stock');
+                throw 'Value is greater then stock';
+            }
+        }
+    }
+}   

@@ -102,10 +102,25 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
         #endregion SAVE
+
+        #region Update
+        [HttpPost, Authorize]
+        public ActionResult Update(Dictionary<string, object> data, List<Dictionary<string, object>> medicinelist, string partyId)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = mr.Update(data, medicinelist, partyId), Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion  Update
     }
 }
