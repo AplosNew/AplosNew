@@ -294,20 +294,29 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                DataSet dsExcel = null;
-                string fileName = "";
-                fileName = ProductionDataReport(parameters, "Production Report");
-              //  var data = ReadData(fileName);
+                //DataSet dsExcel = null;
+                //string fileName = "";
+                //fileName = ProductionDataReport(parameters, "Production Report");
 
-                ReadFile(fileName, out dsExcel);
+                //ReadFile(fileName, out dsExcel);
+                //for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                //{
+                //    dsExcel.Tables[0].Columns.Add("Id", typeof(string));
+                //    break;
+                //}
+                DataTable dtdata;
+                ReportSQL(parameters, out dtdata);
 
-                List<Dictionary<string, object>> data = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dsExcel.Tables[0]);
-                //return Json(new { data, Message = AplosMessage.Success });
+                List<Dictionary<string, object>> data = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtdata);
 
+                //DeleteData();
+                //SaveReportData(data);
+
+                //var sql = @"SELECT * FROM [dbo].[POWiseProductionStatusReport]";
+                //JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
                 return json;
-                //return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -315,6 +324,40 @@ namespace Aplos.Areas.Productions.Controllers
             }
 
         }
+
+        public void DeleteData()
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [dbo].[POWiseProductionStatusReport]";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
 
         public string ProductionDataReport(Dictionary<string, string> parameters, string SheetName)
         {
@@ -628,7 +671,7 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     partyId = "AND XMO.PartyId in(" + parameters["CustomerId"] + @")";
                 }
-                string sql = @"SELECT distinct PP.Id,trke.UserName AS Entity,PP.ProductionOrderID PONo,pp.WorkCenterMasterId,POPS.[Sequence] POProcessSequence 
+                string sql = @"SELECT distinct PP.Id PSId,'' Id,trke.UserName AS Entity,PP.ProductionOrderID PONo,pp.WorkCenterMasterId,POPS.[Sequence] POProcessSequence 
 ,wcm.UserName AS WorkCenter ,CPL.UserName AS ProductionShift,PP.ProductionDate AS ActualDate,pp.Quantity AS ActualQty,
 isnull(p.UserName,FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,ISNULL(pp.StandardName,ord.Article ) Article                  
 ,ord.Product,BaseProcess= CASE WHEN P.IsProductionProcess=1 THEN 'Yes' ELSE '' END,PS.UserName POStatus,
@@ -749,18 +792,33 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
 
         }
 
-        private void SaveReportData(List<Dictionary<string, object>> grnDetailList)
+        private string GetGeneralPK()
+        {
+            string sID = string.Empty;
+            string idFromDB = string.Empty;
+            string systemID = string.Empty;
+
+            bplib.clsGenID objGenID = null;
+            objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "POWiseProductionStatusReport", out idFromDB);
+            systemID = idFromDB;
+            sID = systemID.Trim();
+            return sID;
+
+        }
+
+        private void SaveReportData(List<Dictionary<string, object>> dataList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
             {
-                DataSet dsMaster, dsDetail, dsGRNDetail;
+                DataSet dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                con.OpenDataSetThroughAdapter("SELECT * FROM BPDT.FabricRollManagementChild WHERE FabricRollManagementMasterId =''", out dsDetail, false, "1");
+               string systemid = GetGeneralPK();
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.POWiseProductionStatusReport WHERE Id =''", out dsDetail, false, "1");
                 int count = 0;
-                foreach (var item in grnDetailList)
+                foreach (var item in dataList)
                 {
                     count++;
                     DataView dv = new DataView(dsDetail.Tables[0]);
@@ -768,16 +826,10 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
 
                     if (dv.Count == 0)
                     {
-                        // item["Id"] = masterId + "-" + count;
-                        //item["FabricRollManagementMasterId"] = masterId;
-
+                        item["Id"] = systemid + "-" + count;
                         AddNewRow(dsDetail.Tables[0], item);
                     }
-                    else
-                    {
-                        DataRow drmo = dv[0].Row;
-                        EditRow(drmo, item);
-                    }
+                    
                 }
 
                 clsStaticInfo obj = new clsStaticInfo();
@@ -790,6 +842,12 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetReportData()
+        {
+            var sql = @"SELECT *FROM [dbo].[POWiseProductionStatusReport]";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
         public void ReadFile(string path, out DataSet dsExcel)
         {
@@ -843,12 +901,7 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
                 }
             }
 
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
+            
 
             dt.Rows.Add(dr);
         }
@@ -868,9 +921,7 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
                 }
             }
 
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
+           
             dr.EndEdit();
         }
     }
