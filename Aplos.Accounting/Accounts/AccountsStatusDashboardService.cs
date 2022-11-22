@@ -22342,11 +22342,8 @@ group by Id) O60 ON O60.Id=IV.Id
                 {
                     list.Add(rcvid);
 
-                    worksheet[ROW, colCustomer].Text = dtGatenntryRegisterList.Rows[i]["Customer"].ToString();
                     //worksheet.Range[margeRow, colCustomer, ROW, colCustomer].Merge();
 
-                    worksheet[ROW, colMasterOrderNo].Text = dtGatenntryRegisterList.Rows[i]["MasterOrderNo"].ToString();
-                    worksheet[ROW, colMasterOrderDate].Text = dtGatenntryRegisterList.Rows[i]["MasterOrderDate"].ToString();
                     worksheet[ROW, colInvoiceNo].Text = dtGatenntryRegisterList.Rows[i]["InvoiceNo"].ToString();
                     worksheet[ROW, colInvoiceDate].Text = dtGatenntryRegisterList.Rows[i]["InvoiceDate"].ToString();
                     worksheet[ROW, colBaseOnDueDate].Text = (dtGatenntryRegisterList.Rows[i]["BaseOnDueDate"].ToString());
@@ -22376,6 +22373,9 @@ group by Id) O60 ON O60.Id=IV.Id
                     //ROW++;
 
                 }
+                    worksheet[ROW, colCustomer].Text = dtGatenntryRegisterList.Rows[i]["Customer"].ToString();
+                    worksheet[ROW, colMasterOrderNo].Text = dtGatenntryRegisterList.Rows[i]["MasterOrderNo"].ToString();
+                    worksheet[ROW, colMasterOrderDate].Text = dtGatenntryRegisterList.Rows[i]["MasterOrderDate"].ToString();
 
                 worksheet[ROW, colReceiveDate].Text = dtGatenntryRegisterList.Rows[i]["ReceiveDate"].ToString();
                 worksheet[ROW, colReceiveAgainstInvoice].Text = dtGatenntryRegisterList.Rows[i]["ReceiveAgainstInvoice"].ToString();
