@@ -349,12 +349,12 @@ namespace Aplos.Areas.Productions.Controllers
                 int colProcess = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "PO Process Sequence";
+                sheet[ROW, COL].Text = "POProcessSequence";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colPOProcessSeq = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "Standard Process Sequence";
+                sheet[ROW, COL].Text = "StandardProcessSequence";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colStandardProcessSeq = COL;
 
@@ -364,7 +364,7 @@ namespace Aplos.Areas.Productions.Controllers
                 int colBaseProcessApplicable = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "Work Center";
+                sheet[ROW, COL].Text = "WorkCenter";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colWorkCenter = COL;
 
@@ -380,12 +380,12 @@ namespace Aplos.Areas.Productions.Controllers
 
                 COL++;
                 int colstart = COL;
-                sheet[ROW, COL].Text = "Prod. Order No";
+                sheet[ROW, COL].Text = "PONo";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProductionOrderID = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "PO Status";
+                sheet[ROW, COL].Text = "POStatus";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colPOStatus = COL;
 
@@ -405,20 +405,20 @@ namespace Aplos.Areas.Productions.Controllers
                 int colLotNumber = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "Own Order No";
+                sheet[ROW, COL].Text = "OwnOrderNo";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colOwnOrderNo = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Buyer Item No";
+                sheet[ROW, COL].Text = "BuyerItemNo";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colStyleNo = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Own Item No";
+                sheet[ROW, COL].Text = "OwnItemNo";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colOwnStyleNo = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "Sales Order Ids(PR)";
+                sheet[ROW, COL].Text = "SalesOrderIds";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colSalesOrderIds = COL;
 
@@ -433,21 +433,34 @@ namespace Aplos.Areas.Productions.Controllers
                 int colArticle = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "Work Station";
+                sheet[ROW, COL].Text = "WorkStation";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colWorkStation = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "Working Hours";
+                sheet[ROW, COL].Text = "WorkingHours";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colActualWorkHours = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "Production Qty";
+                sheet[ROW, COL].Text = "ProductionQty";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colActualQty = COL;
+
+               
+                COL++;
+                sheet[ROW, COL].Text = "UpToDateProduction";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colUpToDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "CurrentProduction";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colCurrent = COL;
 
                 COL++;
                 sheet[ROW, COL].Text = "WIP";
@@ -455,53 +468,42 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colWIP = COL;
 
-                COL++;
-                sheet[ROW, COL].Text = "UpToDate Production";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colUpToDate = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "Current Production";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colCurrent = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "First Book Date";
+                sheet[ROW, COL].Text = "FirstBookDate";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colFirstProBookDate = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "Last Book Date";
+                sheet[ROW, COL].Text = "LastBookDate";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colLastProBookDate = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "First Shipment Date";
+                sheet[ROW, COL].Text = "FirstShipmentDate";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colFirstshipmentDate = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "Last Shipment Date";
+                sheet[ROW, COL].Text = "LastShipmentDate";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colLastshipmentDate = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "UptoDate Production(%)";
+                sheet[ROW, COL].Text = "UptoDateProductionPerecent";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colUptoDateProduction = COL;
 
-                COL++;
-                sheet[ROW, COL].Text = "Relay Process";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colRelayProcess = COL;
+                //COL++;
+                //sheet[ROW, COL].Text = "RelayProcess";
+                //sheet[ROW, COL].ColumnWidth = 12;
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colRelayProcess = COL;
 
                 #endregion columns
 
