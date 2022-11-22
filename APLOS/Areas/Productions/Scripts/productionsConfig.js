@@ -313,5 +313,14 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/POWiseProductionStatusReport/Aplos',
             controller: 'POWiseProductionStatusReportController'
         })
+
+        .when('/parameter-master', {
+            templateUrl: 'Productions/ParameterMaster/Aplos',
+            controller: 'ParameterMasterController'
+        })
+        .when('/parameter', {
+            templateUrl: 'Productions/Parameter/Aplos',
+            controller: 'ParameterController'
+        })
         ;
 }

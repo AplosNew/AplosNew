@@ -135,6 +135,11 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             controller: "fixedAssetDisposePostController"
         })
 
+        .when("/fixedasset-depreciation-post", {
+            templateUrl: "FixedAssets/FixedAssetRegister/FixedAssetDepreciationPost",
+            controller: "fixedAssetDepreciationPostController"
+        })
+
         .when("/generalledger-vs-fixedassets", {
             templateUrl: "FixedAssets/FixedAssetRegister/GLvsFA",
             controller: "generalLedgerVSfixedAssetsController"

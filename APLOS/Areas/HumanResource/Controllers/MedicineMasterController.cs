@@ -157,7 +157,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
