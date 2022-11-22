@@ -90,6 +90,7 @@
         <table class="table table-responsive table-striped">
             <thead ng-show="userMedicineList.length > 0">
                 <tr>
+                    
                     <th>User Name</th>
                     <th>Expiry Date</th>
                     <th>Quantity</th>
@@ -100,6 +101,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat="x in userMedicineList">
+                    
                     <td>{{x.UserName}}</td>
                     <td>
                         <div class="show-message">
@@ -116,17 +118,21 @@
 
                 </tr>
             </tbody>
-            @*<tfoot ng-show="userMedicineList.length">
+            <tfoot ng-show="userMedicineList.length">
                 <tr>
+                    <td>Total</td>
+                    <td></td>
+                    <td></td>
+                    <td class="text-right"><strong>{{userMedicineList | sumByKey : 'Amount' | number:2}}</strong></td>
 
-                    <td>
-                    </td>
                 </tr>
-            </tfoot>*@
+                
+            </tfoot>
         </table>
         <div class="common-btn" style="margin-top:10px">
             <ul class="list-inline text-right">
-                <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                <li> <button ng-click="Update();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>
                 @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
             
@@ -158,16 +164,13 @@
             @*<div e-column e-headertext="Actions" e-width="60">
             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
         </div>*@
-            <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>
+            @*<div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>*@
             <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
             <div e-column e-field="InvoiceNumber" e-headertext="Invoice Number" e-width="130"></div>
             <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="130"></div>
-            <div e-column e-field="Medicine" e-headertext="Medicine" e-width="100"></div>
-            <div e-column e-field="ExpiryDate" e-headertext="Expiry Date" e-width="100"></div>
-
-            <div e-column e-field="Quantity" e-headertext="Quantity" e-width="100"></div>
-            <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
-            <div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
+            <div e-column e-field="Amount" e-headertext="Sum Of Amount" e-width="130"></div>
+            
+            
 
         </div>
     </div>

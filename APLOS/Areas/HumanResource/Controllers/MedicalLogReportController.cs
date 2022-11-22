@@ -42,6 +42,20 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
+        [Authorize, HttpGet]
+        public ActionResult GetMedicalLogEmployee()
+        {
+            try
+            {
+                return Json(ml.GetMedicalLogEmployee(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
 
         [Authorize, HttpPost]
         public ActionResult medicallogGridView(string from, string to, string empSystemId)
@@ -147,7 +161,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColSDays = COL;
             COL++;
 
-            
+            report.SetHeaderText(ref sheet, ROW, COL, "Quantity", 5, ExcelHAlign.HAlignCenter);
+            int ColQuantity = COL;
+            COL++;
+
+
             report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 30, ExcelHAlign.HAlignCenter);
             int ColRemarks = COL;
             COL++;
@@ -204,6 +222,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColId].Text = data.Rows[i]["Id"].ToString();
                 sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
                 sheet[ROW, ColEmployeeCode].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
+                sheet[ROW, ColQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
                 sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
                 sheet[ROW, ColSicknessName].Text = data.Rows[i]["Sickness"].ToString();
                 sheet[ROW, ColMedicines].Text = data.Rows[i]["Medicines"].ToString();
