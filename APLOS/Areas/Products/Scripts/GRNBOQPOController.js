@@ -1869,7 +1869,6 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 nRow.BaseQty = $scope.MasterListNew[n].BaseQty;
                 nRow.BaseIssueQty = $scope.MasterListNew[n].BaseIssueQty;
                 if (!baseService.valueCheckInList($scope.MasterList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.check) {
-
                     
                     var taxAmount = 0;
                     if ($scope.POMaterialTaxList.length > 0) {
@@ -1916,9 +1915,6 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                     }
                 }
             }
-            //if ($scope.MasterList.length == 0) {
-            //    throw "Noting selected";
-            //}
             $scope.BOQPopUpClose();
         } catch (e) {
             ShowResult(e, 'failure')
@@ -1934,5 +1930,72 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         var data = gridObj.getSelectedRecords()[0];
         location.href = " GoodsReceiveNote/GRNBOQPOReport?grnBOQPOId=" + data.Id;
     };
+
+    $scope.taxCodCboListWithhold = [];
+    $scope.taxcodelistMessage = "";
+    $scope.getTaxCodeByTaxYearWithhold = function (date) {
+        $scope.productNew.TaxOptionAddiTax = 'Yes';
+        $http({
+            method: "Get",
+            url: "accounts/TaxCode/GetAdditionalTaxCbo?postingDate=" + $filter("dateFiltering")(date)
+        }).then(
+            function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.taxcodelistMessage = response.data.Message;
+                }
+                else {
+                    $scope.taxCodCboListWithhold = response.data;;
+                }
+            },
+            function errorCallback(response) {
+            });
+    };
+
+    $scope.getTaxCodeByTaxYearWithhold($scope.productNew.GRNDate);
+    $scope.calculateTaxAmountForAdditionalTax = function (data) {
+        $scope.advanceTax.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNew), "TrnAmount") * data / 100).toFixed(2);
+
+    };
+    $scope.advanceTaxesList = [];
+    $scope.additionalTax = function () {
+        for (var i = 0; i < $scope.advanceTaxesList.length; i++) {
+            if ($scope.advanceTaxesList[i].TaxCodeId === $scope.advanceTax.TaxCodeId) {
+                ShowResult("Tax Already Added");
+                return false;
+            }
+
+        }
+
+        if (manualValidation("td_TaxCode", baseService.isUndefinedOrNull($scope.advanceTax.TaxCodeId), "Tax Code is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TaxCodeAmount", baseService.isUndefinedOrNull($scope.advanceTax.TaxAmount), "Amount is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TaxCodeCompanyCurrencyAmount", baseService.isUndefinedOrNull($scope.advanceTax.CompanyCurrencyAmount), $scope.companyCurrencyCode + " is required.")) {
+            $scope.invalidRow = true;
+        }
+        else {
+            $scope.advanceTax.TaxName = $.grep($scope.taxCodCboListWithhold, function (item) {
+                return item.Id === $scope.advanceTax.TaxCodeId;
+            })[0].UserName;
+
+            $scope.advanceTaxesList.push($scope.advanceTax);
+            $scope.advanceTax = {};
+        }
+        $scope.TotalSumAfterTCS();
+    };
+    $scope.TotalSumAfterTCS = function () {
+
+        if ($scope.Action === 'Save') {
+            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNew), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+
+        }
+        else {
+            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNew), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+
+        }
+
+    }
 
 }
