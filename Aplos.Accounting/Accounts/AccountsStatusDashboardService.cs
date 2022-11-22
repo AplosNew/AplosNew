@@ -22437,15 +22437,15 @@ group by Id) O60 ON O60.Id=IV.Id
             var sql = @"select distinct S.InvoiceNo,P.Code CustomerCode,P.UserName Customer ,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
                                                 ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
 												,C.Code Currency
-												,I.Amount,SM.TaxableAmount TaxableAmount
+												,FORMAT(I.Amount,'N2') Amount,FORMAT(SM.TaxableAmount,'N2') TaxableAmount
 												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
 						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate)
-												,IWOD.Amount ReceiveAgainstInvoice
-												,TotalReceiveAgainstInvoice=sum(IWOD.Amount) over (partition by s.InvoiceNo)
-												,I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)  BalancePaymentAgainstInvoice
+												,FORMAT(IWOD.Amount,'N2') ReceiveAgainstInvoice
+												,TotalReceiveAgainstInvoice=FORMAT(sum(IWOD.Amount) over (partition by s.InvoiceNo),'N2')
+												,FORMAT(I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo),'N2') BalancePaymentAgainstInvoice
 						                        ,MO.Id MasterOrderNo,IWOD.Amount*ISNULL(MOC.[Value],0) CommissionAmount
-												,I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)-(sum(IWOD.Amount) over (partition by s.InvoiceNo)*ISNULL(MOC.[Value],0)) [BalanceAmountAfterAdjustCommission]
-												,IWOD.Amount*ISNULL(MOCD.[Value],0) CDAmount
+												,FORMAT(I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)-(sum(IWOD.Amount) over (partition by s.InvoiceNo)*ISNULL(MOC.[Value],0)),'N2') [BalanceAmountAfterAdjustCommission]
+												,FORMAT(IWOD.Amount*ISNULL(MOCD.[Value],0),'N2') CDAmount
                                                 ,NULL MasterOrderDate
 
 						                        from TRN.InvoiceWriteOffDetail IWOD
@@ -22479,16 +22479,16 @@ group by Id) O60 ON O60.Id=IV.Id
 												select distinct S.InvoiceNo,P.Code CustomerCode,P.UserName Customer,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
                                                 ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
 												,C.Code Currency
-												,I.Amount,SM.TaxableAmount
+												,FORMAT(I.Amount,'N2') Amount,FORMAT(SM.TaxableAmount,'N2') TaxableAmount
 												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
 						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate)
-												,IWOD.Amount ReceiveAgainstInvoice
-												,TotalReceiveAgainstInvoice=sum(IWOD.Amount) over (partition by s.InvoiceNo)
-												,I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)  BalancePaymentAgainstInvoice
-						                        ,NULL  Id
+												,FORMAT(IWOD.Amount,'N2') ReceiveAgainstInvoice
+												,TotalReceiveAgainstInvoice=FORMAT(sum(IWOD.Amount) over (partition by s.InvoiceNo),'N2')
+												,FORMAT(I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo),'N2')  BalancePaymentAgainstInvoice
+						                        ,NULL MasterOrderNo
 												,ISNULL(MOC.CommissionAmount,0) CommissionAmount
-												,I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)-(ISNULL(MOC.CommissionAmount,0)) [BalanceAmountAfterAdjustCommission]
-												,ISNULL(MOCD.CDAmount,0) CDAmount
+												,FORMAT(I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)-(ISNULL(MOC.CommissionAmount,0)),'N2') [BalanceAmountAfterAdjustCommission]
+												,FORMAT(ISNULL(MOCD.CDAmount,0),'N2') CDAmount
 												,NULL MasterOrderDate
 
 						                        FROM TRN.InvoiceWriteOffDetail IWOD
