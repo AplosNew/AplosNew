@@ -796,6 +796,7 @@
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ParameterController.cs" />
     <Compile Include="Areas\Productions\Controllers\PlanningTypesNewController.cs" />
     <Compile Include="Areas\Productions\Controllers\PrePackDefinitionController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProcessWisCapacityPlaningController.cs" />
@@ -1111,6 +1112,7 @@
     <Compile Include="Areas\Productions\Controllers\InventoryReportController.cs" />
     <Compile Include="Areas\Products\Controllers\InventoryReceiveAdditionController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionReportWithParameterController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ParameterMasterController.cs" />
     <Compile Include="Areas\Products\Controllers\SalesRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\GatePassRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\InventorySalesReportMarketingController.cs" />
@@ -2250,6 +2252,8 @@
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
+    <Content Include="Areas\Productions\Scripts\ParameterController.js" />
+    <Content Include="Areas\Productions\Scripts\ParameterMasterController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionSummaryReportController.js" />
     <Content Include="Areas\Productions\Scripts\planningTypesNewController.js" />
     <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
@@ -4408,6 +4412,7 @@
     <Content Include="Areas\HumanResource\Views\EmployerMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\QualificationMaster\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\FixedAssetDepreciationPost.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4513,6 +4518,7 @@
     <Content Include="POPResources\Templates\JobWorkValAddedGRNReceiptReport20202.docx" />
     <Content Include="Areas\TaskManagement\Views\TaskManagementReport\Aplos.cshtml" />
     <Content Include="Areas\Setups\Views\BusinessProcess\DefineEnum.cshtml" />
+    <Content Include="Areas\Productions\Views\ParameterMaster\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

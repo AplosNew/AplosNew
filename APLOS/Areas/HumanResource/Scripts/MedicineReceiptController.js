@@ -224,9 +224,13 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             $scope.userMedicineList[index].Rate = 1 / data1.Quantity
         }
         else {
-            $scope.userMedicineList[index].Rate = data1.Amount / data1.Quantity
+            $scope.userMedicineList[index].Rate = data1.Amount / data1.Quantity;
+           
         }
+        
     }
+
+    
 
     // #region Update
     // #region Double tab on row
@@ -257,7 +261,6 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     // #endregion Update
 
     // #region SAVE
-
     $scope.SaveHeader = function () {
         $scope.$broadcast('show-errors-check-validity');
         $http({
@@ -284,6 +287,34 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         }
     }
     // #endregion SAVE
+
+    //  #region Update
+    $scope.Update = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        $http({
+            method: 'POST',
+            url: $scope.path + 'Update',
+            data: {
+                'data': $scope.ModalNew,
+                'medicinelist': $scope.userMedicineList,
+                'partyId': $scope.ModalNew.PartyId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.ModalNew.Id = response.data.Data.Id;
+                ShowResult(response.data.Message, 'success');
+                $scope.Action = 'Update';
+                $scope.getMedicineReceipt();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    }
+    //  #endregion Update
 
    
 }
