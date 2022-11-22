@@ -1689,7 +1689,7 @@ namespace OTSBD
                 strSql = @"select distinct 'Consumable' type, E.UserName Entity,MS.UserName ScheduleName,APD.Id as PlannedId,MS.ScheduleCode,
 MM.UserName MachineName,MA.AssetName,MM.MachineMake Make,MM.MachineModel Model,MS.ScheduleDays,Case when isnull((SELECT TOP 1 format(MPD.ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
 ORDER BY MPD.Id DESC),'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
-Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,MS.StandardScheduleMinutes as StandardTime,MS.MaxScheduleMinutes as Maximumtime,
+Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,Format(APD.FromDate,'dd-MMM-yyyy') as FromDate,Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,MS.StandardScheduleMinutes as StandardTime,MS.MaxScheduleMinutes as Maximumtime,
 format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as ToTime,APD.Minute as [Minute],MA.AssetCode,WC.UserName WorkCenter,
 Reverse(stuff(Reverse((Select EmployeeName + ',' from EmployeeInformation where 
 SystemId in (select ResponsiblePersonId from [TRN].[ResponsiblePlannedDetails] where PlannedId=APD.Id and IsActive=1) for xml PATH(''))),1,1,'')) as ResponsiblePerson,
@@ -1835,7 +1835,7 @@ Left join[TRN].[InventoryScrap] ISC on ISC.Id = ISCD.InventoryScrapId
  GROUP BY IRD.InventoryMaterialId
      )InventoryTransferData ON InventoryTransferData.InventoryMaterialId = IM.Id
 where IM.PlantId = '" + plantId+ @"' AND MM.UserName is not null ) X )  Y ON Y.ArticleId = MSC.ArticleId
-where APD.Id = '" + PlannedId + @"' order by MSC.SNO";
+where MMA.Id = '" + PlannedId + @"' order by MSC.SNO";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1870,7 +1870,7 @@ left join HKP.EmployeeActivityCategory EAC ON EAC.Id=MI.ItemType
 left join TRN.Maintenancescheduling MS ON MS.Id=MI.MaintenanceSchedulingId
 left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
 left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
-where APD.Id='" + PlannedId + @"' order by MI.SNO";
+where MMA.Id='" + PlannedId + @"' order by MI.SNO";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
