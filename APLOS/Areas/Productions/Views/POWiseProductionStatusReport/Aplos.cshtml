@@ -25,41 +25,43 @@
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    @*<li> <button ng-click="GetPOWiseProductionStatusData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>*@
+                    <li> <button ng-click="ViewData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
                     <li> <button ng-click="ProductionData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
                 </ul>
             </div>
         </div>
-        @*<div class="col-xs-12" ng-show="POWiseProductionStatusDataList.length>0">
-            <div id="GridEmp" ng-init="chkinit()" ej-grid e-datasource="POWiseProductionStatusDataList"
+        <div class="col-xs-12" ng-show="ProductionDataReportList.length>0">
+            <div id="GridEmp" ej-grid e-datasource="ProductionDataReportList"
                  e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                 <div e-columns>
-                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
-                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
-                    <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="140"></div>
-                    <div e-column e-field="Department" e-headertext="Department" e-width="140"></div>-->
-                    <div e-column e-textalign="right" e-field="CreatedTask" e-headertext="Created Task" e-width="120"></div>
-                    <div e-column e-textalign="right" e-field="OfTotalTask" e-headertext="% Of Total Task" e-width="120"></div>
-                    <div e-column e-textalign="right" e-field="TaskDue" e-headertext="Task Due" e-width="120"></div>
-                    <div e-column e-textalign="right" e-field="PerTaskDue" e-headertext="% Of Due Task" e-width="120"></div>
-                    <div e-column e-textalign="right" e-field="UnRead" e-headertext="Task Unread" e-width="120"></div>
-                    <div e-column e-textalign="right" e-field="OnTimeTask" e-headertext="Task Completed On Time" e-width="140"></div>
-                    <div e-column e-textalign="right" e-field="LateTask" e-headertext="Task Completed Late" e-width="140"></div>
-                    <div e-column e-textalign="right" e-field="EarlyTask" e-headertext="EarlyTask" e-width="120"></div>
-                    <div e-column e-textalign="right" e-field="TaskCompletedFP" e-headertext="TaskCompletedFP" e-width="120"></div>
-                    <div e-column e-textalign="right" e-field="TaskOverDue" e-headertext="Overdue Task" e-width="120"></div>
-                    <div e-column e-textalign="right" e-field="PeriviousPeriodOverdueTask" e-headertext="Perivious Period Overdue Task" e-width="140"></div>
-                    <div e-column e-textalign="right" e-field="Performance" e-headertext="Performance" e-width="120"></div>
-                    <div e-column e-textalign="right" e-field="TotalStoryPoint" e-headertext="TotalStoryPoint" e-width="140"></div>
-                    <div e-column e-textalign="right" e-field="ColsedStoryPoint" e-headertext="CompletedStoryPoints" e-width="140"></div>
-                    <div e-column e-textalign="right" e-field="CheckBy" e-headertext="CheckBy" e-width="120"></div>
-                    <div e-column e-textalign="right" e-field="CrossCheckBy" e-headertext="CrossCheckBy" e-width="120"></div>
-                    <div e-column e-textalign="right" e-field="ApproveBy" e-headertext="ApproveBy" e-width="120"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                    <div e-column e-field="PONo" e-headertext="PONo" e-width="80"></div>
+                    <div e-column e-field="POProcessSequence" e-headertext="POProcessSequence" e-width="50"></div>
+                    <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
+                    <div e-column e-field="ProductionShift" e-headertext="ProductionShift" e-width="180"></div>
+                    <div e-column e-field="ActualDate" e-headertext="ActualDate" e-width="180"></div>
+                    <div e-column e-field="ActualQty" e-headertext="ActualQty" e-width="180"></div>
+                    <div e-column e-field="Process" e-headertext="Process" e-width="180"></div>
+                    <div e-column e-field="StandardProcessSequence" e-headertext="StandardProcessSequence" e-width="120"></div>
+                    <div e-column e-field="Article" e-headertext="Article" e-width="180"></div>
+                    <div e-column e-field="Product" e-headertext="Product" e-width="180"></div>
+                    <div e-column e-field="BaseProcess" e-headertext="BaseProcess" e-width="50"></div>
+                    <div e-column e-field="POStatus" e-headertext="POStatus" e-width="150"></div>
+                    <div e-column e-field="FirstBookDate" e-headertext="FirstBookDate" e-width="180"></div>
+                    <div e-column e-field="LastBookDate" e-headertext="LastBookDate" e-width="180"></div>
+                    <div e-column e-field="FirstShipmentDate" e-headertext="FirstShipmentDate" e-width="180"></div>
+                    <div e-column e-field="LastShipmentDate" e-headertext="LastShipmentDate" e-width="180"></div>
+                    <div e-column e-field="PlannedQty" e-headertext="PlannedQty" e-width="180"></div>
+                    <div e-column e-field="UptoDateProPercentage" e-headertext="UptoDateProPercentage" e-width="180"></div>
+                    <div e-column e-field="LotNumber" e-headertext="LotNumber" e-width="180"></div>
+                    <div e-column e-field="UpToDateProduction" e-headertext="UpToDate Production" e-width="180"></div>
+                    <div e-column e-field="CurrentProduction" e-headertext="Current Production" e-width="180"></div>
+                    <div e-column e-field="WIP" e-headertext="WIP" e-width="180"></div>
                 </div>
             </div>
-        </div>*@
+        </div>
     </div>
 </div>
             

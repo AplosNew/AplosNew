@@ -84,7 +84,7 @@ namespace Aplos.Areas.Materials.Controllers
 							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
                             left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
                              where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
-                             group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
+                             group by UT.Id,UT.Date,UT.AddedDate,UM.UserName,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
 							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -289,7 +289,7 @@ namespace Aplos.Areas.Materials.Controllers
                             left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
 							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
 							where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
-							group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
+							group by UT.Id,UT.Date,UT.AddedDate,UM.UserName,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
 							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName,UM.MultiplyingFactor";
 
                 data = _sqlRepository.GetDataTable(strSQL);

@@ -18,7 +18,6 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             $scope.filters = response.data;
             var columnList = [
                 { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
-
                 { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
                 { field: 'ProductionOrderId', width: 20, headerText: "PONo", type: "string" },
                 { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
@@ -98,6 +97,29 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         }
         var k = 100;
     }
+    $scope.ProductionDataReportList = [];
+    $scope.ViewData = function () {
+        $scope.filterComplete();
+      //  $scope.fileName = "ProductionDataReport.xlsx";
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetViewData",
+            data: { 'parameters': $scope.parameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.ProductionDataReportList = response.data;
+                console.log($scope.ProductionDataReportList);
+                //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 
     $scope.ProductionData = function () {
         $scope.filterComplete();
@@ -113,6 +135,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
                 ShowResult(response.data.Message, 'failure');
             }
             else {
+                //$scope.ProductionDataReportList = response.data;
                 $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {

@@ -65,6 +65,7 @@ upanelApp.controller("candidatedocumentAddRemoveController", candidatedocumentAd
 upanelApp.controller("candidateDocumentAssignmentController", candidateDocumentAssignmentController);
 upanelApp.controller("capitalizedFixedAssetRegisterController", capitalizedFixedAssetRegisterController);
 upanelApp.controller("fixedAssetDepreciationProcessController", fixedAssetDepreciationProcessController);
+upanelApp.controller('fixedAssetDepreciationPostController', fixedAssetDepreciationPostController);
 upanelApp.controller("cashBaseController", cashBaseController);
 upanelApp.controller("cashBookReportController", cashBookReportController);
 upanelApp.controller("cashJournalController", cashJournalController);
@@ -205,6 +206,7 @@ upanelApp.controller("intSalesOrderInvoiceController", intSalesOrderInvoiceContr
 upanelApp.controller("intSalesOrderInvoiceEditController", intSalesOrderInvoiceEditController);
 upanelApp.controller("intSalesOrderInvoicePostController", intSalesOrderInvoicePostController);
 upanelApp.controller("inventoryIssueController", inventoryIssueController);
+upanelApp.controller("inventoryIssueSlipBaseController", inventoryIssueSlipBaseController);
 upanelApp.controller("inventoryIssueJournalController", inventoryIssueJournalController);
 upanelApp.controller("inventoryPayableController", inventoryPayableController);
 upanelApp.controller("inventoryReceiveController", inventoryReceiveController);

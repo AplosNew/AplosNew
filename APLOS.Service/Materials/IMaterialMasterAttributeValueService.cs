@@ -14,7 +14,7 @@ namespace Library.Service.Materials
         void DeleteGraph(IEnumerable<MaterialMasterAttributeValue> attributeValueList);
 
         IEnumerable<object> Query(string masterId);
-
+     
         GridModel GetAttributeValueList(GridParameter parameters, string assignment, string materialMasterId, string attributeId);
     }
 }

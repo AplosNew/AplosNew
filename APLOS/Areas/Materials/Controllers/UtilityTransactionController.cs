@@ -56,7 +56,7 @@ namespace Aplos.Areas.Materials.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select distinct UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
-							            ,UT.Reading,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Remarks
+							            ,UT.Reading,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Reading,UT.Remarks
 							            from dbo.UtilityTransaction UT
 										left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
 										left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId";
@@ -99,11 +99,11 @@ namespace Aplos.Areas.Materials.Controllers
                 utilityTransactionId = "";
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select FORMAT(AddedDate,'dd-MMM-yyyy')LastReadingDate,CONVERT(varchar(5),AddedDate,108) LastReadingTime,Quantity LastReading
+            var sql = @"select FORMAT([Date],'dd-MMM-yyyy')LastReadingDate,CONVERT(varchar(5),[AddedDate],108) LastReadingTime,Quantity LastReading
                                     from UtilityTransaction
 					                Where UtilityMasterId='" + utilityMasterId + @"'
                                     and Id in ( select top (1) Id from UtilityTransaction where Id > '" + utilityTransactionId + @"' order by Id desc)
-                                    group by AddedDate,Quantity";
+                                    group by AddedDate,[Date],Quantity";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
