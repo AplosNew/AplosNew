@@ -113,6 +113,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             }
             else {
                 $scope.ProductionDataReportList = response.data;
+                console.log($scope.ProductionDataReportList);
                 //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {

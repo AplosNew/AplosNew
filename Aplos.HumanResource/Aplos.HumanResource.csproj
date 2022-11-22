@@ -254,6 +254,7 @@
     <Compile Include="NewOTProcess\OTControlLimitService.cs" />
     <Compile Include="NewOTProcess\OTReasonService.cs" />
     <Compile Include="NewOTProcess\ProcessWiseProductionBookingService.cs" />
+    <Compile Include="Parameter\ParameterService.cs" />
     <Compile Include="Payroll\Allowance\clsDiscreteAllowanceReport.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseAmountTransaction.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseDailyService.cs" />

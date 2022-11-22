@@ -1,4 +1,5 @@
 ﻿using bplib;
+using ConnectionManager;
 using Library.Data.Sql;
 using Library.General.Setups;
 using System;
@@ -2413,7 +2414,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         #region Attendance Process Source Data
         public void ConfirmedPrevMissIn(string PrevDay, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
 
@@ -2468,8 +2469,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 GROUP BY 
                 a.LogDownLoadNum,a.PDate,a.PlantID
 				) AS dd where dd.MinTime!=''";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sqlx, out ds);
             }
             catch (Exception ex)
             {
@@ -2479,7 +2483,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void ConfirmedPrevFlaglessMissIn(string PrevDay, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
 
@@ -2536,8 +2540,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 a.LogDownLoadNum,a.PDate,a.PlantID
 				) AS dd where dd.MinTime!=''";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sqlx, out ds);
             }
             catch (Exception ex)
             {
@@ -2547,7 +2553,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void ConfirmedInFlagForDay(string Date, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
 
@@ -2600,8 +2606,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 GROUP BY 
                 a.LogDownLoadNum,a.PDate,a.PlantID";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sqlx, out ds);
             }
             catch (Exception ex)
             {
@@ -2611,7 +2619,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void FlaglessInForDay(string Date, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+           // ConnectionManager.DAL.ConManager objCon;
             try
             {
 
@@ -2665,9 +2673,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 isnull(a.PType,'')!='IN' AND isnull(a.PType,'')!='OUT' 
                 GROUP BY 
                 a.LogDownLoadNum,a.PDate,a.PlantID";
-                
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sqlx, out ds);
             }
             catch (Exception ex)
             {
@@ -2677,7 +2687,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void ConfirmedOutFlagPrevDay(string PreviousDate, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
 
@@ -2694,8 +2704,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 and WorkDate ='" + PreviousDate + @"' and isnull(PunchInTime,'')!='' and  isnull(OutPunchLimit,'')!='' 
                 and getdate()>=OutPunchLimit) 
                 as dd where isnull(dd.MaxOut,'')!=''";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sqlx, out ds);
             }
             catch (Exception ex)
             {
@@ -2705,7 +2717,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void ConfirmedOutFlaglessPrevDay(string PreviousDate, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
 
@@ -2724,8 +2736,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 and getdate()>=OutPunchLimit) 
                 as dd where isnull(dd.MaxOut,'')!='' ";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sqlx, out ds);
             }
             catch (Exception ex)
             {
@@ -2845,7 +2859,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void FlagDataOutCalculate(string PrevDay, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try  
             {   
                 string pretime = Convert.ToDateTime(PrevDay).ToString("yyyy-MMM-dd") + " " + "6:30:00";
@@ -2873,8 +2887,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 a.LogDownLoadNum,a.PDate,a.PlantID) as dd where 
 				dd.MaxTime!=''";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sqlx, out ds);
             }
             catch (Exception ex)
             {
@@ -2884,7 +2900,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void InStatusCalculate(string Date, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
                 var sql = @"select distinct Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
@@ -2895,8 +2911,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where workdate='" + Date + @"' and ap.PlantID='" + Plant + @"'";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sql, out ds);
             }
             catch (Exception ex)
             {
@@ -2960,7 +2978,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void PrevDayDuration(string PreDay, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
                 var sql = @"select * from (select Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
@@ -2977,8 +2995,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 and isnull(ap.ProcessIntime,'')!='' and isnull(ap.ProcessOuttime,'')!='') as dd
 				where dd.CalDuration>=0";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sql, out ds);
             }
             catch (Exception ex)
             {
@@ -2989,7 +3009,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void PlantLockCheck(string Date, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+           // ConnectionManager.DAL.ConManager objCon;
             try
             {
                 string Today = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
@@ -2997,8 +3017,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select * from PlantWiseAttendanceLock where PlantId='" + Plant + @"'
                 and LockedDate='" + Today + "' and IsActive='1'";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sql, out ds);
             }
             catch (Exception ex)
             {
@@ -3010,7 +3032,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
             try
             {
-                ConnectionManager.DAL.ConManager objCon;
+                //ConnectionManager.DAL.ConManager objCon;
 
                 var sql = @"select ap.EmpSystemID,Format(ap.WorkDate,'yyyy-MMM-dd')WorkDate,
                 ap.Duration,ap.ShiftSystemID,ap.RowId,
@@ -3022,8 +3044,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 where WorkDate='" + PreDay + "' and Duration >0 and ap.PlantID='" + Plant + "'";
 
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sql, out ds);
             }
 
             catch (Exception ex)
@@ -3033,7 +3057,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void PrevDurationStatusCal(string PreviousDay, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
                 var sql = @"select p.EmpSystemID,Format(p.WorkDate,'yyyy-MMM-dd')WorkDate,p.Duration
@@ -3041,8 +3065,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 p.ShiftShortDuration from AttdnProcessData p 
                 where WorkDate='" + PreviousDay + @"' 
                 and p.PlantID='" + Plant + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sql, out ds);
             }
             catch (Exception ex)
             {
@@ -3104,7 +3130,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void PreProcessFinalDayStatus(string PreDay, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
                 string newformat = Convert.ToDateTime(PreDay).ToString("yyyyMMdd");
@@ -3120,8 +3146,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						and dt.DayType=ISNULL(p.ManualDayStatus,p.ProcessDayStatus)
 						and ei.PlantId='" + Plant+"'";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sql, out ds);
             }
             catch (Exception ex)
             {
@@ -3154,7 +3182,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void PrevDayOTCalculation(string PreDay, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             { 
                 // 1 :- On OverStay 2:- On Duration 3:- On (OverStay-EarlyIn)
@@ -3177,8 +3205,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						and p.DayTypeOTApplicable != 0 and p.Duration>0
 						and p.PlantId='" + Plant + "'";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sql, out ds);
             }
             catch (Exception ex)
             {
@@ -3243,7 +3273,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
         public void PreProcessPayrollDayStatusData(string PreDay, out DataSet ds, string Plant)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
                 var sql = @"select distinct p.EmpSystemID,Result=dt.DayType, dt.AutoLock,format(p.WorkDate,'yyyy-MMM-dd')WorkDate, 
@@ -3262,8 +3292,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						and dt.DayType=p.DayStatus
 						and ei.PlantId='" + Plant + "'";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(sql, out ds);
             }
             catch (Exception ex)
             {

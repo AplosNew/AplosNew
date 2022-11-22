@@ -21,6 +21,7 @@
                                     <th>GRN Date</th>
                                     <th>GRN No</th>
                                     <th>SO No</th>
+                                    <th>Storage Location</th>
                                     <th>Balance Qty</th>
                                     <th class="col-md-3" style="width:300px;">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                     <th></th>
@@ -64,6 +65,7 @@
                                     <td>{{x.GRNDate}}</td>
                                     <td>{{x.InventoryReceiveDetailId}}</td>
                                     <td>{{x.SalesOrderId}}</td>
+                                    <td>{{x.MaterialStorage}}</td>
                                     <td>{{x.BalanceStock}} {{x.BUoM}}</td>
                                     <td class="text-right" colspan="3">
                                         <div class="input-group">
@@ -94,15 +96,15 @@
 
 
                                     @*<td class="text-right" colspan="3">
-                            <div class="input-group">
-                                <input type="text" n-decimals="20" ng-model="x.RequisitionQty" class="form-control text-right"  ng-disabled="productNew.Id!=null" width="200" />
-                                <span class="input-group-addon">{{x.TrasactopmUomQty}}</span>
-                                <span class="input-group-addon">{{x.IssueTransactionUoM}}</span>
-                            </div>
-                        </td>*@
+            <div class="input-group">
+                <input type="text" n-decimals="20" ng-model="x.RequisitionQty" class="form-control text-right"  ng-disabled="productNew.Id!=null" width="200" />
+                <span class="input-group-addon">{{x.TrasactopmUomQty}}</span>
+                <span class="input-group-addon">{{x.IssueTransactionUoM}}</span>
+            </div>
+        </td>*@
                                 </tr>
                                 <tr>
-                                    <td colspan="8" class="text-right"><strong>Total : </strong></td>
+                                    <td colspan="9" class="text-right"><strong>Total : </strong></td>
                                     <td class="text-left"><strong>{{materialStockList | sumByKey : 'BalanceStock' }}</strong></td>
                                     <td class="text-center"><strong>{{materialStockList | sumByKey : 'RequisitionQty' }}</strong></td>
                                     <td colspan="3"></td>
