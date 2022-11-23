@@ -437,9 +437,9 @@
                                         <th colspan="2" >PO RowQty</th>
                                         <th ng-show="GriddataSelected.length>0">Other GRN Received</th>
                                         <th ng-show="GriddataSelected.length===0">Other Acceptance Received</th>
+                                        <th ng-hide="false">Balance</th>
                                         <th ng-show="GriddataSelected.length > 0">Current GRN Received</th>
                                         <th ng-show="GriddataSelected.length===0">Current Acceptance Received</th>
-                                        <th ng-hide="false">Balance</th>
                                         <th>IsClosed</th>
                                         <th>ShortageQty</th>
                                         <th>RejectionQty</th>
@@ -666,7 +666,7 @@
                                 </div>
                                 <div class="common-btn">
                                     <ul class="list-inline text-right">
-                                        <li><button ng-click="SaveAdditinalTaxInGRNList();" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
+                                        <li><button ng-click="SaveAdditinalTaxInGRNList();" ng-disabled="productNew.Id==null" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
 
                                     </ul>
                                 </div>

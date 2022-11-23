@@ -4,8 +4,9 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.title = 'PO Wise Production Status Report';
     $scope.path = 'Productions/POWiseProductionStatusReport/';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
+    $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
-    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
 
     //The Filters 
     $scope.filters = [];
@@ -143,4 +144,31 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         });
     }
 
+    $scope.ProductionDataReport = function () {
+        var dataList = [];
+        var g = $("#GridEmp").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.ProductionDataReportList;
+        }
+
+        $scope.fileName = "Production Data Report";
+
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpd,
+            data: {'reportFileName': $scope.fileName,'data': dataList},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 }

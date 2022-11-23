@@ -1112,6 +1112,9 @@ upanelApp.controller("POWiseProductionStatusReportController", POWiseProductionS
 upanelApp.controller("teamDefinitionController", teamDefinitionController)
 upanelApp.controller("ParameterMasterController", ParameterMasterController)
 upanelApp.controller("ParameterController", ParameterController)
+upanelApp.controller("GeneralContractItemMasterController", GeneralContractItemMasterController)
+upanelApp.controller("GeneralContractController", GeneralContractController)
+
 upanelApp.controller("teamPlanReportController", teamPlanReportController)
 
 
