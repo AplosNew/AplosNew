@@ -1,30 +1,15 @@
-﻿//#region Lib
-'use strict';
-ParameterMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function ParameterMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Parameter Master';
-    $scope.Action = 'Save';
+﻿'use strict';
+GeneralContractItemMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function GeneralContractItemMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'General Contract Master';
     $scope.ModelList = [];
-    $scope.path = 'Productions/ParameterMaster/';
+    $scope.path = 'Administration/GeneralContractItemMaster/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
+    $scope.Action = 'Save';
     $scope.saveUrl = $scope.path + 'Save';
-    $scope.deleteUrl = $scope.path + 'delete/';
-    baseService.init($scope.getListUrl);
-    //#endregion Lib
+    $scope.deleteUrl = 'Administration/GeneralContractItemMaster/Delete'
 
-    // #region TAB CHANGE
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
-    };
-
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
-    // #endregion TAB CHANGE
-
-    // #region Master
     //  #region Auto Seq
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
@@ -35,9 +20,63 @@ function ParameterMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.GetSequence();
     //  #endregion Auto Seq
 
-    //  #region All Get
+    // #region UOM
+    $scope.UOMList = [];
+    $scope.getUOM = function () {
+        $http({
+            method: 'POST',
+            url: 'HumanResource/MedicineMaster/getUOM',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.UOMList = response.data;
+        })
+    }
+    $scope.getUOM();
+
+    $scope.doubleClkUOM = function (e) {
+        $scope.ModelNew.UOMName = e.data.StandardName;
+        $scope.ModelNew.UOMId = e.data.Id;
+        $scope.closeUOMPopUp();
+    }
+
+    $scope.openUOMPopUp = function () {
+        angular.element(document.querySelector('#UOMPopUpId')).modal('show');
+    }
+
+    $scope.closeUOMPopUp = function () {
+        angular.element(document.querySelector('#UOMPopUpId')).modal('hide');
+    }
+
+    $scope.searchByUOM = "UserName";
+    $scope.searchUM = "";
+
+    $scope.UOMSearchByList = [
+        {
+            'name': 'User Name',
+            'value': 'UserName'
+        },
+        {
+            'name': 'Standard Name',
+            'value': 'StandardName'
+        }
+    ];
+
+    $scope.UOMList = [];
+    $scope.searchUOM = function () {
+        $http({
+            method: 'POST',
+            url: 'HumanResource/MedicineMaster/searchUOM',
+            data: { column: $scope.searchByUOM, value: $scope.searchUM },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.UOMList = response.data;
+        });
+    }
+    // #endregion UOM
+
+    //  #region Get List
     $scope.getData = function () {
-        $http.get('Productions/ParameterMaster/GetList')
+        $http.get('Administration/GeneralContractItemMaster/GetList')
             .then(
                 function successCallback(response) {
                     $scope.ModelList = response.data;
@@ -50,73 +89,41 @@ function ParameterMasterController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getData();
 
+    //  #endregion Get List
+
+    // #region Double Tap open grid
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
-        $scope.EmployeeId = args.data.ResponsiblePerson;
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-           
+
         }
     };
+    // #endregion Double Tap open grid
 
-    //  #endregion All Get
-    
-   // #region Get Employee Budget Code
-    $scope.OpeEmployeePopUp = function () {
-        angular.element(document.querySelector('#EmployeePop')).modal('show');
-        $scope.GetResponsiblePersonBudgetCode();
-    }
-    $scope.closeEmployeePopUp = function () {
-        angular.element(document.querySelector('#EmployeePop')).modal('hide');
-
-    }
-    
-
-    $scope.EmployeeId = null;
-    $scope.Employee = null;
-    $scope.doubleEmploye = function (e) {
-        $scope.ModelNew.EmpSystemId = e.data.SystemId;
-        $scope.ModelNew.EmployeeName = e.data.EmployeeName;
-        $scope.ModelNew.EmployeeCode = e.data.EmployeeCode;
-        
-        angular.element(document.querySelector('#EmployeePop')).modal('hide');
-        /*$scope.viewFurniturePolicyGrids();*/
-    }
-
-    $scope.ResponsiblePersonList = [];
-    $scope.GetResponsiblePersonBudgetCode = function () {
-        $http.get('Productions/ParameterMaster/GetResponsiblePersonBudgetCode').then(           
-                function successCallback(response) {                    
-                        $scope.ResponsiblePersonList = response.data;                  
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-    }
-    // #endregion Get Employee Budget Code
-
+    //  #region Save
     //#region List object
     $scope.ModelTemp = {
         Id: null,
         Sequence: 0,
-        Code:null,
+        Code: null,
         UserName: null,
         StandardName: null,
-        ShortName:null,
-        IsActive: true,
-        Remarks: null,
-        EmployeeName: null,
-        EmployeeCode: null,
-        EmpSystemId:null
+        ShortName: null,
+        UOMName: null,
+        UOMId: null,
+        Category: null,
+        SubCategory: null,
+        Purpose: null,
+        Detail: null,
+        Item:null
+        
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     //#endregion List object
-
-    // #region Save
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
-
         $http({
             method: 'POST',
             url: $scope.saveUrl,
@@ -138,7 +145,8 @@ function ParameterMasterController(cboService, commonMessage, $scope, $rootScope
             ShowResult(response.data.Message, 'failure');
         }
     };
-    // #endregion Save
+    
+    //  #endregion Save
 
     //  #region Delete
     $scope.Delete = function () {
@@ -179,21 +187,17 @@ function ParameterMasterController(cboService, commonMessage, $scope, $rootScope
             UserName: null,
             StandardName: null,
             ShortName: null,
-            IsActive: true,
-            Remarks: null,
-            EmployeeName: null,
-            EmployeeCode: null,
-            EmpSystemId: null
+            UOMName: null,
+            UOMId: null,
+            Category: null,
+            SubCategory: null,
+            Purpose: null,
+            Detail: null,
+            Item: null
         };
 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
     //  #endregion Clear
 
-    // #endregion Master
-
-    // #region Child 1
-    
-    // #endregion Child 1
-    
 }
