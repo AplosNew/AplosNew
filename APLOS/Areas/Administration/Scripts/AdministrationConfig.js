@@ -16,4 +16,12 @@ function AdministrationConfig($routeProvider, $locationProvider) {
             templateUrl: 'Administration/VisitorListReport',
             controller: 'VisitorListReportController'
         })
+        .when('/contract-master', {
+            templateUrl: 'Administration/GeneralContractItemMaster',
+            controller: 'GeneralContractItemMasterController'
+        })
+        .when('/general-contract', {
+            templateUrl: 'Administration/GeneralContract',
+            controller: 'GeneralContractController'
+        })
 };
