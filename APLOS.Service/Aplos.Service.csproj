@@ -44,6 +44,7 @@
     <Compile Include="Accounts\IMISAccountDashboardService.cs" />
     <Compile Include="Accounts\MISAccountDashboardService.cs" />
     <Compile Include="Accounts\ReportGeneralVoucher.cs" />
+    <Compile Include="Administration\Contract\GeneralContractService.cs" />
     <Compile Include="Advances\AdvanceService.cs" />
     <Compile Include="Advances\IAdvanceService.cs" />
     <Compile Include="Attendances\IMonthlyAttendanceInformation.cs" />

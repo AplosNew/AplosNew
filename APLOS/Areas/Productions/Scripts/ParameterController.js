@@ -9,7 +9,8 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'Save';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.updateUrl = $scope.path + 'Update';
+    $scope.deleteUrl = $scope.path + 'Delete/';
     baseService.init($scope.getListUrl);
     //#endregion Lib
 
@@ -42,6 +43,10 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
     //$scope.getData();
 
     $scope.Get = function (args) {
+        document.getElementById("savebtn").style.display = "none";
+        document.getElementById("updatebtn").style.display = "block";
+        $scope.ModelNew.UOMId = args.data.UOMId;
+        $scope.ModelNew.UOMId = args.data.UOMName;
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.EmployeeId = args.data.ResponsiblePerson;
         $scope.Action = 'Update';
@@ -90,6 +95,18 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
                 });
     }
     $scope.GetMachineMaster();
+
+    $scope.GetList = function () {
+        $http.get('Productions/Parameter/GetList')
+            .then(
+                function successCallback(response) {
+                    $scope.ModelList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
+    $scope.GetList();
     //  #endregion Get Fun
 
     //  #region UOM
@@ -180,13 +197,62 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
-                $scope.getData();
+                
+                $scope.GetList();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
     };
     // #endregion Save
+
+    // #region  update
+    $scope.Update = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        $http({
+            method: 'POST',
+            url: $scope.updateUrl,
+            data: {
+                'data': $scope.ModelNew,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+
+                $scope.GetList();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+    // #endregion   update
+
+    //  #region Delete
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields(response.data.Sequence);
+                    $scope.getData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+    //  #endregion Delete
 
 }

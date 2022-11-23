@@ -300,7 +300,7 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
         {
             try
             {
-                var sql = @"select *, EI.EmployeeName from HKP.ParameterChild PC
+                var sql = @"select *, EI.EmployeeName from TRN.ParameterChild PC
                     left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId 
                     where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(sql);
@@ -311,6 +311,24 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
             }
         }
 
+        public IEnumerable<object> GetList()
+        {
+            try
+            {
+                var sql = @"select PC.*, PM.UserName ParameterMaster, P.UserName Process, MM.UserName MachineMaster, UOM.UserName UOMName 
+from TRN.ParameterChild PC
+left join HKP.ParameterMaster PM on PM.Id = PC.ParameterId
+left join HKP.Process P on P.Id = PC.ProcessId
+left join MST.MachineMaster MM on MM.Id = PC.MachineMasterId
+left join SCS.UnitOfMeasurement UOM on UOM.Id = PC.UOMId
+order by Id DESC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #endregion GET
         #region SEARCH SAVED DATA IN GRID 
@@ -318,7 +336,7 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
         {
             try
             {
-                string TableName = "HKP.ParameterChild";
+                string TableName = "TRN.ParameterChild";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
@@ -342,7 +360,7 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
         {
             try
             {
-                string TableNameHead = "HKP.ParameterChild";
+                string TableNameHead = "TRN.ParameterChild";
 
                 DataSet dsMaster;
 
@@ -358,7 +376,7 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableNameHead, out _Id);
 
-                    data["Id"] = "PM" + _Id;
+                    data["Id"] =  _Id;
 
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -382,6 +400,79 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
             }
         }
         #endregion SAVE
+
+        #region Update
+        public Dictionary<string, object> Update(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableNameHead = "TRN.ParameterChild";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+
+                #region FURNITURE POLICY HEAD
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    data["Id"] = _Id;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion FURNITURE POLICY HEAD
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion Update
+
+        #region DELETE
+        public string Delete(string id)
+        {
+            try
+            {
+
+                string TableName = "TRN.ParameterChild";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion DELETE
 
         #region CREATE AND EDIT DEFAULT COLUMN
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
