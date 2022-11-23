@@ -5,40 +5,27 @@ using System.Web;
 using System.Web.Mvc;
 using Aplos.Controllers;
 using Library.Data.Sql;
-using Library.HumanResource.Parameter;
+using Library.Service.Administration.Contract;
 using Aplos.Properties;
 using System.Data;
 
-namespace Aplos.Areas.Productions.Controllers
+namespace Aplos.Areas.Administration.Controllers
 {
-    public class ParameterMasterController : Controller
+    public class GeneralContractItemMasterController : BaseController
     {
-        ParameterService ps = new ParameterService();
+        GeneralContractService gc = new GeneralContractService();
         public ActionResult Aplos()
         {
             return View();
         }
-
-        [HttpGet, Authorize]
-        public ActionResult GetResponsiblePersonBudgetCode()
-        {
-            try
-            {
-                return Json(ps.GetResponsiblePersonBudgetCode(), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
+        
         #region GET SEQUENCE
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
             try
             {
-                return Json(ps.GetSequence(), JsonRequestBehavior.AllowGet);
+                return Json(gc.GetSequence(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -51,14 +38,10 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpGet, Authorize]
         public ActionResult GetList(string column, string value)
         {
-            return Json(ps.GetList(column, value), JsonRequestBehavior.AllowGet);
+            return Json(gc.GetList(column, value), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetProcess()
-        {
-            return Json(ps.GetProcess(), JsonRequestBehavior.AllowGet);
-        }
+        
         #endregion SEARCH SAVED DATA IN GRID
         #region SAVE
         [HttpPost]
@@ -66,7 +49,7 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                return Json(new { Error = false, Data = ps.Save(data), Message = AplosMessage.Success });
+                return Json(new { Error = false, Data = gc.Save(data), Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
@@ -82,7 +65,7 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
 
-                string ret = ps.Delete(id);
+                string ret = gc.Delete(id);
 
                 if (ret == "Success")
                 {

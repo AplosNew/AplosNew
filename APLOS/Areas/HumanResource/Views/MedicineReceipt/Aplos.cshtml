@@ -90,18 +90,19 @@
         <table class="table table-responsive table-striped">
             <thead ng-show="userMedicineList.length > 0">
                 <tr>
-                    
+                    <th>Serial No</th>
                     <th>User Name</th>
                     <th>Expiry Date</th>
                     <th>Quantity</th>
                     <th>Amount</th>
                     <th>Rate</th>
+                    <th>Action</th>
 
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="x in userMedicineList">
-                    
+                    <td>{{x.SrNo}}</td>
                     <td>{{x.UserName}}</td>
                     <td>
                         <div class="show-message">
@@ -115,6 +116,11 @@
                         <input type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" ng-model="x.Amount" ng-keyup="calcAmount(x, $index)">
                     </td>
                     <td class="text-right">{{x.Rate | number:2 }}</td>
+                    <td><ul class="list-inline action-list">
+    <li>
+        <button ng-click="removeDetentionLResPerson(x.EmployeeName, $index, 'userMedicineList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Remove" ng-disabled="true"><i class="glyphicon glyphicon-remove"></i></button>
+    </li>
+</ul></td>
 
                 </tr>
             </tbody>
@@ -133,9 +139,8 @@
             <ul class="list-inline text-right">
                 <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
                 <li> <button ng-click="Update();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>
-                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
-            
+                <li> <button ng-click="XlsMedicineReceipt();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
+               
             </ul>
         </div>
     </div>

@@ -82,14 +82,19 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.GetEditReadingList = function () {
-        $http({
-            method: 'GET',
-            url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId + '&utilityTransactionId=' + $scope.ModelNew.Id
-        }).then(function successCallback(response) {
-            $scope.LastReading = response.data[0].LastReading;
-            $scope.LastReadingDate = response.data[0].LastReadingDate;
-            $scope.LastReadingTime = response.data[0].LastReadingTime;
-        });
+        $scope.LastReading = 0;
+        $scope.LastReadingDate = null;
+        $scope.LastReadingTime = null;
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.UtilityMasterId)) {
+            $http({
+                method: 'GET',
+                url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId + '&utilityTransactionId=' + $scope.ModelNew.Id
+            }).then(function successCallback(response) {
+                $scope.LastReading = response.data[0].LastReading;
+                $scope.LastReadingDate = response.data[0].LastReadingDate;
+                $scope.LastReadingTime = response.data[0].LastReadingTime;
+            });
+        }
     }
 
 

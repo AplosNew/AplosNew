@@ -387,6 +387,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="Areas\Administration\Controllers\GeneralContractController.cs" />
+    <Compile Include="Areas\Administration\Controllers\GeneralContractItemMasterController.cs" />
     <Compile Include="Areas\Administration\Controllers\VisitorListReportController.cs" />
     <Compile Include="Areas\Administration\Controllers\VehicleMovementLocationsController.cs" />
     <Compile Include="Areas\Administration\Controllers\ServicesApprovingAuthorityController.cs" />
@@ -751,6 +753,7 @@
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
     <Compile Include="Areas\Machines\Controllers\IncedentCategoryController.cs" />
     <Compile Include="Areas\Machines\Controllers\IncedentUpdateController.cs" />
+    <Compile Include="Areas\Machines\Controllers\TeamPlanReportController.cs" />
     <Compile Include="Areas\Machines\Controllers\TeamDefinitionController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSummaryReportController.cs" />
     <Compile Include="Areas\Machines\Controllers\SpecialIssueControlReportController.cs" />
@@ -1804,6 +1807,8 @@
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
+    <Content Include="Areas\Administration\Scripts\GeneralContractController.js" />
+    <Content Include="Areas\Administration\Scripts\GeneralContractItemMasterController.js" />
     <Content Include="Areas\Administration\Scripts\VisitorListReportController.js" />
     <Content Include="Areas\Administration\Scripts\VehicleMovementLocationsController.js" />
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
@@ -2199,6 +2204,7 @@
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
     <Content Include="Areas\Machines\Scripts\incedentCategoryController.js" />
     <Content Include="Areas\Machines\Scripts\incedentUpdateController.js" />
+    <Content Include="Areas\Machines\Scripts\teamPlanReportController.js" />
     <Content Include="Areas\Machines\Scripts\teamDefinitionController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSummaryReport.js" />
     <Content Include="Areas\Machines\Scripts\specialIssueControlReportController.js" />
@@ -4413,6 +4419,9 @@
     <Content Include="Areas\HumanResource\Views\QualificationMaster\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\FixedAssetDepreciationPost.cshtml" />
     <Content Include="Areas\Productions\Views\Parameter\Aplos.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContractItemMaster\Aplos.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContract\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\TeamPlanReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

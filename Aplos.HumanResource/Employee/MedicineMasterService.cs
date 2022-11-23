@@ -858,7 +858,7 @@ Group By MR.PartyId, P.UserName, P.Code, MR.InvoiceNumber, MR.InvoiceDate, MR.Id
         {
             try
             {
-                var str = @"select M.Id MedicineMasterId, M.StandardName UserName, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
+                var str = @"select ROW_NUMBER() OVER(ORDER BY MR.Id) SrNo, M.Id MedicineMasterId, M.StandardName UserName, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
 FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, MRC.Quantity, MRC.Rate, MRC.Amount, P.UserName PartyName,  P.Code PartyCode,
 MRC.Id MedicineReceiptChildId, MR.Id MedicineReceiptId, MR.PlantId, PL.StandardName PlantName
 from TRN.MedicineReceiptChild MRC
@@ -866,7 +866,7 @@ left join TRN.MedicineReceipt MR on MR.Id = MRC.MedicineReceiptId
 left join HKP.MedicineMaster M on M.Id = MRC.MedicineMasterId
 left join HKP.Party P on P.Id = mR.PartyId
 left join ORG.Plant PL on PL.Id = MR.PartyId
-where MRC.MedicineReceiptId = '"+ masterId + @"'
+where MRC.MedicineReceiptId = '" + masterId + @"'
 order by MRC.ExpiryDate";
 
                 return _sqlRepository.GetDataCollection(str);
@@ -1112,20 +1112,29 @@ order by MRC.ExpiryDate";
         #endregion CREATE AND EDIT DEFAULT COLUMN
 
         #region PRINT PDF
-        public DataTable loadOrderMaster(string medicinereceiptId)
+        public DataTable GetMedicineReceiptReport(string headerid)
         {
             string strSQL;
             try
             {
 
-                strSQL = @"select MR.Id MedicineReceiptId, M.Category, M.Id MedicineMaster, M.StandardName Medicine, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
-FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, MRC.Quantity, MRC.Rate, MRC.Amount, P.UserName Part,
-MRC.Id MedicineReceiptChildId
-from TRN.MedicineReceipt MR
-LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.MedicineReceiptId = mr.Id
-LEFT JOIN HKP.MedicineMaster M on M.Id = MRC.MedicineMasterId
-left join HKP.Party P on P.Id = MR.PartyId
-where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
+                strSQL = @"select MR.Id, M.Id MedicineMaster, M.StandardName Medicine, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
+                            FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, MRC.Quantity, MRC.Rate, MRC.Amount, P.UserName PartyName,  P.Code PartyCode,
+                            MRC.Id MedicineReceiptChildId, MR.Id MedicineReceiptId, MR.PlantId, PL.StandardName PlantName,
+
+                            STUFF((Select ',' + MP.UserName
+                            from HKP.MedicinePurpose MP
+                            left join HKP.MedicineMasterPurpose MMP on MMP.MedicinePurposeId = MP.Id 
+                            where M.Id = MMP.MedicineMasterId
+                            FOR XML PATH('')),1,1,'') Purpose
+
+                            from TRN.MedicineReceiptChild MRC
+                            left join TRN.MedicineReceipt MR on MR.Id = MRC.MedicineReceiptId
+                            left join HKP.MedicineMaster M on M.Id = MRC.MedicineMasterId
+                            left join HKP.Party P on P.Id = MR.PartyId
+                            left join ORG.Plant PL on PL.Id = MR.PlantId
+                            where MR.Id = '"+headerid+"' order by MRC.ExpiryDate";
+
                 return _sqlRepository.GetDataTable(strSQL);
 
             }
@@ -1139,99 +1148,6 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
             }
         }
 
-      
-        public void GePurchaseOrderReport(string companyGroupId, string companyId, string plantId, string userId, string purchaseOrderId)
-        {
-            ReportUtility ru = new ReportUtility();
-            var fileName = "";
-            var strPath = "";
-            var File = "";
-            fileName = "PurchaseOrder" + plantId + ".docx";
-            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
-            File = strPath;
-            if (!System.IO.File.Exists(strPath))
-            {
-                throw new CustomException("File <" + fileName + "> Not Found.");
-            }
-
-            ////A opens input document.
-            WordDocument document = new WordDocument(File, FormatType.Docx);
-
-            //Gets the paragraph at index 1
-            try
-            {
-                string invoicePartyAddress = "";
-                string vendorPartyAddress = "";
-                WSection section = document.Sections[0];
-                //var DiscountAmount = "";
-
-                DataTable dsOrderMaster, dsServiceItems, dsTermsAndCondition;
-                dsOrderMaster = loadOrderMaster(purchaseOrderId);//sql
-               
-                Dictionary<string, string> columns = new Dictionary<string, string>();
-                var poApprovedStatus = "";
-                invoicePartyAddress = ru.GetAddress(dsOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dsOrderMaster.Rows[0]["InvoicingByAddress"].ToString());
-                document.Replace("{InvoicingPartyAddress}", invoicePartyAddress, false, false);
-                vendorPartyAddress = ru.GetAddress(dsOrderMaster.Rows[0]["VendorAddressMasterId"].ToString(), "");
-                document.Replace("{VendorAddress}", vendorPartyAddress, false, false);
-                document.Replace("{DeliveryInstruction}", dsOrderMaster.Rows[0]["DeliveryInstruction"].ToString(), false, false);
-                document.Replace("{SpecialInstruction}", dsOrderMaster.Rows[0]["SpecialInstruction"].ToString(), false, false);
-                foreach (DataColumn item in dsOrderMaster.Columns)
-                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
-
-                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
-              
-                List<string> strReplace = new List<string>();
-                
-                StringCollection strColDistinct = new StringCollection();
-                for (int i = 0; i < strReplace.Count; i++)
-                {
-                    if (strColDistinct.Contains(strReplace[i].ToUpper()))
-                        continue;
-
-                    strColDistinct.Add(strReplace[i].ToUpper());
-
-                    string text = strReplace[i].ToUpper();
-                    ReplaceInfo.Add(text, 0);
-                    if (columns.ContainsKey(text.ToUpper()))
-                    {
-                        ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
-                    }
-
-                }
-
-                document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
-                //removing any unused place holder
-                foreach (var item in ReplaceInfo.Keys)
-                {
-                    if (ReplaceInfo[item.ToString()] == 0)
-                        document.Replace(item.ToString(), "", false, false);
-
-                }
-                DocToPDFConverter converter = new DocToPDFConverter();
-                //Converts Word document into PDF document
-                //Syncfusion.Pdf.PdfDocument pdfDocument = converter.ConvertToPDF(document);
-                PdfDocument pdfDocument = converter.ConvertToPDF(document);
-                pdfDocument.PageSettings.Width = 1200;
-                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
-                //Releases all resources used by DocToPDFConverter
-                converter.Dispose();
-                //Closes the instance of document objects
-                document.Close();
-                string Prefix = "PurchaseOrder" + purchaseOrderId;
-                //Saves the PDF file 
-                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
-                //Closes the instance of document objects
-                pdfDocument.Close(true);
-                document.Close();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            //Closes the instance of document objects
-            document.Close();
-        }
         #endregion PRINT PDF
 
         #region SEARCH SAVED DATA IN GRID 
@@ -1403,7 +1319,7 @@ where MR.Id = '" + medicinereceiptId + "' order by MRC.ExpiryDate";
         {
             try
             {
-                var SQL = @"select distinct ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], 
+                var SQL = @"select ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], 
 EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks,  ML.NoOfVisits, FORMAT(ML.Time, 'hh:mm tt')Time,
 STUFF((select ', ' + MC.UserName
 from TRN.EmployeeSickness ES
@@ -1411,12 +1327,13 @@ LEFT join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
 LEFT JOIN HKP.MedicineCategory MC ON MC.Id = MP.MedicineCategoryId
 where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Sickness,
---STUFF((Select ', ' + MM.UserName
---from TRN.EmployeeSicknessMedicines ESM
---LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
---LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
---where ESM.MedicalLogId = ML.Id
---FOR XML PATH('')),1,1,'') Medicines,
+
+STUFF((Select ',' + MP.UserName
+from TRN.EmployeeSickness ES
+left join TRN.MedicalLog ML on ML.Id = ES.MedicalLogId
+left join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
+where ES.MedicalLogId = ML.Id
+FOR XML PATH('')),1,1,'') Purpose,
 
 STUFF((Select ', ' +  CONVERT(VARCHAR(20),ESM.Quantity)
 from TRN.EmployeeSicknessMedicines ESM
@@ -1428,6 +1345,7 @@ from TRN.MedicalLog ML
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
 --INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, ML.NoOfVisits, ML.Time
+order by  ml.Date 
 ";
 
                 return _sqlRepository.GetDataCollection(SQL);

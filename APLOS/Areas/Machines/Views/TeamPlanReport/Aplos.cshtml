@@ -1,5 +1,5 @@
 ﻿<h3 class="site-heading">
-    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Pending Maintenance Schedule
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Team Plan Report
 </h3>
 <style>
     .e-filterset:before {
@@ -37,57 +37,17 @@
         </div>
         <div class="col-sm-2">
             <div class="form-group">
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="IsProrataMonthlyColu" ng-model="statusNew.Status" value="Pending">
-                        <span class="cr"><i class="cr-icon"></i></span>Pending Schedules
-                    </label>
-
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-2">
-            <div class="form-group">
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="IsProrataMonthlyColu" ng-model="statusNew.Status" value="Completed">
-                        <span class="cr"><i class="cr-icon"></i></span>Completed Schedules
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-2">
-            <div class="form-group">
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="IsProrataMonthlyColu" ng-model="statusNew.Status" value="All">
-                        <span class="cr"><i class="cr-icon"></i></span>All Schedules
-                    </label>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-2">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Action.Person</label>
+                <label class="col-sm-4 control-label">Team Name</label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select class="form-control" ng-model="statusNew.ActResponsiblePerson" name="ActResponsiblePerson" required
-                                ng-options="item.Value as item.Text for item in ActionablePersonList">
+                        <select class="form-control" ng-model="statusNew.TeamName" name="Team Name" required
+                                ng-options="item.Value as item.Text for item in TeamNameList">
                             <option value=""></option>
                         </select>
                     </div>
                 </div>
             </div>
             </div>
-            @*<div class="col-xs-12 col-sm-2 col-md-2">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li> <button ng-click="getFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
-                    </ul>
-                </div>
-            </div>*@
             <div class="col-xs-12">
                 <div id="filters">
                 </div>

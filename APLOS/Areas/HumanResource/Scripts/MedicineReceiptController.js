@@ -14,6 +14,7 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.partyType = 'Vendor';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
     // GET CURRENT DATE
     var curDate = new Date()
@@ -316,5 +317,21 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     }
     //  #endregion Update
 
+    $scope.XlsMedicineReceipt = function () {
+
+        $http.get('HumanResource/MedicineReceipt/XlsMedicineReceipt?headerid=' + $scope.ModalNew.Id)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
    
 }

@@ -101,11 +101,18 @@ namespace Aplos.Areas.Materials.Controllers
                 utilityTransactionId = "";
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select LastReading=(select top(1) Reading from UtilityTransaction  order by Id desc)
+            //   var sql = @"select LastReading=(select top(1) Reading from UtilityTransaction  order by Id desc)
+            //, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction  order by Id desc)
+            //, LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction  order by Id desc)
+            //                           from UtilityTransaction
+            //                           Where UtilityMasterId='" + utilityMasterId + @"' and Id='" + utilityTransactionId + @"'";
+
+            string sql = @"Select TOP(1)* from (
+select LastReading=(select top(1) Reading from UtilityTransaction  order by Id desc)
 									, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction  order by Id desc)
 									, LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction  order by Id desc)
                                     from UtilityTransaction
-                                    Where UtilityMasterId='" + utilityMasterId + @"' and Id='" + utilityTransactionId + @"'";
+                                    Where UtilityMasterId='"+ utilityMasterId + "')A";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

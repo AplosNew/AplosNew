@@ -322,17 +322,17 @@ namespace Aplos.Areas.Machines.Controllers
         public ActionResult LoadBudgetCodeDetails(string TeamId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN TBC.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,TBC.Id,MP.Id BudgetCodeId, MP.Code, E.UserName Entity, P.UserName Position,P.Activity,
-DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.UserName AS [LegalDesignation] from MST.ManpowerBudget MP
+            string sql = @"select distinct CAST (CASE WHEN TBC.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,TBC.Id,MP.Id BudgetCodeId, MP.Code, E.UserName Entity, P.UserName Position,P.Activity,
+DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection from MST.ManpowerBudget MP
                             left join ORG.Entity E on E.Id = MP.EntityId
                             left join ORG.Position P on P.Id = MP.PositionId
 							left join EmployeeInformation EI on EI.BudgetCode=MP.Id and EI.EmployeeStatus='Active'
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
 							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
-							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-							LEFT JOIN TRN.TeamBudgetCode TBC ON TBC.BudgetCodeId=MP.Id and TBC.TeamDefinitionId='" + TeamId + @"'
-                            where MP.Active = 1 order by TBC.BudgetCodeId  desc";
+							LEFT JOIN TRN.TeamBudgetCode TBC ON TBC.BudgetCodeId=MP.Id and TBC.TeamDefinitionId='TD1'
+                            where MP.Active = 1 
+							order by TBC.Id  desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

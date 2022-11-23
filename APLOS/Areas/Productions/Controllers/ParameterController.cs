@@ -29,6 +29,11 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(ps.GetMachineMaster(), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetList()
+        {
+            return Json(pc.GetList(), JsonRequestBehavior.AllowGet);
+        }
         #region SAVE
         [HttpPost]
         public ActionResult Save(Dictionary<string, object> data)
@@ -44,5 +49,50 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         #endregion SAVE
+
+        #region Update
+        [HttpPost]
+        public ActionResult Update(Dictionary<string, object> data)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = pc.Update(data), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #endregion Update
+
+        #region DELETE
+        public ActionResult Delete(string id)
+        {
+            try
+            {
+
+                string ret = pc.Delete(id);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+        #endregion DELETE
     }
 }
