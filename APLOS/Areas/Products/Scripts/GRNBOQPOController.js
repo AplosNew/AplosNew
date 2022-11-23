@@ -1899,7 +1899,6 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                 }
                             }
                         }
-                        
                         if ($scope.MasterList[x].InventoryReceiveDetailId == nRow.InventoryReceiveDetailId  && nRow.check) {
                             var Qty = nRow.TransactionQty;
                             $scope.MasterList[x].BaseTaxAmount += taxAmountUpdate;
