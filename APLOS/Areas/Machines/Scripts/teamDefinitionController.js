@@ -38,6 +38,26 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
             'Value': 6,
             'Text': '6'
         }
+        ,
+        {
+            'Value': 7,
+            'Text': '7'
+        }
+        ,
+        {
+            'Value': 8,
+            'Text': '8'
+        }
+        ,
+        {
+            'Value': 9,
+            'Text': '9'
+        }
+        ,
+        {
+            'Value': 10,
+            'Text': '10'
+        }
     ];
 
     $scope.EActivityCategoryList = [];
