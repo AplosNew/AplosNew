@@ -318,6 +318,7 @@
     <Compile Include="ArrearProcessActive\clsSalaryProcessAplosArrear.cs" />
     <Compile Include="ShiftChange\clsShiftChangeSectionWise.cs" />
     <Compile Include="SmsSend\clsSMSSendNotification.cs" />
+    <Compile Include="UserAppAuthentication\UserAppAuthenticationService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="OT\" />
