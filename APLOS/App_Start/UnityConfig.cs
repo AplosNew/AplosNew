@@ -912,6 +912,7 @@ namespace Aplos.App_Start
             container.RegisterType<ILeaveTransactionNewService, LeaveTransactionNewService>();
             container.RegisterType<IInventoryIssueJournalService, InventoryIssueJournalService>();
             container.RegisterType<IResignationNewService, ResignationNewService>();
+            container.RegisterType<ICommonAccountsSetOffService, CommonAccountsSetOffService>();
         }
     }
 }

@@ -19,6 +19,7 @@ function DesignationMasterConfigurationController(commonMessage, $window, $scope
         PlantId: null,
         DesignationMasterId: null,
         RecruitmentProcessSetId: null,
+        AccountsGroupId:null,
         SalaryRuleMasterId: null,
         LeavePolicyMasterId: null,
         SalaryFixationSettingId: null,
@@ -55,6 +56,10 @@ function DesignationMasterConfigurationController(commonMessage, $window, $scope
     $scope.recruitmentPlanningProcessSetList = [];
     cboService.getCboRecruitmentProcessSetByCompanyGroup(null, function (result) {
         $scope.recruitmentPlanningProcessSetList = result;
+    });
+    $scope.accountsGroupList = [];
+    cboService.getAccountsGroupCbo(function (result) {
+        $scope.accountsGroupList = result;
     });
     $scope.salaryFixationList = [];
     cboService.getSalaryFixationCbo(function (result) {
@@ -213,6 +218,7 @@ function DesignationMasterConfigurationController(commonMessage, $window, $scope
             DesignationId: null,
             DesignationGroupId: null,
             RecruitmentProcessSetId: null,
+            AccountsGroupId:null,
             SalaryRuleMasterId: null,
             LeavePolicyMasterId: null,
             AttdnBonusHeaderId:null,

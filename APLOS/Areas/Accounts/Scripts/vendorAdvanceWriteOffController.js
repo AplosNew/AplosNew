@@ -1,6 +1,6 @@
 ﻿'use strict';
-vendorAdvanceWriteOffController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', '$controller'];
-function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, $controller) {
+vendorAdvanceWriteOffController.$inject = ['cboService', 'commonMessage', '$window','$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', '$controller'];
+function vendorAdvanceWriteOffController(cboService, commonMessage, $window,$scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, $controller) {
     $rootScope.title = 'Vendor Advanced Set-off';
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -16,6 +16,9 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
 
     $scope.deleteUrl = $scope.url + "/DeleteCustomerAdvanceWriteOff";
 
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     $controller('currencyBaseController', { $scope: $scope, $http: $http });
     $scope.partyType = 'Vendor';
@@ -68,6 +71,10 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
     $scope.getCboVoucherTypeAdvanceGivenWriteOffList = function () {
@@ -926,5 +933,50 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $scope, $roo
     $scope.clearCashPopUp = function () {
         $scope.clearBankPopUp();
     };
+
+    //$scope.VendorAdvanceReportExcel = function () {
+
+    //    var gridObj1 = $("#vendorAdvancePopUp").data("ejGrid");
+    //    var data1 = gridObj1.model.dataSource();
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.exportgriddataUrl,
+    //        //data: { 'data': data1 }
+    //        data: JSON.stringify(data1)
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error == true) {
+    //            // ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');
+    //        }
+    //        else {
+
+    //            location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
+    //        }
+    //    });
+    //}
+
+    $scope.VendorAdvanceReportExcel = function () {
+        try {
+            $scope.fileName = "VendorAdvanceReport.xlsx";
+            $http({
+                method: 'POST',
+                url: $scope.url + "/GetVendorAdvanceReport",
+                data: { 'plantId': $window.plantId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    }
 
 }

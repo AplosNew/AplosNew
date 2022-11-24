@@ -282,6 +282,28 @@ namespace Library.Service.Extension.Accounts
 
             return cashTemp;
         }
+        public Dictionary<string, object> GetIncentiveMaster(string incentiveMasterId)
+        {
+
+            var sql = @"SELECT TOP(1) * FROM [MST].[IncentiveMaster]  
+                        WHERE Id='" + incentiveMasterId + "'";
+            var incentiveMasterTemp = _sqlRepository.GetData(sql);
+            if (null == incentiveMasterTemp || incentiveMasterTemp.Count == 0)
+                throw new CustomException("Incentive Master  not Found!");
+
+            return incentiveMasterTemp;
+        }
+        public Dictionary<string, object> GetReverseGL(string voucherId)
+        {
+
+            var sql = @"SELECT TOP(1) * FROM trn.VoucherDetail  
+                        WHERE VoucherId='" + voucherId + "' and DrAmount>0";
+            var ReverseGLTemp = _sqlRepository.GetData(sql);
+            if (null == ReverseGLTemp || ReverseGLTemp.Count == 0)
+                throw new CustomException("Reverse GL  not Found!");
+
+            return ReverseGLTemp;
+        }
 
         public IList<Dictionary<string, object>> GetMaterialHSNCodeId(string materialMasterId)
         {
@@ -745,6 +767,6 @@ namespace Library.Service.Extension.Accounts
         {
             return transactionCurrencyId == companyCurrencyId ? (decimal)1 : 1 / companyCurrencyRate;
         }
-
+       
     }
 }

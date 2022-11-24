@@ -1,0 +1,576 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div ng-form name="ModelNewForm">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Group Name" ng-model="ModelNew.UserCode" class="form-control" maxlength="15" required tabindex="3">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="Responsible Person" ng-model="ModelNew.ResponsiblePerson" class="form-control" readonly tabindex="115">
+                        <span class="input-group-btn">
+                            <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" maxlength="15" required tabindex="3">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Customer</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">CostingItem</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon">{{ModelC.PartyCode}}</span>
+                                <input type="text" name="Customer" ng-model="ModelC.PartyName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-click="showPartyPopUpNew()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Customer RefNo<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="OwnRefNo" ng-model="ModelC.CustomerRefNo" class="form-control" maxlength="15" required tabindex="3">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Own RefNo<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="OwnRefNo" ng-model="ModelC.OwnRefNo" class="form-control" maxlength="15" required tabindex="3">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Version<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Version" ng-model="ModelC.Version" only-numbeers class="form-control" maxlength="15" required tabindex="3">
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Product Code<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon">{{ModelC.Code}}</span>
+                                <input type="text" name="ProductCode" ng-model="ModelC.ProductCode" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-click="GetProductLibraryList()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Vendor RefNo<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="OwnRefNo" ng-model="ModelC.VendorRefNo" class="form-control" maxlength="15" required tabindex="3">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" rows="3" ng-model="ModelC.Remarks" maxlength="250" tabindex="6"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveChild1Data();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li> <button ng-click="ClearChild1();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+                <div id="GridC" ej-grid e-datasource="Child1DataList" e-recorddoubleclick="GetChild1"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="2"></div>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+                        <div e-column e-field="PartyName" e-headertext="Customer" e-width="3"></div>
+                        <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="5"></div>
+                        <div e-column e-field="CustomerRefNo" e-headertext="CustomerRefNo" e-width="5"></div>
+                        <div e-column e-field="VendorRefNo" e-headertext="VendorRefNo" e-width="5"></div>
+                        <div e-column e-field="OwnRefNo" e-headertext="OwnRefNo" e-width="5"></div>
+                        <div e-column e-field="Version" e-headertext="Version" e-width="5"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="ShowActionButtonsBOM">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-th-list" ng-click="$parent.GetDetailChild(this);" style="margin: -6px;"></i></button>
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeChild1(this);" style="margin: -6px;"></i></button>
+                </script>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="form-horizontal form-elements">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Costing Item<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="Costing Item" ng-model="Child2New.CostingItem" class="form-control" readonly tabindex="115">
+                                    <span class="input-group-btn">
+                                        <button ng-click="GetCostingItemData();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">SKU1<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="SKU1List" e-value="Child2New.FirstCharacteristicsValueId" e-fields-value="Id" e-fields-text="Username" e-width="100%" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">BOM Material Detail</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="1" ng-model="Child2New.BOMMaterialDetail" maxlength="250" tabindex="6"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" title="Material">Material<sup>*</sup></label>
+                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                <span class="input-group-addon">{{Child2New.MaterialCode}}</span>
+                                <input type="text" ng-model="Child2New.MaterialMaster" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="getMaterialMasterbyTypePopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{Child2New.VendorCode}}</span>
+                                    <input type="text" name="Customer" ng-model="Child2New.VendorName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="showVendorPopUpNew()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">SKU2<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="SKU2List" e-value="Child2New.SecondCharacteristicsValueId" e-fields-value="Id" e-fields-text="Username" e-width="100%" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" title="Article">Article<sup>*</sup></label>
+                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                <span class="input-group-addon">{{Child2New.ArticleCode}}</span>
+                                <input type="text" ng-model="Child2New.Article" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="getArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearArticle();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="1" ng-model="Child2New.Remarks" maxlength="250" tabindex="6"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveChild2Data();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="ClearChild2();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                    <div id="GridC2" ej-grid e-datasource="Child2DataList" e-recorddoubleclick="GetChild2"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-headertext="Actions" e-template="#ShowActionButtonsC2" e-width="2"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+                            <div e-column e-field="CostingItem" e-headertext="CostingItem" e-width="3"></div>
+                            <div e-column e-field="SKU1" e-headertext="SKU1" e-width="2"></div>
+                            <div e-column e-field="SKU2" e-headertext="SKU2" e-width="2"></div>
+                            <div e-column e-field="BOMMaterialDetail" e-headertext="BOMMaterialDetail" e-width="5"></div>
+                            <div e-column e-field="MaterialCode" e-headertext="MaterialCode" e-width="3"></div>
+                            <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="10"></div>
+                            <div e-column e-field="ArticleCode" e-headertext="ArticleCode" e-width="3"></div>
+                            <div e-column e-field="Article" e-headertext="Article" e-width="10"></div>
+                            <div e-column e-field="VendorCode" e-headertext="VendorCode" e-width="3"></div>
+                            <div e-column e-field="VendorName" e-headertext="Vendor" e-width="8"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="ShowActionButtonsC2">
+                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeChild2(this);" style="margin: -6px;"></i></button>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+            <div e-column e-field="UserCode" e-headertext="User Code" e-width="3"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="5"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <disv class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SelectEmployee" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemId" e-headertext="SystemId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </disv>
+            </div>
+            <div class="modal-footer">
+                <ul class="common-btn list-inline text-right" style="padding: 20px;">
+                    <li><button ng-click="closePopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script type="text/x-jsrender" id="empimage">
+        <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+    </script>
+</div>
+
+<ej-dialog id="dialogCustomerSearch" title=" Search Customer" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchCustomer">
+                                <option ng-repeat="option in searchByCustomer" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchCustomerValue" ng-enter="GetCustomerList()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="GetCustomerList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="GridCustomerList" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="CustomerList" e-allowfiltering="true"
+         e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="SelectCustomer"
+         e-allowselection="true" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-type="string" e-field="Customer" e-headertext="Customer"></div>
+            <div e-column e-type="number" e-field="NoOfMasterOrder" e-headertext="Master Orders" e-width="80"></div>
+            <div e-column e-type="number" e-field="NoOfMasterOrderItem" e-headertext="Items" e-width="80"></div>
+            <div e-column e-type="number" e-field="NoOfMasterSalesOrder" e-headertext="Sales Orders" e-width="80"></div>
+            <div e-column e-type="number" e-field="MissingSKUBreakdown" e-headertext="Missing SKU Breakdown" e-width="80"></div>
+            <div e-column e-type="number" e-field="MissingCostingAttachment" e-headertext="Missing Costing" e-width="80"></div>
+            <div e-column e-type="number" e-field="CostItemNos" e-headertext="Cost Items" e-width="80"></div>
+            <div e-column e-type="number" e-field="ItemWithoutBOQ" e-headertext="Items Wihout BOQ" e-width="80"></div>
+            <div e-column e-type="number" e-field="OverdueSOList" e-headertext="SO Overdue" e-width="80"></div>
+            <div e-column e-type="number" e-field="DueSOList" e-headertext="SO Due" e-width="80"></div>
+        </div>
+    </div>
+</ej-dialog>
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+<div class="modal fade site-modal in" id="ProductLibraryPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> Product Code List <button type="button" class="close" ng-click="closeProductLibraryPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+
+                    <div style="color:black;" id="ProductLibraryGrid" ej-grid e-datasource="ProductLibraryList" e-recorddoubleclick="SetProductLibrary"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                        <div e-columns>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                            <div e-column e-field="ShortName" e-headertext="ShortName" e-width="50"></div>
+                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="130"></div>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeProductLibraryPopUp();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="DetailChildPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> SO Data<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements from-horizontal">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">SO NO<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="SONo" ng-model="ModelSO.SOId" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="GetSOPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="ModelSO.Remarks" maxlength="250" tabindex="6"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveSOData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            <li> <button ng-click="ClearSO();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-12">
+                        <div id="GridSO" ej-grid e-datasource="SODataList" e-recorddoubleclick="GetSOData"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsSO" e-width="1"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+                                <div e-column e-field="SOId" e-headertext="SONo" e-width="5"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="ShowActionButtonsSO">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeChildSO(this);" style="margin: -6px;"></i></button>
+                            </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal site-modal in" id="SOItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Sales Order Item<button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div style="color:black;" id="SOGrid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSOItem"
+                         e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="SOId" e-headertext="Sales OrderNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalProductionQty" e-headertext="Booked Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="RemainingQty" e-headertext="Remaining Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="75"></div>
+                            <div e-column e-type="string" e-field="POId" e-headertext="PrO" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="CostingItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Costing Items<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div id="GridItemListForOperations" ej-grid e-datasource="CostingItemList" e-gridlines="vertical" e-recorddoubleclick="selectCostingItem"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="20"></div>
+                            <div e-column e-type="string" e-field="CostingCategory" e-headertext="Category" e-width="60"></div>
+                            <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                            <div e-column e-type="string" e-field="UserName" e-headertext="Item Name" e-width="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="CloseCostingItemPopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal fade site-modal in" id="VendorPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> Vendor List <button type="button" class="close" ng-click="closeVendorPopUpNew();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByVendor">
+                                            <option ng-repeat="option in searchByVendorList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchByVendor" ng-enter="showVendorPopUpNew()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="showVendorPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        <div style="color:black;" id="vendorPopUpGrid" ej-grid e-datasource="vendorList" e-recorddoubleclick="SelectVendor"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeVendorPopUpNew();" class="btn"> Close</button></li>
+                </ul>
+                <i>**Showing top 100 {{partyType}} order by Code</i>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
+<confirm-archive-generic modalid="confirmChild1PopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteChild1();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmChildSOPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteChildSO();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmChild2PopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteChild2();"></confirm-archive-generic>

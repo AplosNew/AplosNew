@@ -48,7 +48,10 @@
                                             <td class="text-right">{{x.Amount|number:2}}</td>
                                             <td>{{x.CurrencyCode}}</td>
                                             <td class="text-right">{{x.BooksAmount|number:2}}</td>
-                                            <td class="text-right">{{x.DistributedAmount|number:2}}</td>
+                                            <td>
+                                                <input ng-keyup="checkDistributedAmount($index,x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="DistributedAmount" autocomplete="off" ng-model="x.DistributedAmount">
+                                            </td>
+                                            @*<td class="text-right">{{x.DistributedAmount|number:2}}</td>*@
                                             <td class="text-right">
                                                 <ul class="list-inline action-list">
                                                     <li><button ng-click="DeleteConfirmation(x.InvoiceId)" ng-disabled="x.Id" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
@@ -103,8 +106,10 @@
                                             <td class="text-right">{{x.Amount|number:2}}</td>
                                             <td>{{x.CurrencyCode}}</td>
                                             <td class="text-right">{{x.BooksAmount|number:2}}</td>
-
-                                            <td class="text-right">{{x.DistributedAmount|number:2}}</td>
+                                            <td>
+                                                <input ng-keyup="checkDistributedAmount($index,x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="DistributedAmount" autocomplete="off" ng-model="x.DistributedAmount">
+                                            </td>
+                                            @*<td class="text-right">{{x.DistributedAmount|number:2}}</td>*@
                                             <td class="text-right">
                                                 <ul class="list-inline action-list">
                                                     <li><button ng-click="DeleteOutBoutConfirmation(x.InvoiceId)" ng-disabled="x.Id" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>

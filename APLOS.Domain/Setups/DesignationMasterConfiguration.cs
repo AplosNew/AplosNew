@@ -55,6 +55,7 @@ namespace Library.Model.Setups
         public string DesignationMasterId { get; set; }
         public string CompanyGroupId { get; set; }
         public string RecruitmentProcessSetId { get; set; }
+        public string AccountsGroupId { get; set; }
         public string LeavePolicyMasterId { get; set; }
         public string SalaryRuleMasterId { get; set; }
         public string SalaryFixationId { get; set; }

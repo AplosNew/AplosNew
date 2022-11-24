@@ -69,6 +69,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Accounts\IncentiveReceivableMap.cs" />
+    <Compile Include="Accounts\BankReconciliationMap.cs" />
     <Compile Include="Accounts\OtherInvoice.cs" />
     <Compile Include="Accounts\InvoiceGRNDetail.cs" />
     <Compile Include="Accounts\MultiplePaymentDetail.cs" />
@@ -246,6 +248,7 @@
     <Compile Include="Configurations\IE\SizeGroupConfiguration.cs" />
     <Compile Include="Configurations\IE\SubsectionStructureDetailConfiguration.cs" />
     <Compile Include="Configurations\IE\SubsectionStructureMasterConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\GRNBinAllocationMapConfiguration.cs" />
     <Compile Include="Configurations\Inventory\GRNBOQMAPConfiguration.cs" />
     <Compile Include="Configurations\Inventory\GRNAcceptanceMapConfiguration.cs" />
     <Compile Include="Configurations\Inventory\InventoryIssueHistoryBOQConfiguration.cs" />
@@ -378,6 +381,7 @@
     <Compile Include="Configurations\OrderManagements\ProductionOrderEntityConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\SecondCharacteristicsConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\ProductionResourcesConfiguration.cs" />
+    <Compile Include="Configurations\OrderManagements\SOCostingConfirmationConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\ThirdCharacteristicsConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\MasterOrderItem.cs" />
     <Compile Include="Configurations\OrderManagements\MasterOrderAttributeValue.cs" />
@@ -471,6 +475,7 @@
     <Compile Include="Configurations\Products\CompanyGroupWiseProductConfiguration.cs" />
     <Compile Include="Configurations\Products\CompanyGroupWiseProductSubCategoryConfiguration.cs" />
     <Compile Include="Configurations\Products\GatePassDetailsConfiguration.cs" />
+    <Compile Include="Configurations\Products\GRNPORequisitionMapConfiguration.cs" />
     <Compile Include="Configurations\Products\InOutGatePassMasterConfiguration.cs" />
     <Compile Include="Configurations\Products\GatePassMasterConfiguration.cs" />
     <Compile Include="Configurations\Products\GRNRejectionDetailsConfiguration.cs" />
@@ -686,6 +691,7 @@
     <Compile Include="Inventory\InventoryIssueReturnHistory.cs" />
     <Compile Include="Inventory\InventoryIssueReturnDetail.cs" />
     <Compile Include="Inventory\InventoryIssueReturn.cs" />
+    <Compile Include="Inventory\GRNBinAllocationMap.cs" />
     <Compile Include="Inventory\POBOQMap.cs" />
     <Compile Include="Inventory\GRNDocumentMap.cs" />
     <Compile Include="Inventory\ServiceAcknowledgementCharge.cs" />
@@ -772,6 +778,7 @@
     <Compile Include="OrderManagements\PackingListMaster.cs" />
     <Compile Include="OrderManagements\ProductionOrderEntity.cs" />
     <Compile Include="OrderManagements\ProductionResources.cs" />
+    <Compile Include="OrderManagements\SOCostingConfirmation.cs" />
     <Compile Include="OrderManagements\ThirdCharacteristics.cs" />
     <Compile Include="OrderManagements\MasterOrderAttributeValue.cs" />
     <Compile Include="OrderManagements\MasterOrderItem.cs" />
@@ -826,6 +833,7 @@
     <Compile Include="Products\GateEntry.cs" />
     <Compile Include="Products\GRNPORequisitionAllocation.cs" />
     <Compile Include="Products\POGVendor.cs" />
+    <Compile Include="Products\GRNPORequisitionMap.cs" />
     <Compile Include="Products\ProductMasterAlternativeUOM.cs" />
     <Compile Include="Products\QualityStdSet.cs" />
     <Compile Include="Products\RequisitionIssueDetail.cs" />

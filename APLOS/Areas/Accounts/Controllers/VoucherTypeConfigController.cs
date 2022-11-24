@@ -34,8 +34,11 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpPost]
         public JsonResult CreateVoucherTypeConfig(VoucherTypeConfig voucherTypeConfige)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            voucherTypeConfige.CompanyGroupId = identity.CompanyGroupId;
+            if (voucherTypeConfige.CompanyGroupId == null || voucherTypeConfige.CompanyGroupId == "")
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                voucherTypeConfige.CompanyGroupId = identity.CompanyGroupId;
+            }
             _voucherTypeConfigService.Insert(voucherTypeConfige);
             return Json(new { VoucherTypeConfig = voucherTypeConfige, Message = AplosMessage.Insert });
         }
@@ -43,8 +46,11 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpPost]
         public JsonResult UpdateVoucherTypeConfig(VoucherTypeConfig voucherTypeConfige)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            voucherTypeConfige.CompanyGroupId = identity.CompanyGroupId;
+            if(voucherTypeConfige.CompanyGroupId==null|| voucherTypeConfige.CompanyGroupId == "")
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                voucherTypeConfige.CompanyGroupId = identity.CompanyGroupId;
+            }
             _voucherTypeConfigService.Update(voucherTypeConfige);
             return Json(new { VoucherTypeConfig = voucherTypeConfige, Message = AplosMessage.Updated });
         }

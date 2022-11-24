@@ -238,8 +238,12 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             controller: 'routeController'
         })
         .when('/routeemployee', {
-            templateUrl: 'employees/routeemployee/',
+            templateUrl: 'employees/routeemployee/Aplos',
             controller: 'routeEmployeeController'
+        })
+        .when('/route-employee-report', {
+            templateUrl: 'employees/routeemployee/Report',
+            controller: 'RouteEmployeeReportController'
         })
         .when('/postrecruitment-documentby-department', {
             templateUrl: 'employees/postrecruitmentdocumentbydepartment/',

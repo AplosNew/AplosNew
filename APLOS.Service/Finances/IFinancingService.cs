@@ -30,6 +30,7 @@ namespace Library.Service.Finances
         void DeleteLoanInterestPayable(string companyId, string plantId, string LoanIntPayableId, string voucherId);
         void DeleteLoanInterestPayableReverse(string companyId, string plantId, string loanIntPayableId, string voucherId);
         void DeleteInvestment(string companyId, string plantId, string voucherId);
+        void InsertFinancingMasterOrder(Financing financing, FinancingMasterOrder financingMasterOrder, int currentId);
 
     }
 }

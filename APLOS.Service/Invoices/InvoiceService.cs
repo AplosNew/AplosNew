@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
@@ -16,6 +17,7 @@ using Library.Model.Vouchers;
 using Library.Service.Core;
 using Library.Service.Employees;
 using Library.Service.Enums;
+using Library.Service.Extension;
 using Library.Service.Extension.Accounts;
 using Library.Service.Logs;
 using Library.Service.Systems;
@@ -30,6 +32,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 
 namespace Library.Service.Invoices
 {
@@ -3134,7 +3137,206 @@ namespace Library.Service.Invoices
             }
         }
 
+        public string InsertIncentiveReceivableInvoice(VoucherViewModel voucherVM, IEnumerable<IncentiveReceivableMap> incentiveReceivableMapList)
+        {
+            var flag = false;
+            try
+            {
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
+                    _unitOfWork.BeginTransaction();
+                    flag = true;
+                    // INSERT INTO Invoice
+                    var invoice = InsertInvoice(voucherVM);
+
+                    // INSERT INTO Voucher TABLE
+                    var voucher = _voucherService.InsertVoucher(voucherVM);
+                    voucherVM.VoucherNo = voucher.VoucherNo;
+                    // Set to Invoice
+                    invoice.VoucherId = voucher.Id;
+
+                   
+                    decimal  totalwithholdCrAmount = 0;
+                    var totalAmountDr = 0.0M;
+                    var totalAmountCr = 0.0M;
+                    var currentVoucherDetailId = 0;
+                   
+                        if (string.IsNullOrEmpty(incentiveReceivableMapList.FirstOrDefault().IncentiveMasterId))
+                            throw new CustomException("Incentive Master Id not found!");
+                        var incentiveMaster = _accountsCommonService.GetIncentiveMaster(incentiveReceivableMapList.FirstOrDefault().IncentiveMasterId);
+
+                        if (string.IsNullOrEmpty(incentiveMaster["DrGLGeneralInfoId"].ToString()))
+                            throw new CustomException("Dr GLGeneralInfo Id not found!");
+                        if (string.IsNullOrEmpty(incentiveMaster["DrBudgetMasterId"].ToString()))
+                            throw new CustomException("Dr BudgetMaster Id not found!");
+                        if (string.IsNullOrEmpty(incentiveMaster["DrActivityId"].ToString()))
+                            throw new CustomException("Dr Activity Id not found!");
+                        
+                        if (string.IsNullOrEmpty(incentiveMaster["CrGLGeneralInfoId"].ToString()))
+                            throw new CustomException("Cr GLGeneralInfo Id not found!");
+                        if (string.IsNullOrEmpty(incentiveMaster["CrBudgetMasterId"].ToString()))
+                            throw new CustomException("Cr BudgetMaster Id not found!");
+                        if (string.IsNullOrEmpty(incentiveMaster["CrActivityId"].ToString()))
+                            throw new CustomException("Cr Activity Id not found!");
+                        
+
+                invoice.PartyId = incentiveMaster["PartyId"].ToString();
+                invoice.PartyPlantId = incentiveMaster["PartyPlantId"].ToString();
+                invoice.PartyType = "Customer"; 
+
+                var voucherDetailDr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = incentiveMaster["DrGLGeneralInfoId"].ToString(),
+                            BudgetMasterId = incentiveMaster["DrBudgetMasterId"].ToString(),
+                            ActivityId = incentiveMaster["DrActivityId"].ToString(),
+                            DrAmount = invoice.Amount,
+                            PostingWithoutTaxAllow = invoice.IsExcludingTax
+                        };
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
+                        totalAmountDr += voucherDetailDr.DrAmount;
+
+
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
+                       
+
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailDr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            DrAmount = voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate,
+                        });
+                   
+                    
+                    // INSERT INTO InvoiceDetail
+                    var invoiceDetail = new InvoiceDetail
+                    {
+                        GLGeneralInfoId = incentiveMaster["CrGLGeneralInfoId"].ToString(),
+                        BudgetMasterId = incentiveMaster["CrBudgetMasterId"].ToString(),
+                        ActivityId = incentiveMaster["CrActivityId"].ToString(),
+                        Amount = voucherVM.Amount,
+                        NetAmount = voucherVM.Amount - totalwithholdCrAmount,
+                        TaxAmount = totalwithholdCrAmount
+                    };
+                   
+                    InsertInvoiceDetail(invoice, invoiceDetail, 1);
+                    invoice.Amount = invoiceDetail.Amount;
+                    // INSERT INTO VoucherDetail
+                    var voucherDetailCr = new VoucherDetail
+                    {
+                        GLGeneralInfoId = invoiceDetail.GLGeneralInfoId,
+                        BudgetMasterId = invoiceDetail.BudgetMasterId,
+                        ActivityId = invoiceDetail.ActivityId,
+                        CurrencyId = voucher.CurrencyId,
+                        DocDate = voucher.DocDate,
+                        DocRefNo = voucher.DocRefNo,
+                        Narration = invoice.Narration,
+                        EmployeeId = invoice.EmployeeId,
+                        InvoiceDetailId = invoiceDetail.Id,
+                        PartyType = invoice.PartyType,
+                        PartyId = invoice.PartyId,
+                        PartyPlantId = invoice.PartyPlantId,
+                        PostingWithoutTaxAllow = invoice.IsExcludingTax,
+                        CrAmount = invoiceDetail.Amount
+                    };
+                    currentVoucherDetailId++;
+                    _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
+                    totalAmountCr += voucherDetailCr.CrAmount;
+
+                    _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, new VoucherDetailCurrency
+                    {
+                        ParallelCurrencyId = companyCurrencyId,
+                        FromCurrencyId = voucherDetailCr.CurrencyId,
+                        ToCurrencyId = companyCurrencyId,
+                        ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                        ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                        CrAmount = voucherDetailCr.CrAmount * voucherVM.CompanyCurrencyRate
+                    });
+
+                    if (totalAmountDr != totalAmountCr)
+                        throw new CustomException("Dr and Cr amount is not equal.");
+                DataSet _incentiveReceivableMapData = null;
+                foreach (var item in incentiveReceivableMapList)
+                {
+                    var incentiveReceivableMapData = new IncentiveReceivableMap
+                    {
+                        IncentiveReceivableInvoiceId = invoice.Id,
+                        IncentiveMasterId = item.IncentiveMasterId,
+                        InvoiceId = item.InvoiceId,
+                        InvoiceDetailId = item.InvoiceDetailId,
+                        Amount = item.Amount,
+                        DistributedAmount = item.DistributedAmount,
+                    };
+
+                    InserIncentiveReceivableMap(incentiveReceivableMapData, ref _incentiveReceivableMapData);
+                }
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_incentiveReceivableMapData);
+
+                return voucherVM.VoucherNo;
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+        public void InserIncentiveReceivableMap(IncentiveReceivableMap incentiveReceivableMap, ref DataSet dsData)
+        {
+            incentiveReceivableMap.Id = GetAutoNumber(nameof(IncentiveReceivableMap), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+            if (string.IsNullOrEmpty(incentiveReceivableMap.AddedBy))
+                AuditService.AddedLog(incentiveReceivableMap);
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[IncentiveReceivableMap] where 1=2", out dsData);
+            }
+            AddNewRow<IncentiveReceivableMap>(dsData.Tables[0], incentiveReceivableMap);
+
+        }
+        private void AddNewRow<T>(DataTable dt, T Data)
+        {
+            Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dt.Rows.Add(dr);
+        }
         private static void CheckIsPosted(Voucher voucher)
         {
             if (!voucher.IsPark)
@@ -3993,12 +4195,24 @@ namespace Library.Service.Invoices
                 foreach (var item in voucherdetail)
                 {
                     var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
+                    var invoiceDetailCharges = _invoiceDetailChargesRepository.Query(r=>r.VoucherDetailId== item.Id).Select().ToList();
                     if (gltransaction.Count > 0)
                     {
                         foreach (var item1 in gltransaction)
                         {
                             _voucherService.DeleteGLTransactionDetail(item1.Id);
 
+                        }
+
+                    }
+                    if (invoiceDetailCharges.Count > 0)
+                    {
+                        foreach (var invDeChar in invoiceDetailCharges)
+                        {
+                            var rdBuilder = new System.Text.StringBuilder();
+                            var builderSql = @"DELETE [TRN].InvoiceDetailCharges  WHERE VoucherDetailId='" + invDeChar.VoucherDetailId + "'";
+                            rdBuilder.Append(builderSql);
+                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                         }
 
                     }
@@ -4016,6 +4230,74 @@ namespace Library.Service.Invoices
                         _invoiceTaxRepository.Delete(item.Id);
                     }
                 }
+                foreach (var item in invoiceDetail)
+                {
+                    _invoiceDetailRepository.Delete(item.Id);
+                }
+                base.Delete(invoiceId);
+                _voucherService.DeleteVoucher(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+        public void DeleteIncentiveReceivableInvoice(string invoiceId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
+                var invoice = base.Find(invoiceId);
+                var invoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
+                
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                }
+                
+                var rdBuilder = new System.Text.StringBuilder();
+                var builderSql = @"DELETE FROM [TRN].[IncentiveReceivableMap] WHERE IncentiveReceivableInvoiceId='" + invoiceId + "'";
+                rdBuilder.Append(builderSql);
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                 
+               
+                foreach (var item in voucherdetail)
+                {
+                    var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
+                    if (gltransaction.Count > 0)
+                    {
+                        foreach (var item1 in gltransaction)
+                        {
+                            _voucherService.DeleteGLTransactionDetail(item1.Id);
+
+                        }
+                    }
+                    _voucherService.DeleteVoucherDetail(item.Id);
+                }
+               
                 foreach (var item in invoiceDetail)
                 {
                     _invoiceDetailRepository.Delete(item.Id);
@@ -4616,10 +4898,6 @@ namespace Library.Service.Invoices
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
-            }
-            catch (CustomException)
-            {
-                throw;
             }
             catch (Exception ex)
             {

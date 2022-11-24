@@ -160,7 +160,7 @@
                                     <label class="col-sm-2 control-label">Payment Term<sup>*</sup></label>
                                     <div class="col-sm-2 show-message">
                                         <div class="select-style">
-                                            <select tabindex="10" id="paymentTermId" ng-disabled="salesVM.IsPaymentTermChangeable==false" class="form-control" name="Payment Term" ng-model="salesVM.PaymentTermId" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
+                                            <select tabindex="10" id="paymentTermId" ng-disabled="true" class="form-control" name="Payment Term" ng-model="salesVM.PaymentTermId" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
                                                 <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
                                             </select>
                                         </div>
@@ -240,7 +240,10 @@
                                                 </td>
                                                 <td>{{x.SKU1}}</td>
                                                 <td>{{x.SKU2}}</td>
-                                                <td class="text-right">{{x.Rate}}</td>
+                                                <td class="text-right">
+                                                    {{x.TransactionRate==0 ? x.Rate : x.TransactionRate}}
+                                                </td>
+                                                @*<td class="text-right">{{x.Rate}}</td>*@
                                                 <td class="text-right">{{x.TransactionQty | number:2}}</td>
                                                 <td class="text-right">{{x.TransactionAmount | number:2}}</td>
                                                 <td class="text-right">{{x.TaxAmount | number:2}}</td>
@@ -865,6 +868,12 @@
                         </li>
                         <li>
                             <a class="btn btn-action" ng-click="LocalTaxInvoiceReport(x);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
+                        </li>
+                        <li>
+                            <a class="btn btn-action" ng-click="LocalTaxInvoiceWithProductDetailService(x);" title="Tax Invoice With Product Detail" href="" target="_blank"><i class=""></i>TI</a>
+                        </li>
+                        <li>
+                            <a class="btn btn-action" ng-click="LocalTaxInvoiceWithoutSUIReport(x);" title="Tax Invoice Without SKU" href="" target="_blank"><i class=""></i>TI</a>
                         </li>
                     </ul>
                 </td>

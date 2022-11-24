@@ -19,6 +19,9 @@ namespace Library.Service.HumanResources
 
         IWorkbook GetJobCardReport(string username, string companyGroupId, string companyId, string plantId, string plantName, string employeeId, string fromDate, string toDate, bool chkAdditionInfo);
         IWorkbook GetComplianceJobCardReport(string username, string companyGroupId, string companyId, string plantId, string plantName, string EmpIdLoop, string fromDate, string toDate, bool chkAdditionInfo);
+        IWorkbook GetMaintenanceJobCardReports(string username, string companyGroupId, string companyId, string plantId, string plantName, string PlannedId);
+
+        IWorkbook GetIssueControlJobCardReports(string username, string companyGroupId, string companyId, string plantId, string plantName,string Shift, string IssueId);
         IWorkbook GetNationalFestivalReport(string CalanderYearId,string username, string companyGroupId, string companyId, string plantId, string plantName, string EmpIdLoop, string fromDate, string toDate);
         IWorkbook GetManualOutTimeDateWiseReport(string username, string plantId, string companyId, string companyGroupId,  string plantName, string FromDate, string ToDate);
         IWorkbook GetLateAttendancePostingReport(string username, string plantId, string companyId, string companyGroupId,  string plantName, string EffectiveDate);

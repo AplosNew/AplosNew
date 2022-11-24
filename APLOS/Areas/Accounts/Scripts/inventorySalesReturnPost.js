@@ -10,8 +10,8 @@ function inventorySalesReturnPost(cboService, commonMessage, $scope, $rootScope,
     $scope.path = 'Accounts/InventorySale/';
     $scope.getListUrl = 'Products/InventoryIssue/GetPostingInvReceivableList/';
     $scope.siglesaveUrl = $scope.path + 'InventorySalesSingleJournalPosting';
-    $scope.multiplesaveUrl = $scope.path + 'InventorySalesMultipleJournalPosting';
-    $scope.postUrl = 'Accounts/InvoicePost/PostInventorySales';
+    $scope.multiplesaveUrl = $scope.path + 'InventorySalesReturnMultipleJournalPosting';
+    $scope.postUrl = 'Accounts/InvoicePost/InventorySalesReturnMultipleJournalPosting';
     $scope.AcceptanceId = null;
     //$scope.getDataList = function () {
     //    baseService.init($scope.getListUrl, null, null, null, 'PartyName, PartyAccountGroupName, Id, GRNDate', 'PartyName');

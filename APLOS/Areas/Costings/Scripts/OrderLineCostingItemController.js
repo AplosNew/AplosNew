@@ -193,7 +193,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         $scope.FormulaIdArray = [];
         $scope.GetSequence();
         $scope.GetOrderLineCostingItemCbo();
-        $scope.ModelNewEntryState= 'Entry';
+        $scope.ModelNewEntryState = 'Entry';
     }
 
     function CheckField(fieldValue, fieldName) {
@@ -500,19 +500,6 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         } catch (e) {
             ShowResult(e, 'failure');
         }
-    }
-
-    $scope.Clear = function () {
-        $scope.CompanyId = $scope.ModelNew.CompanyId;
-        $scope.PlantId = $scope.ModelNew.PlantId;
-        $scope.ModelNew = {};
-        $scope.ModelNew.CompanyId = $scope.CompanyId;
-        $scope.ModelNew.PlantId = $scope.PlantId;
-        $scope.Action = 'Save';
-        $scope.ModelNew.FormulaDescription = null;
-        $scope.ModelNew.FormulaIDDescription = null;
-        $scope.FormulaArray = [];
-        $scope.FormulaIdArray = [];
     }
 
     function CheckField(fieldValue, fieldName) {

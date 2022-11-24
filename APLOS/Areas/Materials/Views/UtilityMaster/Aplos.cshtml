@@ -6,6 +6,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Details</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="asset" role="tab" data-toggle="tab">Consumption Item</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -32,19 +33,27 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Utility Group<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="ModelNew.UtilityGroup" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+                            <div class="select-style">
+                                <select name="UtilityGroup" ng-model="ModelNew.UtilityGroupId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in UtilityGroupList" tabindex="7"></select>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Utility Category<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="ModelNew.UtilityCategory" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+                            <input type="text" name="Standard Name" ng-model="ModelNew.UtilityCategory" class="form-control" required autocomplete="off" tabindex="9" maxlength="50">
                         </div>
                     </div>
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Item<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="ModelNew.Item" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+                            <input type="text" name="Standard Name" ng-model="ModelNew.Item" class="form-control" required autocomplete="off" tabindex="11" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Multiplying Factor<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Multiplying Factor" ng-model="ModelNew.MultiplyingFactor" class="form-control" n-decimals="3" required autocomplete="off" tabindex="11" maxlength="50">
                         </div>
                     </div>
                     <div class="form-group">
@@ -52,7 +61,7 @@
                         <div class="col-sm-2">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="ModelNew.IsPartyApplicable" ng-change="ChangeCustomer();" tabindex="10">
+                                    <input type="checkbox" ng-model="ModelNew.IsPartyApplicable" ng-change="ChangeCustomer();" tabindex="13">
                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
@@ -62,7 +71,7 @@
                             <div class="input-group">
                                 <input type="text" name="Party" ng-model="ModelNew.PartyName" class="form-control" readonly>
                                 <span class="input-group-btn">
-                                    <button ng-click="ShowCustomerPopUpNew(partyType);" ng-disabled="ModelNew.IsPartyApplicable == false" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="ShowCustomerPopUpNew(partyType);" ng-disabled="ModelNew.IsPartyApplicable == false" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
                             </div>
                         </div>
@@ -72,23 +81,23 @@
                         <div class="col-sm-2">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="ModelNew.IsReadingApplicable" @*ng-change="ChangeReading();"*@ tabindex="10">
+                                    <input type="checkbox" ng-model="ModelNew.IsReadingApplicable" @*ng-change="ChangeReading();"*@ tabindex="17">
                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label">Entry Leg Days</label>
+                        <label class="col-sm-4 control-label">Entry Leg Days<sup>*</sup></label>
                         <div class="col-sm-8">
-                            <input class="form-control" rows="3" ng-model="ModelNew.EntryLegDays" only-numbers tabindex="7" maxlength="250"></input>
+                            <input class="form-control" rows="3" ng-model="ModelNew.EntryLegDays" only-numbers tabindex="19" maxlength="250"></input>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Description</label>
                         <div class="col-sm-8">
-                            <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
+                            <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="21" maxlength="250"></textarea>
                         </div>
                     </div>
 
@@ -111,7 +120,7 @@
                         <div class="col-sm-8">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="ModelNew.Active" tabindex="10">
+                                    <input type="checkbox" ng-model="ModelNew.Active" tabindex="6">
                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
@@ -120,20 +129,31 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Utility SubGroup<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="ModelNew.UtilitySubGroup" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+                            <input type="text" name="Standard Name" ng-model="ModelNew.UtilitySubGroup" class="form-control" required autocomplete="off" tabindex="8" maxlength="50">
                         </div>
                     </div>
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Utility SubCategory<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="ModelNew.UtilitySubCategory" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+                            <input type="text" name="Standard Name" ng-model="ModelNew.UtilitySubCategory" class="form-control" required autocomplete="off" tabindex="10" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">InPut Source</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" name="InPutSource" ng-model="ModelNew.InPutSource" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="GetUtilityMasterData();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label">UoM<sup>*</sup> </label>
                         <div class="col-sm-8">
                             <div class="select-style">
-                                <select id="UoMId" class="form-control" ng-model="ModelNew.UoMId" name="UoM" tabindex="1">
+                                <select id="UoMId" class="form-control" ng-model="ModelNew.UoMId" name="UoM" tabindex="12">
                                     <option value="">--Select--</option>
                                     <option ng-repeat="option in uOMList" value="{{option.Value}}">{{option.Text}}</option>
                                 </select>
@@ -146,7 +166,7 @@
                             <div class="input-group">
                                 <input type="text" name="Responsible Person" ng-model="ModelNew.ResponsiblePersonName" class="form-control" readonly>
                                 <span class="input-group-btn">
-                                    <button ng-click="showEmployeeListPopUp('mo');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="showEmployeeListPopUp('mo');" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
                             </div>
                         </div>
@@ -158,7 +178,7 @@
                             <div class="input-group">
                                 <input type="text" name="Admin" ng-model="ModelNew.Admin" class="form-control" readonly>
                                 <span class="input-group-btn">
-                                    <button ng-click="showEmployeeListPopUp('ad');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="showEmployeeListPopUp('ad');" class="btn single-small-btn" tabindex="16"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
                             </div>
                         </div>
@@ -167,20 +187,20 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Remarks</label>
                         <div class="col-sm-8">
-                            <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                            <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="18"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                        <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li> <button ng-click="Save();" class="btn" tabindex="22"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="23"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li> <button ng-click="Clear();" class="btn" tabindex="24"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
             </div>
-            <div class="row">
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
                     <div class="form-horizontal form-elements" ng-form="modelNewForm">
                         <fieldset class="scheduler-border">
                             <legend class="scheduler-border"></legend>
@@ -188,13 +208,13 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
                                     <div class="col-sm-8">
-                                        <input type="text" ng-model="ModelChildNew.EffectiveDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="8">
+                                        <input type="text" ng-model="ModelChildNew.EffectiveDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="1">
                                     </div>
                                 </div>
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" n-decimals="4" name="Rate" ng-model="ModelChildNew.Rate" class="form-control text-right" required tabindex="110">
+                                        <input type="text" n-decimals="4" name="Rate" ng-model="ModelChildNew.Rate" class="form-control text-right" required tabindex="2">
                                     </div>
                                 </div>
                             </div>
@@ -202,7 +222,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Remarks</label>
                                     <div class="col-sm-8">
-                                        <textarea class="form-control" rows="3" ng-model="ModelChildNew.Remark" maxlength="250" tabindex="8"></textarea>
+                                        <textarea class="form-control" rows="3" ng-model="ModelChildNew.Remark" maxlength="250" tabindex="3"></textarea>
                                     </div>
                                 </div>
 
@@ -244,9 +264,37 @@
                         </div>
                     </div>
                 </div>
-
             </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="GetAssetDataList();" ng-disabled="ModelNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Asset</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div id="GridAssets" ej-grid e-datasource="SelectedAssetDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonAsset" e-width="1"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="2"></div>
+                                <div e-column e-field="WorkCenterMaster" e-headertext="WorkCenterMaster" e-width="5"></div>
+                                <div e-column e-field="AssetCode" e-headertext="Code" e-width="3"></div>
+                                <div e-column e-field="AssetName" e-headertext="AssetName" e-width="5"></div>
+                                <div e-column e-field="AssetDetail" e-headertext="AssetDetail" e-width="5"></div>
+                                <div e-column e-field="AssetReference" e-headertext="AssetReference" e-width="5"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="ShowActionButtonAsset">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeAsset(this);" style="margin: -6px;"></i></button>
+                        </script>
+                    </div>
+                </div>
             </div>
+        </div>
 
     </div>
 
@@ -279,7 +327,7 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
@@ -452,3 +500,89 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="AssetPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Asset List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div id="GridAsset" ej-grid e-datasource="assetDataList" e-templaterefresh="refreshTemplateemployee"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="1"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="2"></div>
+                                <div e-column e-field="WorkCenterMaster" e-headertext="WorkCenterMaster" e-width="5"></div>
+                                <div e-column e-field="AssetCode" e-headertext="Code" e-width="3"></div>
+                                <div e-column e-field="AssetName" e-headertext="AssetName" e-width="5"></div>
+                                <div e-column e-field="AssetDetail" e-headertext="AssetDetail" e-width="5"></div>
+                                <div e-column e-field="AssetReference" e-headertext="AssetReference" e-width="5"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button type="button" class="btn btn-default" ng-click="closeAssetPopUp();">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="UtilityMasterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Utility Master List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchBy">
+                                <option ng-repeat="option in searchByUMList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="GetUtilityMasterData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="GetUtilityMasterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div id="GridUM" ej-grid e-datasource="UtilityMasterList" e-recorddoubleclick="GetUtilityMaster"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                                <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button type="button" class="btn btn-default" ng-click="closeUtilityMasterPopUp();">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmAssetPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteAsset();"></confirm-archive-generic>

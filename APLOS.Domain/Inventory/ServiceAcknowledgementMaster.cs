@@ -44,6 +44,8 @@ namespace Library.Model.Inventory
         public string ApprovedHoldRejectReason { get; set; }
         public string CheckedHoldRejectReason { get; set; }
         public string NoteForAccounts { get; set; }
+        public string GateEntryNo { get; set; }
+        public DateTime? GateEntryDate { get; set; }
 
 
         #endregion Scalar Properties

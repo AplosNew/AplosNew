@@ -28,6 +28,7 @@
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                  e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                 <div e-columns>
+                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
                     <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
                     <div e-column e-field="UserName" e-headertext="Machine Name" e-width="80"></div>
                     <div e-column e-field="StandardName" e-headertext="Machine Name" e-width="80"></div>
@@ -53,7 +54,7 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
                 <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="general" role="tab" data-toggle="tab">Machine Data</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Asset</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Machine/Asset</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Entity wise Machine Capacity</a></li>
             </ul>
         </div>
@@ -67,7 +68,7 @@
                                 <div class="form-group" id="">
                                     <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" name="Sequence" ng-model="modelNew.Sequence" class="form-control" maxlength="10">
+                                        <input type="text" name="Sequence" ng-disabled="true" ng-model="modelNew.Sequence" class="form-control" maxlength="10">
                                     </div>
                                 </div>
                             </div>
@@ -83,7 +84,7 @@
                                 <div class="form-group" id="" show-errors>
                                     <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" name="Short Name" ng-model="modelNew.ShortName" class="form-control" required maxlength="15">
+                                        <input type="text" name="Short Name" ng-model="modelNew.ShortName" class="form-control" required maxlength="50">
                                     </div>
                                 </div>
                             </div>
@@ -103,6 +104,30 @@
                                     <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <input type="text" name="User Name" ng-model="modelNew.UserName" class="form-control" required maxlength="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Machine Make<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
+                                        <input type="text" name="Machine Make" ng-model="modelNew.MachineMake" class="form-control" maxlength="250">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Machine Model<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
+                                        <input type="text" name="Machine Model" ng-model="modelNew.MachineModel" class="form-control" maxlength="250">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Machine Perticulars<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
+                                        <input type="text" name="Machine Perticulars" ng-model="modelNew.MachinePerticulars" class="form-control" maxlength="250">
                                     </div>
                                 </div>
                             </div>
@@ -193,7 +218,12 @@
                                 <div class="form-group" id="">
                                     <label class="col-sm-8 control-label" title="Maintanence Schedule Applicable">Maintanence Schedule Applicable</label>
                                     <div class="col-sm-4">
-                                        <input type="checkbox" name="Maintanence Schedule Applicable" ng-model="modelNew.MaintanenceScheduleApplicable">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="modelNew.MaintanenceScheduleApplicable" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -207,12 +237,14 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="col-md-4">
-                                    <div class="form-group" id="">
-                                        <label class="col-sm-4 control-label">Active<sup>*</sup></label>
-                                        <div class="col-sm-8">
-                                            <input type="checkbox" name="Active" ng-model="modelNew.Active" checked="checked" />
-
+                                <div class="form-group" id="">
+                                    <label class="col-sm-4 control-label">Active<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="modelNew.Active" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -225,9 +257,8 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-                       
+
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -284,7 +315,7 @@
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="Save();"ng-disabled="modelNew.Id == null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button ng-click="Save();" ng-disabled="modelNew.Id == null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                     </ul>
                 </div>
             </div>
@@ -330,12 +361,12 @@
                                 </tbody>
                             </table>
                         </div>
-                        
+
                     </div>
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-                <div class="form-horizontal form-elements" ng-form="modelNewForm">
+                <div class="form-horizontal form-elements" ng-form="modelNewForm" id="tarekcontainer">
                     <fieldset class="scheduler-border">
                         <legend class="scheduler-border"></legend>
                         <div class="col-md-12">
@@ -343,7 +374,7 @@
                                 <div class="form-group" id="" show-errors>
                                     <label class="col-sm-4 control-label">Asset Name<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" name="Asset Name" ng-model="modelNewA.AssetName" class="form-control" required maxlength="15">
+                                        <input type="text" name="Asset Name" ng-model="modelNewA.AssetName" class="form-control" required maxlength="50">
                                     </div>
                                 </div>
                             </div>
@@ -364,7 +395,7 @@
                                 <div class="form-group" id="" show-errors>
                                     <label class="col-sm-4 control-label">Asset Detail<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" name="Asset Detail" ng-model="modelNewA.AssetDetail" class="form-control" required maxlength="15">
+                                        <input type="text" name="Asset Detail" ng-model="modelNewA.AssetDetail" class="form-control" required>
                                     </div>
                                 </div>
                             </div>
@@ -446,17 +477,43 @@
                         <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Repair&Maintanence budget</span><sup>*</sup></label>
+                                    <label class="col-sm-4 control-label" title="Repair&Maintanence budget"><span style="font-size:12px">Repair&Maintanence budget</span><sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <input type="number" name="Repair & Maintanence budget" ng-model="modelNewA.RepairAndMaintanenceBudget" class="form-control" required>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Work Center Master<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" name="WorkCenterMaster" ng-model="modelNewA.WorkCenterMaster" class="form-control" readonly>
+                                            <span class="input-group-btn">
+                                                <button ng-click="GetWorkCenterList();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
                                 <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Consumable Budget</span><sup>*</sup></label>
+                                    <label class="col-sm-4 control-label"><span>Consumable Budget</span><sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <input type="number" name="Consumable Budget" ng-model="modelNewA.ConsumableBudget" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Article<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" name="Article" ng-model="modelNewA.Article" class="form-control" readonly>
+                                            <span class="input-group-btn">
+                                                <button ng-click="GetArticleList();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -483,6 +540,8 @@
                                     <tr>
                                         <th>Asset Name</th>
                                         <th>Entity</th>
+                                        <th>Work Center</th>
+                                        <th>Article</th>
                                         <th>Asset Detail</th>
                                         <th>Asset Code</th>
                                         <th>Asset Reference</th>
@@ -500,6 +559,8 @@
                                     <tr ng-repeat="x in assetList" ng-dblclick="Assetdoubleclick(x);" ng-class="{selected : x.Id==null}">
                                         <td>{{x.AssetName}}</td>
                                         <td>{{x.Entity}}</td>
+                                        <td>{{x.WorkCenterMaster}}</td>
+                                        <td>{{x.Article}}</td>
                                         <td>{{x.AssetDetail}}</td>
                                         <td>{{x.AssetCode}}</td>
                                         <td>{{x.AssetReference}}</td>
@@ -769,3 +830,55 @@
     </div>
 </div>
 
+<ej-dialog id="workCenterPopUp" title=" Work Center" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="550" e-target="#tarekcontainer" e-open="enableBtn">
+    <div class="row" style="width:540px">
+        <div class="col-xs-12 col-sm-12">
+            <div id="GridSelectWC" ej-grid e-datasource="workCenterList" e-recorddoubleclick="SetworkCenter"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                 e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="Plant" e-headertext="Plant" e-width="3"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
+                    <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
+                    <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                </div>
+
+            </div>
+            
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="CloseWorkCenter();" class="btn">Close</button></li>
+            </ul>
+        </div>
+    </div>
+</ej-dialog>
+
+<ej-dialog id="ArticleListPopUp" title="Article" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="1400" e-target="#tarekcontainer" e-open="enableBtn">
+    <div class="row" style="width:1400px">
+        <div class="col-xs-12 col-sm-12">
+            <div id="GridSelectWC" ej-grid e-datasource="articleList" e-recorddoubleclick="SetArticle"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                 e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="3"></div>
+                    <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
+                    <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                    <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                    <div e-column e-field="IsAsset" e-headertext="Is Asset" e-width="2"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="closeArticle();" class="btn">Close</button></li>
+            </ul>
+        </div>
+    </div>
+</ej-dialog>

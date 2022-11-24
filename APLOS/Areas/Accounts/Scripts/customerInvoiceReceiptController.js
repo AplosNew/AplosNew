@@ -130,6 +130,10 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         {
             "Text": "Amount",
             "Value": "Amount"
+        },
+        {
+            "Text": "Status",
+            "Value": "Status"
         }
     ];
 
@@ -146,14 +150,21 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
     };
     baseService.init("Accounts/CustomerInvoice/GetCustomerInvoiceReceiptList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.getData = function (pageno) {
-        baseService.pagination(pageno, $scope.parameters)
-            .then(function (result) {
-                $scope.paymentList = result.Rows;
-                $scope.parameters.total_count = result.Total;
-            }, function () {
-                ShowResult(commonMessage.NetworkError, "failure");
-            }).finally(function () {
-            });
+        try {
+            if ($scope.parameters.searchBy == "Status" && baseService.isUndefinedOrNull($scope.parameters.search)) {
+                throw "Value is required.";
+            }
+            baseService.pagination(pageno, $scope.parameters)
+                .then(function (result) {
+                    $scope.paymentList = result.Rows;
+                    $scope.parameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure");
+                }).finally(function () {
+                });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
     };
     $scope.getData();
 

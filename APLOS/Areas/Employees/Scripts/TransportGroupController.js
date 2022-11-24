@@ -37,6 +37,7 @@ function TransportGroupController(cboService, commonMessage, $scope, $rootScope,
         UserName: null,
         Description: null,
         Remarks: null,
+        IsTransportApplicable: true,
         Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);

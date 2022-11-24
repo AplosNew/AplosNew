@@ -577,6 +577,14 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsAdvanceService.GetAdvance(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorAdvance), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public JsonResult GetAvailableAdvanceByVendor(string vendorId)
+        {
+            AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsAdvanceService.GetAvailableAdvanceByVendor(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorAdvance, vendorId), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetPartyWiseOutstandingAdvance(string partyId)
         {
@@ -2750,5 +2758,22 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Success });
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetVendorAdvanceReport(string plantId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
+                string fileName = "";
+                fileName = _advanceReportService.VendorAdvanceReport(plantId,identity.CompanyGroupId, identity.CompanyId, SourceType.VendorAdvance, "Vendor Advance Report");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
     }
 }

@@ -2,10 +2,13 @@
 using Library.Data.Sql;
 using Library.Model.OrderManagements;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using OTSBD;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -648,15 +651,15 @@ namespace Library.Planning.OrderManagement
             dr.EndEdit();
         }
 
-        public void SaveContractData(Dictionary<string, object> data, out string contractId, List<Dictionary<string, object>> funds, List<MasterOrderItem> masterOrderItem)
+        public void SavePackingDetailData(Dictionary<string, object> data,string MasterOrderId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[Contract] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM trn.MasterOrder WHERE Id='" + MasterOrderId + "'", out dsMaster, false, "1");
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PackingDetail] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -664,83 +667,20 @@ namespace Library.Planning.OrderManagement
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "Contract", out _Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PackingDetaial", out _Id);
 
-                    data["Id"] = "C" + _Id;
-                    data["PlantId"] = identity.PlantId;
+                    data["Id"] = "PD" + _Id;
+                    data["MasterOrderId"] = MasterOrderId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
-                    data["PlantId"] = identity.PlantId;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
 
-                contractId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-
-                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.MasterOrderItem WHERE MasterOrderId IN (" + data["MasterOrderId"] + ")", out DataSet dsMasterOrder, false, "1");
-
-                foreach (var item in masterOrderItem)
-                {
-                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
-                    dv.RowFilter = "Id='" + item.Id + "'";
-
-                    if (dv.Count > 0)
-                    {
-                        DataRow drmo = dv[0].Row;
-
-                        drmo.BeginEdit();
-
-                        drmo["ContractId"] = contractId;
-                        drmo["UpdatedBy"] = identity.Name;
-                        drmo["UpdatedDate"] = DateTime.Now.ToString();
-                        drmo["UpdatedFromIP"] = identity.IPAddress;
-
-                        drmo.EndEdit();
-
-                    }
-
-                }
-
-
-
-                #region FUND 
-
-                DataSet dsChild;
-
-                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ContractFund where  ContractId='" + contractId + "'", out dsChild, false, "1");
-                #region data update
-
-                if (funds != null)
-                {
-                    foreach (var item in funds)
-                    {
-                        DataView dv = new DataView(dsChild.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                        if (dv.Count == 0)
-                        {
-                            item["Id"] = GetContractFundPK();
-                            item["ContractId"] = contractId;
-
-                            AddNewRow(dsChild.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
-                    }
-                }
-                #endregion
-
-                #endregion
-
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsChild, dsMasterOrder);
-
+                obj.SaveDataSets(dsMaster);
             }
             catch (Exception ex)
             {
@@ -748,16 +688,13 @@ namespace Library.Planning.OrderManagement
             }
         }
 
-        public IEnumerable<object> GetProductLibrary()
+        public IEnumerable<object> GetProductLibrary(string ArticleId)
         {
             try
             {
-                //string sql = @"SELECT PL.Id as Value,Text=CASE WHEN PL.RecipeOrProductionGroup = 'Recipe' THEN RGM.UserName+' ('+PL.RecipeOrProductionGroup+')' ELSE PL.ProductionGroup+' ('+PL.RecipeOrProductionGroup+')' END
-                //        FROM dbo.ProductLibrary PL
-                //        LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active =1";
                 string sql = @"Select PL.Id,PL.Code,PL.ShortName,PL.StandardName, UserName=CASE WHEN PL.RecipeOrProductionGroup = 'Recipe' THEN RGM.UserName+' ('+PL.RecipeOrProductionGroup+')' ELSE PL.ProductionGroup+' ('+PL.RecipeOrProductionGroup+')' END
 FROM dbo.ProductLibrary PL
-LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active =1";
+LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active =1 AND PL.ArticleId='"+ ArticleId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             } 
             catch (Exception ex)
@@ -770,13 +707,13 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
         {
             try
             {
-                string sql = @"SELECT A.Id,OL.Id OrderLineCostingItemId,OL.SOItemName,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
-Value=CASE WHEN ISNULL(A.Value,0)<>0 THEN A.Value ELSE (CASE WHEN OL.ValueinDecimal=1 THEN OL.DefaultValue ELSE OL.DefaultValue/100 END) END
-,OL.EntryState,ValueIN = CASE WHEN OL.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
-FROM OrderLineCostingItem AS OL
-LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
-OUTER APPLY (SELECT * FROM dbo.MasterOrderItemCostingRate WHERE OrderLineCostingItemId=OL.Id AND ISNULL(MasterOrderItemId,'" + masterOrderItemId + @"')='"+ masterOrderItemId + @"') A
-ORDER BY OL.Sequence";
+                string sql = @"SELECT A.Id,A.MasterOrderItemId,OL.Id OrderLineCostingItemId,OL.SOItemName,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
+                            Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN OL.ValueinDecimal=1 THEN OL.DefaultValue ELSE OL.DefaultValue/100 END) END
+                            ,OL.EntryState,ValueIN = CASE WHEN OL.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+                            FROM OrderLineCostingItem AS OL
+                            LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
+                            OUTER APPLY (SELECT * FROM dbo.MasterOrderItemCostingRate WHERE OrderLineCostingItemId=OL.Id AND ISNULL(MasterOrderItemId,'" + masterOrderItemId + @"')='"+ masterOrderItemId + @"') A
+                            ORDER BY OL.Sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -790,12 +727,12 @@ ORDER BY OL.Sequence";
             try
             {
                 string sql = @"SELECT A.Id,OL.Id OrderLineCostingItemId,OL.SOItemName,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
-LR.Value ItemValue,SOValue=CASE WHEN ISNULL(A.SOValue,0)=0 THEN LR.[Value] ELSE A.SOValue END,ValueDiff=LR.Value-(CASE WHEN ISNULL(A.SOValue,0)=0 THEN LR.[Value] ELSE A.SOValue END),A.SalesOrderId,A.Remark
-FROM OrderLineCostingItem AS OL
-LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
-LEFT JOIN dbo.MasterOrderItemCostingRate LR ON LR.OrderLineCostingItemId=OL.Id  AND ISNULL(LR.MasterOrderItemId,'" + lineId + @"')='" + lineId + @"'
-OUTER APPLY (SELECT * FROM dbo.SOCostingConfirmation WHERE OrderLineCostingItemId=OL.Id AND ISNULL(SalesOrderId,'" + SalesOrderId + @"')='"+ SalesOrderId + @"') A
-ORDER BY OL.Sequence";
+                            LR.Value ItemValue,SOValue=CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END,ValueDiff=LR.Value-(CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END),A.SalesOrderId,A.Remark
+                            FROM OrderLineCostingItem AS OL
+                            LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
+                            LEFT JOIN dbo.MasterOrderItemCostingRate LR ON LR.OrderLineCostingItemId=OL.Id  AND ISNULL(LR.MasterOrderItemId,'" + lineId + @"')='" + lineId + @"'
+                            OUTER APPLY (SELECT * FROM dbo.SOCostingConfirmation WHERE OrderLineCostingItemId=OL.Id AND ISNULL(SalesOrderId,'" + SalesOrderId + @"')='"+ SalesOrderId + @"') A
+                            ORDER BY OL.Sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -990,6 +927,29 @@ ORDER BY OL.Sequence";
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public IEnumerable<object> GetPackingDetail(string masterOderId)
+        {
+            string sql = @"select PD.*,EI.EmployeeName ResponsiblePerson
+                                from PackingDetail PD
+                                left join EmployeeInformation EI on EI.SystemId=PD.ResponsiblePersonId
+                                where PD.MasterOrderId= '" + masterOderId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetPackingDetailData()
+        {
+            try
+            {
+                var sql = @"SELECT * FROM [dbo].[PackingDetail]
+                            Where CostingSegment='" + CostingSegment.DirectMaterial + "' Order By CI.UserName";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetItemMaterialSKUData(string materialMasterId, string sequence)
         {
             string sql = @" SELECT CV.Id AS [Value], CV.UserName AS [Text], CV.CharacteristicsId FROM [HKP].[Characteristics] C
@@ -1049,6 +1009,510 @@ ORDER BY OL.Sequence";
                             JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=PL.ArticleId
                             Where MOI.ArticleId='" + articleId + @"'";
             return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetSOData(string lineItem)
+        {
+            try
+            {
+                string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,so.MasterOrderItemId
+	                                ,ISNULL(so.Id,'') SOId
+	                                ,SO.CustomerPOId
+	                                ,CPO.PONumber
+	                                ,mm.Id MaterialMasterId
+	                                ,mm.UserName MaterialMaster
+	                                ,ISNULL(mma.StandardName, '') Article
+	                                ,b.UserName Customer
+	                                ,mo.TotalQty MOQty
+	                                ,ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage [ExtraP]
+	                                ,moi.OrderWastagePercentage [WastageP]
+	                                ,ISNULL(mma.Id, '') ArticleId
+	                                ,mmc.CharCount
+	                                ,ISNULL(POD.ProductionOrderId, '') POId
+	                                ,B.UserName Buyer
+	                                ,PM.UserName AS ProductMasterName
+	                                ,CEILING(SO.PlannedQty) PlannedQty
+                                    ,SO.Description,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
+                                FROM  (
+	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                FROM trn.SalesOrder AS s
+	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                ) so 
+									left join TRN.ProductionOrderDetail POD on POD.SalesOrderId=so.Id
+                                LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN (SELECT COUNT(Id) CharCount, MaterialMasterId	FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+	                                ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+                                LEFT JOIN (SELECT PS.UserName, PO.Id ProductionOrderId FROM [HKP].[ProductionStatus] PS
+	                                INNER JOIN TRN.ProductionOrder PO ON PO.ProductionStatusId = PS.Id
+	                                ) OS ON OS.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN TRN.ProductionOrder PO ON PO.Id = POD.ProductionOrderId
+                                LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
+                                LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+							   Where so.MasterOrderItemId ='" + lineItem + "' and ISNULL(mo.MasterOrderNo,'')<>'' AND so.Id NOT IN(Select SOId From  dbo.BOMSODetail)";
+
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string CreateSODataReportSheet(string masterOrderId)
+        {
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+            DataTable dtSOList = GetSODataSql(masterOrderId);
+
+            var filePath = "";
+
+            if (dtSOList.Rows.Count == 0)
+                throw new Exception("No data found");
+            // throw new Exception("To date must be above or equal to From Date.");
+
+            worksheet.Name = "SO Data Report";
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            worksheet[ROW, COL].Text = "Packing Detail Id";
+            int colPackingDetailId = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "SO No.";
+            int colSONo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Item Id";
+            int colItemId = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+
+            worksheet[ROW, COL].Text = "Master Order No.";
+            int colMasterOrderNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Color";
+            int colColor = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Size";
+            int colSize = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Qty";
+            int colQty = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Customer Ref No.";
+            int colCustomerRefNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Own Ref No.";
+            int colOwnRefNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Product Code";
+            int colProductCode = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Customer";
+            int colCustomer = COL;
+            worksheet[ROW, COL].ColumnWidth = 25;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Material Description";
+            int colMaterialDescription = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Article";
+            int colArticle = COL;
+            worksheet[ROW, COL].ColumnWidth = 25;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Remarks";
+            int colRemarks = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+          
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+           
+            int StartRow = ROW;
+            List<string> list = new List<string>();
+            for (int i = 0; i < dtSOList.Rows.Count; i++)
+            {
+                ROW++;
+               
+                    worksheet[ROW, colPackingDetailId].Text = dtSOList.Rows[i]["PackingDetailId"].ToString();
+                    worksheet[ROW, colSONo].Text = dtSOList.Rows[i]["SONo"].ToString();
+                    worksheet[ROW, colItemId].Text = dtSOList.Rows[i]["MasterOrderItemId"].ToString();
+                    worksheet[ROW, colMasterOrderNo].Text = dtSOList.Rows[i]["MasterOrderNo"].ToString();
+                    worksheet[ROW, colColor].Text = (dtSOList.Rows[i]["Color"].ToString());
+                    worksheet[ROW, colSize].Text = dtSOList.Rows[i]["Size"].ToString();
+
+                    worksheet[ROW, colQty].Number = clsStaticInfo.dbl(dtSOList.Rows[i]["Qty"].ToString());
+                    worksheet[ROW, colQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                    worksheet[ROW, colCustomerRefNo].Text = dtSOList.Rows[i]["CustomerRefNo"].ToString();
+                    worksheet[ROW, colOwnRefNo].Text = dtSOList.Rows[i]["OwnRefNo"].ToString();
+                    worksheet[ROW, colProductCode].Text = dtSOList.Rows[i]["ProductCode"].ToString();
+                    worksheet[ROW, colCustomer].Text = dtSOList.Rows[i]["Customer"].ToString();
+                    worksheet[ROW, colMaterialDescription].Text = dtSOList.Rows[i]["MaterialDescription"].ToString();
+                    worksheet[ROW, colArticle].Text = dtSOList.Rows[i]["Article"].ToString();
+                    worksheet[ROW, colRemarks].Text = dtSOList.Rows[i]["Remark"].ToString();
+
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            }
+
+            worksheet.UsedRange.WrapText = true;
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            //worksheet.FirstVisibleColumn = 1;
+            //worksheet.FirstVisibleRow = 17;
+
+            #endregion Freeze Panes
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref worksheet, endCol, "SO Data Report", identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //worksheet.Range[6, 1, 7, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            worksheet.Range[6, 1, 7, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+            var SheetName = "SODataReport";
+            workbook.Version = ExcelVersion.Excel97to2003;
+            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+            workbook.SaveAs(filePath);
+            workbook.Close();
+            excelEngine.Dispose();
+            return filePath;
+        }
+        public DataTable GetSODataSql(string masterOrderId)
+        {
+            var sql = @"select PD.Id PackingDetailId,PSO.SOId SONo,MOI.Id MasterOrderItemId,MO.Id MasterOrderNo
+								,CV1.UserName Color,CV2.UserName Size,SKUD.Quantity Qty,PD.CustomerRefNo,PD.OwnRefNo
+								,PL.Code ProductCode,P.UserName Customer,MM.UserName MaterialDescription
+								,MMA.StandardName Article,MOI.Remark
+								from dbo.SKUDetail SKUD --PackingDetail PD
+								left join PackingTypeChild PTC on PTC.Id=SKUD.PackingTypeChildId
+								left join PackingDetail PD on PD.Id=PTC.PackingDetailId
+								left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=SKUD.FGFirstCharacteristicsValueId								
+								left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=SKUD.FGSecondCharacteristicsValueId
+								left join PackingSODetail PSO on PSO.PackingDetailId=PD.Id
+								left join TRN.MasterOrder MO on MO.Id=PD.MasterOrderId
+								left join HKP.Party P on P.Id=MO.PartyId
+								left join TRN.MasterOrderItem MOI on MOI.Id=PD.MasterOrderItemId
+								left join MST.MaterialMaster MM on MM.Id=MOI.MaterialMasterId
+								left join MST.MaterialMasterArticle MMA on MMA.MaterialMasterId=MM.Id
+								left join ProductLibrary PL on PL.Id=MOI.ProductLibraryId
+                                where PD.MasterOrderId='" + masterOrderId +@"'";
+            return _sqlRepository.GetDataTable(sql);
+        }
+
+        public string CreateSODataDetailReportSheet(string masterOrderId)
+        {
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+            DataTable dtSOList = GetSODataDetailSql(masterOrderId);
+
+            var filePath = "";
+
+            if (dtSOList.Rows.Count == 0)
+                throw new Exception("No data found");
+            // throw new Exception("To date must be above or equal to From Date.");
+
+            worksheet.Name = "SO Data Detail Report";
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+
+            worksheet[ROW, COL].Text = "Master Order No.";
+            int colMasterOrderNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Item Id";
+            int colItemId = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "User Name";
+            int colUserName = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Own Ref No.";
+            int colOwnRefNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Customer Ref No.";
+            int colCustomerRefNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Packing Level";
+            int colPackingLevel = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Responsible Person";
+            int colResponsiblePerson = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Packing Detail Remarks";
+            int colPackingDetailRemarks = COL;
+            worksheet[ROW, COL].ColumnWidth = 18;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "SO No.";
+            int colSONo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "SO Remarks";
+            int colSORemarks = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Packing Code";
+            int colPackingCode = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Packing Type";
+            int colPackingType = COL;
+            worksheet[ROW, COL].ColumnWidth = 22;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Packing Type Customer Ref No.";
+            int colPackingTypeCustomerRefNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Packing Type Remarks";
+            int colPackingTypeRemarks = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Color";
+            int colColor = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Size";
+            int colSize = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Qty";
+            int colQty = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "To Plan Qty";
+            int colToPlanQty = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Plan";
+            int colPlan = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+          
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+            int StartRow = ROW;
+            List<string> list = new List<string>();
+            for (int i = 0; i < dtSOList.Rows.Count; i++)
+            {
+                ROW++;
+
+                worksheet[ROW, colMasterOrderNo].Text = dtSOList.Rows[i]["MasterOrderNo"].ToString();
+                worksheet[ROW, colItemId].Text = dtSOList.Rows[i]["MasterOrderItemId"].ToString();
+                worksheet[ROW, colUserName].Text = dtSOList.Rows[i]["UserName"].ToString();
+                worksheet[ROW, colOwnRefNo].Text = dtSOList.Rows[i]["OwnRefNo"].ToString();
+                worksheet[ROW, colCustomerRefNo].Text = dtSOList.Rows[i]["CustomerRefNo"].ToString();
+                worksheet[ROW, colPackingLevel].Text = dtSOList.Rows[i]["PackingLevel"].ToString();
+                worksheet[ROW, colResponsiblePerson].Text = dtSOList.Rows[i]["ResponsiblePerson"].ToString();
+                worksheet[ROW, colPackingDetailRemarks].Text = dtSOList.Rows[i]["PackingDetailRemarks"].ToString();
+                worksheet[ROW, colSONo].Text = dtSOList.Rows[i]["SOId"].ToString();
+                worksheet[ROW, colSORemarks].Text = dtSOList.Rows[i]["SORemarks"].ToString();
+                worksheet[ROW, colPackingCode].Text = dtSOList.Rows[i]["PackingCode"].ToString();
+                worksheet[ROW, colPackingType].Text = dtSOList.Rows[i]["PackingType"].ToString();
+                worksheet[ROW, colPackingTypeCustomerRefNo].Text = dtSOList.Rows[i]["PackingTypeCustomerRefCode"].ToString();
+                worksheet[ROW, colPackingTypeRemarks].Text = dtSOList.Rows[i]["PackingTypeRemarks"].ToString();
+
+                worksheet[ROW, colColor].Text = (dtSOList.Rows[i]["Color"].ToString());
+                worksheet[ROW, colSize].Text = dtSOList.Rows[i]["Size"].ToString();
+
+                worksheet[ROW, colQty].Number = clsStaticInfo.dbl(dtSOList.Rows[i]["Quantity"].ToString());
+                worksheet[ROW, colQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                worksheet[ROW, colToPlanQty].Number = clsStaticInfo.dbl(dtSOList.Rows[i]["ToPlanQuantity"].ToString());
+                worksheet[ROW, colToPlanQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                worksheet[ROW, colPlan].Number = clsStaticInfo.dbl(dtSOList.Rows[i]["Plan"].ToString());
+                worksheet[ROW, colPlan].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            }
+
+            worksheet.UsedRange.WrapText = true;
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            //worksheet.FirstVisibleColumn = 1;
+            //worksheet.FirstVisibleRow = 17;
+
+            #endregion Freeze Panes
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref worksheet, endCol, "SO Data Detail Report", identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //worksheet.Range[6, 1, 7, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            worksheet.Range[6, 1, 7, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+            var SheetName = "SODataDetailReport";
+            workbook.Version = ExcelVersion.Excel97to2003;
+            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+            workbook.SaveAs(filePath);
+            workbook.Close();
+            excelEngine.Dispose();
+            return filePath;
+        }
+        public DataTable GetSODataDetailSql(string masterOrderId)
+        {
+            var sql = @"select MO.Id MasterOrderNo,MOI.Id MasterOrderItemId,PD.UserName,PD.OwnRefNo,PD.CustomerRefNo,PD.PackingLevel,EI.EmployeeName ResponsiblePerson
+								,PD.Remarks PackingDetailRemarks,PSO.SOId,PSO.Remarks SORemarks,PTC.PackingCode,PT.StandardName PackingType
+								,PTC.CustomerRefCode PackingTypeCustomerRefCode,PTC.Remarks PackingTypeRemarks,CV1.UserName Color,CV2.UserName Size,SKUD.Quantity
+								,SKUD.ToPlanQuantity,SKUD.[Plan]
+								from PackingDetail PD
+								left join TRN.MasterOrderItem MOI on MOI.Id=PD.MasterOrderItemId
+								left join TRN.MasterOrder MO on MO.Id=PD.MasterOrderId
+								left join EmployeeInformation EI on EI.SystemId=PD.ResponsiblePersonId
+								left join PackingSODetail PSO on PSO.PackingDetailId=PD.Id
+								left join PackingTypeChild PTC on PTC.PackingDetailId=PD.Id
+								left join HKP.PackingType PT on PT.Id=PTC.PackingTypeId
+								left join SKUDetail SKUD on SKUD.PackingTypeChildId=PTC.Id
+								left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=SKUD.FGFirstCharacteristicsValueId								
+								left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=SKUD.FGSecondCharacteristicsValueId
+                                where PD.MasterOrderId='" + masterOrderId + @"'";
+            return _sqlRepository.GetDataTable(sql);
         }
     }
 }

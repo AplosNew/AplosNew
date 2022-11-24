@@ -5,11 +5,11 @@
             <label class="col-sm-4 control-label">Party Type<sup>*</sup></label>
             <div class="col-sm-8 radio">
                 <label>
-                    <input type="radio" name="source" ng-click="getPartyType(voucher.NoteType);" ng-model="voucher.NoteType" value="@Library.Model.Invoices.NoteType.CustomerCreditNote.ToString()">
+                    <input type="radio" name="source" ng-click="getPartyType(voucher.NoteType);" ng-model="voucher.NoteType" value="@Library.Model.Invoices.NoteType.CustomerCreditNote.ToString()" ng-change="changeTDS()">
                     <span class="cr" tabindex="1"><i class="cr-icon"></i></span>Customer
                 </label>
                 <label>
-                    <input type="radio" name="source" ng-click="getPartyType(voucher.NoteType);" ng-model="voucher.NoteType" value="@Library.Model.Invoices.NoteType.VendorCreditNote.ToString()">
+                    <input type="radio" name="source" ng-click="getPartyType(voucher.NoteType);" ng-model="voucher.NoteType" value="@Library.Model.Invoices.NoteType.VendorCreditNote.ToString()" ng-change="changeTDS()">
                     <span class="cr" tabindex="2"><i class="cr-icon"></i></span>Vendor
                 </label>
             </div>
@@ -239,6 +239,69 @@
                     </td>
                 </tr>
             </tbody>
+        </table>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-5 col-md-5" @*ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.VendorCreditNote.ToString()'"*@>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">TDS</label>
+            <label class="switch col-sm-8">
+                <input type="checkbox" ng-model="modelNew.AddtionalTax">
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="table-responsive modal-table" ng-show="modelNew.AddtionalTax">
+        <table class="table table-responsive table-striped">
+            <thead>
+                <tr>
+                    <th>Input Tax</th>
+                    <th>Percentage</th>
+                    <th>Amount</th>
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="td_TDS_TaxCode">
+                        <div class="select-style show-message">
+                            <select name="TDSTaxCodeId" ng-model="TDS.TaxCodeId" ng-change="selectTDS(TDS.TaxCodeId)" class="col-sm-3 form-control"
+                                    ng-options="item.Id as item.UserName for item in TDSCboList">
+                                <option></option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="TDS.Type =='FixedPercentage' && TDS.ValueOfFixed!=null" ng-model="TDS.ValueOfFixed">
+                        </div>
+                    </td>
+                    <td id="td_TDS_TaxCodeAmount">
+                        <div class="show-message">
+                            <input type="text" n-decimals="4" class="form-control text-right" ng-model="TDS.TaxAmount" ng-keyup="copyTaxesAmount();">
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <a ng-click="addTDS();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                    </td>
+                </tr>
+                <tr ng-repeat="x in TDSList">
+                    <td>{{x.TaxName}}</td>
+                    <td>{{x.ValueOfFixed}}</td>
+                    <td class="text-right">{{x.TaxAmount | number:2 }}</td>
+                    <td class="text-right">
+                        <button ng-click="removeTDSRow($index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot ng-show="TDSList.length">
+                <tr>
+                    <td colspan="2"><b>Sub Total</b></td>
+                    <td class="text-right"><b>{{ TDSList | sumByKey : 'TaxAmount' }}</b></td>
+                    <td></td>
+                </tr>
+            </tfoot>
         </table>
     </div>
     <div class="common-btn">

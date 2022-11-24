@@ -163,7 +163,7 @@ namespace Library.OrderManagement.Production
                 var str = @"Select  distinct ToLocation as text, ToStorageLocId as value from mst.MaterialMovementMaster";
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw e;
             }
@@ -559,7 +559,10 @@ namespace Library.OrderManagement.Production
             try
             {
                 var str = @"Select * from
-                (SELECT distinct so.Id as SO, so.Qty as SoQty, sos.Despatch , (so.Qty - sos.Despatch) as toDespatch,format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, CAST(so.DeliveryDate as DATE) as Del ,pl.Code  as ProductCode,
+                (SELECT distinct so.Id as SO
+                ,CEILING(SUM((isnull(so.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) SoQty
+                , sos.Despatch , (CEILING(SUM((isnull(so.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) - sos.Despatch) as toDespatch
+                ,format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, CAST(so.DeliveryDate as DATE) as Del ,pl.Code  as ProductCode,
                  po.id as PO,uom.UserName as UOM,os.UserName as SOStatus,
                moi.MasterOrderId as MasterOrderNo,pc.UserName as ProductCategory, psc.UserName as ProductSubCategory,moi.Id as ItemId,mma.StandardName as ItemArticle,
                 pl.Remarks,ma.Code as MaterialCode,ma.UserName as Material,ma.Id as MaterialId,PM.UserName as Product , prod.UserName as Prod,PM.Id as ProductId,
@@ -592,6 +595,10 @@ namespace Library.OrderManagement.Production
                 where 
 				mo.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold') and so.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold')
 				 and pl.Code !='null'
+				 group by so.Id,sos.Despatch,so.DeliveryDate,pl.Code,po.id,uom.UserName,os.UserName,
+				 moi.MasterOrderId,pc.UserName, psc.UserName,moi.Id,mma.StandardName,
+                pl.Remarks,ma.Code,ma.UserName,ma.Id,PM.UserName, prod.UserName,PM.Id,
+                pl.Id, par.UserName,par.Id,moi.BuyerReferenceNo , moi.OwnReferenceNo
 				) as req
 
        where CustomerId = '" + customer + @"'
@@ -718,7 +725,7 @@ namespace Library.OrderManagement.Production
                 }
 
                 string loc = "";
-                if(Loc == "All")
+                if (Loc == "All")
                 {
                     loc = "";
                 }
@@ -788,7 +795,7 @@ left join dbo.ItemScan isch on isch.Id = isc.MasterId
 where isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
 group by isc.POId, isc.ProductCode , isc.LotNo
 ) as fp on fp.ProductCode = sc.ProductCode and fp.POId = sc.POId and fp.LotNo = sc.LotNo
-"+loc+@"
+" + loc + @"
 group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty , ud.ud ,fd.fd, fp.fp
 
 ) as Scan
@@ -880,7 +887,7 @@ order by pk.Date  DESC";
 							left join
 							(Select sum(NetWeight) as booked , PackingId from dbo.ItemScanChild where Booked = 1 
 							group by PackingId) as bk on bk.PackingId = pol.Id
-                            where PackingLineItemId = '"+PackingLineItemId+@"'";
+                            where PackingLineItemId = '" + PackingLineItemId + @"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -918,7 +925,7 @@ order by pk.Date  DESC";
 							 where pli.PackingId = '" + PackingId + @"'
 							group by pli.PackingLineItemId,pol.LotNo,pol.PONo,pol.ProductCode
 							) as pp on pp.PackingLineItemId = pli.PackingLineItemId and pp.LotNo = pol.LotNo and pp.ProductCode = pol.ProductCode and pp.PONo = pol.PONo
-                            where pol.Status = 'Active' and pli.PackingId = '" + PackingId+@"'
+                            where pol.Status = 'Active' and pli.PackingId = '" + PackingId + @"'
 
                             ";
                 return _sqlRepository.GetDataTable(str);
@@ -978,23 +985,28 @@ order by pk.Date  DESC";
         {
             try
             {
-                var str = @"SELECT Convert(bit,0) Active,PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
+                var str = @"SELECT distinct pk.PackingId,Convert(bit,0) Active, format(pk.Date,'dd-MMM-yyyy') as AddedDate, format(pk.InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
                             ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency 
-                            , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
+                            ,ISNULL(A.PaymentTermId,CP.PaymentTermId)PaymentTermId,ISNULL(A.Code,PT.Code) AS PaymentTermCode,ISNULL(A.UserName,PT.UserName) AS PaymentTermName,ISNULL(A.IsPaymentTermChangeable,CP.IsPaymentTermChangeable) IsPaymentTermChangeable
                             FROM TRN.Packing pk
                             LEFT JOIN hkp.Party p on p.Id = pk.CustomerId
                             LEFT JOIN dbo.EmployeeInformation e on e.SystemId = pk.ByWhom
                             LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId = pk.DispatchResponsiblePersonId
                             LEFT JOIN hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
-                            LEFT JOIN org.Entity en on en.Id = pk.EntityId
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
+                            LEFT JOIN org.Entity en on en.Id = pk.EntityId                            
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
                             LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
-                            WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)
-                            AND pk.PackingId IN(Select distinct pli.PackingId from trn.PackingLineItem pli
-                            left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-                            left join ItemScanChild sc on sc.PackingId = pol.Id
-                            where ISNULL(sc.RefNo,'')<>'')";
+                             JOIN
+                            (SELECT PLI.PackingId,CP.PaymentTermId,PT.Code,PT.UserName,CP.IsPaymentTermChangeable
+                               FROM  trn.PackingLineItem PLI 
+                            LEFT JOIN TRN.SalesOrder SO ON SO.Id=PLI.SOId
+                            LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+                            LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=MO.PartyId AND CP.PartyType='Customer'
+                            LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
+                            ) A ON A.PackingId=pk.PackingId                            
+                            WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -1003,7 +1015,7 @@ order by pk.Date  DESC";
             }
         }
 
-        public DataTable GetStockData(string ToDate, string FromDate, string type, string group, string column, string value , string Loc)
+        public DataTable GetStockData(string ToDate, string FromDate, string type, string group, string column, string value, string Loc)
         {
             try
             {
@@ -1136,6 +1148,38 @@ order by pk.Date  DESC";
 
         }
 
+        public DataTable GetScanDataReport(string packingId)
+        {
+            try
+            {
+
+                var str = @"SELECT MMA.StandardName, POLR.netWeight, POLR.GWeight,POLR.RefNo,POLR.LotNo
+,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate,pc.UserName as ConsigneeBilltoName
+FROM [TRN].[SalesOrder] AS SO
+JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id
+JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+LEFT JOIN [MST].[MaterialMasterArticle] AS MMA ON MOI.ArticleId = MMA.Id							
+LEFT JOIN trn.PackingLineItem PLI ON PLI.SOId=SO.Id
+LEFT JOIN dbo.[contract] as c on c.id = moi.contractId
+LEFT JOIN HKP.Party as pc on pc.Id=c.CustomerId
+LEFT JOIN HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
+LEFT JOIN dbo.SalesPacking SP on SP.PackingId=pli.PackingId
+LEFT JOIN TRN.Sales S on S.Id=SP.SalesId
+LEFT JOIN 
+(							
+Select ISNULL((sc.NetWeight),0) netWeight, ISNULL((sc.GWeight),0) GWeight,sc.RefNo,sc.LotNo,PackingLineItemId from trn.POLotReference po
+left join dbo.ItemScanChild sc on sc.PackingId = po.Id
+)POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId							
+WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public DataTable getGroupFinishedStocksReport(string Loc)
         {
             try
@@ -1149,7 +1193,7 @@ order by pk.Date  DESC";
                 {
                     loc = "AND R.ToStorageLocId = '" + Loc + "'";
                 }
-                var str = @"Select M.StandardName ,  S.LotNo, Count(S.RefNo) as Bags, S.NetWeight as BagSize , Sum(S.NetWeight) as NtWt, Sum(S.GWeight) as GtWt,
+                var str = @"Select M.StandardName , S.ProductCode, S.POId,  S.LotNo, Count(S.RefNo) as Bags, S.NetWeight as BagSize , Sum(S.NetWeight) as NtWt, Sum(S.GWeight) as GtWt,
                             (Select Stuff((
                             Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
                             from dbo.ProductLibraryAttribute pla
@@ -1160,19 +1204,53 @@ order by pk.Date  DESC";
                             LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
-                            WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' AND R.ToLocation <> 'JW Sale-Dye' " + loc+ @"
+                            WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' AND R.ToLocation <> 'JW Sale-Dye' " + loc + @"
                             and M.StandardName is not null
-                            group by  M.StandardName , S.LotNo, S.NetWeight , P.Id
+                            group by  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
                             order by M.StandardName , S.LotNo";
                 return _sqlRepository.GetDataTable(str);
             }
-            catch(Exception e)
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        public void GetFinishedGoodsPackingReportData(string fromDate, string toDate, string PurposeId, out DataTable dtOrder)
+        {
+            try
+            {
+                string purposeId = "'" + PurposeId.Replace(",", "','") + "'";//replaced with ""
+                var str = @"select distinct MP.UserName AS 'PROD_TYPE',
+S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation 
+FROM ItemScanChild S 
+LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
+LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
+WHERE R.PurposeId IN("+ purposeId + ") AND ISM.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+union all
+select distinct MP.UserName AS 'PROD_TYPE',
+S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation 
+FROM ItemScanChildHistory S 
+LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
+LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
+WHERE R.PurposeId IN("+ purposeId + ") AND ISM.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+";
+                dtOrder = _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
             {
                 throw e;
             }
         }
 
-        public DataTable getAllFinishedStocksReport(string Loc , string ToDate , string FromDate)
+        public DataTable getAllFinishedStocksReport(string Loc, string ToDate, string FromDate)
         {
             try
             {
@@ -1191,7 +1269,7 @@ order by pk.Date  DESC";
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
                             WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING'  " + loc + @"
-                            AND S.AddedDate between '"+FromDate+@"' and '"+ToDate+@"'";
+                            AND S.AddedDate between '" + FromDate + @"' and '" + ToDate + @"'";
                 return _sqlRepository.GetDataTable(str);
             }
             catch (Exception e)
@@ -1200,7 +1278,7 @@ order by pk.Date  DESC";
             }
         }
 
-    } 
+    }
 
 }
 

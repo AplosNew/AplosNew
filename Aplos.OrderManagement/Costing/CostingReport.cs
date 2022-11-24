@@ -32,6 +32,7 @@ namespace Library.OrderManagement.Costing
                     throw new Exception("No costing template found for the current item.");
 
                 string sql = OrderCostingProductInfoSQL(OrderCostingId);
+
                 string CostingDetailsql = OrderCostingProductDetailSQL(OrderCostingId);
                 string CostingMOIsql = OrderCostingMOISQL(MOIId);
                 //String CostingComponentSql = OrderCostingComponentSQL(OrderCostingId,preCosting,ProcurementCosting);
@@ -437,7 +438,7 @@ namespace Library.OrderManagement.Costing
                 int colTotalQuickCosting = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Total Pre Costing(C)";
-                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].ColumnWidth = 16;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalPreCosting = COL;
                 COL++;
@@ -472,17 +473,31 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colBuyerCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["BuyerTarget"].ToString());
                     sheet[ROW, colQuickCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["CostingValue"].ToString());
                     sheet[ROW, colPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString());
-                    sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
+                    //sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
 
-                    sheet[ROW, colDifferencePreProCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["DifferencePreProCosting"].ToString());
+                    //sheet[ROW, colDifferencePreProCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["DifferencePreProCosting"].ToString());
 
 
                     sheet[ROW, colTotalBuyerCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["BuyerTarget"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colTotalQuickCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["CostingValue"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colTotalPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
-                    sheet[ROW, colTotalProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
-                    sheet[ROW, colDifferenceTotalPrePro].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY) -
-                                                            clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    if (preCosting == "1")
+                    {
+                        sheet[ROW, colProcCosting].Number = 0;
+                        sheet[ROW, colDifferencePreProCosting].Number = 0;
+
+                        sheet[ROW, colTotalProcCosting].Number = 0;
+                        sheet[ROW, colDifferenceTotalPrePro].Number = 0; 
+                    }
+                    else
+                    {
+                        sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
+
+                        sheet[ROW, colDifferencePreProCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["DifferencePreProCosting"].ToString());
+                        sheet[ROW, colTotalProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                        sheet[ROW, colDifferenceTotalPrePro].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY) -
+                                                                clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    }
 
                     sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
@@ -664,8 +679,20 @@ namespace Library.OrderManagement.Costing
                 int colGrossAmount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Total Order Cost";
+                sheet[ROW, COL].Text = "Order Size";
                 sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colOrderSize = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Material Requirement";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colTotalMaterialRequirement = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Order Cost";
+                sheet[ROW, COL].ColumnWidth = 16;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalOrderCost = COL;
                 COL++;
@@ -701,6 +728,8 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colValueLoss].Number = Convert.ToDouble(dtComponentRelatedItems.DefaultView[M]["ValueLoss"].ToString());
                     sheet[ROW, colGrossConsumption].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossConsumption"].ToString());
                     sheet[ROW, colGrossAmount].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossAmount"].ToString());
+                    sheet[ROW, colOrderSize].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalQty"].ToString());
+                    sheet[ROW, colTotalMaterialRequirement].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalMaterialRequirement"].ToString());
                     sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colCurrency2].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
@@ -1429,6 +1458,7 @@ namespace Library.OrderManagement.Costing
 
         }
 
+
         private string OrderCostingProductDetailSQL(string OrderCostingId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1490,7 +1520,6 @@ namespace Library.OrderManagement.Costing
 
         }
 
-
         private string OrderCostingMOISQL(string MOIId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1516,25 +1545,26 @@ namespace Library.OrderManagement.Costing
 
             return @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,UOM.Code as UOM,pc.Particulars,I.UserName as CostingItem,I.CostingComponentId
 					,CC.CostingSegment,cc.UserName as CostingComponentName,ISNULL(pc.Consumption,0) AS Consumption,ISNULL(pc.Rate,0) AS Rate
-					,ISNULL(pc.ValueLoss,0) AS ValueLoss
+					,ISNULL(pc.ValueLoss,0) AS ValueLoss,pc.MinimumOfQuantity
 					,ISNULL(pc.GrossConsumption,0) AS GrossConsumption,ISNULL(pc.GrossAmount,0) AS GrossAmount
 					,C.Code as Currency,OCMT.Id as OrderCostingMasterTemplateId
 					,EI.EmployeeName as ResponsiblePerson,pc.SourcingType,MM.UserName as Material,MMA.StandardName as Article,pc.VendorId
-					,pc.MinimumOfQuantity
+					,ISNULL(MOI.TotalQty,0) TotalQty
+					,TotalMaterialRequirement=(ISNULL(MOI.TotalQty,0) * ISNULL(pc.GrossConsumption,0))
 
 					FROM " + TableName + @" AS pc  
 					LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
 					LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
                     LEFT JOIN SCS.UnitOfMeasurement as UOM on UOM.Id=I.UnitOfMeasurementId
 					LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId
+					LEFT JOIN TRN.MasterOrderItem MOI on MOI.OrderCostingMasterTemplateId=OCMT.Id
 					LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId
 					LEFT JOIN EmployeeInformation EI on EI.SystemId=pc.ResponsiblePersonId
 					LEFT JOIN MST.MaterialMasterArticle MMA on MMA.Id=pc.ArticleId
 					LEFT JOIN MST.MaterialMaster MM on MM.Id=pc.MaterialMasterId
 					LEFT JOIN HKP.Party P on P.Id=pc.VendorId
-
 					
-					where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"' 
+					where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"' and I.Id is not null
 					order by pc.Sequence";
 
 
@@ -3031,7 +3061,7 @@ namespace Library.OrderManagement.Costing
 					LEFT JOIN MST.MaterialMaster MM on MM.Id=pc.MaterialMasterId
 
 					
-					where pc.CostingMasterTemplateId='" + CostingTempleteId + @"' 
+					where pc.CostingMasterTemplateId='" + CostingTempleteId + @"' and I.CostingComponentId is not null
 					order by pc.Sequence";
 
 

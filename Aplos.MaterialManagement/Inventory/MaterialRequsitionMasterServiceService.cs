@@ -119,11 +119,9 @@ namespace Library.MaterialManagement.Inventory
                     throw new CustomException("No Prefix Available for this Plant");
                 }
                 
-                var year1 = DateTime.Now.Year.ToString();
-                var yr = year1.Substring(2);
+                
                 var id = GetPK();
-                var resId = id.Substring(2);
-                entity.Id = plantId + yr + resId;
+                entity.Id = plantId + id;
          
                 AuditService.AddedLog(entity);
                 entity.ModelState = ModelState.Added;
@@ -4479,13 +4477,13 @@ ORDER BY IR.ID DESC";
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='RequisitionCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='RequisitionCheckedBy' and E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='RequisitionApproveBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='RequisitionApproveBy' and E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {

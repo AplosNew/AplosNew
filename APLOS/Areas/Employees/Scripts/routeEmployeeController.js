@@ -4,10 +4,11 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     $rootScope.title = 'Route Employee';
     $scope.Action = 'Save';
     $scope.path = 'employees/routeemployee/';
-    $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.saveUrl = $scope.path + 'Save';
     $scope.UAsaveUrl = $scope.path + 'SaveUnAssign';
     $scope.ApplyForAllUrl = $scope.path + 'SaveApplyForAll';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
     //#region Tab
     $scope.tabh = 11;
@@ -28,176 +29,18 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     };
     // #endregion Tab
 
-
-    $scope.data = {
-        Id: null,
-        UserName: ''
-    }
-
-
-    $scope.routeEmployeeOrginal = {
-        RouteUpId: null,
-        RouteDownId: null,
-        StopageUpId: null,
-        StopageDownId: null,
-
-        RouteUpGridId: null,
-        StopageUpGridId: null,
-        RouteDownGridId: null,
-        StopageDownGridId: null,
-    }
-    $scope.routeEmployee = Object.assign({}, $scope.routeEmployeeModel);
-
-    $scope.UArouteEmployeeOrginal = {
-        UARouteUpId: null,
-        UARouteDownId: null,
-        UAStopageUpId: null,
-        UAStopageDownId: null,
-
-        RouteId: null,
-        StoppageId: null,
-        ShiftId: null,
-        Shift: null,
-        //UARouteUpGridId: null,
-        //UAStopageUpGridId: null,
-        //UARouteDownGridId: null,
-        //UAStopageDownGridId: null,
-    }
-    $scope.UArouteEmployee = Object.assign({}, $scope.UArouteEmployeeModel);
-
-    $scope.ApplyForAll = function () {
-        try {
-            for (var i = 0; i < $scope.dataList.length; i++) {
-                if ($scope.dataList[i].CheckBoxSelectTwo == true) {
-
-                    $scope.dataList[i].RouteUpList = $scope.RouteUpList;
-                    $scope.dataList[i].StopageUpList = $scope.StopageUpList;
-                    $scope.dataList[i].RouteDownList = $scope.RouteDownList;
-                    $scope.dataList[i].StopageDownList = $scope.StopageDownList;
-
-                    $scope.dataList[i].RouteUpGridId = $scope.routeEmployee.RouteUpId;
-                    $scope.dataList[i].StopageUpGridId = $scope.routeEmployee.StopageUpId;
-                    $scope.dataList[i].RouteDownGridId = $scope.routeEmployee.RouteDownId;
-                    $scope.dataList[i].StopageDownGridId = $scope.routeEmployee.StopageDownId;
-                }
-            }
-
-            var _data = [];
-            for (var i = 0; i < $scope.dataList.length; i++) {
-                _data.push(Object.assign({}, $scope.dataList[i]));
-            }
-            $scope.dataList = [];
-
-            $scope.dataList = _data;
-
-
-            var gridObj = $("#EmpGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-
-    };
-    $scope.UARouteUpList = [];
-    $scope.UAStopageUpList = [];
-    $scope.UnAssignApplyForAll = function () {
-        try {
-
-            //$scope.getUARouteUpList();
-            //$scope.getUAstopageUpList(args);
-            for (var i = 0; i < $scope.UnassignEmpList.length; i++) {
-                if ($scope.UnassignEmpList[i].CheckBoxSelect == true) {
-                    ///grid List=dropdown List
-                    //$scope.UnassignEmpList[i].RouteList = $scope.RouteList;
-                    //$scope.UnassignEmpList[i].StopageList = $scope.StopageList;
-                    //$scope.UnassignEmpList[i].ShiftList = $scope.ShiftList;
-
-                    //$scope.UnassignEmpList[i].UARouteUpList = $scope.UARouteUpList;
-                    //$scope.UnassignEmpList[i].UAStopageUpList = $scope.UAStopageUpList;
-                    //$scope.UnassignEmpList[i].UARouteDownList = $scope.UARouteDownList;
-                    //$scope.UnassignEmpList[i].UAStopageDownList = $scope.UAStopageDownList;
-
-                    ////grid model=dropdown model
-                    $scope.UnassignEmpList[i].RouteId = $scope.UArouteEmployee.UARouteUpId;
-                    $scope.UnassignEmpList[i].StoppageId = $scope.UArouteEmployee.UAStopageUpId;
-                    $scope.UnassignEmpList[i].ShiftId = $scope.UArouteEmployee.ShiftId;
-
-
-                    //$scope.UnassignEmpList[i].UARouteUpGridId = $scope.UArouteEmployee.UARouteUpId;
-                    //$scope.UnassignEmpList[i].UAStopageUpGridId = $scope.UArouteEmployee.UAStopageUpId;
-                    //$scope.UnassignEmpList[i].UARouteDownGridId = $scope.UArouteEmployee.UARouteDownId;
-                    //$scope.UnassignEmpList[i].UAStopageDownGridId = $scope.UArouteEmployee.UAStopageDownId;
-                }
-            }
-            var _data = [];
-            for (var i = 0; i < $scope.UnassignEmpList.length; i++) {
-                _data.push(Object.assign({}, $scope.UnassignEmpList[i]));
-            }
-            $scope.UnassignEmpList = [];
-
-            //var gridObj = $("#UnassignGrid").data("ejGrid");
-            //gridObj.refreshContent(true);
-            //gridObj.refreshTemplate();
-
-            $scope.UnassignEmpList = _data;
-
-
-            var gridObj = $("#UnassignGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
-    $scope.Save = function () {
-        try {
-            var AllCheckEmployeeList = [];
-            for (var i = 0; i < $scope.dataList.length; i++) {
-                if ($scope.dataList[i].CheckBoxSelectTwo == true) {
-                    AllCheckEmployeeList.push($scope.dataList[i]);
-                }
-            }
-            if (AllCheckEmployeeList.length == 0) {
-                throw "Please Select Employee";
-            }
-
-            $scope.$broadcast('show-errors-check-validity');
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'routeEmployee': $scope.routeEmployee, 'routeEmployeeList': AllCheckEmployeeList },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    //$scope.getUnassignEmp();
-                    $scope.getModalData_Employee();
-
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
-
     $scope.SaveUnAssign = function () {
         try {
             var AllCheckUAEmployeeList = [];
             for (var i = 0; i < $scope.UnassignEmpList.length; i++) {
                 if ($scope.UnassignEmpList[i].CheckBoxSelect == true) {
-                    AllCheckUAEmployeeList.push($scope.UnassignEmpList[i]);
+                    var ob = {};
+                    ob.RouteId = $scope.UArouteEmployee.UARouteUpId;
+                    ob.StoppageId = $scope.UArouteEmployee.UAStopageUpId;
+                    ob.ShiftId = $scope.UArouteEmployee.ShiftId;
+                    ob.EmployeeId=$scope.UnassignEmpList[i].SystemID;
+                    AllCheckUAEmployeeList.push(ob);
+                    ob = {};
                 }
             }
             if (AllCheckUAEmployeeList.length == 0) {
@@ -229,26 +72,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         }
     };
 
-    //#region Grid DropDown
-
-    $scope.RouteGridUpList = [];
-    $scope.getGridRouteUpList = function () {
-        $http.get('employees/routeemployee/GetGridUpRouteList')
-            .then(function (response) {
-                $scope.RouteGridUpList = response.data;
-            });
-    };
-    $scope.getGridRouteUpList();
-
-    $scope.StopageGridUpList = [];
-    $scope.getGridstopageUpList = function (RouteUpGridId) {
-        $http.get('employees/routeemployee/GetGridUpStopageList?RouteUpGridId=' + RouteUpGridId)
-            .then(function (response) {
-                $scope.StopageGridUpList = response.data;
-            });
-    };
-
-    // #endregion 
+   
     $scope.refreshTemplateemployee = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
     };
@@ -272,22 +96,107 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         gridObj.refreshContent();
     };
 
-    $scope.Delete = function () {
+    $scope.Clear = function () {
+        ClearFields();
+    };
+
+    function ClearFields() {
+        $scope.Action = "Save";
+        $scope.ModelList = [];
+    }
+
+    //NEW
+
+    // Tab Change
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+    $scope.tab2 = 1;
+    $scope.setTab2 = function (newTab) {
+        $scope.tab2 = newTab;
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab2 === tabNum;
+    };
+
+
+    //#region The Filters 
+    $scope.ModelList = [];
+    $scope.view = function () {
+        $http({
+            method: "Get",
+            url: $scope.path + 'GetRouteEmployeesData',
+            //data: { 'parameters': $scope.parameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+        })
+    }
+
+    $scope.view();
+    //#endregion The Filters
+   
+    $scope.PlantId = null;
+    $scope.dataList = [];
+    $scope.PlantId = null;
+    $scope.routeId = null;
+    $scope.AvailablePopUpData = function (data) {
+        $scope.TripId =  data.data.TripId;
+        $scope.PlantId = data.data.PlantId;
+        $scope.routeId = data.data.RouteId;
+        $scope.dataList = [];
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getemployeeDataListRouteEmp?plantId=' + data.data.PlantId
+        }).then(function successCallback(response) {
+            $scope.dataList = response.data;
+            $scope.GetStopageInformation();
+        });
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+    }
+
+    $scope.closeEmployeePopUps = function () {
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    }
+
+    $scope.closeEmployeePopUp = function () {
+        MakeData();
+        $scope.view();
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    }
+
+    $scope.saveList = [];
+    function MakeData() {
+        $scope.saveList = [];
+        for (var i = 0; i < $scope.dataList.length; i++) {
+            if ($scope.dataList[i].isSelected == true) {
+                $scope.dataList[i].TripId = $scope.TripId;
+                $scope.dataList[i].AssignStatus = true;
+                $scope.dataList[i].AssignDate = Date.now();
+                $scope.dataList[i].UnassignDate = null;
+                $scope.saveList.push($scope.dataList[i]);
+            }
+        }
+        $scope.SaveEmployeeTransportAllocation();
+    }
+
+    $scope.SaveEmployeeTransportAllocation = function () {
         try {
-            var AllCheckEmployeeListForUnAssign = [];
-            for (var i = 0; i < $scope.dataList.length; i++) {
-                if ($scope.dataList[i].CheckBoxSelectTwo == true) {
-                    AllCheckEmployeeListForUnAssign.push($scope.dataList[i]);
+            for (var i = 0; i < $scope.saveList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.saveList[i].StoppageId)) {
+                    throw 'Stoppage is required !';
                 }
             }
-            if (AllCheckEmployeeListForUnAssign.length == 0) {
-                throw "Please Select Employee";
-            }
-            $scope.$broadcast('show-errors-check-validity');
+
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl,
-                data: { 'DeleteEmpList': AllCheckEmployeeListForUnAssign },
+                url: $scope.path + 'employeeTransportAllocationSave',
+                data: { 'EmployeeList': $scope.saveList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -295,277 +204,201 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.getUnassignEmp();
-                    $scope.getModalData_Employee();
-
+                    $scope.view();
+                    $scope.UnassignView();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
+            };
+
         } catch (e) {
-            ShowResult(e, "failure");
+            ShowResult(e, 'failure');
         }
     };
 
-    $scope.RouteUpList = [];
-    $scope.getRouteUpList = function () {
-        $http.get('employees/routeemployee/GetUpRouteList')
-            .then(function (response) {
-                response.data.unshift($scope.data);
-                $scope.RouteUpList = response.data;
-            });
-    };
-    $scope.getRouteUpList();
 
-    $scope.RouteDownList = [];
-    $scope.getDownRouteList = function () {
-        $http.get('employees/routeemployee/GetDownRouteList')
-            .then(function (response) {
-                response.data.unshift($scope.data);
-                $scope.RouteDownList = response.data;
-            });
-    };
-    $scope.getDownRouteList();
-
-    $scope.StopageUpList = [];
-    $scope.getstopageUpDropDownList = function () {
-        $http.get('employees/routeemployee/GetUpDropDownStopageList?RouteUpId=' + $scope.routeEmployee.RouteUpId)
-            .then(function (response) {
-                response.data.unshift($scope.data);
-                $scope.StopageUpList = response.data;
-            });
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllPartyWise });
     };
 
-    $scope.StopageDownList = [];
-    $scope.getstopageDownUpDropDownList = function () {
-        $http.get('employees/routeemployee/GetDownDropDownStopageList?RouteDownId=' + $scope.routeEmployee.RouteDownId)
-            .then(function (response) {
-                response.data.unshift($scope.data);
-                $scope.StopageDownList = response.data;
-            });
-    };
-
-    //$scope.getstopageUpList = function (args) {
-    //    if (args.isInteraction == false)
-    //        return;
-    //    var gridObjRunning = $("#EmpGrid").ejGrid("instance");
-    //    var currRow = gridObjRunning.model.currentViewData[this.element.closest("tr").index()];
-
-    //    $http.get('employees/routeemployee/getUpStopage?RouteId=' + currRow.RouteUpGridId + '&UpOrDown=Up')
-    //        .then(function (response) {
-    //            for (var i = 0; i < $scope.dataList.length; i++) {
-    //                if ($scope.dataList[i].SystemID == currRow.SystemID) {
-    //                    response.data.unshift($scope.data);
-    //                    $scope.dataList[i]['StopageUpList'] = response.data;
-    //                    break;  //StopageUpList
-    //                }
-    //            }
-    //            var gridObj = $("#EmpGrid").data("ejGrid");
-    //            gridObj.refreshContent(true);
-    //            gridObj.refreshTemplate();
-    //        })
-    //};
-
-    //$scope.getstopageDownList = function (args) {
-    //    if (args.isInteraction == false)
-    //        return;
-    //    var gridObjRunning = $("#EmpGrid").ejGrid("instance");
-    //    var currRow = gridObjRunning.model.currentViewData[this.element.closest("tr").index()];
-    //    $http.get('employees/routeemployee/getDownStopage?RouteId=' + currRow.RouteDownGridId + '&UpOrDown=Down')
-    //        .then(function (response) {
-    //            for (var i = 0; i < $scope.dataList.length; i++) {
-    //                if ($scope.dataList[i].SystemID == currRow.SystemID) {
-    //                    response.data.unshift($scope.data);
-    //                    $scope.dataList[i]['StopageDownList'] = response.data;
-    //                    break;
-    //                }
-    //            }
-    //            var gridObj = $("#EmpGrid").data("ejGrid");
-    //            gridObj.refreshContent(true);
-    //            gridObj.refreshTemplate();
-    //        });
-    //};
-    
-    $scope.refreshTemplateemployeeTWO = function (args) {
-        $("#headchkTWO").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWiseTWO });
-    };
-
-    function CheckBoxSelectAllEmolyeeWiseTWO(e) {
+    function CheckBoxSelectAllPartyWise(e) {
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
         }
-        var filtered = $("#EmpGrid").data("ejGrid").getFilteredRecords();
+
+        var filtered = $("#GridEmp").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
             for (var i = 0; i < $scope.dataList.length; i++) {
-                $scope.dataList[i].CheckBoxSelectTwo = ChkOrUnchk;
+                $scope.dataList[i].isSelected = ChkOrUnchk;
             }
         }
         else {
+
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelectTwo = ChkOrUnchk;
+                filtered[j].isSelected = ChkOrUnchk;
             }
         }
-        var gridObj = $("#EmpGrid").data("ejGrid");
+        var gridObj = $("#GridEmp").data("ejGrid");
         gridObj.refreshContent();
     };
 
-    $scope.Clear = function () {
-        ClearFields();
-    };
+ 
 
-    function ClearFields() {
-
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmployeeCode === id) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    $scope.RouteList = [];
-    $scope.getUARouteUpList = function () {
-        $http.get('employees/routeemployee/GetUAUpRouteList')
-            .then(function (response) {
-                var data = {
-                    Id: null, UserName: ''
+    $scope.StopageDataList = [];
+    $scope.GetStopageInformation = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: $scope.path + 'GetStopageInformation?routeId=' +$scope.routeId ,
+            }).then(function successCallback(response) {
+                $scope.StopageDataList = response.data;
+                for (var i = 0; i < $scope.dataList.length; i++) {
+                    $scope.dataList[i].StopageDataList = $scope.StopageDataList;
                 }
-                response.data.unshift(data);
-                $scope.RouteList = response.data;
-
             });
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
     };
-    $scope.getUARouteUpList();
+    
 
-
-    $scope.StopageList = [];
-    $scope.getUAstopageUpDropDownList = function () {
-        $http.get('employees/routeemployee/GetUpDropDownStopageList?RouteUpId=' + $scope.UArouteEmployee.UARouteUpId)
-            .then(function (response) {
-                response.data.unshift($scope.data);
-                $scope.StopageList = response.data;
-            });
-    };
-
-    $scope.selectShift = function () {
-        $scope.getsS();
-        angular.element(document.querySelector('#ShiftPop')).modal('show');
-    }
-
-    $scope.ShiftList = [];
-    $scope.getsS = function () {
+    $scope.ModelUnassignList = [];
+    $scope.UnassignView = function () {
+        if (baseService.isUndefinedOrNull($scope.PlantId)) {
+            $scope.PlantId = $window.plantId;
+        }
         $http({
-            method: 'GET',
-            url: $scope.path + 'getShift',
+            method: "Get",
+            url: $scope.path + 'viewUnassign?PlantId=' + $scope.PlantId,
             dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.ShiftList = resp.data;
+        }).then(function successCallback(response) {
+            $scope.ModelUnassignList = response.data;
+        })
+    }
+    $scope.UnassignView();
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headcheck").ejCheckBox({ "change": CheckBoxSelectAllPartyWises });
+    };
+
+    function CheckBoxSelectAllPartyWises(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEUnassign").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ModelUnassignList.length; i++) {
+                $scope.ModelUnassignList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEUnassign").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveUnassignData = function () {
+        $scope.unassignLoop = [];
+        for (var i = 0; i < $scope.ModelUnassignList.length; i++) {
+
+            if ($scope.ModelUnassignList[i].isSelected) {
+                $scope.unassignLoop.push($scope.ModelUnassignList[i]);
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveUnassignData',
+            data: { 'employeeList': $scope.unassignLoop },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.UnassignView();
+                $scope.view();
+            }
         });
     }
+    //$scope.AssignReport = function () {
+    //    $scope.fileName = 'To Assign List';
 
-    $scope.doubleShift = function (e) {
-        $scope.UArouteEmployee.ShiftId = e.data.ShiftId;
-        $scope.UArouteEmployee.Shift = e.data.ShiftDefination;
-        angular.element(document.querySelector('#ShiftPop')).modal('hide');
-    }
+    //    var dataList = [];
+    //    var g = $("#GridEmp").data("ejGrid");
+    //    dataList = g.getFilteredRecords();
 
-    $scope.closeShiftPopUp = function () {
-        angular.element(document.querySelector('#ShiftPop')).modal('hide');
-    }
+    //    if (dataList.length == 0) {
+    //        dataList = $scope.dataList;
+    //    }
 
-    //$scope.UAStopageDownList = [];
-    //$scope.getUAstopageDownUpDropDownList = function () {
-    //    $http.get('employees/routeemployee/GetDownDropDownStopageList?RouteDownId=' + $scope.UArouteEmployee.UARouteDownId)
-    //        .then(function (response) {
-    //            response.data.unshift($scope.data);
-    //            $scope.UAStopageDownList = response.data;
-    //        });
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.exportgriddataUrl,
+    //        data: {
+    //            'reportFileName': $scope.fileName,
+    //            'data': dataList
+    //        },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error === true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
+
     //};
 
-    $scope.ShiftList = [];
-    $scope.getUADownRouteList = function () {
-        $http.get('employees/routeemployee/GetUADownRouteList')
-            .then(function (response) {
-                response.data.unshift($scope.data);
-                $scope.ShiftList = response.data;
-            });
-    };
-    $scope.getUADownRouteList();
+    //$scope.UnassignReport = function () {
+    //    $scope.fileName = 'To Unassign List';
+    //    var dataList = [];
+    //    var g = $("#GridEUnassign").data("ejGrid");
+    //    dataList = g.getFilteredRecords();
 
-    $scope.getUAstopageUpList = function (args) {
-        if (args.isInteraction == false)
-            return;
-        var gridObjRunning = $("#UnassignGrid").ejGrid("instance");
-        var currRow = gridObjRunning.model.currentViewData[this.element.closest("tr").index()];
+    //    if (dataList.length == 0) {
+    //        dataList = $scope.ModelUnassignList;
+    //    }
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.exportgriddataUrl,
+    //        data: {
+    //            'reportFileName': $scope.fileName,
+    //            'data': dataList
+    //        },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error === true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
 
-        $http.get('employees/routeemployee/getUpStopage?RouteId=' + currRow.UARouteUpGridId + '&UpOrDown=Up')
-            .then(function (response) {
-                for (var i = 0; i < $scope.UnassignEmpList.length; i++) {
-                    if ($scope.UnassignEmpList[i].SystemID == currRow.SystemID) {
-                        response.data.unshift($scope.data);
-                        $scope.UnassignEmpList[i]['StopageList'] = response.data;
-                        //$scope.UnassignEmpList[i]['UAStopageUpList'] = response.data;
-                        break;
-                    }
-                }
-                var gridObj = $("#UnassignGrid").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-            })
-    };
+    //};
 
-    $scope.getUAstopageDownList = function (args) {
-        if (args.isInteraction == false)
-            return;
-        var gridObjRunning = $("#UnassignGrid").ejGrid("instance");
-        var currRow = gridObjRunning.model.currentViewData[this.element.closest("tr").index()];
-        $http.get('employees/routeemployee/getUADownStopage?RouteId=' + currRow.UARouteDownGridId + '&UpOrDown=Down')
-            .then(function (response) {
-                for (var i = 0; i < $scope.UnassignEmpList.length; i++) {
-                    if ($scope.UnassignEmpList[i].SystemID == currRow.SystemID) {
-                        response.data.unshift($scope.data);
-                        $scope.UnassignEmpList[i]['UAStopageDownList'] = response.data;
-                        break;
-                    }
-                }
-                var gridObj = $("#UnassignGrid").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-            });
-    };
-
-
-    $scope.onrowdatabound1 = function (e) { if (e.data.Id != null) e.row.css("background-color", "#aea8d3"); };
-
-    $scope.UnassignEmpList = [];
-    $scope.getUnassignEmp = function () {
-        $http({
-            method: 'GET',
-            url: 'employees/routeemployee/getUnassignEmployee'
-        }).then(function successCallback(response) {
-
-            $scope.UnassignEmpList = response.data;
-            var gridObj = $("#UnassignGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-        });
-    }
-    $scope.getUnassignEmp();
-
-    $scope.dataList = [];
-    $scope.getModalData_Employee = function () {
-        $scope.dataList = [];
-        $http({
-            method: 'GET',
-            url: 'employees/routeemployee/getEmployee'
-        }).then(function successCallback(response) {
-            //for (var i = 0; i < response.data.length; i++) {
-            //    response.data[i].RouteUpList.unshift($scope.data);
-            //    response.data[i].StopageUpList.unshift($scope.data);
-            //    response.data[i].RouteDownList.unshift($scope.data);
-            //    response.data[i].StopageDownList.unshift($scope.data);
-            //}
-            $scope.dataList = response.data;
-            var gridObj = $("#EmpGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-        });
-    }
-    $scope.getModalData_Employee();
-
+    //End
 }

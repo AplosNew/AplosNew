@@ -1,0 +1,80 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm" id="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="row">
+        
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Employee Category</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.EmployeeCategory" ng-change="getDesignation();" required name="Type" tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EmployeeCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+
+            
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Designation</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.Designation" required name="Type" tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in DesignationList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+
+                    <li> <button data-toggle="modal" ng-click="FurnitureWiseReport();" class="btn" tabindex="10" style="margin-top:10px"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                    <li> <button data-toggle="modal" ng-click="FurnitureView();" class="btn" tabindex="10" style="margin-top:10px"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                    @*<li> <button data-toggle="modal" ng-click="DesignationWiseReport();" class="btn" tabindex="10" style="margin-top:10px"><i class="glyphicon glyphicon-cloud-download"></i> Designation Wise Report</button></li>*@
+
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+<div class="row">
+    <div class="col-xs-12">
+        <div id="GridOTCompensation" ej-grid style="z-index:3;"
+             e-datasource="PolicyGridList"
+             
+             e-rowdatabound="onactivedatabound"
+             e-allowfiltering="true"
+             e-allowpaging="true"
+             e-allowsorting="true"
+             e-enabletouch="false"
+             e-responsive="true"
+             e-allowselection="true"
+             e-filtersettings-filterType="excel">
+            <div e-columns>
+                
+                <div e-column e-field="Id" e-headertext="Id" e-width="50" e-isprimarykey="true" e-visible="false"></div>
+                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                <div e-column e-field="PolicyName" e-headertext="Policy Name" e-width="60"></div>
+                <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                <div e-column e-field="Furniture" e-headertext="Furniture" e-width="100"></div>
+                <div e-column e-field="Category" e-headertext="Category" e-width="100"></div>
+                <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="100"></div>
+                <div e-column e-field="Type" e-headertext="Grade" e-width="100"></div>
+                <div e-column e-field="Quantity" e-headertext="Quantity" e-width="100"></div>
+                <div e-column e-field="Budget" e-headertext="Budget" e-width="100"></div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+

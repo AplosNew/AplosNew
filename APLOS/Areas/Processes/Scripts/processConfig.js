@@ -65,5 +65,9 @@ function ProcessConfig($routeProvider) {
             templateUrl: 'Processes/processGroup',
             controller: 'processGroupController'
         })
+        .when('/prod-book-process-param', {
+            templateUrl: 'Processes/ProductionBookingProcessparameter',
+            controller: 'ProductionBookingProcessparameterController'
+        })
         ;
 }

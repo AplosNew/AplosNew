@@ -772,7 +772,7 @@
                         </li>
                         @*<li ng-show="x.IsPosted || x.IsPark"><a ng-click="confirmPost(x);" href="" class="btn btn-action tooltip-here">Post</a></li>*@
                         <li ng-show="x.IsPosted || x.IsPark"><a class="btn btn-action" title="Journal" ng-click="ShowJournalPopUp(x);"><i class="glyphicon glyphicon-eye-open"></i></a></li>
-                        <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                        <li ng-show="x.IsPark && x.VoucherId!==null"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
 
                         @*<li><a class="btn btn-action" ng-click="SalesReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>*@
                         <li>
@@ -780,6 +780,12 @@
                         </li>
                         <li>
                             <a class="btn btn-action" ng-click="LocalTaxInvoiceReport(x);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
+                        </li>
+                        <li>
+                            <a class="btn btn-action" ng-click="LocalTaxInvoiceWithProductDetailService(x);" title="Tax Invoice With Product Detail" href="" target="_blank"><i class=""></i>TI</a>
+                        </li>
+                        <li>
+                            <a class="btn btn-action" ng-click="LocalTaxInvoiceWithoutSUIReport(x);" title="Tax Invoice Without SKU" href="" target="_blank"><i class=""></i>TI</a>
                         </li>
                         <li><a class="btn btn-action" href="SalesManagements/Sales/SalesReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&salesId={{x.SalesId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                         @*<li><a class="btn btn-action" href="SalesManagements/Sales/SalesReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&salesId={{x.SalesId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>*@

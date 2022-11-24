@@ -58,7 +58,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         //summary Report Downloard
         [HttpPost, Authorize]
-        public ActionResult PartyPaymentStatusReport(Dictionary<string, string> MasterLCList)
+        public ActionResult PartyPaymentStatusReport(Dictionary<string, string> MasterLCList, string fromDate, string toDate)
         {
 
             try
@@ -66,7 +66,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
                 ExcelEngine excelEngine = new ExcelEngine();
-                var workbook = accountsStatusDashboardService.GetPartyPaymentStatusReport(/*excelEngine,*/ MasterLCList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                var workbook = accountsStatusDashboardService.GetPartyPaymentStatusReport(/*excelEngine,*/ MasterLCList,  fromDate,  toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
 
                 string strFileName = "PayableSummary.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -86,7 +86,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         //PartyPaymentStatusAgingReport
         [HttpPost, Authorize]
-        public ActionResult PartyPaymentStatusAgingReport(Dictionary<string, string> parameters)
+        public ActionResult PartyPaymentStatusAgingReport(Dictionary<string, string> parameters, string fromDate, string toDate)
         {
 
             try
@@ -95,7 +95,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
                 string fileName = "";
-                fileName = accountsStatusDashboardService.GetPartyPaymentStatusAgingReport(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "PayableAging");
+                fileName = accountsStatusDashboardService.GetPartyPaymentStatusAgingReport(parameters, fromDate, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "PayableAging");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
             }
@@ -570,11 +570,11 @@ namespace Aplos.Areas.Accounts.Controllers
         #region Customer Tab
 
         [HttpPost, Authorize]
-        public ActionResult GetFinancialDashboardCustomerReceiptMasterList()
+        public ActionResult GetFinancialDashboardCustomerReceiptMasterList(string fromDate, string toDate)
         {
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptMasterListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptMasterListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetCustomerListForConfirmation(GridParameter parameters, string FromDate, string ToDate, string PaymentStatus)
@@ -585,7 +585,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult FinancialDashboardCustomerSummaryReport(string[] masterCustomerSummaryList)
+        public ActionResult FinancialDashboardCustomerSummaryReport(string[] masterCustomerSummaryList, string fromDate, string toDate)
         {
 
             try
@@ -614,7 +614,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
                 ExcelEngine excelEngine = new ExcelEngine();
-                IWorkbook workbook = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptSummaryReport(excelEngine, masterCustomerReceiptList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                IWorkbook workbook = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptSummaryReport(excelEngine, masterCustomerReceiptList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate);
 
                 string strFileName = "CustomerReceivableSummary.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
@@ -631,7 +631,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize]
-        public ActionResult FinancialDashboardCustomerReceiptAgingReport(string masterCustomerReceiptAgingList)
+        public ActionResult FinancialDashboardCustomerReceiptAgingReport(string masterCustomerReceiptAgingList, string fromDate, string toDate)
         {
 
             try
@@ -643,7 +643,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
                 ExcelEngine excelEngine = new ExcelEngine();
-                IWorkbook workbook = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptAgingReport(excelEngine, masterCustomerReceiptAgingList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name);
+                IWorkbook workbook = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptAgingReport(excelEngine, masterCustomerReceiptAgingList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name, fromDate, toDate);
                 // return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
                 string strFileName = "CustomerReceivableAging.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
@@ -2941,5 +2941,38 @@ namespace Aplos.Areas.Accounts.Controllers
             }
 
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetReceiptPaymentStatusDataList()
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = accountsStatusDashboardService.GetReceiptPaymentStatusDataList(), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult ReceiptPaymentStatusSummaryReport(Dictionary<string, string> data)
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                string fileName = "";
+
+                fileName = accountsStatusDashboardService.CreateReceiptPaymentStatusSummaryReportSheet(data);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+
     }
 }

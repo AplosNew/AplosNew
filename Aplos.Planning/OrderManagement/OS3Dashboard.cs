@@ -505,17 +505,31 @@ namespace Library.Planning.OrderManagement
                 }
 
 
-                var str = @"Select * from (Select distinct so.Id, so.Qty  , format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate , so.AddedDate , format(so.CommitmentDate,'dd-MMM-yyyy') as CommitmentDate , pod.ProductionOrderID , format((SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID),'dd-MMM-yyyy') as ProductionDate, os.Username as MOOrderStatusId ,
-                                DateDiff(Day,"+Dtype+@", " + DDate + @") as EarlyOrLateBy , prt.Username as customers , e.UserName as Entity , emp.EmployeeName as MResp,
-                                ps.UserName as POStatus, so.OrderStatusId as OrderStatusId,
-                                ee.EmployeeName as EResp ,  format((case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) , 'dd-MMM-yyyy') as DDate,
-                                po.Id as PRNo , mo.Id as OrderNo , moi.Id as ItemNo, rem.Remarks ,
-                               
-                                mo.BuyerReferenceNo,mo.BuyerId,mo.OwnReferenceNo,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,b.UserName as Buyer
+                var str = @"Select * from (Select  e.UserName as Entity,prt.Username as Customers,b.UserName as Buyer, mo.BuyerReferenceNo,mo.OwnReferenceNo
+								,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,mma.StandardName Article,so.Id SONo, so.Qty,Pk.DispatchBalance, format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, format(so.CommitmentDate,'dd-MMM-yyyy') as CommitmentDate 
+								,format((SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID),'dd-MMM-yyyy') as ProductionDate,  format((case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) , 'dd-MMM-yyyy') as DDate
+								,mo.Id as OrderNo,moi.Id as ItemNo,po.Id as PRNo,emp.EmployeeName as MResp,DateDiff(Day,(SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID = pod.ProductionOrderID), so.DeliveryDate) as EarlyOrLateBy 
+								,so.OrderStatusId as OrderStatusId,ps.UserName as POStatus,OC.UserName OrderType,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END,so.AddedDate  , pod.ProductionOrderID , os.Username as MOOrderStatusId ,ee.EmployeeName as EResp ,mo.BuyerId,rem.Remarks
+								
                                from trn.MasterOrder mo 
 								left join hkp.orderstatus os on os.Id = mo.OrderStatusId
 								left outer join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
-								inner join trn.SalesOrder so on so.MasterOrderItemId = moi.Id
+								left JOIN mst.MaterialMasterArticle AS mma ON mma.Id=moi.ArticleId
+								inner join trn.SalesOrder so on so.MasterOrderItemId = moi.Id								
+								LEFT JOIN (SELECT A.SONo,A.Qty,DispatchBalance=ISNULL(A.Qty-SUM(A.TotalQtyNetWeight),0) FROM (
+SELECT 
+so.Id SONo, so.Qty,POLR.TotalQtyNetWeight
+FROM trn.SalesOrder so 								
+LEFT JOIN trn.PackingLineItem PLI ON PLI.SOId=SO.Id
+LEFT JOIN 
+(							
+Select (sc.NetWeight * Count(sc.RefNo)) as TotalQtyNetWeight,PackingLineItemId from trn.POLotReference po
+left join dbo.ItemScanChild sc on sc.PackingId = po.Id
+GROUP BY PackingLineItemId,sc.NetWeight
+)POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
+)A
+GROUP BY A.SONo,A.Qty )PK ON PK.SoNo=SO.Id
+                                LEFT JOIN HKP.OrderCategory OC ON OC.Id = SO.OrderCategoryId
 								left outer join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
 								left outer join org.entity e on e.Id = mo.EntityId
 								left outer join org.Plant p on p.Id = mo.PlantId

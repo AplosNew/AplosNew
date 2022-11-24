@@ -53,6 +53,9 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("EmployeeUnderstandingHeadController", EmployeeUnderstandingHeadController)
     .controller("FuguaiTransactionController", FuguaiTransactionController)
     .controller("FuguaiReportController", FuguaiReportController)
+    .controller("DetentionLogController", DetentionLogController)
+    .controller("DetentionLogoutController", DetentionLogoutController)
+    .controller("DetentionLogReportController", DetentionLogReportController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -130,6 +133,11 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
                 templateUrl: 'TaskManagement/TaskList/',
                 controller: 'taskListController'
             })
+            .when('/detention-log-report', {
+                templateUrl: 'Materials/DetentionLogReport',
+                controller: 'DetentionLogReportController'
+            })
+            
             //.when('/issue-transaction', {
             //    templateUrl: 'IssueTracker/IssueTransaction/Aplos',
             //    controller: "issueTransactionController"
@@ -314,6 +322,15 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
             .when('/fuguai-report', {
                 templateUrl: 'humanResource/FuguaiReport/Aplos',
                 controller: 'FuguaiReportController'
+            })
+            .when('/detention-log', {
+                templateUrl: 'Materials/DetentionLog/Aplos',
+                controller: 'DetentionLogController'
+            })
+
+            .when('/detention-logout', {
+                templateUrl: 'materials/DetentionLogout/Aplos',
+                controller: 'DetentionLogoutController'
             })
             //#endregion
 

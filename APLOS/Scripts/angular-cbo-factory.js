@@ -95,6 +95,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , GetEntityProcessCbo: GetEntityProcessCbo
         , GetEntityProductionProcessCbo: GetEntityProductionProcessCbo
         , GetWCProcessCbo: GetWCProcessCbo
+        , GetToWCProcessCbo: GetToWCProcessCbo
         , GetProductionShiftCbo: GetProductionShiftCbo
         , getCboProductionEntityByCompanyGroup: getCboProductionEntityByCompanyGroup
         , getCboProductionEntityByCompany: getCboProductionEntityByCompany
@@ -410,13 +411,24 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCbomeetingType: getCbomeetingType
         , getContractFundCbo: getContractFundCbo
         , getPerformanceGroupListCbo: getPerformanceGroupListCbo
+        , getbyDesignationMasterCbo: getbyDesignationMasterCbo
+        , getUtilityGroupCbo: getUtilityGroupCbo
 
     };
 
 
+    function getUtilityGroupCbo(callback) {
+        base('Materials/UtilityGroup/GetCbo', callback);
+    }
+
+    function getbyDesignationMasterCbo(callback) {
+        base('Organizations/Designation/GetbyDesignationMasterCbo', callback);
+    }
+
     function getPerformanceGroupListCbo(callback) {
         base('HumanResource/PerformanceGroup/GetCbo', callback);
     }
+
     function getContractFundCbo(callback) {
         base('Commercial/ContractFundUtilization/GetCbo', callback);
     }
@@ -2282,8 +2294,11 @@ function cboService($http, $window, $rootScope, baseService) {
         base('Productions/RecipeGlobalMaster/GetEntityProductionProcessCbo?entityid=' + entityId, callback);
     }
 
-    function GetWCProcessCbo(processid, entityId, callback) {
-        base('Productions/ProductionSummary/GetWCProcessCbo?processid=' + processid + '&entityId=' + entityId, callback);
+    function GetWCProcessCbo(processid, entityId, shiftId, callback) {
+        base('Productions/ProductionSummary/GetWCProcessCbo?processid=' + processid + '&entityId=' + entityId + '&shiftId=' + shiftId, callback);
+    }
+    function GetToWCProcessCbo(processid, entityId, callback) {
+        base('Productions/ProductionSummary/GetToWCProcessCbo?processid=' + processid + '&entityId=' + entityId, callback);
     }
 
     function GetProductionShiftCbo(callback) {

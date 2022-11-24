@@ -149,6 +149,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "Out Time Difference", 13, ExcelHAlign.HAlignCenter);
             int ColOutD = COL;
             COL++;
+            
+            report.SetHeaderText(ref sheet, ROW, COL, "OT Hour", 13, ExcelHAlign.HAlignCenter);
+            int ColOTHour = COL;
+            COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Designation", 13, ExcelHAlign.HAlignCenter);
             int ColDesg = COL;
@@ -243,6 +247,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColSDept].Text = dtData.Rows[i]["SDept"].ToString();
                 sheet[ROW, ColSSec].Text = dtData.Rows[i]["SSec"].ToString();
                 sheet[ROW, ColSSubSec].Text = dtData.Rows[i]["SSubSec"].ToString();
+                sheet[ROW, ColOTHour].Text = dtData.Rows[i]["OThour"].ToString();
 
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);

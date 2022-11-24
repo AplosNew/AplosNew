@@ -33,14 +33,14 @@ namespace Aplos.Areas.Materials.Controllers
         private SqlRepository _sqlRepository = new SqlRepository();
         public UtilityMasterController()
         {
-            
+
         }
 
         #endregion -- Constructor
 
         #region Pages
 
-       
+
         public ActionResult Aplos()
         {
             return View();
@@ -66,6 +66,22 @@ namespace Aplos.Areas.Materials.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetUtilityMasterData(string column, string value,string UtilityMasterId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT UM.*,P.UserName PartyName, ei.EmployeeName ResponsiblePersonName
+                        FROM [dbo].[UtilityMaster] UM
+                        LEFT JOIN HKP.Party AS p ON P.Id=UM.PartyId
+                        LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=UM.ResponsiblePersonId Where UM.Id<>'"+ UtilityMasterId + @"') AS TEMP WHERE " + strkey + " order by sequence";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
@@ -118,7 +134,7 @@ namespace Aplos.Areas.Materials.Controllers
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false,Id=_Id, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Id = _Id, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -130,13 +146,13 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateChild(Dictionary<string, object> data,string UtilityMasterId)
+        public JsonResult CreateChild(Dictionary<string, object> data, string UtilityMasterId)
         {
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                
+
                 con.OpenDataSetThroughAdapter("select * from UtilityDetail where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
@@ -175,11 +191,28 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult GetUtilityData(string UtilityMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select *,FORMAT(EffectiveDate,'dd-MMM-yyyy') EffectiveDates from UtilityDetail where UtilityMasterId ='" + UtilityMasterId +@"'";
+            string sql = @"select *,FORMAT(EffectiveDate,'dd-MMM-yyyy') EffectiveDates from UtilityDetail where UtilityMasterId ='" + UtilityMasterId + @"'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetUtilityMasterAssetData(string UtilityMasterId)
+        {
+            string sql = @" SELECT A.Id,MMA.Id MachineMasterAssetId,MM.Id MachineMasterId,E.Id EntityId,E.UserName Entity,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference
+,MMA.IsOldCode,MMA.OldCode,CONVERT(NUMERIC(10,2),MMA.TargetUtilization) TargetUtilization
+,CONVERT(NUMERIC(10,2),MMA.PlanUtilization) PlanUtilization,MMA.Remark,MMA.AssetCategory
+,CONVERT(NUMERIC(10,2),MMA.RepairAndMaintanenceBudget) RepairAndMaintanenceBudget
+,CONVERT(NUMERIC(10,2),MMA.ConsumableBudget)ConsumableBudget,AR.StandardName Article,wcm.UserName WorkCenterMaster
+from dbo.UtilityMasterAsset A
+left join MachineMasterAsset MMA ON MMA.Id=A.MachineMasterAssetId
+left join ORG.Entity E on E.Id=MMA.EntityId
+left join MST.MachineMaster MM on MM.Id=MMA.MachineMasterId
+left join MST.MaterialMasterArticle AR ON AR.Id=MMA.ArticleId
+left join SCS.WorkCenterMaster AS wcm ON wcm.Id = MMA.WorkCenterMasterId where A.UtilityMasterId ='" + UtilityMasterId + @"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -224,7 +257,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         }
 
-      
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -283,6 +316,110 @@ namespace Aplos.Areas.Materials.Controllers
 
             return 1;
         }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateAsset(List<Dictionary<string, object>> assets)
+        {
+            try
+            {
+                SaveData(assets);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
+
+        private void SaveData(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                string _Id = "";
+                if (data != null)
+                {
+                    DataSet dsMaster;
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("UtilityMasterAsset", out _Id);
+
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.UtilityMasterAsset", out dsMaster, false, "1");
+                    int idcount =0;
+                    foreach (var item in data)
+                    {
+                       
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _Id +"-" +idcount++;
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult DeleteAsset(string id)
+        {
+            DeleteAssetData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteAssetData(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+
+                strSQL = "DELETE FROM [dbo].[UtilityMasterAsset] WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
 
         #endregion
 

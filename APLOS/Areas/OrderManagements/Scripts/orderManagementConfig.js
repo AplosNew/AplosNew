@@ -248,8 +248,14 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/DispatchMaster/Aplos',
             controller: 'DispatchMasterController'
         })
-        
-
+        .when('/packing-type', {
+            templateUrl: 'OrderManagements/PackingType/Aplos',
+            controller: 'PackingTypeController'
+        })
+        .when('/sales-order-app', {
+            templateUrl: 'OrderManagements/SalesOrderApproval/Aplos',
+            controller: 'SalesOrderApprovalController'
+        })
 
         ;
 }

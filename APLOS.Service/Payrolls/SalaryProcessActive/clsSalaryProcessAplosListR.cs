@@ -1175,8 +1175,8 @@ public class clsSalaryProcessAplosR
                             spq.LoadLWP(sEmpSysIDColl, para.FromDate, para.ToDate, out dsLWP);
                             SendNotification("Fetching Specific Leave", TotProcComp, TotSelectEmpForProc);
                             spq.LoadSpecificLeave(sEmpSysIDColl, para.PlantId, para.FromDate, para.ToDate, out dsLeaveSpecific);
-                            SendNotification("Fetching Route Employee List", TotProcComp, TotSelectEmpForProc);
-                            spq.LoadRouteEmpList(sEmpSysIDColl, out dsRouteEmp);
+                            //SendNotification("Fetching Route Employee List", TotProcComp, TotSelectEmpForProc);
+                            //spq.LoadRouteEmpList(sEmpSysIDColl, out dsRouteEmp);
 
                             SendNotification("Fetching Attdn Bonus", TotProcComp, TotSelectEmpForProc);
                             List<dicAttdnBns> dicAttdnBns = new List<global::dicAttdnBns>();
@@ -1375,10 +1375,10 @@ public class clsSalaryProcessAplosR
                                     string TD_ = Convert.ToDateTime(FD_).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
                                     var _daysinmonth = Convert.ToDateTime(TD_).Subtract(Convert.ToDateTime(FD_)).Days + 1;
 
-                                    if (TotalDaysSlr < _daysinmonth)
-                                    {
-                                        DisbursedBtnMonth = true;
-                                    }
+                                    //if (TotalDaysSlr < _daysinmonth)
+                                    //{
+                                    //    DisbursedBtnMonth = true;
+                                    //}
 
                                     CountOffDay = 0;
                                     var WrkOffcount = dicCmpWrkOff.FindAll(ee => ee.PlantId == dsSelectedEmp.Tables[0].Rows[gd]["PlantID"].ToString().Trim()
@@ -2166,13 +2166,13 @@ public class clsSalaryProcessAplosR
                                                 IsNetPayEffect = true;
 
                                                 //RouteAvailed
-                                                bool IsRouteAvailed = false;
-                                                DataView dvRoute = new DataView(dsRouteEmp.Tables[0]);
-                                                dvRoute.RowFilter = "EmployeeId='" + _emp_pk + "'";
-                                                if (dvRoute.Count > 0)
-                                                {
-                                                    IsRouteAvailed = true;
-                                                }
+                                                //bool IsRouteAvailed = false;
+                                                //DataView dvRoute = new DataView(dsRouteEmp.Tables[0]);
+                                                //dvRoute.RowFilter = "EmployeeId='" + _emp_pk + "'";
+                                                //if (dvRoute.Count > 0)
+                                                //{
+                                                //    IsRouteAvailed = true;
+                                                //}
 
                                                 //lunchOut
                                                 DataView dvLUNCHOUT = new DataView(dsEOLILU.Tables[0]);
@@ -2274,7 +2274,7 @@ public class clsSalaryProcessAplosR
                                                                 abdtype.AbsDay = AbsDay;
                                                                 abdtype.LateDay = LateDay;
                                                                 abdtype.LvDay = LvDay;
-                                                                abdtype.IsRouteAvailed = IsRouteAvailed;
+                                                              //  abdtype.IsRouteAvailed = IsRouteAvailed;
                                                                 //abdtype.LateInDay = dvLATEIN.Count;
                                                                 if (dvLATEIN.Count > 0)
                                                                 {

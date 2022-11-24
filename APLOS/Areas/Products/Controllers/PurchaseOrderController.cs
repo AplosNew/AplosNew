@@ -293,7 +293,7 @@ namespace Aplos.Areas.Products.Controllers
 
         #endregion  PO-without-requisition
 
-        #region Purchase-Order-By-Requisition Action function
+        #region Purchase-Order-By-Requisition Action functionEditPOByReq
         [HttpPost]
         public JsonResult CreatePOByReq(PurchaseOrder entity, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         {
@@ -828,12 +828,22 @@ namespace Aplos.Areas.Products.Controllers
 
         #region PurchaseOrderBOQ Report 
         [HttpGet, Authorize]
-        public ActionResult GePurchaseOrderBOQReport(string purchaseOrderBOQId)
+        public ActionResult GePurchaseOrderBOQReportWithTax(string purchaseOrderBOQId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             Library.MaterialManagement.InventoryManagements.POBOQReportService Report = new Library.MaterialManagement.InventoryManagements.POBOQReportService();
-            Report.GePurchaseOrderBOQReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderBOQId);
+            Report.GePurchaseOrderBOQReportWithTax(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderBOQId);
+
+            return null;
+        }
+        [HttpGet, Authorize]
+        public ActionResult GePurchaseOrderBOQReportWithoutTax(string purchaseOrderBOQId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            Library.MaterialManagement.InventoryManagements.POBOQReportService Report = new Library.MaterialManagement.InventoryManagements.POBOQReportService();
+            Report.GePurchaseOrderBOQReportWithoutTax(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderBOQId);
 
             return null;
         }
@@ -1003,11 +1013,14 @@ namespace Aplos.Areas.Products.Controllers
             return Json(purchaseOrderService.GetApprovedListForPOBYReq(identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpGet]
+        [Authorize, HttpPost]
         public ActionResult GetListForRequisition()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_purchaseOrderService.GetListForRequisition(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(_purchaseOrderService.GetListForRequisition(identity.CompanyGroupId));
+            var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
         [Authorize, HttpGet]
         public ActionResult GetListForRequisition1()
@@ -1070,6 +1083,7 @@ namespace Aplos.Areas.Products.Controllers
                 entity.MasterOrderId = null;
                 //entity.CheckedBy = "";
                 entity.AddedBy = null;
+                entity.RequisitionId = null;
                 entity.EmployeeId = identity.EmployeeId;
                 _purchaseOrderService.Update(entity);
             }
@@ -1163,6 +1177,12 @@ namespace Aplos.Areas.Products.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_purchaseOrderService.GetLCContractList(isProcurementOnBom, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetLCContractListByPartyId(bool isProcurementOnBom, string partyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_purchaseOrderService.GetLCContractListByPartyId(isProcurementOnBom, identity.PlantId, partyId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -3286,6 +3306,27 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
             }
         }
 
+        [Authorize, HttpPost]
+        public JsonResult DeleteServiceAckChargesRow(string Id)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var rdBuilder = new System.Text.StringBuilder();
+                var voucherSql = @"delete from trn.ServicePOAckTax where ServiceAcknowledgementChargeId='" + Id + "'";
+                var bankJournalSql = @"delete from trn.ServiceAcknowledgementCharge where id='" + Id + "'";
+                rdBuilder.Append(voucherSql);
+                rdBuilder.Append(bankJournalSql);
+                return Json(_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString()), JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
 
         [Authorize, HttpGet]
         public JsonResult LoadAllAckServicesData(string id)

@@ -195,13 +195,13 @@ namespace Library.Service.Processes
             }
         }
 
-        public IEnumerable<ComboModel> GetCbo(string ProcessId)
+        public IEnumerable<ComboModel> GetCbo(string ProcessId, string companyId)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                
                 string _sql = @"select s.Id,s.UserName from hkp.SubProcess s
-                                left join (select * from mst.CompanySubProcess where CompanyId='" + identity.CompanyId + @"') cs on cs.SubProcessId= s.Id
+                                left join (select * from mst.CompanySubProcess where CompanyId='" + companyId + @"') cs on cs.SubProcessId= s.Id
                                 where s.ProcessId = '" + ProcessId + @"'
                                 order by s.UserName ";
                 return _sqlRepository.GetCombo(_sql, "Id", "UserName");

@@ -280,11 +280,11 @@
 		<div class="common-btn">
 			<ul class="list-inline text-left">
 
-				<li>
-					<div ej-tooltip e-showshadow="true" e-content="Export To Pdf" ng-click="PurchaseOrderReportPdf('Pdf');" e-width="width">
+				@*<li>
+					<div ej-tooltip e-showshadow="true" e-content="Export To Pdf" ng-click="PurchaseOrderReportPdf();" e-width="width">
 						<button class="btn"><i class="glyphicon glyphicon-file"></i>Export To Pdf</button>
 					</div>
-				</li>
+				</li>*@
 
 				<li>
 					<div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="PurchaseOrderReportExcel('Excel');" e-width="width">
@@ -315,7 +315,7 @@
 						<div e-columns>
 
 							@*<div e-column e-field="SLNo" e-headertext="SI" e-width="50" e-filter="false"></div>*@
-							<div e-column e-field="POId" e-headertext="PO No" e-width="100" textAlign='Left'></div>
+							<div e-column e-field="PONo" e-headertext="PO No" e-width="100" textAlign='Left'></div>
 							<div e-column e-field="PODate" e-headertext="PO Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
 							<div e-column e-field="POType" e-headertext="PO Type" e-width="130" textAlign='Center'></div>
 							<div e-column e-field="PartyName" e-headertext="Party" e-width="180" textAlign='Left'></div>
@@ -333,12 +333,17 @@
 							<div e-column e-field="HSNCode" e-headertext="HSNCode" e-width="80"></div>
 							<div e-column e-field="TransactionQty" e-headertext="Transaction Qty" e-format="{0:N2}" e-width="130" textAlign='Right'></div>
 							<div e-column e-field="UOM" e-headertext="UoM" e-width="100"></div>
+							<div e-column e-field="ReceiptQty" e-headertext="Receipt Qty" e-width="130" textAlign='Right'></div>
+							<div e-column e-field="Rejection" e-headertext="Rejection Qty" e-width="130" textAlign='Right'></div>
+							<div e-column e-field="BalanceQty" e-headertext="Balance Qty" e-width="130" textAlign='Right'></div>
+							<div e-column e-field="Tolerance" e-headertext="Tolerance" e-width="80" textAlign='Right'></div>
 							<div e-column e-field="TransactionRate" e-headertext="Transaction Rate" e-format="{0:N4}" e-width="130" textAlign='Right'></div>
 							<div e-column e-field="TransactionAmount" e-headertext="Transaction Amount" e-format="{0:N2}" e-width="130"></div>
 							<div e-column e-field="TotalTaxAmount" e-headertext="Total Tax Amount" e-format="{0:N2}" e-width="180" textAlign='Right'></div>
 							<div e-column e-field="ServiceCharge" e-headertext="Service Charge" e-format="{0:N2}" e-width="130" textAlign='Right'></div>
 							<div e-column e-field="ServiceChargeTax" e-headertext="Service Charge Tax" e-format="{0:N2}" e-width="130" textAlign='Right'></div>
 							<div e-column e-field="BaseAmount" e-headertext="Base Amount" e-format="{0:N2}" e-width="130" textAlign='Right'></div>
+							<div e-column e-field="BalanceAmount" e-headertext="Balance Amount" e-width="130" textAlign='Right'></div>
 							@*<div e-column e-field="MaterialTaxPer" e-headertext="Material Tax percentage" e-width="130" textAlign='Right'></div>*@
 							<div e-column e-field="CGST" e-headertext="CGST" e-width="130" e-format="{0:N2}" textAlign='Right'></div>
 							<div e-column e-field="CGSTTaxPercentage" e-headertext="CGST Tax Percentage" e-format="{0:N2}" e-width="130" textAlign='Right'></div>
@@ -361,10 +366,6 @@
 
 
 
-							@*<div e-column e-field="VAT" e-headertext="VAT" e-width="130" textAlign='Right'></div>
-		<div e-column e-field="VATTaxPercentage" e-headertext="VAT Tax Percentage" e-width="130" textAlign='Right'></div>
-		<div e-column e-field="AIT" e-headertext="AIT" e-width="130" textAlign='Right'></div>
-		<div e-column e-field="AITTaxPercentage" e-headertext="AIT Tax Percentage" e-width="130" textAlign='Right'></div>*@
 
 							@*<div e-column e-field="ServiceCharge" e-headertext="Service Charge" e-width="130" textAlign='Right'></div>*@
 							@*<div e-column e-field="ServiceTax" e-headertext="Service Tax" e-width="130" textAlign='Right'></div>*@

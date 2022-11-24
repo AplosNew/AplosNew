@@ -1,0 +1,281 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Bank Reconciliation Data Upload From Excel<label style="float:right"></label>
+</h3>
+<style>
+    /****************File Upload*/
+    * {
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+    }
+
+    .inputBtnSection {
+        /*display: inline-block;*/
+        vertical-align: top;
+        font-size: 0;
+        font-family: verdana;
+    }
+
+    .disableInputField {
+        /*display: inline-block;*/
+        vertical-align: top;
+        height: 27px;
+        margin: 0;
+        font-size: 14px;
+        padding: 0 3px;
+    }
+
+    .fileUpload {
+        position: relative;
+        overflow: hidden;
+        /*border: solid 1px gray;*/
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .uploadBtn {
+        display: inline-block;
+        vertical-align: top;
+        background: #242841;
+        font-size: 14px;
+        padding: 0 10px;
+        height: 25px;
+        line-height: 22px;
+        color: #fff;
+    }
+
+    .fileUpload input.upload {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+        cursor: pointer;
+        opacity: 0;
+        filter: alpha(opacity=0);
+    }
+</style>
+<div class="form-elements form-horizontal" ng-form id="BankReconciliationDataUploadFormId" name="BankReconciliationDataUploadForm">
+    <div class="row">
+        <input type="hidden" ng-model="bankReconciliationNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Bank Information</legend>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Bank</label>
+                    <div class="col-sm-7 pdr3">
+                        <input type="text" ng-model="bankReconciliationNew.BankName" class="form-control" readonly>
+                    </div>
+                    <button ng-click="showBankPopUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Branch</label>
+                    <label class="col-sm-7 control-label">: {{bankReconciliationNew.BankBranch}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Account</label>
+                    <label class="col-sm-7 control-label">: {{bankReconciliationNew.BankAccount}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Bank GL</label>
+                    <label class="col-sm-7 control-label">: {{bankReconciliationNew.BankGL}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Bank Currency</label>
+                    <label class="col-sm-7 control-label">: {{bankReconciliationNew.BankCurrency}}</label>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Date Range</legend>
+                <div class="form-group" id="div_ToDate" show-errors>
+                    <label class="col-sm-1 control-label">From</label>
+                    <div class="col-sm-4 pdr3">
+                        <input type="text" ng-model="bankReconciliationNew.FromDate" datepicker="checkDocDate();"  class="form-control" required tabindex="2">
+                    </div>
+                    <label class="col-sm-1 control-label pdl3" style="margin-right: -19px;">To</label>
+                    <div class="col-sm-4 show-message">
+                        <input type="text" ng-model="bankReconciliationNew.ToDate" datepicker="checkDocDate();" class="form-control" required tabindex="3">
+                    </div>
+                </div>
+
+            </fieldset>
+            <div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Bank Opening Blance<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" n-decimals="4" name="Bank Opening Blance" ng-model="bankReconciliationNew.OpeningBlance" class="form-control text-right" required tabindex="5">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Bank Closing Blance<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" n-decimals="4" name="Bank Closing Blance" ng-model="bankReconciliationNew.ClosingBalance" class="form-control text-right" required tabindex="6">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Bank Statement Number<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Bank Statement Number" ng-model="bankReconciliationNew.BankStatementNo" class="form-control" required tabindex="6">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="EmployeeName" ng-model="bankReconciliationNew.EmployeeName" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="showEmployeeListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="clearEmployee()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Remarks" ng-model="bankReconciliationNew.Remarks" class="form-control" tabindex="6">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+<div class="tab-design" id="tab_show">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet11(11) }"><a ng-click="setTab11(11)" href="" aria-controls="aria1" role="tab" data-toggle="tab"> To be Uploaded</a></li>
+            <li role="presentation" ng-class="{ active: isSet22(22) }"><a ng-click="setTab22(22)" href="" aria-controls="aria2" role="tab" data-toggle="tab"> Uploaded</a></li>
+
+
+        </ul>
+    </div>
+
+    <div class="tab-content" id="tabpaneldiv">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet11(11), active: isSet11(11) }">
+
+            <div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
+                <div class="col-md-10">
+                    <input type="hidden" ng-model="EmployeeProfileFromExcel.EmployeeCode">
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 ">
+                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" value="Import Data" class="btn btn-success"
+                               ng-click="ImportData()" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="GridWorkCenterProduct"
+                         ng-init="chkinit()"
+                         ej-grid e-datasource="BankReconciliationUploadedData"
+                         @*e-recorddoubleclick="selectSignleEmployee"
+                         e-rowdatabound="onrowdatabound"*@
+                         e-allowfiltering="true"
+                         e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowscrolling="true" @* e-minwidth="1100" e-minheight="500"*@
+                         e-pagesettings-pagesize="25"
+                         @*e-allowselection="true"*@
+                         e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="BankStatementDate" e-headertext="Date" e-width="80" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                            <div e-column e-field="BankRefNo" e-headertext="Bank Ref No" e-width="100"></div>
+                            <div e-column e-field="BankParticulars" e-headertext="Bank Particulars" e-width="100"></div>
+                            <div e-column e-field="DrAmount" e-headertext="DrAmount" e-width="80"></div>
+                            <div e-column e-field="CrAmount" e-headertext="CrAmount" e-width="80"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                            <div e-column e-field="OwnRefNo" e-headertext="Own RefNo" e-width="100"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 ">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li ng-show="ShowSaveBtn"> <button ng-click="save();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet22(22), active: isSet22(22) }">
+
+            <div class="form-elements form-horizontal row" id="MainDivId">
+                <div class="col-md-10">
+
+                </div>
+                <div class="col-md-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="LoadData();" class="btn"><i class="glyphicon glyphicon-download"></i> Load</button></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="GridUploadedData"
+                         ng-init="chkinit()"
+                         ej-grid e-datasource="SaveDataList"
+                         @*e-recorddoubleclick="selectSignleEmployee"
+                         e-rowdatabound="onrowdatabound"*@
+                         e-allowfiltering="true"
+                         e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         @*e-allowscrolling="true" e-minwidth="1100" e-minheight="500"*@
+                         e-pagesettings-pagesize="25"
+                         @*e-allowselection="true"*@
+                         e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                            <div e-column e-field="BankName" e-headertext="Bank" e-width="80"></div>
+                            <div e-column e-field="FromDate" e-headertext="From Date" e-width="60"></div>
+                            <div e-column e-field="ToDate" e-headertext="To Date" e-width="60"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="60"></div>
+                            <div e-column e-field="OpeningBlance" e-headertext="Opening Balance" e-width="80"></div>
+                            <div e-column e-field="ClosingBalance" e-headertext="Closing Balance" e-width="80"></div>
+                            <div e-column e-field="BankStatementNo" e-headertext="Statement Ref No" e-width="100"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                            <div e-column e-headertext="Action" e-template="#ReportTemplate" e-width="100"></div>
+                        </div>
+                    </div>
+                </div>
+                <script id="ReportTemplate" type="text/template">
+                    <div class="common-btn">
+                        <ul class="common-btn list-inline text-center">
+                            <li>
+                                <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                                    <i class="fa fa-file-excel-o"></i>
+                                </button>
+                                <button ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                    <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(bankReconciliationUploadId)"></confirm-archive-generic>

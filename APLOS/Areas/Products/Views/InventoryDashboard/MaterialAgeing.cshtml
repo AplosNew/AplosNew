@@ -83,61 +83,73 @@
 	<div class="col-lg-12">
 		<div class="col-lg-2"><h4 style="/*margin-top:-10px;margin-bottom:25px;*/margin-left: -14%" class="ng-scope"><span class="glyphicon glyphicon-stats"></span> Material Ageing</h4></div>
 		<div class="col-lg-10">
-			<div class="row" id="date" style="border-bottom:1px solid #d8d7d7; margin:-2px;">
-				<div class="col-md-3">
-					Select Material:
-					<input type="checkbox" id="toggle-two" ng-model="Isregulardata" ng-change="Isregular()">
-					<script>
-						$(function () {
-							$('#toggle-two').bootstrapToggle({ off: 'Non Regular', on: 'Regular' });
-						})
-					</script>
-				</div>
+            <div class="row" id="date" style="border-bottom:1px solid #d8d7d7; margin:-2px;">
+                <div class="col-md-2">
+                    Select Material:
+                    <input type="checkbox" id="toggle-two" ng-model="Isregulardata" ng-change="Isregular()">
+                    <script>
+                        $(function () {
+                            $('#toggle-two').bootstrapToggle({ off: 'Non Regular', on: 'Regular' });
+                        })
+                    </script>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="col-sm-7 control-label">Is Asset</label>
+                        <div class="col-sm-5">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="report.IsAsset">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
 
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                @*<div class="form-group form-element-ctrl">
+                            <div class="show-message">
+                                <div class="col-md-3" style="padding:3%;">From</div>
+                                <div class="col-md-9">
+                                    <input type="text" name="Date" ng-model="dateRange.fromDate" datepicker class="form-control datepicker" required tabindex="1" style="margin-top: 7px;margin-bottom: -4px;">
+                                </div>
+                            </div>
+                        </div>*@
+                                <div id='Grid2'></div>
+                            </div>
+                            <div class="col-md-5">
+                                @*<div class="form-group form-element-ctrl">
+                            <div class="show-message">
+                                <div class="col-md-3" style="padding:4%; margin-left:-12%">To</div>
+                                <div class="col-md-9">
+                                    <input type="text" name="Date" ng-model="dateRange.toDate" datepicker class="form-control datepicker" required tabindex="1" style="margin-top: 7px;margin-bottom: -4px;">
+                                </div>
+                            </div>
+                        </div>*@
+                            </div>
+                            <div class="col-md-1">
+                                <button style="margin-top: 17%;margin-left: -172%;" type="button" ng-click="dFunction(dateRange.fromDate,dateRange.toDate)" class="btn single-btn"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-				<div class="col-md-9">
-					<div class="row">
-						<div class="col-md-12">
-							<div class="col-md-6">
-								@*<div class="form-group form-element-ctrl">
-										<div class="show-message">
-											<div class="col-md-3" style="padding:3%;">From</div>
-											<div class="col-md-9">
-												<input type="text" name="Date" ng-model="dateRange.fromDate" datepicker class="form-control datepicker" required tabindex="1" style="margin-top: 7px;margin-bottom: -4px;">
-											</div>
-										</div>
-									</div>*@
-								<div id='Grid2'></div>
-							</div>
-							<div class="col-md-5">
-								@*<div class="form-group form-element-ctrl">
-										<div class="show-message">
-											<div class="col-md-3" style="padding:4%; margin-left:-12%">To</div>
-											<div class="col-md-9">
-												<input type="text" name="Date" ng-model="dateRange.toDate" datepicker class="form-control datepicker" required tabindex="1" style="margin-top: 7px;margin-bottom: -4px;">
-											</div>
-										</div>
-									</div>*@
-							</div>
-							<div class="col-md-1">
-								<button style="margin-top: 17%;margin-left: -172%;" type="button" ng-click="dFunction(dateRange.fromDate,dateRange.toDate)" class="btn single-btn"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button>
-							</div>
-						</div>
-					</div>
-				</div>
 
-
-				@*<div class="col-md-3">
-						Select Option:
-						<input type="checkbox" id="toggle-two" ng-model="data" ng-change="valuenumber()">
-						<script>
-							$(function () {
-								$('#toggle-two').bootstrapToggle({ on: 'Non Regular', off: 'Regular' });
-							})
-						</script>
-					</div>*@
-			</div>
+                @*<div class="col-md-3">
+            Select Option:
+            <input type="checkbox" id="toggle-two" ng-model="data" ng-change="valuenumber()">
+            <script>
+                $(function () {
+                    $('#toggle-two').bootstrapToggle({ on: 'Non Regular', off: 'Regular' });
+                })
+            </script>
+        </div>*@
+            </div>
 		</div>
 
 	</div>

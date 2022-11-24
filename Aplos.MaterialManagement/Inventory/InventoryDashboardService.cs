@@ -2255,7 +2255,8 @@ namespace Library.Service.Expenses
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
 						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
 						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)			
+						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
+						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
 						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
 						AND DATEDIFF(day,G.EntryDate,getdate()) Between 0 and 3
 						GROUP BY
@@ -2289,7 +2290,8 @@ namespace Library.Service.Expenses
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
 						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
 						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)			
+						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
+						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
 						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
 						AND DATEDIFF(day,G.EntryDate,getdate()) Between 4 and 5
 						GROUP BY
@@ -2322,7 +2324,8 @@ namespace Library.Service.Expenses
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
 						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
 						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)			
+						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
+						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
 						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
 						AND DATEDIFF(day,G.EntryDate,getdate()) Between 6 and 10
 						GROUP BY
@@ -2355,7 +2358,8 @@ namespace Library.Service.Expenses
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
 						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
 						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)			
+						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
+						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
 						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
 						AND DATEDIFF(day,G.EntryDate,getdate()) Between 11 and 15
 						GROUP BY
@@ -2388,7 +2392,8 @@ namespace Library.Service.Expenses
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
 						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
 						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)			
+						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
+						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
 						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
 						AND DATEDIFF(day,G.EntryDate,getdate()) Between 16 and 20
 						GROUP BY
@@ -2421,7 +2426,8 @@ namespace Library.Service.Expenses
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
 						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
 						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)			
+						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
+						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
 						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
 						AND DATEDIFF(day,G.EntryDate,getdate()) Between 21 and 25
 						GROUP BY G.CompanyGroupId--   ,G.PlantId		
@@ -2454,7 +2460,8 @@ namespace Library.Service.Expenses
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
 						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
 						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)			
+						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
+						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
 						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
 						AND DATEDIFF(day,G.EntryDate,getdate()) Between 26 and 30
 						GROUP BY G.CompanyGroupId--   ,G.PlantId		
@@ -2486,7 +2493,8 @@ namespace Library.Service.Expenses
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
 						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
 						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)			
+						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
+						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
 						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
 						AND DATEDIFF(day,G.EntryDate,getdate()) Between 31 and 9000000
 						GROUP BY G.CompanyGroupId-- ,G.PlantId		 
@@ -2518,7 +2526,8 @@ namespace Library.Service.Expenses
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
 						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
 						Where G.FlagStatus!='Cancel' 
-						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)			
+						AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
+						AND G.Id not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
 						--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
 						AND DATEDIFF(day,G.EntryDate,getdate()) Between 0 and 9000000
 						GROUP BY G.CompanyGroupId-- ,G.PlantId		 
@@ -14360,664 +14369,6 @@ namespace Library.Service.Expenses
             }
         }
 
-
-
-        //public IEnumerable<object> MaterialAgeingStatusDashboard(string companyGroupId, string companyId, string factDate, string fromDate, string toDate, string groupName, bool ValueOrNumber, string queryString, string queryStringProcess)
-        //{
-        //	string paramters = "";
-        //	if (queryString != "")
-        //	{
-        //		if (paramters == "")
-        //			paramters += "isnull(CompanyId,'') in(" + queryString + ")";
-        //		else
-        //			paramters += " AND isnull(CompanyId,'') in(" + queryString + ")";
-        //	}
-        //	if (queryStringProcess != "")
-        //	{
-        //		if (paramters == "")
-        //			paramters += " isnull(PlantId,'') in(" + queryStringProcess + ")";
-        //		else
-        //			paramters += " AND isnull(PlantId,'') in(" + queryStringProcess + ")";
-        //	}
-
-        //	var sql = "";
-        //	try
-        //	{
-
-        //		var ValueOrNumber1 = 0;
-        //		if (ValueOrNumber == false)
-        //		{
-        //			ValueOrNumber1 = 0;
-        //		}
-        //		else
-        //		{
-        //			ValueOrNumber1 = 1;
-        //		}
-
-        //		//if (groupName == "groupName")
-        //		if (string.IsNullOrEmpty(queryString) && string.IsNullOrEmpty(queryStringProcess))
-        //		{
-        //			sql = @"SELECT CompanyGroupId
-        //               ,GroupName
-        //               ,CompanyId
-        //               ,isnull((CASE WHEN row_number() OVER (PARTITION BY ColumnName ORDER BY (SELECT NULL)) = 1THEN ColumnName END), '') AS ColumnName
-        //               --,Category
-        //               ,MaterialTypeId,MaterialType,IsRegular
-        //               ,sum(isnull(ThirtyDaysCount, 0)) ThirtyDaysCount
-        //               ,sum(isnull(Total30Value, 0)) Total30Value
-        //               ,sum(isnull(FourtyfiveDaysCount, 0)) FourtyfiveDaysCount
-        //               ,sum(isnull(Total45Value, 0)) Total45Value
-        //               ,sum(isnull(SixtyDaysCount, 0)) SixtyDaysCount
-        //               ,sum(isnull(Total60Value, 0)) Total60Value
-        //               ,sum(isnull(HundredtwentyDaysCount, 0)) HundredtwentyDaysCount
-        //               ,sum(isnull(Total120Value, 0)) Total120Value
-        //               ,sum(isnull(ThreeHundredSixtyfiveDaysCount, 0)) ThreeHundredSixtyfiveDaysCount
-        //               ,sum(isnull(Total365Value, 0)) Total365Value
-        //               ,sum(isnull(Transaction365QtyGrt, 0)) Transaction365QtyGrt
-        //               ,sum(isnull(Total366Value, 0)) Total366Value
-        //              FROM (
-        //               SELECT CMPGR.Id AS CompanyGroupId
-        //                ,CMPGR.UserName AS GroupName
-        //                ,cmp.Id AS CompanyId
-        //                ,CMP.UserName AS ColumnName
-        //                ,Res30.MaterialTypeId,Res30.MaterialType
-        //                ,Res30.IsRegular
-        //                --,'Pending Req' Category
-        //                ,isnull(Res30.ThirtyDaysCount, 0) ThirtyDaysCount
-        //                ,isnull(Res30.Total30Value, 0) Total30Value
-        //                ,isnull(Res45.FourtyfiveDaysCount, 0) FourtyfiveDaysCount
-        //                ,isnull(Res45.Total45Value, 0) Total45Value
-        //                ,isnull(Res60.SixtyDaysCount, 0) SixtyDaysCount
-        //                ,isnull(Res60.Total60Value, 0) Total60Value
-        //                ,isnull(Res120.HundredtwentyDaysCount, 0) HundredtwentyDaysCount
-        //                ,isnull(Res120.Total120Value, 0) Total120Value
-        //                ,isnull(Res365.ThreeHundredSixtyfiveDaysCount, 0) ThreeHundredSixtyfiveDaysCount
-        //                ,isnull(Res365.Total365Value, 0) Total365Value
-        //                ,isnull(Res366.Transaction365QtyGrt, 0) Transaction365QtyGrt
-        //                ,isnull(Res366.Total366Value, 0) Total366Value
-        //               FROM ORG.CompanyGroup CMPGR
-        //               LEFT JOIN org.company CMP ON CMP.CompanyGroupId = CMPGR.Id
-        //               LEFT JOIN (
-        //                SELECT 
-
-        //	                IR.CompanyId	
-        //	                ,mm.IsRegular IsRegular	
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                ,sum(IRD.TransactionQty) ThirtyDaysCount
-        //	                ,0 FourtyfiveDaysCount
-        //	                ,0 SixtyDaysCount
-        //	                ,0 HundredtwentyDaysCount
-        //	                ,0 ThreeHundredSixtyfiveDaysCount
-        //	                ,0 Transaction365QtyGrt
-        //	                ,sum(IRD.TotalMaterialBooksCurrencyAmount) Total30Value
-        //	                ,0 Total45Value
-        //	                ,0 Total60Value
-        //	                ,0 Total120Value
-        //	                ,0 Total365Value
-        //	                ,0 Total366Value
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 0 And 30
-        //	                AND MT.UserName <> ''
-        //	                  AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY IR.CompanyId				                
-        //	                ,isnull(MT.UserName, '')
-        //					,mm.IsRegular,MT.Id
-        //                ) Res30 ON Res30.CompanyId = CMP.id
-        //               LEFT JOIN (
-        //                --select 'Pending Req' Category
-        //                SELECT  
-        //	                IR.CompanyId	
-        //	                ,mm.IsRegular IsRegular	
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                 ,0 ThirtyDaysCount
-        //	                ,sum(IRD.TransactionQty) FourtyfiveDaysCount
-        //	                ,0 SixtyDaysCount
-        //	                ,0 HundredtwentyDaysCount
-        //	                ,0 ThreeHundredSixtyfiveDaysCount
-        //	                ,0 Transaction365QtyGrt
-        //	                ,0 Total30Value
-        //	                ,sum(IRD.TotalMaterialBooksCurrencyAmount)Total45Value
-        //	                ,0 Total60Value
-        //	                ,0 Total120Value
-        //	                ,0 Total365Value
-        //	                ,0 Total366Value
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN trn.MaterialRequsitionDetails MRD ON MRD.MaterialReqqusitionMasterId = IM.id
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 31 And 45
-        //	                AND MT.UserName <> ''
-        //	                  AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY IR.CompanyId				                
-        //	                ,isnull(MT.UserName, '')
-        //					,mm.IsRegular,MT.Id
-        //                ) Res45 ON Res45.CompanyId = cmp.Id
-        //               LEFT JOIN (
-        //                --select 'Pending Req' Category
-        //                SELECT DISTINCT CMPGR.Id AS CompanyGroupId
-        //	                ,CMPGR.UserName AS GroupName
-        //	                ,cmp.Id AS CompanyId
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                ,0 ThirtyDaysCount
-        //	                ,0 FourtyfiveDaysCount
-        //					,sum(IRD.TransactionQty) SixtyDaysCount
-        //	                ,0 HundredtwentyDaysCount
-        //	                ,0 ThreeHundredSixtyfiveDaysCount
-        //	                ,0 Transaction365QtyGrt
-        //	                ,0 Total30Value
-        //	                ,0 Total45Value
-        //					,sum(IRD.TotalMaterialBooksCurrencyAmount) Total60Value
-        //	                ,0 Total120Value
-        //	                ,0 Total365Value
-        //	                ,0 Total366Value
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN trn.MaterialRequsitionDetails MRD ON MRD.MaterialReqqusitionMasterId = IM.id
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 46 And 60
-        //	                AND MT.UserName <> ''
-        //	                   AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY CMPGR.Id
-        //	                ,CMPGR.UserName
-        //	                ,cmp.Id
-        //	                ,CMP.UserName
-        //	                ,isnull(MT.UserName, ''),MT.Id
-        //                ) Res60 ON Res60.CompanyId = cmp.Id
-        //               LEFT JOIN (
-        //                --select 'Pending Req' Category
-        //                SELECT DISTINCT CMPGR.Id AS CompanyGroupId
-        //	                ,CMPGR.UserName AS GroupName
-        //	                ,cmp.Id AS CompanyId
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                ,0 ThirtyDaysCount
-        //	                ,0 FourtyfiveDaysCount
-        //					,0 SixtyDaysCount
-        //	                ,sum(IRD.TransactionQty) HundredtwentyDaysCount
-        //	                ,0 ThreeHundredSixtyfiveDaysCount
-        //	                ,0 Transaction365QtyGrt
-        //	                ,0 Total30Value
-        //	                ,0 Total45Value
-        //					,0 Total60Value
-        //	                ,sum(IRD.TotalMaterialBooksCurrencyAmount) Total120Value
-        //	                ,0 Total365Value
-        //	                ,0 Total366Value
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN trn.MaterialRequsitionDetails MRD ON MRD.MaterialReqqusitionMasterId = IM.id
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 61 And 120
-        //	                AND MT.UserName <> ''
-        //	                   AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY CMPGR.Id
-        //	                ,CMPGR.UserName
-        //	                ,cmp.Id
-        //	                ,CMP.UserName
-        //	                ,isnull(MT.UserName, ''),MT.Id
-        //                ) Res120 ON Res120.CompanyId = cmp.Id
-        //               LEFT JOIN (
-        //                --select 'Pending Req' Category
-        //                SELECT DISTINCT CMPGR.Id AS CompanyGroupId
-        //	                ,CMPGR.UserName AS GroupName
-        //	                ,cmp.Id AS CompanyId
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                ,0 ThirtyDaysCount
-        //	                ,0 FourtyfiveDaysCount
-        //					,0 SixtyDaysCount
-        //					,0 HundredtwentyDaysCount
-        //	                ,sum(IRD.TransactionQty) ThreeHundredSixtyfiveDaysCount
-        //	                ,0 Transaction365QtyGrt
-        //	                ,0 Total30Value
-        //	                ,0 Total45Value
-        //					,0 Total60Value
-        //					,0 Total120Value
-        //	                ,sum(IRD.TotalMaterialBooksCurrencyAmount) Total365Value
-        //	                ,0 Total366Value
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 121 And 365
-        //	                AND MT.UserName <> ''
-        //	                 AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY CMPGR.Id
-        //	                ,CMPGR.UserName
-        //	                ,cmp.Id
-        //	                ,CMP.UserName
-        //	                ,isnull(MT.UserName, ''),MT.Id
-        //                ) Res365 ON Res365.CompanyId = cmp.Id
-        //               LEFT JOIN (
-        //                --select 'Pending Req' Category
-        //                SELECT DISTINCT CMPGR.Id AS CompanyGroupId
-        //	                ,CMPGR.UserName AS GroupName
-        //	                ,cmp.Id AS CompanyId			
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                ,0 ThirtyDaysCount
-        //	                ,0 FourtyfiveDaysCount
-        //					,0 SixtyDaysCount
-        //					,0 HundredtwentyDaysCount
-        //					,0 ThreeHundredSixtyfiveDaysCount
-        //	                ,sum(IRD.TransactionQty) Transaction365QtyGrt
-        //	                ,0 Total30Value
-        //	                ,0 Total45Value
-        //					,0 Total60Value
-        //					,0 Total120Value
-        //					,0 Total365Value
-        //	                ,sum(IRD.TotalMaterialBooksCurrencyAmount) Total366Value
-
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN trn.MaterialRequsitionDetails MRD ON MRD.MaterialReqqusitionMasterId = IM.id
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 366 And 9000000000
-        //	                AND MT.UserName <> ''
-        //	                  AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY CMPGR.Id
-        //	                ,CMPGR.UserName
-        //	                ,cmp.Id
-        //	                ,CMP.UserName
-        //	                ,isnull(MT.UserName, ''),MT.Id
-        //                ) Res366 ON Res366.CompanyId = cmp.Id
-        //               WHERE cmp.Active = 1 AND CMPGR.Active = 1 
-        //                )t	
-        //               where  IsRegular='" + ValueOrNumber1 + @"'
-        //            GROUP BY CompanyGroupId,  GroupName ,CompanyId  , ColumnName ,MaterialType,IsRegular,MaterialTypeId";
-        //		}
-        //		else
-        //		{
-        //			sql = @"SELECT CompanyGroupId
-        //               ,GroupName
-        //               ,CompanyId,PlantId
-        //               ,isnull((CASE WHEN row_number() OVER (PARTITION BY ColumnName ORDER BY (SELECT NULL)) = 1THEN ColumnName END), '') AS ColumnName
-        //               --,Category
-        //               ,MaterialTypeId,MaterialType,IsRegular
-        //               ,sum(isnull(ThirtyDaysCount, 0)) ThirtyDaysCount
-        //               ,sum(isnull(Total30Value, 0)) Total30Value
-        //               ,sum(isnull(FourtyfiveDaysCount, 0)) FourtyfiveDaysCount
-        //               ,sum(isnull(Total45Value, 0)) Total45Value
-        //               ,sum(isnull(SixtyDaysCount, 0)) SixtyDaysCount
-        //               ,sum(isnull(Total60Value, 0)) Total60Value
-        //               ,sum(isnull(HundredtwentyDaysCount, 0)) HundredtwentyDaysCount
-        //               ,sum(isnull(Total120Value, 0)) Total120Value
-        //               ,sum(isnull(ThreeHundredSixtyfiveDaysCount, 0)) ThreeHundredSixtyfiveDaysCount
-        //               ,sum(isnull(Total365Value, 0)) Total365Value
-        //               ,sum(isnull(Transaction365QtyGrt, 0)) Transaction365QtyGrt
-        //               ,sum(isnull(Total366Value, 0)) Total366Value
-        //              FROM (
-        //               SELECT CMPGR.Id AS CompanyGroupId
-        //                ,CMPGR.UserName AS GroupName
-        //                ,P.Id PlantId,,cmp.Id AS CompanyId
-        //                ,CMP.UserName AS ColumnName
-        //                ,Res30.MaterialTypeId,Res30.MaterialType
-        //                ,Res30.IsRegular
-        //                --,'Pending Req' Category
-        //                ,isnull(Res30.ThirtyDaysCount, 0) ThirtyDaysCount
-        //                ,isnull(Res30.Total30Value, 0) Total30Value
-        //                ,isnull(Res45.FourtyfiveDaysCount, 0) FourtyfiveDaysCount
-        //                ,isnull(Res45.Total45Value, 0) Total45Value
-        //                ,isnull(Res60.SixtyDaysCount, 0) SixtyDaysCount
-        //                ,isnull(Res60.Total60Value, 0) Total60Value
-        //                ,isnull(Res120.HundredtwentyDaysCount, 0) HundredtwentyDaysCount
-        //                ,isnull(Res120.Total120Value, 0) Total120Value
-        //                ,isnull(Res365.ThreeHundredSixtyfiveDaysCount, 0) ThreeHundredSixtyfiveDaysCount
-        //                ,isnull(Res365.Total365Value, 0) Total365Value
-        //                ,isnull(Res366.Transaction365QtyGrt, 0) Transaction365QtyGrt
-        //                ,isnull(Res366.Total366Value, 0) Total366Value
-        //               FROM ORG.CompanyGroup CMPGR
-        //               LEFT JOIN org.company CMP ON CMP.CompanyGroupId = CMPGR.Id
-        //			LEFT JOIn org.Plant P On P.CompanyId=CMP.Id
-        //               LEFT JOIN (
-        //                SELECT 
-
-        //	                IR.CompanyId	
-        //	                ,mm.IsRegular IsRegular	
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                ,sum(IRD.TransactionQty) ThirtyDaysCount
-        //	                ,0 FourtyfiveDaysCount
-        //	                ,0 SixtyDaysCount
-        //	                ,0 HundredtwentyDaysCount
-        //	                ,0 ThreeHundredSixtyfiveDaysCount
-        //	                ,0 Transaction365QtyGrt
-        //	                ,sum(IRD.TotalMaterialBooksCurrencyAmount) Total30Value
-        //	                ,0 Total45Value
-        //	                ,0 Total60Value
-        //	                ,0 Total120Value
-        //	                ,0 Total365Value
-        //	                ,0 Total366Value
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 0 And 30
-        //	                AND MT.UserName <> ''
-        //	                  AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY IR.CompanyId				                
-        //	                ,isnull(MT.UserName, '')
-        //					,mm.IsRegular,MT.Id
-        //                ) Res30 ON Res30.CompanyId = CMP.id
-        //               LEFT JOIN (
-        //                --select 'Pending Req' Category
-        //                SELECT  
-        //	                IR.CompanyId	
-        //	                ,mm.IsRegular IsRegular	
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                 ,0 ThirtyDaysCount
-        //	                ,sum(IRD.TransactionQty) FourtyfiveDaysCount
-        //	                ,0 SixtyDaysCount
-        //	                ,0 HundredtwentyDaysCount
-        //	                ,0 ThreeHundredSixtyfiveDaysCount
-        //	                ,0 Transaction365QtyGrt
-        //	                ,0 Total30Value
-        //	                ,sum(IRD.TotalMaterialBooksCurrencyAmount)Total45Value
-        //	                ,0 Total60Value
-        //	                ,0 Total120Value
-        //	                ,0 Total365Value
-        //	                ,0 Total366Value
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN trn.MaterialRequsitionDetails MRD ON MRD.MaterialReqqusitionMasterId = IM.id
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 31 And 45
-        //	                AND MT.UserName <> ''
-        //	                  AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY IR.CompanyId				                
-        //	                ,isnull(MT.UserName, '')
-        //					,mm.IsRegular,MT.Id
-        //                ) Res45 ON Res45.CompanyId = cmp.Id
-        //               LEFT JOIN (
-        //                --select 'Pending Req' Category
-        //                SELECT DISTINCT CMPGR.Id AS CompanyGroupId
-        //	                ,CMPGR.UserName AS GroupName
-        //	                ,cmp.Id AS CompanyId
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                ,0 ThirtyDaysCount
-        //	                ,0 FourtyfiveDaysCount
-        //					,sum(IRD.TransactionQty) SixtyDaysCount
-        //	                ,0 HundredtwentyDaysCount
-        //	                ,0 ThreeHundredSixtyfiveDaysCount
-        //	                ,0 Transaction365QtyGrt
-        //	                ,0 Total30Value
-        //	                ,0 Total45Value
-        //					,sum(IRD.TotalMaterialBooksCurrencyAmount) Total60Value
-        //	                ,0 Total120Value
-        //	                ,0 Total365Value
-        //	                ,0 Total366Value
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN trn.MaterialRequsitionDetails MRD ON MRD.MaterialReqqusitionMasterId = IM.id
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 46 And 60
-        //	                AND MT.UserName <> ''
-        //	                   AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY CMPGR.Id
-        //	                ,CMPGR.UserName
-        //	                ,cmp.Id
-        //	                ,CMP.UserName
-        //	                ,isnull(MT.UserName, ''),MT.Id
-        //                ) Res60 ON Res60.CompanyId = cmp.Id
-        //               LEFT JOIN (
-        //                --select 'Pending Req' Category
-        //                SELECT DISTINCT CMPGR.Id AS CompanyGroupId
-        //	                ,CMPGR.UserName AS GroupName
-        //	                ,cmp.Id AS CompanyId
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                ,0 ThirtyDaysCount
-        //	                ,0 FourtyfiveDaysCount
-        //					,0 SixtyDaysCount
-        //	                ,sum(IRD.TransactionQty) HundredtwentyDaysCount
-        //	                ,0 ThreeHundredSixtyfiveDaysCount
-        //	                ,0 Transaction365QtyGrt
-        //	                ,0 Total30Value
-        //	                ,0 Total45Value
-        //					,0 Total60Value
-        //	                ,sum(IRD.TotalMaterialBooksCurrencyAmount) Total120Value
-        //	                ,0 Total365Value
-        //	                ,0 Total366Value
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN trn.MaterialRequsitionDetails MRD ON MRD.MaterialReqqusitionMasterId = IM.id
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 61 And 120
-        //	                AND MT.UserName <> ''
-        //	                   AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY CMPGR.Id
-        //	                ,CMPGR.UserName
-        //	                ,cmp.Id
-        //	                ,CMP.UserName
-        //	                ,isnull(MT.UserName, ''),MT.Id
-        //                ) Res120 ON Res120.CompanyId = cmp.Id
-        //               LEFT JOIN (
-        //                --select 'Pending Req' Category
-        //                SELECT DISTINCT CMPGR.Id AS CompanyGroupId
-        //	                ,CMPGR.UserName AS GroupName
-        //	                ,cmp.Id AS CompanyId
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                ,0 ThirtyDaysCount
-        //	                ,0 FourtyfiveDaysCount
-        //					,0 SixtyDaysCount
-        //					,0 HundredtwentyDaysCount
-        //	                ,sum(IRD.TransactionQty) ThreeHundredSixtyfiveDaysCount
-        //	                ,0 Transaction365QtyGrt
-        //	                ,0 Total30Value
-        //	                ,0 Total45Value
-        //					,0 Total60Value
-        //					,0 Total120Value
-        //	                ,sum(IRD.TotalMaterialBooksCurrencyAmount) Total365Value
-        //	                ,0 Total366Value
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 121 And 365
-        //	                AND MT.UserName <> ''
-        //	                 AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY CMPGR.Id
-        //	                ,CMPGR.UserName
-        //	                ,cmp.Id
-        //	                ,CMP.UserName
-        //	                ,isnull(MT.UserName, ''),MT.Id
-        //                ) Res365 ON Res365.CompanyId = cmp.Id
-        //               LEFT JOIN (
-        //                --select 'Pending Req' Category
-        //                SELECT DISTINCT CMPGR.Id AS CompanyGroupId
-        //	                ,CMPGR.UserName AS GroupName
-        //	                ,cmp.Id AS CompanyId			
-        //	                ,MT.Id MaterialTypeId,isnull(MT.UserName, '') MaterialType
-        //	                ,0 ThirtyDaysCount
-        //	                ,0 FourtyfiveDaysCount
-        //					,0 SixtyDaysCount
-        //					,0 HundredtwentyDaysCount
-        //					,0 ThreeHundredSixtyfiveDaysCount
-        //	                ,sum(IRD.TransactionQty) Transaction365QtyGrt
-        //	                ,0 Total30Value
-        //	                ,0 Total45Value
-        //					,0 Total60Value
-        //					,0 Total120Value
-        //					,0 Total365Value
-        //	                ,sum(IRD.TotalMaterialBooksCurrencyAmount) Total366Value
-
-        //                FROM TRN.InventoryMaterial AS IM
-        //                LEFT JOIN ORG.CompanyGroup CMPGR ON CMPGR.Id = IM.CompanyGroupId
-        //                LEFT JOIN trn.MaterialRequsitionDetails MRD ON MRD.MaterialReqqusitionMasterId = IM.id
-        //                LEFT JOIN org.company CMP ON CMP.CompanyGroupId = IM.CompanyGroupId
-        //                LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-        //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-        //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-        //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-        //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-        //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-        //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-        //                LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-        //                LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-        //                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-        //                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
-        //                WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 366 And 9000000000
-        //	                AND MT.UserName <> ''
-        //	                  AND MM.IsRegular='" + ValueOrNumber1 + @"'
-        //                GROUP BY CMPGR.Id
-        //	                ,CMPGR.UserName
-        //	                ,cmp.Id
-        //	                ,CMP.UserName
-        //	                ,isnull(MT.UserName, ''),MT.Id
-        //                ) Res366 ON Res366.CompanyId = cmp.Id
-        //               WHERE cmp.Active = 1 AND CMPGR.Active = 1 
-        //                )t	
-        //               where  " + paramters + " AND IsRegular='" + ValueOrNumber1 + @"'
-        //            GROUP BY CompanyGroupId,  GroupName ,CompanyId  , ColumnName ,MaterialType,IsRegular,MaterialTypeId";
-        //		}
-
-        //		return _sqlRepository.GetDataCollection(sql);
-        //	}
-        //	catch (Exception ex)
-        //	{
-        //		throw new CustomException(ex.Message, ex,
-        //			Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-        //			ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-        //	}
-        //}
         public IEnumerable<object> DymnamicExpenseList(IEnumerable<ChartColumnList> ChartColumnList, int seq, string factDate, string fromDate, string toDate, string companyGroupId, string companyId, string plantId)
         {
             try
@@ -22022,7 +21373,7 @@ UNION ALL
                     //#endregion
 
 
-                    #region Pending For GRN
+                    #region GateEntry Pending For GRN
                     if (Category == "Pending For GRN" && days == RequestDay)
                     {
                         sql = @"SELECT 'Pending GRN' Category
@@ -22049,7 +21400,8 @@ UNION ALL
 							LEFT JOIN hkp.Party p1 ON p1.Code=G.PartyId
 							LEFT JOIn employeeinformation ei2 on ei2.systemid=G.EmployeeIdForGateEntry
 							Where G.FlagStatus!='Cancel' 
-							AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)			
+							AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
+							AND G.Id  not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
 							--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
 							AND DATEDIFF(day,G.EntryDate,getdate())  Between '" + fromDate + @"' and '" + toDate + @"'
 							GROUP BY G.CompanyId, G.Id,G.PlantId,G.EntryDate,G.PartyId,G.PackageQty
@@ -22833,7 +22185,8 @@ UNION ALL
 							LEFT JOIN hkp.Party p1 ON p1.Code=G.PartyId
 							LEFT JOIn employeeinformation ei2 on ei2.systemid=G.EmployeeIdForGateEntry
 							Where G.FlagStatus!='Cancel' AND G.CompanyId='" + companyId + @"' AND G.PlantId='" + PlantId + @"' 
-							AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)			
+							AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
+							AND G.Id  not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null)
 							--AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
 							AND DATEDIFF(day,G.EntryDate,getdate()) between '" + fromDate + "' and '" + toDate + @"'
 							GROUP BY G.CompanyId, G.Id,G.PlantId,G.EntryDate,G.PartyId,G.PackageQty,G.ModeofTransport
@@ -22976,7 +22329,7 @@ UNION ALL
 									,(sum(isnull(IID.TransactionQty,0))* sum(isnull(IID.PolicyRate,0))) Amount
 									,REPLACE(CONVERT(CHAR(11), II.AddedDate, 106),' ','-') AS IssueDate
 								FROM trn.InventoryIssue II
-									LEFT JOIN trn.InventoryIssueDetail IID ON IID.InventoryIssueId=II.Id
+									 JOIN trn.InventoryIssueDetail IID ON IID.InventoryIssueId=II.Id
 									--LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
 									LEFT JOIN ORG.CompanyGroup CG ON CG.Id=II.CompanyGroupId
 									LEFT JOIN ORG.Company C ON C.Id=II.CompanyId
@@ -24913,12 +24266,6 @@ UNION ALL
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
-
-
-
-
-
-
 
 
 

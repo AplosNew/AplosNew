@@ -1,0 +1,215 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required />
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="2" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">@Library.Model.Parties.PartyType.Customer.ToString()<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input tabindex="1" type="text" name="@Library.Model.Parties.PartyType.Customer.ToString()" ng-model="ModelNew.PartyName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">@Library.Model.Parties.PartyType.Customer.ToString() Plant<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <div class="select-style">
+                        <select tabindex="1" class="form-control" name="PartyPlantId" ng-model="ModelNew.PartyPlantId" ng-options="item.Value as item.Text for item in partyPlantList| filter:{ PartyId: ModelNew.PartyId }"  required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    <span class="input-group-btn">
+                        <button ng-click="showPartyPlantPopUp(ModelNew.PartyPlantId);" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Days</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control" name="Days" ng-model="ModelNew.Days" tabindex="6">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Percentage(%)</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control" name="Percentage" ng-model="ModelNew.Percentage" tabindex="6">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Dr.</legend>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">GL</label>
+                <div class="col-sm-6 pdr3">
+                    <input type="text" class="form-control" ng-model="AssetGLInof" readonly>
+                </div>
+                <button name="submit" class="single-btn" ng-click="getAssetTypeList();"><i class="fa fa-search"></i></button>
+                <button ng-click="refreshAssetGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Budget</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.DrBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in assetBudgetList" id="BudgetId" name="Budget" tabindex="1" ng-change="getAssetActivity()">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Activity</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.DrActivityId" ng-options="item.ActivityId as item.ActivityName for item in assetActivityList" id="ActivityId" name="Activity" tabindex="1">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Cr.</legend>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">GL</label>
+                <div class="col-sm-6" style="padding-right:0px;">
+                    <input type="text" class="form-control" ng-model="RevenueGLInof" readonly>
+                </div>
+                <button name="submit" class="single-btn" ng-click="getRevenueTypeList();"><i class="fa fa-search"></i></button>
+                <button ng-click="refreshRevenueGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Budget</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.CrBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in revenueBudgetList" id="BudgetId"
+                                name="Budget" tabindex="1" ng-change="getRevenueActivity()">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Activity</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.CrActivityId" ng-options="item.ActivityId as item.ActivityName for item in revenueActivityList" id="ActivityId" name="Activity" tabindex="1">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+            @*<div e-column e-field="AddedDate" e-format="{0:dd-MMM-yyyy}"  e-type="date" e-headertext="Date Added" e-width="2"></div>*@
+            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_AssetTypeGL.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_RevenueTypeGL.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+
+<confirm-modal></confirm-modal>

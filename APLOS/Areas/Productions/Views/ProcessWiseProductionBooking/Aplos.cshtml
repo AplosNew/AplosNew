@@ -1,0 +1,248 @@
+﻿@*<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background-color: #1c1f32;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>*@
+<togglable name="{{FormTitle}}"></togglable>
+
+
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Process Wise Production</legend>
+        <input type="hidden" ng-model="ModelNew.Id">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" id="Entity" name="Entity" ng-change="getsP()" ng-model="ModelNew.EntityId"
+                                    tabindex="6">
+                                <option value="">---Select---</option>
+                                <option ng-repeat="option in EntityList" value="{{option.EntityId}}">{{option.EntityName}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Shift</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ModelNew.ShiftId" required name="Type"
+                                    tabindex="2">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in ShiftList" value="{{option.Id}}">{{option.Description}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.Date" datepicker class="form-control" required>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Process</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" id="Process" name="ProcessId" ng-model="ModelNew.ProcessId"
+                                    tabindex="6">
+                                <option value="">---Select---</option>
+                                <option ng-repeat="option in ProcessList" value="{{option.Id}}">{{option.UserName}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+
+                            <input type="text" name="Responsible Person" ng-model="EmployeeName" class="form-control" required readonly>
+                            <span class="input-group-btn">
+                                <button name="submit" ng-click="OpeEmployeePopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Remark</label>
+                    <div class="col-sm-8 show-message">
+                        <textarea type="text" name="Remark" ng-model="ModelNew.Remark" row="2" class="form-control" required autocomplete="off" tabindex="4" maxlength="250"></textarea>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="processWiseGridView()" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> View</button></li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="row">
+        <div class="col-lg-3 col-md-3 "></div>
+
+        <div class="col-lg-6 col-md-6 ">
+            <div id="GridProcessWise" ej-grid 
+                 e-datasource="workcenterList" 
+                 e-templaterefresh="refreshTemplate"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:20px;">
+                <div e-columns>
+
+                    @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateProcessWise" e-template="#checkboxTemplateProcessWise" e-textalign="center" e-width="10"></div>*@
+
+                    <div e-column e-field="UserName" e-headertext="Work Center" e-width="100"></div>
+
+                    <div e-column e-headertext="Production Quantity" e-template="#ProductionQuantity" e-textalign="right" e-width="80"></div>
+                </div>
+            </div>
+
+           
+            <script type="text/template" id="ProductionQuantity">
+                <input type="number" ng-model="data.ProductionQuantity" style="color:black; text-align:center" />
+            </script>
+
+
+        </div>
+        <div class="col-lg-3 col-md-3 "></div>
+
+    </div>
+
+       
+
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+
+
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="GriddataMachineMasterData" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Entity" e-headertext="Entity" e-width="12"></div>
+
+            <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="30"></div>
+            <div e-column e-field="ProductionQuantity" e-headertext="Pro.Qty" e-width="12"></div>
+            <div e-column e-field="TargetQuantity" e-headertext="Target.Qty" e-width="12"></div>
+            <div e-column e-field="Workcenter" e-headertext="Work Center" e-width="20"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="15"></div>
+
+            <div e-column e-field="Shift" e-headertext="Shift" e-width="25"></div>
+            <div e-column e-field="Date" e-headertext="Date" e-width="13"></div>
+
+            <div e-column e-field="Remark" e-headertext="Remark" e-width="15"></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="EmployeePop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridEntity" ej-grid e-datasource="EmployeeList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleEmploye">
+                            <div e-columns>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="50"></div>
+                                @*<div e-column e-field="Code" e-headertext="Code" e-width="50"></div>*@
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="50"></div>
+
+                                <div e-column e-field="Designation" e-headertext="Designation" e-width="50"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+    .e-grid.e-wrap .e-rowcell {
+        line-height: 10px
+    }
+</style>
+
+
+<confirm-modal></confirm-modal>
+<script type="text/javascript">
+    $('[id*=FromTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=FromTime]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+    $('[id*=ToTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=ToTime]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+</script>

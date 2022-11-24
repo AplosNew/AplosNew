@@ -1329,7 +1329,7 @@ namespace Library.Service.Employees
                             && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("Gross").ToUpper()
                             && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("CTC").ToUpper()
                             && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("Total Gross").ToUpper()
-                            && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("Net Pay").ToUpper()
+                            && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("Net Payable").ToUpper()
                             && dvr[ROW]["HeadType"].ToString() == "E")
                         {
                             totalOthers += Convert.ToDouble(dvr[ROW]["EntryAmount"].ToString());
@@ -1340,7 +1340,7 @@ namespace Library.Service.Employees
                         table1.Replace("{EffectiveDate}", GetFormatedDate(dvr[ROW]["EffectiveDate"].ToString(), tempId), false, true);
 
                     }
-                    table1.Replace("{Others}", cnDgt(totalOthers.ToString(), tempId), false, true);
+                    table1.Replace("{Gross}", cnDgt(totalOthers.ToString(), tempId), false, true);
 
                 }
 
@@ -3679,7 +3679,7 @@ namespace Library.Service.Employees
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string Sql = @"SELECT Format(salaryInfoTo.EffectiveDate , 'dd-MMM-yyyy') As AppraisalDate,
+            string Sql = @"SELECT distinct Format(salaryInfoTo.EffectiveDate , 'dd-MMM-yyyy') As AppraisalDate,
 
 			 CONVERT(NUMERIC(10,2),salaryInfoFrom.EntryAmount) PreviousGross
 		 , CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount) NewGross,CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount-salaryInfoFrom.EntryAmount) IncrementAmount,
@@ -3699,7 +3699,8 @@ Union
 SELECT SMB.SystemID,SMB.EmpInfoSystemID,SMB.EffectiveDate,SDB.EntryAmount,SDB.SalaryHeadID FROM SalaryInfoBackMaster SMB
 LEFT JOIN SalaryInfoBack SDB ON SDB.SalaryID=SMB.SystemID
 WHERE SMB.EmpInfoSystemID='" + EmpSystemId + @"'
-) salaryInfoTo on IH.EmpSystemID=salaryInfoTo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfoTo.EffectiveDate and IH.ToSalaryId=salaryInfoTo.SystemID
+) salaryInfoTo on IH.EmpSystemID=salaryInfoTo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfoTo.EffectiveDate 
+--and IH.ToSalaryId=salaryInfoTo.SystemID
 LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=salaryInfoTo.SalaryHeadID
 
 LEFT JOIN (
@@ -3740,7 +3741,7 @@ LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id
 
 
 where IH.EmpSystemID='" + EmpSystemId + @"' and sh.HeadCategory='gross' and sh1.HeadCategory='gross'
-ORDER BY convert(date,salaryInfoFrom.EffectiveDate) ";
+--ORDER BY convert(date,salaryInfoFrom.EffectiveDate) ";
             return _sqlRepository.GetDataTable(Sql);
         }
         private DataTable GetEmpHeaderInfo(string EmpSystemId, string languageId)
@@ -4657,7 +4658,8 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                             SELECT SMB.SystemID,SMB.EmpInfoSystemID,SMB.EffectiveDate,SDB.EntryAmount,SDB.SalaryHeadID FROM SalaryInfoBackMaster SMB
                             LEFT JOIN SalaryInfoBack SDB ON SDB.SalaryID=SMB.SystemID
                             WHERE SMB.EmpInfoSystemID='" + empId + @"'
-                            ) salaryInfo on IH.EmpSystemID=salaryInfo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfo.EffectiveDate and IH.ToSalaryId=salaryInfo.SystemID
+                            ) salaryInfo on IH.EmpSystemID=salaryInfo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfo.EffectiveDate 
+                            --and IH.ToSalaryId=salaryInfo.SystemID
 
 
                             LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=salaryInfo.SalaryHeadID
@@ -4913,11 +4915,11 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 							,UnMarriedEmpNomineeRelation=CASE WHEN CivilStatus!='Married' then NomineeRelation else '' end
 							,UnMarriedEmpNomineeAge=CASE WHEN CivilStatus!='Married' then NomineeAge else '' end
                             ,Salutation,EmployeeFingerPrint,CardHolderSignature,DOS,AuthorizedSignature,Contractor,ContractorAddress
-                            ,EmrCntPer1CellNo,FatherOrSpouse,CompanyLogo,BarCodeId
+                            ,EmrCntPer1CellNo,FatherOrSpouse,CompanyLogo,BarCodeId,Designation
                                     FROM(SELECT TAB2.*, AM.Phone, AM.Email, AM.Website, AM.Address1 FROM 
 									--tab2
 									(SELECT TAB1.*, LAN.StandardName 
-                                    FROM (SELECT CM.Image CompanyLogo,E.SystemID as EmpSystemID,
+                                    FROM (SELECT CM.Image CompanyLogo,E.SystemID as EmpSystemID,DES.UserName Designation,
                                     CM.UserName CompanyName,AM.Address1 CompanyAddress,E.EmpPicPath EmployeePic,E.EmployeeCode, Convert(varchar, E.DOJ, 105) DOJ,
                                     REPLACE(CONVERT(VARCHAR(11),E.DOJ,106),' ','-') DateOfJoin,BG.UserName BloodGroup,REPLACE(CONVERT(VARCHAR(11),E.DOB,106),' ','-') DateOfBirth
                                     ,E.NationalID,E.EmploymentType,D.UserName DesignationName, dm.EmployeeCategoryId,ec.UserName EmployeeCategory,L.UserName Line,
@@ -4932,19 +4934,19 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                                     ,Convert(varchar, DATEADD(year, 5, E.DOJ),105) AS Validity,LNN.Name LineLocal,UN.Username Unit, LUN.[Name] UnitLocal, Convert(varchar, E.DOC, 105) DOC,FORMAT(E.AppliedDate,'dd-MMM-yyyy') AppliedDate
                                     ,PCN.Name LPermanentCountry,PRCN.Name LPresentCountry
 			                		,PD.Name PermanentDistrict,PRD.Name PresentDistrict,PST.Name PermanentState, PRST.Name PresentState,PCT.Name PermanentCity, PRCT.Name PresentCity
-                                    ,CASE WHEN DOCDay=0 THEN DOCMonth ELSE DOCDay/30 END AS confirm, PL.LanguageId, PL.Id as 'PlantId', CM.AddressMasterId,E.FirstName,LDN.UserName LegalDesignation,ISNULL(E.SpouseNameLocal,E.SpouseName) SpouseName,  ISNULL(LET.Name,E.EmploymentType) EmploymentTypelocal
-									,LPRL.Name ProbationerName , PT.Name fEm, FORMAT(IssueDate,'dd-MMM-yyyy') IssueDate,
+                                    ,CASE WHEN E.DOCDay=0 THEN E.DOCMonth ELSE E.DOCDay/30 END AS confirm, PL.LanguageId, PL.Id as 'PlantId', CM.AddressMasterId,E.FirstName,LDN.UserName LegalDesignation,ISNULL(E.SpouseNameLocal,E.SpouseName) SpouseName,  ISNULL(LET.Name,E.EmploymentType) EmploymentTypelocal
+									,LPRL.Name ProbationerName , PT.Name fEm, FORMAT(E.IssueDate,'dd-MMM-yyyy') IssueDate,
                                        	FORMAT(E.DOS,'dd-MMM-yyyy') DOS,									
-										case when isnull(cg.Id,'')='' THEN isnull(E.EmployeeNameLocal,E.EmployeeName) ELSE EmployeeName END AS EmployeeName
-										,case when isnull(cg.Id,'')='' THEN isnull(E.FatherNameLocal,E.FatherName) ELSE FatherName END AS FatherName
-										,case when isnull(cg.Id,'')='' THEN isnull(E.MotherNameLocal,E.MotherName) ELSE MotherName END AS MotherName
+										case when isnull(cg.Id,'')='' THEN isnull(E.EmployeeNameLocal,E.EmployeeName) ELSE E.EmployeeName END AS EmployeeName
+										,case when isnull(cg.Id,'')='' THEN isnull(E.FatherNameLocal,E.FatherName) ELSE E.FatherName END AS FatherName
+										,case when isnull(cg.Id,'')='' THEN isnull(E.MotherNameLocal,E.MotherName) ELSE E.MotherName END AS MotherName
 										,case when isnull(cg.Id,'')='' THEN isnull(E.ParmanentAddress1Local+''+CASE WHEN ISNULL(E.ParmanentAddress2Local,'')<>'' THEN ','+E.ParmanentAddress2Local ELSE '' END										
-										,E.ParmanentAddress1+''+CASE WHEN ISNULL(E.ParmanentAddress2,'')<>'' THEN ', '+E.ParmanentAddress2 ELSE '' END) ELSE ParmanentAddress1+''+CASE WHEN ISNULL(E.ParmanentAddress2,'')<>'' THEN ', '+E.ParmanentAddress2 ELSE '' END END AS ParmanentAddress
-										,case when isnull(cg.Id,'')='' THEN isnull(E.PresentAddress1Local,E.PresentAddress1) ELSE PresentAddress1 END AS PresentAddress
+										,E.ParmanentAddress1+''+CASE WHEN ISNULL(E.ParmanentAddress2,'')<>'' THEN ', '+E.ParmanentAddress2 ELSE '' END) ELSE E.ParmanentAddress1+''+CASE WHEN ISNULL(E.ParmanentAddress2,'')<>'' THEN ', '+E.ParmanentAddress2 ELSE '' END END AS ParmanentAddress
+										,case when isnull(cg.Id,'')='' THEN isnull(E.PresentAddress1Local,E.PresentAddress1) ELSE E.PresentAddress1 END AS PresentAddress
 
 
-                                       ,case when isnull(cg.Id,'')='' THEN isnull(Case When  GenderID ='Male' then  LMM.Name else LMF.Name end,E.GenderID) ELSE GenderID END AS Gender
-                                        ,case when isnull(cg.Id,'')='' THEN isnull(E.LocalIdentificationMark,E.IdentificationMark) ELSE IdentificationMark END AS IdentificationMark
+                                       ,case when isnull(cg.Id,'')='' THEN isnull(Case When E.GenderID ='Male' then  LMM.Name else LMF.Name end,E.GenderID) ELSE E.GenderID END AS Gender
+                                        ,case when isnull(cg.Id,'')='' THEN isnull(E.LocalIdentificationMark,E.IdentificationMark) ELSE E.IdentificationMark END AS IdentificationMark
                                         ,case when isnull(cg.Id,'')='' THEN isnull(NomineeInfo.localName,NomineeInfo.Name) ELSE NomineeInfo.Name END AS NomineeName
 										,case when isnull(cg.Id,'')='' THEN isnull(NomineeInfo.AddressLocal,NomineeInfo.Address) ELSE Address END AS NomineeAddress
                                        
@@ -4975,6 +4977,9 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                                     LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
                                     LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
                                     LEFT JOIN MST.ManpowerBudget bbb ON e.BudgetCode = bbb.Id
+                                    LEFT JOIN MST.ManpowerBudget MPB ON MPB.Id=bbb.ROBudgetCode
+									left join ORG.Position POS on POS.Id=MPB.PositionId
+									left join HKP.Designation DES on DES.Id=POS.DesignationId
 									LEFT JOIN ORG.Position PS ON PS.Id=bbb.PositionId
                                     LEFT JOIN HKP.Designation D ON D.Id = E.GivenDesignationId
                                     LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = e.GivenDesignationId

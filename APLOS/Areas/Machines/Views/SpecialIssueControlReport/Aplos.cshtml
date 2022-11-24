@@ -1,0 +1,106 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Special Issue Control Report</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">From Date</label>
+            <div class="col-sm-8">
+                <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="SpecialIssueRegisters.FromDate" datepicker class="form-control">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">To Date</label>
+            <div class="col-sm-8">
+                <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="SpecialIssueRegisters.ToDate" datepicker class="form-control" ng-change="">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <label class="col-sm-4 control-label">Select Shift<sup>*</sup></label>
+        <div class="col-sm-8 show-message">
+            <div class="select-style">
+                <select class="form-control" ng-model="SpecialIssueRegisters.Shift" name="Shift" required
+                        ng-options="item.Value as item.Text for item in ShiftList">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li><button ng-click="GetIssueItemDetails();" class="btn"><i class="glyphicon glyphicon-search"></i> View </button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Special Issue Details</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Special Issue Summary</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div id="GridSpecialIssueControlDetails" ej-grid e-datasource="IssueControlDetailsList" e-recorddoubleclick="GetDetails"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-type="String" e-field="SpecialIssueName" e-headertext="Special Issue Name" e-width="3"></div>
+                            <div e-column e-type="String" e-field="SpecialIssueItem" e-headertext="Special Issue Item" e-width="3"></div>
+                            <div e-column e-type="String" e-field="Date" e-headertext="Date" e-width="3"></div>
+                            <div e-column e-type="String" e-field="Shift" e-headertext="Shift" e-width="3"></div>
+                            <div e-column e-type="String" e-field="Period" e-headertext="Period" e-width="3"></div>
+                            <div e-column e-type="String" e-field="Time" e-headertext="Time" e-width="3"></div>
+                            <div e-column e-type="String" e-field="SampleSize" e-headertext="Sample Size" e-width="3"></div>
+                            <div e-column e-type="String" e-field="Value" e-headertext="Value" e-width="3"></div>
+                            <div e-column e-type="String" e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                            <div e-column e-type="String" e-field="ConfidenceLevel" e-headertext="Confidence Level" e-width="3"></div>
+                            <div e-column e-type="String" e-field="Percentage" e-headertext="Percentage" e-width="3"></div>
+                        </div>
+                    </div>
+                    @*<script type="text/template" id="reportButton">
+                            <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/SpecialIssueControlRegister/GetIssueControlJobCardReportView?Shift={{$parent.SpecialIssueRegisters.Shift}}&IssueId={{data.Id}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
+                        </script>*@
+                </div>
+                <div class="common-btn" ng-show="IssueControlDetailsList.length>0">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="SpecialIssueControlDetailsReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div id="GridSpecialIssueControlSummary" ej-grid e-datasource="IssueControlSummaryList" e-recorddoubleclick="GetDetails"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-type="String" e-field="SpecialIssueName" e-headertext="Special Issue Name" e-width="3"></div>
+                            <div e-column e-type="String" e-field="SpecialIssueItem" e-headertext="Special Issue Item" e-width="3"></div>
+                            @* <div e-column e-type="String" e-field="Date" e-headertext="Date" e-width="3"></div>*@
+                            <div e-column e-type="String" e-field="SampleSize" e-headertext="Sample Size" e-width="3"></div>
+                            <div e-column e-type="String" e-field="Value" e-headertext="Value" e-width="3"></div>
+                            @*<div e-column e-type="String" e-field="Remarks" e-headertext="Remarks" e-width="3"></div>*@
+                            <div e-column e-type="String" e-field="Percentage" e-headertext="Percentage" e-width="3"></div>
+                        </div>
+                    </div>
+                    @*<script type="text/template" id="reportButton">
+                <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/SpecialIssueControlRegister/GetIssueControlJobCardReportView?Shift={{$parent.SpecialIssueRegisters.Shift}}&IssueId={{data.Id}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
+            </script>*@
+                </div>
+                <div class="common-btn" ng-show="IssueControlSummaryList.length>0">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="SpecialIssueControlSummaryReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

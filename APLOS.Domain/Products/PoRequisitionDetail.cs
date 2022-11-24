@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Model.Inventory;
 using System;
 
 namespace Library.Model.Products
@@ -9,7 +10,7 @@ namespace Library.Model.Products
 
         public string Id { get; set; }
         //public string CompanyGroupId { get; set; }
-        public string PoDetailId { get; set; }
+        
         public string RequisitionDetailId { get; set; }
         public decimal TransactionQty { get; set; }
         public decimal BaseQty { get; set; }
@@ -50,7 +51,10 @@ namespace Library.Model.Products
 
         #endregion Audit Properties
 
-
+        #region Navigation
+        public PurchaseOrderDetail PODetail { get; set; }
+        public string PoDetailId { get; set; }
+        #endregion
 
 
 

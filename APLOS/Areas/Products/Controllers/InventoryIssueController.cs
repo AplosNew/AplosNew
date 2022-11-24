@@ -385,9 +385,9 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult Delete(string issueDetailId)
+        public JsonResult IssueDetailDelete(string issueDetailId,string voucherId)
         {
-            _inventoryIssueService.DeleteIssueDetail(issueDetailId);
+            _inventoryIssueService.DeleteIssueDetail(issueDetailId, voucherId);
             return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
         }
 
@@ -1452,27 +1452,7 @@ namespace Aplos.Areas.Products.Controllers
 
 
 
-        [Authorize, HttpGet]
-        public ActionResult InventorySalesReportExcel(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory, string Summary, bool WithTax, string Type)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Sales Register.xls" + fromDate + "To" + toDate + "";
-            ExcelEngine excelEngine = new ExcelEngine();
-            SalesQueryService salesQueryService = new SalesQueryService(_sqlRepository);
-            IWorkbook workbook = salesQueryService.InventorySalesReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summary, WithTax, Type);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return View();
-            }
-        }
+       
 
 
         [HttpPost, Authorize]
@@ -1537,7 +1517,7 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(IssueDetailDelete))]
         public JsonResult ServiceChargesDelete(string serviceId)
         {
             _inventoryIssueService.ServiceChargesDelete(serviceId);
@@ -2633,20 +2613,13 @@ namespace Aplos.Areas.Products.Controllers
                             	,ISNULL(P.UserName, '') CustomerName
                             	,ISNULL(PO.ContractId, '') ContractId
                             	,ISNULL(mo.Id, '') MasterOrderId
-                            	,ISNULL(boq.SalesOrderId, '') SalesOrderId
+                            	,ISNULL(cbi.SalesOrderId, '') SalesOrderId
                             	,ISNULL(boq.RMCustomerSpec, '') CustomerRefNo
                             	,ISNULL(boq.RMVendorSpec, '') VendorRefNo
                             	,ISNULL(boq.OwnReferenceNo, '') OwnReferenceNo
                             	,ISNULL(mo.PartyId,'')PartyId
                             	,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo --Style
-                            	,NULL ResponsiblePerson
-                            	,PROD.ProductionOrderId PrO
-                            	,ISNULL(boq.ItemRefNo,'') BOQItemRefNo 
-								,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
-								,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
-
-								,IM.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
-								,IM.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+                            	
                             	
                             FROM TRN.InventoryReceiveDetail IRD
 							JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
@@ -2657,16 +2630,14 @@ namespace Aplos.Areas.Products.Controllers
                             LEFT JOIN MST.MaterialMasterArticle mma ON mma.Id = boq.ArticleId
                             LEFT JOIN TRN.MasterOrderItem moi ON moi.Id = boq.MasterOrderItemId
                             LEFT JOIN TRN.MasterOrder mo ON mo.Id = moi.MasterOrderId
-							LEFT JOIN TRN.SalesOrder SO ON SO.Id=boq.SalesOrderId
+							LEFT JOIN CostingBOQMaster cboqm on cboqm.Id=boq.CostingBOQMasterId
+							LEFT JOIN CostingBOQItems cbi on cbi.CostingBOQMasterId=cboqm.Id
+							LEFT JOIN TRN.SalesOrder SO ON SO.Id=cbi.SalesOrderId
 							LEFT JOIN TRN.ProductionOrderDetail PROD ON PROD.SalesOrderId=SO.Id
                             JOIN TRN.POBOQMAP pomap ON pomap.BOQDetailId = boq.Id
                             LEFT JOIN HKP.Party P ON P.Id = mo.PartyId
                             LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id = pomap.PODetailId
                             LEFT JOIN TRN.PurchaseOrder PO ON PO.Id = POD.InventoryReceiveId
-							LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=IM.FirstCharacteristicsValueId
-							LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=IM.SecondCharacteristicsValueId
-							LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
-							LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 							WHERE IR.[Status]='Posting' AND IRD.MaterialStorageId='" + materialStorageId + "' and IR.PlantId='" + identity.PlantId + @"'
                             ";
 
@@ -2704,6 +2675,13 @@ namespace Aplos.Areas.Products.Controllers
 
             _inventoryIssueService.InsertGraphBOQ(entitiesVM, specificStockListVM, inventoryIssue, IssueTypeStatus, entitiesAllVM, BoqAllocationListVM);
             return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult IssueDetailBOQDelete(string issueDetailId, string voucherId)
+        {
+            _inventoryIssueService.DeleteIssueDetailBOQ(issueDetailId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
         }
     }
 }

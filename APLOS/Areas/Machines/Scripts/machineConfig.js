@@ -67,8 +67,75 @@ function MachineConfig($routeProvider, $locationProvider) {
         //    controller: 'machineMasterController'
         //})
 
+        .when('/machine-maintenance-scheduling', {
+            templateUrl: 'Machines/MaintenanceScheduling/Aplos',
+            controller: 'maintenanceSchedulingController'
+        })
 
+        .when('/maintenance-status-details', {
+            templateUrl: 'Machines/MaintenanceStatusDetails/Aplos',
+            controller: 'maintenanceStatusDetailsController'
+        })
 
+        .when('/pending-maintenance-schedule', {
+            templateUrl: 'Machines/PendingMaintenanceSchedule/Aplos',
+            controller: 'pendingMaintenanceScheduleController'
+        })
+
+        .when('/special-issue-control', {
+            templateUrl: 'Machines/SpecialIssueControl/Aplos',
+            controller: 'specialIssueControlController'
+        })
+
+        .when('/issue-control-update', {
+            templateUrl: 'Machines/SpecialIssueControlUpdate/Aplos',
+            controller: 'specialIssueControlUpdateController'
+        })
+
+        .when('/issue-control-register', {
+            templateUrl: 'Machines/SpecialIssueControlRegister/Aplos',
+            controller: 'specialIssueControlRegisterController'
+        })
+
+        .when('/special-issue-report', {
+            templateUrl: 'Machines/SpecialIssueControlReport/Aplos',
+            controller: 'specialIssueControlReportController'
+        })
+
+        .when('/incedent-category', {
+            templateUrl: 'Machines/IncedentCategory/Aplos',
+            controller: 'incedentCategoryController'
+        })
+
+        .when('/incedent-creation', {
+            templateUrl: 'Machines/IncedentCategoryUpdate/Aplos',
+            controller: 'incedentCategoryUpdateController'
+        })
+
+        .when('/incedent-update', {
+            templateUrl: 'Machines/IncedentUpdate/Aplos',
+            controller: 'incedentUpdateController'
+        })
+
+        .when('/maintenance-summary-report', {
+            templateUrl: 'Machines/MaintenanceSummaryReport/Aplos',
+            controller: 'maintenanceSummaryReportController'
+        })
+
+        .when('/maintenance-planning-report', {
+            templateUrl: 'Machines/MaintenancePlanningReport/Aplos',
+            controller: 'maintenancePlanningReportController'
+        })
+
+        .when('/team-definition', {
+            templateUrl: 'Machines/TeamDefinition/Aplos',
+            controller: 'teamDefinitionController'
+        })
+
+        .when('/team-plan-report', {
+            templateUrl: 'Machines/TeamPlanReport/Aplos',
+            controller: 'teamPlanReportController'
+        })
 
         .when('/machine-masters', {
             templateUrl: 'Machines/MachineMas/aplos',

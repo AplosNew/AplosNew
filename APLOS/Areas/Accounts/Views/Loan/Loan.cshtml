@@ -136,11 +136,11 @@
             <label class="col-sm-4 control-label">Loan Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 @*<div class="select-style" ng-show="voucher.TransactionType=='LoanGiven'">
-            <select ng-change="getTransactionTypeGL(voucher.FinancingTypeId)" name="Loan Type" class="form-control searchableDDL" ng-model="voucher.FinancingTypeId" tabindex="16" required>
-                <option value="">--Select--</option>
-                <option ng-repeat="option in financingTypeList" value="{{option.Value}}">{{option.AssetUserName}}</option>
-            </select>
-        </div>*@
+                        <select ng-change="getTransactionTypeGL(voucher.FinancingTypeId)" name="Loan Type" class="form-control searchableDDL" ng-model="voucher.FinancingTypeId" tabindex="16" required>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in financingTypeList" value="{{option.Value}}">{{option.AssetUserName}}</option>
+                        </select>
+                    </div>*@
 
                 <div class="select-style" ng-show="voucher.TransactionType=='LoanGiven'">
                     <select name="Budget" class="form-control searchableDDL1" ng-model="voucher.FinancingTypeId" ng-change="getTransactionTypeGL(voucher.FinancingTypeId)">
@@ -391,7 +391,11 @@
                             <th>Total Loan</th>
                             <th>Total SetOff</th>
                             <th>Balance</th>
-                            <th>SetOff</th>
+                            <th>SetOff Amount</th>
+                            <th>To Currency Rate</th>
+                            <th>Conversion Amount</th>
+                            <th>Exchange Type</th>
+                            <th>Exchange Amount</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -411,8 +415,21 @@
                             <td class="text-right">{{x.LoanSetOff | number:2}}</td>
                             <td class="text-right">{{x.Balance | number:2}}</td>
                             <td>
-                                <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.LoanSetOffAmount">
+                                <input type="text" ng-keyup="exchangeGainLossAmountExistingLoan(x)" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.LoanSetOffAmount">
                             </td>
+                            <td>
+                                <input type="text" ng-keyup="exchangeGainLossAmountExistingLoan(x)" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ToCurrencyRate" autocomplete="off" ng-model="x.ToCurrencyRate">
+                            </td>
+                            <td>
+                                <input type="text" readonly n-decimals="2"  title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ConversionAmount" ng-model="x.ConversionAmount" >
+                            </td>
+                            <td>
+                                <input type="text" readonly n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeType" ng-model="x.ExchangeType">
+                            </td>
+                            <td>
+                                <input type="text" readonly n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeAmount" ng-model="x.ExchangeAmount" >
+                            </td>
+
                             <td class="text-right">
                                 <button ng-click="removeRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
                                     <i class="glyphicon glyphicon-remove"></i>
@@ -420,6 +437,13 @@
                             </td>
                         </tr>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="13" class="text-right">Total</td>
+                            <td class="text-right"><b>{{ (ExistingLoanList) | sumByKey:'LoanSetOffAmount' | number:2}}</b></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
 
@@ -468,6 +492,78 @@
             </div>
         </fieldset>
     </div>
+    <div class="clearfix"></div>
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Order Specific(Yes/No)</legend>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Order Specific</label>
+                    <div class="col-sm-6">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="OrderSpecific" ng-model="voucher.OrderSpecific" value="No">
+                                <span class="cr"><i class="cr-icon"></i></span>No
+                            </label>
+                            <label>
+                                <input type="radio" name="OrderSpecific" ng-model="voucher.OrderSpecific" value="Yes">
+                                <span class="cr"><i class="cr-icon"></i></span>Yes
+                            </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4" ng-hide="voucher.OrderSpecific==='No'">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">@Library.Model.Parties.PartyType.Customer.ToString()</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="@Library.Model.Parties.PartyType.Customer.ToString()" ng-model="voucher.OrderSpecificPartyName" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4" ng-hide="voucher.OrderSpecific==='No'">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" title="Contract">Master Order</label>
+                    <span class="input-group-btn">
+                        <button ng-click="ShowResultMasterOrderPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+            <div class="table-responsive modal-table" ng-show="selectedMasterOrderList.length">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Master OrderNo</th>
+                            <th>Customer</th>
+                            <th>Invoicing Party Plant</th>
+                            <th>Delivery Party Plant</th>
+                            <th>Type</th>
+                            <th>Currency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in selectedMasterOrderList ">
+                            <td>{{x.MasterOrderId}}</td>
+                            <td>{{x.CustomerName}}</td>
+                            <td>{{x.InvoicingPartyPlant}}</td>
+                            <td>{{x.DeliveryPartyPlant}}</td>
+                            <td>{{x.Type}}</td>
+                            <td>{{x.Currency}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </fieldset>
+    </div>
+    <div class="clearfix"></div>
     <div class="col-xs-12 col-sm-12 col-md-12 modal-table" id="loanDetails">
     </div>
     <div class="common-btn">
@@ -541,6 +637,8 @@
 @Html.Partial("~/Areas/Accounts/Views/Loan/_LoanListPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_MultipleMasterOrderPopUp.cshtml")
 
 
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(financingId)"></confirm-archive-generic>

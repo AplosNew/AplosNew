@@ -40,9 +40,11 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         ResponsiblePersonId: null,
         ResponsiblePerson: null,
         Remark: null,
+        DetentionCodeId: null,
+        DetentionCode: null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTransaction);
-
+    $scope.IsVisible = false;
     $scope.EntityList = [];
     $scope.selectEntity = function () {
         $http({
@@ -62,13 +64,26 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     $scope.GetworkcenterData = function () {
         $http({
             method: 'GET',
-            url: 'IE/MachineMasterTransaction/GetWCCbo?entityId=' + $scope.ModelNew.EntityId,
+            url: 'IE/MachineMasterTransaction/GetWCCbo?entityId=' + $scope.ModelNew.EntityId + '&processId=' + $scope.ModelNew.ProcessId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.workcenterList = response.data;
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
+    }
+    $scope.GetworkcenterData();
+    $scope.GetEntityProcessByWorkCenter = function (workcenterid) {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/GetEntityProcessByWorkCenter?id=' + workcenterid
+        }).then(function successCallback(response)
+        {
+            $scope.ModelNew.EntityId = response.data[0].EntityId;
+            $scope.ModelNew.ProcessId = response.data[0].ProcessId;
+            $scope.ModelNew.Entity = response.data[0].Entity;
+            $scope.ModelNew.Process = response.data[0].Process;
+        });
     }
 
     $scope.doubleEntity = function (e) {
@@ -182,6 +197,7 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     $scope.doubleProcess = function (e) {
         $scope.ModelNew.ProcessId = e.data.Id;
         $scope.ModelNew.Process = e.data.Process;
+        $scope.GetworkcenterData();
         angular.element(document.querySelector('#ProcessPop')).modal('hide');
     }
 
@@ -199,12 +215,13 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         });
     }
     $scope.GetDetentionList();
-    $scope.IsAssetApplicable = false; $scope.IsWorkCenterApplicable = false;
+    $scope.IsAssetApplicable = false; $scope.IsWorkCenterApplicable = false; $scope.IsMachineParaApplicable = false;
     $scope.getAssetWorkCenterApplicable = function () {
         for (var i = 0; i < $scope.DetentionList.length; i++) {
             if ($scope.DetentionList[i].Value == $scope.ModelNew.DetentionId) {
                 $scope.IsAssetApplicable = $scope.DetentionList[i].IsAssetApplicable;
                 $scope.IsWorkCenterApplicable = $scope.DetentionList[i].IsWorkCenterApplicable;
+                $scope.IsMachineParaApplicable = $scope.DetentionList[i].IsMachineParaApplicable;
             }
         }
     }
@@ -249,6 +266,41 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     }
     $scope.GetDetentionTypeList();
 
+    $scope.GetDetentionTypeById = function (detentionid) {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/GetDetentionTypeById?id=' + detentionid
+        }).then(function successCallback(response) {
+            $scope.ModelNew.DetentionType = response.data[0].DetentionType;
+            $scope.ModelNew.DetentionTypeId = response.data[0].DetentionTypeId;
+            
+        });
+    }
+
+    $scope.DetentionCodeList = [];
+    $scope.GetDetentionCodeList = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/GetDetentionCodeList'
+        }).then(function successCallback(response) {
+            $scope.DetentionCodeList = response.data;
+        });
+    }
+    $scope.GetDetentionCodeList();
+
+    $scope.GetDetentionTypeAndDetentionByCode = function (detentioncode) {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/GetDetentionTypeAndDetentionByCode?code=' + detentioncode
+        }).then(function successCallback(response) {
+            $scope.ModelNew.DetentionType = response.data[0].DetentionType;
+            $scope.ModelNew.DetentionTypeId = response.data[0].DetentionTypeId;
+            $scope.ModelNew.Detention = response.data[0].Detention;
+            $scope.ModelNew.DetentionId = response.data[0].DetentionId;
+
+        });
+    }
+
     $scope.changeAsset = function () {
         if ($scope.ModelNew.IfAssetApplicable == false) {
             $scope.ModelNew.AssetId = null;
@@ -285,7 +337,10 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: { 'data': $scope.ModelNew },
+                    data: {
+                        'data': $scope.ModelNew,
+                        'DetentionParaList': $scope.DetentionParaList
+                    },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -337,6 +392,7 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
             Remark: null,
         };
         $scope.Action = 'Save';
+        $scope.DetentionParaList = [];
     };
 
     //Omar End
@@ -351,8 +407,16 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        if ($scope.IsMachineParaApplicable == true) {
+            $scope.IsVisible = true;
+            $scope.getDetentionParaPoPUp();
+        }
+        else {
+            $scope.IsVisible = false;
+        }
         $scope.GetworkcenterData();
         $scope.getAssetWorkCenterApplicable();
+        $scope.loadParameterList();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -448,4 +512,80 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         });
     };
     $scope.getData();
+    $scope.ParameterList = [];
+    $scope.loadParameterList = function () {
+        try {
+            $scope.ParameterList = [];
+            $http.get('IE/MachineMasterTransaction/GetDetentionParameter?DetentionId=' + $scope.ModelNew.DetentionId)
+                .then(
+                    function successCallback(response) {
+                        $scope.ParameterList = response.data;
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+    };
+
+    $scope.DetentionParaList = [];
+    $scope.getDetentionParaPoPUp = function (data) {
+        try {
+            $scope.DetentionParaList = [];
+            $http.get('Productions/ProductionSummary/GetDetentionParaData?DetentionId=' + $scope.ModelNew.DetentionId + '&processId=' + $scope.ModelNew.ProcessId + '&masterId=' + $scope.ModelNew.Id)
+                .then(
+                    function successCallback(response) {
+                        $scope.DetentionParaList = response.data;
+                        if ($scope.IsMachineParaApplicable == true) {
+                            $scope.IsVisible = true;
+                        }
+                        else {
+                            $scope.IsVisible = false;
+                        }
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
+
+    $scope.CalculateDetention = function () {
+        try {
+            /*$scope.NewObject.Quantity = 0;*/
+            $http({
+                method: 'POST',
+                url: 'Productions/ProductionSummary/CalculateDetention',
+                data: { 'OpenHeadNew': $scope.DetentionParaList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if ($scope.IsMachineParaApplicable == true) {
+                for (var i = 0; i < response.data.NewData.length; i++) {
+                    for (var j = 0; j < $scope.DetentionParaList.length; j++) {
+                        if (response.data.NewData[i].UserName == $scope.DetentionParaList[j].UserName) {
+                            $scope.DetentionParaList[j].Value = response.data.NewData[i].Value;
+                        }
+                    }
+                    $scope.Save();
+                    //if (response.data.NewData[i].IsProduction == true) {
+                    //    $scope.NewObject.Quantity += response.data.NewData[i].Value;
+                    //}
+                }
+            }
+                else
+                {
+                    $scope.Save();
+                }
+            }, function errorCallback(response) {
+                $scope.ShowResultCustom(response.status.Message, "failure");
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 }

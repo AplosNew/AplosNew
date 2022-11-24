@@ -8,254 +8,10 @@
 </div>
 @*order costing Direct Material*@
 <div class="table-responsive modal-table" ng-show="Segment=='DirectMaterial' && ModelNew.Id!='' " id="CostingItemsEntryP">
-    <!--<table class="col-md-12">
-        <thead>
-            <tr>
-                <th style="width: 150px !important">Costing Item</th>
-                <th style="width: 60px !important">Sub Material</th>
-                <th style="width: 15px !important">Seq.No.</th>
-                <th style="width: 150px !important;text-align:center!important;">Particulars</th>
-                <th>UoM</th>
-                <th class="text-right">Consumption</th>
-                <th class="text-right">Value Loss (%)</th>
-
-                <th class="text-right">Min. Qty</th>
-                <th class="text-right">Rate</th>
-                <th class="text-right">Gross Consumption</th>
-                <th class="text-right">Gross Amount</th>
-
-                <th>Procurement Level</th>
-                <th>BOQ Days</th>
-                <th>Dependent Date</th>
-                <th>BOQ Criteria</th>
-
-                <th>Sourcing Type</th>
-                <th>Res. Person</th>
-                <th>IsMandatory</th>
-                <th>Predefined Material</th>
-
-                <th>Meterial</th>
-                <th>Article</th>
-                <th>Usage</th>
-                <th>PO Criteria</th>
-                <th>Vendor</th>
-
-                <th>Remarks</th>
-                <th>Pur. Grp</th>
-
-
-                <th style="text-align:center!important;">Lead Days</th>
-
-                <th>IsUDApplicable</th>
-                <th>Attachment</th>
-
-            </tr>
-        </thead>
-        <tbody>
-
-            <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in DirectProcurementCostingMaterialList">
-                <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
-                <td style="min-width:60px;">
-                    <span class="input-group-btn">
-                        <button name="submit" ng-click="GetSubMaterialPro(x)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
-                    </span>
-                </td>
-                <td class="text-right">
-                    <input type="number" style="min-width:15px;background-color:{{x.Sequence<0?'red':'white'}}" name="Sequence"-->
-    @*ng-click="x.Consumption>0?x.Consumption:x.Consumption=''"*@
-    <!--ng-model="x.Sequence" class="form-control">
-    </td>
-
-    <td style="width:150px!important;">
-        <input style="min-width:150px;" type="text" ng-model="x.Particulars" class="form-control" />
-
-    </td>
-    <td>
-        <span>{{x.UnitOfMeasurement}}</span>
-    </td>
-
-    <td class="text-right">
-        <input type="number" style="color: blue; min-width: 80px; background-color:{{x.Consumption<0?'red':'white'}}" name="MaterialMasterName"-->
-    @*min="0" ng-click="x.Consumption>0?x.Consumption:x.Consumption=''"*@ <!--ng-model="x.Consumption" ng-change="CalculateFinalCostingProcurement(x);" class="form-control"--> @*ng-dblclick="getValueP(x)"*@
-    <!-->
-        </td>
-        <td class="text-right">
-            <input type="number" style="min-width:80px;background-color:{{x.ValueLoss<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.ValueLoss>0?x.ValueLoss:x.ValueLoss=''" ng-model="x.ValueLoss" ng-change="CalculateFinalCostingProcurement(x);" class="form-control">
-        </td>
-        <td class="text-right">
-            <input type="number" style="min-width:80px;background-color:{{x.MinimumOfQuantity<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.MinimumOfQuantity>0?x.MinimumOfQuantity:x.MinimumOfQuantity=''" ng-model="x.MinimumOfQuantity" class="form-control">
-        </td>
-        <td class="text-right">
-            <input type="number" style="min-width:80px;background-color:{{x.Rate<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Rate" ng-click="x.Rate>0?x.Rate:x.Rate=''" ng-change="CalculateFinalCostingProcurement(x);" class="form-control">
-        </td>
-
-        <td class="text-right">
-            <span style="min-width:80px!important;">{{x.GrossConsumption | number:4}}</span>
-
-        </td>
-        <td class="text-right">
-            <span style="min-width:80px!important;">  {{x.GrossAmount  | number:4}}</span>
-        </td>
-
-        <td>
-            <div class="select-style">
-                <select style="width: 90px;margin-left: 0px;" name="ProcurementLevel" ng-model="x.ProcurementLevel">
-                    <option value=""></option>
-                    <option value="SO">Sales Order</option>
-                    <option value="SKU">SKU</option>
-                </select>
-            </div>
-        </td>
-        <td class="text-right">
-            <input type="number" style="min-width:40px;" min="0" ng-model="x.BOQDays" class="form-control">
-        </td>
-        <td>
-            <div class="select-style">
-                <select style="width: 90px;margin-left: 0px;" name="DependentDate" ng-model="x.DependentDate">
-                    <option value=""></option>
-                    <option value="SOCreationDate">Sales Order Creation Date</option>
-                    <option value="SODeliveryDate">Sales Order Delivery Date</option>
-                </select>
-            </div>
-        </td>
-        <td>
-            <div class="select-style">
-                <select name="Entity" ng-model="x.BOQCriteria" style="width: 90px;margin-left: 0px;"
-                        ng-options="item.Criteria as item.UserName for item in BOQCriteriaList">
-                    <option value=""></option>
-                </select>
-            </div>
-        </td>
-        <td>
-            <div class="select-style">
-                <select style="width: 90px;margin-left: 0px;" name="SourcingType" id="SourcingType" ng-model="x.SourcingType">
-                    <option value="Imported">Imported</option>
-                    <option value="Local">Local</option>
-                </select>
-            </div>
-        </td>
-        <td style="width:180px;">
-            <div class="input-group">
-                <input type="text" name="ResponsiblePerson" ng-model="x.ResponsiblePerson" style="width:120px;" class="form-control" readonly>
-                <span class="input-group-btn">
-                    <button name="submit" ng-click="getPopUpData($index,'PROCUREMENT')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                </span>
-            </div>
-        </td>
-        <td>
-            <div class="text-center">
-                <input type="checkbox" ej-checkbox class="nodetext" e-value="x.IsMandatory" e-checked="x.IsMandatory" />
-
-            </div>
-
-        </td>
-        <td>
-            <div class="text-center">
-                <input type="checkbox" ej-checkbox class="nodetext" e-value="x.IsGeneric" e-checked="x.IsGeneric" />
-            </div>
-        </td>
-        <td>
-            <div ng-show="x.IsGeneric" class="input-group">
-                <input type="text" name="MaterialMasterName" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 120px">
-                <span class="input-group-btn">
-                    <button ng-click="getMaterial($index,'PROCUREMENT');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                </span>
-            </div>
-
-        </td>
-        <td>
-
-            <div ng-show="x.IsGeneric" class="input-group">
-                <input type="text" name="MaterialMasterName" ng-model="x.ArticleName" class="form-control" readonly style="width: 120px;">
-                <span class="input-group-btn">
-                    <button ng-click="getArticle($index,'PROCUREMENT');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                    <button ng-click="clearArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-
-                </span>
-            </div>
-
-        </td>
-        <td>
-
-            <div class="select-style">
-                <select style="width:90px;margin-left: 0px;" name="Usage" id="Usage" ng-model="x.Usage">
-                    <option value="BeforeProduction">Before Production</option>
-                    <option value="DurringProduction">Durring Production</option>
-                    <option value="AfterProduction">After Production</option>
-                </select>
-            </div>
-
-        </td>
-        <td>
-            <div class="select-style">
-                <select name="POCriteria" ng-model="x.POCriteria" style="width: 90px;margin-left: 0px;"
-                        ng-options="item.Value as item.Text for item in POCriteriaList">
-                    <option value=""></option>
-                </select>
-            </div>
-        </td>
-        <td style="width:180px;">
-            <div class="input-group">
-                <input type="text" name="ResponsiblePerson" ng-model="x.Vendor" style="width:120px;" class="form-control" readonly>
-                <span class="input-group-btn">
-                    <button name="submit" ng-click="MaterialVendorPopUp($index,'PROCUREMENT')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                </span>
-            </div>
-        </td>
-        <td>
-            <input style="min-width:150px;" type="text" ng-model="x.Remarks" class="form-control" />
-        </td>
-
-
-
-        <td>
-            <div class="select-style">
-                <select style="width: 90px;margin-left: 0px;" class="form-control" ng-model="x.PurchaseGroupId" name="PurchaseGroup" ng-options="item.Id as item.UserName for item in PurchaseGroupList">
-                    <option value=""></option>
-                </select>
-            </div>
-        </td>
-        <td class="text-right">
-            <input type="number" style="min-width:80px;background-color:{{x.POIssueDeadLine<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.POIssueDeadLine" class="form-control">
-        </td>
-
-        <td>
-            <div class="text-center">
-                <input type="checkbox" ej-checkbox class="nodetext" e-value="x.IsUDApplicable" e-checked="x.IsUDApplicable" />
-            </div>
-
-        </td>
-        <td>
-            <div class="input-group" style="width:150px!important">
-                <button name="submit" ng-click="ShowUploadBox(x,'PROCUREMENT','OrderProcurementCostingDirectMaterial')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-paperclip"></i></button>
-
-                <a href="POPResources/OrderCosting/{{x.FileName}}" target="_blank">
-                    <span style="color:red;padding:4px;">  </span>
-                    <span style="height:20px;width:20px;color:blue;">
-                        {{x.FileOriginalName}}
-                    </span>
-                </a>
-
-
-            </div>
-
-
-        </td>
-    </tr>
-    <tr style="border:1px solid #dcdcdc !important">
-        <td>Total</td>
-        <td style="color:blue" class="text-right" colspan="8">-->
-    @*{{toatalItemGrossConsumption | number:4}}*@
-    <!--</td>
-                <td style="color:blue" class="text-right">{{TotalProcurementSegmentedValueByComponent | number:4}}</td>
-                <td style="color:blue" colspan="10"></td>
-            </tr>
-        </tbody>
-    </table>-->
-
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th style="width: 150px !important">Costing Item</th>
                 <th style="width: 60px !important">Sub Material</th>
                 <th style="width: 15px !important">Seq.No.</th>
@@ -270,23 +26,24 @@
                 <th class="text-right">Gross Amount</th>
 
                 <th>BOQ Criteria</th>
+                <th>PO Criteria</th>
+                <th>Procurement Level</th>
                 <th>Sourcing Type</th>
 
+                <th>Remarks</th>
                 <th>IsMandatory</th>
                 <th>Predefined Material</th>
                 <th>Material</th>
                 <th>Article</th>
-                <th>PO Criteria</th>
                 <th>Vendor</th>
                 <th class="text-right">Min. Qty</th>
-                <th>Procurement Level</th>
+
                 <th>BOQ Days</th>
                 <th>Dependent Date</th>
 
 
                 <th>Usage</th>
                 <th>Res. Person</th>
-                <th>Remarks</th>
                 <th>Pur. Grp</th>
 
                 <th style="text-align:center!important;">Lead Days</th>
@@ -297,15 +54,24 @@
         </thead>
         <tbody>
 
-            <tr ng-repeat="x in DirectMaterialList">
-                <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PRE',x)">{{x.UserName}}</td>
+            @*<tr ng-repeat="x in DirectProcurementCostingMaterialList">*@
+            <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in DirectProcurementCostingMaterialList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removeProcurementCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
+
+                <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
                 <td style="min-width:60px;">
                     <span class="input-group-btn">
                         <button name="submit" ng-click="GetSubMaterial(x)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
                     </span>
                 </td>
                 <td class="text-right">
-                    <input type="number" style="min-width:15px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.Sequence>0?x.Sequence:x.Sequence=''" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+                    <input type="number" style="min-width:15px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.Sequence>0?x.Sequence:x.Sequence=''" ng-model="x.Sequence" class="form-control">
                 </td>
 
                 <td style="width:150px!important;">
@@ -317,14 +83,14 @@
                 </td>
 
                 <td class="text-right">
-                    <input type="number" style="color: blue; min-width: 80px; background-color:{{x.Consumption<0?'red':'white'}}" name="MaterialMasterName" @*ng-click="x.Consumption>0?x.Consumption:x.Consumption=''"*@ ng-model="x.Consumption" ng-change="CalculateFinalCosting(x);" class="form-control" @*ng-dblclick="getValue(x)"*@>
+                    <input type="number" style="color: blue; min-width: 80px; background-color:{{x.Consumption<0?'red':'white'}}" name="MaterialMasterName" @*ng-click="x.Consumption>0?x.Consumption:x.Consumption=''"*@ ng-model="x.Consumption" ng-change="CalculateFinalCostingProcurement(x);" class="form-control" @*ng-dblclick="getValue(x)"*@>
                 </td>
                 <td class="text-right">
-                    <input type="number" style="min-width:80px;background-color:{{x.ValueLoss<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.ValueLoss>0?x.ValueLoss:x.ValueLoss=''" ng-model="x.ValueLoss" ng-change="CalculateFinalCosting(x);" class="form-control">
+                    <input type="number" style="min-width:80px;background-color:{{x.ValueLoss<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.ValueLoss>0?x.ValueLoss:x.ValueLoss=''" ng-model="x.ValueLoss" ng-change="CalculateFinalCostingProcurement(x);" class="form-control">
                 </td>
 
                 <td class="text-right">
-                    <input type="number" style="min-width:80px;background-color:{{x.Rate<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Rate" ng-click="x.Rate>0?x.Rate:x.Rate=''" ng-change="CalculateFinalCosting(x);" class="form-control">
+                    <input type="number" style="min-width:80px;background-color:{{x.Rate<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Rate" ng-click="x.Rate>0?x.Rate:x.Rate=''" ng-change="CalculateFinalCostingProcurement(x);" class="form-control">
                 </td>
 
                 <td class="text-right">
@@ -334,8 +100,6 @@
                 <td class="text-right">
                     <span style="min-width:80px!important;">  {{x.GrossAmount  | number:4}}</span>
                 </td>
-
-
 
                 <td>
                     <div class="select-style">
@@ -347,13 +111,32 @@
                 </td>
                 <td>
                     <div class="select-style">
+                        <select name="POCriteria" ng-model="x.POCriteria" style="width: 90px;margin-left: 0px;"
+                                ng-options="item.Value as item.Text for item in POCriteriaList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="select-style">
+                        <select style="width: 90px;margin-left: 0px;" name="ProcurementLevel" ng-model="x.ProcurementLevel">
+                            <option value=""></option>
+                            <option value="SO">Sales Order</option>
+                            <option value="SKU">SKU</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="select-style">
                         <select style="width: 90px;margin-left: 0px;" name="SourcingType" id="SourcingType" ng-model="x.SourcingType">
                             <option value="Imported">Imported</option>
                             <option value="Local">Local</option>
                         </select>
                     </div>
                 </td>
-
+                <td>
+                    <input style="min-width:150px;" type="text" ng-model="x.Remarks" class="form-control" />
+                </td>
                 <td>
                     <div class="text-center">
                         <input type="checkbox" ej-checkbox class="nodetext" e-value="x.IsMandatory" e-checked="x.IsMandatory" />
@@ -370,7 +153,7 @@
                     <div ng-show="x.IsGeneric" class="input-group">
                         <input type="text" name="MaterialMasterName" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 120px">
                         <span class="input-group-btn">
-                            <button ng-click="getMaterial($index,'PRE');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="getMaterial($index,'PROCUREMENT');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
 
@@ -380,7 +163,7 @@
                     <div ng-show="x.IsGeneric" class="input-group">
                         <input type="text" name="MaterialMasterName" ng-model="x.ArticleName" class="form-control" readonly style="width: 120px;">
                         <span class="input-group-btn">
-                            <button ng-click="getArticle($index,'PRE');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="getArticle($index,'PROCUREMENT');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                             <button ng-click="clearArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
 
                         </span>
@@ -388,35 +171,21 @@
 
                 </td>
 
-                <td>
-                    <div class="select-style">
-                        <select name="POCriteria" ng-model="x.POCriteria" style="width: 90px;margin-left: 0px;"
-                                ng-options="item.Value as item.Text for item in POCriteriaList">
-                            <option value=""></option>
-                        </select>
-                    </div>
-                </td>
+
                 <td style="width:180px;">
                     <div class="input-group">
                         <input type="text" name="ResponsiblePerson" ng-model="x.Vendor" style="width:120px;" class="form-control" readonly>
                         <span class="input-group-btn">
-                            <button name="submit" ng-click="MaterialVendorPopUp($index,'PRE')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="MaterialVendorPopUp($index,'PROCUREMENT')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </td>
+
                 <td class="text-right">
                     <input type="number" style="min-width:80px;background-color:{{x.MinimumOfQuantity<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.MinimumOfQuantity>0?x.MinimumOfQuantity:x.MinimumOfQuantity=''" ng-model="x.MinimumOfQuantity" class="form-control">
                 </td>
 
-                <td>
-                    <div class="select-style">
-                        <select style="width: 90px;margin-left: 0px;" name="ProcurementLevel" ng-model="x.ProcurementLevel">
-                            <option value=""></option>
-                            <option value="SO">Sales Order</option>
-                            <option value="SKU">SKU</option>
-                        </select>
-                    </div>
-                </td>
+
                 <td class="text-right">
                     <input type="number" style="min-width:40px;" min="0" ng-model="x.BOQDays" class="form-control">
                 </td>
@@ -446,18 +215,10 @@
                     <div class="input-group">
                         <input type="text" name="ResponsiblePerson" ng-model="x.ResponsiblePerson" style="width:120px;" class="form-control" readonly>
                         <span class="input-group-btn">
-                            <button name="submit" ng-click="getPopUpData($index,'PRE')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="getPopUpData($index,'PROCUREMENT')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </td>
-
-
-
-                <td>
-                    <input style="min-width:150px;" type="text" ng-model="x.Remarks" class="form-control" />
-                </td>
-
-
 
                 <td>
                     <div class="select-style">
@@ -478,7 +239,7 @@
                 </td>
                 <td>
                     <div class="input-group" style="width:150px!important">
-                        <button name="submit" ng-click="ShowUploadBox(x,'PRE','OrderPreCostingDirectMaterial')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-paperclip"></i></button>
+                        <button name="submit" ng-click="ShowUploadBox(x,'PROCUREMENT','OrderProcurementCostingDirectMaterial')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-paperclip"></i></button>
                         <a href="POPResources/OrderCosting/{{x.FileName}}" target="_blank">
                             <span style="color:red;padding:4px;">  </span>
                             <span style="height:20px;width:20px;color:blue;">
@@ -491,33 +252,43 @@
             <tr style="border:1px solid #dcdcdc !important">
                 <td>Total</td>
                 <td style="color:blue" class="text-right" colspan="8">@*{{toatalItemGrossConsumption | number:4}}*@</td>
-                <td style="color:blue" class="text-right">{{TotalSegmentedValueByComponent | number:4}}</td>
+                @*<td style="color:blue" class="text-right">{{TotalSegmentedValueByComponent | number:4}}</td>*@
+                <td class="text-right"><strong>{{DirectProcurementCostingMaterialList | sumByKey : 'GrossAmount'| number:4 }}</strong></td>
                 <td style="color:blue" colspan="10"></td>
             </tr>
         </tbody>
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmProcurementCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteProcurementCosting();"></confirm-archive-generic>
+
 @*Operations*@
 <div class="table-responsive modal-table" ng-show="Segment=='Operation' && ModelNew.Id!='' ">
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Costing Item</th>
                 <th>Seq.No.</th>
                 <th class="text-right">Value</th>
                 <th>Res. Person</th>
                 <th>Remarks</th>
                 <th>Attachment</th>
-
             </tr>
         </thead>
         <tbody>
             <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in OperationProcurementCostingList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removeOperationListProcurementCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
                 <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
 
                 <td>
-                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCostingProcurement(x);" class="form-control">
 
                 </td>
 
@@ -551,11 +322,7 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
-                    </div>
-
-
+                     </div>
                 </td>
             </tr>
             <tr>
@@ -569,6 +336,8 @@
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmOperationListProcurementCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOperationListProcurementCosting();"></confirm-archive-generic>
+
 @*Direct Process*@
 <div class="table-responsive modal-table" ng-show="Segment=='DirectProcess' && ModelNew.Id!='' ">
     Total Direct Material Cost: <b>{{TotalProcurementDirectMaterialCost | number:4}}</b><br />
@@ -578,6 +347,7 @@
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Costing Item</th>
                 <th>Seq.No.</th>
                 <th>Execution Type</th>
@@ -587,15 +357,21 @@
                 <th>Res. Person</th>
                 <th>Remarks</th>
                 <th>Attachment</th>
-
             </tr>
         </thead>
         <tbody>
             <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in DirectProcessProcurementCostingList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removeDirectProcessProcurementCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
                 <td style="width:160px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
 
                 <td>
-                    <input type="number" style="min-width:80px;background-color:{{x.Sequence<0?'red':'white'}}" name="Sequence" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+                    <input type="number" style="min-width:80px;background-color:{{x.Sequence<0?'red':'white'}}" name="Sequence" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCostingProcurement(x);" class="form-control">
 
                     @*<input type="text" ej-numerictextbox e-showspinbutton="false" e-minvalue="0" e-decimalplaces="2" e-enablertl="false" e-change="x.bb=0;CalculateFinalCosting(x);" e-value="x.Value" e-width="100" />*@
 
@@ -650,11 +426,7 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
                 </td>
             </tr>
             <tr>
@@ -666,11 +438,14 @@
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmDirectProcessProcurementCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteDirectProcessProcurementCosting();"></confirm-archive-generic>
+
 @*Sales Expenses*@
 <div class="table-responsive modal-table" ng-show="Segment=='SalesExpense' && ModelNew.Id!='' ">
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Costing Item</th>
                 <th>Seq.No.</th>
                 <th>Type</th>
@@ -679,16 +454,22 @@
                 <th>Res. Person</th>
                 <th>Remarks</th>
                 <th>Attachment</th>
-
             </tr>
         </thead>
         <tbody>
             <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in SalesExpenseProcurementCostingList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removeOrderProcurementCostingSalesExpense(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
                 <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
 
                 <td style="width:40px!important;">
 
-                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCostingProcurement(x);" class="form-control">
 
                 </td>
 
@@ -736,11 +517,7 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
                 </td>
             </tr>
             <tr>
@@ -752,12 +529,14 @@
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmOrderProcurementCostingSalesExpensePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOrderProcurementCostingSalesExpense();"></confirm-archive-generic>
 
 @*Value Loss*@
 <div class="table-responsive modal-table" ng-show="Segment=='ValueLoss' && ModelNew.Id!='' ">
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Costing Item</th>
                 <th>Seq.No.</th>
                 <th>Type</th>
@@ -766,15 +545,21 @@
                 <th>Res. Person</th>
                 <th>Remarks</th>
                 <th>Attachment</th>
-
             </tr>
         </thead>
         <tbody>
             <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in ValueLossProcurementCostingList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removeValueLossProcurementCosting(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
                 <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
                 <td style="width:40px!important;">
 
-                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="Sequence" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="Sequence" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCostingProcurement(x);" class="form-control">
 
                 </td>
                 <td style="width:100px!important;">
@@ -821,11 +606,7 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
                 </td>
             </tr>
             <tr>
@@ -837,12 +618,14 @@
     </table>
 </div>
 
+<confirm-archive-generic modalid="confirmValueLossProcurementCostingPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteValueLossProcurementCosting();"></confirm-archive-generic>
 
 @*Profit*@
 <div class="table-responsive modal-table" ng-show="Segment=='Profit' && ModelNew.Id!='' ">
     <table class="col-md-12">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Costing Item</th>
                 <th>Seq.No.</th>
                 <th>Type</th>
@@ -851,16 +634,22 @@
                 <th>Res. Person</th>
                 <th>Remarks</th>
                 <th>Attachment</th>
-
             </tr>
         </thead>
         <tbody>
             <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in ProfitProcurementCostingList">
+                <td>
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="removeOrderProcurementCostingProfit(x);" class="btn"><i class="glyphicon glyphicon-trash"></i></button>
+                        </li>
+                    </ul>
+                </td>
                 <td sstyle="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
 
                 <td style="width:80px!important;">
 
-                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="Sequence" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+                    <input type="number" style="min-width:40px;background-color:{{x.Sequence<0?'red':'white'}}" name="Sequence" min="0" ng-model="x.Sequence" ng-change="CalculateFinalCostingProcurement(x);" class="form-control">
 
                 </td>
 
@@ -908,11 +697,7 @@
                                 {{x.FileOriginalName}}
                             </span>
                         </a>
-
-
                     </div>
-
-
                 </td>
             </tr>
             <tr>
@@ -923,6 +708,8 @@
         </tbody>
     </table>
 </div>
+
+<confirm-archive-generic modalid="confirmOrderProcurementCostingProfitPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteOrderProcurementCostingProfit();"></confirm-archive-generic>
 
 <div class="modal-footer common-btn">
     <button ng-click="SaveCostingComponentItems('PROCUREMENT');" class="btn" tabindex="4"><i class=""></i> Update</button>

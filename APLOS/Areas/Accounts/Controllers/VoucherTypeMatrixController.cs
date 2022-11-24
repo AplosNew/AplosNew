@@ -22,8 +22,11 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpPost]
         public JsonResult CreateVoucherTypeMatrix(VoucherTypeMatrix voucherTypeMatrix)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            voucherTypeMatrix.CompanyGroupId = identity.CompanyGroupId;
+            if (voucherTypeMatrix.CompanyGroupId == null)
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                voucherTypeMatrix.CompanyGroupId = identity.CompanyGroupId;
+            }
             _voucherTypeMatrixService.Insert(voucherTypeMatrix);
             return Json(new { VoucherTypeMatrix = voucherTypeMatrix, Message = AplosMessage.Success });
         }
@@ -45,10 +48,14 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetVoucherTypeMatrixList(GridParameter parameters)
+        public ActionResult GetVoucherTypeMatrixList(GridParameter parameters, string companyGroupId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_voucherTypeMatrixService.Query(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            if (companyGroupId == null || companyGroupId == "")
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                companyGroupId = identity.CompanyGroupId;
+            }
+            return Json(_voucherTypeMatrixService.Query(parameters, companyGroupId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -184,7 +191,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.FixedAssetDisposeJournal), JsonRequestBehavior.AllowGet);
         }
 
-        
+
 
         [Authorize, HttpGet]
         public JsonResult GetCboVoucherTypePaymentList()

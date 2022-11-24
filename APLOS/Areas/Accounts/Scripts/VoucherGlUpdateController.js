@@ -212,6 +212,9 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         else if (SourceType == 'IssueJournal') {
             $window.open('Accounts/InventoryPayable/IssueJournalReport?reportFormat=' + reportFormat + '&inventoryIssueId=' + InventoryIssueId, '_blank');
         }
+        else if (SourceType == 'JournalVoucher') {
+            $window.open('Accounts/Voucher/GetJournalVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');
+        }
         else
             $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');
 

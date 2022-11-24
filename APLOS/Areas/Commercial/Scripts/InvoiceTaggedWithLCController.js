@@ -94,8 +94,14 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         var tempValue = $scope.LcModel.IsLoan;
         $scope.LcModel = Object.assign({}, args.data);
         $scope.LcModel.IsLoan = tempValue;
-        $scope.LcModel.LoanAmount = 0;
-        $scope.LcModel.LoanNo = $scope.LcModel.LCRef;
+        if ($scope.LcModel.IsLoan === false) {
+            $scope.LcModel.LoanAmount = 0;
+        }
+        else {
+            $scope.Calculate();
+            $scope.LcModel.LoanNo = $scope.LcModel.LCRef;
+        }
+       
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("hide");
     }
 
@@ -122,6 +128,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.Clear();
                     $scope.getData();
                     $scope.getAutoLoanAvailableList();
                 }

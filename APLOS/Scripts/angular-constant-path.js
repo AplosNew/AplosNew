@@ -40,6 +40,8 @@ virtualPath.BulletinTemplateImage = virtualPath.ROOT_FOLDRR + '/BulletinTemplate
 virtualPath.OSTransformationPO = virtualPath.ROOT_FOLDRR + '/JobWorkPurchaseOrder';
 virtualPath.InvoiceDocument = virtualPath.ROOT_FOLDRR + '/InvoiceDocument';
 virtualPath.ActivityDocuments = virtualPath.ROOT_FOLDRR + '/ActivityDocuments';
+virtualPath.MSAPath = virtualPath.ROOT_FOLDRR + '/MSADocument';
+virtualPath.ICUPath = virtualPath.ROOT_FOLDRR + '/ICUDocument';
 
 
 function getCookie(cname) {

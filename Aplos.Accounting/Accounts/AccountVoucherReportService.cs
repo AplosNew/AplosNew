@@ -347,7 +347,8 @@ namespace Library.Accounting.Accounts
 						,Replace(CONVERT(VARCHAR(11), GLTD.ReconcileDate , 106), ' ', '-') ReconcileDate
 						,Reconcile=CASE WHEN VD.BankMasterId<>'' AND GLTD.ReconcileId<>'' THEN 'Yes' WHEN VD.BankMasterId IS NULL THEN '' ELSE 'No' END
                         ,(select COUNT(Id) from [TRN].[VoucherGLUpdateLog] where VoucherDetailId=VD.Id)GLUpdate
-                        ,P.UserCategory,P.UserSubCategory
+                         ,PC.UserName UserCategory,PSC.UserName UserSubCategory,VT.Category VoucherCategory
+                        ,PG.UserName PartyGroup,PAG.UserName PartyAccountGroup,IsPark = case when V.IsPark=1 then 'Yes' else 'No' end
                         FROM TRN.VoucherDetail AS VD
                         LEFT JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
@@ -355,11 +356,16 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
                         LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
                         LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
-                        LEFT JOIN [HKP].BudgetGroup BG ON BG.Id=BM.BudgetGroupId
+                        LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BM.BudgetGroupId
                         LEFT JOIN [HKP].BudgetCategory BCT ON BCT.Id=BM.BudgetCategoryId
                         LEFT JOIN [HKP].BudgetSubCategory BSCT ON BSCT.Id=BM.BudgetSubCategoryId
                         LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
                         LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                        LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType=VD.PartyType
+                        LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType=VD.PartyType
+                        LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+                        LEFT JOIN [HKP].PartyCategory PC ON PC.Id=P.PartyCategoryId
+						LEFT JOIN [HKP].PartySubCategory PSC ON PSC.Id=P.PartySubCategoryId
                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=VD.PartyPlantId
                         LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
                         LEFT JOIN [ORG].[Company] AS CO ON CO.Id=V.CompanyId
@@ -368,7 +374,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [MST].BankMaster AS BKM ON BKM.Id=VD.BankMasterId
                         LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 					    left join ORG.CostCenter CCE ON CCE.Id =VD.CostCenterId
-
+                        LEFT JOIN SCS.VoucherType VT ON VT.Id=V.VoucherTypeId
                         left join trn.Invoice I on I.VoucherId=V.Id
                         left join trn.InventoryReceive ir on ir.Id=i.InventoryReceiveId
                         left join trn.InventoryIssue ii on ii.VoucherId=v.Id
@@ -608,7 +614,7 @@ namespace Library.Accounting.Accounts
             var cmdText = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                             SELECT SUM(ISNULL(VD.DrAmount,0)) AS DrAmount, SUM(ISNULL(VD.CrAmount,0)) AS CrAmount
 							, SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) AS CompanyCurrencyDrAmount, SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0)) AS CompanyCurrencyCrAmount
-							, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, BG.UserName AS BudgetName ,A.Id ActivityID, A.UserName AS ActivityName
+							, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName,BGM.BudgetId, BG.UserName AS BudgetName ,A.Id ActivityID, A.UserName AS ActivityName
 							,ISNULL(( SELECT SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyncyOB
                          FROM (
                         SELECT SUM(VD.DrAmount) AS DrAmount, SUM(VD.CrAmount) AS CrAmount
@@ -679,7 +685,7 @@ namespace Library.Accounting.Accounts
             if (!string.IsNullOrEmpty(activityId))
                 cmdText += " AND VD.ActivityId='" + activityId + "' ";
             cmdText += isOpeningBalance ? " AND V.SourceType='OpeningBalance' AND V.FiscalYearId='" + fiscalYearId + "' AND VD.GLGeneralInfoId IS NOT NULL" : " AND VD.GLGeneralInfoId='" + glId + "' AND V.SourceType!='OpeningBalance' AND CONVERT(VARCHAR, V.PostingDate, 23) BETWEEN '" + fromDate.ToDbDate() + "' AND '" + toDate.ToDbDate() + "'";
-            cmdText += " GROUP BY GLGI.AccountCode,GLGI.UserName,  BG.UserName,A.Id, A.UserName ORDER BY BG.UserName";
+            cmdText += " GROUP BY GLGI.AccountCode,GLGI.UserName,BGM.BudgetId,  BG.UserName,A.Id, A.UserName ORDER BY BG.UserName";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
@@ -1022,11 +1028,11 @@ namespace Library.Accounting.Accounts
         {
             try
             {
-                parameters.sort = "EmployeeCodeNumeric";
+                parameters.sort = "EmployeeCodeNumeric,EmployeeStatus";
                 parameters.CmdText = @"SELECT Emp.SystemId,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
-                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
+                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EMP.EmployeeStatus
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -1039,7 +1045,7 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                                        WHERE EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' 
+                                        WHERE EMP.CompanyId='" + companyId + @"' 
                                         ";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -1208,10 +1214,6 @@ namespace Library.Accounting.Accounts
                 workbook.Version = ExcelVersion.Excel2016;
                 var sheet = workbook.Worksheets[0];
                 sheet.Name = "Ledger";
-#pragma warning disable CS0219 // The variable 'borderStartCol' is assigned but its value is never used
-                // var borderStartCol = 10;
-#pragma warning restore CS0219 // The variable 'borderStartCol' is assigned but its value is never used
-
                 //Get GL  heade and data
                 var col = 1;
                 var ob = 1;
@@ -1227,12 +1229,8 @@ namespace Library.Accounting.Accounts
                 //var colParticulars = 6;
                 var colG = 6; //accout group value6
                 var colI = 8; // marge8
-                int colDocRef = 0;
-                int colDocDate = 0;
                 int colBaseCurrencyDebit = 0;
                 int colBaseCurrencyCredit = 0;
-                int colTranCurrencyDebit = 0;
-                int colTranCurrencyCredit = 0;
                 int colActivityBalance = 0;
                 _companyParallelCurrencyService.GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode, out string companyGroupCurrencyId, out string companyGroupCurrencyCode, out string hardCurrencyId, out string hardCurrencyCode);
 
@@ -1256,7 +1254,7 @@ namespace Library.Accounting.Accounts
                 reportUtility.SetMasterHeaderText(ref sheet, row, colF, "RefNo");
                 reportUtility.SetMiddleAlignmentText(ref sheet, row, colG, gl["RefNo"].ToString());
                 sheet.Range[reportUtility.GetColumnNameForXls(colG) + row + ": " + reportUtility.GetColumnNameForXls(colI) + row].Merge();
-                colLast = 13;
+                colLast = 10;
 
                 if (!string.IsNullOrEmpty(budgetMasterId))
                 {
@@ -1297,31 +1295,15 @@ namespace Library.Accounting.Accounts
                 {
                     reportUtility.SetHeaderText(ref sheet, row, colActivity, "Activity", 40); colActivity = col; col++;
                 }
-
-                //reportUtility.SetHeaderText(ref sheet, row, col, "Voucher No", 15); int colVoucherNo = col; col++;
-                //reportUtility.SetHeaderText(ref sheet, row, col, "Posting Date", 14); int colPostingDate = col; col++;
-                //reportUtility.SetHeaderText(ref sheet, row, col, "Narration", 30); int colNarration = col; col++;
-                //reportUtility.SetHeaderText(ref sheet, row, col, "Party", 15); int colParty = col; col++;
-                //reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 18); int colParticulars = col; col++;
-                //reportUtility.SetHeaderText(ref sheet, row, col, "Currency", 5); int colCurrency = col; col++;
-                //colTranCurrencyDebit = col;
-                //reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 13, ExcelHAlign.HAlignRight); col++;
-                //colTranCurrencyCredit = col;
-                //reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 13, ExcelHAlign.HAlignRight);
-                //col++;
-
-                //reportUtility.SetHeaderText(ref sheet, row - 1, colTranCurrencyDebit, "Transaction", ExcelHAlign.HAlignCenter);
-                //sheet.Range[reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + (row - 1) + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + (row - 1)].Merge();
-                //sheet.Range[row - 1, colTranCurrencyDebit, row - 1, colTranCurrencyCredit].BorderAround(ExcelLineStyle.Thin);
                 int colBalance = col;
                 if (!string.IsNullOrEmpty(companyCurrencyId))
                 {
                     colBaseCurrencyDebit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 18, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 30, ExcelHAlign.HAlignRight); col++;
                     colBaseCurrencyCredit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 18, ExcelHAlign.HAlignRight); col++;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Activity Balance", 18, ExcelHAlign.HAlignRight); colActivityBalance = col; col++;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 20, ExcelHAlign.HAlignRight); colBalance = col; col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Budget Balance", 20, ExcelHAlign.HAlignRight); colActivityBalance = col; col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 22, ExcelHAlign.HAlignRight); colBalance = col; col++;
                     sheet.Range[reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (row - 1) + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (row - 1)].Merge();
                     reportUtility.SetHeaderText(ref sheet, row - 1, colBaseCurrencyDebit, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                     sheet.Range[row - 1, colBaseCurrencyDebit, row - 1, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Thin);
@@ -1354,7 +1336,7 @@ namespace Library.Accounting.Accounts
                     sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
                 }
                 row++;
-                string TempActivityId = ledgerData.Rows[0]["ActivityID"].ToString();
+                string TempBudgetId = ledgerData.Rows[0]["BudgetId"].ToString();
 
                 int formulaStartRow = 0;
                 int formulaEndRow = 0;
@@ -1365,7 +1347,7 @@ namespace Library.Accounting.Accounts
                     for (int i = 0; i < ledgerData.Rows.Count; i++)
                     {
 
-                        if (TempActivityId != ledgerData.Rows[i]["ActivityID"].ToString())
+                        if (TempBudgetId != ledgerData.Rows[i]["BudgetId"].ToString())
                         {
 
                             reportUtility.SetText(ref sheet, row, colActivity, "Closing Balance", true);
@@ -1396,14 +1378,7 @@ namespace Library.Accounting.Accounts
                         {
                             reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["ActivityName"].ToString()); col++;
                         }
-                        //reportUtility.SetText(ref sheet, row, colPostingDate, ledgerData.Rows[i]["PostingDate"].ToString()); col++;
-                        //reportUtility.SetText(ref sheet, row, colVoucherNo, ledgerData.Rows[i]["VoucherNo"].ToString()); col++;
-                        //reportUtility.SetText(ref sheet, row, colNarration, ledgerData.Rows[i]["Narration"].ToString()); col++;
-                        //reportUtility.SetText(ref sheet, row, colParty, ledgerData.Rows[i]["Party"].ToString()); col++;
-                        //reportUtility.SetText(ref sheet, row, colParticulars, ledgerData.Rows[i]["Particular"].ToString()); col++;
-                        //reportUtility.SetText(ref sheet, row, colCurrency, ledgerData.Rows[i]["CurrencyCode"].ToString()); col++;
-                        //reportUtility.SetText(ref sheet, row, colTranCurrencyDebit, Convert.ToDouble(ledgerData.Rows[i]["DrAmount"].ToString())); col++;
-                        //reportUtility.SetText(ref sheet, row, colTranCurrencyCredit, Convert.ToDouble(ledgerData.Rows[i]["CrAmount"].ToString())); col++;
+                        
                         // Base currency checking
                         if (!string.IsNullOrEmpty(companyCurrencyId))
                         {
@@ -1420,7 +1395,7 @@ namespace Library.Accounting.Accounts
                         sheet.Range[row, colLast].HorizontalAlignment = ExcelHAlign.HAlignRight;
                         row++;
                         col = 1;
-                        TempActivityId = ledgerData.Rows[i]["ActivityID"].ToString();
+                        TempBudgetId = ledgerData.Rows[i]["BudgetId"].ToString();
                     }
                 }
                 reportUtility.SetText(ref sheet, row, colActivity, "Closing Balance", true);
@@ -1449,24 +1424,11 @@ namespace Library.Accounting.Accounts
                 sheet.Range[row, colActivityBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
                 sheet.Range[row, colActivityBalance].CellStyle.Font.Bold = true;
                 row++;
-                //General Ledger sum function
-                //sheet.Range[row, colTranCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + (formulaEndRow) + ")";
-                //sheet.Range[row, colTranCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                //sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
-                //sheet.Range[row, colTranCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                //sheet.Range[row, colTranCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //sheet.Range[row, colTranCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
-
-                //sheet.Range[row, colTranCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + (formulaEndRow) + ")";
-                //sheet.Range[row, colTranCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                //sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
-                //sheet.Range[row, colTranCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                //sheet.Range[row, colTranCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //sheet.Range[row, colTranCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
+                
 
                 sheet.Range[row, colBaseCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
+                sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = false;
                 sheet.Range[row, colBaseCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
@@ -1614,9 +1576,9 @@ namespace Library.Accounting.Accounts
                 reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 18); int colParticulars = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Currency", 5); int colCurrency = col; col++;
                 colTranCurrencyDebit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 18, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                 colTranCurrencyCredit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 18, ExcelHAlign.HAlignRight);
+                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight);
                 col++;
 
                 reportUtility.SetHeaderText(ref sheet, row - 1, colTranCurrencyDebit, "Transaction", ExcelHAlign.HAlignCenter);
@@ -1626,11 +1588,11 @@ namespace Library.Accounting.Accounts
                 if (!string.IsNullOrEmpty(companyCurrencyId))
                 {
                     colBaseCurrencyDebit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 18, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                     colBaseCurrencyCredit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 18, ExcelHAlign.HAlignRight); col++;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Activity Balance", 18, ExcelHAlign.HAlignRight); colActivityBalance = col; col++;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 20, ExcelHAlign.HAlignRight); colBalance = col; col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Activity Balance", 20, ExcelHAlign.HAlignRight); colActivityBalance = col; col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 22, ExcelHAlign.HAlignRight); colBalance = col; col++;
                     sheet.Range[reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (row - 1) + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (row - 1)].Merge();
                     reportUtility.SetHeaderText(ref sheet, row - 1, colBaseCurrencyDebit, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                     sheet.Range[row - 1, colBaseCurrencyDebit, row - 1, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Thin);
@@ -1753,7 +1715,7 @@ namespace Library.Accounting.Accounts
                 {
                     sheet.Range[row, colLast - 1].Formula = "=" + reportUtility.GetColumnNameForXls(colLast - 1) + (row - 2);
                     sheet.Range[row, colLast - 1].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                    sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
+                    //sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
                 }
                 sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
 
@@ -1761,33 +1723,33 @@ namespace Library.Accounting.Accounts
                 sheet.Range[row, colActivityBalance].Formula = "=" + reportUtility.GetColumnNameForXls(colActivityBalance) + (row - 1);
                 //sheet[row, colActivityBalance].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colActivityBalance) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(colLast - 4) + row + "-" + reportUtility.GetColumnNameForXls(colLast - 3) + row + ")";
                 sheet.Range[row, colActivityBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                sheet.Range[row, colActivityBalance].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colActivityBalance].CellStyle.Font.Bold = true;
                 row++;
                 //General Ledger sum function
                 sheet.Range[row, colTranCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colTranCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
@@ -1928,9 +1890,9 @@ namespace Library.Accounting.Accounts
                 reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 18); int colParticulars = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Currency", 5); int colCurrency = col; col++;
                 colTranCurrencyDebit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 16, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                 colTranCurrencyCredit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 16, ExcelHAlign.HAlignRight);
+                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight);
 
                 col++;
 
@@ -1941,10 +1903,10 @@ namespace Library.Accounting.Accounts
                 if (!string.IsNullOrEmpty(companyCurrencyId))
                 {
                     colBaseCurrencyDebit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 16, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                     colBaseCurrencyCredit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 16, ExcelHAlign.HAlignRight); col++;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 16, ExcelHAlign.HAlignRight); colBalance = col; col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 20, ExcelHAlign.HAlignRight); colBalance = col; col++;
                     sheet.Range[reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (row - 1) + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (row - 1)].Merge();
                     reportUtility.SetHeaderText(ref sheet, row - 1, colBaseCurrencyDebit, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                     sheet.Range[row - 1, colBaseCurrencyDebit, row - 1, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Thin);
@@ -2045,35 +2007,35 @@ namespace Library.Accounting.Accounts
                 {
                     sheet.Range[row, colLast - 1].Formula = "=" + reportUtility.GetColumnNameForXls(colLast - 1) + (row - 1);
                     sheet.Range[row, colLast - 1].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                    sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
+                    //sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
                 }
                 sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
 
                 //General Ledger sum function
                 sheet.Range[row, colTranCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colTranCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
@@ -2210,9 +2172,9 @@ namespace Library.Accounting.Accounts
                 reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 18); int colParticulars = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Currency", 5); int colCurrency = col; col++;
                 colTranCurrencyDebit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 16, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                 colTranCurrencyCredit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 16, ExcelHAlign.HAlignRight);
+                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight);
 
                 col++;
 
@@ -2223,10 +2185,10 @@ namespace Library.Accounting.Accounts
                 if (!string.IsNullOrEmpty(companyCurrencyId))
                 {
                     colBaseCurrencyDebit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 16, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                     colBaseCurrencyCredit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 16, ExcelHAlign.HAlignRight); col++;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 16, ExcelHAlign.HAlignRight); colBalance = col; col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 20, ExcelHAlign.HAlignRight); colBalance = col; col++;
                     sheet.Range[reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (row - 1) + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (row - 1)].Merge();
                     reportUtility.SetHeaderText(ref sheet, row - 1, colBaseCurrencyDebit, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                     sheet.Range[row - 1, colBaseCurrencyDebit, row - 1, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Thin);
@@ -2315,6 +2277,10 @@ namespace Library.Accounting.Accounts
 
                         sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
                         sheet.Range[row, colLast].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                        sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
+
                         row++;
                         col = 1;
                     }
@@ -2329,35 +2295,35 @@ namespace Library.Accounting.Accounts
                 {
                     sheet.Range[row, colLast - 1].Formula = "=" + reportUtility.GetColumnNameForXls(colLast - 1) + (row - 1);
                     sheet.Range[row, colLast - 1].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                    sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
+                    //sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
                 }
                 sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
 
                 //General Ledger sum function
                 sheet.Range[row, colTranCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colTranCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
@@ -6736,12 +6702,7 @@ namespace Library.Accounting.Accounts
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            //worksheet[ROW, COL].Text = "Dr/Cr";
-            //int colDrCr = COL;
-            //worksheet[ROW, COL].ColumnWidth = 5;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
+            
             worksheet[ROW, COL].Text = "Tran. Dr.";
             int colDrAmount = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
@@ -6774,6 +6735,12 @@ namespace Library.Accounting.Accounts
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Park";
+            int colIsPark = COL;
+            worksheet[ROW, COL].ColumnWidth = 8;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "GRNNo.";
@@ -6864,6 +6831,12 @@ namespace Library.Accounting.Accounts
             int colSubCategory = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Voucher Category";
+            int colVoucherCategory = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
 
             int endCol = COL;
             worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -6906,6 +6879,7 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colBudgetRefNo].Text = dtDayBookData.Rows[i]["BudgetRefNo"].ToString();
 
                 worksheet[ROW, colParticular].Text = dtDayBookData.Rows[i]["Particular"].ToString();
+                worksheet[ROW, colIsPark].Text = dtDayBookData.Rows[i]["IsPark"].ToString();
                 worksheet[ROW, colGRNNo].Text = dtDayBookData.Rows[i]["GRNNo"].ToString();
                 worksheet[ROW, colAcceptanceNo].Text = dtDayBookData.Rows[i]["AcceptanceNo"].ToString();
                 worksheet[ROW, colIssue].Text = dtDayBookData.Rows[i]["Issue"].ToString();
@@ -6924,6 +6898,7 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colGLUpdate].Text = dtDayBookData.Rows[i]["GLUpdate"].ToString();
                 worksheet[ROW, colCategory].Text = dtDayBookData.Rows[i]["UserCategory"].ToString();
                 worksheet[ROW, colSubCategory].Text = dtDayBookData.Rows[i]["UserSubCategory"].ToString();
+                worksheet[ROW, colVoucherCategory].Text = dtDayBookData.Rows[i]["VoucherCategory"].ToString();
 
                 //if (checkbox == true)
                 //{

@@ -25,6 +25,7 @@
                     <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Job Description</a></li>
                     <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="address" role="tab" data-toggle="tab">Detail</a></li>
                     <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="address" role="tab" data-toggle="tab">Allowance</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="AdditionalPlan" role="tab" data-toggle="tab">AdditionalPlan</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -237,7 +238,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Deployment</label>
                                 <div class="col-sm-8">
-                                    <input type="text" name="Deployment" ng-model="manPowerbudgetmasterNew.Deployment" class="form-control" maxlength="50" tabindex="12">
+                                    <input type="text" name="Deployment" ng-model="manPowerbudgetmasterNew.Deployment" only-numbers class="form-control" maxlength="50" tabindex="12">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -277,17 +278,37 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">IsResidencePlan</label>
+                                <div class="col-sm-3">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="manPowerbudgetmasterNew.IsResidencePlan" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <label class="col-sm-3 control-label">IsTransportPlan</label>
+                                <div class="col-sm-2">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="manPowerbudgetmasterNew.IsTransportPlan" tabindex="10">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                             @*<div class="form-group">
-            <label class="col-sm-4 control-label">Cost Center</label>
-            <div class="col-sm-8">
-                <div class="select-style">
-                    <select name="CostCenter" ng-model="manPowerbudgetmasterNew.CostCenterId" class="col-sm-3 form-control"
-                            ng-options="item.Value as item.Text for item in CostCenterList">
-                        <option></option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
+                        <label class="col-sm-4 control-label">Cost Center</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select name="CostCenter" ng-model="manPowerbudgetmasterNew.CostCenterId" class="col-sm-3 form-control"
+                                        ng-options="item.Value as item.Text for item in CostCenterList">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>*@
 
 
                         </div>
@@ -361,6 +382,12 @@
                                            ng-keyup="countTotalNumber(manpowerBudgetDetail.Male, manpowerBudgetDetail.Female);" tabindex="3" only-numbers>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Residence Vacancy<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Residence Vacancy" ng-model="manpowerBudgetDetail.ResidenceVacancy" class="form-control text-right" tabindex="3" only-numbers>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
                             <div class="form-group">
@@ -374,6 +401,12 @@
                                 <label class="col-sm-4 control-label">Total Number<sup>*</sup></label>
                                 <div class="col-sm-8">
                                     <input readonly type="text" ng-model="manpowerBudgetDetail.TotalNumber" class="form-control text-right" only-numbers tabindex="4">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Transport Vacancy<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Transport Vacancy" ng-model="manpowerBudgetDetail.TransportVacancy" class="form-control text-right" tabindex="3" only-numbers>
                                 </div>
                             </div>
                         </div>
@@ -392,6 +425,8 @@
                                             <th>Male</th>
                                             <th>Female</th>
                                             <th>TotalNumber</th>
+                                            <th>Residence Vacancy</th>
+                                            <th>Transport Vacancy</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -401,6 +436,8 @@
                                             <td class="text-right">{{x.Male}}</td>
                                             <td class="text-right">{{x.Female}}</td>
                                             <td class="text-right">{{x.TotalNumber}}</td>
+                                            <td class="text-right">{{x.ResidenceVacancy}}</td>
+                                            <td class="text-right">{{x.TransportVacancy}}</td>
                                             <td class="text-right">
                                                 <ul class="list-inline action-list">
                                                     <li><button ng-click="getManpowerBudgetDetailUpdate(x, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
@@ -448,6 +485,57 @@
                                                          direction-links="true" boundary-links="true"
                                                          on-page-change="getAllowanceData(newPageNumber)">
                                 </dir-pagination-controls>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                    <div class="form-elements form-horizontal row" ng-form="addiForm">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" id="fDate">From Date<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="From Date" ng-model="ManpowerBudgetAdditionalPlanNew.FromDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="2">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Additional Plan<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Additional Plan" ng-model="ManpowerBudgetAdditionalPlanNew.AdditionalPlan" only-numbers class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" id="fDate">To Date<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="From Date" ng-model="ManpowerBudgetAdditionalPlanNew.ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="2">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea type="text" name="Remarks" ng-model="ManpowerBudgetAdditionalPlanNew.Remarks" rows="2" class="form-control" tabindex="5"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveAdditional();" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Save</button></li>
+                                <li> <button ng-click="ClearAdditionalPlan();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="3"></i>Clear</button></li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12">
+                            <div id="GridSavedDate" ej-grid e-datasource="SavedAdditionalPlanList"  e-recorddoubleclick="EditPlanAdditionalPlan"
+                                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                                 e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-field="FD" e-headertext="FromDate" e-width="3"></div>
+                                    <div e-column e-field="TD" e-headertext="ToDate" e-width="3"></div>
+                                    <div e-column e-field="AdditionalPlan" e-headertext="Additional Plan" e-width="3"></div>
+                                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                                </div>
+
                             </div>
                         </div>
                     </div>

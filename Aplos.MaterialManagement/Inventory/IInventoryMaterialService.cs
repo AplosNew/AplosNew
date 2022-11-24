@@ -19,8 +19,6 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> PurchaseReturnDetailsData(string PurchaseReturnId, string POID);
 
         GridModel Query1(GridParameter parameters, string inveReveiveId);
-		GridModel QueryOnlyPO(GridParameter parameters, string inveReveiveId,string AcceptanceId);
-		GridModel QueryOnlyPOBOQ(GridParameter parameters, string inveReveiveId,string AcceptanceId);
 		
         GridModel GetIssueMaterial(GridParameter parameters, string issueId,string companyId);
         GridModel GetPayableRejectMaterial(GridParameter parameters, string inveReveiveId);

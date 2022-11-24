@@ -12,5 +12,6 @@ namespace Library.Service.Productions
     {
         void DeleteGraph(string Id);
         GridModel Query(GridParameter parameters);
+        GridModel GetShiftList(GridParameter parameters, string sGroupID, string sPlantID, string[] ShiftDefinationIDs, string wcids);
     }
 }

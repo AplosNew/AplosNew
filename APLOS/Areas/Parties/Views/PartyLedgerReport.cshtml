@@ -1,206 +1,271 @@
 ﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Party Ledger</h3>
-<div class="form-elements form-horizontal" ng-form="form0">
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors id="div_PartyType">
-            <label class="col-sm-3 control-label">Party Type<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
-                <div class="select-style">
-                    <select name="Party Type" class="form-control" submit-required="true" ng-change="changePartyType();" ng-model="report.PartyType" required>
-                        <option label="Customer" value="Customer" selected="selected">Customer</option>
-                        <option label="Vendor" value="Vendor">Vendor</option>
-                    </select>
-                </div>
-            </div>
+<div class="form-horizontal form-elements">
+    <div class="tab-design " id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Group</a></li>
+            </ul>
         </div>
-        <div class="form-group" show-errors id="div_Party">
-            <label class="col-sm-3 control-label">Party<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
-                <div class="input-group">
-                    <input type="text" name="Party" ng-model="customerNameCode" class="form-control" readonly required>
-                    <span class="input-group-btn">
-                        <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label">Party Plant</label>
-            <div class="col-sm-9">
-                <div class="input-group">
-                    <div class="select-style">
-                        <select class="form-control" name="Party Plant" ng-model="report.PartyPlantId" ng-change="getPartyGSTINList(report.PartyId, report.PartyPlantId)">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in partyPlantList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                    <span class="input-group-btn">
-                        <button ng-click="showPartyPlantPopUp(PartyPlantId);" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label">Party GSTIN</label>
-            <div class="col-sm-9">
-                <div class="select-style">
-                    <select class="form-control" name="Party GSTIN" ng-model="report.GSTIN">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in partyGSTINList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" ng-hide="true">
-            <label class="col-sm-3 control-label">GL</label>
-            <div class="col-sm-9">
-                <div class="input-group">
-                    <input type="text" name="GL" ng-model="GLNameCode" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-disabled="customerNameCode==null" ng-click="getPartyGl();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                        <button ng-click="ClearCode();" class="btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" id="div_FromDate">
-            <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
-                <input type="text" name="From Date" ng-model="report.FromDate" datepicker class="form-control" required>
-            </div>
-        </div>
-        <div class="form-group" id="div_ToDate">
-            <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
-                <input type="text" name="To Date" ng-model="report.ToDate" datepicker class="form-control" required>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label">Group By</label>
-            <div class="col-sm-9">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="report.Active">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        @*<div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Report Size<sup>*</sup></label>
-            <div class="col-sm-9 radio">
-                <label>
-                    <input type="radio" name="source" ng-model="report.ReportSize" value="ShortSize">
-                    <span class="cr" tabindex="1"><i class="cr-icon"></i></span> Short
-                </label>
-                <label>
-                    <input type="radio" name="source" ng-model="report.ReportSize" value="LongSize">
-                    <span class="cr" tabindex="2"><i class="cr-icon"></i></span> Long
-                </label>
-            </div>
-        </div>*@
-
-        <div class="form-group" show-errors @*ng-hide="report.ReportSize=='LongSize'"*@>
-            <label class="col-sm-3 control-label" >Format<sup>*</sup></label>
-            <div class="col-sm-9 radio">
-                <label>
-                    <input type="radio" name="babu" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
-                    <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
-                </label>
-                <label>
-                    <input type="radio" name="babu" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
-                    <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
-                </label>
-            </div>
-        </div>
-    </div>
-
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li><button ng-click="getReport();" @*ng-show="report.ReportSize=='ShortSize'"*@ class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Short Download</button></li>
-            <li><button ng-click="getReport('LongSizeReport');" @*ng-show="report.ReportSize=='LongSize'"*@ class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Long Download</button></li>
-        </ul>
-    </div>
-
-    @*ng-hide="showFinanceDB"*@
-</div>
-<div class="modal fade site-modal in" id="GLPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
-            <div class="modal-header">
-                <button type="button" class="close" ng-click="closeCOAICodeListPopUp()">&times;</button>
-                <h4 class="modal-title">GL</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div>
+                    <div class="form-elements form-horizontal" ng-form="form0">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors id="div_PartyType">
+                                <label class="col-sm-3 control-label">Party Type<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
                                     <div class="select-style">
-                                        <select ng-model="glListParameters.searchBy">
-                                            <option ng-repeat="option in searchglByList" value="{{option.value}}">{{option.name}}</option>
+                                        <select name="Party Type" class="form-control" submit-required="true" ng-change="changePartyType();" ng-model="report.PartyType" required>
+                                            <option label="Customer" value="Customer" selected="selected">Customer</option>
+                                            <option label="Vendor" value="Vendor">Vendor</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="glListParameters.search" ng-enter="GetCOAICodeListData()">
+                            </div>
+                            <div class="form-group" show-errors id="div_Party">
+                                <label class="col-sm-3 control-label">Party<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
+                                    <div class="input-group">
+                                        <input type="text" name="Party" ng-model="customerNameCode" class="form-control" readonly required>
+                                        <span class="input-group-btn">
+                                            <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="GetCOAICodeListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Party Plant</label>
+                                <div class="col-sm-9">
+                                    <div class="input-group">
+                                        <div class="select-style">
+                                            <select class="form-control" name="Party Plant" ng-model="report.PartyPlantId" ng-change="getPartyGSTINList(report.PartyId, report.PartyPlantId)">
+                                                <option value="">--Select--</option>
+                                                <option ng-repeat="option in partyPlantList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                        <span class="input-group-btn">
+                                            <button ng-click="showPartyPlantPopUp(PartyPlantId);" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Party GSTIN</label>
+                                <div class="col-sm-9">
+                                    <div class="select-style">
+                                        <select class="form-control" name="Party GSTIN" ng-model="report.GSTIN">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in partyGSTINList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-hide="true">
+                                <label class="col-sm-3 control-label">GL</label>
+                                <div class="col-sm-9">
+                                    <div class="input-group">
+                                        <input type="text" name="GL" ng-model="GLNameCode" class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button ng-disabled="customerNameCode==null" ng-click="getPartyGl();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="ClearCode();" class="btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" id="div_FromDate">
+                                <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" name="From Date" ng-model="report.FromDate" datepicker class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group" id="div_ToDate">
+                                <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" name="To Date" ng-model="report.ToDate" datepicker class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Group By</label>
+                                <div class="col-sm-9">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="report.Active">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors @*ng-hide="report.ReportSize=='LongSize'"*@>
+                                <label class="col-sm-3 control-label">Format<sup>*</sup></label>
+                                <div class="col-sm-9 radio">
+                                    <label>
+                                        <input type="radio" name="babu" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
+                                        <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="babu" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
+                                        <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="getReport();" @*ng-show="report.ReportSize=='ShortSize'"*@ class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Short Download</button></li>
+                                <li><button ng-click="getReport('LongSizeReport');" @*ng-show="report.ReportSize=='LongSize'"*@ class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Long Download</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div>
+                    <div class="form-elements form-horizontal" ng-form="form1">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors id="div_PartyTypePG">
+                                <label class="col-sm-3 control-label">Party Type<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
+                                    <div class="select-style">
+                                        <select name="Party Type" class="form-control" submit-required="true"  ng-model="reportPG.PartyType" required>
+                                            <option label="Customer" value="Customer" selected="selected">Customer</option>
+                                            <option label="Vendor" value="Vendor">Vendor</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors id="div_PartyCategoryPG">
+                                <label class="col-sm-3 control-label">Party Category<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
+                                    <div class="select-style">
+                                        <select id="PartyCategoryId" class="form-control" name="PartyCategory" ng-model="reportPG.PartyCategoryId" tabindex="5">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in partyCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" id="div_FromDatePG">
+                                <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" name="From Date" ng-model="reportPG.FromDate" datepicker class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group" id="div_ToDatePG">
+                                <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" name="To Date" ng-model="reportPG.ToDate" datepicker class="form-control" required>
+                                </div>
+                            </div>
+                           
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-3 control-label">Format<sup>*</sup></label>
+                                <div class="col-sm-9 radio">
+                                    <label>
+                                        <input type="radio" name="ReportFormatPG" ng-model="reportPG.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
+                                        <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="ReportFormatPG" ng-model="reportPG.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
+                                        <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="getPGReport();"  class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    <div class="modal fade site-modal in" id="GLPopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
+                <div class="modal-header">
+                    <button type="button" class="close" ng-click="closeCOAICodeListPopUp()">&times;</button>
+                    <h4 class="modal-title">GL</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="glListParameters.searchBy">
+                                                <option ng-repeat="option in searchglByList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="glListParameters.search" ng-enter="GetCOAICodeListData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="GetCOAICodeListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Account Group</th>
+                                    <th>GL Code</th>
+                                    <th>GL</th>
+                                    <th>Tax Category</th>
+                                    <th>Posting gWithout TaxAllow</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in glList |itemsPerPage:glListParameters.pageSize" pagination-id="metaData.name + 'glList'" total-items="glListParameters.total_count"
+                                    ng-click="setSelected(x)" ng-class="{selected : x.GLGeneralInfoCode === rowSelected}" ng-dblclick="closeCOAICodeListPopUp()">
+                                    <td>{{x.AccountGroupName}}</td>
+                                    <td>{{x.GLGeneralInfoCode}}</td>
+                                    <td>{{x.GLItem}}</td>
+                                    <td>{{x.TaxCategory}}</td>
+                                    <td>{{x.PostingWithoutTaxAllow?'Yes':'No'}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'glList'" direction-links="true" boundary-links="true" on-page-change="GetCOAICodeListData(newPageNumber)"></dir-pagination-controls>
                 </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Account Group</th>
-                                <th>GL Code</th>
-                                <th>GL</th>
-                                <th>Tax Category</th>
-                                <th>Posting gWithout TaxAllow</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in glList |itemsPerPage:glListParameters.pageSize" pagination-id="metaData.name + 'glList'" total-items="glListParameters.total_count"
-                                ng-click="setSelected(x)" ng-class="{selected : x.GLGeneralInfoCode === rowSelected}" ng-dblclick="closeCOAICodeListPopUp()">
-                                <td>{{x.AccountGroupName}}</td>
-                                <td>{{x.GLGeneralInfoCode}}</td>
-                                <td>{{x.GLItem}}</td>
-                                <td>{{x.TaxCategory}}</td>
-                                <td>{{x.PostingWithoutTaxAllow?'Yes':'No'}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="modal-footer  common-btn">
+                    <button type="button" class="btn btn-default" ng-click="closeCOAICodeListPopUpSelected()">Select</button>
                 </div>
-                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'glList'" direction-links="true" boundary-links="true" on-page-change="GetCOAICodeListData(newPageNumber)"></dir-pagination-controls>
-            </div>
-            <div class="modal-footer  common-btn">
-                <button type="button" class="btn btn-default" ng-click="closeCOAICodeListPopUpSelected()">Select</button>
             </div>
         </div>
     </div>
-</div>
-<modal-table modalid="popUpId" data-title={{title}}
-             data-search-parameters="popUpParameters" data-exclued-column-list=""
-             data-field-list="popUpList" data-data-list="popUpDataList"
-             data-search-function="getPopUpData"
-             data-single-click="selectSingleClick(data)"
-             data-double-click="selectDoubleClick(data)"
-             data-right-button="true"
-             data-left-button="true"
-             data-ng-click-left-button="selectByButton()"
-             data-ng-click-cancel="closePopUp()"></modal-table>
-<modal-table modalid="popUp2Id" data-title={{title2}}
-             data-search-parameters="popUp2Parameters" data-exclued-column-list=""
-             data-field-list="popUp2List"
-             data-data-list="popUp2DataList" data-search-function="getPopUp2Data"
-             data-single-click="selectSingleClick2(data)" data-double-click="selectDoubleClick2(data)"
-             data-right-button="true"
-             data-left-button="true" data-ng-click-left-button="selectByButton2()" data-ng-click-cancel="closePopUp2()"></modal-table>
-@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+    <modal-table modalid="popUpId" data-title={{title}}
+                 data-search-parameters="popUpParameters" data-exclued-column-list=""
+                 data-field-list="popUpList" data-data-list="popUpDataList"
+                 data-search-function="getPopUpData"
+                 data-single-click="selectSingleClick(data)"
+                 data-double-click="selectDoubleClick(data)"
+                 data-right-button="true"
+                 data-left-button="true"
+                 data-ng-click-left-button="selectByButton()"
+                 data-ng-click-cancel="closePopUp()"></modal-table>
+    <modal-table modalid="popUp2Id" data-title={{title2}}
+                 data-search-parameters="popUp2Parameters" data-exclued-column-list=""
+                 data-field-list="popUp2List"
+                 data-data-list="popUp2DataList" data-search-function="getPopUp2Data"
+                 data-single-click="selectSingleClick2(data)" data-double-click="selectDoubleClick2(data)"
+                 data-right-button="true"
+                 data-left-button="true" data-ng-click-left-button="selectByButton2()" data-ng-click-cancel="closePopUp2()"></modal-table>
+    @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")

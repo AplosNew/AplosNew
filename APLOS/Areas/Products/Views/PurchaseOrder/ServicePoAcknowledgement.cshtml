@@ -360,126 +360,148 @@
 		</div>
 	</div>
 
-	<fieldset class="scheduler-border">
-		<legend class="scheduler-border">Ackowledgement Info</legend>
-		<div class="col-xs-12 col-sm-6 col-md-6">
-			<div class="form-group" show-errors>
-				<label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
-				<div class="col-sm-8 show-message">
-					<div class="input-group">
-						<span class="input-group-addon">{{productNew.PartyId}}</span>
-						<input type="text" name="Vendor" ng-model="productNew.PartyName" class="form-control" required readonly>
-						<span class="input-group-btn">
-							<button name="submit" ng-click="showPartyPopUp()" ng-disabled="inventoryMaterialListPO.length>0 || inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1" disabled><i class="cr-icon glyphicon glyphicon-search"></i></button>
-							<button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
-						</span>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-6 pdl3 pdr3">
-			<div class="col-md-8">
-				<div class="form-group" id="div_docNo">
-					<label class="col-sm-6 control-label">Vendor Doc. RefNo<sup>*</sup></label>
-					<div class="col-sm-6 show-message pdr3">
-						<input type="text" name="DocRefNo" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="20" tabindex="2" autocomplete="off">
-					</div>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-group" id="div_docDate">
-					<label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
-					<div class="col-sm-9 show-message pdl3">
-						<input type="text" name="Date" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="clearfix"></div>
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Ackowledgement Info</legend>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <span class="input-group-addon">{{productNew.PartyId}}</span>
+                        <input type="text" name="Vendor" ng-model="productNew.PartyName" class="form-control" required readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="showPartyPopUp()" ng-disabled="inventoryMaterialListPO.length>0 || inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1" disabled><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 pdl3 pdr3">
+            <div class="col-md-8">
+                <div class="form-group" id="div_docNo">
+                    <label class="col-sm-6 control-label">Vendor Doc. RefNo<sup>*</sup></label>
+                    <div class="col-sm-6 show-message pdr3">
+                        <input type="text" name="DocRefNo" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="20" tabindex="2" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" id="div_docDate">
+                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message pdl3">
+                        <input type="text" name="Date" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-md-6 pdl3 pdr3">
+            <div class="col-md-8">
+                <div class="form-group" id="div_entryNo">
+                    <label class="col-sm-6 control-label">Gate Entry No</label>
+                    <div class="col-sm-6 show-message">
+                        <div class="input-group">
+                            <input type="text" name="Gate Entry No" ng-model="productNew.GateEntryNo" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button name="submit"  ng-click="POPopUpGateEntry()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" id="div_gateEntryDate">
+                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date</label>
+                    <div class="col-sm-9 show-message pdl3">
+                        <input type="text" name="Gate Entry Date" ng-disabled="true" ng-model="productNew.GateEntryDate"  end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="5" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 pdl3 pdr3">
+            <div class="col-md-8">
+                <div class="form-group" id="div_grnNo">
+                    <label class="col-sm-6 control-label">Acknowledgement No<sup>*</sup></label>
+                    <div class="col-sm-6 show-message pdr3">
+                        <input type="text" name="Ack No" ng-model="productId" class="form-control" maxlength="10" disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" id="div_grnDate">
+                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message pdl3">
+                        <input type="text" name="GRN Date" ng-disabled="true" ng-model="productNew.AcknowledgementDate" datepicker="modelValidation('div_grnDate', 'productNew', 'AcknowledgementDate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 pdl3 pdr3">
+            <div class="col-md-8">
+                <div class="form-group" id="div_currency">
+                    <label class="col-sm-6 control-label">Currency<sup>*</sup></label>
+                    <div class="col-sm-6 show-message pdr3">
+                        <div class="select-style">
+                            <select class="form-control" id="currency" ng-disabled="chargesListPO.length>0" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
+                                    ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" id="div_rate">
+                    <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
+                    <div class="col-sm-9 show-message pdl3">
+                        <input type="text" n-decimals="{{currencyPrecision}}" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId||chargesListPO.length>0" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
 
-		<div class="col-md-6 pdl3 pdr3">
-			<div class="col-md-8">
-				<div class="form-group" id="div_grnNo">
-					<label class="col-sm-6 control-label">Acknowledgement No<sup>*</sup></label>
-					<div class="col-sm-6 show-message pdr3">
-						<input type="text" name="Ack No" ng-model="productId" class="form-control" maxlength="10" disabled>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-group" id="div_grnDate">
-					<label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
-					<div class="col-sm-9 show-message pdl3">
-						<input type="text" name="GRN Date" ng-disabled="true" ng-model="productNew.AcknowledgementDate" datepicker="modelValidation('div_grnDate', 'productNew', 'AcknowledgementDate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-6 pdl3 pdr3">
-			<div class="col-md-8">
-				<div class="form-group" id="div_currency">
-					<label class="col-sm-6 control-label">Currency<sup>*</sup></label>
-					<div class="col-sm-6 show-message pdr3">
-						<div class="select-style">
-							<select class="form-control" id="currency" ng-disabled="chargesListPO.length>0" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
-									ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
-								<option value=""></option>
-							</select>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-group" id="div_rate">
-					<label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
-					<div class="col-sm-9 show-message pdl3">
-						<input type="text" n-decimals="{{currencyPrecision}}" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId||chargesListPO.length>0" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="clearfix"></div>
+        <div class="clearfix"></div>
+        <div class="col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Non Creditable</label>
+                <div class="col-sm-1">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-disabled="chargesListPO.length>0" ng-model="productNew.IsNonCreditable">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		<div class="clearfix"></div>
-		<div class="col-sm-6 col-md-6">
-			<div class="form-group">
-				<label class="col-sm-4 control-label">Non Creditable</label>
-				<div class="col-sm-1">
-					<div class="checkbox-site">
-						<label>
-							<input type="checkbox" ng-disabled="chargesListPO.length>0" ng-model="productNew.IsNonCreditable">
-							<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-						</label>
-					</div>
-				</div>				
-			</div>
-		</div>
-
-		<div class="clearfix"></div>
-		<div class="col-xs-12 col-sm-6 col-md-6">
-			<div class="form-group" show-errors>
-				<label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
-				<div class="col-sm-8 show-message">
-					<div class="select-style" ng-show="checkedByList.length">
-						<select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
-							<option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
-						</select>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style" ng-show="checkedByList.length">
+                        <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
+                            <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
 
-		<div class="col-xs-12 col-sm-6 col-md-6">
-			<div class="form-group" show-errors>
-				<label class="col-sm-4 control-label">Note For Accounts<sup>*</sup></label>
-				<div class="col-sm-8 show-message">
-					<textarea name="Description" class="form-control" rows="2" ng-model="productNew.NoteForAccounts" tabindex="7"></textarea>
-				</div>
-			</div>
-		</div>
-	</fieldset>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Note For Accounts<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <textarea name="Description" class="form-control" rows="2" ng-model="productNew.NoteForAccounts" tabindex="7"></textarea>
+                </div>
+            </div>
+        </div>
+    </fieldset>
 	<div class="clearfix"></div>
 	<div class="clearfix"></div>
 	<ul class="common-btn list-inline text-right">
@@ -1720,6 +1742,43 @@
 
 </div>
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")
+<div class="modal fade site-modal in" id="POPopUpGateEntry" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Gate Entry List<button type="button" class="close" ng-click="POPopUpCloseGateEntry();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-lg-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridGE" ej-grid e-datasource="GriddataGateEntry"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="true" e-recorddoubleclick="recorddoubleclickGateEntry" e-filtersettings-filterType="excel" e-enabletouch="false">
+                            <div e-columns>
+                                @*Select   GE.Id ,GE.EntryDate,GE.PartyCode,GE.InvoicingPartyPlantId,GE.InvoicingByAddress,GE.DeliveryPartyPlantId,GE.DeliveryByAddress ,GE.Description ,GE.PackageQty,GE.ModeofTransport,GE.Bill,E.PersonName ,MobileNo  ,GE.Remarks,GE.AddedBy,p.UserName,p.Id FROM TRN.GateEntry GEleft Join hkp.Party p on p.Id=GE.PartyCodeWhere GE.CompanyGroupId='CG20171'*@
+                                @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                <div e-column e-field="Id" e-headertext="GateEntryNo" e-width="100"></div>
+                                <div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100"></div>
+                                <div e-column e-field="UserName" e-headertext="PartyName" e-width="100"></div>
+                                <div e-column e-field="ModeofTransport" e-headertext="ModeofTransport" e-width="70"></div>
+                                <div e-column e-field="PersonName" e-headertext="ConcernPerson" e-width="70"></div>
+                                <div e-column e-field="MobileNo" e-headertext="ConMobileNo" e-width="70"></div>
+                                <div e-column e-field="AddedBy" e-headertext="AddedBy" e-width="100"></div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="POPopUpCloseGateEntry();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">

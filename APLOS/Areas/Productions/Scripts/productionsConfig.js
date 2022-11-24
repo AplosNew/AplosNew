@@ -52,6 +52,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionSummary/Aplos',
             controller: 'ProductionSummaryController'
         })
+        .when('/production-summary-wc', {
+            templateUrl: 'Productions/ProductionSummary/AplosWC',
+            controller: 'ProductionSummaryWCController'
+        })
         .when('/recipe-Material-Grouping-Master', {
             templateUrl: 'Productions/RecipeMaterialGroupingMaster/Aplos',
             controller: 'recipeMaterialGroupingMasterController'
@@ -59,6 +63,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
         .when('/planning-types', {
             templateUrl: 'Productions/PlanningTypes/Aplos',
             controller: 'planningTypesController'
+        })
+        .when('/planning-typesNew', {
+            templateUrl: 'Productions/PlanningTypesNew/Aplos',
+            controller: 'planningTypesNewController'
         })
         .when('/production-booking-period', {
             templateUrl: 'Productions/ProductionBookingPeriod/Aplos',
@@ -280,6 +288,39 @@ function ProductionsConfig($routeProvider, $locationProvider) {
         .when('/salesorder-status-report', {
             templateUrl: 'Productions/SalesOrderStatusReport/Aplos',
             controller: 'SalesOrderStatusReportController'
+        })
+        .when('/process-wise-production-booking', {
+            templateUrl: 'Productions/ProcessWiseProductionBooking/Aplos',
+            controller: 'ProcessWiseProductionBookingController'
+        })
+        .when('/quaity-process-booking', {
+            templateUrl: 'Productions/QuaityProcessBooking/Aplos',
+            controller: 'QuaityProcessBookingController'
+        })
+        .when('/production-report-with-parameter', {
+            templateUrl: 'Productions/ProductionReportWithParameter/Aplos',
+            controller: 'ProductionReportWithParameterController'
+        })
+        .when('/pro-sum-rpt', {
+            templateUrl: 'Productions/ProductionSummary/Report',
+            controller: 'ProductionSummaryReportController'
+        })
+        .when('/finished-goods-packing-report', {
+            templateUrl: 'Productions/FinishedGoodsPackingReport/Aplos',
+            controller: 'FinishedGoodsPackingReportController'
+        })
+        .when('/po-wise-production-status-report', {
+            templateUrl: 'Productions/POWiseProductionStatusReport/Aplos',
+            controller: 'POWiseProductionStatusReportController'
+        })
+
+        .when('/parameter-master', {
+            templateUrl: 'Productions/ParameterMaster/Aplos',
+            controller: 'ParameterMasterController'
+        })
+        .when('/parameter', {
+            templateUrl: 'Productions/Parameter/Aplos',
+            controller: 'ParameterController'
         })
         ;
 }

@@ -1370,7 +1370,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
     $scope.GetGivenDesignationByLegalDesignaiton = function (legalDesignationId) {
         $http({
             method: 'GET',
-            url: 'Employees/BudgetCodeChange/GetGivenDesignationByLegalDesignationCbo?legalDesignationId=' + legalDesignationId
+            url: 'Employees/BudgetCodeChange/GetGivenDesignationByLegalDesignationCbo?legalDesignationId=' + legalDesignationId + '&BudgetCode=' + $scope.budgetCodeChangeNew.BudgetCode
         }).then(function successCallback(response) {
             //$scope.givenDesignationList = response.data;
             if (response.data.length > 0) {
@@ -1675,7 +1675,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
             DesignationGroupName: null
         };
         $scope.budgetCodeChangeNew = Object.assign({}, $scope.budgetCodeChange);
-        $scope.EmpSalaryInfo.SalaryRuleMasterSystemID=null;
+        $scope.EmpSalaryInfo.SalaryRuleMasterSystemID = null;
         $scope.imageSrc = null;
         $scope.obj = {};
         $scope.Calculated = false;
@@ -1792,7 +1792,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
 
             $http({
                 method: 'GET',
-                url: 'Employees/BudgetCodeChange/GetGivenDesignationByLegalDesignationCbo?legalDesignationId=' + $scope.budgetCodeChangeOld.LegalDesignationId
+                url: 'Employees/BudgetCodeChange/GetGivenDesignationByLegalDesignationCbo?legalDesignationId=' + $scope.budgetCodeChangeOld.LegalDesignationId + '&BudgetCode=' + $scope.budgetCodeChangeNew.BudgetCode
             }).then(function successCallback(response) {
                 //$scope.givenDesignationList = response.data;
                 if (response.data.length > 0) {
@@ -2156,13 +2156,23 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
     };
 
     $scope.OpenAdditionalPolicyDialog = function () {
+        try {
+            if (baseService.arrayLength($scope.EmpSalaryOpenHeadCurrent) > 0) {
+                for (var i = 0; i < $scope.EmpSalaryOpenHeadCurrent.length; i++) {
+                    if ($scope.EmpSalaryOpenHeadCurrent[i].Amount === null || baseService.isUndefinedOrNull($scope.EmpSalaryOpenHeadCurrent[i].Amount)) {
+                        throw "Amount is required for " + $scope.EmpSalaryOpenHeadCurrent[i].SalaryHead+".";
+                    }
+                }
+            }
 
-        //$scope.UpdateAdditionalPolicyModel();
-        var eDialog = $("#dialogPFSetting").data("ejDialog");
-        eDialog.open();
-        var gridObj = $("#GridAddp").data("ejGrid");
-        gridObj.refreshContent(true);
-        $scope.PFSettingModel.IsbuttonPFClicked = 'YES';
+            var eDialog = $("#dialogPFSetting").data("ejDialog");
+            eDialog.open();
+            var gridObj = $("#GridAddp").data("ejGrid");
+            gridObj.refreshContent(true);
+            $scope.PFSettingModel.IsbuttonPFClicked = 'YES';
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
     $scope.UpdateAdditionalPolicyModel = function () {
 

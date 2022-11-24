@@ -4485,6 +4485,13 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colbuyer = COL;
                 COL++;
+
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colCustomer = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Master Order No";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colMasterOrderNo = COL;
@@ -4521,6 +4528,13 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colSalesOrderDesc = COL;
                 COL++;
+
+                sheet[ROW, COL].Text = "Product Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProductCode = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Product Category";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProductCategory = COL;
@@ -4529,6 +4543,19 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProduct = COL;
                 COL++;
+
+                sheet[ROW, COL].Text = "Production Status";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProductionStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Lot No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLotNo = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Material";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colMaterial = COL;
@@ -4575,21 +4602,17 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colActualEff = COL;
-
-
+               
+                
                 #endregion columns
 
-
-
-
                 int endCol = COL;
-
 
                 Dictionary<string, DateTime> allDates = new Dictionary<string, DateTime>();
                 foreach (KeyValuePair<string, List<DataRow>> item in dicActualData)
                     for (int i = 0; i < item.Value.Count; i++)
-                        if (allDates.ContainsKey(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString()) == false)
-                            allDates.Add(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString(), Convert.ToDateTime(item.Value[i]["ActualDate"].ToString()));
+                        if (allDates.ContainsKey(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString() + item.Value[i]["Id"].ToString()) == false)
+                            allDates.Add(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString() + item.Value[i]["Id"].ToString(), Convert.ToDateTime(item.Value[i]["ActualDate"].ToString()));
 
 
                 allDates.OrderBy(ee => ee.Value);
@@ -4653,9 +4676,10 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                                 sheet[ROW, colActualMinutes].Formula = CellAddr(colActualQty, ROW) + "*" + CellAddr(colSAM, ROW);
                                 sheet[ROW, colActualEff].Formula = "IF(" + CellAddr(colWorkStation, ROW) + "*" + CellAddr(colActualWorkHours, ROW) + ">0,(" + CellAddr(colActualMinutes, ROW) + ")/(" + CellAddr(colWorkStation, ROW) + "*" + CellAddr(colActualWorkHours, ROW) + "*60),0)";
 
-
-
-
+                                sheet[ROW, colProductCode].Text = dr[k]["ProductCode"].ToString();
+                                sheet[ROW, colCustomer].Text = dr[k]["Customer"].ToString();
+                                sheet[ROW, colProductionStatus].Text = dr[k]["ProductionStatus"].ToString();
+                                sheet[ROW, colLotNo].Text = dr[k]["LotNo"].ToString();
 
                                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -5043,6 +5067,18 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].Text = "LCNo";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colLCNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Production Type";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colProductionType = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Shipment From Stock";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colShipmentFromStock = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Packing Type";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colPackingType = COL;
 
                 #endregion columns
 
@@ -5086,6 +5122,9 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                     sheet[ROW, colContractId].Text = dtOrderMaster.Rows[i]["ContractId"].ToString();
                     sheet[ROW, colContractName].Text = dtOrderMaster.Rows[i]["ContractName"].ToString();
                     sheet[ROW, colLCNo].Text = dtOrderMaster.Rows[i]["LCNo"].ToString();
+                    sheet[ROW, colProductionType].Text = dtOrderMaster.Rows[i]["ProductionType"].ToString();
+                    sheet[ROW, colShipmentFromStock].Text = dtOrderMaster.Rows[i]["ShipmentFromStock"].ToString();
+                    sheet[ROW, colPackingType].Text = dtOrderMaster.Rows[i]["PackingType"].ToString();
 
 
                     sheet[ROW, colArticle].Text = dtOrderMaster.Rows[i]["Article"].ToString();
@@ -5205,6 +5244,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
                 IPivotCache cache = workbook.PivotCaches.Add(sheet[startRow - 1, 1, ROW - 1, endCol]);
                 IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
 
                 pivotTable.Fields[colPlant - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
@@ -5840,6 +5880,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                             FORMAT(SO.LSD,'dd-MMM-yyyy') AS LSD,isnull(DATEDIFF(DAY,so.LSD,so.DeliveryDate),0) AS Diff
                             ,uom.UserName AS UOM,so.[Description] AS SODesc,cur.Code AS Currency,trkp.UserName AS Plant,trke.UserName AS Entity,MOI.[Type]
                             ,PRPD.PRBookedQuantity,sopd.SOBookedQuantity,PLN.PRPlanQty,p.UserName AS Customer,PAG.UserName AS CustomerAccountGroup
+                            ,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END,PT.UserName PackingType
                               FROM trn.MasterOrder MO
                             left outer join MasterOrderExchangeRates RT on RT.TransactionId=MO.Id
 							left JOIN org.Company AS com ON com.Id=mo.CompanyId
@@ -5852,6 +5893,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 							left outer join MasterLC M on m.Id=con.MasterLCId
 
                             left join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
+                            left join HKP.PackingType PT ON PT.Id=SO.PackingTypeId
                             left join [ExpectedSOWiseProductionCompletion] XCOM on XCOM.SalesOrderId=SO.Id
                             LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                             LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS SED ON sed.ProductionOrderID=pod.ProductionOrderId
@@ -6277,14 +6319,17 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
         }
         private void getProductionData(string entityid, string fromDate, string toDate, out Dictionary<string, List<DataRow>> dtOrderMaster)
         {
-            string sql = @"SELECT  trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
-                            pt1.SPT AS SAM,ord.Material,ord.Article,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,
-                            ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
-                            sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM,
- CPL.[Description] AS ProductionShift,so.Id AS SalesOrderIdBooking,so.[Description] AS SalesOrderDescBooking,
- wcm.StandardTimePerDay AS StandardWorkingHours,  wcm.NoOfWorkStation AS StandardWorkStations,wcm.DailyFixedCost,wcm.VariableCost AS VariableCostPerHour,
- PP.ProductionHours AS WorkingHours,SN.isBuildUp,
- pt1.TargetPerDay AS LineTargetPerDay,PT1.TargetPerHour AS PlanTargetPerHour,PT1.PlanWorkingHoursPerDay,
+            try
+            {
+
+                string sql = @"SELECT distinct PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
+                            pt1.SPT AS SAM,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,ISNULL(pp.UserName,ord.Material) Material,ISNULL(pp.StandardName,ord.Article ) Article                  
+                            ,ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
+                            sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
+							 ,CPL.UserName AS ProductionShift,so.Id AS SalesOrderIdBooking,so.[Description] AS SalesOrderDescBooking,
+							 wcm.StandardTimePerDay AS StandardWorkingHours,  wcm.NoOfWorkStation AS StandardWorkStations,wcm.DailyFixedCost,wcm.VariableCost AS VariableCostPerHour,
+							 PP.ProductionHours AS WorkingHours,SN.isBuildUp,
+							 pt1.TargetPerDay AS LineTargetPerDay,PT1.TargetPerHour AS PlanTargetPerHour,PT1.PlanWorkingHoursPerDay,
                             --additional info
 			                     buyer=STUFF((select distinct ','+XB.UserName from 
 			                            trn.SalesOrder XSO 
@@ -6342,14 +6387,17 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
 
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0) AS ActualMinutes,
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*pp.ProductionHours*60) AS ActualEfficiency
+							,pp.LotNumber LotNo,ORD.Customer,ORD.ProductCode,PST.UserName ProductionStatus
 
-                            FROM (SELECT  ps.ProcessId,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
+                            FROM (SELECT  ps.Id,ps.ProcessId,ps.LotNumber,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
                                     FROM trn.ProductionSummary AS ps 
+                                  left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
+                                  LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
       		                            WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + entityid + @") 
-      		                            --AND ps.ProcessId=(select XX.ProcessId from trn.ProductionOrderProcessSet AS XX where XX.IsBaseProcess=1 and XX.ProductionOrderID=ps.ProductionOrderId)
-                                  GROUP BY   ps.ProcessId,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId
+      		                           --AND ps.ProcessId=(select XX.ProcessId from trn.ProductionOrderProcessSet AS XX where XX.IsBaseProcess=1 and XX.ProductionOrderID=ps.ProductionOrderId)
+                                  GROUP BY  ps.Id,ps.ProcessId,ps.LotNumber,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId
                             ) AS pp
-                            LEFT JOIN MST.CompliedShiftGrouping CPL ON cpl.Id=pp.ProductionShiftId
+                            LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
                             LEFT JOIN trn.SalesOrder AS so ON so.Id=pp.SalesOrderId
                             LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID=pp.ProductionOrderID
                             LEFT OUTER JOIN ProductionPlanningSnapshot2Type1 AS SN ON sn.ProductionOrderID=pp.ProductionOrderId AND sn.ProductionDate=pp.ProductionDate AND sn.WorkCenterMasterId=pp.WorkCenterMasterId AND sn.EntityID=pp.EntityId
@@ -6362,6 +6410,7 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
                             left outer join ProductionPlanningType1 AS ppt on ppt.ProductionOrderID=pp.ProductionOrderId AND ppt.WorkCenterMasterId=PP.WorkCenterMasterId AND  ppt.ProcessId=PP.ProcessId AND ppt.EntityId=pp.EntityId and ppt.ProductionDate=PP.ProductionDate
                             --left outer join ProductionPlanningCalendar AS ppc on ppc.ProcessId=PP.ProcessId AND ppc.EntityId=pp.EntityId and PPC.WorkingDate=PP.ProductionDate
                             left outer join TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
+							left join HKP.ProductionStatus PST on PST.Id=PO.ProductionStatusId
 							LEFT OUTER JOIN hkp.Process AS p ON p.Id=pp.ProcessId
 							LEFT OUTER JOIN hkp.Process AS Tp ON Tp.Id=pp.ToProcessId
                             LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
@@ -6370,46 +6419,49 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
                                                         select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory,
                                                           SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
                                                           SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
+														  ,P.UserName Customer,PL.Code ProductCode
                                                         from trn.ProductionOrderDetail POD 
                                                         left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
                                                         left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+														left join dbo.ProductLibrary PL on PL.Id=MOI.ProductLibraryId
                                                         left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
+														left join HKP.Party P on P.Id=MO.PartyId
                                                         left join MasterOrderExchangeRates RT ON RT.TransactionId=MO.Id
                                                         left JOIN org.Company AS com ON com.Id=mo.CompanyId
-                                                        LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + entityid + @"))
-                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + entityid + @"))
+                                                        LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN ('','119','112','121','115','116','117','118','114','120'))
+                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN ('','119','112','121','115','116','117','118','114','120'))
                                                         LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
                                                         left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
                                                         LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
                                                         left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
                                                         left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                                         left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-                                                        group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
-                                              ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
+                                                        group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId,P.UserName,PL.Code
+                                              ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId";
 
-
-
-                            ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID,p.Sequence
-";
-
-            DataTable dt = _sqlRepository.GetDataTable(sql);
-            dtOrderMaster = new Dictionary<string, List<DataRow>>();
-            List<DataRow> drtemp = new List<DataRow>();
-            string _id = "";
-            foreach (DataRow item in dt.Rows)
-            {
-                if (_id != item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString())
+                DataTable dt = _sqlRepository.GetDataTable(sql);
+                dtOrderMaster = new Dictionary<string, List<DataRow>>();
+                List<DataRow> drtemp = new List<DataRow>();
+                string _id = "";
+                foreach (DataRow item in dt.Rows)
                 {
-                    drtemp = new List<DataRow>();
-                    _id = item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString();
-                    dtOrderMaster.Add(_id, drtemp);
+                    if (_id != item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString() + item["Id"].ToString())
+                    {
+                        drtemp = new List<DataRow>();
+                        _id = item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString() + item["Id"].ToString();
+                        dtOrderMaster.Add(_id, drtemp);
 
 
+                    }
+
+                    drtemp.Add(item);
                 }
 
-                drtemp.Add(item);
             }
-
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
 
 

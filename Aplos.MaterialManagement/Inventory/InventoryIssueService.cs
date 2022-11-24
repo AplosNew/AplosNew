@@ -875,6 +875,7 @@ namespace Library.MaterialManagement.Inventory
                                         Id = MakePK(issueDetail.Id, historyId, 2),
                                         InventoryIssueDetailId = issueDetail.Id,
                                         InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+                                        MaterialStorageId=item.MaterialStorageId,
                                         Qty = Math.Round(totalReqQty, 4), //item.RequisitionQty,
                                                                           //Rate = Convert.ToDecimal(item.BaseRate),
                                         Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
@@ -1934,11 +1935,16 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        public void DeleteIssueDetail(string issueDetailId)
+        public void DeleteIssueDetail(string issueDetailId,string voucherId)
         {
             var flag = false;
             try
             {
+                
+                if ( voucherId!="null")
+                {
+                    throw new CustomException("Posted voucher  have to delete first!");
+                }
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var builder = new System.Text.StringBuilder();
@@ -1950,6 +1956,60 @@ namespace Library.MaterialManagement.Inventory
                 sql = @"UPDATE A SET  A.BaseIssueQty=A.BaseIssueQty-B.Qty FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryIssueHistory] AS B ON B.InventoryReceiveDetailId=A.Id WHERE B.InventoryIssueDetailId='" + issueDetailId + "'";
                 builder.Append(sql);
                 sql = @"DELETE [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='" + issueDetailId + "'";
+                builder.Append(sql);
+                sql = @"DELETE [TRN].[IssueDetailAndIssueRequestMap] WHERE InventoryIssueDetailId='" + issueDetailId + "'";
+                builder.Append(sql);
+                sql = @"DELETE [TRN].[InventoryIssueDetail]  WHERE Id='" + issueDetailId + "'";
+                builder.Append(sql);
+                _sqlRepository.ExecuteSqlCommand(builder.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
+        }
+
+        public void DeleteIssueDetailBOQ(string issueDetailId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                if (voucherId != "null")
+                {
+                    throw new CustomException("Posted voucher  have to delete first!");
+                }
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var builder = new System.Text.StringBuilder();
+                var sql = "";
+                sql = @"UPDATE A SET A.TotalQty=A.TotalQty+B.TransactionQty FROM [TRN].[InventoryMaterial] AS A JOIN [TRN].[InventoryIssueDetail] AS B ON B.InventoryMaterialId=A.Id WHERE B.Id='" + issueDetailId + "'";
+                builder.Append(sql);
+                //sql = @"UPDATE A SET A.IssueQty=A.IssueQty-B.Qty FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryIssueHistory] AS B ON B.InventoryReceiveDetailId=A.Id WHERE B.InventoryIssueDetailId='" + issueDetailId + "'";
+                //builder.Append(sql);
+                sql = @"UPDATE A SET  A.BaseIssueQty=A.BaseIssueQty-B.Qty FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryIssueHistory] AS B ON B.InventoryReceiveDetailId=A.Id WHERE B.InventoryIssueDetailId='" + issueDetailId + "'";
+                builder.Append(sql);
+                sql = @"DELETE [TRN].[InventoryIssueHistoryBOQ] WHERE  InventoryIssueHistoryId in ( select id from trn.InventoryIssueHistory where InventoryIssueDetailId='" + issueDetailId + "')";
+                builder.Append(sql);
+                sql = @"DELETE [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='" + issueDetailId + "'";
+                builder.Append(sql);
+                sql = @"DELETE [TRN].[IssueDetailAndIssueRequestMap] WHERE InventoryIssueDetailId='" + issueDetailId + "'";
                 builder.Append(sql);
                 sql = @"DELETE [TRN].[InventoryIssueDetail]  WHERE Id='" + issueDetailId + "'";
                 builder.Append(sql);
@@ -2098,7 +2158,8 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
-        public IEnumerable<object> GetInventoryIssueBOQ(string plantId)
+
+        public IEnumerable<object> GetInventoryIssueByProductionOrder(string plantId,string productionOrderId)
         {
             try
             {
@@ -2118,6 +2179,53 @@ namespace Library.MaterialManagement.Inventory
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
 							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
+                            ,IsNULL(V.VoucherNo,'') VoucherNo ,IsPark=case when II.VoucherId<>'' then 0 else 1 end
+							FROM[TRN].[InventoryIssue] AS II
+							left join (
+									SELECT IID.InventoryIssueId,IID.IsAsset,IIH.IssueRequestDetailId,SUM(IIH.Qty) Qty, SUM(IIH.TotalAmount) TotalAmount
+									FROM trn.InventoryIssueHistory IIH JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+									WHERE IID.IsAsset= 0
+									GROUP BY IID.InventoryIssueId,IIH.IssueRequestDetailId,IID.IsAsset
+									) IIH ON IIH.InventoryIssueId=II.Id
+							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
+							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
+							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
+							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
+							left JOIN SCS.Country c ON C.Id=IR.CountryId
+							left join dbo.Contract Con On Con.Id=II.ContractId
+                            LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
+						WHERE II.PlantId= '" + plantId + @"' and II.ProductionOrderId='"+ productionOrderId + @"'
+						AND IIH.IsAsset= 0)X
+						Order BY 2 DESC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public IEnumerable<object> GetInventoryIssueBOQ(string plantId)
+        {
+            try
+            {
+
+                var sql = @"SELECT * FROM (
+                            SELECT II.Id,II.IssueDate IssueDate1,E.UserName AS Entity 
+							,isnull(II.IssueType,'') issuetype
+							,  II.CompanyGroupId
+							, II.CompanyId, II.PlantId
+							, II.EntityId, II.MaterialStorageId
+							,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate
+							
+							, MS.UserName AS MaterialStorage 
+							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
+							,IIH.Qty
+							,IIh.TotalAmount Amount
+							,II.Remarks,II.Id AS IssueId
+							,II.OrderRefNo
+							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo,II.VoucherId
 							FROM[TRN].[InventoryIssue] AS II
 							left join (
 									SELECT IID.InventoryIssueId,IID.IsAsset,IIH.IssueRequestDetailId,SUM(IIH.Qty) Qty, SUM(IIH.TotalAmount) TotalAmount
@@ -2290,7 +2398,7 @@ namespace Library.MaterialManagement.Inventory
         }
 
 
-        public IEnumerable<object> GetIssueRegister(string fromDate, string toDate, string Type)
+        public DataTable GetIssueRegister(string fromDate, string toDate, string Type)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -2329,13 +2437,19 @@ namespace Library.MaterialManagement.Inventory
 	                        ,IID.BaseQty
 	                        ,IID.InventoryReceiveId
 	                        ,IID.InventoryReceiveDetailId
+                            ,ISNULL(IGL.AccountCode,'') AS GLCode
                             ,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
+							,isnull(IBM.RefNo,'') AS BudgetRefNo
+                            ,ISNULL(IGL1.AccountCode,'') AS CGLCode
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
-                            ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,isnull(IBM1.RefNo,'') AS CBudgetRefNo
+                            ,CC.UserName CostCenterName,EI.EmployeeName,D.UserName DepartmentName
+                            ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
+                            ,CC1.UserName CLevel1,CC2.UserName CLevel2,CC3.UserName CLevel3,CC4.UserName CLevel4
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2362,7 +2476,16 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL.COALevel1Id
+						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL.COALevel2Id
+						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL.COALevel3Id
+						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL.COALevel4Id
+                        LEFT JOIN HKP.COALevel1 CC1 ON CC1.Id=IGL1.COALevel1Id
+						LEFT JOIN HKP.COALevel2 CC2 ON CC2.Id=IGL1.COALevel2Id
+						LEFT JOIN HKP.COALevel3 CC3 ON CC3.Id=IGL1.COALevel3Id
+						LEFT JOIN HKP.COALevel4 CC4 ON CC4.Id=IGL1.COALevel4Id
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
                     where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
                 }
@@ -2398,9 +2521,19 @@ namespace Library.MaterialManagement.Inventory
 	                        ,Round(IID.PolicyAmount,2) PolicyAmount
 	                        ,IID.Policy
 	                        ,IID.BaseQty ,IID.InventoryReceiveId ,IID.InventoryReceiveDetailId
-                            ,ISNULL(IGL.UserName,'') AS GL,ISNULL(IA.UserName,'') Activity ,isnull(B.UserName,'') AS Budget
-							,isnull(IGL1.UserName,'') AS CGL ,isnull(IA1.UserName,'') AS CActivity ,isnull(B1.UserName,'') AS CBUdget
-                            ,CC.UserName CostCenterName ,EI.EmployeeName
+                           
+                            ,CC.UserName CostCenterName ,EI.EmployeeName,D.UserName DepartmentName
+							,ISNULL(IGL.AccountCode,'') AS GLCode
+							,ISNULL(IGL.UserName,'') AS GL
+							,isnull(B.UserName,'') AS Budget
+							,ISNULL(IA.UserName,'') Activity
+							,ISNULL(IBM.RefNo,'') BudgetRefNo
+							,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
+							,IIH.CGLCode
+							,IIH.CGL
+							,IIH.CActivity
+							,IIH.CBUdget
+							,IIH.CBudgetRefNo,IIH.CRLevel1,IIH.CRLevel2,IIH.CRLevel3,IIH.CRLevel4
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2419,20 +2552,36 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
-						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.BudgetMasterId
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IBM.GLGeneralInfoId 
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.ActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
-						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
-						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+						LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL.COALevel1Id
+						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL.COALevel2Id
+						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL.COALevel3Id
+						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL.COALevel4Id
+						LEFT JOIN (SELECT DISTINCT IIH.InventoryIssueDetailId,IGL1.AccountCode CGLCode,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget ,IBM1.RefNo CBudgetRefNo
+							,C1.UserName CRLevel1,C2.UserName CRLevel2,C3.UserName CRLevel3,C4.UserName CRLevel4
+							FROM TRN.InventoryIssueHistory IIH 
+					LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+					LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IRD.PostDrGLGeneralInfoId 
+					LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IRD.PostDrBudgetMasterId
+					LEFT JOIN HKP.Activity IA1 ON IA1.Id=IRD.PostDrActivityId
+					Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+					LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL1.COALevel1Id
+						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL1.COALevel2Id
+						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL1.COALevel3Id
+						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL1.COALevel4Id) IIH ON  IIH.InventoryIssueDetailId=IID.Id
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
                 }
 
-                return _sqlRepository.GetDataCollection(sql);
+                return _sqlRepository.GetDataTable(sql);
 
             }
             catch (Exception ex)
@@ -2741,16 +2890,21 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IIH1.Qty,0) OtherIssuedQty
 							,isnull(IIH.Qty,0) CurrentIssueQty
 							,TUoM.UserName AS IssueUOM							
-	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+							,IIH.TotalMaterialBooksCurrencyAmount IssueAmount
+	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))	
 							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
 	                        
 
+                           ,ISNULL(IGL.AccountCode,'') AS GLCode
                            ,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
+							,isnull(IBM.RefNo,'') AS BudgetRefNo
+							,isnull(IGL1.AccountCode,'') AS CGLCode
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
+							,isnull(IBM1.RefNo,'') AS CBudgetRefNo
                             ,CC.UserName CostCenterName
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
@@ -2779,17 +2933,16 @@ namespace Library.MaterialManagement.Inventory
 					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
 
 
-                      LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
-						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+                      LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.BudgetMasterId
+                      LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IBM.GLGeneralInfoId 
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.ActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
 
 
-						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
-						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IRD.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IRD.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IRD.PostDrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
-
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
                 }
@@ -3073,22 +3226,12 @@ namespace Library.MaterialManagement.Inventory
                 var Head = "";
                 if (Type == "Posted")
                 {
-
                     Head = "Stores Issue Register(Posted)";
-
-
                 }
-
-                else if (Type == "NonPosted")
+                else 
                 {
-
                     Head = "Stores Issue Register(Non-Posted)";
-
-
                 }
-
-
-
 
                 CreateIssueRegisterReportSheet(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
                 workbook.Version = ExcelVersion.Excel2016;
@@ -3949,8 +4092,6 @@ namespace Library.MaterialManagement.Inventory
 
         private void CreateIssueRegisterReportSheet(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
         {
-
-
             var cmdText = "";
             if (Type == "Posted")
             {
@@ -3974,7 +4115,7 @@ namespace Library.MaterialManagement.Inventory
                              ,II.Remarks
 	                        -- ,II.VoucherId 
 	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
-	                        ,v.VoucherNo
+	                        ,v.VoucherNo,V.IsPark
 	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
 	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
 	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
@@ -4022,13 +4163,20 @@ namespace Library.MaterialManagement.Inventory
 	                        ,IID.BaseQty
 	                        ,IID.InventoryReceiveId
 	                        ,IID.InventoryReceiveDetailId
+                             ,ISNULL(IGL.AccountCode,'') AS GLCode
                             ,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
+							,isnull(IBM.RefNo,'') AS BudgetRefNo
+                            ,ISNULL(IGL1.AccountCode,'') AS CGLCode
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
-                           ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,isnull(IBM1.RefNo,'') AS CBudgetRefNo
+                            ,CC.UserName CostCenterName,EI.EmployeeName,D.UserName DepartmentName
+                            ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
+                            ,CC1.UserName CRLevel1,CC2.UserName CRLevel2,CC3.UserName CRLevel3,CC4.UserName CRLevel4
+                            ,format(V.PostingDate,'dd-MMM-yyyy') PostingDate,U.FullName PostedBy
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
 					    LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -4051,8 +4199,7 @@ namespace Library.MaterialManagement.Inventory
                         --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
                         --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-                        --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
-                        --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
+                        LEFT JOIN [SEC].[User] U on U.UserId=V.AddedBy
                         LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
 						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
@@ -4061,7 +4208,16 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
-                       LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL.COALevel1Id
+						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL.COALevel2Id
+						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL.COALevel3Id
+						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL.COALevel4Id
+                        LEFT JOIN HKP.COALevel1 CC1 ON CC1.Id=IGL1.COALevel1Id
+						LEFT JOIN HKP.COALevel2 CC2 ON CC2.Id=IGL1.COALevel2Id
+						LEFT JOIN HKP.COALevel3 CC3 ON CC3.Id=IGL1.COALevel3Id
+						LEFT JOIN HKP.COALevel4 CC4 ON CC4.Id=IGL1.COALevel4Id
+                        LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
                     where v.VoucherNo is not null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
             }
@@ -4087,10 +4243,10 @@ namespace Library.MaterialManagement.Inventory
                               ,II.Remarks
 	                        -- ,II.VoucherId 
 	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
-	                        ,v.VoucherNo
+	                        ,v.VoucherNo,V.IsPark
 	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
-	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
+	                        ,'' PostingDate  
+	                        ,'' PostedBy
 	                        ,IID.Id IssueDetailId
 	                        ,IID.InventoryIssueId
 	                        --,IID.InventoryMaterialId
@@ -4135,13 +4291,19 @@ namespace Library.MaterialManagement.Inventory
 	                        ,IID.BaseQty
 	                        ,IID.InventoryReceiveId
 	                        ,IID.InventoryReceiveDetailId
+                            ,ISNULL(IGL.AccountCode,'') AS GLCode
 							,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
-							,isnull(B.UserName,'') AS Budget
-							,isnull(IGL1.UserName,'') AS CGL
-							,isnull(IA1.UserName,'') AS CActivity
-							,isnull(B1.UserName,'') AS CBUdget
-                            ,CC.UserName CostCenterName,EI.EmployeeName
+							,isnull(B.UserName,'') AS Budget,ISNULL(IBM.RefNo,'') BudgetRefNo
+                            ,CC.UserName CostCenterName,EI.EmployeeName,D.UserName DepartmentName
+                            ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
+                            ,IIH.CGLCode
+							,IIH.CGL
+							,IIH.CActivity
+							,IIH.CBUdget
+							,IIH.CBudgetRefNo
+							,IIH.CRLevel1,IIH.CRLevel2,IIH.CRLevel3,IIH.CRLevel4
+                            
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -4166,15 +4328,30 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
                         --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
                         --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
-						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
-						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.BudgetMasterId
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IBM.GLGeneralInfoId 
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.ActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
-						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
-						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL.COALevel1Id
+						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL.COALevel2Id
+						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL.COALevel3Id
+						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL.COALevel4Id
+						LEFT JOIN (SELECT DISTINCT IIH.InventoryIssueDetailId,IGL1.AccountCode CGLCode,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget ,IBM1.RefNo CBudgetRefNo
+							,C1.UserName CRLevel1,C2.UserName CRLevel2,C3.UserName CRLevel3,C4.UserName CRLevel4
+							FROM TRN.InventoryIssueHistory IIH 
+					LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+					LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IRD.PostDrGLGeneralInfoId 
+					LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IRD.PostDrBudgetMasterId
+					LEFT JOIN HKP.Activity IA1 ON IA1.Id=IRD.PostDrActivityId
+					Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+						LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL1.COALevel1Id
+						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL1.COALevel2Id
+						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL1.COALevel3Id
+						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL1.COALevel4Id) IIH ON  IIH.InventoryIssueDetailId=IID.Id
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
                     where v.VoucherNo is null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
             }
             var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
@@ -4212,27 +4389,27 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-            sheet1[_row, 27].Text = "Posted (Dr.)";
-            sheet1[_row, 27].CellStyle.Font.Size = 10;
-            sheet1[_row, 27].CellStyle.Font.Bold = true;
-            sheet1[_row, 27].WrapText = true;
-            sheet1[_row, 27].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 27].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 27, _row, 29].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 27, _row, 29].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 27, _row, 29].Merge();
-            sheet1.Range[_row, 27, _row, 29].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 32].Text = "Posted (Dr.)";
+            sheet1[_row, 32].CellStyle.Font.Size = 10;
+            sheet1[_row, 32].CellStyle.Font.Bold = true;
+            sheet1[_row, 32].WrapText = true;
+            sheet1[_row, 32].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 32].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 32, _row, 36].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 32, _row, 36].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 32, _row, 36].Merge();
+            sheet1.Range[_row, 32, _row, 36].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
-            sheet1[_row, 30].Text = "Posted (Cr.)";
-            sheet1[_row, 30].CellStyle.Font.Size = 10;
-            sheet1[_row, 30].CellStyle.Font.Bold = true;
-            sheet1[_row, 30].WrapText = true;
-            sheet1[_row, 30].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 30].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 30, _row, 32].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 30, _row, 32].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 30, _row, 32].Merge();
-            sheet1.Range[_row, 30, _row, 32].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 37].Text = "Posted (Cr.)";
+            sheet1[_row, 37].CellStyle.Font.Size = 10;
+            sheet1[_row, 37].CellStyle.Font.Bold = true;
+            sheet1[_row, 37].WrapText = true;
+            sheet1[_row, 37].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 37].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 37, _row, 41].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 37, _row, 41].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 37, _row, 41].Merge();
+            sheet1.Range[_row, 37, _row, 41].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
 
 
@@ -4263,7 +4440,12 @@ namespace Library.MaterialManagement.Inventory
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Entity name");
             //sheet1headreColIndex++;
-
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Voucher No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 12;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Entity name";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -4276,7 +4458,7 @@ namespace Library.MaterialManagement.Inventory
             //sheet1headreColIndex++;
 
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Cost Center Name";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Cost Center";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4288,7 +4470,14 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Person Name";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue By";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Department";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4510,6 +4699,26 @@ namespace Library.MaterialManagement.Inventory
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Remarks");
             //sheet1headreColIndex++;
 
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Is Park";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posting Date";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 13;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posted By";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Remarks";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
@@ -4521,6 +4730,12 @@ namespace Library.MaterialManagement.Inventory
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
             //sheet1headreColIndex++;
 
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GLCode";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
@@ -4551,12 +4766,37 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "BudgetRefNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "Level3";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
+
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "Level4";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
             //sheet1headreColIndex++;
 
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CGLCode";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CGL";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4567,7 +4807,7 @@ namespace Library.MaterialManagement.Inventory
             //sheet1headreColIndex++;
 
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "BUdget";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CBUdget";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4576,11 +4816,45 @@ namespace Library.MaterialManagement.Inventory
 
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CActivity";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CBudgetRefNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
+
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel1";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
+
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel2";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
+
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel3";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
+
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel4";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 
             //sheet1headreColIndex++;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
@@ -4594,37 +4868,49 @@ namespace Library.MaterialManagement.Inventory
 
                 report.SetText(ref sheet1, _rowL, 1, inventoryMaterialList.Rows[n]["IssueId"].ToString());
                 report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["IssueDate"].ToString());
-                report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["Entityname"].ToString());
-                report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["CostCenterName"].ToString());
-                report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["EmployeeName"].ToString());
-                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["MaterialStorageName"].ToString());
-                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["Status"].ToString());
-                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["IssueDetailId"].ToString());
-                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
-                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
-                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
-                report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
-                report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
-                report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
-                report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
-                report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
-                report.SetText(ref sheet1, _rowL, 17, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
-                report.SetText(ref sheet1, _rowL, 18, inventoryMaterialList.Rows[n]["UOM"].ToString());
-                report.SetText(ref sheet1, _rowL, 19, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgRate"].ToString()));
-                report.SetText(ref sheet1, _rowL, 20, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgAmount"].ToString()));
-                report.SetText(ref sheet1, _rowL, 21, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyRate"].ToString()), 4);
-                report.SetText(ref sheet1, _rowL, 22, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyAmount"].ToString()));
-                report.SetText(ref sheet1, _rowL, 23, inventoryMaterialList.Rows[n]["Policy"].ToString());
-                report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["VoucherNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["Entityname"].ToString());
+                report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["CostCenterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["EmployeeName"].ToString());
+                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["DepartmentName"].ToString());
+                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["MaterialStorageName"].ToString());
+                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["Status"].ToString());
+                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["IssueDetailId"].ToString());
+                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
+                report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
+                report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 18, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 19, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 20, inventoryMaterialList.Rows[n]["UOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 21, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgRate"].ToString()));
+                report.SetText(ref sheet1, _rowL, 22, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyRate"].ToString()), 4);
+                report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["Policy"].ToString());
+                report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseQty"].ToString()));
                 report.SetText(ref sheet1, _rowL, colBaseUOMTotal, inventoryMaterialList.Rows[n]["BaseUOM"].ToString());
-                report.SetText(ref sheet1, _rowL, 26, inventoryMaterialList.Rows[n]["Remarks"].ToString());
-                report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["GL"].ToString());
-                report.SetText(ref sheet1, _rowL, 28, inventoryMaterialList.Rows[n]["Budget"].ToString());
-                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["Activity"].ToString());
-                report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["CGL"].ToString());
-                report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
-                report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["CActivity"].ToString());
-
+                report.SetText(ref sheet1, _rowL, 28, inventoryMaterialList.Rows[n]["IsPark"].ToString());
+                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
+                report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
+                report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["Remarks"].ToString());
+                report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["GLCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 33, inventoryMaterialList.Rows[n]["GL"].ToString());
+                report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["Budget"].ToString());
+                report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["Activity"].ToString());
+                report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["BudgetRefNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 37, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CGL"].ToString());
+                report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+                report.SetText(ref sheet1, _rowL, 40, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+                report.SetText(ref sheet1, _rowL, 41, inventoryMaterialList.Rows[n]["CBudgetRefNo"].ToString());
+                //report.SetText(ref sheet1, _rowL, 43, inventoryMaterialList.Rows[n]["CRLevel1"].ToString());
+                //report.SetText(ref sheet1, _rowL, 44, inventoryMaterialList.Rows[n]["CRLevel2"].ToString());
+                //report.SetText(ref sheet1, _rowL, 45, inventoryMaterialList.Rows[n]["CRLevel3"].ToString());
+                //report.SetText(ref sheet1, _rowL, 46, inventoryMaterialList.Rows[n]["CRLevel4"].ToString());
 
             }
 
@@ -6016,7 +6302,8 @@ namespace Library.MaterialManagement.Inventory
             var cmdText = "";
             if (Type == "Posted")
             {
-                cmdText = @"SELECT II.Id AS IssueId
+                cmdText = @"SELECT II.Id AS IssueId,IID.Id IssueDetailId
+							,IRD.Id GRNDetailId
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
 	                        ,MT.UserName MaterialType
 	                        ,MGM.UserName AS MaterialGroupMasterName
@@ -6035,22 +6322,24 @@ namespace Library.MaterialManagement.Inventory
 	                        ,TC.UserName AS ThirdCharacteristics
 	                        ,IM.ThirdCharacteristicsValueId
 	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
-							,IIH.InventoryReceiveDetailId 
-							,IRD.Id GRNDetailId
 							,IRD.TransactionQty GRNQty
 							,TUoM1.UserName AS GRNUOM
 							,IRD.MaterialTranRate GRNRate
 							,isnull(IIH1.Qty,0) OtherIssuedQty
 							,isnull(IIH.Qty,0) CurrentIssueQty
 							,TUoM.UserName AS IssueUOM							
-	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))	,isnull(IIH.TotalMaterialBooksCurrencyAmount,0) IssueAmount					
 							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
-	                        ,ISNULL(IGL.UserName,'') AS GL
+	                        ,isnull(IGL.AccountCode,'') GLCode
+							,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
+							,isnull(IBM.RefNo,'') BudgetRefNo
+							,isnull(IGL1.AccountCode,'') CGLCode
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
+							,ISNULL(IBM1.RefNo ,'') CBudgetRefNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
                         LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
@@ -6087,7 +6376,8 @@ namespace Library.MaterialManagement.Inventory
             }
             else
             {
-                cmdText = @"SELECT II.Id AS IssueId
+                cmdText = @"SELECT II.Id AS IssueId,IID.Id IssueDetailId
+							,IRD.Id GRNDetailId
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
 	                        ,MT.UserName MaterialType
 	                        ,MGM.UserName AS MaterialGroupMasterName
@@ -6106,22 +6396,25 @@ namespace Library.MaterialManagement.Inventory
 	                        ,TC.UserName AS ThirdCharacteristics
 	                        ,IM.ThirdCharacteristicsValueId
 	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
-							,IIH.InventoryReceiveDetailId 
-							,IRD.Id GRNDetailId
+							
 							,IRD.TransactionQty GRNQty
 							,TUoM1.UserName AS GRNUOM
 							,IRD.MaterialTranRate GRNRate
 							,isnull(IIH1.Qty,0) OtherIssuedQty
-							,isnull(IIH.Qty,0) CurrentIssueQty
+							,isnull(IIH.Qty,0) CurrentIssueQty,isnull(IIH.TotalMaterialBooksCurrencyAmount,0) IssueAmount
 							,TUoM.UserName AS IssueUOM							
 	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
 							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
-	                        ,ISNULL(IGL.UserName,'') AS GL
+	                        ,isnull(IGL.AccountCode,'') GLCode
+							,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
+							,isnull(IBM.RefNo,'') BudgetRefNo
+							,isnull(IGL1.AccountCode,'') CGLCode
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
+							,ISNULL(IBM1.RefNo ,'') CBudgetRefNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
                         LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
@@ -6146,9 +6439,9 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
 					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
-						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
-						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.BudgetMasterId
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IBM.GLGeneralInfoId 
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.ActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
 						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
@@ -6178,28 +6471,28 @@ namespace Library.MaterialManagement.Inventory
             sheet1.UsedRange.CellStyle.Font.Bold = false;
             var _row = 7;
 
-            sheet1[_row, 19].Text = "Posted Dr.";
+            sheet1[_row, 21].Text = "Posted Dr.";
             sheet1.UsedRange.CellStyle.Font.Size = 10;
             sheet1.UsedRange.CellStyle.Font.Bold = true;
             sheet1.UsedRange.WrapText = true;
-            sheet1[_row, 19].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 19].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 19, _row, 21].BorderAround(ExcelLineStyle.Hair);
+            sheet1[_row, 21].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 21].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 21, _row, 25].BorderAround(ExcelLineStyle.Hair);
             //sheet1.Range[_row, 18, _row, 20].CellStyle.Color="LightYellow";
-            sheet1.Range[_row, 19, _row, 21].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 19, _row, 21].Merge();
-            sheet1.Range[_row, 19, _row, 21].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 21, _row, 25].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 21, _row, 25].Merge();
+            sheet1.Range[_row, 21, _row, 25].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
-            sheet1[_row, 22].Text = "Posted (Cr.)";
+            sheet1[_row, 26].Text = "Posted (Cr.)";
             sheet1.UsedRange.CellStyle.Font.Size = 10;
             sheet1.UsedRange.CellStyle.Font.Bold = true;
             sheet1.UsedRange.WrapText = true;
-            sheet1[_row, 22].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 22].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 22, _row, 24].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 22, _row, 24].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 22, _row, 24].Merge();
-            sheet1.Range[_row, 22, _row, 24].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 26].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 26].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 26, _row, 30].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 26, _row, 30].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 26, _row, 30].Merge();
+            sheet1.Range[_row, 26, _row, 30].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
             var _rowL = _row;
             var row = _row + 1;
@@ -6212,7 +6505,7 @@ namespace Library.MaterialManagement.Inventory
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Id";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -6220,9 +6513,15 @@ namespace Library.MaterialManagement.Inventory
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Issue Date");
             //sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Detail Id";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Date";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 12;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -6231,7 +6530,7 @@ namespace Library.MaterialManagement.Inventory
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Detail Id";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 14;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -6332,7 +6631,7 @@ namespace Library.MaterialManagement.Inventory
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN UOM";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -6375,12 +6674,18 @@ namespace Library.MaterialManagement.Inventory
             //sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue UOM";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Amount";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Balance");
             //sheet1headreColIndex++;
@@ -6394,6 +6699,13 @@ namespace Library.MaterialManagement.Inventory
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
             //sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL Code";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -6412,8 +6724,6 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
-
-
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
             //sheet1headreColIndex++;
 
@@ -6424,10 +6734,23 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget Ref No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
             //sheet1headreColIndex++;
+            
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CGL Code";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -6447,14 +6770,21 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
-            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
-
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CBudget Ref No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
 
             //sheet1headreColIndex++;
 
@@ -6466,29 +6796,36 @@ namespace Library.MaterialManagement.Inventory
             {
                 _rowL++;
                 report.SetText(ref sheet1, _rowL, 1, inventoryMaterialList.Rows[n]["IssueId"].ToString());
-                report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["IssueDate"].ToString());
-                report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["GRNDetailId"].ToString());
-                report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
-                report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
-                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
-                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
-                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
-                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
-                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
-                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
-                report.SetText(ref sheet1, _rowL, 12, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNQty"].ToString()));
-                report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["GRNUOM"].ToString());
-                report.SetText(ref sheet1, _rowL, 14, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNRate"].ToString()));
-                report.SetText(ref sheet1, _rowL, 15, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["OtherIssuedQty"].ToString()));
-                report.SetText(ref sheet1, _rowL, 16, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CurrentIssueQty"].ToString()));
-                report.SetText(ref sheet1, _rowL, 17, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueUOM"].ToString()));
-                report.SetText(ref sheet1, _rowL, 18, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Balance"].ToString()));
-                report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["GL"].ToString());
-                report.SetText(ref sheet1, _rowL, 20, inventoryMaterialList.Rows[n]["Budget"].ToString());
-                report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["Activity"].ToString());
-                report.SetText(ref sheet1, _rowL, 22, inventoryMaterialList.Rows[n]["CGL"].ToString());
-                report.SetText(ref sheet1, _rowL, 23, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
-                report.SetText(ref sheet1, _rowL, 24, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+                report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["IssueDetailId"].ToString());
+                report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["IssueDate"].ToString());
+                report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["GRNDetailId"].ToString());
+                report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
+                report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
+                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 13, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["GRNUOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 15, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNRate"].ToString()));
+                report.SetText(ref sheet1, _rowL, 16, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["OtherIssuedQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 17, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CurrentIssueQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 18, inventoryMaterialList.Rows[n]["IssueUOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 19, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 20, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Balance"].ToString()));
+
+                report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["GLCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 22, inventoryMaterialList.Rows[n]["GL"].ToString());
+                report.SetText(ref sheet1, _rowL, 23, inventoryMaterialList.Rows[n]["Budget"].ToString());
+                report.SetText(ref sheet1, _rowL, 24, inventoryMaterialList.Rows[n]["Activity"].ToString());
+                report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["BudgetRefNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 26, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["CGL"].ToString());
+                report.SetText(ref sheet1, _rowL, 28, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+                report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["CBudgetRefNo"].ToString());
             }
 
             //#endregion sumCalc
@@ -6783,78 +7120,10 @@ namespace Library.MaterialManagement.Inventory
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                //       var sql = @"select x.Id ,x.PreparedBy,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty,Orderspecific=CASE WHEN Orderspecific='Yes' Then 'Yes' else 'No' End from
-                //                   (
-                //                       SELECT IRM.Id
-                //                       ,CC.UserName AS CostCenterName
-                //                    ,B.UserName ActivityName      
-                //                    ,IR.RequisitionId
-                //                       ,IR.RequisitionDetailId                           
-                //                    ,EI.EmployeeName  PreparedBy	                          
-                //                       ,IRM.AddedBy
-                //                       ,IRM.AddedDate
-                //                       ,IRM.AddedFromIP
-                //                       ,IRM.UpdatedBy
-                //                       ,IRM.UpdatedDate
-                //                       ,IRM.UpdatedFromIP	  
-                //                      -- ,IRM.Preparedby
-                //                       ,IRM.CheckedBy
-                //                       ,IRM.CheckedByStatus
-                //                       ,IRM.AuthorizedBy
-                //                       ,IRM.AuthorizedByStatus
-                //                    ,RequestedQty
-                //                   ,RejectedQty,IRM.Orderspecific
-                //                   FROM TRN.IssueRequestMaster IRM
-                //                   Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-                //                   Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                //                   Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                //                   LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-
-                //                  Where IRM.CheckedBy IS NOT NULL 
-                //AND IRM.CheckedByStatus='Checked' 
-                //AND IRM.AuthorizedByStatus='Approved' 
-                //AND IRM.AuthorizedBy IS NOT null  
-                //AND IRM.IssueSlipType='InventorySlip'
-                //AND IRM.PlantId='" + identity.PlantId + @"'
-                //                  --Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='Checked' OR IRM.CheckedByStatus='Approval'AND IRM.AuthorizedByStatus IS Not NULL  AND IRM.AuthorizedBy IS null OR IRM.AuthorizedBy IS NOT null And IRM.PreparedBy='" + identity.EmployeeId + @"'
-                //                  --Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='ForChecked' AND IRM.AuthorizedByStatus IS NULL AND IRM.IssueSlipType='AssetSlip' AND IRM.AuthorizedBy IS null --And IRM.PreparedBy='" + identity.EmployeeId + @"'
-                //                  UNION ALL
-                //SELECT IRM.Id
-                //                       ,CC.UserName AS CostCenterName
-                //                    ,B.UserName ActivityName      
-                //                    ,IR.RequisitionId
-                //                       ,IR.RequisitionDetailId                           
-                //                    ,EI.EmployeeName  PreparedBy	                          
-                //                       ,IRM.AddedBy
-                //                       ,IRM.AddedDate
-                //                       ,IRM.AddedFromIP
-                //                       ,IRM.UpdatedBy
-                //                       ,IRM.UpdatedDate
-                //                       ,IRM.UpdatedFromIP	  
-                //                      -- ,IRM.Preparedby
-                //                       ,IRM.CheckedBy
-                //                       ,IRM.CheckedByStatus
-                //                       ,IRM.AuthorizedBy
-                //                       ,IRM.AuthorizedByStatus
-                //                    ,RequestedQty
-                //                   ,RejectedQty,IRM.Orderspecific
-                //                   FROM TRN.IssueRequestMaster IRM
-                //                   Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-                //                   Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                //                   Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                //                   LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-
-                //                  Where IRM.CheckedBy IS  NULL 
-                //AND IRM.CheckedByStatus IS NULL
-                //AND IRM.AuthorizedByStatus='Approved' 
-                //AND IRM.AuthorizedBy IS NOT null  
-                //AND IRM.IssueSlipType='InventorySlip'
-                //AND IRM.PlantId='" + identity.PlantId + @"'
-                //                  )x 
-                //                   Group by Id ,x.PreparedBy,x.AddedDate ,Orderspecific                             
-                //                 ";
-                var sql = @"select x.Id,x.ProcessName,x.SalesOrderId,x.ProductionOrderId,x.PreparedBy,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty,Orderspecific=CASE WHEN Orderspecific='Yes' Then 'Yes' else 'No' End from
-                            (
+                var sql = @"SELECT * FROM (
+                                select x.Id,x.ProcessName,x.SalesOrderId,x.ProductionOrderId,x.PreparedBy,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate
+                                ,Sum(x.RequestedQty) RequestedQty ,sum(isnull(x.IssueQty,0)) IssueQty,Balance=Sum(isnull(x.RequestedQty,0))-sum(isnull(x.IssueQty,0)),Sum(x.RejectedQty) RejectedQty
+                                ,Orderspecific=CASE WHEN Orderspecific='Yes' Then 'Yes' else 'No' End from(
                                 SELECT IRM.Id
                                 ,CC.UserName AS CostCenterName
 	                            ,B.UserName ActivityName      
@@ -6872,7 +7141,7 @@ namespace Library.MaterialManagement.Inventory
                                 ,IRM.CheckedByStatus
                                 ,IRM.AuthorizedBy
                                 ,IRM.AuthorizedByStatus
-	                            ,RequestedQty
+	                            ,RequestedQty,IIH.IssueQty
                             ,RejectedQty,IRM.Orderspecific
 							,p.UserName ProcessName
 							,IRMSO.SalesOrderId
@@ -6892,7 +7161,8 @@ namespace Library.MaterialManagement.Inventory
 							left JOIN HKP.Process p ON p.Id=IRMPM.ProcessId
 							left join [TRN].[IssueRequestMasterSalesOrderMap] IRMSO ON IRMSO.IssueRequestMasterId=IRM.Id
 							left join [TRN].[ProductionOrderDetail] POD ON POD.SalesOrderId=IRMSO.SalesOrderId 
-
+							LEFT JOIN  (select IssueRequestDetailId,SUM(Qty) IssueQty from TRN.InventoryIssueHistory	group by IssueRequestDetailId)	IIH ON IIH.IssueRequestDetailId=IR.Id
+							
 							LEFT JOIN(
 							SELECT distinct PDAMAP.IssueRequestMasterId
 								,SalesOrderId=STUFF((select distinct ','+xpo.SalesOrderId from
@@ -6900,7 +7170,6 @@ namespace Library.MaterialManagement.Inventory
 								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on xpo.SalesOrderId=xPDAMAP.SalesOrderId
 								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-								
 
 							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
 							  LEFT JOIN [TRN].[ProductionOrderDetail] IR ON IR.SalesOrderId = PDAMAP.SalesOrderId
@@ -6953,7 +7222,6 @@ namespace Library.MaterialManagement.Inventory
 								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
 								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-
 							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
 							  LEFT JOIN trn.SalesOrder IR ON IR.Id = PDAMAP.SalesOrderId
 							  --LEFT JOIN [TRN].[MasterOrderItem] C ON C.Id=IR.MasterOrderItemId
@@ -6987,7 +7255,7 @@ namespace Library.MaterialManagement.Inventory
                                 ,IRM.CheckedByStatus
                                 ,IRM.AuthorizedBy
                                 ,IRM.AuthorizedByStatus
-	                            ,RequestedQty
+	                            ,RequestedQty,IIH.IssueQty
                                 ,RejectedQty
 								,IRM.Orderspecific
 								,p.UserName ProcessName
@@ -7008,7 +7276,7 @@ namespace Library.MaterialManagement.Inventory
 							left JOIN HKP.Process p ON p.Id=IRMPM.ProcessId
                             left join [TRN].[IssueRequestMasterSalesOrderMap] IRMSO ON IRMSO.IssueRequestMasterId=IRM.Id
 							left join [TRN].[ProductionOrderDetail] POD ON POD.SalesOrderId=IRMSO.SalesOrderId 
-
+							LEFT JOIN  (select IssueRequestDetailId,SUM(Qty) IssueQty from TRN.InventoryIssueHistory	group by IssueRequestDetailId)	IIH ON IIH.IssueRequestDetailId=IR.Id					
 
 							LEFT JOIN(
 							SELECT distinct PDAMAP.IssueRequestMasterId
@@ -7017,8 +7285,6 @@ namespace Library.MaterialManagement.Inventory
 								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on xpo.SalesOrderId=xPDAMAP.SalesOrderId
 
 								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								
 
 							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
 							  LEFT JOIN [TRN].[ProductionOrderDetail] IR ON IR.SalesOrderId = PDAMAP.SalesOrderId
@@ -7070,16 +7336,12 @@ namespace Library.MaterialManagement.Inventory
 								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
 								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-
-
-
 							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
 							  LEFT JOIN trn.SalesOrder IR ON IR.Id = PDAMAP.SalesOrderId
 							  --LEFT JOIN [TRN].[MasterOrderItem] C ON C.Id=IR.MasterOrderItemId
 							  --left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 							  group by  PDAMAP.IssueRequestMasterId
 							)concatData1 ON concatData1.IssueRequestMasterId = IRM.Id
-
 
                            Where IRM.CheckedBy IS  NULL 
 						   AND IRM.CheckedByStatus IS NULL
@@ -7088,9 +7350,10 @@ namespace Library.MaterialManagement.Inventory
 						   AND IRM.IssueSlipType='InventorySlip'
 						   AND IRM.PlantId='" + identity.PlantId + @"'
                            )x 
-                            Group by Id ,x.PreparedBy,x.AddedDate ,Orderspecific,x.ProcessName ,x.SalesOrderId,x.ProductionOrderId,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName
-
-";
+                            Group by Id ,x.PreparedBy,x.AddedDate ,Orderspecific,x.ProcessName 
+							,x.SalesOrderId,x.ProductionOrderId,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName
+							) y
+							where y.Balance>0";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -7348,7 +7611,7 @@ namespace Library.MaterialManagement.Inventory
                                 	,IRM.Id IssueRequestMasterId
                                 	,IR.Id IssueRequest
                                 	--,RequestedQty=Isnull(IR.RequestedQty,0)-ISNULL(ABC.Qty,0)							
-                                	,PostingQty.MaterialStorageId
+                                	--,PostingQty.MaterialStorageId
                                 	,Convert(BIT, 0) 'check'
                                 	,IR.RequestedQty RequestedQty
                                 	,sum(IDRM.Qty) IssuedQty
@@ -7393,7 +7656,7 @@ namespace Library.MaterialManagement.Inventory
                                 		,IM.FirstCharacteristicsValueId
                                 		,IM.SecondCharacteristicsValueId
                                 		,IM.ThirdCharacteristicsValueId
-                                		,IRD.MaterialStorageId
+                                		--,IRD.MaterialStorageId
                                 		,IM.PlantId
                                 	FROM [TRN].[InventoryReceiveDetail] AS IRD
                                 	JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId = IM.Id
@@ -7405,7 +7668,7 @@ namespace Library.MaterialManagement.Inventory
                                 	LEFT JOIN (
                                 		SELECT IID.InventoryMaterialId
                                 			,IH.InventoryReceiveDetailId
-                                			,II.MaterialStorageId
+                                			--,II.MaterialStorageId
                                 			,Sum(ISNULL(IH.Qty, 0)) IssueQty
                                 			,Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount, 0)) IssueAmount
                                 			,IID.IsAsset
@@ -7416,13 +7679,13 @@ namespace Library.MaterialManagement.Inventory
                                 		GROUP BY IID.InventoryMaterialId
                                 			,IID.IsAsset
                                 			,IH.InventoryReceiveDetailId
-                                			,II.MaterialStorageId
+                                			--,II.MaterialStorageId
                                 		) II ON II.InventoryReceiveDetailId = IRD.Id
-                                		AND II.MaterialStorageId = IRD.MaterialStorageId
+                                		--AND II.MaterialStorageId = IRD.MaterialStorageId
                                 	WHERE IM.CompanyGroupId = '" + identity.CompanyGroupId + @"'
                                 		AND IM.CompanyId = '" + identity.CompanyId + @"'
                                 		AND IM.PlantId = '" + identity.PlantId + @"'
-                                		AND IRD.MaterialStorageId = '" + StorageLocationId + @"'
+                                		--AND IRD.MaterialStorageId = '" + StorageLocationId + @"'
                                 		AND IR.[Status] = 'Posting'
                                 	GROUP BY IRD.InventoryMaterialId
                                 		,IM.MaterialMasterId
@@ -7430,7 +7693,7 @@ namespace Library.MaterialManagement.Inventory
                                 		,IM.FirstCharacteristicsValueId
                                 		,IM.SecondCharacteristicsValueId
                                 		,IM.ThirdCharacteristicsValueId
-                                		,IRD.MaterialStorageId
+                                		--,IRD.MaterialStorageId
                                 		,TUoM.Id
                                 		,IM.PlantId
                                 	) PostingQty ON PostingQty.InventoryMaterialId = IR.InventoryMaterialId
@@ -7491,7 +7754,7 @@ namespace Library.MaterialManagement.Inventory
                                 	,IA1.UserName
                                 	,IRM.Id
                                 	,IR.Id
-                                	,PostingQty.MaterialStorageId
+                                	--,PostingQty.MaterialStorageId
                                 	,AlternativeUOM.BaseUOMFactor";
                 }
                 return _sqlRepository.GetDataCollection(sql);

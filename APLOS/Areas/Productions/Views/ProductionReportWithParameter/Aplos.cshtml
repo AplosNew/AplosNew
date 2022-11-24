@@ -1,0 +1,254 @@
+﻿<style>
+
+    .loaderr {
+        width: 300px;
+        height: 200px;
+        background-color: #0780BA;
+        color: #fff;
+        padding: 100px;
+        font-size: 25px;
+    }
+
+    .e-grid .e-headercelldiv {
+        font-weight: bold;
+        font-size: 10px;
+        display: block;
+        border: 0 none;
+        height: 29px;
+        line-height: 29px;
+        margin: -7px;
+        padding: 0 .7em;
+        text-align: left;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-family: "Arial Narrow";
+    }
+
+    .e-grid .e-rowcell {
+        border-width: 1px 0 0 1px;
+        padding: .7em;
+        line-height: 10px;
+        white-space: nowrap;
+        width: auto;
+        vertical-align: middle;
+    }
+    /*.e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }*/
+    .e-grid.e-wrap .e-columnheader .e-headercelldiv {
+        margin-bottom: 2px;
+        margin-top: 0;
+        font-size: 9px;
+    }
+    /*.e-filterset:before {
+        color: Green;
+    }*/
+
+
+
+
+    e-grid .e-columnheader .wrap .e-headercelldiv {
+        height: Auto;
+    }
+
+    .e-grid .e-excelfilter .e-btncontainer input {
+        padding: .2em .4em .3em;
+    }
+
+    .e-grid.e-dlgcontainer .e-dlgBtns .e-clear {
+        padding: 3px;
+    }
+
+    .e-grid.e-dlgcontainer .e-dlgBtns .e-filter {
+        padding: 3px;
+    }
+
+    ::-ms-clear {
+        display: none;
+    }
+
+    .e-grid.filtered .e-filteredicon {
+        color: red;
+    }
+</style>
+
+<script>
+
+
+
+	function chkChange(Id, UserName) {
+		debugger;
+		$("#message").text(Id);
+		$("#PartyCode").text(Id);
+		$("#Vendor").val(UserName);
+		$('#partyPopUp').modal('hide');
+		//alert('Session==' + UserName);
+		PartyId = $("#PartyCode").text();
+		//$scope.getPartyPlantList(Id);
+	}
+	function getMasterId(Id) {
+		debugger;
+		$("#masterId").text(Id);
+
+	}
+</script>
+<style>
+    .e-filterset:before {
+        /*content: "";*/
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background: #a2f1ff;
+        color: #080076;
+        min-height: 100%;
+        border-bottom-color: #8B4513;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+
+<div id="Test">
+    <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Production Report With Parameter</h3>
+    <div class="form-elements form-horizontal">
+        <div class="col-xs-12 col-sm-12 col-md-12" ng-form="from0">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Production Report With Parameter</legend>
+                        <div class="clearfix"></div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-disabled="IsGo" ng-model="productionParameterSummaryNew.EntityId" ng-change="loadProcessList(productionParameterSummaryNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors id="div_FromDate">
+                                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Form Date" ng-model="productionParameterSummaryNew.ProductionFromDate" datepicker tabindex="2" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-disabled="IsGo" ng-model="productionParameterSummaryNew.ProductionShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-disabled="IsGo" ng-model="productionParameterSummaryNew.ProcessId" ng-change="loadWC(productionParameterSummaryNew.ProcessId,productionParameterSummaryNew.EntityId);getProdLevel();" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors id="div_ToDate">
+                                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                <div class="col-sm-8  show-message">
+                                    <input type="text" name="To Date" ng-model="productionParameterSummaryNew.ProductionToDate" datepicker tabindex="3" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="GetProductionParameter();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                            </ul>
+                        </div>
+                    </fieldset>
+
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Stock Register List</span></legend>
+            <div id="PR">
+                <div class="content-container-fluid" style="color:black;">
+
+                    <div style="color:black;" id="GridProductionParameter" ej-grid e-datasource="ProductionParameterList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                       
+                        <div e-columns>
+                            <div e-column e-field="SLNo" e-headertext="SL No" e-width="90" textAlign='Left'></div>
+                            <div e-column e-field="IsRegular" e-headertext="Regular" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="120"></div>
+                            <div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group Master Name" e-width="90"></div>
+                            <div e-column e-field="MaterialMasterName" e-headertext="Material Master" e-width="100"></div>
+                            <div e-column e-field="ArticleName" e-headertext="Article Name" e-width="100"></div>
+                            <div e-column e-field="SKU1" e-headertext="SKU1" e-width="200" textAlign='Left'></div>
+                            <div e-column e-field="SKU2" e-headertext="SKU2" e-width="95"></div>
+                            <div e-column e-field="SKU3" e-headertext="SKU3" e-width="130" textAlign='Left'></div>
+                            <div e-column e-field="GRNId" e-headertext="GRN No" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="GrnDetailId" e-headertext="Row Id" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="TransactionQty" e-headertext="Transaction Qty" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="UOM" e-headertext="UOM" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="MaterialTranAmount" e-headertext="Material Tran Amount" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="BalanceStock" e-headertext="Balance Stock" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="StockInDays" e-headertext="Stock In Days" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="IsAsset" e-headertext="Asset" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="GRNType" e-headertext="GRN Type" e-width="140" textAlign='Right'></div>
+
+                            <div e-column e-field="PartyName" e-headertext="Party Name" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="FirstName" e-headertext="First Name" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="AddedBy" e-headertext="Added By" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="GRNCheckStatus" e-headertext="GRN Check Status" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="CheckedBY" e-headertext="Checked BY" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="AuthorizedBy" e-headertext="Authorized By" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="RequsitionNo" e-headertext="Requsition No" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="RequisitionQty" e-headertext="Requisition Qty" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="RequisitionAddedBy" e-headertext="Requisition Added By" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="ReqCheckBy" e-headertext="Req Check By" e-width="140" textAlign='Right'></div>
+                            <div e-column e-field="ReqApproveBy" e-headertext="Req Approve By" e-width="140" textAlign='Right'></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="PurchaseOrderGRNWiseReportExcel();" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="clearfix"></div>
+
+
+    </div>
+</div>

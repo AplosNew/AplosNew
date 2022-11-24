@@ -19,8 +19,7 @@ namespace Library.MaterialManagement.Inventory
         GridModel QueryEmpGrn(GridParameter parameters, string plantId); 
 
 
-        IEnumerable<object> GetListForHold(string plantId,string PoType,string Status);
-        IEnumerable<object> GetPOListForAdvance(string plantId, string PoType, string Status, string vendorId);
+        IEnumerable<object> GetListForHold(string plantId,string PoType,string Status, string vendorId);
         IEnumerable<object> LoadAcceptanceDetails(string AcceptanceId);
         IEnumerable<object> LoadAcceptanceDetailsBOQ(string AcceptanceId);
 
@@ -46,8 +45,6 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetReceiveTaxListBOQ(string receiveDetailId);
         IEnumerable<object> GetReceiveTaxListPO(string receiveDetailId);
         IEnumerable<object> GetMaterialLedger(string fromDate, string toDate);
-		IEnumerable<object> GetPurchaseRegister(string fromDate, string toDate, string Type);
-		IEnumerable<object> GetSalesRegisterSql(string fromDate, string toDate, string Type);
 
         IEnumerable<object> GetPurchaseReturnRegister(string fromDate, string toDate, string Type);
 
@@ -112,12 +109,6 @@ namespace Library.MaterialManagement.Inventory
 		IEnumerable<object> GetListForGRNAp(string plantId);
 		IEnumerable<object> GetListForGRNApprovalHoldReject(string plantId);
 
-
-		IEnumerable<object> GetListForGRNUNApproval(string plantId);
-
-       
-
-
         void PoApproved(string PoId, string PoValue);
 
       
@@ -134,6 +125,7 @@ namespace Library.MaterialManagement.Inventory
 
         IEnumerable<object> IssueSlipFilter();
 		IEnumerable<object> GetIssueSlipFilterData(string column, string value, string plantId);
+        IEnumerable<object> GetStockForMaterialIssue(string plantId, string materialMasterId, string articleId);
         IEnumerable<object> GetAssetIssueSlipFilterData();
         
 

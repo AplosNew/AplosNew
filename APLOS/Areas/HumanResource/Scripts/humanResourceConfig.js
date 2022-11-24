@@ -732,11 +732,14 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/ScatteredWeekOff/Aplos',
             controller: 'ScatteredWeekOffController'
         })
-        .when('/residence-status-location', {
-            templateUrl: 'humanResource/ResidenceStatusLocation/Aplos',
-            controller: 'ResidenceStatusLocationController'
+        .when('/residence-status-allocation', {
+            templateUrl: 'humanResource/ResidenceStatusAllocation/Aplos',
+            controller: 'ResidenceStatusAllocationController'
         })
-
+        .when('/residence-status-allocation-report', {
+            templateUrl: 'humanResource/ResidenceStatusAllocation/Report',
+            controller: 'ResidenceStatusAllocationReportController'
+        })
         .when('/absentism-reasoning-master', {
             templateUrl: 'humanResource/AbsentismReasoningMaster/Aplos',
             controller: 'AbsentismReasoningMasterController'
@@ -770,6 +773,88 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/ot-control-limit', {
             templateUrl: 'humanResource/OTControlLimit/Aplos',
             controller: 'OTControlLimitController'
+        })
+        .when('/ot-ctr-limit-report', {
+            templateUrl: 'humanResource/OTControlLimit/Report',
+            controller: 'OTControlLimitReportController'
+        })
+
+        .when('/ot-reason', {
+            templateUrl: 'humanResource/OTRegion/Aplos',
+            controller: 'OTRegionController'
+        })
+
+        .when('/ot-compensatory-allocation', {
+            templateUrl: 'humanResource/OTCompensatoryAllocation/Aplos',
+            controller: 'OTCompensatoryAllocationController'
+        })
+        .when('/furniture-master', {
+            templateUrl: 'humanResource/FurnitureMaster/Aplos',
+            controller: 'FurnitureMasterController'
+        })
+        .when('/furniture-policy', {
+            templateUrl: 'humanResource/FurniturePolicy/Aplos',
+            controller: 'FurniturePolicyController'
+        })
+
+        .when('/furniture-policy-report', {
+            templateUrl: 'humanResource/FurniturePolicyReport/Aplos',
+            controller: 'FurniturePolicyReportController'
+        })
+
+        .when('/5s-zone-master', {
+            templateUrl: 'humanResource/FiveSZoneMaster/Aplos',
+            controller: 'FiveSZoneMasterController'
+        })
+
+        .when('/survey-and-feedback', {
+            templateUrl: 'humanResource/SurveyandFeedback/Aplos',
+            controller: 'SurveyandFeedbackController'
+        })
+
+        .when('/medicine-master', {
+            templateUrl: 'humanResource/MedicineMaster/Aplos',
+            controller: 'MedicineMasterController'
+        })
+
+        .when('/sickness-type', {
+            templateUrl: 'humanResource/SicknessType/Aplos',
+            controller: 'SicknessTypeController'
+        })
+
+        .when('/medicine-purpose', {
+            templateUrl: 'humanResource/MedicinePurpose/Aplos',
+            controller: 'MedicinePurposeController'
+        })
+
+        .when('/medicine-receipt', {
+            templateUrl: 'humanResource/MedicineReceipt/Aplos',
+            controller: 'MedicineReceiptController'
+        })
+        .when('/medical-log', {
+            templateUrl: 'humanResource/MedicalLog/Aplos',
+            controller: 'MedicalLogController'
+        })
+        .when('/medical-log-report', {
+            templateUrl: 'humanResource/MedicalLogReport/Aplos',
+            controller: 'MedicalLogReportController'
+        })
+
+        .when('/medicine-category', {
+            templateUrl: 'humanResource/MedicineCategory/Aplos',
+            controller: 'MedicineCategoryController'
+        })
+        .when('/experience-master', {
+            templateUrl: 'humanResource/ExperienceMaster/Aplos',
+            controller: 'ExperienceMasterController'
+        })
+        .when('/employer-master', {
+            templateUrl: 'humanResource/EmployerMaster/Aplos',
+            controller: 'EmployerMasterController'
+        })
+        .when('/qualification-master', {
+            templateUrl: 'humanResource/QualificationMaster/Aplos',
+            controller: 'QualificationMasterController'
         })
         ;
 }

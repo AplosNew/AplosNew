@@ -31,10 +31,10 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>VoucherNo</th>
+                                <th>Voucher No</th>
                                 <th>Vendor</th>
                                 <th>Location</th>
-                                <th>PostingDate</th>
+                                <th>Posting Date</th>
                                 <th>Currency</th>
                                 <th>Advanced</th>
                                 <th>Write-off</th>
@@ -42,7 +42,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr dir-paginate="x in advanceDataList |itemsPerPage:advanceParameters.pageSize" pagination-id="metaData.name + 'advanceDataList'" total-items="advanceParameters.total_count" 
+                            <tr dir-paginate="x in advanceDataList |itemsPerPage:advanceParameters.pageSize" pagination-id="metaData.name + 'advanceDataList'" total-items="advanceParameters.total_count"
                                 ng-class="{selected : x.VoucherDetailId == selectedAdvanceId}" ng-dblclick="closeAdvancePopUpSelected(x)">
                                 <td>{{x.VoucherNo}}</td>
                                 <td>{{x.PartyName}}</td>
@@ -59,7 +59,22 @@
                 </div>
             </div>
             <div class="modal-footer common-btn">
-                <button type="button" class="btn btn-default" ng-click="closeAdvancePopUp();">Select</button>
+                <ul>
+                    <li>
+                            <button type="button" class="btn btn-default text-left" ng-click="closeAdvancePopUp();">Select</button>
+
+                        <div class="list-inline text-left" ej-tooltip e-showshadow="true" ng-click="VendorAdvanceReportExcel();" e-width="width">
+                            <button class="btn"><i class="glyphicon glyphicon-download"></i>Download</button>
+                        </div>
+                       
+                    </li>
+                    @*<li>
+                        <div class="list-inline text-right">
+                            <button type="button" class="btn btn-default" ng-click="closeAdvancePopUp();">Select</button>
+                        </div>
+                    </li>*@
+                </ul>
+                
             </div>
         </div>
     </div>

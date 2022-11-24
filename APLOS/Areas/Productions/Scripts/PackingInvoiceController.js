@@ -181,7 +181,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         ob.PartyId = $scope.PackingList[i].CustomerId;
                         ob.EntityId = $scope.PackingList[i].EntityId;
-                        if (checkExistCustomer($scope.selectedPackingList, ob.PartyId, ob.EntityId)) {
+                        if (checkExistCustomer($scope.selectedPackingList, ob.PartyId)) {
                             if (checkExistList($scope.selectedPackingList, ob.PackingId) === false) {
 
                                 ob.PackingId = $scope.PackingList[i].PackingId;
@@ -218,9 +218,9 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         }
     }
 
-    function checkExistCustomer(list, customerId, EntityId) {
+    function checkExistCustomer(list, customerId) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].PartyId !== customerId || list[i].EntityId !== EntityId) {
+            if (list[i].PartyId !== customerId) {
                 return false;
             }
         }
@@ -262,7 +262,6 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             url: "Productions/PackingInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
         }).then(function (response) {
             $scope.salesOrderNewList = response.data;
-            console.log($scope.salesOrderNewList);
 
             angular.element(document.querySelector('#salesOrderItemPopUp')).modal('show');
         });
@@ -2066,7 +2065,12 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     $scope.LocalTaxInvoiceReport = function (data) {
         location.href = "SalesManagements/Sales/LocalTaxInvoice?salesId=" + data.Id;
     };
-
+    $scope.LocalTaxInvoiceWithoutSUIReport = function (data) {
+        location.href = "Sales/LocalTaxInvoiceWithoutSKU?salesId=" + data.Id;
+    };
+    $scope.LocalTaxInvoiceWithProductDetailService = function (data) {
+        location.href = "Sales/LocalTaxInvoiceWithProductDetailService?salesId=" + data.Id;
+    };
     $scope.CommercialInvoiceReport = function (data) {
         location.href = "SalesManagements/Sales/CommercialInvoice?salesId=" + data.Id;
     };

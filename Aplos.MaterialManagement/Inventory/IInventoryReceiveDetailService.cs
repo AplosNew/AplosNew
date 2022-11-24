@@ -9,7 +9,8 @@ namespace Library.MaterialManagement.Inventory
 {
     public interface IInventoryReceiveDetailService : IService<InventoryReceiveDetail>
     {
-        void InsertOrUpdateGraphNew(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType);
+        void InsertOrUpdateGraphNew(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType, IEnumerable<GRNPORequisitionMap> requisitionDetailList);
+        void UpdateGRNBYPOMaster(InventoryReceive entity, string GRNType);
         void InsertOrUpdateGraphNewGRNBOQ(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType, IEnumerable<InventoryMaterialViewModel> BOQAllocationSave);
         void BOQInsertOrUpdateGraphNew(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType,List<InventoryMaterialViewModel> List);
         void InsertFOCDetail(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> List);
@@ -19,7 +20,7 @@ namespace Library.MaterialManagement.Inventory
         void InsertOrUpdateGraphNewEdits(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId,string GRNType);
 		void InsertOrUpdateGraphNewEditsOnlyGRN(IEnumerable<InventoryMaterialViewModel> entityMat,string Id);
 		
-        void InsertOrUpdateGraph(InventoryMaterialViewModel entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList);
+        void InsertOrUpdateGraph(InventoryMaterialViewModel entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, IEnumerable<GRNBinAllocationMap> gRNBinAllocationMapList);
         void InsertFOCMaterial(InventoryMaterialViewModel itemDetail, IEnumerable<InventoryReceiveTax> taxCategoryList);
         void Delete(string receiveDetailId);
         void JWDelete(string receiveDetailId);

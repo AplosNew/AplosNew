@@ -1,0 +1,54 @@
+﻿@*<togglable name="{{title}}">Costing Template</togglable>*@
+@*<h3 class="site-heading">{{title}}</h3>*@
+<h3 class="site-heading">Position Wise MP Status Report</h3>
+<div id="PositionMain"></div>
+
+<div class="row">
+    <div id="filters">
+    </div>
+    <div class="col-md-1 text-right" style="margin-top:20px;">
+        <button type="button" class="btn single-btn" ng-click="getData()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Load</button>
+    </div>
+
+    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+        <div id="PositionEditList" ej-grid e-datasource="ModelList" e-allowfiltering="true" e-allowscrolling="true" style="color:black;" e-allowsorting="true"
+             e-allowResizing="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true"
+             e-allowpaging="true" e-enabletouch="true" e-responsive="true" e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-type="string" e-field="SlNO" e-headertext="Sl NO" e-width="80px"></div>
+                <div e-column e-field="Plant" e-headertext="Plant" e-width="80px"></div>
+                <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80px"></div>
+                <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="100px"></div>
+                <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="100px"></div>
+                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="100px"></div>
+                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub-Section" e-width="100px"></div>
+                <div e-column e-type="string" e-field="Activity" e-headertext="Activity" e-width="100px"></div>
+                <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="120px"></div>
+                <div e-column e-type="string" e-field="Criticality" e-headertext="Criticality" e-width="120px"></div>
+                <div e-column e-type="string" e-field="PositionCode" e-headertext="Position Code" e-width="100px"></div>
+                <div e-column e-type="string" e-field="Deployment" e-headertext="Deployment" e-width="80px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="MPBgt" e-headertext="MP Bgt" e-width="100px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="Age" e-headertext="Age" e-width="100px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="OnRoll" e-headertext="On Roll" e-width="100px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="TBS" e-headertext="TBS" e-width="100px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="LAbs" e-headertext="L.Abs" e-width="100px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="CurrentAvailable" e-headertext="Current Available" e-width="100px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="Excess" e-headertext="Excess" e-width="100px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="Short" e-headertext="Short" e-width="100px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="AdditionalPlan" e-headertext="Additional Plan" e-width="100px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="CurrentPlan" e-headertext="Current Plan" e-width="100px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="ToReallocate" e-headertext="To Reallocate" e-width="100px" e-textalign="right"></div>
+                <div e-column e-type="string" e-field="ToRecurit" e-headertext="To Recurit" e-width="100px" e-textalign="right"></div>
+            </div>
+        </div>
+
+        <div class="col-md-1 text-right" style="margin-top:20px;">
+            <button type="button" class="btn single-btn" ng-click="getPositionWiseMPStatusReport()" style="margin-top:10px;">
+                <i class="glyphicon glyphicon-arrow-down"></i>Download
+            </button>
+        </div>
+    </div>
+</div>
+
+@*@Html.Partial("~/Areas/Costings/Views/OrderCosting/ItemToolTip.cshtml")*@
+<confirm-archive-generic modalid="ApproveCosting" title="Confirmation" message="{{PopupMessage}}" data-ng-click-right-button="ApproveCosting();"></confirm-archive-generic>

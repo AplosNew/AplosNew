@@ -774,8 +774,19 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.closeExpenseDistributePopUp = function () {
-      /*  $scope.setTaxVoucherDetailIndex = null;*/
-        angular.element(document.querySelector("#ExpenseDistributePopUp")).modal("hide");
+        $scope.TotalDistributedAmountInBound = 0;
+        $scope.TotalDistributedAmountOutBound = 0;
+        $scope.TotalDistributedAmountInBound = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+        $scope.TotalDistributedAmountOutBound = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount"));
+
+        if ((parseFloat($scope.TotalDistributedAmountInBound) + parseFloat($scope.TotalDistributedAmountOutBound)) !== parseFloat($scope.TotalChargesAmount)) {
+             ShowResult('Distributed Amount must be equal Taxable Amount.!', 'failure', 'ExpenseDistributePopUp');
+        }
+        else
+        {
+            angular.element(document.querySelector("#ExpenseDistributePopUp")).modal("hide");
+        }
+        
     };
 
     $scope.addTaxCodeonList = function (item) {
@@ -1653,10 +1664,13 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.checkedInvoiceList = [];
     $scope.VendorAvailableInvoiceList = [];
+    $scope.searchByVendor = "UserName"; $scope.searchVendor = "";
+    $scope.searchByVendorList = [{ value: 'VoucherNo', name: "VoucherNo" }, { value: 'EntityName', name: "Entity" }, { value: 'PartyPlantName', name: "Party" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'DocDate', name: "DocDate" }, { value: 'PostingDate', name: "Invoice Date" }, { value: 'DocRefNo', name: "Invoice No" }];
     $scope.showInvoicePopUp = function () {
         $http({
-            method: 'GET',
-            url: 'accounts/Invoice/GetVendorAvailableInvoiceList1',
+            method: 'POST',
+            url: 'accounts/Invoice/GetVendorAllInvoiceList',
+            data: { column: $scope.searchByVendor, value: $scope.searchVendor },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.VendorAvailableInvoiceList = response.data;
@@ -1689,11 +1703,15 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     };
     $scope.checkedOutBoundInvoiceList = [];
     $scope.CustomerAvailableInvoiceList = [];
+    $scope.searchByCustomer = "UserName"; $scope.searchCustomer = "";
+    $scope.searchByCustomerList = [{ value: 'VoucherNo', name: "VoucherNo" }, { value: 'EntityName', name: "Entity" }, { value: 'PartyPlantName', name: "Party" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'DocDate', name: "DocDate" }, { value: 'PostingDate', name: "Invoice Date" }, { value: 'DocRefNo', name: "Invoice No" }];
+
     $scope.showOutBoundInvoicePopUp = function () {
         try {
             $http({
-                method: 'GET',
-                url: 'accounts/CustomerInvoice/GetCustomerAvailableReceivableData',
+                method: 'POST',
+                url: 'accounts/CustomerInvoice/GetCustomerAllReceivableData',
+                data: { column: $scope.searchByCustomer, value: $scope.searchCustomer },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.CustomerAvailableInvoiceList = response.data;
@@ -2203,6 +2221,36 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         }
 
         $scope.calContractDistributedAmount();
+    }
+    $scope.checkDistributedAmount = function myfunction(index, item) {
+        if ($scope.activityOrderType == "InboundInvoice") {
+            $scope.TotalDistributedAmounts = 0;
+            $scope.TotalDistributedAmounts = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+        
+            if (parseFloat($scope.TotalDistributedAmounts) > parseFloat($scope.TotalChargesAmount)) {
+                $scope.checkedInvoiceList[index].DistributedAmount = 0;
+                ShowResult('Distributed Amount must be equal Taxable Amount.!', 'failure', 'ExpenseDistributePopUp');
+            }    
+        }
+        else if ($scope.activityOrderType == "OutboundInvoice") {
+            $scope.TotalDistributedAmounts = 0;
+            $scope.TotalDistributedAmounts = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount"));
+
+            if (parseFloat($scope.TotalDistributedAmounts) > parseFloat($scope.TotalChargesAmount)) {
+                $scope.checkedOutBoundInvoiceList[index].DistributedAmount = 0;
+                ShowResult('Distributed Amount must be equal Taxable Amount.!', 'failure', 'ExpenseDistributePopUp');
+            }
+        }
+        else if ($scope.activityOrderType == "BothInOutboundInvoice") {
+            $scope.TotalDistributedAmountInBound = 0;
+            $scope.TotalDistributedAmountOutBound = 0;
+            $scope.TotalDistributedAmountInBound = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+            $scope.TotalDistributedAmountOutBound = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount"));
+
+            if ((parseFloat($scope.TotalDistributedAmountInBound) + parseFloat($scope.TotalDistributedAmountOutBound)) > parseFloat($scope.TotalChargesAmount)) {
+                ShowResult('Distributed Amount must be equal Taxable Amount.!', 'failure', 'ExpenseDistributePopUp');
+            }
+        }
     }
 
 }

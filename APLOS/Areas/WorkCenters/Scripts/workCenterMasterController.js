@@ -76,7 +76,8 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         AccountHolderName: null,
         AccountInCharge: null,
         AccountInChargeName: null,
-        GroupingData: null
+        GroupingData: null,
+        Active: true
     };
     // #region DDL
 
@@ -976,10 +977,12 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
 
     // #endregion Employee Mentor
 
+    $scope.ProcessId = null;
     // #region Detail Pop
-    $scope.details = function (masterId, entityId) {
+    $scope.details = function (masterId, entityId, ProcessId) {
         $scope.masterId = masterId;
         $scope.entityId = entityId;
+        $scope.ProcessId = ProcessId;
         $scope.tempList = [];
         $scope.effectiveDateList = [];
         $scope.budgetCodeList = [];
@@ -1021,7 +1024,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
                 , WorkCenterMasterId: $scope.masterId
                 , StartDate: endDate
                 , EndDate: null
-                ,Hour:null
+                , Hour: null
             });
         }
         else
@@ -1030,7 +1033,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
                 , WorkCenterMasterId: $scope.masterId
                 , StartDate: new Date()
                 , EndDate: null
-                ,Hour:null
+                , Hour: null
             });
     }
     // #endregion
@@ -1322,6 +1325,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         }).then(function successCallback(response) {
             $scope.selectedShiftList = response.data;
         });
+        $scope.GetWorkCenterMasterSubProcessList();
     };
     $scope.cIndex = -1;
     $scope.valuePassInDelModal = function (index, data) {
@@ -1359,6 +1363,136 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
 
     // #endregion
 
+    // #region SubProcess
+
+    $scope.popUpList = [];
+    $scope.valueData = '';
+    $scope.popUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Code',
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.companySubProcessList = [];
+    $scope.SubProcessPopUp = function () {
+
+        $scope.popUpUrl = 'WorkCenters/WorkCenterMaster/GetListForSubProcess/?processId=' + $scope.ProcessId + '&WorkCenterMasterId=' + $scope.masterId + '&subProcessIds=' + isProcessIdExistGrid($scope.companySubProcessList);
+        $scope.getCompanySubProcessData = function (pageno) {
+            $rootScope.parameters.processId = $scope.ProcessId;
+            baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
+                .then(function (result) {
+                    $scope.subProcesses = result.Rows;
+                    $scope.popUpParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure');
+                }).finally(function () {
+                });
+
+            angular.element(document.querySelector('#subProcessPopUp')).modal('show');
+        };
+        $scope.getCompanySubProcessData();
+    };
+    function isProcessIdExistGrid(list) {
+        $scope.ProcessIds = [];
+        if (list.length > 0) {
+            for (var i = 0; i < list.length; i++) {
+                if (list[i]['Archive'] == false) {
+                    $scope.ProcessIds.push(list[i]['SubProcessId']);
+                }
+            }
+        }
+        return JSON.stringify($scope.ProcessIds);
+    }
+    $scope.searchSubProcessByList = [
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'User Name',
+            'value': 'UserName'
+        }
+    ];
+    $scope.closeSubProcessListPopUp = function () {
+        angular.element(document.querySelector('#subProcessPopUp')).modal('hide');
+    };
+
+    $scope.tempList = [];
+    $scope.tempArchiveList = [];
+
+    $scope.SubProcessList = [];
+    $scope.addSubProcess = function () {
+        angular.forEach($scope.subProcesses, function (a) {
+            if (a.Flag) {
+                $scope.SubProcessList.push({
+                    Id: null,
+                    Code: a.Code,
+                    SubProcessId: a.Id,
+                    SubProcessName: a.UserName,
+                    SubProcessCategoryName: a.SubProcessCategoryName,
+                    ProcessId: $scope.ProcessId,
+                    WorkCenterMasterId: $scope.masterId,
+                    Archive: false,
+                    class: 'new'
+                });
+            }
+        });
+        if (!$scope.tableShow)
+            $scope.tableShow = true;
+        angular.element(document.querySelector('#subProcessPopUp')).modal('hide');
+    }
+
+    $scope.GetWorkCenterMasterSubProcessList = function () {
+        $http({
+            method: 'GET',
+            url: 'WorkCenters/WorkCenterMaster/GetWorkCenterMasterSubProcessList?workCenterMasterId=' + $scope.masterId
+        }).then(function successCallback(response) {
+            $scope.SubProcessList = response.data;
+        });
+    };
+
+    $scope.cIndex = -1;
+    $scope.valuePassInSPDelModal = function (index, data) {
+        $scope.id = data.Id;
+        $scope.cIndex = index;
+        $scope.message_confirmation = 'Are you sure want to permanently delete [ ' + data.SubProcessName + ' ]';
+        angular.element(document.querySelector('#confirmgenericSPPopUp')).modal('show');
+    };
+
+    $scope.DeleteSP = function () {
+        if (!baseService.isUndefinedOrNull($scope.id)) {
+            $http({
+                method: 'POST',
+                url: 'WorkCenters/WorkCenterMaster/DeleteSP?id=' + $scope.id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.SubProcessList.splice($scope.cIndex, 1);
+                    $scope.cIndex = -1;
+                    $scope.GetWorkCenterMasterSubProcessList();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        } else {
+            $scope.SubProcessList.splice($scope.cIndex, 1);
+            $scope.cIndex = -1;
+        }
+    };
+
+
+    // #endregion
+
     $scope.detailSave = function () {
         try {
             //if (baseService.arrayLength($scope.effectiveDateList) == 0 || baseService.arrayLength($scope.budgetCodeList) == 0 || baseService.arrayLength($scope.productPriorityList) == 0)
@@ -1392,6 +1526,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
                     , 'budgetCodeList': $scope.budgetCodeList
                     , 'productPriorityList': $scope.productPriorityList
                     , 'shiftList': $scope.selectedShiftList
+                    , 'subProcessList': $scope.SubProcessList
                 }
             }).then(function (response) {
                 if (response.data.Error == true) {

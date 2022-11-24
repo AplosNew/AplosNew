@@ -24,6 +24,8 @@ function materialStorageController(cboService, commonMessage, $scope, $rootScope
         UserName: null,
         Description: null,
         Remarks: null,
+        BudgetId: null,
+        BudgetCode: null,
         Active: true
     };
     $scope.buyerStyleNew = Object.assign({}, $scope.buyerStyle);
@@ -95,6 +97,54 @@ function materialStorageController(cboService, commonMessage, $scope, $rootScope
             $rootScope.toggle();
         }
     };
+
+    //#region Responsible ManPower
+
+    $scope.name = null;
+    $scope.popUpList = [];
+    $scope.valueData = '';
+    $scope.popUpDataList = [];
+    $scope.budgetpopUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Code',
+        searchBy: "Code",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.popUp = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialStorage/getbudgetcodelist?companyId=' + $scope.buyerStyleNew.CompanyId + '&plantId=' + $scope.buyerStyleNew.PlantId
+        }).then(function successCallback(response) {
+            $scope.popUpDataList = response.data.Rows;
+        });
+
+        angular.element(document.querySelector('#popUpId')).modal('show');
+    };
+
+    $scope.selectDoubleClick = function (data) {
+        $scope.buyerStyleNew.BudgetId = data.data.Id;
+        $scope.buyerStyleNew.BudgetCode = data.data.Code;
+
+        angular.element(document.querySelector('#popUpId')).modal('hide');
+    };
+
+    $scope.clearCode = function () {
+        $scope.buyerStyleNew.BudgetCode = null;
+        $scope.buyerStyleNew.BudgetId = null;
+    };
+    $scope.closePopUp = function () {
+        $scope.valueData = '';
+        angular.element(document.querySelector('#popUpId')).modal('hide');
+    };
+
+
+    //#endregion Responsible ManPower
+
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.buyerStyleForm.$valid) {

@@ -12,6 +12,14 @@ using Library.Model.Productions.ProductionBooking;
 using Library.Data.Sql;
 using Library.OrderManagement.Production;
 using System;
+using System.Data;
+using Library.Security.Core;
+using Syncfusion.XlsIO;
+using Library.Service.Helpers;
+using System.IO;
+using System.Linq;
+using Library.Model.Enums;
+using System.Drawing;
 
 #endregion
 
@@ -39,7 +47,10 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
-
+        public ActionResult AplosWC()
+        {
+            return View();
+        }
         public ActionResult AplosSFG()
         {
             return View();
@@ -55,10 +66,15 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
+
+        public ActionResult Report()
+        {
+            return View();
+        }
         #endregion
 
         #region -- Operations
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public JsonResult GetIsProductionHourOpen()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -69,6 +85,12 @@ namespace Aplos.Areas.Productions.Controllers
         public JsonResult GetProductionBookingPeriodCbo()
         {
             return Json(_productionSummaryData.GetProductionBookingPeriodCbo(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetShiftList(string processId)
+        {
+            return Json(_productionSummaryData.GetShiftList(processId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -85,129 +107,42 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpGet, Authorize]
         public JsonResult GetLotNumberCbo(string SalesOrderId, string ProductionOrderId, string ProcessId, string productionLevel)
         {
-            var sql = "";
-            if (productionLevel != "ProductionOrder")
-            {
-                sql = @"SELECT DISTINCT LotNumber [Value],LotNumber [Text] FROM TRN.ProductionSummary Where ISNULL(LotNumber,'')<>'' AND SalesOrderId='" + SalesOrderId + "' AND ProcessId='" + ProcessId + "'";
-            }
-            else
-            {
-                sql = @"SELECT DISTINCT LotNumber [Value],LotNumber [Text] FROM TRN.ProductionSummary Where ISNULL(LotNumber,'')<>'' AND ProductionOrderId='" + ProductionOrderId + "' AND ProcessId='" + ProcessId + "'";
-            }
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-
+            return Json(_productionSummaryData.GetLotNumberCbo(SalesOrderId, ProductionOrderId, ProcessId, productionLevel), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public JsonResult GetWCProcessCbo(string processid, string entityId)
+        public JsonResult GetWCProcessCbo(string processid, string entityId, string shiftId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId,identity.CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId, identity.CompanyId, shiftId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetToWCProcessCbo(string processid, string entityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_ProductionSummaryService.GetToWCCbo(identity.PlantId, processid, entityId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetWCProcessCboNew(string processid, string entityId, string productionDate, string shiftId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_ProductionSummaryService.GetCboWC(identity.PlantId, processid, entityId, productionDate, shiftId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
         {
-            string sql = @"SELECT ProductionBookingLevel FROM MST.SFGMovementEntity WHERE SFGMovementId = 
-                            (SELECT Id FROM MST.SFGMovement WHERE ISNULL(FromProcessId,FromSFGInventoryId) = '" + FromId + @"' AND 
-                            ISNULL(ToProcessId,ToSFGInventoryId)='" + ToId + "' AND ISNULL(ProductionBookingLevel,'')<>'')";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetBookingLevel(FromId, ToId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetSFGMovementFromCbo(string entity)
         {
-            string sql;
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if (identity.IsSysAdmin || identity.IsControlAdmin)
-            {
-                sql = @"SELECT A.* FROM (
-                SELECT DISTINCT 'PROCESS' AS Status,  SFGM.FromProcessId AS FromId,  P.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,P.IsFirst,P.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3          
-                FROM MST.SFGMovement AS SFGM
-                INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.FromProcessId AND E.EntityId='" + entity + @"'
-                LEFT JOIN [HKP].Process P ON SFGM.FromProcessId = P.Id 
-                LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.ProcessId=P.Id
-                WHERE ISNULL(SFGM.FromProcessId,'')<>'' 
-                UNION ALL
-                SELECT DISTINCT 'INVENTORY' AS Status, SFGM.FromSFGInventoryId AS FromId, SFGI.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,SFGI.IsFirst,SFGI.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3        
-                FROM MST.SFGMovement AS SFGM 
-                INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.FromSFGInventoryId AND E.EntityId='" + entity + @"'
-                LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.FromSFGInventoryId = SFGI.Id 
-                LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.SFGInventoryId =SFGI.Id
-                WHERE ISNULL(SFGM.FromSFGInventoryId,'')<>''
-                ) A  Order by A.Sequence";
-            }
-            else
-            {
-                sql = @"SELECT A.* FROM (
-                         SELECT DISTINCT 'PROCESS' AS Status, SFGM.FromProcessId AS FromId, P.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,P.IsFirst,P.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3            
-                        FROM MST.SFGMovement AS SFGM
-                        INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.FromProcessId AND E.EntityId='" + entity + @"'
-                        LEFT JOIN [HKP].Process P ON SFGM.FromProcessId = P.Id 
-                        LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.ProcessId=P.Id
-                        LEFT JOIN SEC.UserProcess U on U.ProcessId= P.Id  AND U.UserId='" + identity.UserId + @"'
-						WHERE ISNULL(SFGM.FromProcessId,'')<>'' 
-                        UNION ALL
-                        SELECT DISTINCT 'INVENTORY' AS Status, SFGM.FromSFGInventoryId AS FromId, SFGI.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,SFGI.IsFirst,SFGI.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3        
-                        FROM MST.SFGMovement AS SFGM 
-                        INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.FromSFGInventoryId AND E.EntityId='" + entity + @"'
-                        LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.FromSFGInventoryId = SFGI.Id 
-                        LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.SFGInventoryId =SFGI.Id
-				        LEFT JOIN SEC.UserSFGInventory U on U.SFGInventoryId=SFGM.FromSFGInventoryId AND U.UserId='" + identity.UserId + @"'
-                        WHERE ISNULL(SFGM.FromSFGInventoryId,'')<>''
-                        ) A Order by A.Sequence";
-            }
-            //return Json(_sqlRepository.GetGridData(new GridParameter { CmdText = sql }).Rows, JsonRequestBehavior.AllowGet);
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetSFGMovementFromCbo(entity), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetSFGMovementToCbo(string FromId, string flag, string EntityId)
         {
-            string processId = string.Empty;
-            string inventoryId = string.Empty;
-
-            if (flag == "PROCESS")
-            {
-                processId = FromId;
-            }
-            else
-            {
-                inventoryId = FromId;
-            }
-
-            string sql;
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if (identity.IsSysAdmin || identity.IsControlAdmin)
-            {
-                sql = @"SELECT A.* FROM (
-                        SELECT DISTINCT  'PROCESS' AS Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToProcessId AS ToId,  P.UserName
-                        FROM MST.SFGMovement AS SFGM  
-                        INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.ToProcessId AND E.EntityId='" + EntityId + @"'
-                        LEFT JOIN [HKP].Process P ON SFGM.ToProcessId = P.Id WHERE ISNULL(SFGM.ToProcessId,'')<>''
-                        UNION ALL
-                        SELECT DISTINCT 'INVENTORY'as Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToSFGInventoryId AS ToId, SFGI.UserName
-                        FROM MST.SFGMovement AS SFGM 
-                        INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.ToSFGInventoryId AND E.EntityId='" + EntityId + @"'
-                        LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.ToSFGInventoryId = SFGI.Id WHERE ISNULL(SFGM.ToSFGInventoryId,'')<>''
-                        ) A WHERE A.FromProcessId = '" + processId + @"' OR A.FromSFGInventoryId = '" + inventoryId + @"' ";
-            }
-            else
-            {
-                sql = @"SELECT A.* FROM (
-                        SELECT DISTINCT  'PROCESS' AS Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToProcessId AS ToId,  P.UserName 
-                        FROM MST.SFGMovement AS SFGM  
-                        INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.ToProcessId AND E.EntityId='" + EntityId + @"'
-                        LEFT JOIN [HKP].Process p ON SFGM.ToProcessId = P.Id 
-                        LEFT JOIN SEC.UserProcess U on U.ProcessId= p.Id AND U.UserId='" + identity.UserId + @"'
-                        WHERE ISNULL(SFGM.ToProcessId,'')<>''
-                        UNION ALL
-                        SELECT DISTINCT 'INVENTORY' AS Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToSFGInventoryId AS ToId, SFGI.UserName
-                        FROM MST.SFGMovement AS SFGM 
-                        INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.ToSFGInventoryId AND E.EntityId='" + EntityId + @"'
-                        LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.ToSFGInventoryId = SFGI.Id 
-                        LEFT JOIN SEC.UserSFGInventory U on U.SFGInventoryId= SFGI.Id  AND U.UserId='" + identity.UserId + @"'
-                        WHERE ISNULL(SFGM.ToSFGInventoryId,'')<>''
-                        ) A WHERE A.FromProcessId = '" + processId + @"' OR A.FromSFGInventoryId = '" + inventoryId + @"' ";
-            }
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-
+            return Json(_productionSummaryData.GetSFGMovementToCbo(FromId, flag, EntityId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetShiftGroupCbo()
@@ -274,6 +209,99 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_productionSummaryData.GetEntityProcessOrderTotalQty(EntityId, processId, salesOrderId, productionOrderId, status), JsonRequestBehavior.AllowGet);
         }
 
+
+        [HttpGet, Authorize]
+        public ActionResult GetProcessParaData(string processId, string masterId, string ProductionOrderId)
+        {
+            return Json(_productionSummaryData.GetProcessParaData(processId, masterId, ProductionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetDetentionParaData(string DetentionId, string processId, string masterId)
+        {
+            return Json(_productionSummaryData.GetDetentionParaData(DetentionId, processId, masterId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetProcessData(string entityId)
+        {
+            return Json(_productionSummaryData.GetProcessData(entityId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate, string shiftId, string workcenter)
+        {
+            try
+            {
+                string sql = "";
+                string DetentionTypeListsql = "";
+                string DetentionListsql = "";
+                sql = @"
+SELECT CAST (CASE WHEN MMT.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMT.Sequence,MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionTypeId, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, 
+MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
+,E.UserName Entity,D.UserName DepartmentName,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
+										,format(MMT.FromTime,'hh:mm tt') as FromTime,format(MMT.ToTime,'hh:mm tt') as ToTime,MMT.Minute as [Minute],SD.UserName Shift,
+										EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter
+			                            from MachineMasterTransaction MMT
+			                            left join ORG.Entity E on E.Id=MMT.EntityId
+										left join ORG.Department D on D.Id=MMT.DepartmentId
+										left join DetentionMaster DM on DM.Id=MMT.DetentionId
+										left join HKP.Process P on P.Id=MMT.ProcessId
+										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
+										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
+										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
+                where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "'  and MMT.Date = '" + productionDate + "' and MMT.ShiftId = '" + shiftId + "' and MMT.WorkCenterId = '" + workcenter + "'";
+
+
+                //return _sqlRepository.GetDataCollection(sql, null);
+
+                DetentionTypeListsql = @"select DT.UserName As Text, DT.Id As Value from MachineMasterTransaction MMT 
+                                         left outer join hkp.DetentionType DT ON DT.id=MMT.DetentionTypeId";
+
+                DetentionListsql = @"Select DM.DetentionUserName As Text, DM.Id As Value,DM.IsAssetApplicable,DM.IsWorkCenterApplicable from MachineMasterTransaction MMT 
+                                     left outer join  DetentionMaster DM ON DM.id=MMT.DetentionId";
+
+                List<Dictionary<string, object>> MainList = _sqlRepository.GetDataCollection(sql);
+                List<Dictionary<string, object>> detentiontypelist = _sqlRepository.GetDataCollection(DetentionTypeListsql);
+                List<Dictionary<string, object>> detentionList = _sqlRepository.GetDataCollection(DetentionListsql);
+                for (int i = 0; i < MainList.Count; i++)
+                {
+                    try
+                    {
+                        //List<Dictionary<string, object>> k = detentiontypelist.ToList();
+                        List<Dictionary<string, object>> k = detentiontypelist.Where(ee => clsStaticInfo.nullrecorder(ee["Value"]) == clsStaticInfo.nullrecorder(MainList[i]["DetentionTypeId"])).ToList();
+                        MainList[i]["DetentionTypeList"] = k;
+
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        List<Dictionary<string, object>> m = detentionList.Where(ee => clsStaticInfo.nullrecorder(ee["Value"]) == clsStaticInfo.nullrecorder(MainList[i]["DetentionId"])).ToList();
+
+
+                        MainList[i]["DetentionList"] = m;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+
+                }
+                return Json(MainList, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            //return Json(_productionSummaryData.GetProcessDetentionData(processId, entityId, productionDate, shiftId, workcenter), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetTotalProductionQty(string wcid, string workdate)
         {
@@ -318,13 +346,130 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd)
+        public JsonResult Create(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, List<Dictionary<string, object>> ProcessParaList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ps.PlantId = identity.PlantId;
             _ProductionSummaryService.SaveMaster(ps, psd, identity.CompanyGroupId);
+            if (ProcessParaList != null)
+            {
+                SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
+            }
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
+        [HttpPost]
+        public JsonResult CreateWC(List<Dictionary<string, object>> DataList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _ProductionSummaryService.SaveMasterWC(DataList);
+            return Json(new { Message = AplosMessage.Success });
+        }
+        [HttpPost]
+        public JsonResult createDetentionWC(List<Dictionary<string, object>> DataList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _ProductionSummaryService.SaveDetentionWC(DataList);
+            return Json(new { Message = AplosMessage.Success });
+        }
+        private void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                if (string.IsNullOrEmpty(masterId))
+                {
+                    throw new Exception("Select Line Item.");
+                }
+                #region FUND 
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster = null;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionSummaryParameterValue where  ProductionSummaryId='" + masterId + "'", out dsMaster, false, "1");
+                int idc = 0;
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        idc++;
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = masterId + idc;
+                            item["ProductionSummaryId"] = masterId;
+
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            item["ProductionSummaryId"] = masterId;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
         [HttpPost]
         public JsonResult CreateInOut(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd)
         {
@@ -506,10 +651,1719 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(new Library.Planning.PlanningType1.ProductionDashboard().GetOutWC(FDUD, EntityId, WorkCenterMasterId, ProcessId, _date), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize]
+        public JsonResult Calculate(IEnumerable<OpenHeadModelNew> OpenHeadNew)
+        {
+            DataTable dtValue = new DataTable();
+            dtValue.TableName = "TempTable";
+            dtValue.Columns.Add("ProductionBookingParameterId");
+            dtValue.Columns.Add("Amount");
+            string sFormulaResult = null;
+
+            DataSet dsOpenHead = Library.Service.Helpers.DataTableExtensions.ToDataSet<OpenHeadModelNew>(OpenHeadNew);
+            for (int i = 0; i < dsOpenHead.Tables[0].Rows.Count; i++)
+            {
+                if (i == 0)
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["ProductionBookingParameterId"] = dsOpenHead.Tables[0].Rows[i]["ProductionBookingParameterId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
+                else if (i > 0 && string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["ProductionBookingParameterId"] = dsOpenHead.Tables[0].Rows[i]["ProductionBookingParameterId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
+
+                if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    _productionSummaryData.ReLoadFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#####");
+
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["ProductionBookingParameterId"] = dsOpenHead.Tables[0].Rows[i]["ProductionBookingParameterId"].ToString().Trim();
+
+                    if (sFormulaResult == "" || sFormulaResult == "∞")
+                    {
+                        dtValueRow["Amount"] = 0;
+                    }
+                    else
+                    {
+                        dtValueRow["Amount"] = sFormulaResult;
+                    }
+
+                    dtValue.Rows.Add(dtValueRow);
+
+                    DataView dv = new DataView(dsOpenHead.Tables[0]);
+                    dv.RowFilter = "ProductionBookingParameterId='" + dsOpenHead.Tables[0].Rows[i]["ProductionBookingParameterId"].ToString() + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+                        if (sFormulaResult == "" || sFormulaResult == "∞" || sFormulaResult == "NaN")
+                        {
+                            drmo["Value"] = 0;
+                        }
+                        else
+                        {
+                            drmo["Value"] = sFormulaResult;
+                        }
+                        drmo.EndEdit();
+
+                    }
+
+
+                }
+
+
+            }
+
+
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dsOpenHead.Tables[0]);
+            return Json(new { NewData, Message = AplosMessage.Success });
+        }
+
+        [Authorize]
+        public JsonResult CalculateDetention(IEnumerable<OpenHeadModelNew> OpenHeadNew)
+        {
+            DataTable dtValue = new DataTable();
+            dtValue.TableName = "TempTable";
+            dtValue.Columns.Add("DetentionMasterMachineParameterId");
+            dtValue.Columns.Add("Amount");
+            string sFormulaResult = null;
+
+            DataSet dsOpenHead = Library.Service.Helpers.DataTableExtensions.ToDataSet<OpenHeadModelNew>(OpenHeadNew);
+            for (int i = 0; i < dsOpenHead.Tables[0].Rows.Count; i++)
+            {
+                if (i == 0)
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["DetentionMasterMachineParameterId"] = dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
+                else if (i > 0 && string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["DetentionMasterMachineParameterId"] = dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
+
+                if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    _productionSummaryData.ReLoadDetentionFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#####");
+
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["DetentionMasterMachineParameterId"] = dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString().Trim();
+
+                    if (sFormulaResult == "" || sFormulaResult == "∞")
+                    {
+                        dtValueRow["Amount"] = 0;
+                    }
+                    else
+                    {
+                        dtValueRow["Amount"] = sFormulaResult;
+                    }
+
+                    dtValue.Rows.Add(dtValueRow);
+
+                    DataView dv = new DataView(dsOpenHead.Tables[0]);
+                    dv.RowFilter = "DetentionMasterMachineParameterId='" + dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString() + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+                        if (sFormulaResult == "" || sFormulaResult == "∞" || sFormulaResult == "NaN")
+                        {
+                            drmo["Value"] = 0;
+                        }
+                        else
+                        {
+                            drmo["Value"] = sFormulaResult;
+                        }
+                        drmo.EndEdit();
+
+                    }
+
+
+                }
+
+
+            }
+
+
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dsOpenHead.Tables[0]);
+            return Json(new { NewData, Message = AplosMessage.Success });
+        }
+
 
         #endregion
 
-        
+        #region Production Report with parameter
+        [HttpPost, Authorize]
+        public ActionResult StockRegisterData(string ToDate, string FromDate, string EntityId, string ShiftId, string ProcessId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetStockRegisterData(FromDate, ToDate, EntityId, ShiftId, ProcessId));
+                var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
+        public DataTable GetStockRegisterData(string FromDate, string ToDate, string EntityId, string ShiftId, string ProcessId)
+        {
+            try
+            {
+                var str = @"SELECT e2.UserName Entity,P.UserName Process,PSQ.Sequence ProcessSequence,FORMAT(PS.ProductionDate,'dd-MMM-yyyy')ProductionDate
+										,CSG.UserName [Shift],WCM.UserName WorkCenterMaster,PS.ProductionOrderId,PS.LotNumber,E.EmployeeName ResponsiblePerson,E.EmployeeName Mentor
+										,PS.Remarks,'' MaterialMaster,''Article,''BuyerRefrence,''Productcode,PS.AddedBy,FORMAT(PS.AddedDate,'dd-MMM-yyyy')AddedDate,PS.UpdatedBy,FORMAT(PS.UpdatedDate,'dd-MMM-yyyy')UpdateDate
+										FROM [TRN].[ProductionSummary] PS
+										LEFT JOIN ORG.Entity AS e2 ON e2.Id = PS.EntityId
+										LEFT JOIN HKP.Process P ON P.Id=PS.ProcessId
+										LEFT JOIN [dbo].[ProcessAndInventorySequence] PSQ ON PSQ.ProcessId = P.Id
+										LEFT JOIN EmployeeInformation E ON E.SystemId=PS.ResponsiblePersonId
+										LEFT JOIN EmployeeInformation M ON M.SystemId=PS.MentorId
+										LEFT JOIN SCS.WorkCenterMaster WCM ON WCM.Id=PS.WorkCenterMasterId
+                                        LEFT JOIN dbo.ShiftDefination csg ON csg.SystemId=pp.ProductionShiftId
+										Where
+										PS.EntityId='" + EntityId + @"' and
+										
+										PS.ProductionDate between '" + FromDate + "' AND '" + ToDate + "'";
+                return _sqlRepository.GetDataTable(str);
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult StockRegisterReport(string ToDate, string FromDate, string SlNo)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string fileName = "";
+                fileName = CreateStockRegisterReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, SlNo, "Stock Register Report " + FromDate + " To " + ToDate + "");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string CreateStockRegisterReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate, string SlNo, string SheetName)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var data = GetStockRegisterReportData(CompanyId, PlantId, FromDate, ToDate, SlNo, true);
+
+            var sheet = workbook.Worksheets[0];
+
+            #region sheet1
+            sheet.Name = "PurchaseRegisterGRNWise";
+
+            int ROW = 7;
+            int endCol = 1;
+            int COL = 1;
+
+            //sheet.Range[ROW, COL].Text = "From - "+FromDate+" , To - "+ToDate;
+            //sheet.Range[ROW, COL].ColumnWidth = 13;
+            //sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
+            //sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //ROW += 2;
+
+            #region Grid Headers
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 25, ExcelHAlign.HAlignLeft);
+            int ColEntity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Process", 18, ExcelHAlign.HAlignLeft);
+            int ColProcess = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Process sequence", 18, ExcelHAlign.HAlignLeft);
+            int ColProcessSequence = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Date", 13, ExcelHAlign.HAlignLeft);
+            int ColDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Shift", 15, ExcelHAlign.HAlignLeft);
+            int ColShift = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Work Center", 18, ExcelHAlign.HAlignLeft);
+            int ColWorkCenter = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Po No.", 10, ExcelHAlign.HAlignLeft);
+            int ColPoNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Lot No.", 10, ExcelHAlign.HAlignLeft);
+            int ColLotNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Production Work Station", 12, ExcelHAlign.HAlignLeft);
+            int ColProductionWorkStation = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person", 12, ExcelHAlign.HAlignLeft);
+            int ColResponsiblePerson = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Mentor", 10, ExcelHAlign.HAlignLeft);
+            int ColMentor = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Production", 11, ExcelHAlign.HAlignLeft);
+            int ColProduction = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Parameter 1", 20, ExcelHAlign.HAlignLeft);
+            int ColPeramiter1 = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Parameter 2", 12, ExcelHAlign.HAlignLeft);
+            int ColPeramiter2 = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Parameter 3", 13, ExcelHAlign.HAlignLeft);
+            int ColPeramiter3 = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Parameter 4", 12, ExcelHAlign.HAlignLeft);
+            int ColPeramiter4 = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 13, ExcelHAlign.HAlignRight);
+            //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            int ColRemarks = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Material Master", 15, ExcelHAlign.HAlignRight);
+            int ColMaterialMaster = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Article", 16, ExcelHAlign.HAlignRight);
+            int ColArticle = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Buyer Refrence", 13, ExcelHAlign.HAlignRight);
+            int ColBuyerRefrence = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Product Code", 13, ExcelHAlign.HAlignRight);
+            int ColProductCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Add By", 10, ExcelHAlign.HAlignRight);
+            int ColAddBy = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Add Date", 13, ExcelHAlign.HAlignRight);
+            int ColAddDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Updated By", 16, ExcelHAlign.HAlignRight);
+            int ColUpdatedBy = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Updated Time", 10, ExcelHAlign.HAlignRight);
+            int ColUpdatedTime = COL;
+
+            endCol = COL;
+            #endregion Headers
+
+
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            ROW++;
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                sheet[ROW, ColEntity].Text = data.Rows[i]["PartyName"].ToString();
+                sheet[ROW, ColProcess].Text = data.Rows[i]["InvoicingPartyPlant"].ToString();
+                sheet[ROW, ColProcessSequence].Text = data.Rows[i]["DeliveryPartyPlant"].ToString();
+                sheet[ROW, ColDate].Text = data.Rows[i]["PartyCode"].ToString();
+                sheet[ROW, ColShift].Text = data.Rows[i]["GSTINNo"].ToString();
+                sheet[ROW, ColWorkCenter].Text = data.Rows[i]["Employee"].ToString();
+                sheet[ROW, ColPoNo].Text = data.Rows[i]["GRNNo"].ToString();
+                sheet[ROW, ColLotNo].Text = data.Rows[i]["GRNEntryDate"].ToString();
+                sheet[ROW, ColProductionWorkStation].Text = data.Rows[i]["VoucherNo"].ToString();
+                sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["PostingDate"].ToString();
+                sheet[ROW, ColMentor].Text = data.Rows[i]["DocRefNo"].ToString();
+                sheet[ROW, ColProduction].Text = data.Rows[i]["DocRefDate"].ToString();
+                sheet[ROW, ColPeramiter1].Text = data.Rows[i]["GrnDocDateDifference"].ToString();
+                sheet[ROW, ColPeramiter2].Text = data.Rows[i]["GateEntryNo"].ToString();
+                sheet[ROW, ColPeramiter3].Text = data.Rows[i]["GateName"].ToString();
+                sheet[ROW, ColPeramiter4].Text = data.Rows[i]["CurrencyName"].ToString();
+                sheet[ROW, ColRemarks].Text = data.Rows[i]["PartyGroup"].ToString();
+                sheet[ROW, ColMaterialMaster].Text = data.Rows[i]["PartyCategory"].ToString();
+                sheet[ROW, ColArticle].Text = data.Rows[i]["PartySubCategory"].ToString();
+                sheet[ROW, ColBuyerRefrence].Text = data.Rows[i]["PartyType"].ToString();
+                sheet[ROW, ColProductCode].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+                sheet[ROW, ColAddBy].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+                sheet[ROW, ColAddDate].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+                sheet[ROW, ColUpdatedBy].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+                sheet[ROW, ColUpdatedTime].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+
+
+                sheet.Range[ROW, ColEntity, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, ColEntity, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+            }
+
+            //ROW++;
+
+            //if (FromDate != "" && ToDate != "")
+            //{
+
+
+            //	report.SetText(ref sheet, ROW, Convert.ToInt32(ColMaterialTranAmount) - 1, "Total");
+            //	sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount) - 1].CellStyle.Font.Bold = true;
+            //	//sheet.Range[1, ROW, Convert.ToInt32(ColMaterialTranAmount) - 1, ROW].Merge();
+            //	object sumObject;
+
+            //	//sumObject = data.Compute("Sum(MaterialTranAmount)", "");
+            //	//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].CellStyle.Font.Bold = true;
+            //	//report.SetText(ref sheet, ROW, Convert.ToInt32(ColMaterialTranAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+            //	//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //	//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            //	sumObject = data.Compute("Sum(TotalMaterialBaseAmount)", "");
+            //	sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].CellStyle.Font.Bold = true;
+            //	report.SetText(ref sheet, ROW, Convert.ToInt32(ColTotalMaterialBaseAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+            //	sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //	sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            //	sumObject = data.Compute("Sum(Payment)", "");
+            //	sheet.Range[ROW, Convert.ToInt32(ColPayment)].CellStyle.Font.Bold = true;
+            //	report.SetText(ref sheet, ROW, Convert.ToInt32(ColPayment), Convert.ToDouble(sumObject).ToString("0.##"));
+            //	sheet.Range[ROW, Convert.ToInt32(ColPayment)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //	sheet.Range[ROW, Convert.ToInt32(ColPayment)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            //	sumObject = data.Compute("Sum(Balance)", "");
+            //	sheet.Range[ROW, Convert.ToInt32(ColBalance)].CellStyle.Font.Bold = true;
+            //	report.SetText(ref sheet, ROW, Convert.ToInt32(ColBalance), Convert.ToDouble(sumObject).ToString("0.##"));
+            //	sheet.Range[ROW, Convert.ToInt32(ColBalance)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //	sheet.Range[ROW, Convert.ToInt32(ColBalance)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            //}
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+
+            #endregion sheet
+
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+
+
+
+            ReportUtility reportUtility = new ReportUtility();
+            //reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register GRN Wise", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+
+
+            sheet.Name = SheetName;
+            sheet.UsedRange.WrapText = true;
+            sheet.IsGridLinesVisible = false;
+            report.PlantHeader(ref sheet, COL, SheetName, PlantId);
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+            workbook.Version = ExcelVersion.Excel2016;
+
+            workbook.SaveAs(filePath);
+            workbook.Close();
+            excelEngine.Dispose();
+            return filePath;
+
+        }
+
+        public DataTable GetStockRegisterReportData(string CompanyId, string PlantId, string FromDate, string ToDate, string GRNNo, bool isreport)
+        {
+            try
+            {
+                var str = @"SELECT   IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate,
+							IR.GateEntryNo,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo
+						   ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2) MaterialTranAmount
+						   ,ROUND(Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalTaxAmount
+						   ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalMaterialBaseAmount
+						   ,SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)) as Payment
+						   ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
+						   ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+						   ,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						   ,IR.DocRefNo,CU.Code CurrencyName,IR.PartyType
+						   ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+
+							--new add
+							,'' DocRefDate,'' GrnDocDateDifference,'' GateName,'' InvoicingPartyPlant,'' DeliveryPartyPlant,'' Employee
+					from [TRN].[InventoryReceive] AS IR
+					left jOIN (select InventoryReceiveId,Sum(TransactionQty)TransactionQty,Sum(MaterialTranAmount)MaterialTranAmount
+						,Sum(TotalMaterialTranAmount)TotalMaterialTranAmount,Sum(TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
+						,SUM(TotalTaxAmount) TotalTaxAmount,sum(ChargesTaxTranAmount) ChargesTaxTranAmount
+						FROM [TRN].[InventoryReceiveDetail]
+					group by InventoryReceiveId ) AS IRD ON IR.Id=IRD.InventoryReceiveId 
+					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId 
+					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+					LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND cp.PlantId=IR.PlantId
+					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
+					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
+					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
+					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
+                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
+					left join trn.Voucher V on V.Id=I.VoucherId
+                    left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
+					left join trn.Voucher V1 on V1.Id=ep.VoucherId
+						
+					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+                    AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
+
+					group by IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
+					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
+					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate";
+
+                if (isreport)
+                {
+
+                    var newsql = "select * from(" + str + ") y where y.GRNNo in (" + GRNNo + @")";
+                    return _sqlRepository.GetDataTable(newsql);
+
+                }
+                else
+                {
+                    str += "";
+                    return _sqlRepository.GetDataTable(str);
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getFilters()
+        {
+            return Json(filters(), JsonRequestBehavior.AllowGet);
+        }
+        public IEnumerable<object> filters()
+        {
+            try
+            {
+                var sql = @"SELECT * FROM ( SELECT  
+                                        isnull(e.Id,'') AS EntityId,isnull(e.UserName,'') Entity,
+										pln.Id PlantId,Pln.UserName Plant,
+                                        isnull(ps.Id,'') AS ProductionStatusId, isnull(ps.UserName,'') AS ProductionStatus
+										,PO.Id ProductionOrderId
+                                      , ResponsiblePersonId=STUFF((select distinct ','+XMO.ResponsiblePersonId from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join dbo.EmployeeInformation XEmp on XEmp.SystemId=XMO.ResponsiblePersonId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+	                                         , ResponsiblePerson=STUFF((select distinct ','+XEmp.EmployeeName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join dbo.EmployeeInformation XEmp on XEmp.SystemId=XMO.ResponsiblePersonId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                   , Buyer=STUFF((select distinct ','+XB.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+														 SOStatusId=STUFF((select distinct ','+XB.Id from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].OrderStatus XB on XB.Id=XSO.OrderStatusId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+
+													
+																 MOStatusId=STUFF((select distinct ','+XB.Id from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].OrderStatus XB on XB.Id=XMO.OrderStatusId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+		
+													 BuyerId=STUFF((select distinct ','+XB.Id from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+																
+                                                    CustomerId=STUFF((select distinct ','+XP.Id from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),   
+                                                    Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')                                                 
+
+
+                                        from trn.ProductionOrder PO
+				                                inner join ProductionOrderSchedulingParametersType1 T1 on t1.ProductionOrderID=po.Id
+												
+				                              
+				                                left outer join org.Entity E on e.Id=PO.EntityID
+				                             
+				                                left outer join org.Plant PLN on pln.Id=E.PlantId
+				                                LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+
+                              WHERE  PO.ProductionStatusId<>'Closed'
+                                ) AS KK	";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpPost, Authorize]
+        //public ActionResult GetOrderReport(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType)
+        public ActionResult GetProcessWiseOrderReport(string fromDate, string toDate, string EntityId, string ProcessId)
+        {
+            try
+            {
+                string fileName = "";
+                // fileName = OrderReport(parameters, fromDate, toDate, dateType, "OrderReport");
+                fileName = ProcessWiseOrderReport(fromDate, toDate, "OrderReport", EntityId, ProcessId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string ProcessWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                
+                string Entity = "'" + EntityId.Replace(",", "','") + "'";//replaced with ""
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[1].Name = "Data";
+                sheet = workbook.Worksheets[1];
+                DataTable dtOrder;
+                ProductionOrderReportSQL(fromDate, toDate, Entity, ProcessId, out dtOrder);
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Id";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Plant";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPlant = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEntity = COL;
+                COL++;
+                sheet[ROW, COL].Text = "EntityID";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEntityID = COL;
+                COL++;
+                sheet[ROW, COL].Text = "WorkCenterMasterId";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colWorkCenterMasterId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductionOrderID";
+                sheet[ROW, COL].ColumnWidth = 22;
+                int colProductionOrderID = COL;
+                COL++;
+                sheet[ROW, COL].Text = "WorkCenter";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colWorkCenter = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colActualDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualQty";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colActualQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualCM";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colActualCM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SAM";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colSAM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Process";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProcess = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ToProcess";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colToProcess = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ToWorkCenter";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colToWorkCenter = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Material";
+                sheet[ROW, COL].ColumnWidth = 30;
+                int colMaterial = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 30;
+                int colArticle = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Product";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProduct = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductCategory";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProductCategory = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SnapshotDate";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSnapshotDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanQty";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPlanQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanCM";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPlanCM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "CM";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colCM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductionShift";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProductionShift = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderIdBooking";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSalesOrderIdBooking = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderDescBooking";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSalesOrderDescBooking = COL;
+                COL++;
+                sheet[ROW, COL].Text = "StandardWorkingHours";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardWorkingHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "StandardWorkStations";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardWorkStations = COL;
+                COL++;
+                sheet[ROW, COL].Text = "DailyFixedCost";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDailyFixedCost = COL;
+                COL++;
+                sheet[ROW, COL].Text = "VariableCostPerHour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colVariableCostPerHour = COL;
+                COL++;
+                sheet[ROW, COL].Text = "WorkingHours";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colWorkingHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "isBuildUp";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colisBuildUp = COL;
+                COL++;
+                sheet[ROW, COL].Text = "LineTargetPerDay";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colLineTargetPerDay = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanTargetPerHour";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanTargetPerHour = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanWorkingHoursPerDay";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanWorkingHoursPerDay = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Buyer";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colbuyer = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderIds";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colSalesOrderIds = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderDesc";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colSalesOrderDesc = COL;
+                COL++;
+                sheet[ROW, COL].Text = "MasterOrderNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colMasterOrderNo = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "BuyerOrderNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colBuyerOrderNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "OwnOrderNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colOwnOrderNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "StyleNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colStyleNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "OwnStyleNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colOwnStyleNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "NoOfWorkStation";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colNoOfWorkStation = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanHours";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductionHours";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductionHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanMinutes";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanMinutes = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanEfficiency";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanEfficiency = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualMinutes";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colActualMinutes = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualEfficiency";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colActualEfficiency = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Parameter";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colParameter = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Parameter Value";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colParameterValue = COL;
+
+
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < dtOrder.Rows.Count; i++)
+                {
+                    sheet[ROW, colId].Text = dtOrder.Rows[i]["Id"].ToString();
+                    sheet[ROW, colPlant].Text = dtOrder.Rows[i]["Plant"].ToString();
+                    sheet[ROW, colEntity].Text = dtOrder.Rows[i]["Entity"].ToString();
+                    sheet[ROW, colEntityID].Text = dtOrder.Rows[i]["EntityID"].ToString();
+                    sheet[ROW, colWorkCenterMasterId].Text = dtOrder.Rows[i]["WorkCenterMasterId"].ToString();
+                    sheet[ROW, colProductionOrderID].Text = dtOrder.Rows[i]["ProductionOrderID"].ToString();
+                    sheet[ROW, colWorkCenter].Text = dtOrder.Rows[i]["WorkCenter"].ToString();
+                    sheet[ROW, colActualDate].Text = dtOrder.Rows[i]["ActualDate"].ToString();
+                    sheet[ROW, colActualQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualQty"].ToString());
+                    sheet[ROW, colActualCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualCM"].ToString());
+                    sheet[ROW, colToProcess].Text = dtOrder.Rows[i]["ToProcess"].ToString();
+                    sheet[ROW, colProcess].Text = dtOrder.Rows[i]["Process"].ToString();
+                    sheet[ROW, colToWorkCenter].Text = dtOrder.Rows[i]["ToWorkCenter"].ToString();
+                    sheet[ROW, colMaterial].Text = dtOrder.Rows[i]["Material"].ToString();
+                    sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
+                    sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
+                    sheet[ROW, colProductCategory].Text = dtOrder.Rows[i]["ProductCategory"].ToString();
+                    sheet[ROW, colSnapshotDate].Text = dtOrder.Rows[i]["SnapshotDate"].ToString();
+                    sheet[ROW, colPlanQty].Text = dtOrder.Rows[i]["PlanQty"].ToString();
+                    sheet[ROW, colPlanCM].Text = dtOrder.Rows[i]["PlanCM"].ToString();
+                    sheet[ROW, colCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["CM"].ToString());
+                    sheet[ROW, colProductionShift].Text = dtOrder.Rows[i]["ProductionShift"].ToString();
+                    sheet[ROW, colSalesOrderIdBooking].Text = dtOrder.Rows[i]["SalesOrderIdBooking"].ToString();
+                    sheet[ROW, colSalesOrderDescBooking].Text = dtOrder.Rows[i]["SalesOrderDescBooking"].ToString();
+                    sheet[ROW, colStandardWorkingHours].Text = dtOrder.Rows[i]["StandardWorkingHours"].ToString();
+                    sheet[ROW, colStandardWorkStations].Text = dtOrder.Rows[i]["StandardWorkStations"].ToString();
+                    sheet[ROW, colDailyFixedCost].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["DailyFixedCost"].ToString());
+                    sheet[ROW, colVariableCostPerHour].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["VariableCostPerHour"].ToString());
+                    sheet[ROW, colWorkingHours].Text = dtOrder.Rows[i]["WorkingHours"].ToString();
+                    sheet[ROW, colisBuildUp].Text = dtOrder.Rows[i]["isBuildUp"].ToString();
+                    sheet[ROW, colLineTargetPerDay].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["LineTargetPerDay"].ToString());
+                    sheet[ROW, colPlanTargetPerHour].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["PlanTargetPerHour"].ToString());
+                    sheet[ROW, colPlanWorkingHoursPerDay].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["PlanWorkingHoursPerDay"].ToString());
+                    sheet[ROW, colbuyer].Text = dtOrder.Rows[i]["buyer"].ToString();
+                    sheet[ROW, colSalesOrderIds].Text = dtOrder.Rows[i]["SalesOrderIds"].ToString();
+                    sheet[ROW, colSalesOrderDesc].Text = dtOrder.Rows[i]["SalesOrderDesc"].ToString();
+                    sheet[ROW, colMasterOrderNo].Text = dtOrder.Rows[i]["MasterOrderNo"].ToString();
+                    sheet[ROW, colBuyerOrderNo].Text = dtOrder.Rows[i]["BuyerOrderNo"].ToString();
+                    sheet[ROW, colOwnOrderNo].Text = dtOrder.Rows[i]["OwnOrderNo"].ToString();
+                    sheet[ROW, colStyleNo].Text = dtOrder.Rows[i]["StyleNo"].ToString();
+                    sheet[ROW, colOwnStyleNo].Text = dtOrder.Rows[i]["OwnStyleNo"].ToString();
+                    sheet[ROW, colNoOfWorkStation].Text = dtOrder.Rows[i]["NoOfWorkStation"].ToString();
+                    sheet[ROW, colPlanHours].Text = dtOrder.Rows[i]["PlanHours"].ToString();
+                    sheet[ROW, colProductionHours].Text = dtOrder.Rows[i]["ProductionHours"].ToString();
+                    sheet[ROW, colPlanMinutes].Text = dtOrder.Rows[i]["PlanMinutes"].ToString();
+                    sheet[ROW, colPlanEfficiency].Text = dtOrder.Rows[i]["PlanEfficiency"].ToString();
+                    sheet[ROW, colActualMinutes].Text = dtOrder.Rows[i]["ActualMinutes"].ToString();
+                    sheet[ROW, colActualEfficiency].Text = dtOrder.Rows[i]["ActualEfficiency"].ToString();
+                    sheet[ROW, colParameter].Text = dtOrder.Rows[i]["Parameter"].ToString();
+                    sheet[ROW, colParameterValue].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ParameterValue"].ToString());
+
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Order Report Process Wise", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+                #region Pivot
+                string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
+
+                workbook.SaveAs(fPath);
+                workbook = application.Workbooks.Open(fPath);
+                try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+                workbook.Worksheets[0].Name = "Process Wise";
+
+                IWorksheet pivotSheet = workbook.Worksheets[0];
+                IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
+                pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colActualDate - 1].Axis = PivotAxisTypes.Column;
+                //pivotTable.Fields[colId - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
+
+
+
+                IPivotField field = pivotTable.Fields[colActualQty - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.DataFields.Add(field, "ActualQty", PivotSubtotalTypes.Sum);
+
+                for (int i = 0; i < pivotTable.Fields.Count; i++)
+                {
+                    if (i == colPlant - 1 || i == colEntity - 1 || i == colBuyerOrderNo - 1)
+                        continue;
+                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                }
+
+                pivotTable.ShowDrillIndicators = false;
+                pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                pivotTable.Options.NullString = "";
+                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+                sheet = workbook.Worksheets[0];
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Process Wise Report", identity.CompanyId, identity.CompanyName, "");
+
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+                workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+
+
+                #endregion Buyer Summary
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void ProductionOrderReportSQL(string fromDate, string toDate, string EntityId, string ProcessId, out DataTable dtOrder)
+        {
+            try
+            {
+                string sql = @"SELECT  PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
+                            pt1.SPT AS SAM,pp.ProcessId,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,ISNULL(pp.UserName,ord.Material) Material,ISNULL(pp.StandardName,ord.Article ) Article              
+                            ,PL.Code ProductCode,ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
+                            sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
+                             ,CPL.UserName AS ProductionShift,so.Id AS SalesOrderIdBooking,CPL.ShiftDuration ShiftWorkingMin,so.[Description] AS SalesOrderDescBooking,
+                             wcm.StandardTimePerDay AS StandardWorkingHours,  wcm.NoOfWorkStation AS StandardWorkStations,wcm.DailyFixedCost,wcm.VariableCost AS VariableCostPerHour,
+                             PP.ProductionHours AS WorkingHours,SN.isBuildUp,
+                             pt1.TargetPerDay AS LineTargetPerDay,PT1.TargetPerHour AS PlanTargetPerHour,PT1.PlanWorkingHoursPerDay,
+                            --additional info
+			                     buyer=STUFF((select distinct ','+XB.UserName from 
+			                            trn.SalesOrder XSO 
+			                            JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                            left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+			                            left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+			                            left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                            where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                            SalesOrderIds=STUFF((select distinct ','+XSO.Id from 
+			                        trn.SalesOrder XSO 
+			                        JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                        where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+	                        SalesOrderDesc=STUFF((select distinct ','+XSO.Description from 
+			                        trn.SalesOrder XSO 
+			                        JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                        where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+			                   
+                                  MasterOrderNo=STUFF((select distinct ','+XMO.Id from 
+			                                trn.SalesOrder XSO 
+			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+			                                left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                        BuyerOrderNo=STUFF((select distinct ','+XMO.BuyerReferenceNo from 
+			                                trn.SalesOrder XSO 
+			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+			                                left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                     OwnOrderNo=STUFF((select distinct ','+XMO.OwnReferenceNo from 
+			                                trn.SalesOrder XSO 
+			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+			                                left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+			
+		                                StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+			                                trn.SalesOrder XSO 
+			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
+			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+       
+                                        OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+			                                trn.SalesOrder XSO 
+			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
+			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                            pt1.NoOfWorkStation,sn.ProductionHours  AS PlanHours,
+                            ISNULL(ppt.ProductionHours,0) ProductionHours,
+                            ISNULL(sn.Quantity,0)*isnull(pt1.SPT,0) AS PlanMinutes,
+                            ISNULL(sn.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*sn.ProductionHours*60) AS PlanEfficiency,
+
+                            ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0) AS ActualMinutes,
+                            ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*pp.ProductionHours*60) AS ActualEfficiency
+							,PSV.UserName Parameter,psv.[Value] ParameterValue
+							,isnull(MMT.[Minute],0) DetentionInMin,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,UOM.Code UOM,pp.Quantity ProductionQty,pp.Remarks
+
+                            FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
+									,PS.AddedBy,ps.Remarks,ps.ProductLibraryId
+                                    FROM trn.ProductionSummary AS ps 
+                                  left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
+                                  LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
+      		                      WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")  and ps.ProcessId in (" + ProcessId + @")
+                                  GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,PS.AddedBy,ps.Remarks,ps.ProductLibraryId
+                            ) AS pp
+							left join MachineMasterTransaction MMT on MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate
+                            LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
+							left join ProductLibrary PL on PL.Id=pp.ProductLibraryId
+                            LEFT JOIN trn.SalesOrder AS so ON so.Id=pp.SalesOrderId
+							left join trn.MasterOrderItem MOI on MOI.Id=so.MasterOrderItemId
+							left join SCS.UnitOfMeasurement UOM on UOM.Id=MOI.UOMId
+                            LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID=pp.ProductionOrderID
+                            LEFT OUTER JOIN ProductionPlanningSnapshot2Type1 AS SN ON sn.ProductionOrderID=pp.ProductionOrderId AND sn.ProductionDate=pp.ProductionDate AND sn.WorkCenterMasterId=pp.WorkCenterMasterId AND sn.EntityID=pp.EntityId
+                            LEFT OUTER JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=pp.WorkCenterMasterId
+                            LEFT OUTER JOIN hkp.SFGInventory AS FSFG ON FSFG.Id=pp.FromSFGInventoryId
+                            LEFT OUTER JOIN dbo.ProductionSummaryParameterValue AS psv ON psv.ProductionSummaryId=pp.Id
+                            LEFT OUTER JOIN scs.WorkCenterMaster AS Twcm ON Twcm.Id=pp.ToWorkCenterMasterId
+                            LEFT OUTER JOIN hkp.SFGInventory AS TSFG ON TSFG.Id=pp.ToSFGInventoryId
+                        
+                            left outer join ProductionPlanningType1 AS ppt on ppt.ProductionOrderID=pp.ProductionOrderId AND ppt.WorkCenterMasterId=PP.WorkCenterMasterId AND  ppt.ProcessId=PP.ProcessId AND ppt.EntityId=pp.EntityId and ppt.ProductionDate=PP.ProductionDate
+                            left outer join TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
+							LEFT OUTER JOIN hkp.Process AS p ON p.Id=pp.ProcessId
+							LEFT OUTER JOIN hkp.Process AS Tp ON Tp.Id=pp.ToProcessId
+                            LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
+                            LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
+                             left outer join (
+                                                        select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory,
+                                                          SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
+                                                          SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
+                                                        from trn.ProductionOrderDetail POD 
+                                                        left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
+                                                        left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                                        left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
+                                                        left join MasterOrderExchangeRates RT ON RT.TransactionId=MO.Id
+                                                        left JOIN org.Company AS com ON com.Id=mo.CompanyId
+                                                       LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
+                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
+                                                        LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
+                                                        left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
+                                                        LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+                                                        left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                        left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                                                        left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+                                                        group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
+                                              ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
+                                            ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID,p.Sequence";
+                dtOrder = _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetPerametreWiseOrderReport(string fromDate, string toDate, string EntityId,string ProcessId)
+        {
+            try
+            {
+                string fileName = "";
+                // fileName = OrderReport(parameters, fromDate, toDate, dateType, "OrderReport");
+                fileName = PerametreWiseOrderReport(fromDate, toDate, "OrderReport", EntityId, ProcessId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string PerametreWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+               
+                string Entity = "'" + EntityId.Replace(",", "','") + "'";//replaced with ""
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[1].Name = "Data";
+                sheet = workbook.Worksheets[1];
+                DataTable dtOrder;
+                ProductionOrderReportSQL(fromDate, toDate, Entity, ProcessId, out dtOrder);
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Id";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Plant";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPlant = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEntity = COL;
+                COL++;
+                sheet[ROW, COL].Text = "EntityID";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEntityID = COL;
+                COL++;
+                sheet[ROW, COL].Text = "WorkCenterMasterId";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colWorkCenterMasterId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductionOrderID";
+                sheet[ROW, COL].ColumnWidth = 22;
+                int colProductionOrderID = COL;
+                COL++;
+                sheet[ROW, COL].Text = "WorkCenter";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colWorkCenter = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colActualDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualQty";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colActualQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualCM";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colActualCM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SAM";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colSAM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Process";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProcess = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ToProcess";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colToProcess = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ToWorkCenter";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colToWorkCenter = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Material";
+                sheet[ROW, COL].ColumnWidth = 30;
+                int colMaterial = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 30;
+                int colArticle = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Product Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductCode = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Entry Id";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colEntryId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Entry By";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colEntryBy = COL;
+                COL++;
+                sheet[ROW, COL].Text = "UOM";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colUOM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Production Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductionQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colRemarks = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Product";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProduct = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductCategory";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProductCategory = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SnapshotDate";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSnapshotDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanQty";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPlanQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanCM";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPlanCM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "CM";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colCM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductionShift";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProductionShift = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Shift Working Min";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colShiftWorkingMin = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Detention In Min";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colDetentionInMin = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Utilization";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colUtilization = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderIdBooking";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSalesOrderIdBooking = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderDescBooking";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSalesOrderDescBooking = COL;
+                COL++;
+                sheet[ROW, COL].Text = "StandardWorkingHours";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardWorkingHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "StandardWorkStations";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardWorkStations = COL;
+                COL++;
+                sheet[ROW, COL].Text = "DailyFixedCost";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDailyFixedCost = COL;
+                COL++;
+                sheet[ROW, COL].Text = "VariableCostPerHour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colVariableCostPerHour = COL;
+                COL++;
+                sheet[ROW, COL].Text = "WorkingHours";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colWorkingHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "isBuildUp";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colisBuildUp = COL;
+                COL++;
+                sheet[ROW, COL].Text = "LineTargetPerDay";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colLineTargetPerDay = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanTargetPerHour";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanTargetPerHour = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanWorkingHoursPerDay";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanWorkingHoursPerDay = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Buyer";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colbuyer = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderIds";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colSalesOrderIds = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderDesc";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colSalesOrderDesc = COL;
+                COL++;
+                sheet[ROW, COL].Text = "MasterOrderNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colMasterOrderNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Buyer Order No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colBuyerOrderNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO Ref No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPORefNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "OwnOrderNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colOwnOrderNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "StyleNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colStyleNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "OwnStyleNo";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colOwnStyleNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "NoOfWorkStation";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colNoOfWorkStation = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanHours";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ProductionHours";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductionHours = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanMinutes";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanMinutes = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PlanEfficiency";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanEfficiency = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualMinutes";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colActualMinutes = COL;
+                COL++;
+                sheet[ROW, COL].Text = "ActualEfficiency";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colActualEfficiency = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Parameter";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colParameter = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Parameter Value";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colParameterValue = COL;
+
+
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < dtOrder.Rows.Count; i++)
+                {
+                    sheet[ROW, colId].Text = dtOrder.Rows[i]["Id"].ToString();
+                    sheet[ROW, colPlant].Text = dtOrder.Rows[i]["Plant"].ToString();
+                    sheet[ROW, colEntity].Text = dtOrder.Rows[i]["Entity"].ToString();
+                    sheet[ROW, colEntityID].Text = dtOrder.Rows[i]["EntityID"].ToString();
+                    sheet[ROW, colWorkCenterMasterId].Text = dtOrder.Rows[i]["WorkCenterMasterId"].ToString();
+                    sheet[ROW, colProductionOrderID].Text = dtOrder.Rows[i]["ProductionOrderID"].ToString();
+                    sheet[ROW, colWorkCenter].Text = dtOrder.Rows[i]["WorkCenter"].ToString();
+                    sheet[ROW, colActualDate].Text = dtOrder.Rows[i]["ActualDate"].ToString();
+                    sheet[ROW, colActualQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualQty"].ToString());
+                    sheet[ROW, colActualCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualCM"].ToString());
+                    sheet[ROW, colToProcess].Text = dtOrder.Rows[i]["ToProcess"].ToString();
+                    sheet[ROW, colProcess].Text = dtOrder.Rows[i]["Process"].ToString();
+                    sheet[ROW, colToWorkCenter].Text = dtOrder.Rows[i]["ToWorkCenter"].ToString();
+                    sheet[ROW, colMaterial].Text = dtOrder.Rows[i]["Material"].ToString();
+                    sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
+                    sheet[ROW, colProductCode].Text = dtOrder.Rows[i]["ProductCode"].ToString();
+                    sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
+                    sheet[ROW, colEntryId].Text = dtOrder.Rows[i]["Id"].ToString();
+                    sheet[ROW, colEntryBy].Text = dtOrder.Rows[i]["EntryBy"].ToString();
+                    sheet[ROW, colUOM].Text = dtOrder.Rows[i]["UOM"].ToString();
+                    sheet[ROW, colProductionQty].Text = dtOrder.Rows[i]["ProductionQty"].ToString();
+                    sheet[ROW, colRemarks].Text = dtOrder.Rows[i]["Remarks"].ToString();
+                    sheet[ROW, colProductCategory].Text = dtOrder.Rows[i]["ProductCategory"].ToString();
+                    sheet[ROW, colSnapshotDate].Text = dtOrder.Rows[i]["SnapshotDate"].ToString();
+                    sheet[ROW, colPlanQty].Text = dtOrder.Rows[i]["PlanQty"].ToString();
+                    sheet[ROW, colPlanCM].Text = dtOrder.Rows[i]["PlanCM"].ToString();
+                    sheet[ROW, colCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["CM"].ToString());
+                    sheet[ROW, colProductionShift].Text = dtOrder.Rows[i]["ProductionShift"].ToString();
+                    sheet[ROW, colShiftWorkingMin].Text = dtOrder.Rows[i]["ShiftWorkingMin"].ToString();
+                    sheet[ROW, colDetentionInMin].Text = dtOrder.Rows[i]["DetentionInMin"].ToString();
+                    sheet[ROW, colUtilization].Text = dtOrder.Rows[i]["Utilization"].ToString();
+                    sheet[ROW, colSalesOrderIdBooking].Text = dtOrder.Rows[i]["SalesOrderIdBooking"].ToString();
+                    sheet[ROW, colSalesOrderDescBooking].Text = dtOrder.Rows[i]["SalesOrderDescBooking"].ToString();
+                    sheet[ROW, colStandardWorkingHours].Text = dtOrder.Rows[i]["StandardWorkingHours"].ToString();
+                    sheet[ROW, colStandardWorkStations].Text = dtOrder.Rows[i]["StandardWorkStations"].ToString();
+                    sheet[ROW, colDailyFixedCost].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["DailyFixedCost"].ToString());
+                    sheet[ROW, colVariableCostPerHour].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["VariableCostPerHour"].ToString());
+                    sheet[ROW, colWorkingHours].Text = dtOrder.Rows[i]["WorkingHours"].ToString();
+                    sheet[ROW, colisBuildUp].Text = dtOrder.Rows[i]["isBuildUp"].ToString();
+                    sheet[ROW, colLineTargetPerDay].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["LineTargetPerDay"].ToString());
+                    sheet[ROW, colPlanTargetPerHour].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["PlanTargetPerHour"].ToString());
+                    sheet[ROW, colPlanWorkingHoursPerDay].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["PlanWorkingHoursPerDay"].ToString());
+                    sheet[ROW, colbuyer].Text = dtOrder.Rows[i]["buyer"].ToString();
+                    sheet[ROW, colSalesOrderIds].Text = dtOrder.Rows[i]["SalesOrderIds"].ToString();
+                    sheet[ROW, colSalesOrderDesc].Text = dtOrder.Rows[i]["SalesOrderDesc"].ToString();
+                    sheet[ROW, colMasterOrderNo].Text = dtOrder.Rows[i]["MasterOrderNo"].ToString();
+                    sheet[ROW, colBuyerOrderNo].Text = dtOrder.Rows[i]["BuyerOrderNo"].ToString();
+                    sheet[ROW, colPORefNo].Text = dtOrder.Rows[i]["PORefNo"].ToString();
+                    sheet[ROW, colOwnOrderNo].Text = dtOrder.Rows[i]["OwnOrderNo"].ToString();
+                    sheet[ROW, colStyleNo].Text = dtOrder.Rows[i]["StyleNo"].ToString();
+                    sheet[ROW, colOwnStyleNo].Text = dtOrder.Rows[i]["OwnStyleNo"].ToString();
+                    sheet[ROW, colNoOfWorkStation].Text = dtOrder.Rows[i]["NoOfWorkStation"].ToString();
+                    sheet[ROW, colPlanHours].Text = dtOrder.Rows[i]["PlanHours"].ToString();
+                    sheet[ROW, colProductionHours].Text = dtOrder.Rows[i]["ProductionHours"].ToString();
+                    sheet[ROW, colPlanMinutes].Text = dtOrder.Rows[i]["PlanMinutes"].ToString();
+                    sheet[ROW, colPlanEfficiency].Text = dtOrder.Rows[i]["PlanEfficiency"].ToString();
+                    sheet[ROW, colActualMinutes].Text = dtOrder.Rows[i]["ActualMinutes"].ToString();
+                    sheet[ROW, colActualEfficiency].Text = dtOrder.Rows[i]["ActualEfficiency"].ToString();
+                    sheet[ROW, colParameter].Text = dtOrder.Rows[i]["Parameter"].ToString();
+                    sheet[ROW, colParameterValue].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ParameterValue"].ToString());
+
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Order Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+                #region Pivot
+                
+                string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
+
+                workbook.SaveAs(fPath);
+                workbook = application.Workbooks.Open(fPath);
+                try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+                workbook.Worksheets[0].Name = "Perametre Wise";
+
+                IWorksheet pivotSheet = workbook.Worksheets[0];
+                IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
+                pivotTable.Fields[colActualDate - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Data;
+                pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colWorkCenter - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductionShift - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colDetentionInMin - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colUtilization - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colbuyer - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colBuyerOrderNo - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPORefNo - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductCode - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colMaterial - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colArticle - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colEntryId - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colEntryBy - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colUOM - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductionQty - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colRemarks - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
+
+
+
+                IPivotField field = pivotTable.Fields[colParameterValue - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.DataFields.Add(field, "ParameterValue", PivotSubtotalTypes.Sum);
+
+                for (int i = 0; i < pivotTable.Fields.Count; i++)
+                {
+                    if (i == colPlant - 1 || i == colEntity - 1 || i == colBuyerOrderNo - 1)
+                        continue;
+                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                }
+
+                pivotTable.ShowDrillIndicators = false;
+                pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                pivotTable.Options.NullString = "";
+                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+                sheet = workbook.Worksheets[0];
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Perametre Wise Report", identity.CompanyId, identity.CompanyName, "");
+
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+                workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+
+
+                #endregion Buyer Summary
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+    }
+    public class OpenHeadModelNew
+    {
+        public string Id { get; set; }
+        public string ProductionSummaryId { get; set; }
+        public string ProductionBookingParameterId { get; set; }
+        public string DetentionMasterMachineParameterId { get; set; }
+        public string UserName { get; set; }
+        public string Formula { get; set; }
+        public string FormulaId { get; set; }
+        public decimal Value { get; set; }
+        public string EntryState { get; set; }
+        public string ValueIN { get; set; }
+        public bool IsProduction { get; set; }
     }
 }

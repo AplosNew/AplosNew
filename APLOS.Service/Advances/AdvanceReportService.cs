@@ -1,4 +1,5 @@
-﻿using Library.Data.Sql;
+﻿using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Service.Currencies;
 using Library.Service.Extension.Accounts;
@@ -9,6 +10,8 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Threading;
 
 namespace Library.Service.Advances
 {
@@ -504,15 +507,16 @@ namespace Library.Service.Advances
             sheet.Range[row, colVoucherDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;
             row++;
 
+            
+
             int colPostingDate = colVoucherNo;
             reportUtility.SetMasterHeaderText(ref sheet, row, colPostingDate, "Posting Date");
             sheet.Range[row, colPostingDate].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-
-
             int colPostingDateValue = colVoucherNoValue;
             reportUtility.SetText(ref sheet, row, colPostingDateValue, header["PostingDate"].ToString());
             sheet.Range[row, colPostingDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+
 
             int colDocDate = colVoucherDate;
             reportUtility.SetMasterHeaderText(ref sheet, row, colDocDate, "DocDate");
@@ -568,8 +572,7 @@ namespace Library.Service.Advances
             sheet.Range[row, colNaration].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, colNarationValue].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-
-
+            
 
             int colStatus = colVoucherDate;
             reportUtility.SetMasterHeaderText(ref sheet, row, colStatus, "Status");
@@ -577,8 +580,23 @@ namespace Library.Service.Advances
             reportUtility.SetText(ref sheet, row, colStatusValue, header["Status"].ToString());
             sheet.Range[row, colStatus].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, colStatusValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            row++;
 
+            int colPONo = colVoucherDate;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colPONo, "PO No");
+            sheet.Range[row, colPONo].VerticalAlignment = ExcelVAlign.VAlignTop;
+            int colPONoValue = colVoucherDateValue;
+            reportUtility.SetText(ref sheet, row, colPONoValue, header["PONo"].ToString());
+            sheet.Range[row, colPONoValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            row++;
 
+            //int colPONo = colVoucherNo;
+            //reportUtility.SetMasterHeaderText(ref sheet, row, colPONo, "PO No");
+            //sheet.Range[row, colPONo].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //int colPONoValue = colVoucherNoValue;
+            //reportUtility.SetText(ref sheet, row, colPONoValue, header["PONo"].ToString());
+            //sheet.Range[row, colPONoValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //row++;
 
 
 
@@ -2924,196 +2942,204 @@ namespace Library.Service.Advances
             return workbook;
         }
 
-        //TODO:
-        //EmployeeAdvanceDueList
-
-        //public IWorkbook EmployeeAdvanceDueList(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId, string reportName, SourceType sourceType)
-        //{
-
-
-
-        //    //Start EmployeeAdvanceDueList
-        //    .......................................................
-
-        //    ExcelEngine excelEngine = new ExcelEngine();
-        //    //Instantiate the Excel application object
-        //    IApplication application = excelEngine.Excel;
-
-        //    //Set the default application version
-        //    application.DefaultVersion = ExcelVersion.Excel2013;
-
-        //    //Load the existing Excel workbook into IWorkbook
-        //    IWorkbook workbook = application.Workbooks.Create(1);
-
-        //    //Get the first worksheet in the workbook into IWorksheet
-        //    IWorksheet worksheet = workbook.Worksheets[0];
-        //    try
-        //    {
-        //        DataTable dtEmployeeAdvanceDueList = _sqlRepository.GetDataTable(@"SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.AdvanceNo, AM.VoucherId
-        //, C.Code AS CurrencyCode, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, AM.EmployeeId, EI.EmployeeCode, EI.EmployeeName
-        //, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
-        //                        , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration, AD.Amount AS Receivable, AD.WrittenOffAmount AS Received, 0 DrAmount, 0 CrAmount
-        //                        , AD.Amount-AD.WrittenOffAmount AS Balance
-        //   FROM [TRN].[AdvanceDetail] AS AD
-        //                        LEFT JOIN [TRN].[Advance] AS AM ON AD.AdvanceId=AM.Id
-        //                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdvanceDetailId=AD.Id
-        //                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
-        //                        LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AM.EmployeeId
-        //                        LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=AD.GLGeneralInfoId
-        //                        LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=AD.BudgetMasterId
-        //                        LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
-        //                        LEFT JOIN [HKP].[Activity] AS A ON A.Id=AD.ActivityId
-        //                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=AM.CurrencyId
-        //                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AM.EntityId
-        //                        LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
-        //LEFT JOIN (
-        //    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
-        //    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.CrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
-        //    FROM [TRN].[VoucherDetailCurrency] AS VDC
-        //    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-        //    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='C20171'
-        //   ) AS CC ON CC.VoucherDetailId=VD.Id
-
-        //                        WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType in ('EmployeeAdvance','InterTransaction')
-        //                        AND AM.CompanyGroupId='CG20171' AND AM.CompanyId='C20171' AND AM.PlantId='20171' AND AM.EmployeeId<>'' ");
-
-        //        if (dtEmployeeAdvanceDueList.Rows.Count == 0)
-        //            throw new Exception("No data found");
+        public string VendorAdvanceReport(string plantId, string companyGroupId, string companyId ,SourceType sourceType, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
 
 
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Vendor Advance Report";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                VendorAdvanceReportSQL(plantId,companyGroupId, companyId, sourceType, out data);
 
-        //        worksheet.Name = "EmployeeAdvanceDueListReport";
+                int ROW = 6; int COL = 1;
 
-        //        int COL = 1; int ROW = 6;
-        //        int startCol = COL;
+                #region columns
+                sheet[ROW, COL].Text = "Voucher No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColVoucherNo = COL;
+                COL++;
 
-        //        worksheet[ROW, COL].Text = "Voucher No";
-        //        int colVoucherNO = COL;
-        //        worksheet[ROW, COL].ColumnWidth = 10;
-        //        worksheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        COL++;
+                sheet[ROW, COL].Text = "Vendor";
+                sheet[ROW, COL].ColumnWidth = 40;
+                int ColVendor = COL;
+                COL++;
 
-        //        worksheet[ROW, COL].Text = "Employee";
-        //        int colEmployee = COL;
-        //        worksheet[ROW, COL].ColumnWidth = 10;
-        //        worksheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        COL++;
+                sheet[ROW, COL].Text = "Location";
+                sheet[ROW, COL].ColumnWidth = 40;
+                int ColLocation = COL;
+                COL++;
 
-        //        worksheet[ROW, COL].Text = "DocDate";
-        //        int colDocDate = COL;
-        //        worksheet[ROW, COL].ColumnWidth = 10;
-        //        worksheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        COL++;
+                sheet[ROW, COL].Text = "Posting Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPostingDate = COL;
+                COL++;
 
-        //        worksheet[ROW, COL].Text = "Doc Ref No";
-        //        int colDocRefNo = COL;
-        //        worksheet[ROW, COL].ColumnWidth = 10;
-        //        worksheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        COL++;
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColCurrency = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Advanced";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColAdvanced = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Write-off";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColWriteoff = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Balance";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColBalance = COL;
+               
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColVendor].Text = data.Rows[i]["PartyName"].ToString();
+                    sheet[ROW, ColLocation].Text = data.Rows[i]["PartyPlantName"].ToString();
+                    sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+                    sheet[ROW, ColCurrency].Text = data.Rows[i]["CurrencyCode"].ToString();
+                    sheet[ROW, ColAdvanced].Number = clsStaticInfo.dbl(data.Rows[i]["Receivable"].ToString());
+                    sheet[ROW, ColWriteoff].Number = clsStaticInfo.dbl(data.Rows[i]["Received"].ToString());
+                    sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Vendor Advance Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
 
-        //        worksheet[ROW, COL].Text = "Entity";
-        //        int colEntity = COL;
-        //        worksheet[ROW, COL].ColumnWidth = 10;
-        //        worksheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        COL++;
+                //#endregion ******************Report Header******************
 
-        //        worksheet[ROW, COL].Text = "Currency";
-        //        int colCurrency = COL;
-        //        worksheet[ROW, COL].ColumnWidth = 10;
-        //        worksheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        COL++;
-
-        //        worksheet[ROW, COL].Text = "Advanced";
-        //        int colAdvanced = COL;
-        //        worksheet[ROW, COL].ColumnWidth = 10;
-        //        worksheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        // worksheet[ROW, COL].Number = clsStaticInfo.dbl(dtEmployeeAdvanceDueList.Rows[0]["TotalQuantity"].ToString());
-        //        // worksheet[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat();
-        //        // worksheet.Range[MasterOrderDetailsStartRow, leftColumnCaption, ROW, RightColumnValue].CellStyle.Interior.ColorIndex = ExcelKnownColors.Custom44;
-
-        //        COL++;
-
-        //        worksheet[ROW, COL].Text = "Write-Off";
-        //        int colWriteOff = COL;
-        //        worksheet[ROW, COL].ColumnWidth = 10;
-        //        worksheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        COL++;
-
-        //        worksheet[ROW, COL].Text = "Balance";
-        //        int colBalance = COL;
-        //        worksheet[ROW, COL].ColumnWidth = 10;
-        //        worksheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        COL++;
-
-        //        // int ROW = 6; int COL = 1;
-
-        //        //int EmployeeAdvanceDueListStartRow  = ROW;
-        //        //worksheet[ROW, COL].Text = "Employee Advance Due List Details:";
-        //        //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-        //        //ROW++;
-        //        int endCol = COL;
-
-
-        //        for (int i = 0; i < dtEmployeeAdvanceDueList.Rows.Count; i++)
-        //        {
-        //            // int i = 0; i < dtMasterOrderItem.Rows.Count; i++
-        //            worksheet[ROW, colVoucherNO].Text = dtEmployeeAdvanceDueList.Rows[i]["VoucherNo"].ToString();
-        //            worksheet[ROW, colEmployee].Text = dtEmployeeAdvanceDueList.Rows[i]["EmployeeName"].ToString();
-        //            worksheet[ROW, colDocDate].Text = dtEmployeeAdvanceDueList.Rows[i]["DocDate"].ToString();
-        //            worksheet[ROW, colDocRefNo].Text = dtEmployeeAdvanceDueList.Rows[i]["DocRefNo"].ToString();
-        //            //worksheet[ROW, colEntity].Text = dtEmployeeAdvanceDueList.Rows[i]["PurchaseLCNo"].ToString();
-        //            worksheet[ROW, colCurrency].Text = dtEmployeeAdvanceDueList.Rows[i]["CurrencyCode"].ToString();
-        //            worksheet[ROW, colAdvanced].Text = dtEmployeeAdvanceDueList.Rows[i]["Receivable"].ToString();
-        //            worksheet[ROW, colWriteOff].Text = dtEmployeeAdvanceDueList.Rows[i]["Received"].ToString();
-        //            worksheet[ROW, colBalance].Text = dtEmployeeAdvanceDueList.Rows[i]["Balance"].ToString();
-
-        //            //worksheet[ROW, colPurchaseLCCurrencyId].Text = dsData.Tables[0].Rows[i]["PurchasePLCurrency"].ToString();
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
 
 
 
 
-        //            // worksheet[startRowGroup1, colSLNO, ROW - 1, colSLNO].Merge();
-        //            //worksheet[StartDataRow, colPurchaseLCAmount, ROW - 1, colPurchaseLCAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
 
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-        //            ROW++;
-        //        }
+        public void VendorAdvanceReportSQL(string plantId, string companyGroupId, string companyId, SourceType sourceType, out DataTable data)
+        {
+            try
+            {
+                string strSQL = @"SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.PartyId, AM.PartyPlantId,P.Code AS  PartyCode, P.UserName As PartyName, PP.UserName AS PartyPlantName, AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherDetailId, VD.EntityId
+								, EN.UserName AS EntityName, AM.CurrencyId, C.Code AS CurrencyCode, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+								, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
+                                , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration, AD.Amount AS Receivable, AD.WrittenOffAmount AS Received
+                                , AD.Amount-AD.WrittenOffAmount AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId
+                                , GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion, HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion
+                                FROM [TRN].[AdvanceDetail] AS AD
+                                LEFT JOIN [TRN].[Advance] AS AM ON AD.AdvanceId=AM.Id
+                                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdvanceDetailId=AD.Id
+                                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=AD.GLGeneralInfoId
+                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=AD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=AD.ActivityId
+                                LEFT JOIN [SCS].[Currency] AS C ON C.Id=AM.CurrencyId
+                                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AM.EntityId
+                                LEFT JOIN [HKP].[Party] AS P ON P.Id=AM.PartyId
+                                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
+								LEFT JOIN (
+								    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+								    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.CrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+								    FROM [TRN].[VoucherDetailCurrency] AS VDC
+								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+								    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+							    ) AS CC ON CC.VoucherDetailId=VD.Id
+							    LEFT JOIN (
+							        SELECT VDC.ParallelCurrencyId AS CompanyGroupCurrencyId, VDC.FromCurrencyId AS CompanyGroupFromCurrencyId, VDC.ToCurrencyId,
+								    VDC.ToCurrencyRate AS CompanyGroupCurrencyRate, VDC.ToCurrencyConversion AS CompanyGroupCurrencyConversion, VDC.CrAmount AS CompanyGroupCurrencyAmount, VDC.VoucherDetailId
+								    FROM [TRN].[VoucherDetailCurrency] AS VDC
+								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+								    WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
+							    ) AS GC ON GC.VoucherDetailId=VD.Id
+							    LEFT JOIN (
+								    SELECT VDC.ParallelCurrencyId AS HardCurrencyId, VDC.FromCurrencyId AS HardFromCurrencyId, VDC.ToCurrencyId,
+								    VDC.ToCurrencyRate AS HardCurrencyRate, VDC.ToCurrencyConversion AS HardCurrencyConversion, VDC.CrAmount AS HardCurrencyAmount, VDC.VoucherDetailId
+								    FROM [TRN].[VoucherDetailCurrency] AS VDC
+								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+								    WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId='" + companyId + @"'
+							    ) AS HC ON HC.VoucherDetailId=VD.Id
+                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 
+                                AND AM.SourceType='" + sourceType + @"'
+                                AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "'  ";
 
+                data = _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
 
-
-
-
-        //        worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-        //        worksheet.UsedRange.CellStyle.Font.Size = 8f;
-
-
-        //        //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        ReportUtility reportUtility = new ReportUtility();
-        //        //reportUtility.PlantHeader(ref worksheet, endCol, "Master Order#" + reportFormat, identity.PlantId);
-        //        reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
-        //        worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        worksheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-        //        worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-        //        worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-        //        worksheet.IsGridLinesVisible = false;
-        //        return workbook;
-
-
-
-        //      catch (Exception ex)
-        //      {
-        //        throw (ex);
-
-        //       }
-
-
-
-
-
-        //}
-
+        }
 
 
 

@@ -115,10 +115,10 @@
                     <input ng-click="clearTaxPopUp();c" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.GL.ToString()">
                     <span class="cr" tabindex="9"><i class="cr-icon"></i></span>GL
                 </label>
-                @*<label>
-                        <input ng-click="clearTaxPopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Employee.ToString()">
-                        <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Employee.ToString()
-                    </label>*@
+                <label>
+                    <input ng-click="clearTaxPopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Employee.ToString()">
+                    <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Employee.ToString()
+                </label>
             </div>
         </div>
         <div class="form-group" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
@@ -165,19 +165,7 @@
                 </div>
             </div>
         </div>
-        @*<div class="form-group" show-errors ng-show="voucher.PaymentSource=='Employee'">
-                <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <input type="text" name="EmployeeName" ng-model="voucher.EmployeeName" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button ng-click="showEmployeeListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                            <button ng-click="clearEmployee()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>*@
-        <div class="form-group" ng-show="voucher.PaymentSource=='Vendor'||voucher.PaymentSource=='Employee'">
+        <div class="form-group" ng-show="voucher.PaymentSource=='Vendor'">
             <label class="col-sm-4 control-label">Transaction Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
@@ -217,14 +205,14 @@
             <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
             <div class="col-sm-5 show-message" style="padding-right:0px;">
                 <div class="select-style">
-                    <select id="currencyTransactionId" class="form-control" tabindex="5" name="Currency" required ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();calBaseAmount();">
+                    <select id="currencyTransactionId" class="form-control" tabindex="5" name="Currency" required ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();calBaseAmount();" ng-disabled="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Employee.ToString()'">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
             </div>
             <div class="col-sm-3 show-message" style="padding-left:0px;">
-                <input type="text" maxlength="50" n-decimals="4" name="Rate" ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate);rateChangeBankCharge(voucher.CompanyCurrencyRate);calBankAmount()" id="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="voucher.CurrencyId==companyCurrencyId">
+                <input type="text" maxlength="50" n-decimals="4" name="Rate" ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate);rateChangeBankCharge(voucher.CompanyCurrencyRate);calBankAmount()" id="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="voucher.CurrencyId==companyCurrencyId || voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Employee.ToString()'">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -303,16 +291,16 @@
                         <td class="text-right">{{x.Received | number:3}}</td>
                         <td class="text-right">{{x.Balance | number:3}}</td>
                         <td>
-                            <input ng-keyup="exchangeGainLossAmount(x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount">
+                            <input ng-keyup="exchangeGainLossAmount(x)" type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount">
                         </td>
                         <td>
-                            <input readonly type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeType" ng-model="x.ExchangeType">
+                            <input readonly type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeType" ng-model="x.ExchangeType">
                         </td>
                         <td>
-                            <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" ng-disabled="x.ExchangeType==null" name="ExchangeAmount" ng-model="x.ExchangeAmount" ng-keyup="calBaseAmount()">
+                            <input type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" ng-disabled="x.ExchangeType==null" name="ExchangeAmount" ng-model="x.ExchangeAmount" ng-keyup="calBaseAmount()">
                         </td>
                         <td>
-                            <input type="text" n-decimals="2" readonly title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BaseDrAmount" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
+                            <input type="text" n-decimals="3" readonly title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BaseDrAmount" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
                         </td>
                         <td>
                             <div class="col-md-12">
@@ -337,10 +325,10 @@
                         <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Receivable' | number:2}}</b></td>
                         <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Received' | number:2}}</b></td>
                         <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Balance'| number:2 }}</b></td>
-                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Amount' | number:2}}</b></td>
+                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Amount' | number:3}}</b></td>
                         <td></td>
-                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'ExchangeAmount'| number:2 }}</b></td>
-                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'BaseDrAmount'| number:2 }}</b></td>
+                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'ExchangeAmount'| number:3 }}</b></td>
+                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'BaseDrAmount'| number:3 }}</b></td>
                         <td></td>
                     </tr>
                 </tfoot>
@@ -388,6 +376,46 @@
                             <td></td>
                         </tr>
                     </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Employee.ToString()'">
+            <ul class="list-inline">
+                <li><button class="btn single-btn" ng-click="showEmployeeAdvancePopUpList()" tabindex=""><i class="glyphicon glyphicon-plus"></i> Add Employee Advance</button></li>
+            </ul>
+        </div>
+        <div class="row form-elements">
+            <div class="col-xs-12 col-sm-12 col-md-12 modal-table" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Employee.ToString()'">
+                <table class="table table-responsive table-striped">
+                    <thead>
+                        <tr>
+                            <th>VoucherNo</th>
+                            <th>Employee</th>
+                            <th>Posting Date</th>
+                            <th>Doc RefNo</th>
+                            <th>Advance Amount</th>
+                            <th>Amount</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in advanceList">
+                            <td>{{x.VoucherNo}}</td>
+                            <td>{{x.EmployeeName}}</td>
+                            <td>{{x.advancePostingDate}}</td>
+                            <td>{{x.advanceDocRefNo}}</td>
+                            <td>{{x.AdvanceAmount}}</td>
+                            <td>
+                                <div class="show-message">
+                                    <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount" ng-keyup="calAdvanceBaseAmountValidation(x);calBaseAmount();">
+                                </div>
+                            </td>
+                            <td class="text-right">
+                                <button ng-click="removeAdvanceRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -627,8 +655,8 @@
 @Html.Partial("~/Areas/Accounts/Views/_VendorAdvancePopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_NotePartyPopUp.cshtml")
-@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_EmployeeAdvancePopUp.cshtml")
 
 
 

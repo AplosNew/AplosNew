@@ -23,6 +23,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Web.Mvc;
+using Syncfusion.XlsIO;
+using System.IO;
+using System.Data;
 
 namespace Aplos.Areas.SalesManagements.Controllers
 {
@@ -62,7 +65,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             return View("~/Areas/SalesManagements/Views/Sales.cshtml");
         }
-
+        public ActionResult EInvoice()
+        {
+            return View("~/Areas/SalesManagements/Views/EInvoice.cshtml");
+        }
         [HttpGet, Authorize]
         public ActionResult GetMaterialSalesList(GridParameter parameters)
         {
@@ -305,13 +311,22 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
             return View();
         }
-
         [Authorize, HttpGet]
-        public ActionResult LocalTaxInvoiceWithoutSUI(string salesId)
+        public ActionResult LocalTaxInvoiceWithProductDetailService(string salesId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.LocalTaxInvoiceWithoutSUIService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, salesId);
+            _salesReportService.LocalTaxInvoiceWithProductDetailService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, salesId);
+
+            return View();
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LocalTaxInvoiceWithoutSKU(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salesReportService.LocalTaxInvoiceWithoutSKUService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, salesId);
 
             return View();
         }
@@ -708,7 +723,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
             sales.CompanyGroupId = identity.CompanyGroupId;
             sales.CompanyId = identity.CompanyId;
             sales.PlantId = identity.PlantId;
-            
+            //if (packing.PackingId == null)
+            //    throw new CustomException("Packing List are not yet tag in Sales!!.");
+            if (PackingDetailVMList==null)
+                throw new CustomException("Packing JV is missing!!.");
             if (salesDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != salesDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
                 throw new CustomException("Dr Cr Amount not equal");
             if (PackingDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != PackingDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
@@ -741,6 +759,138 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             _salesService.DeleteSale(invoiceId, voucherId);
             return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetParkedSalesList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(clsSales.GetParkedSalesList(identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetSalesMaterialList(string Ids)
+        {
+            JsonResult json=Json(clsSales.GetSalesMaterialList(Ids), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetEInvoiceSaveReports(ReportFormat reportFormat, string issueIds, List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                SaveEInvoicedata(data);
+
+                IWorkbook workbook = clsSales.GetEInvoiceReports(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, identity.Name, issueIds);
+
+                workbook.Version = ExcelVersion.Excel2013;
+                var strFileName = DateTime.Now.ToString("yyMMdd") + " " + "E-Invoice Reports.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        private void SaveEInvoicedata(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.EInvoice", out dsMaster, false, "1");
+
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "SalesId='" + item["SalesId"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = item["SalesId"];
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
         }
     }
 }

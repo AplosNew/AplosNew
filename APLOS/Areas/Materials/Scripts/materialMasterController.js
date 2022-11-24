@@ -71,6 +71,7 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
         , IsRegular: true
         , IssueByUoM: false
         , MaterialMasterTypeId: null
+        , IsReplacement:false
     };
     $scope.materialMasterNew = angular.copy($scope.materialMaster);
     $scope.searchMaterialMasterList = [
@@ -2213,4 +2214,18 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
         }
         angular.element(document.querySelector('#confirmValueRemovePopUp')).modal('hide');
     };
+
+    // #region get Define Enum
+    $scope.EnumList = [];
+    $scope.getEnum = function () {
+        $http({
+            method: 'POST',
+            url: "Materials/IssueControl/GetEnum",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EnumList = response.data;
+        });
+    }
+    $scope.getEnum();
+     // #endregion get Define Enum
 }

@@ -1172,8 +1172,10 @@ namespace Library.Service.Banks
                             reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["VoucherDetailId"].ToString()); col++;
                             reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["ReconcileDate"].ToString()); col++;
                             reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["ReconciliationStatus"].ToString());
-
+                            colLast = col;
                         }
+                        sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                         row++;
                     }
                 }
@@ -2033,6 +2035,52 @@ WHERE BM.Id='"+ BankMasterID + "'";
                                        AND (VD.BankMasterId='" + BankMasterID + @"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) --AND V.PostingDate>='" + fromDate + @"'
                                        AND (VD.DrAmount<>0.0000)" + str;
         }
+        private string BankReconcilePendingDRSql(string bankMasterId, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT  VD.Id AS VoucherDetailId  ,V.VoucherNo,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
+                                             ,VD.DocRefNo, VD.PartyType, VD.Narration ,GLT.DrAmount AS Amount 
+	                                         ,'' BankReconciliationUploadedDataId,'' BankRefNo,'' BankParticulars
+                                       FROM TRN.VoucherDetail AS VD
+                                       INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                       INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+                                       WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' )
+                                       AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.IsPark=0
+                                       AND VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate BETWEEN CONVERT(DATE,'" + fromDate + @"') AND CONVERT(DATE,'" + toDate + @"')
+                                       AND VD.DrAmount<>0.0000 
+                                       AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) 
+UNION ALL
+								SELECT  '' VoucherDetailId,'' VoucherNo,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  VoucherDate ,'' DocRefNo, '' PartyType, '' Narration
+								, CrAmount AS Amount ,BRUD.Id BankReconciliationUploadedDataId, BankRefNo,BankParticulars
+                                FROM TRN.BankReconciliationUploadedData  BRUD
+                                INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
+                                WHERE BRUD.CompanyGroupId='" + identity.CompanyGroupId + "' AND BRUD.CompanyId='" + identity.CompanyId + "' AND BRUD.PlantId='" + identity.PlantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND CrAmount>0 
+                                AND BRUD.Id NOT IN(select BankReconciliationUploadedDataId from TRN.BankReconciliationMap)";
+        }
+        private string BankReconcilePendingCRSql(string bankMasterId, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"SELECT  VD.Id AS VoucherDetailId  ,V.VoucherNo,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
+                                             ,VD.DocRefNo, VD.PartyType, VD.Narration ,GLT.CrAmount AS Amount 
+	                                         ,'' BankReconciliationUploadedDataId,'' BankRefNo,'' BankParticulars
+                                       FROM TRN.VoucherDetail AS VD
+                                       INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                       INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+                                       WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' )
+                                       AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.IsPark=0
+                                       AND VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate BETWEEN CONVERT(DATE,'" + fromDate + @"') AND CONVERT(DATE,'" + toDate + @"')
+                                       AND VD.CrAmount<>0.0000 
+                                       AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) 
+UNION ALL
+								SELECT  '' VoucherDetailId,'' VoucherNo,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  VoucherDate ,'' DocRefNo, '' PartyType, '' Narration
+								, DrAmount AS Amount ,BRUD.Id BankReconciliationUploadedDataId, BankRefNo,BankParticulars
+                                FROM TRN.BankReconciliationUploadedData  BRUD
+                                INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
+                                WHERE BRUD.CompanyGroupId='" + identity.CompanyGroupId + "' AND BRUD.CompanyId='" + identity.CompanyId + "' AND BRUD.PlantId='" + identity.PlantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND DrAmount>0 
+                                AND BRUD.Id NOT IN(select BankReconciliationUploadedDataId from TRN.BankReconciliationMap)";
+        }
 
         public void CRReconcileReport(string BankMasterID,string fromDate,string toDate)
         {
@@ -2428,6 +2476,409 @@ WHERE BM.Id='"+ BankMasterID + "'";
             }
 
         }
+        public void DRReconcilePendingReport(string bankMasterId, string fromDate, string toDate)
+        {
+            try
+            {
+                
+                string sql = BankReconcilePendingDRSql(bankMasterId, fromDate, toDate);
+                string Banksql = BanKSql(bankMasterId);
 
+
+                //Instantiate the Excel application object
+                DataTable dtBank = _sqlRepository.GetDataTable(Banksql);
+                DataTable dtDRBR = _sqlRepository.GetDataTable(sql);
+                if (dtDRBR.Rows.Count == 0)
+                    throw new Exception("No data found");
+                ExcelEngine excelEngine = new ExcelEngine();
+                IApplication application = excelEngine.Excel;
+
+                //Set the default application version
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
+                sheet.Name = "Dr. Reconcile Pending Report";
+
+                int ROW = 6;
+                int COL = 1;
+
+                #region Header
+
+                int StartRow = ROW;
+                sheet[ROW, COL].Text = "Bank :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+
+                int colBank = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Branch :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colBranch = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "From Date :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colFromDate = COL;
+                ROW = StartRow;
+                COL = 4;
+                sheet[ROW, COL].Text = "Account :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colAccount = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Bank GL :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colBankGL = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "To Date :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colToDate = COL;
+                ROW = StartRow;
+                COL = 7;
+                sheet[ROW, COL].Text = "Bank Currency :";
+                sheet[ROW, COL].ColumnWidth = 13;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colBankCurrency = COL;
+                // Headerdata
+                ROW = 6;
+                sheet[ROW, colBank + 1].Text = dtBank.Rows[0]["BankName"].ToString();
+                ROW++;
+                sheet[ROW, colBranch + 1].Text = dtBank.Rows[0]["BankBranchName"].ToString();
+                ROW++;
+                sheet[ROW, colFromDate + 1].Text = fromDate;
+                ROW = StartRow;
+                sheet[ROW, colAccount + 1].Text = dtBank.Rows[0]["AccountTitle"].ToString();
+                ROW++;
+                sheet[ROW, colBankGL + 1].Text = dtBank.Rows[0]["GLGeneralInfoId"].ToString() + "-" + dtBank.Rows[0]["GLGeneralInfoName"].ToString();
+                ROW++;
+                sheet[ROW, colToDate + 1].Text = toDate;
+                ROW = StartRow;
+                sheet[ROW, colBankCurrency + 1].Text = dtBank.Rows[0]["CurrencyCode"].ToString();
+
+                sheet.Range[StartRow, colBank + 1, StartRow, colBank + 2].Merge();
+                sheet.Range[StartRow + 1, colBranch + 1, StartRow + 1, colBranch + 2].Merge();
+                sheet.Range[StartRow + 2, colFromDate + 1, StartRow + 2, colFromDate + 2].Merge();
+                sheet.Range[StartRow, colAccount + 1, StartRow, colAccount + 2].Merge();
+                sheet.Range[StartRow + 1, colBankGL + 1, StartRow + 1, colBankGL + 2].Merge();
+                sheet.Range[StartRow + 2, colToDate + 1, StartRow + 2, colToDate + 2].Merge();
+                sheet.Range[StartRow, colBankCurrency + 1, StartRow, colBankCurrency + 2].Merge();
+                sheet.Range[StartRow, colBank, StartRow + 3, colBankCurrency + 2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
+
+
+                ROW = 10;
+                COL = 1;
+                #endregion
+                sheet[ROW, COL].Text = "Date";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colVoucherDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "VoucherRowId";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "BankRowId";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colBankReconciliationUploadedDataId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Doc Ref No.";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Type";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colPartyType = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Narration";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colNarration = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "MissingInGL";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colBankMissing = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "MissingInBank";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colGLMissing = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "BankParticulars";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colBankParticulars = COL;
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                ROW++;
+
+                StartRow = ROW; //row 20
+                for (int i = 0; i < dtDRBR.Rows.Count; i++)
+                {
+                    sheet[ROW, colVoucherDate].Text = dtDRBR.Rows[i]["VoucherDate"].ToString();
+                    sheet[ROW, colId].Text = dtDRBR.Rows[i]["VoucherDetailId"].ToString();
+                    sheet[ROW, colBankReconciliationUploadedDataId].Text = dtDRBR.Rows[i]["BankReconciliationUploadedDataId"].ToString();
+                    sheet[ROW, colDocRefNo].Text = dtDRBR.Rows[i]["DocRefNo"].ToString();
+                    sheet[ROW, colNarration].Text = dtDRBR.Rows[i]["PartyType"].ToString();
+                    sheet[ROW, colPartyType].Text = dtDRBR.Rows[i]["Narration"].ToString();
+                    sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtDRBR.Rows[i]["Amount"].ToString());
+                    sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet[ROW, colBankMissing].Text = dtDRBR.Rows[i]["BankRefNo"].ToString();
+                    sheet[ROW, colGLMissing].Text = dtDRBR.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, colBankParticulars].Text = dtDRBR.Rows[i]["BankParticulars"].ToString();
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                    ROW++;
+
+                }
+                sheet[ROW, 1].Text = "Total:";
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                int colTotal = COL;
+                var reportUtility = new ReportUtility();
+                sheet.Range[ROW, colAmount].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colAmount) + StartRow + ":" + reportUtility.GetColumnNameForXls(colAmount) + (ROW - 1) + ")";
+                sheet.Range[ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.IsGridLinesVisible = false;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet[ROW, 1].CellStyle.Font.Size = 9;
+
+                sheet["A" + StartRow.ToString()].FreezePanes();
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                reportUtility.PlantHeader(ref sheet, endCol, "Dr. Reconcile Pending Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                string strFileName = "DrReconcilePendingReport.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        public void CRReconcilePendingReport(string bankMasterId, string fromDate, string toDate)
+        {
+            try
+            {
+
+                string sql = BankReconcilePendingCRSql(bankMasterId, fromDate, toDate);
+                string Banksql = BanKSql(bankMasterId);
+
+
+                //Instantiate the Excel application object
+                DataTable dtBank = _sqlRepository.GetDataTable(Banksql);
+                DataTable dtDRBR = _sqlRepository.GetDataTable(sql);
+                if (dtDRBR.Rows.Count == 0)
+                    throw new Exception("No data found");
+                ExcelEngine excelEngine = new ExcelEngine();
+                IApplication application = excelEngine.Excel;
+
+                //Set the default application version
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
+                sheet.Name = "Cr. Reconcile Pending Report";
+
+                int ROW = 6;
+                int COL = 1;
+
+                #region Header
+
+                int StartRow = ROW;
+                sheet[ROW, COL].Text = "Bank :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+
+                int colBank = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Branch :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colBranch = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "From Date :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colFromDate = COL;
+                ROW = StartRow;
+                COL = 4;
+                sheet[ROW, COL].Text = "Account :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colAccount = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "Bank GL :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colBankGL = COL;
+                ROW++;
+                sheet[ROW, COL].Text = "To Date :";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colToDate = COL;
+                ROW = StartRow;
+                COL = 7;
+                sheet[ROW, COL].Text = "Bank Currency :";
+                sheet[ROW, COL].ColumnWidth = 13;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colBankCurrency = COL;
+                // Headerdata
+                ROW = 6;
+                sheet[ROW, colBank + 1].Text = dtBank.Rows[0]["BankName"].ToString();
+                ROW++;
+                sheet[ROW, colBranch + 1].Text = dtBank.Rows[0]["BankBranchName"].ToString();
+                ROW++;
+                sheet[ROW, colFromDate + 1].Text = fromDate;
+                ROW = StartRow;
+                sheet[ROW, colAccount + 1].Text = dtBank.Rows[0]["AccountTitle"].ToString();
+                ROW++;
+                sheet[ROW, colBankGL + 1].Text = dtBank.Rows[0]["GLGeneralInfoId"].ToString() + "-" + dtBank.Rows[0]["GLGeneralInfoName"].ToString();
+                ROW++;
+                sheet[ROW, colToDate + 1].Text = toDate;
+                ROW = StartRow;
+                sheet[ROW, colBankCurrency + 1].Text = dtBank.Rows[0]["CurrencyCode"].ToString();
+
+                sheet.Range[StartRow, colBank + 1, StartRow, colBank + 2].Merge();
+                sheet.Range[StartRow + 1, colBranch + 1, StartRow + 1, colBranch + 2].Merge();
+                sheet.Range[StartRow + 2, colFromDate + 1, StartRow + 2, colFromDate + 2].Merge();
+                sheet.Range[StartRow, colAccount + 1, StartRow, colAccount + 2].Merge();
+                sheet.Range[StartRow + 1, colBankGL + 1, StartRow + 1, colBankGL + 2].Merge();
+                sheet.Range[StartRow + 2, colToDate + 1, StartRow + 2, colToDate + 2].Merge();
+                sheet.Range[StartRow, colBankCurrency + 1, StartRow, colBankCurrency + 2].Merge();
+                sheet.Range[StartRow, colBank, StartRow + 3, colBankCurrency + 2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(232, 244, 248);
+
+
+                ROW = 10;
+                COL = 1;
+                #endregion
+                sheet[ROW, COL].Text = "Date";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colVoucherDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "VoucherRowId";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "BankRowId";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colBankReconciliationUploadedDataId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Doc Ref No.";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Type";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colPartyType = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Narration";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colNarration = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "MissingInGL";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colBankMissing = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "MissingInBank";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colGLMissing = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "BankParticulars";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colBankParticulars = COL;
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                ROW++;
+
+                StartRow = ROW; //row 20
+                for (int i = 0; i < dtDRBR.Rows.Count; i++)
+                {
+                    sheet[ROW, colVoucherDate].Text = dtDRBR.Rows[i]["VoucherDate"].ToString();
+                    sheet[ROW, colId].Text = dtDRBR.Rows[i]["VoucherDetailId"].ToString();
+                    sheet[ROW, colBankReconciliationUploadedDataId].Text = dtDRBR.Rows[i]["BankReconciliationUploadedDataId"].ToString();
+                    sheet[ROW, colDocRefNo].Text = dtDRBR.Rows[i]["DocRefNo"].ToString();
+                    sheet[ROW, colNarration].Text = dtDRBR.Rows[i]["PartyType"].ToString();
+                    sheet[ROW, colPartyType].Text = dtDRBR.Rows[i]["Narration"].ToString();
+                    sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtDRBR.Rows[i]["Amount"].ToString());
+                    sheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet[ROW, colBankMissing].Text = dtDRBR.Rows[i]["BankRefNo"].ToString();
+                    sheet[ROW, colGLMissing].Text = dtDRBR.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, colBankParticulars].Text = dtDRBR.Rows[i]["BankParticulars"].ToString();
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                    ROW++;
+
+                }
+                sheet[ROW, 1].Text = "Total:";
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                int colTotal = COL;
+                var reportUtility = new ReportUtility();
+                sheet.Range[ROW, colAmount].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colAmount) + StartRow + ":" + reportUtility.GetColumnNameForXls(colAmount) + (ROW - 1) + ")";
+                sheet.Range[ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.IsGridLinesVisible = false;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet[ROW, 1].CellStyle.Font.Size = 9;
+
+                sheet["A" + StartRow.ToString()].FreezePanes();
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                reportUtility.PlantHeader(ref sheet, endCol, "Cr. Reconcile Pending Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                string strFileName = "CrReconcilePendingReport.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
     }
 }

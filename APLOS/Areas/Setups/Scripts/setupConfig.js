@@ -114,6 +114,10 @@ function SetupConfig($routeProvider, $locationProvider) {
             templateUrl: 'Setups/businessprocess',
             controller: 'businessProcessController'
         })
+        .when('/define-enum', {
+            templateUrl: 'Setups/businessprocess/DefineEnum',
+            controller: 'defineEnumController'
+        })
         .when('/mail-receiver', {
             templateUrl: 'Setups/mailReceiver',
             controller: 'mailReceiverController'

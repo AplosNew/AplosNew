@@ -268,4 +268,58 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/UtilityTransactionReport/Aplos',
             controller: 'UtilityTransactionReportController'
         })
+        .when('/storage-bin-master', {
+            templateUrl: 'materials/StorageBinMaster/Aplos',
+            controller: 'StorageBinMasterController'
+        })
+        .when('/storage-bin-allocation', {
+            templateUrl: 'materials/StorageBinAllocation/Aplos',
+            controller: 'StorageBinAllocationController'
+        })
+        .when('/stock-register', {
+            templateUrl: 'materials/StockRegister/StockRegister',
+            controller: 'StockRegisterController'
+        })
+        .when('/requisition-status', {
+            templateUrl: 'materials/StockRegister/RequisitionStatus',
+            controller: 'RequisitionStatusController'
+        })
+        .when('/process-wise-material-allocation', {
+            templateUrl: 'materials/ProcessWiseMaterialAllocation/Aplos',
+            controller: 'ProcessWiseMaterialAllocationController'
+        })
+        .when('/detention-log', {
+            templateUrl: 'materials/DetentionLog/Aplos',
+            controller: 'DetentionLogController'
+        })
+
+        .when('/detention-logout', {
+            templateUrl: 'materials/DetentionLogout/Aplos',
+            controller: 'DetentionLogoutController'
+        })
+
+        .when('/inventory-issue-control', {
+            templateUrl: 'materials/IssueControl/Aplos',
+            controller: 'IssueControlController'
+        })
+        .when('/material-issue-control', {
+            templateUrl: 'materials/MaterialIssueControl/Aplos',
+            controller: 'MaterialIssueControlController'
+        })
+        .when('/material-issue-ctrl-approval', {
+            templateUrl: 'materials/MaterialIssueControl/Approval',
+            controller: 'MaterialIssueControlApprovalController'
+        })
+        .when('/material-issue', {
+            templateUrl: 'materials/MaterialIssueControl/issue',
+            controller: 'MaterialIssueController'
+        })
+        .when('/utility-group', {
+            templateUrl: 'Materials/UtilityGroup',
+            controller: 'UtilityGroupController'
+        })
+        .when('/detention-log-report', {
+            templateUrl: 'Materials/DetentionLogReport',
+            controller: 'DetentionLogReportController'
+        })
 };

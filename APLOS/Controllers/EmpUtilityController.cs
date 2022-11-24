@@ -34,6 +34,25 @@ namespace Aplos.Controllers
             }
         }
 
+        #region Nitesh
+        [Route("api/EmpUtiliy/PostCreate")]
+        [HttpPost, AllowAnonymous]
+        public string PostCreate([FromBody] IEnumerable<CreateDetentionList> DataToSave)
+        {
+            try
+            {
+
+                string Id = _emp.CreateDetentionLog(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        #endregion Nitesh
+
         [HttpGet]
         
         public IHttpActionResult GetEmpInfo(string Code)

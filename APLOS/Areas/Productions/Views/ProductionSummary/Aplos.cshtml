@@ -167,9 +167,22 @@
                 <input type="text" class="form-control" ng-disabled="PQEnable" n-decimals="2" placeholder="Produced Quantity" ng-model="productionSummaryNew.Quantity">
             </div>
             <div class="col-sm-1" style="padding-left:0px;">
-                <label class="control-label">{{productionSummaryNew.UOM}}</label>
+                @*<label class="control-label">{{productionSummaryNew.UOM}}</label>*@
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="getProcessParaPopupPoPUp();" ng-disabled="IsParameterBased===false" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                    </ul>
+                </div>
             </div>
 
+             @*<div class="col-xs-4" ng-show="IsGo===true">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="showBothPopups(productionSummaryNew);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                    </ul>
+                </div>
+
+            </div>*@
             <label class="col-sm-2 control-label">Grade<sup>*</sup></label>
             <div class="col-sm-3 show-message" style="padding-right:-1px;">
                 <div class="select-style">
@@ -191,7 +204,7 @@
             <label class="col-sm-4 control-label">Process<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" ng-change="loadWC(productionSummaryNew.ProcessId,productionSummaryNew.EntityId);getProdLevel();" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" ng-change="getProdLevel();GetShiftList();" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
                         <option value=""></option>
                     </select>
                 </div>
@@ -210,7 +223,7 @@
         <div class="form-group">
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li><button ng-click="masterGo(true);loadWC(productionSummaryNew.ProcessId,productionSummaryNew.EntityId);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
+                    <li><button ng-click="masterGo(true);loadWC(productionSummaryNew.ProcessId,productionSummaryNew.EntityId,productionSummaryNew.ProductionShiftId);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
                     <li> <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
                 </ul>
             </div>
@@ -218,18 +231,7 @@
         <div class="form-group" ng-show="IsGo===true">
             <label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for production booking.</label>
         </div>
-        
-        @*<div class="form-group" ng-show="IsGo===true" style="margin-top: 18px;">
-            <label class="col-sm-4 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">Master Order</label>
-            <div class="col-sm-8" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
-                <div class="input-group">
-                    <label class="control-label">{{productionSummaryNew.Customer}}({{productionSummaryNew.MasterOrderNo}})</label>
-                    <span class="input-group-btn">
-                        <button ng-click="showOrderDetail();" ng-disabled="productionSummaryNew.MasterOrderNo===null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-info-sign"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>*@
+       
         <div class="form-group" ng-show="IsGo===true && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
             <label class="col-sm-4 control-label">{{ProductionLevel}}<sup>*</sup></label>
             <div class="col-sm-8">
@@ -942,6 +944,55 @@
 
 
 </ej-dialog>
+
+<div class="modal site-modal in" id="ProcessParaPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i> Production Process Parameter
+                </h4>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row" ng-form name="CostingSOform">
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Head</th>
+                                        <th>State</th>
+                                        <th>Value</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in ProcessParaList">
+                                        <td>{{x.UserName}}</td>
+                                        <td>{{x.EntryState}} ({{x.ValueIN}})</td>
+                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="4" ng-model="x.Value" ng-change="ChangeCalValue();" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="Calculate();" ng-disabled="isChangeCalValue==true || isCalculated == false" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate</button>
+                            <button ng-click="SaveMaster();" ng-disabled="isCalculated == true" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
 <div class="loader" data-loader>
     Please wait

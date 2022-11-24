@@ -4,7 +4,7 @@
 <div class="form-elements" ng-form id="designationMasterConfigurationNew" name="designationMasterConfigurationForm">
     <div class="row">
         <input type="hidden" ng-model="designationMasterConfigurationNew.Id">
-       
+
         <div class="form-group col-xs-12 col-sm-4 col-md-4" show-errors>
             <label class="col-sm-4 control-label">Company<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -50,6 +50,7 @@
                             <th>Designation</th>
                             <th>Employee Category</th>
                             <th>Process Set</th>
+                            <th>Account Group</th>
                             <th>Salary Rule</th>
                             <th>Leave Policy</th>
                             <th>Salary Fixation</th>
@@ -84,6 +85,15 @@
                             </td>
                             <td>
                                 <div class="select-style">
+                                    <select class="form-control" name="AccountsGroup" ng-model="x.AccountsGroupId" id="AccountsGroupId" tabindex="1" style="width: 140px;"
+                                            ng-options="item.Value as item.Text for item in accountsGroupList">
+                                        <option></option>
+                                    </select>
+                                </div>
+
+                            </td>
+                            <td>
+                                <div class="select-style">
                                     <select class="form-control" ng-model="x.SalaryRuleMasterId"
                                             ng-options="item.Value as item.Text for item in salaryRuleMasterList" id="SalaryRuleMasterId"
                                             name="SalaryRuleMaster" required tabindex="1" style="width: 140px;">
@@ -91,6 +101,7 @@
                                     </select>
                                 </div>
                             </td>
+
                             <td>
                                 <div class="select-style">
                                     <select class="form-control" ng-model="x.LeavePolicyMasterId"
@@ -149,7 +160,7 @@
                                 <div class="select-style">
                                     <select class="form-control" ng-model="x.ESICPolicyMasterID"
                                             ng-options="item.Value as item.Text for item in ESICPolicyMasterList" id="AttdnBonusPmtPolicyMasterId"
-                                            name="ESICPolicyMaster" required  style="width: 150px;">
+                                            name="ESICPolicyMaster" required style="width: 150px;">
                                         <option></option>
                                     </select>
                                 </div>

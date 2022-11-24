@@ -163,7 +163,10 @@ namespace Library.Model.Inventory
         public decimal GrossAmount { get; set; }
         public decimal DiscountAmount { get; set; }
 
-        public string MasterOrderItemId { get; set; } 
+        public string MasterOrderItemId { get; set; }
+        public VoucherDetail VoucherDetail { get; set; }
+
+        public string VoucherDetailId { get; set; } 
         
 
         #endregion Navigation Properties

@@ -89,22 +89,17 @@
                     <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
                     <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
                 </label>
-                <label ng-hide="voucher.NoteType=='@Library.Model.Invoices.NoteType.CustomerDebitNote.ToString()'">
+                <label>
                     <input ng-click="clearInvoicePopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.SettlementType.SetOff.ToString()">
                     <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Invoice
                 </label>
+                <label>
+                    <input ng-click="clearInvoicePopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()">
+                    <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Advance
+                </label>
             </disv>
         </div>
-        @*<div class="form-group">
-                <label class="col-sm-4 control-label">Rounding<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" name="RoundingType" ng-model="voucher.RoundingType" tabindex="3">
-                            <option ng-repeat="option in roundingTypeList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>*@
+       
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group" show-errors>
@@ -166,17 +161,25 @@
                 <div class="input-group">
                     <input type="text" name="CashName" ng-model="voucher.InvoiceVoucherNo" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="showCustomerInvoicePopUp(voucher.PartyId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.CustomerDebitNote.ToString()'" ng-click="showCustomerInvoicePopUp(voucher.PartyId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.VendorDebitNote.ToString()'" ng-click="showVendorInvoicePopUp(voucher.PartyId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+
                     </span>
                 </div>
             </div>
         </div>
-        @*<div class="form-group">
-                <label class="col-sm-4 control-label">Rounding Amount<sup>*</sup></label>
-                <div class="col-sm-8 ">
-                    <input type="text" ng-disabled="voucher.RoundingType=='None'" n-decimals="4" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="RoundingAmount" ng-model="voucher.RoundingAmount">
+        <div class="form-group" ng-show="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'">
+            <label class="col-sm-4 control-label">Advance<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="CashName" ng-model="voucher.InvoiceVoucherNo" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.VendorDebitNote.ToString()'" ng-click="showAdvancePopUpNew(voucher.PartyId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+
+                    </span>
                 </div>
-            </div>*@
+            </div>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="col-xs-12 col-sm-2 col-md-2">
@@ -197,7 +200,7 @@
                             <th class="text-right">Receivable</th>
                             <th class="text-right">Received</th>
                             <th class="text-right">Balance</th>
-                            <th class="text-right" ng-hide="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.SetOff.ToString()'">Amount</th>
+                            <th class="text-right" ng-hide="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.SetOff.ToString()'||'@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'">Amount</th>
                             <th>Exchange Type</th>
                             <th>Exchange Amount</th>
                             <th>Action</th>
@@ -213,7 +216,7 @@
                             <td class="text-right">{{x.Receivable | number:3}}</td>
                             <td class="text-right">{{x.Received | number:3}}</td>
                             <td class="text-right">{{x.Balance | number:3}}</td>
-                            <td ng-hide="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.SetOff.ToString()'">
+                            <td ng-hide="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.SetOff.ToString()'||'@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'">
                                 <input ng-keyup="exchangeGainLossAmount(x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount">
                             </td>
                             <td>
@@ -240,7 +243,8 @@
             </div>
         </fieldset>
         <fieldset class="scheduler-border" ng-show="voucherInvoiceDetailList.length">
-            <legend class="scheduler-border">Invoice</legend>
+            <legend class="scheduler-border" ng-show="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.Invoice.ToString()'">Invoice</legend>
+            <legend class="scheduler-border" ng-show="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'">Advance</legend>
             <div class="table-responsive modal-table">
                 <table class="table table-striped table-bordered">
                     <thead>
@@ -370,6 +374,7 @@
 @Html.Partial("~/Areas/Accounts/Views/_DebitCreditNotePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_CustomerInvoicePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_PartyAdvanceAmountPopUp.cshtml")
-@Html.Partial("~/Areas/Accounts/Views/_VendorAdvancePopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_VendorAdvancePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_AdvanceByPartyPopUp.cshtml")
 

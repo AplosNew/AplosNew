@@ -39,7 +39,8 @@
                                 <th>PostingDate</th>
                                 <th>DocDate</th>
                                 <th>Currency</th>
-                                <th>Receivable</th>
+                                <th ng-show="partyType=='Customer'">Receivable</th>
+                                <th ng-show="partyType=='Vendor'">Payable</th>
                                 <th>Set-off</th>
                                 <th>Balance</th>
                             </tr>

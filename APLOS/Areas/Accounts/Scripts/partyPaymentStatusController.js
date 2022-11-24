@@ -36,6 +36,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         ToDate: $filter('dateFiltering')(Date.now()),
         VendorFromDate: $filter('dateFiltering')(Date.now()),
         VendorToDate: $filter('dateFiltering')(Date.now()),
+        CustomerFromDate: $filter('dateFiltering')(Date.now()),
+        CustomerToDate: $filter('dateFiltering')(Date.now()),
         GRNandAccPType: 'GRNPosted',
         DateType: 'PostingDate',
         IsOrderSpecific: true,
@@ -179,8 +181,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.GetInvoiceList = function () {
-        $scope.FromDateValidation();
-        $scope.ToDatevalidation();
+        //$scope.FromDateValidation();
+        //$scope.ToDatevalidation();
         if (!$scope.invalidFromDate && !$scope.invalidDocDate) {
             try {
                 
@@ -189,7 +191,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     url: $scope.path + "GetPartyPaymentStatusInvoiceList",
                     data: {
                         fromDate: "",
-                        toDate: ""
+                        toDate: $scope.material.VendorToDate
                     },
                     dataType: 'JSON'
 
@@ -281,7 +283,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 $http({
                     method: 'POST',
                     url: $scope.path + "PartyPaymentStatusReport",
-                    data: { 'MasterLCList': NewMasterLCList },
+                    data: {
+                        'MasterLCList': NewMasterLCList,
+                        'fromDate': "",
+                        'toDate': $scope.material.VendorToDate
+                    },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error == false) {
@@ -324,7 +330,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 $http({
                     method: 'POST',
                     url: $scope.path + "PartyPaymentStatusAgingReport",
-                    data: { 'parameters': NewMasterLCList },
+                    data: {
+                        'parameters': NewMasterLCList,
+                        'fromDate': "",
+                        'toDate': $scope.material.VendorToDate
+                    },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error == false) {
@@ -2647,7 +2657,10 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 url: $scope.path + "GetFinancialDashboardCustomerReceiptMasterList",
-                data: { /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate */ },
+                data: {
+                    fromDate: "",
+                    toDate: $scope.material.CustomerToDate
+                },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -2663,7 +2676,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetCustomerReceiptMasterList();
+    //$scope.GetCustomerReceiptMasterList();
 
     $scope.crAgingsummaryRows = [{
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksGross", dataMember: "BooksGross", format: "{0:N2}" },
@@ -2722,7 +2735,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 //throw 'Please enter to date';
 
             } else {
-                var file_src = $scope.path + "FinancialDashboardCustomerSummaryReport?masterCustomerSummaryList=" + NewMasterCustomerList;
+                var file_src = $scope.path + "FinancialDashboardCustomerSummaryReport?masterCustomerSummaryList=" + NewMasterCustomerList + '&fromDate=' + "" + '&toDate=' + $scope.material.CustomerToDate;
                 $rootScope.report(file_src);
             }
 
@@ -2754,7 +2767,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 ShowResult('Please select at least one Party', 'failure');
             }
             else {
-                var file_src = $scope.path + "FinancialDashboardCustomerReceiptAgingReport?masterCustomerReceiptAgingList=" + NewMasterCustomerAgingList;
+                var file_src = $scope.path + "FinancialDashboardCustomerReceiptAgingReport?masterCustomerReceiptAgingList=" + NewMasterCustomerAgingList + '&fromDate=' + "" + '&toDate=' + $scope.material.CustomerToDate;
                 $rootScope.report(file_src);
             }
 
@@ -4888,6 +4901,101 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     //**********************#endregion Current Fund Position **************************
+
+    //**********************#startregion Receive Payment Status **************************
+    $scope.refreshTemplateReceiptPaymentStatus = function (args) {
+        $("#headchkReceiptPaymentStatus").ejCheckBox({ "change": CheckBoxSelectReceiptPaymentStatus });
+    };
+
+    function CheckBoxSelectReceiptPaymentStatus(e) {
+
+        var ChkOrUnchkCustomer = false;
+        if (e.model.checkState === "check")
+        {
+            ChkOrUnchkCustomer = true;
+        }
+
+        var filtered = $("#GridReceiptPaymentStatus").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ReceiptPaymentStatusList.length; i++) {
+                $scope.ReceiptPaymentStatusList[i].isSelected = ChkOrUnchkCustomer;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].isSelected = ChkOrUnchkCustomer;
+            }
+
+
+        }
+        var gridObj = $("#GridReceiptPaymentStatus").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.ReceiptPaymentStatusList = [];
+    $scope.GetReceiptPaymentStatusList = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetReceiptPaymentStatusDataList",
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.ReceiptPaymentStatusList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+        catch (e) {
+
+        }
+    }
+   // $scope.GetReceiptPaymentStatusList();
+
+    $scope.exportgriddataUrl = 'GridReports/ExcelExport';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+
+    $scope.ReceiptPaymentStatusSummaryReport = function () {
+        try {
+            $scope.reportFormat = "Excel";
+            $scope.fileName = 'ReceiptPaymentStatus.xls';
+            //var ReportFileName = "Receipt Payment Status";
+            var gridObj = $("#GridReceiptPaymentStatus").data("ejGrid");
+            var data = gridObj.model.dataSource();
+
+            var NewReceiptPaymentStatusList = [];
+            for (var i = 0; i < $scope.ReceiptPaymentStatusList.length; i++) {
+                if ($scope.ReceiptPaymentStatusList[i].isSelected == true) {
+                if (NewReceiptPaymentStatusList, $scope.ReceiptPaymentStatusList[i].CustomerCode) {
+                        NewReceiptPaymentStatusList.push($scope.ReceiptPaymentStatusList[i].CustomerCode);
+                    }
+                }
+            }
+            //if (NewReceiptPaymentStatusList.length == 0) {
+            //    ShowResult('Please select at least one Customer', 'failure');
+            //}
+            $http({
+                method: 'POST',
+                url: $scope.path + 'ReceiptPaymentStatusSummaryReport',
+                data: { 'data': data}
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    //window.location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            });
+            
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    //**********************#endregion Receive Payment Status **************************
 }
 
 

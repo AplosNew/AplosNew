@@ -1,0 +1,46 @@
+﻿<style>
+    .modellgModify1 {
+        width: 1300px;
+    }
+</style>
+
+<div class="modal fade site-modal in" id="PostedSalespopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify1">
+        <div class="modal-content">
+            <div class="modal-header"> Sales Data <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        @*style="color:black;overflow:scroll"*@
+                        <div style="color:black;overflow:scroll" id="PSGrid" ej-grid e-datasource="postedSalesList" e-templaterefresh="refreshTemplatepostedSales"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplatepostedSales" e-template="#checkboxTemplatepostedSales" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="SalesId" e-headertext="Invoice No" e-width="80" e-filter="false"></div>
+                                <div e-column e-field="PartyCode" e-headertext="PartyCode" e-width="60" e-filter="false"></div>
+                                <div e-column e-field="PartyName" e-headertext="Party " e-width="150" e-filter="false"></div>
+                                <div e-column e-field="Tracenent" e-headertext="Tracenent " e-width="150" e-filter="false"></div>
+                                <div e-column e-field="BillTo" e-headertext="Bill To" e-width="150"></div>
+                                <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="50"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+                                <div e-column e-field="RowState" e-headertext="State" e-width="50"></div>
+                                <div e-column e-field="SourceType" e-headertext="SourceType" e-width="50"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplatepostedSales">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplatepostedSales">
+                            <input type="checkbox" id="headchk" />
+                        </script>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closePSPopUp();" class="btn"> Apply</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

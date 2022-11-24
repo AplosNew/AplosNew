@@ -345,25 +345,22 @@ function UpdateCompanyController(addressService, fileReader, commonMessage, $sco
     $scope.languageTbl = false;
     $scope.LanguageCaption = 'Add Row';
     $scope.languageDataList = [];
-    $scope.updateLanguage = function (languageId, languageName) {
-        $scope.languageDataList[$scope._languageIndex].Name = languageName;
-        $scope._languageIndex = -1;
-        $scope.languageNew = {};
-    }
+    
     $scope.AddMultipleLanguage = function () {
         try {
             if (baseService.isUndefinedOrNull($scope.languageNew.LanguageId)) {
-                throw 'Please select your language.';
+                throw "Please select your language.";
             }
             if (baseService.isUndefinedOrNull($scope.languageNew.Name)) {
-                throw 'Please insert name.';
+                throw "Please insert name.";
             }
             var isAvailable = false;
-            var lng = document.getElementById("languageId").options[document.getElementById('languageId').selectedIndex].text;
+            var lng = document.getElementById("languageId").options[document.getElementById("languageId").selectedIndex]
+                .text;
             for (var i = 0; i < $scope.languageDataList.length; i++) {
                 isAvailable = listValidation($scope.languageDataList[i].LanguageId, $scope.languageNew.LanguageId, i);
                 if (isAvailable) {
-                    throw 'This Language : [' + lng + '] has been already taken';
+                    throw "This Language : [" + lng + "] has been already taken";
                 }
             }
             angular.copy($scope.languageNew, $scope.language);
@@ -372,11 +369,9 @@ function UpdateCompanyController(addressService, fileReader, commonMessage, $sco
                     Id: null,
                     LanguageId: $scope.language.LanguageId,
                     LanguageName: lng,
-                    Name: $scope.language.Name,
-                    UtilityName: $scope.language.UtilityName
+                    Name: $scope.language.Name
                 });
-            }
-            else {
+            } else {
                 $scope.language.LanguageName = lng;
                 $scope.languageDataList[$scope._languageIndex] = $scope.language;
             }
@@ -385,27 +380,24 @@ function UpdateCompanyController(addressService, fileReader, commonMessage, $sco
             }
             clearLanguage();
         } catch (e) {
-            ShowResult(e, 'failure');
+            ShowResult(e, "failure");
         }
-    }
+    };
+
     function listValidation(oldValue, newValue, index) {
-        var isAvailable = false;
-        // LanguageId
-        if ($scope._languageIndex == -1) {
-            if (oldValue == newValue) {
-                isAvailable = true;
-                return isAvailable;
+        if ($scope._languageIndex === -1) {
+            if (oldValue === newValue) {
+                return true;
             }
         }
         else {
-            if ($scope._languageIndex != index) {
-                if (oldValue == newValue) {
-                    isAvailable = true;
-                    return isAvailable;
+            if ($scope._languageIndex !== index) {
+                if (oldValue === newValue) {
+                    return true;
                 }
             }
         }
-        return isAvailable;
+        return false;
     }
 
     $scope.languageDataParameters = {

@@ -1,16 +1,19 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Model.Organizations;
 using Library.Model.Parties;
 using Library.Service.Currencies;
+using Library.Service.Extension;
 using Library.Service.Helpers;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 
 namespace Library.Service.Parties
 {
@@ -22,6 +25,7 @@ namespace Library.Service.Parties
         private readonly IRepositoryAsync<Company> _companyRepository;
         private readonly IRepositoryAsync<Plant> _plantRepository;
         private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
+        private readonly IPartyCategoryService _partyCategoryService;
 
         public PartyReportService(
             ISqlRepository sqlRepository
@@ -29,7 +33,8 @@ namespace Library.Service.Parties
             , ICompanyParallelCurrencyService companyParallelCurrencyService
             , IRepositoryAsync<PartyPlant> partyPlantRepository
             , IRepositoryAsync<Plant> plantRepository
-            , IRepositoryAsync<Company> companyRepository)
+            , IRepositoryAsync<Company> companyRepository
+            , IPartyCategoryService partyCategoryService)
         {
             _sqlRepository = sqlRepository;
             _partyService = partyService;
@@ -37,6 +42,7 @@ namespace Library.Service.Parties
             _companyRepository = companyRepository;
             _partyPlantRepository = partyPlantRepository;
             _companyParallelCurrencyService = companyParallelCurrencyService;
+            _partyCategoryService = partyCategoryService;
         }
 
         public IWorkbook PartyOutstadningReport(string companyGroupId, string companyId, string plantId, string plantName, string reportName, SourceType sourceType, DateTime postingDate)
@@ -381,9 +387,9 @@ namespace Library.Service.Parties
                 sheet.Range[row, 3, row, 5].Merge();
                 sheet.Range[row, 3, row, 5].RowHeight = 30;
 
-                reportUtility.SetMasterHeaderText(ref sheet, row, 7, "Account Group");
-                sheet.Range[row, 7, row, 8].Merge();
-                reportUtility.SetMiddleAlignmentText(ref sheet, row, 9, partyMaster["PartyAccountGroupName"].ToString());
+                reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Account Group");
+                sheet.Range[row, 6, row, 7].Merge();
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, 8, partyMaster["PartyAccountGroupName"].ToString());
 
                 row++;
                 if (!string.IsNullOrEmpty(partyPlantId))
@@ -418,6 +424,7 @@ namespace Library.Service.Parties
                 sheet.Range[row, colLast + 1, row, colLast + 4].BorderAround();
                 // Set Row Header
             row++;
+
                 reportUtility.SetHeaderText(ref sheet, row, col, "GL", 28); col++;
                 if (string.IsNullOrEmpty(partyPlantId))
                 {
@@ -437,10 +444,10 @@ namespace Library.Service.Parties
                     reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 37, ExcelHAlign.HAlignRight); col++;
                     reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 37, ExcelHAlign.HAlignRight); col++;
                 }
-                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 37, ExcelHAlign.HAlignRight); col++;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 37, ExcelHAlign.HAlignRight); col++;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 42, ExcelHAlign.HAlignRight); col++;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Dr/Cr", 8, ExcelHAlign.HAlignRight);
+                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 35, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 35, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 40, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Dr/Cr", 12, ExcelHAlign.HAlignRight);
                 sheet[row, 1, row, col].RowHeight = 70;
               //  sheet[row, 1, row, col].WrapText = true;
 
@@ -599,37 +606,39 @@ namespace Library.Service.Parties
                 var partyMaster = _partyService.Find(partyType, companyId, plantId, partyId);
                 // Set Header
                 reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Party");
-                sheet.Range[row, 1, row, 2].Merge();
-                reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, partyMaster["PartyCode"] + " - " + partyMaster["PartyName"]);
-                sheet.Range[row, 3, row, 5].Merge();
+                //sheet.Range[row, 1, row, 2].Merge();
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, 2, partyMaster["PartyCode"] + " - " + partyMaster["PartyName"]);
+                sheet.Range[row, 2, row, 4].Merge();
                 // sheet.Range[row, 3, row, 5].RowHeight = 30;
                 int colAccountGroup = 7;
-                reportUtility.SetMasterHeaderText(ref sheet, row, 7, "Account Group");
-                sheet.Range[row, colAccountGroup, row, colAccountGroup+1].Merge();
-                reportUtility.SetMiddleAlignmentText(ref sheet, row, colAccountGroup+2, partyMaster["PartyAccountGroupName"].ToString());
-                sheet.Range[row, colAccountGroup+2, row, colAccountGroup+4].Merge();
+                reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Account Group");
+                sheet.Range[row, 6].ColumnWidth = 13;
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, colAccountGroup, partyMaster["PartyAccountGroupName"].ToString());
+                sheet.Range[row, colAccountGroup, row, colAccountGroup+2].Merge();
 
                 row++;
                 if (!string.IsNullOrEmpty(partyPlantId))
                 {
                     var partyPlant = _partyPlantRepository.Find(partyPlantId);
                     reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Party Plant");
-                    sheet.Range[row, 1, row, 2].Merge();
-                    reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, partyPlant?.UserName);
-                    sheet.Range[row, 3, row, 5].Merge();
+                    sheet.Range[row, 1, row, 2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    reportUtility.SetMiddleAlignmentText(ref sheet, row, 2, partyPlant?.UserName);
+                    sheet.Range[row, 2, row, 4].Merge();
 
                     colLast = colLast - 1;
                     colLast1 = colLast;
+                    row++;
                 }
                 if (!string.IsNullOrEmpty(gSTINId))
                 {
-                    reportUtility.SetMasterHeaderText(ref sheet, row, 7, "Party GSTIN");
-                    sheet.Range[row, 7, row, 8].Merge();
-                    reportUtility.SetMiddleAlignmentText(ref sheet, row, 9, gSTINId);
-                    sheet.Range[row, 9, row, 11].Merge();
+                    reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Party GSTIN");
+                    //sheet.Range[row, 7, row, 8].Merge();
+                    reportUtility.SetMiddleAlignmentText(ref sheet, row, 7, gSTINId);
+                    sheet.Range[row, 7, row, 9].Merge();
+                    row++;
                 }
 
-                row++;
+                //row++;
                 _companyParallelCurrencyService.GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
                 if (companyCurrencyId != partyMaster["CurrencyId"].ToString())
                 {
@@ -666,14 +675,14 @@ namespace Library.Service.Parties
                 reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 12, ExcelHAlign.HAlignRight); col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 12, ExcelHAlign.HAlignRight); col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 12, ExcelHAlign.HAlignRight); col++;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Dr/Cr", 4, ExcelHAlign.HAlignRight);
+                reportUtility.SetHeaderText(ref sheet, row, col, "Dr/Cr", 10, ExcelHAlign.HAlignRight);
                 //sheet[row, 1, row, col].RowHeight = 70;
                 //  sheet[row, 1, row, col].WrapText = true;
 
                 row++;
                 reportUtility.SetText(ref sheet, row, 1, "Opening Balance", true);
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
-                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 30;
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 20;
                 // Get party opening balance data.
                 var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
                 if (obVal.Count > 0)
@@ -808,24 +817,25 @@ namespace Library.Service.Parties
                 var partyMaster = _partyService.Find(partyType, companyId, plantId, partyId);
                 // Set Header
                 reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Party");
-                sheet.Range[row, 1, row, 2].Merge();
-                reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, partyMaster["PartyCode"] + " - " + partyMaster["PartyName"]);
-                sheet.Range[row, 3, row, 5].Merge();
+                //sheet.Range[row, 1, row, 2].Merge();
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, 2, partyMaster["PartyCode"] + " - " + partyMaster["PartyName"]);
+                sheet.Range[row, 2, row, 4].Merge();
                 // sheet.Range[row, 3, row, 5].RowHeight = 30;
                 int colAccountGroup = 7;
-                reportUtility.SetMasterHeaderText(ref sheet, row, 7, "Account Group");
-                sheet.Range[row, colAccountGroup, row, colAccountGroup + 1].Merge();
-                reportUtility.SetMiddleAlignmentText(ref sheet, row, colAccountGroup + 2, partyMaster["PartyAccountGroupName"].ToString());
-                sheet.Range[row, colAccountGroup + 2, row, colAccountGroup + 4].Merge();
+                reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Account Group");
+                //sheet.Range[row, colAccountGroup, row, colAccountGroup + 1].Merge();
+                //sheet.Range[row, 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, colAccountGroup, partyMaster["PartyAccountGroupName"].ToString());
+                sheet.Range[row, colAccountGroup, row, colAccountGroup + 2].Merge();
 
                 row++;
                 if (!string.IsNullOrEmpty(partyPlantId))
                 {
                     var partyPlant = _partyPlantRepository.Find(partyPlantId);
                     reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Party Plant");
-                    sheet.Range[row, 1, row, 2].Merge();
-                    reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, partyPlant?.UserName);
-                    sheet.Range[row, 3, row, 5].Merge();
+                    sheet.Range[row, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    reportUtility.SetMiddleAlignmentText(ref sheet, row, 2, partyPlant?.UserName);
+                    sheet.Range[row, 2, row, 4].Merge();
 
                     colLast = colLast - 1;
                     colLast1 = colLast;
@@ -884,7 +894,7 @@ namespace Library.Service.Parties
                 row++;
                 reportUtility.SetText(ref sheet, row, 1, "Opening Balance", true);
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
-                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 30;
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 20;
                 // Get party opening balance data.
                 var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
                 if (obVal.Count > 0)
@@ -1212,7 +1222,7 @@ namespace Library.Service.Parties
                 reportUtility.SetHeaderText(ref sheet, row, COL, "Debit", 14, ExcelHAlign.HAlignRight); int colDebit = COL; COL++;//8
                 reportUtility.SetHeaderText(ref sheet, row, COL, "Credit", 14, ExcelHAlign.HAlignRight); int colCredit = COL; COL++;//9
                 reportUtility.SetHeaderText(ref sheet, row, COL, "Balance", 12, ExcelHAlign.HAlignRight); int colBalance = COL; COL++;//10
-                reportUtility.SetHeaderText(ref sheet, row, COL, "Dr/Cr", 4, ExcelHAlign.HAlignRight); int colCrDr = COL; COL++;//11
+                reportUtility.SetHeaderText(ref sheet, row, COL, "Dr/Cr", 4, ExcelHAlign.HAlignRight); int colCrDr = COL; //COL++;//11
 
                 //reportUtility.SetHeaderText(ref sheet, row, 11, "Party Balance", 14, ExcelHAlign.HAlignRight);
                 //reportUtility.SetHeaderText(ref sheet, row, 12, "Dr/Cr", 4, ExcelHAlign.HAlignRight);
@@ -1330,6 +1340,8 @@ namespace Library.Service.Parties
                                 sheet.Range[row, colBalance2].VerticalAlignment = ExcelVAlign.VAlignTop;
                                 sheet.Range[row, colCrDr].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCredit2) + row + ">= 0, \"  Dr\", \"  Cr\")";
                             }
+                            sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                            sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                             row++;
                         }
 
@@ -1882,7 +1894,419 @@ namespace Library.Service.Parties
             }
         }
 
+        public IWorkbook GetPartyCategoryLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, string partyType, string partyCategoryId, string fromDate, string toDate)
+        {
+            try
+            {
+                ReportUtility reportUtility = new ReportUtility();
+                string Budgetsql = PartyCategorySql(partyType, partyCategoryId, fromDate, toDate);
+                var gl = _partyCategoryService.Find(partyCategoryId);
+                //var budget = _budgetMasterService.GetBudgetMasterData(budgetMasterId);
 
+                //Instantiate the Excel application object
+                //DataTable dtGroupBalance = _sqlRepository.GetDataTable(sql);
+                DataTable dtGroupBalanceBudgets = _sqlRepository.GetDataTable(Budgetsql);
+                
+                var dtGroupBalanceBudget = dtGroupBalanceBudgets.AsEnumerable()
+                        .OrderBy(r => r["PartyName"])
+                        .CopyToDataTable();
+
+                ExcelEngine excelEngine = new ExcelEngine();
+                IApplication application = excelEngine.Excel;
+
+                //Set the default application version
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
+
+                sheet.Name = "Party Category Report";
+
+
+                int ROW = 6;
+                int COL = 1;
+
+                #region Header
+                sheet[ROW, COL].Text = "Party Type :";
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                COL++;
+                sheet[ROW, COL].Text = partyType.ToString();
+                sheet.Range[reportUtility.GetColumnNameForXls(COL) + ROW + ":" + reportUtility.GetColumnNameForXls(COL + 1) + ROW].Merge();
+                int colAccountType = COL;
+                COL++;
+                
+
+                //sheet[ROW, COL].Text = "Account Group :";
+                //sheet[ROW, COL].CellStyle.Font.Bold = true;
+                ////sheet.Range[reportUtility.GetColumnNameForXls(COL) + ROW + ":" + reportUtility.GetColumnNameForXls(COL + 1) + ROW].Merge();
+                //COL++;
+                //sheet[ROW, COL].Text = gl["AccountGroupName"].ToString();
+                //sheet.Range[reportUtility.GetColumnNameForXls(COL) + ROW + ":" + reportUtility.GetColumnNameForXls(COL + 2) + ROW].Merge();
+                //int colAccountGroup = COL;
+                //ROW++;
+                //COL = 1;
+                //sheet[ROW, COL].Text = "GL:";
+                //sheet[ROW, COL].CellStyle.Font.Bold = true;
+                //COL++;
+
+                //sheet[ROW, COL].Text = gl["GLGeneralInfoCode"] + " - " + gl["GLGeneralInfoName"];
+                //sheet.Range[reportUtility.GetColumnNameForXls(COL) + ROW + ":" + reportUtility.GetColumnNameForXls(COL + 1) + ROW].Merge();
+                //int colGL = COL;
+
+                
+
+                ROW++;
+                COL = 1;
+                #endregion
+                int colActivity = 0;
+               
+               
+                sheet[ROW, COL].Text = "Party";
+                sheet[ROW, COL].ColumnWidth = 30;
+                colActivity = COL;
+                COL++;
+                
+                sheet[ROW, COL].Text = "Openning Balance";
+                sheet[ROW, COL].ColumnWidth = 18;
+                int colOpenningCR = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Dr/Cr";
+                sheet[ROW, COL].ColumnWidth = 5;
+                int colOpenningDRCR = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Periodic Dr.";
+                sheet[ROW, COL].ColumnWidth = 18;
+                int colPeriodicDr = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Periodic Cr.";
+                sheet[ROW, COL].ColumnWidth = 18;
+                int colPeriodicCR = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Balance";
+                sheet[ROW, COL].ColumnWidth = 18;
+                int colBalanceDrCr = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Dr/Cr";
+                sheet[ROW, COL].ColumnWidth = 5;
+                int colCRDR = COL;
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                ROW++;
+
+                int StartRow = ROW; //row 20
+                
+                    for (int i = 0; i < dtGroupBalanceBudget.Rows.Count; i++)
+                    {
+
+                        sheet[ROW, colActivity].Text = dtGroupBalanceBudget.Rows[i]["PartyName"].ToString();
+                        sheet[ROW, colOpenningCR].Number = clsStaticInfo.dbl(dtGroupBalanceBudget.Rows[i]["PartyOpeningBalance"].ToString());
+                        sheet.Range[ROW, colOpenningCR].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+                        sheet[ROW, colPeriodicDr].Number = clsStaticInfo.dbl(dtGroupBalanceBudget.Rows[i]["CompanyCurrencyDrAmount"].ToString());
+                        sheet[ROW, colPeriodicDr].NumberFormat = "#,##0.00;(#,##0.00)";
+                        sheet[ROW, colPeriodicCR].Number = clsStaticInfo.dbl(dtGroupBalanceBudget.Rows[i]["CompanyCurrencyCrAmount"].ToString());
+                        sheet[ROW, colPeriodicCR].NumberFormat = "#,##0.00;(#,##0.00)";
+                        sheet[ROW, colBalanceDrCr].Number = clsStaticInfo.dbl(dtGroupBalanceBudget.Rows[i]["PartyClosingBalance"].ToString());
+                        sheet.Range[ROW, colBalanceDrCr].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+                        if (Convert.ToInt32(dtGroupBalanceBudget.Rows[i]["PartyClosingBalance"]) != 0)
+                        {
+                            sheet[ROW, colCRDR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
+                            sheet[ROW, colCRDR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        }
+                        if (Convert.ToInt32(dtGroupBalanceBudget.Rows[i]["PartyOpeningBalance"]) != 0)
+                        {
+                            sheet[ROW, colOpenningDRCR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + ">= 0, \"Dr\", \"Cr\")";
+                            sheet[ROW, colOpenningDRCR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        }
+
+                        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                        ROW++;
+
+                    }
+                
+                
+                sheet[ROW, 1].Text = "Total :";
+                sheet[ROW, colOpenningCR].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colOpenningCR) + (StartRow) + ":" + reportUtility.GetColumnNameForXls(colOpenningCR) + (ROW - 1) + ")";
+                sheet.Range[ROW, colOpenningCR].CellStyle.Font.Bold = true;
+                //sheet[ROW, colOpenningCR].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colOpenningCR].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+
+
+                sheet[ROW, colPeriodicDr].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colPeriodicDr) + (StartRow) + ":" + reportUtility.GetColumnNameForXls(colPeriodicDr) + (ROW - 1) + ")";
+                sheet.Range[ROW, colPeriodicDr].CellStyle.Font.Bold = true;
+                //sheet[ROW, colPeriodicDr].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colPeriodicDr].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+
+
+                sheet[ROW, colBalanceDrCr].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBalanceDrCr) + (StartRow) + ":" + reportUtility.GetColumnNameForXls(colBalanceDrCr) + (ROW - 1) + ")";
+                sheet.Range[ROW, colBalanceDrCr].CellStyle.Font.Bold = true;
+                //sheet[ROW, colBalanceDrCr].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet.Range[ROW, colBalanceDrCr].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+                //  " IF(B125 > 0, "Dr", IF(B125 < 0, "Cr", IF(B125 = 0, "")));
+                sheet[ROW, colCRDR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + "> 0, \"Dr\",IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + "< 0,\"Cr\",IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + "= 0 ,\" \")))";
+                sheet[ROW, colCRDR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //sheet[ROW, colCRDR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCRDR - 1) + ROW + "> 0, \"Dr\", \"Cr\")";
+                //sheet[ROW, colCRDR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //sheet[ROW, colOpenningDRCR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + "> 0, \"Dr\", \"Cr\")";
+                sheet[ROW, colOpenningDRCR].Formula = "IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + "> 0, \"Dr\",IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + "< 0,\"Cr\",IF(" + reportUtility.GetColumnNameForXls(colOpenningDRCR - 1) + ROW + "= 0 ,\" \")))";
+                sheet[ROW, colOpenningDRCR].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                sheet[ROW, colPeriodicCR].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colPeriodicCR) + (StartRow) + ":" + reportUtility.GetColumnNameForXls(colPeriodicCR) + (ROW - 1) + ")";
+                sheet.Range[ROW, colPeriodicCR].CellStyle.Font.Bold = true;
+                //sheet[ROW, colPeriodicCR].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colPeriodicCR].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+
+                sheet.IsGridLinesVisible = false;
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+                //sheet["A" + StartRow.ToString()].FreezePanes();
+
+                //reportUtility.PlantHeader(ref sheet, endCol, "Group Balance", identity.PlantId);
+                reportUtility.CompanyPlantHeader(ref sheet, endCol, gl.UserName.ToString(), companyId, plantName, null);
+                reportUtility.SetText(ref sheet, 5, 1, "From " + fromDate + " To " + toDate + "", ExcelHAlign.HAlignCenter);
+                //sheet.Range[ROW, COL, ROW, endCol].CellStyle.Font.Bold = true;
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                string strFileName = "Party Group Report.xls";
+                
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        private string PartyCategorySql(string partyType, string partyCategoryId, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"DECLARE @companyId VARCHAR(10)='" + identity.CompanyId + @"';
+                            SELECT 
+                             SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) AS CompanyCurrencyDrAmount, SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0)) AS CompanyCurrencyCrAmount,P.Id PartyId, P.UserName AS PartyName
+                           ,ISNULL(( SELECT SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyncyOB
+                         FROM (
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate < '" + fromDate + @"' AND V.SourceType!='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        UNION
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <='" + fromDate + @"' AND V.SourceType='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        ) AS X GROUP BY X.CompanyCurrencyId ),0)PartyOpeningBalance
+						,ISNULL(( SELECT SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyncyCL
+                         FROM (
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        UNION
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <='" + toDate + @"' AND V.SourceType='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        ) AS X GROUP BY X.CompanyCurrencyId ),0)PartyClosingBalance
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND P.PartyCategoryId='" + partyCategoryId + @"'  AND VD.PartyType='" + partyType + @"' AND V.SourceType!='OpeningBalance' AND   V.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
+							GROUP BY P.Id , P.UserName
+
+
+	union
+	SELECT * FROM 
+							  (SELECT 
+                             0 CompanyCurrencyDrAmount, 0 CompanyCurrencyCrAmount,P.Id PartyId, P.UserName AS PartyName
+                           ,ISNULL(( SELECT SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyncyOB
+                         FROM (
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate < '" + fromDate + @"' AND V.SourceType!='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        UNION
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <='" + fromDate + @"' AND V.SourceType='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        ) AS X GROUP BY X.CompanyCurrencyId ),0)PartyOpeningBalance
+						,ISNULL(( SELECT SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyncyCL
+                         FROM (
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        UNION
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <='" + toDate + @"' AND V.SourceType='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        ) AS X GROUP BY X.CompanyCurrencyId ),0)PartyClosingBalance
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND P.PartyCategoryId='" + partyCategoryId + @"'  AND VD.PartyType='" + partyType + @"' AND V.SourceType!='OpeningBalance' AND   V.PostingDate < '" + toDate + @"'
+							AND VD.PartyId NOT IN(SELECT  VDO.PartyId 
+							 FROM [TRN].[VoucherDetail] AS VDO
+                            LEFT JOIN [TRN].[Voucher] VO ON VO.Id=VDO.VoucherId
+                            LEFT join HKP.Party as PO on VDO.PartyId = PO.Id
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VDO.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VDO.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VDO.ActivityId
+                            WHERE VO.Archive=0 AND VO.IsPark=0 AND VO.CompanyGroupId='" + identity.CompanyGroupId + @"' AND VO.CompanyId='" + identity.CompanyId + @"' AND VO.PlantId='" + identity.PlantId + @"' AND PO.PartyCategoryId='" + partyCategoryId + @"'  AND VDO.PartyType='" + partyType + @"' AND VO.SourceType!='OpeningBalance' AND   VO.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' )
+							GROUP BY P.Id , P.UserName)T
+							WHERE T.PartyOpeningBalance<>0
+union
+	SELECT * FROM 
+							  (SELECT 
+                             0 CompanyCurrencyDrAmount, 0 CompanyCurrencyCrAmount,P.Id PartyId, P.UserName AS PartyName
+                           ,ISNULL(( SELECT SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyncyOB
+                         FROM (
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate < '" + fromDate + @"' AND V.SourceType!='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        UNION
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <='" + fromDate + @"' AND V.SourceType='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        ) AS X GROUP BY X.CompanyCurrencyId ),0)PartyOpeningBalance
+						,ISNULL(( SELECT SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyncyCL
+                         FROM (
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        UNION
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <='" + toDate + @"' AND V.SourceType='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        ) AS X GROUP BY X.CompanyCurrencyId ),0)PartyClosingBalance
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND P.PartyCategoryId='" + partyCategoryId + @"'  AND VD.PartyType='" + partyType + @"' AND V.SourceType='OpeningBalance' 
+							AND VD.PartyId NOT IN(SELECT  VDO.PartyId 
+							 FROM [TRN].[VoucherDetail] AS VDO
+                            LEFT JOIN [TRN].[Voucher] VO ON VO.Id=VDO.VoucherId
+                            LEFT join HKP.Party as PO on VDO.PartyId = PO.Id
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VDO.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VDO.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VDO.ActivityId
+                            WHERE VO.Archive=0 AND VO.IsPark=0 AND VO.CompanyGroupId='" + identity.CompanyGroupId + @"' AND VO.CompanyId='" + identity.CompanyId + @"' AND VO.PlantId='" + identity.PlantId + @"' AND PO.PartyCategoryId='" + partyCategoryId + @"'  AND VDO.PartyType='" + partyType + @"' AND VO.SourceType!='OpeningBalance' ) 
+							GROUP BY P.Id , P.UserName)T ";
+        }
         #region Inter Party Leadger
 
 
@@ -2362,6 +2786,9 @@ namespace Library.Service.Parties
 							, P.TradeLicenseNo AS [Trade License No],GLA.UserName AS AdditionalGL,GLD.UserName AS DownPaymentGL, GLR.UserName AS ReconciliationGL, P.DebitLimit AS [Debit Limit]
 							, P.CreditLimit AS [Credit Limit], PAG.UserName AS [Party Account Group], C.Code AS [Currency], PT.UserName AS [Payment Term]
 							, [Tax Exemption]=CASE WHEN CP.IsPaymentTermChangeable=1 THEN 'Yes' ELSE 'No' END
+                            , GLR.AccountCode AS [ReconciliationGL Code], BGMR.RefNo [Reconciliation Budget RefNo], BGR.UserName AS [Reconciliation Budget], AR.UserName AS [Reconciliation Activity]
+							, GLD.AccountCode AS [DownPaymentGL Code], BGMD.RefNo [DownPayment Budget RefNo], BGD.UserName AS [DownPayment Budget], AD.UserName AS [DownPayment Activity]
+							, PG.UserName [Party Group],PC.UserName [Party Category],PSC.UserName [Party Sub Category]
                             FROM [HKP].[Party] AS P
 							LEFT JOIN HKP.CompanyParty CP ON P.Id=CP.PartyId AND CP.PartyType='Customer'
 							LEFT OUTER JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
@@ -2369,11 +2796,20 @@ namespace Library.Service.Parties
 							LEFT JOIN HKP.CompanyPartyGL CPA ON P.Id=CPA.PartyId AND CPA.PartyGLType='AdditionalGL'
 							LEFT JOIN HKP.CompanyPartyGL CPD ON P.Id=CPD.PartyId AND CPD.PartyGLType='DownPaymentGL'
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLR ON GLR.Id= CPG.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMR ON BGMR.Id=CPG.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGR ON BGR.Id=BGMR.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AR ON AR.Id=CPG.ActivityId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLA ON GLA.Id= CPA.GLGeneralInfoId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLD ON GLD.Id= CPD.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMD ON BGMD.Id=CPD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGD ON BGD.Id=BGMD.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AD ON AD.Id=CPD.ActivityId
+							LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                            LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                            LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                             LEFT OUTER JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
 							LEFT OUTER JOIN [MST].[PaymentTerm] AS PT ON PT.Id =CP.PaymentTermId
-							LEFT OUTER JOIN [ORG].[Company] AS COM ON COM.id=P.CompanyId
+							LEFT OUTER JOIN [ORG].[Company] AS COM ON COM.id=CP.CompanyId
                             WHERE P.Active=1 AND P.Archive=0 AND cp.CompanyId='" + companyId + "'";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -2391,6 +2827,9 @@ namespace Library.Service.Parties
 							, P.TradeLicenseNo AS [Trade License No],GLA.UserName AS AdditionalGL,GLD.UserName AS DownPaymentGL, GLR.UserName AS ReconciliationGL, P.DebitLimit AS [Debit Limit]
 							, P.CreditLimit AS [Credit Limit], PAG.UserName AS [Party Account Group], C.Code AS [Currency], PT.UserName AS [Payment Term]
 							, [Tax Exemption]=CASE WHEN CP.IsPaymentTermChangeable=1 THEN 'Yes' ELSE 'No' END
+                            , GLR.AccountCode AS [ReconciliationGL Code], BGMR.RefNo [Reconciliation Budget RefNo], BGR.UserName AS [Reconciliation Budget], AR.UserName AS [Reconciliation Activity]
+							, GLD.AccountCode AS [DownPaymentGL Code], BGMD.RefNo [DownPayment Budget RefNo], BGD.UserName AS [DownPayment Budget], AD.UserName AS [DownPayment Activity]
+							, PG.UserName [Party Group],PC.UserName [Party Category],PSC.UserName [Party Sub Category]
                             FROM [HKP].[Party] AS P
 							LEFT JOIN HKP.CompanyParty CP ON P.Id=CP.PartyId AND CP.PartyType='Vendor'
 							LEFT OUTER JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
@@ -2398,11 +2837,20 @@ namespace Library.Service.Parties
 							LEFT JOIN HKP.CompanyPartyGL CPA ON P.Id=CPA.PartyId AND CPA.PartyGLType='AdditionalGL'
 							LEFT JOIN HKP.CompanyPartyGL CPD ON P.Id=CPD.PartyId AND CPD.PartyGLType='DownPaymentGL'
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLR ON GLR.Id= CPG.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMR ON BGMR.Id=CPG.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGR ON BGR.Id=BGMR.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AR ON AR.Id=CPG.ActivityId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLA ON GLA.Id= CPA.GLGeneralInfoId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLD ON GLD.Id= CPD.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMD ON BGMD.Id=CPD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGD ON BGD.Id=BGMD.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AD ON AD.Id=CPD.ActivityId
+							LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                            LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                            LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                             LEFT OUTER JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
 							LEFT OUTER JOIN [MST].[PaymentTerm] AS PT ON PT.Id =CP.PaymentTermId
-							LEFT OUTER JOIN [ORG].[Company] AS COM ON COM.id=P.CompanyId
+							LEFT OUTER JOIN [ORG].[Company] AS COM ON COM.id=CP.CompanyId
                             WHERE P.Active=1 AND P.Archive=0 AND CP.CompanyId='" + companyId + "'";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -2420,6 +2868,9 @@ namespace Library.Service.Parties
 							, GLA.UserName AS AdditionalGL, GLD.UserName AS DownPaymentGL, GLR.UserName AS ReconciliationGL, P.DebitLimit AS [Debit Limit], P.CreditLimit AS [Credit Limit]
 							, PAG.UserName AS [Party Account Group], C.Code AS [Currency], PT.UserName AS [Payment Term], [Tax Exemption]=CASE WHEN CP.IsPaymentTermChangeable=1 THEN 'Yes' ELSE 'No' END
 							, [Customer]=CASE WHEN CP.PartyType='Customer' THEN 'Yes' ELSE '' END, [Vendor]=CASE WHEN CP.PartyType='Vendor' THEN 'Yes' ELSE '' END
+                            , GLR.AccountCode AS [ReconciliationGL Code], BGMR.RefNo [Reconciliation Budget RefNo], BGR.UserName AS [Reconciliation Budget], AR.UserName AS [Reconciliation Activity]
+							, GLD.AccountCode AS [DownPaymentGL Code], BGMD.RefNo [DownPayment Budget RefNo], BGD.UserName AS [DownPayment Budget], AD.UserName AS [DownPayment Activity]
+							, PG.UserName [Party Group],PC.UserName [Party Category],PSC.UserName [Party Sub Category]
                             FROM [HKP].[Party] AS P
 							LEFT JOIN HKP.CompanyParty CP ON P.Id=CP.PartyId
 							LEFT OUTER JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
@@ -2427,11 +2878,20 @@ namespace Library.Service.Parties
 							LEFT JOIN HKP.CompanyPartyGL CPA ON P.Id=CPA.PartyId AND CPA.PartyGLType='AdditionalGL'
 							LEFT JOIN HKP.CompanyPartyGL CPD ON P.Id=CPD.PartyId AND CPD.PartyGLType='DownPaymentGL'
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLR ON GLR.Id= CPG.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMR ON BGMR.Id=CPG.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGR ON BGR.Id=BGMR.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AR ON AR.Id=CPG.ActivityId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLA ON GLA.Id= CPA.GLGeneralInfoId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLD ON GLD.Id= CPD.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMD ON BGMD.Id=CPD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGD ON BGD.Id=BGMD.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AD ON AD.Id=CPD.ActivityId
+							LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                            LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                            LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
 							LEFT OUTER JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
 							LEFT OUTER JOIN [MST].[PaymentTerm] AS PT ON PT.Id =CP.PaymentTermId
-							LEFT OUTER JOIN [ORG].[Company] AS COM ON COM.id=P.CompanyId
+							LEFT OUTER JOIN [ORG].[Company] AS COM ON COM.id=CP.CompanyId
                             WHERE P.Active=1 AND P.Archive=0 AND CP.CompanyId='" + companyId + "'";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -2451,6 +2911,9 @@ namespace Library.Service.Parties
 							, [Tax Exemption]=CASE WHEN CP.IsPaymentTermChangeable=1 THEN 'Yes' ELSE 'No' END
 							, [Customer]=CASE WHEN CP.PartyType='Customer' THEN 'Yes' ELSE '' END
 							, [Vendor]=CASE WHEN CP.PartyType='Vendor' THEN 'Yes' ELSE '' END
+                            , GLR.AccountCode AS [ReconciliationGL Code], BGMR.RefNo [Reconciliation Budget RefNo], BGR.UserName AS [Reconciliation Budget], AR.UserName AS [Reconciliation Activity]
+							, GLD.AccountCode AS [DownPaymentGL Code], BGMD.RefNo [DownPayment Budget RefNo], BGD.UserName AS [DownPayment Budget], AD.UserName AS [DownPayment Activity]
+							, PG.UserName [Party Group],PC.UserName [Party Category],PSC.UserName [Party Sub Category]
                             FROM [HKP].[Party] AS P
 							LEFT JOIN HKP.CompanyParty CP ON P.Id=CP.PartyId
 							LEFT OUTER JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
@@ -2458,8 +2921,17 @@ namespace Library.Service.Parties
 							LEFT JOIN HKP.CompanyPartyGL CPA ON P.Id=CPA.PartyId AND CPA.PartyGLType='AdditionalGL'
 							LEFT JOIN HKP.CompanyPartyGL CPD ON P.Id=CPD.PartyId AND CPD.PartyGLType='DownPaymentGL'
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLR ON GLR.Id= CPG.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMR ON BGMR.Id=CPG.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGR ON BGR.Id=BGMR.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AR ON AR.Id=CPG.ActivityId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLA ON GLA.Id= CPA.GLGeneralInfoId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLD ON GLD.Id= CPD.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMD ON BGMD.Id=CPD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGD ON BGD.Id=BGMD.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AD ON AD.Id=CPD.ActivityId
+							LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                            LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                            LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
 							LEFT OUTER JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
 							LEFT OUTER JOIN [MST].[PaymentTerm] AS PT ON PT.Id =CP.PaymentTermId
 							LEFT OUTER JOIN [ORG].[CompanyGroup] AS CG ON CG.id=P.CompanyGroupId
@@ -2480,6 +2952,9 @@ namespace Library.Service.Parties
 							, P.TradeLicenseNo AS [Trade License No],GLA.UserName AS AdditionalGL,GLD.UserName AS DownPaymentGL, GLR.UserName AS ReconciliationGL, P.DebitLimit AS [Debit Limit]
 							, P.CreditLimit AS [Credit Limit], PAG.UserName AS [Party Account Group], C.Code AS [Currency], PT.UserName AS [Payment Term]
 							, [Tax Exemption]=CASE WHEN CP.IsPaymentTermChangeable=1 THEN 'Yes' ELSE 'No' END
+                            , GLR.AccountCode AS [ReconciliationGL Code], BGMR.RefNo [Reconciliation Budget RefNo], BGR.UserName AS [Reconciliation Budget], AR.UserName AS [Reconciliation Activity]
+							, GLD.AccountCode AS [DownPaymentGL Code], BGMD.RefNo [DownPayment Budget RefNo], BGD.UserName AS [DownPayment Budget], AD.UserName AS [DownPayment Activity]
+							, PG.UserName [Party Group],PC.UserName [Party Category],PSC.UserName [Party Sub Category]
                             FROM [HKP].[Party] AS P
 							LEFT JOIN HKP.CompanyParty CP ON P.Id=CP.PartyId AND CP.PartyType='Customer'
 							LEFT OUTER JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
@@ -2487,8 +2962,17 @@ namespace Library.Service.Parties
 							LEFT JOIN HKP.CompanyPartyGL CPA ON P.Id=CPA.PartyId AND CPA.PartyGLType='AdditionalGL'
 							LEFT JOIN HKP.CompanyPartyGL CPD ON P.Id=CPD.PartyId AND CPD.PartyGLType='DownPaymentGL'
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLR ON GLR.Id= CPG.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMR ON BGMR.Id=CPG.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGR ON BGR.Id=BGMR.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AR ON AR.Id=CPG.ActivityId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLA ON GLA.Id= CPA.GLGeneralInfoId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLD ON GLD.Id= CPD.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMD ON BGMD.Id=CPD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGD ON BGD.Id=BGMD.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AD ON AD.Id=CPD.ActivityId
+							LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                            LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                            LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                             LEFT OUTER JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
 							LEFT OUTER JOIN [MST].[PaymentTerm] AS PT ON PT.Id =CP.PaymentTermId
 							LEFT OUTER JOIN [ORG].[Company] AS COM ON COM.id=CP.CompanyId
@@ -2510,6 +2994,9 @@ namespace Library.Service.Parties
 							, P.TradeLicenseNo AS [Trade License No],GLA.UserName AS AdditionalGL,GLD.UserName AS DownPaymentGL, GLR.UserName AS ReconciliationGL, P.DebitLimit AS [Debit Limit]
 							, P.CreditLimit AS [Credit Limit], PAG.UserName AS [Party Account Group], C.Code AS [Currency], PT.UserName AS [Payment Term]
 							, [Tax Exemption]=CASE WHEN CP.IsPaymentTermChangeable=1 THEN 'Yes' ELSE 'No' END
+                            , GLR.AccountCode AS [ReconciliationGL Code], BGMR.RefNo [Reconciliation Budget RefNo], BGR.UserName AS [Reconciliation Budget], AR.UserName AS [Reconciliation Activity]
+							, GLD.AccountCode AS [DownPaymentGL Code], BGMD.RefNo [DownPayment Budget RefNo], BGD.UserName AS [DownPayment Budget], AD.UserName AS [DownPayment Activity]
+							, PG.UserName [Party Group],PC.UserName [Party Category],PSC.UserName [Party Sub Category]
                             FROM [HKP].[Party] AS P
 							LEFT JOIN HKP.CompanyParty CP ON P.Id=CP.PartyId AND CP.PartyType='Vendor'
 							LEFT OUTER JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
@@ -2517,8 +3004,17 @@ namespace Library.Service.Parties
 							LEFT JOIN HKP.CompanyPartyGL CPA ON P.Id=CPA.PartyId AND CPA.PartyGLType='AdditionalGL'
 							LEFT JOIN HKP.CompanyPartyGL CPD ON P.Id=CPD.PartyId AND CPD.PartyGLType='DownPaymentGL'
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLR ON GLR.Id= CPG.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMR ON BGMR.Id=CPG.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGR ON BGR.Id=BGMR.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AR ON AR.Id=CPG.ActivityId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLA ON GLA.Id= CPA.GLGeneralInfoId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLD ON GLD.Id= CPD.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMD ON BGMD.Id=CPD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGD ON BGD.Id=BGMD.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AD ON AD.Id=CPD.ActivityId
+							LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                            LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                            LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                             LEFT OUTER JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
 							LEFT OUTER JOIN [MST].[PaymentTerm] AS PT ON PT.Id =CP.PaymentTermId
 							LEFT OUTER JOIN [ORG].[Company] AS COM ON COM.id=CP.CompanyId
@@ -2541,6 +3037,9 @@ namespace Library.Service.Parties
 							, P.DebitLimit AS [Debit Limit], P.CreditLimit AS [Credit Limit], PAG.UserName AS [Party Account Group], C.Code AS [Currency]
 							, PT.UserName AS [Payment Term], [Tax Exemption]=CASE WHEN CP.IsPaymentTermChangeable=1 THEN 'Yes' ELSE 'No' END
 							, [Customer]=CASE WHEN CP.PartyType='Customer' THEN 'Yes' ELSE '' END, [Vendor]=CASE WHEN CP.PartyType='Vendor' THEN 'Yes' ELSE '' END
+                            , GLR.AccountCode AS [ReconciliationGL Code], BGMR.RefNo [Reconciliation Budget RefNo], BGR.UserName AS [Reconciliation Budget], AR.UserName AS [Reconciliation Activity]
+							, GLD.AccountCode AS [DownPaymentGL Code], BGMD.RefNo [DownPayment Budget RefNo], BGD.UserName AS [DownPayment Budget], AD.UserName AS [DownPayment Activity]
+							, PG.UserName [Party Group],PC.UserName [Party Category],PSC.UserName [Party Sub Category]
                             FROM [HKP].[Party] AS P
 							LEFT JOIN HKP.CompanyParty CP ON P.Id=CP.PartyId
 							LEFT OUTER JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
@@ -2548,8 +3047,17 @@ namespace Library.Service.Parties
 							LEFT JOIN HKP.CompanyPartyGL CPA ON P.Id=CPA.PartyId AND CPA.PartyGLType='AdditionalGL'
 							LEFT JOIN HKP.CompanyPartyGL CPD ON P.Id=CPD.PartyId AND CPD.PartyGLType='DownPaymentGL'
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLR ON GLR.Id= CPG.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMR ON BGMR.Id=CPG.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGR ON BGR.Id=BGMR.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AR ON AR.Id=CPG.ActivityId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLA ON GLA.Id= CPA.GLGeneralInfoId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLD ON GLD.Id= CPD.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMD ON BGMD.Id=CPD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGD ON BGD.Id=BGMD.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AD ON AD.Id=CPD.ActivityId
+							LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                            LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                            LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
 							LEFT OUTER JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
 							LEFT OUTER JOIN [MST].[PaymentTerm] AS PT ON PT.Id =CP.PaymentTermId
 							LEFT OUTER JOIN [ORG].[Company] AS COM ON COM.id=CP.CompanyId
@@ -2574,8 +3082,8 @@ namespace Library.Service.Parties
                 {
                     Sort = "Customer Name"
                 };
-                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Code", "Customer Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "AdditionalGL", "DownPaymentGL", "ReconciliationGL");
-
+                
+                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Party Group", "Party Category", "Party Sub Category", "Code", "Customer Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "DownPaymentGL Code", "DownPaymentGL", "DownPayment Budget", "DownPayment Activity", "DownPayment Budget RefNo", "ReconciliationGL Code", "ReconciliationGL", "Reconciliation Budget", "Reconciliation Activity", "Reconciliation Budget RefNo", "AdditionalGL");
                 if (dtParty.Rows.Count == 0)
                     throw new Exception("No data found!");
 
@@ -2609,19 +3117,30 @@ namespace Library.Service.Parties
                 for (int q = 0; q < dtParty.Rows.Count; q++)
                 {
                     _rowL++;
-                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Code"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Customer Name"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Trade License No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Currency"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Payment Term"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Party Group"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Party Category"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["Party Sub Category"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Code"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Customer Name"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Trade License No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["Currency"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["Payment Term"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 14, dtParty.Rows[q]["DownPaymentGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 15, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 16, dtParty.Rows[q]["DownPayment Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 17, dtParty.Rows[q]["DownPayment Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 18, dtParty.Rows[q]["DownPayment Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 19, dtParty.Rows[q]["ReconciliationGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 20, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 21, dtParty.Rows[q]["Reconciliation Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 22, dtParty.Rows[q]["Reconciliation Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 23, dtParty.Rows[q]["Reconciliation Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 24, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
                 }
 
                 sheet.Range[7, 1, _rowL, shet2EndxlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -2649,8 +3168,8 @@ namespace Library.Service.Parties
                 {
                     Sort = "Vendor Name"
                 };
-                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Code", "Vendor Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "AdditionalGL", "DownPaymentGL", "ReconciliationGL");
-
+                
+                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Party Group", "Party Category", "Party Sub Category", "Code", "Vendor Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "DownPaymentGL Code", "DownPaymentGL", "DownPayment Budget", "DownPayment Activity", "DownPayment Budget RefNo", "ReconciliationGL Code", "ReconciliationGL", "Reconciliation Budget", "Reconciliation Activity", "Reconciliation Budget RefNo", "AdditionalGL");
                 if (dtParty.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found !!!");
@@ -2686,19 +3205,30 @@ namespace Library.Service.Parties
                 for (int q = 0; q < dtParty.Rows.Count; q++)
                 {
                     _rowL++;
-                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Code"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Vendor Name"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Trade License No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Currency"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Payment Term"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Party Group"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Party Category"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["Party Sub Category"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Code"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Vendor Name"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Trade License No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["Currency"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["Payment Term"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 14, dtParty.Rows[q]["DownPaymentGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 15, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 16, dtParty.Rows[q]["DownPayment Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 17, dtParty.Rows[q]["DownPayment Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 18, dtParty.Rows[q]["DownPayment Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 19, dtParty.Rows[q]["ReconciliationGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 20, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 21, dtParty.Rows[q]["Reconciliation Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 22, dtParty.Rows[q]["Reconciliation Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 23, dtParty.Rows[q]["Reconciliation Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 24, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
                 }
 
                 sheet.Range[7, 1, _rowL, shet2EndxlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -2726,8 +3256,8 @@ namespace Library.Service.Parties
                 {
                     Sort = "Party Name"
                 };
-                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Code", "Party Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "AdditionalGL", "DownPaymentGL", "ReconciliationGL", "Customer", "Vendor");
-
+                
+                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Party Group", "Party Category", "Party Sub Category", "Code", "Party Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "DownPaymentGL Code", "DownPaymentGL", "DownPayment Budget", "DownPayment Activity", "DownPayment Budget RefNo", "ReconciliationGL Code", "ReconciliationGL", "Reconciliation Budget", "Reconciliation Activity", "Reconciliation Budget RefNo", "Customer", "Vendor", "AdditionalGL");
                 if (dtParty.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found !!!");
@@ -2763,21 +3293,33 @@ namespace Library.Service.Parties
                 for (int q = 0; q < dtParty.Rows.Count; q++)
                 {
                     _rowL++;
-                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Code"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Party Name"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Trade License No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Currency"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Payment Term"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 14, dtParty.Rows[q]["Customer"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 15, dtParty.Rows[q]["Vendor"].ToString(), 26);
+                    
+                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Party Group"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Party Category"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["Party Sub Category"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Code"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Party Name"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Trade License No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["Currency"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["Payment Term"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 14, dtParty.Rows[q]["DownPaymentGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 15, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 16, dtParty.Rows[q]["DownPayment Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 17, dtParty.Rows[q]["DownPayment Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 18, dtParty.Rows[q]["DownPayment Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 19, dtParty.Rows[q]["ReconciliationGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 20, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 21, dtParty.Rows[q]["Reconciliation Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 22, dtParty.Rows[q]["Reconciliation Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 23, dtParty.Rows[q]["Reconciliation Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 24, dtParty.Rows[q]["Customer"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 25, dtParty.Rows[q]["Vendor"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 26, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
                 }
 
                 sheet.Range[7, 1, _rowL, shet2EndxlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -2884,7 +3426,7 @@ namespace Library.Service.Parties
                 {
                     Sort = "Party Name"
                 };
-                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Plant", "Code", "Party Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "AdditionalGL", "DownPaymentGL", "ReconciliationGL", "Customer", "Vendor");
+                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Plant", "Party Group", "Party Category", "Party Sub Category", "Code", "Party Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "DownPaymentGL Code", "DownPaymentGL", "DownPayment Budget", "DownPayment Activity", "DownPayment Budget RefNo", "ReconciliationGL Code", "ReconciliationGL", "Reconciliation Budget", "Reconciliation Activity", "Reconciliation Budget RefNo", "Customer", "Vendor", "AdditionalGL");
 
                 if (dtParty.Rows.Count == 0)
                 {
@@ -2920,21 +3462,32 @@ namespace Library.Service.Parties
                 for (int q = 0; q < dtParty.Rows.Count; q++)
                 {
                     _rowL++;
-                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Code"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Party Name"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Trade License No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Currency"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Payment Term"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 14, dtParty.Rows[q]["Customer"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 15, dtParty.Rows[q]["Vendor"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Party Group"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Party Category"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["Party Sub Category"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Code"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Party Name"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Trade License No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["Currency"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["Payment Term"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 14, dtParty.Rows[q]["DownPaymentGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 15, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 16, dtParty.Rows[q]["DownPayment Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 17, dtParty.Rows[q]["DownPayment Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 18, dtParty.Rows[q]["DownPayment Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 19, dtParty.Rows[q]["ReconciliationGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 20, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 21, dtParty.Rows[q]["Reconciliation Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 22, dtParty.Rows[q]["Reconciliation Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 23, dtParty.Rows[q]["Reconciliation Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 24, dtParty.Rows[q]["Customer"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 25, dtParty.Rows[q]["Vendor"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 26, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
                 }
 
                 sheet.Range[7, 1, _rowL, shet2EndxlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -2962,8 +3515,9 @@ namespace Library.Service.Parties
                 {
                     Sort = "Customer Name"
                 };
-                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Plant", "Code", "Customer Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "AdditionalGL", "DownPaymentGL", "ReconciliationGL");
 
+                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Plant", "Party Group", "Party Category", "Party Sub Category", "Code", "Customer Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "DownPaymentGL Code", "DownPaymentGL", "DownPayment Budget", "DownPayment Activity", "DownPayment Budget RefNo", "ReconciliationGL Code", "ReconciliationGL", "Reconciliation Budget", "Reconciliation Activity", "Reconciliation Budget RefNo", "AdditionalGL");
+                
                 if (dtParty.Rows.Count == 0)
                     throw new Exception("No data found!");
 
@@ -2998,19 +3552,31 @@ namespace Library.Service.Parties
                 for (int q = 0; q < dtParty.Rows.Count; q++)
                 {
                     _rowL++;
-                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Code"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Customer Name"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Trade License No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Currency"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Payment Term"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
+                    
+                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Party Group"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Party Category"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["Party Sub Category"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Code"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Customer Name"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Trade License No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["Currency"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["Payment Term"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 14, dtParty.Rows[q]["DownPaymentGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 15, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 16, dtParty.Rows[q]["DownPayment Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 17, dtParty.Rows[q]["DownPayment Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 18, dtParty.Rows[q]["DownPayment Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 19, dtParty.Rows[q]["ReconciliationGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 20, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 21, dtParty.Rows[q]["Reconciliation Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 22, dtParty.Rows[q]["Reconciliation Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 23, dtParty.Rows[q]["Reconciliation Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 24, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
                 }
 
                 sheet.Range[7, 1, _rowL, shet2EndxlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -3038,7 +3604,8 @@ namespace Library.Service.Parties
                 {
                     Sort = "Vendor Name"
                 };
-                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Plant", "Code", "Vendor Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "AdditionalGL", "DownPaymentGL", "ReconciliationGL");
+                
+                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Plant", "Party Group", "Party Category", "Party Sub Category", "Code", "Vendor Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "DownPaymentGL Code", "DownPaymentGL", "DownPayment Budget", "DownPayment Activity", "DownPayment Budget RefNo", "ReconciliationGL Code", "ReconciliationGL", "Reconciliation Budget", "Reconciliation Activity", "Reconciliation Budget RefNo", "AdditionalGL");
 
                 if (dtParty.Rows.Count == 0)
                 {
@@ -3075,19 +3642,31 @@ namespace Library.Service.Parties
                 for (int q = 0; q < dtParty.Rows.Count; q++)
                 {
                     _rowL++;
-                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Code"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Vendor Name"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Trade License No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Currency"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Payment Term"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
+                    
+                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Party Group"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Party Category"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["Party Sub Category"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Code"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Vendor Name"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Trade License No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["Currency"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["Payment Term"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 14, dtParty.Rows[q]["DownPaymentGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 15, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 16, dtParty.Rows[q]["DownPayment Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 17, dtParty.Rows[q]["DownPayment Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 18, dtParty.Rows[q]["DownPayment Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 19, dtParty.Rows[q]["ReconciliationGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 20, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 21, dtParty.Rows[q]["Reconciliation Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 22, dtParty.Rows[q]["Reconciliation Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 23, dtParty.Rows[q]["Reconciliation Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 24, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
                 }
 
                 sheet.Range[7, 1, _rowL, shet2EndxlsCol].BorderInside(ExcelLineStyle.Hair);

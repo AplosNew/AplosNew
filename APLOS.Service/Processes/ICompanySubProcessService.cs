@@ -19,6 +19,6 @@ namespace Library.Service.Processes
 
         void DeleteGraph(string id);
 
-        IEnumerable<ComboModel> GetCbo(string ProcessId);
+        IEnumerable<ComboModel> GetCbo(string ProcessId, string companyId);
     }
 }

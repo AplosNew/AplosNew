@@ -218,7 +218,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 							,pc.UserName as ProductCategory,CUR.Code AS Currency,ct.UserName AS CostingTypeName
 							,psc.UserName as ProductSubCategory
                              ,pm.CostingType,qcm.CostingStage AS CurrentCostStage
-							 ,moi.Id MOIId
+							 ,moi.Id MOIId,moi.BuyerReferenceNo,moi.OwnReferenceNo,isnull(moi.TotalQty,0) TotalQty
 							from OrderCostingMasterTemplate qcm 
 							left join (select  * from  trn.MasterOrderItem )moi on moi.OrderCostingMasterTemplateId=qcm.Id
                             left join [HKP].[Party] p ON p.Id = qcm.CustomerId
@@ -475,17 +475,16 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"
-                                SELECT convert(bit,0) AS isChecked,MOI.Id AS MasterOrderItemId ,mm.UserName AS Material,mma.StandardName AS Article, moi.MasterOrderId,p.Id AS PartyId,pm.UserName AS Product, p.UserName AS Customer,
-                                    pm.Id
-                                  FROM trn.MasterOrder AS mo
+            string sql = @"SELECT convert(bit,0) AS isChecked,MOI.Id AS MasterOrderItemId ,mm.UserName AS Material,mma.StandardName AS Article, moi.MasterOrderId,p.Id AS                                      PartyId,pm.UserName AS Product, p.UserName AS Customer, pm.Id
+                                 ,ISNULL(moi.TotalQty,0) TotalQty,moi.BuyerReferenceNo,moi.OwnReferenceNo
+									
+                                 FROM trn.MasterOrder AS mo
                                 INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
                                 left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
                                 LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=moi.ArticleId
                                 left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
                                 left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                 left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-
                                 left outer join hkp.Party AS p ON p.Id=mo.PartyId
 
                                 WHERE isnull(moi.OrderCostingMasterTemplateId,'')='" + TemplateId + @"'
@@ -2478,7 +2477,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         }
 
         [HttpPost, Authorize]
-        public ActionResult SaveOrderPreCostingDirectMaterial(IEnumerable<OrderPreCostingDirectMaterial> data, string OrderCostingMasterTemplateId)
+        public ActionResult SaveOrderPreCostingDirectMaterial(IEnumerable<OrderPreCostingDirectMaterial> data, string OrderCostingMasterTemplateId, string cs)
         {
             DataSet dsMaster, dsProMaster = null;
             try
@@ -2608,18 +2607,47 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
 
-                            if (dsProMaster.Tables[0].DefaultView.Count >0)
+                            if (cs == "PreCosting")
                             {
-                                DataRow drpro = dsProMaster.Tables[0].DefaultView[0].Row;
-                                drpro.BeginEdit();
+                                if (dsProMaster.Tables[0].DefaultView.Count > 0)
+                                {
+                                    DataRow drpro = dsProMaster.Tables[0].DefaultView[0].Row;
+                                    drpro.BeginEdit();
 
-                                drpro["IsGeneric"] = item.IsGeneric;
-                                drpro["IsMandatory"] = item.IsMandatory;
-                                drpro["MaterialMasterId"] = item.MaterialMasterId;
-                                drpro["ArticleId"] = item.ArticleId;
-                                drpro["VendorId"] = item.VendorId;
+                                    drpro["CostingItemId"] = item.CostingItemId;
+                                    drpro["Sequence"] = item.Sequence;
+                                    drpro["Consumption"] = item.Consumption;
+                                    drpro["UOM"] = item.UOM;
+                                    drpro["Rate"] = item.Rate;
+                                    drpro["ValueLoss"] = item.ValueLoss;
+                                    drpro["GrossConsumption"] = item.GrossConsumption;
+                                    drpro["GrossAmount"] = item.GrossAmount;
+                                    drpro["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
+                                    drpro["ResponsiblePersonId"] = item.ResponsiblePersonId;
+                                    drpro["SourcingType"] = item.SourcingType;
+                                    drpro["Usage"] = item.Usage;
+                                    drpro["POCriteria"] = item.POCriteria;
+                                    drpro["IsUDApplicable"] = item.IsUDApplicable;
+                                    drpro["IsGeneric"] = item.IsGeneric;
+                                    drpro["IsMandatory"] = item.IsMandatory;
+                                    drpro["MaterialMasterId"] = item.MaterialMasterId;
+                                    drpro["ArticleId"] = item.ArticleId;
+                                    drpro["VendorId"] = item.VendorId;
+                                    drpro["ProcurementLevel"] = item.ProcurementLevel;
+                                    drpro["BOQDays"] = item.BOQDays;
+                                    drpro["BOQCriteria"] = item.BOQCriteria;
+                                    drpro["DependentDate"] = item.DependentDate;
+                                    drpro["MinimumOfQuantity"] = item.MinimumOfQuantity;
+                                    drpro["POIssueDeadLine"] = item.POIssueDeadLine;
+                                    drpro["Particulars"] = item.Particulars;
+                                    drpro["Remarks"] = item.Remarks;
+                                    drpro["PurchaseGroupId"] = item.PurchaseGroupId;
+                                    drpro["UpdatedBy"] = identity.Name;
+                                    drpro["UpdatedDate"] = System.DateTime.Now.ToString();
+                                    drpro["UpdatedFromIP"] = identity.IPAddress;
 
-                                drpro.EndEdit(); 
+                                    drpro.EndEdit();
+                                }
                             }
                         }
 
@@ -2770,9 +2798,9 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         }
 
         [HttpPost, Authorize]
-        public ActionResult SaveOperation(IEnumerable<OrderPreCostingOperation> data, string OrderCostingMasterTemplateId)
+        public ActionResult SaveOperation(IEnumerable<OrderPreCostingOperation> data, string OrderCostingMasterTemplateId, string cs)
         {
-            DataSet dsMaster = null;
+            DataSet dsMaster, dsProMaster = null;
             try
             {
                 if (data != null)
@@ -2788,13 +2816,15 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                         CostingItemIds += ",'" + item.CostingItemId + "'";
 
                     string sql = "SELECT * FROM [dbo].[OrderPreCostingOperation] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
+                    string sqlPro = "SELECT * FROM [dbo].[OrderProcurementCostingOperation] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                    objCon.OpenDataSetThroughAdapter(sqlPro, out dsProMaster, false, "1");
 
                     foreach (var item in data)
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
-
+                        dsProMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
                         //if (item.Value > 0)
                         //{
 
@@ -2839,6 +2869,28 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             dr["UpdatedFromIP"] = identity.IPAddress;
 
                             dr.EndEdit();
+
+                            if (cs == "PreCosting")
+                            {
+                                if (dsProMaster.Tables[0].DefaultView.Count > 0)
+                                {
+                                    DataRow drpro = dsProMaster.Tables[0].DefaultView[0].Row;
+                                    drpro.BeginEdit();
+
+                                    drpro["CostingItemId"] = item.CostingItemId;
+                                    drpro["Sequence"] = item.Sequence;
+                                    drpro["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
+                                    drpro["ResponsiblePersonId"] = item.ResponsiblePersonId;
+                                    drpro["Value"] = item.Value;
+                                    drpro["Description"] = item.Description;
+
+                                    drpro["UpdatedBy"] = identity.Name;
+                                    drpro["UpdatedDate"] = System.DateTime.Now.ToString();
+                                    drpro["UpdatedFromIP"] = identity.IPAddress;
+
+                                    drpro.EndEdit();
+                                }
+                            }
                         }
 
                         //}
@@ -2856,7 +2908,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
                     clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
+                    obj.SaveDataSets(dsMaster, dsProMaster);
                 }
 
                 RecalculateValues(OrderCostingMasterTemplateId);
@@ -2940,9 +2992,9 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         }
 
         [HttpPost, Authorize]
-        public ActionResult SaveDirectProcess(IEnumerable<OrderPreCostingDirectProcess> data, string OrderCostingMasterTemplateId)
+        public ActionResult SaveDirectProcess(IEnumerable<OrderPreCostingDirectProcess> data, string OrderCostingMasterTemplateId, string cs)
         {
-            DataSet dsMaster = null;
+            DataSet dsMaster, dsProMaster = null;
             try
             {
                 if (data != null)
@@ -2958,12 +3010,15 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                         CostingItemIds += ",'" + item.CostingItemId + "'";
 
                     string sql = "SELECT * FROM [dbo].[OrderPreCostingDirectProcess] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
+                    string sqlPro = "SELECT * FROM [dbo].[OrderProcurementCostingDirectProcess] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                    objCon.OpenDataSetThroughAdapter(sqlPro, out dsProMaster, false, "1");
 
                     foreach (var item in data)
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
+                        dsProMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
 
                         //if (item.Amount > 0)
                         //{
@@ -3015,6 +3070,32 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
                             dr.EndEdit();
+
+                            if (cs == "PreCosting")
+                            {
+                                if (dsProMaster.Tables[0].DefaultView.Count > 0)
+                                {
+                                    DataRow drpro = dsProMaster.Tables[0].DefaultView[0].Row;
+                                    drpro.BeginEdit();
+
+
+                                    drpro["CostingItemId"] = item.CostingItemId;
+                                    drpro["Sequence"] = item.Sequence;
+                                    drpro["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
+                                    drpro["ResponsiblePersonId"] = item.ResponsiblePersonId;
+                                    drpro["ExecutionType"] = item.ExecutionType;
+                                    drpro["Value"] = item.Value;
+                                    drpro["Rate"] = item.Rate;
+                                    drpro["Amount"] = item.Amount;
+                                    drpro["Description"] = item.Description;
+
+                                    drpro["UpdatedBy"] = identity.Name;
+                                    drpro["UpdatedDate"] = System.DateTime.Now.ToString();
+                                    drpro["UpdatedFromIP"] = identity.IPAddress;
+
+                                    drpro.EndEdit();
+                                }
+                            }
                         }
 
                         //}
@@ -3032,7 +3113,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
                     clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
+                    obj.SaveDataSets(dsMaster, dsProMaster);
 
                 }
                 RecalculateValues(OrderCostingMasterTemplateId);
@@ -3122,9 +3203,9 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         }
 
         [HttpPost, Authorize]
-        public ActionResult SaveSalesExpense(IEnumerable<OrderPreCostingSalesExpense> data, string OrderCostingMasterTemplateId)
+        public ActionResult SaveSalesExpense(IEnumerable<OrderPreCostingSalesExpense> data, string OrderCostingMasterTemplateId, string cs)
         {
-            DataSet dsMaster = null;
+            DataSet dsMaster, dsProMaster = null;
             try
             {
                 if (data != null)
@@ -3140,12 +3221,15 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                         CostingItemIds += ",'" + item.CostingItemId + "'";
 
                     string sql = "SELECT * FROM [dbo].[OrderPreCostingSalesExpense] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
+                    string sqlPro = "SELECT * FROM [dbo].[OrderProcurementCostingSalesExpense] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                    objCon.OpenDataSetThroughAdapter(sqlPro, out dsProMaster, false, "1");
 
                     foreach (var item in data)
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
+                        dsProMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
 
                         //if (item.Value > 0)
                         //{
@@ -3196,6 +3280,32 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
                             dr.EndEdit();
+
+                            if (cs == "PreCosting")
+                            {
+                                if (dsProMaster.Tables[0].DefaultView.Count > 0)
+                                {
+                                    DataRow drpro = dsProMaster.Tables[0].DefaultView[0].Row;
+                                    drpro.BeginEdit();
+
+
+                                    drpro["CostingItemId"] = item.CostingItemId;
+                                    drpro["Sequence"] = item.Sequence;
+                                    drpro["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
+                                    drpro["ResponsiblePersonId"] = item.ResponsiblePersonId;
+                                    drpro["Type"] = item.Type;
+                                    drpro["Value"] = item.Value;
+                                    drpro["Amount"] = item.Amount;
+                                    drpro["Description"] = item.Description;
+
+                                    drpro["UpdatedBy"] = identity.Name;
+                                    drpro["UpdatedDate"] = System.DateTime.Now.ToString();
+                                    drpro["UpdatedFromIP"] = identity.IPAddress;
+
+                                    drpro.EndEdit();
+                                }
+                            }
+
                         }
 
                         //}
@@ -3213,7 +3323,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
                     clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
+                    obj.SaveDataSets(dsMaster, dsProMaster);
 
 
                 }
@@ -3324,9 +3434,9 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         }
 
         [HttpPost, Authorize]
-        public ActionResult SaveValueLoss(IEnumerable<OrderPreCostingValueLoss> data, string OrderCostingMasterTemplateId)
+        public ActionResult SaveValueLoss(IEnumerable<OrderPreCostingValueLoss> data, string OrderCostingMasterTemplateId, string cs)
         {
-            DataSet dsMaster = null;
+            DataSet dsMaster, dsProMaster = null;
             try
             {
                 if (data != null)
@@ -3342,12 +3452,15 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                         CostingItemIds += ",'" + item.CostingItemId + "'";
 
                     string sql = "SELECT * FROM [dbo].[OrderPreCostingValueLoss] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
+                    string sqlPro = "SELECT * FROM [dbo].[OrderProcurementCostingValueLoss] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                    objCon.OpenDataSetThroughAdapter(sql, out dsProMaster, false, "1");
 
                     foreach (var item in data)
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
+                        dsProMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
 
                         //if (item.Value > 0)
                         //{
@@ -3397,6 +3510,31 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             dr["UpdatedFromIP"] = identity.IPAddress;
 
                             dr.EndEdit();
+
+                            if (cs == "PreCosting")
+                            {
+                                if (dsProMaster.Tables[0].DefaultView.Count > 0)
+                                {
+                                    DataRow drpro = dsProMaster.Tables[0].DefaultView[0].Row;
+                                    drpro.BeginEdit();
+
+
+                                    drpro["CostingItemId"] = item.CostingItemId;
+                                    drpro["Sequence"] = item.Sequence;
+                                    drpro["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
+                                    drpro["ResponsiblePersonId"] = item.ResponsiblePersonId;
+                                    drpro["Type"] = item.Type;
+                                    drpro["Value"] = item.Value;
+                                    drpro["Amount"] = item.Amount;
+                                    drpro["Description"] = item.Description;
+
+                                    drpro["UpdatedBy"] = identity.Name;
+                                    drpro["UpdatedDate"] = System.DateTime.Now.ToString();
+                                    drpro["UpdatedFromIP"] = identity.IPAddress;
+
+                                    drpro.EndEdit();
+                                }
+                            }
                         }
 
                         //}
@@ -3414,7 +3552,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
                     clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
+                    obj.SaveDataSets(dsMaster, dsProMaster);
 
                 }
                 RecalculateValues(OrderCostingMasterTemplateId);
@@ -3427,9 +3565,9 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
         }
         [HttpPost, Authorize]
-        public ActionResult SaveProfit(IEnumerable<OrderPreCostingProfit> data, string OrderCostingMasterTemplateId)
+        public ActionResult SaveProfit(IEnumerable<OrderPreCostingProfit> data, string OrderCostingMasterTemplateId, string cs)
         {
-            DataSet dsMaster = null;
+            DataSet dsMaster, dsProMaster = null;
             try
             {
                 if (data != null)
@@ -3446,11 +3584,15 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
                     string sql = "SELECT * FROM [dbo].[OrderPreCostingProfit] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
+                    string sqlPro = "SELECT * FROM [dbo].[OrderProcurementCostingProfit] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                    objCon.OpenDataSetThroughAdapter(sqlPro, out dsProMaster, false, "1");
 
                     foreach (var item in data)
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
+                        dsProMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
 
                         //if (item.Value > 0)
                         //{
@@ -3500,6 +3642,31 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             dr["UpdatedFromIP"] = identity.IPAddress;
 
                             dr.EndEdit();
+
+                            if (cs == "PreCosting")
+                            {
+                                if (dsProMaster.Tables[0].DefaultView.Count > 0)
+                                {
+                                    DataRow drpro = dsProMaster.Tables[0].DefaultView[0].Row;
+                                    drpro.BeginEdit();
+
+
+                                    drpro["CostingItemId"] = item.CostingItemId;
+                                    drpro["Sequence"] = item.Sequence;
+                                    drpro["OrderCostingMasterTemplateId"] = OrderCostingMasterTemplateId;
+                                    drpro["ResponsiblePersonId"] = item.ResponsiblePersonId;
+                                    drpro["Type"] = item.Type;
+                                    drpro["Value"] = item.Value;
+                                    drpro["Amount"] = item.Amount;
+                                    drpro["Description"] = item.Description;
+
+                                    drpro["UpdatedBy"] = identity.Name;
+                                    drpro["UpdatedDate"] = System.DateTime.Now.ToString();
+                                    drpro["UpdatedFromIP"] = identity.IPAddress;
+
+                                    drpro.EndEdit();
+                                }
+                            }
                         }
 
                         //}
@@ -3517,7 +3684,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
                     clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
+                    obj.SaveDataSets(dsMaster, dsProMaster);
 
                 }
                 RecalculateValues(OrderCostingMasterTemplateId);
@@ -6081,7 +6248,282 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public ActionResult DeletePreCosting(string OrderPreCostingDirectMaterialId,string cs)
+        {
+            string strSQL, strCSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strCSQL = @"delete from OrderPreCostingDirectMaterial where Id='" + OrderPreCostingDirectMaterialId + @"'";
+                strSQL = @"delete from OrderProcurementCostingDirectMaterial where Id='" + OrderPreCostingDirectMaterialId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strCSQL, true, "1");
+                if (cs == "PreCosting")
+                {
+                    objCon.ExecuteNonQueryWrapper(strSQL, true, "1"); 
+                }
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+
+
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteProcurementCosting(string OrderProcurementCostingDirectMaterialId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsOPRCDM;
+            try
+            {
+                string sqlStopage = @"delete from OrderProcurementCostingDirectMaterial where Id='" + OrderProcurementCostingDirectMaterialId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsOPRCDM, false, "1");
+
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteOrderPreCostingDirectProces(string OrderPreCostingDirectProcessId,string cs)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsOPRCDM, dsPro;
+            try
+            {
+                string sqlStopage = @"delete from OrderPreCostingDirectProcess where Id='" + OrderPreCostingDirectProcessId + @"'";
+                string sqlPro = @"delete from OrderProcurementCostingDirectProcess where Id='" + OrderPreCostingDirectProcessId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsOPRCDM, false, "1");
+                if (cs == "PreCosting")
+                {
+                    objCon.OpenDataSetThroughAdapter(sqlPro, out dsPro, false, "1"); 
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteDirectProcessProcurementCosting(string DirectProcessProcurementCostingId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsOPRCDM;
+            try
+            {
+                string sqlStopage = @"delete from OrderProcurementCostingDirectProcess where Id='" + DirectProcessProcurementCostingId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsOPRCDM, false, "1");
+
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteOperationListPreCosting(string OperationListPreCostingId, string cs)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsOLPC, dsPro;
+            try
+            {
+                string sqlStopage = @"delete from OrderPreCostingOperation where Id='" + OperationListPreCostingId + @"'";
+                string sqlPro = @"delete from OrderProcurementCostingOperation where Id='" + OperationListPreCostingId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsOLPC, false, "1");
+                if (cs == "PreCosting")
+                {
+                    objCon.OpenDataSetThroughAdapter(sqlPro, out dsPro, false, "1"); 
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteOperationListProcurementCosting(string OperationListProcurementCostingId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsOLPRC;
+            try
+            {
+                string sqlStopage = @"delete from OrderProcurementCostingOperation where Id='" + OperationListProcurementCostingId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsOLPRC, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteValueLossPreCosting(string ValueLossPreCostingId, string cs)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsVLPC,dsPro;
+            try
+            {
+                string sqlStopage = @"delete from OrderPreCostingValueLoss where Id='" + ValueLossPreCostingId + @"'";
+                string sqlPro = @"delete from OrderProcurementCostingValueLoss where Id='" + ValueLossPreCostingId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsVLPC, false, "1");
+                if (cs == "PreCosting")
+                {
+                    objCon.OpenDataSetThroughAdapter(sqlPro, out dsPro, false, "1"); 
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteValueLossProcurementCosting(string ValueLossProcurementCostingId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsVLPC;
+            try
+            {
+                string sqlStopage = @"delete from OrderProcurementCostingValueLoss where Id='" + ValueLossProcurementCostingId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsVLPC, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteOrderPreCostingProfit(string OrderPreCostingProfitId, string cs)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsVLPC, dsPro;
+            try
+            {
+                string sqlStopage = @"delete from OrderPreCostingProfit where Id='" + OrderPreCostingProfitId + @"'";
+                string sqlPro = @"delete from OrderProcurementCostingProfit where Id='" + OrderPreCostingProfitId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsVLPC, false, "1");
+                if (cs == "PreCosting")
+                {
+                    objCon.OpenDataSetThroughAdapter(sqlPro, out dsPro, false, "1"); 
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteOrderProcurementCostingProfit(string OrderProcurementCostingProfitId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsVLPC;
+            try
+            {
+                string sqlStopage = @"delete from OrderProcurementCostingProfit where Id='" + OrderProcurementCostingProfitId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsVLPC, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteOrderPreCostingSalesExpense(string OrderPreCostingSalesExpenseId, string cs)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsVLPC, dsPro;
+            try
+            {
+                string sqlStopage = @"delete from OrderPreCostingSalesExpense where Id='" + OrderPreCostingSalesExpenseId + @"'";
+                string sqlPro = @"delete from OrderProcurementCostingSalesExpense where Id='" + OrderPreCostingSalesExpenseId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsVLPC, false, "1");
+                if (cs == "PreCosting")
+                {
+                    objCon.OpenDataSetThroughAdapter(sqlPro, out dsPro, false, "1"); 
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteOrderProcurementCostingSalesExpense(string OrderProcurementCostingSalesExpenseId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsVLPC;
+            try
+            {
+                string sqlStopage = @"delete from OrderProcurementCostingSalesExpense where Id='" + OrderProcurementCostingSalesExpenseId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlStopage, out dsVLPC, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
     }
+
 
     public class OrderCostingBuyer
     {

@@ -61,21 +61,23 @@ namespace Aplos.Areas.Parties.Controllers
                 }
                 else
                 {
-                    //if (reportFormat == ReportFormat.Pdf)
-                    //{
-                    //    var workbook = _partyReportService.GetPartyLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                    //    var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
+                    if (reportFormat == ReportFormat.Pdf)
+                    {
+                        //var workbook = _partyReportService.GetPartyLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                        //var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
+                        
+                        var workbook = _partyReportService.GetPartyLedgerReportLongSizeXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                        var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
 
-
-                    //    return RenderReportAsPdf(workbook, reportFileName);
-                    //}
-                    //else
-                    //{
+                        return RenderReportAsPdf(workbook, reportFileName);
+                    }
+                    else
+                    {
                         var workbook = _partyReportService.GetPartyLedgerReportLongSizeXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
                         var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
 
                         return RenderReportAsExcel(workbook, reportFileName);
-                    //}
+                    }
                 }
             }
             else
@@ -103,7 +105,10 @@ namespace Aplos.Areas.Parties.Controllers
                 {
                     if (reportFormat == ReportFormat.Pdf)
                     {
-                        var workbook = _partyReportService.GetPartyLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                        //var workbook = _partyReportService.GetPartyLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                        //var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
+
+                        var workbook = _partyReportService.GetPartyLedgerReportXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
                         var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
 
 
@@ -122,8 +127,27 @@ namespace Aplos.Areas.Parties.Controllers
 
 
         }
+        [HttpGet, Authorize]
+        public ActionResult GetPartyCategoryLedgerReport(ReportFormat reportFormat, string partyType, string partyCategoryId, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _partyReportService.GetPartyCategoryLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyCategoryId, fromDate, toDate);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " Party Category Ledger";
 
-    
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+            } 
+        }
+
+
 
 
         #region Inter Party Leadger

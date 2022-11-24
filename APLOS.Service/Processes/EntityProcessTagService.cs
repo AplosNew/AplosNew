@@ -175,7 +175,7 @@ namespace Library.Service.Processes
                                 ,EPT.IsPackingSKURequired,EPT.PackingForm,EPT.IsDispatchSKURequired,EPT.DispatchForm,EPT.DispatchType
 								, P.[Sequence], P.Code, P.UserName, P.ShortName
 								, P.StandardName, MT.[Description] AS MaterialType, P.Active
-                                , P.IsProductionProcess
+                                , P.IsProductionProcess,ept.IsParameterBased
 								--, PP.UserName ProductionProcessGroup
                                 --, EPT.ProductionProcessGroupId
                                 , EPT.ProductionBookingLevel
@@ -257,13 +257,13 @@ namespace Library.Service.Processes
         {
             if (cadmin || sadmin)
             {
-                string _sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text],EP.ProductionBookingLevel,EP.LotNumberMandatory,EP.LotNumberCapture,EP.IsSKU1,EP.IsSKU2,EP.IsSKU3,P.IsFirst  FROM HKP.EntityProcessTag AS EP
+                string _sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text],EP.ProductionBookingLevel,EP.LotNumberMandatory,EP.LotNumberCapture,EP.IsSKU1,EP.IsSKU2,EP.IsSKU3,P.IsFirst,EP.IsParameterBased FROM HKP.EntityProcessTag AS EP
                             JOIN HKP.Process AS P ON EP.ProcessId=P.Id WHERE EP.EntityId='" + entityId + "' AND P.Active=1 ";
                 return _sqlRepository.GetGridData(new GridParameter { CmdText = _sql });
             }
             else
             {
-                string _sql = @"SELECT P.Id AS [Value], P.UserName AS [Text],EPT.ProductionBookingLevel,EPT.LotNumberMandatory,EPT.LotNumberCapture,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,P.IsFirst  FROM HKP.EntityProcessTag EPT
+                string _sql = @"SELECT P.Id AS [Value], P.UserName AS [Text],EPT.ProductionBookingLevel,EPT.LotNumberMandatory,EPT.LotNumberCapture,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,P.IsFirst,EPT.IsParameterBased FROM HKP.EntityProcessTag EPT
 						        INNER JOIN HKP.Process AS P ON P.Id=EPT.ProcessId
 						        INNER JOIN [SEC].[UserProcess] UP ON UP.ProcessId=P.Id
 						        WHERE EPT.EntityId='" + entityId + @"' AND UP.UserId='"+ userId + "' AND P.Active=1";

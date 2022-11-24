@@ -8,7 +8,7 @@ function partyReportController(cboService, commonMessage, $scope, $rootScope, ba
         CompanyGroupId: null,
         CompanyId: null,
         PlantId: null,
-        CompanyGroupLevel: 'CompanyGroupLevel',
+        CompanyGroupLevel: 'PlantLevel',
     };
     $scope.partyReportNew = angular.copy($scope.partyReport);
 

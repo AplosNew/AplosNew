@@ -6,6 +6,7 @@ using Library.ViewModel.OrderManagements;
 using Library.ViewModel.SalesManagements;
 using Syncfusion.XlsIO;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Library.MaterialManagement.Inventory
 {
@@ -25,8 +26,8 @@ namespace Library.MaterialManagement.Inventory
 
         void InsertGraphIssueReturn(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssueReturn inventoryIssue, string IssueTypeStatus);
 
-        
-        IEnumerable<object> GetIssueRegister(string fromDate, string toDate, string Type);
+
+        DataTable GetIssueRegister(string fromDate, string toDate, string Type);
 
         // OutSource
         IEnumerable<object> GetOSIssueRegister(string fromDate, string toDate, string Type);
@@ -54,9 +55,9 @@ namespace Library.MaterialManagement.Inventory
         IWorkbook CreateOSIssueRegisterGRNIssueReport(string companyId, string plantId, string fromDate, string toDate, string Type);
 
 
-        void DeleteIssueDetail(string issueDetailId);
-        void DeleteSalesDetail(string issueDetailId); 
-        
+        void DeleteIssueDetail(string issueDetailId, string voucherId);
+        void DeleteSalesDetail(string issueDetailId);
+        void DeleteIssueDetailBOQ(string issueDetailId, string voucherId);
         void RequisitionIssueInsert(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList
             , InventoryIssue inventoryIssue, IEnumerable<RequisitionIssueDetailViewModel> requisitionIssueDetails);
         void RequisitionIssueUpdate(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList
@@ -81,7 +82,7 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> MaterialIssueDetailsData1(string inveReveiveId, string POID); 
 
         IEnumerable<object> GetDataByInventoryIssue(string plantId);
-
+        IEnumerable<object> GetInventoryIssueByProductionOrder(string plantId, string productionOrderId);
         IEnumerable<object> GetDataByPhysicalStockAdjustment(string plantId);
 
         

@@ -364,6 +364,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('disciplinaryActionCategoryController', disciplinaryActionCategoryController)
     .controller("entityConfigController", entityConfigController)
     .controller("planningTypesController", planningTypesController)
+    .controller("planningTypesNewController", planningTypesNewController)
     .controller("productionBookingPeriodController", productionBookingPeriodController)
     .controller("issueCategoryController", issueCategoryController)
     .controller("issueSubCategoryController", issueSubCategoryController)
@@ -499,12 +500,21 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('PerformanceGradeMasterController', PerformanceGradeMasterController)
     .controller('BOQCostingApprovalSettingController', BOQCostingApprovalSettingController)
     .controller('GoalSettingApprovalController', GoalSettingApprovalController)
-    .controller("DocumentCategoryController", DocumentCategoryController)
-    .controller('ResidenceMasterController', ResidenceMasterController)
+    .controller("DocumentCategoryController", DocumentCategoryController)    
     .controller('ScatteredWeekOffController', ScatteredWeekOffController)
-    .controller('ResidenceStatusLocationController', ResidenceStatusLocationController)
     .controller('TrainingMasterController', TrainingMasterController)    
-    .controller("FuguaiZoneMasterController", FuguaiZoneMasterController)
+    
+    .controller("StorageBinMasterController", StorageBinMasterController)
+    .controller("OTRegionController", OTRegionController)
+    .controller("QualityProcessController", QualityProcessController)
+    .controller("PackingTypeController", PackingTypeController)
+    .controller("ProductionBookingProcessparameterController", ProductionBookingProcessparameterController)
+    .controller("UtilityGroupController", UtilityGroupController)
+    
+    
+.controller("ExperienceMasterController", ExperienceMasterController)
+.controller("EmployerMasterController", EmployerMasterController)
+.controller("QualificationMasterController", QualificationMasterController)
     
 
     .config(accountConfig)

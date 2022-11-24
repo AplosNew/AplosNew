@@ -94,6 +94,7 @@
     <Compile Include="BOM\BOMGeneration.cs" />
     <Compile Include="BOM\BOMReports.cs" />
     <Compile Include="BOM\TemplateAttchment.cs" />
+    <Compile Include="Costing\BOQStatusReportController.cs" />
     <Compile Include="Costing\CostingBOQPurchaseOrder.cs" />
     <Compile Include="Costing\CostingReport.cs" />
     <Compile Include="Costing\QuickBOQ.cs" />
@@ -140,6 +141,10 @@
     <ProjectReference Include="..\APLOS.Service\Aplos.Service.csproj">
       <Project>{aa817a3e-2bf1-4f54-9008-2df78294c1c8}</Project>
       <Name>Aplos.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aplos.ViewModel\Aplos.ViewModel.csproj">
+      <Project>{A40084DF-AD53-44C7-805E-93769E586805}</Project>
+      <Name>Aplos.ViewModel</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

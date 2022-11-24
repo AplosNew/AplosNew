@@ -23,10 +23,11 @@ using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using Aplos.Controllers;
 
 namespace Aplos.Areas.Products.Controllers
 {
-    public class MaterialBudgetController : Controller
+    public class MaterialBudgetController : BaseController
     {
         #region Constructor
 
@@ -71,32 +72,7 @@ namespace Aplos.Areas.Products.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             entity.CompanyGroupId = identity.CompanyGroupId;
-            //entity.CompanyId = identity.CompanyId;
-            //entity.PlantId = identity.PlantId;
-            //entity.IsApproved = false;
-            //entity.IsClosed=false;
-            //entity.POType = "PO";
-            //entity.MasterOrderId = null;  
-            ////entity.CheckedBy = "";
-            //entity.AuthorizedBy = null;
-            //entity.CheckedByStatus = "Pending";
-            //if (entity != null)
-            //{
-            //    if (entity.RequirmentType == "Critical")
-            //    {
-            //        if (entity.ReasonWhyItIsNotPlanEarlier == null || entity.ReasonWhyItIsNotPlanEarlier == "")
-            //        {
-            //            throw new CustomException("Input Reason Why It Is Not Plan Earlier!");
-            //        }
-            //    }
-            //    else if (entity.RequirmentType == "Urgent")
-            //    {
-            //        if (entity.ReasonWhyItIsNotPlanEarlier == null || entity.ReasonWhyItIsNotPlanEarlier == "")
-            //        {
-            //            throw new CustomException("Input Reason Why It Is Not Plan Earlier!");
-            //        }
-            //    }
-            //}
+            
             _materialBudgetService.Insert(entity);
             return Json(new { entity, Message = AplosMessage.Success + " Material Budget No <b>" + entity.Id + "</b>" });
         }

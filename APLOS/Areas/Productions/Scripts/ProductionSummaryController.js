@@ -46,7 +46,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         WorkCenterMasterId: null,
         ProductionDate: $filter("date")(Date.now(), 'dd-MMM-yyyy'),
         ProductionShiftId: null,
-        ProductionGrade: null,
+        ProductionGrade: 'A',
         Quantity: 0,
         UOM: 0,
         MOQty: 0,
@@ -100,6 +100,33 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     }
     $scope.getAllEntities();
 
+    //$scope.tab = 1;
+    //$scope.setTabMLedger = function (newTab) {
+    //    $scope.tab = newTab;
+    //};
+    //$scope.isSetMLedger = function (tabNum) {
+    //    return $scope.tab === tabNum;
+    //};
+    //$scope.setTabMLedger1 = function (newTab) {
+    //    $scope.tab = newTab;
+    //};
+    //$scope.isSetMLedger1 = function (tabNum) {
+    //    return $scope.tab === tabNum;
+    //};
+
+  
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+   
+
+
     $scope.loadProcessList = function (entityid) {
         cboService.GetEntityProcessCbo(entityid, function (result) {
             $scope.processList = result;
@@ -107,7 +134,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 $scope.productionSummaryNew.ProcessId = $scope.processList[0].Value;
                 $scope.getProdLevel();
                 //default
-                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
+                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProductionShiftId);
             }
         });
     };
@@ -121,8 +148,11 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     $scope.IsSKU2 = false;
     $scope.IsSKU3 = false;
     $scope.IsFirst = false;
+    $scope.IsParameterBased = false;
+
     $scope.getProdLevel = function () {
         try {
+            $scope.PQEnable = false;
 
             $scope.IsFirst = $.grep($scope.processList, function (item) {
                 return item.Value === $scope.productionSummaryNew.ProcessId;
@@ -152,24 +182,24 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 return item.Value === $scope.productionSummaryNew.ProcessId;
             })[0].IsSKU3;
 
+            $scope.IsParameterBased = $.grep($scope.processList, function (item) {
+                return item.Value === $scope.productionSummaryNew.ProcessId;
+            })[0].IsParameterBased;
+
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
                 $scope.ProductionLevel = 'Production Order';
-                $scope.PQEnable = false;
                 $scope.disGo = false;
             }
             else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
                 $scope.ProductionLevel = 'Sales Order';
-                $scope.PQEnable = false;
                 $scope.disGo = false;
             }
             else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
                 $scope.ProductionLevel = 'Master Order Item';
-                $scope.PQEnable = false;
                 $scope.disGo = false;
             }
             else if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductCode') {
                 $scope.ProductionLevel = 'Product Code';
-                $scope.PQEnable = false;
                 $scope.disGo = false;
             }
             else {
@@ -178,7 +208,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 throw 'Production Booking Level is not defined for selected process.';
             }
 
-            if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true) {
+            if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true || $scope.IsParameterBased == true) {
                 $scope.PQEnable = true;
                 $scope.disGo = false;
             }
@@ -190,13 +220,18 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     }
 
     $scope.wcList = [];
-    $scope.loadWC = function (processid, entityId) {
-        cboService.GetWCProcessCbo(processid, entityId, function (result) {
+    $scope.loadWC = function (processid, entityId, shiftId) {
+        cboService.GetWCProcessCbo(processid, entityId, shiftId, function (result) {
             $scope.wcList = result;
             //if (baseService.arrayLength(result) === 1) {
             //    $scope.productionSummaryNew.WorkCenterMasterId = $scope.wcList[0].Value;
             //}
         });
+        if ($scope.shiftList.length == 0) {
+            if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.ProcessId)) {
+                $scope.GetShiftList();
+            }
+        }
     };
 
     $scope.productionSummaryNew.NewLotNumber = true;
@@ -305,12 +340,18 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     };
 
     $scope.shiftList = [];
-    cboService.GetProductionShiftCbo(function (result) {
-        $scope.shiftList = result;
-        if (baseService.arrayLength(result) === 1) {
-            $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
-        }
-    });
+    $scope.GetShiftList = function () {
+        $scope.shiftList = [];
+        $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.productionSummaryNew.ProcessId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.shiftList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+                    }
+                }
+            });
+    }
 
     function CheckField(fieldname, field) {
         try {
@@ -325,6 +366,8 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
 
     function ValidationMaster() {
         try {
+            CheckField("Work Center Master", $scope.productionSummaryNew.WorkCenterMasterId);
+
             if ($scope.LotNumberCapture && $scope.LotNumberMandatory) {
                 CheckField("Lot Number", $scope.productionSummaryNew.LotNumber);
             }
@@ -332,7 +375,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             if ($scope.productionSummaryNew.ProductionBookingLevel === "ProductionOrder") {
                 CheckField("Production Order", $scope.productionSummaryNew.ProductionOrderId);
                 CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
-                CheckField("Quantity", $scope.productionSummaryNew.Quantity);
+                //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             }
             else if ($scope.productionSummaryNew.ProductionBookingLevel === "SalesOrder") {
                 CheckField("Sales Order", $scope.productionSummaryNew.SalesOrderId);
@@ -340,7 +383,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
                 CheckField("Article", $scope.productionSummaryNew.ArticleId);
                 CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
-                CheckField("Quantity", $scope.productionSummaryNew.Quantity);
+                //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             }
             else if ($scope.productionSummaryNew.ProductionBookingLevel === "MasterOrderItem") {
                 CheckField("Master Order Item", $scope.productionSummaryNew.MasterOrderItemId);
@@ -348,7 +391,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
                 CheckField("Article", $scope.productionSummaryNew.ArticleId);
                 CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
-                CheckField("Quantity", $scope.productionSummaryNew.Quantity);
+                //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             }
             else {
                 CheckField("Product Code", $scope.productionSummaryNew.ProductLibraryId);
@@ -356,7 +399,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
                 CheckField("Article", $scope.productionSummaryNew.ArticleId);
                 CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
-                CheckField("Quantity", $scope.productionSummaryNew.Quantity);
+                //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             }
         } catch (ex) {
             throw ex;
@@ -390,7 +433,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         try {
             ValidationPreMaster();
             $scope.SetGo(isdisabled);
-            //$scope.getLineGrid();
+            $scope.getLineGrid();
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
@@ -555,6 +598,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         var workdate = $scope.productionSummaryNew.ProductionDate;
         var shiftid = $scope.productionSummaryNew.ProductionShiftId;
         var wcid = $scope.productionSummaryNew.WorkCenterMasterId;
+        $scope.LotNumber = $scope.productionSummaryNew.LotNumber;
         $scope.productionSummaryNew.Id = null;
         $scope.productionSummaryNew.SalesOrderId = null;
         $scope.productionSummaryNew.ProductionOrderId = null;
@@ -568,7 +612,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.WastageP = null;
         $scope.productionSummaryNew.MasterOrderNo = null;
         $scope.productionSummaryNew.CharCount = null;
-        $scope.productionSummaryNew.ProductionGrade = null;
 
         $scope.productionSummaryNew.Quantity = null;
         $scope.productionSummaryNew.Customer = null;
@@ -584,7 +627,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.CheckedBy = null;
         $scope.productionSummaryNew.CheckedByName = null;
         $scope.productionSummaryNew.Remarks = null;
-        $scope.productionSummaryNew.LotNumber = null;
 
         $scope.productionSummaryNew.BuyerOrder = null;
         $scope.productionSummaryNew.OwnOrder = null;
@@ -593,6 +635,9 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.NewLotNumber = true;
         $scope.ShowLotNum = false;
         $scope.ShowNew = false;
+        $scope.productionSummaryNew.ProductionGrade = 'A';
+        $scope.productionSummaryNew.ProductionOrderId = $scope.ProductionOrderId;
+        $scope.productionSummaryNew.LotNumber = $scope.LotNumber;
     }
 
     $scope.selectLineItem = function (soitem) {
@@ -1077,7 +1122,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
                 throw "Future Date not allowed for Production Booking.";
             }
-
+            CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             ValidationMaster();
             if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
                 if (/^[ A-Za-z0-9_./-]*$/.test($scope.productionSummaryNew.LotNumber)) {
@@ -1119,7 +1164,8 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 url: $scope.saveUrl,
                 data: {
                     "ps": $scope.productionSummaryNew,
-                    "psd": $scope.ProductionSummaryDetail
+                    "psd": $scope.ProductionSummaryDetail,
+                    "ProcessParaList": $scope.ProcessParaList
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -1135,6 +1181,8 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                     $scope.closeCharPopUp();
                     $scope.GetTotalProductionBookingQty();
                     $scope.ClearMasterPart();
+                    angular.element(document.querySelector('#ProcessParaPopup')).modal('hide');
+
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1257,16 +1305,82 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     }
     //search
 
+    $scope.ProcessParaList = [];
+    $scope.getProcessParaPopupPoPUp = function () {
+        try {
+            ValidationMaster();
+            $scope.ProcessParaList = [];
+            $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + $scope.productionSummaryNew.Id + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId)
+                .then(
+                    function successCallback(response) {
+                        $scope.ProcessParaList = response.data;
+                        for (var i = 0; i < $scope.ProcessParaList.length; i++) {
+                            if (baseService.isUndefinedOrNull($scope.ProcessParaList[i].Id) && $scope.ProcessParaList[i].IsProduction==true) {
+                                $scope.ProcessParaList[i].Value = 0;
+                            }
+                        }
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+
+            angular.element(document.querySelector('#ProcessParaPopup')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
+
+    $scope.isCalculated = true;
+    $scope.isChangeCalValue = true;
+
+    $scope.ChangeCalValue = function () {
+        $scope.isChangeCalValue = false;
+        $scope.isCalculated = true;
+    }
+
+    $scope.Calculate = function () {
+        try {
+            $scope.productionSummaryNew.Quantity = 0;
+            $http({
+                method: 'POST',
+                url: 'Productions/ProductionSummary/Calculate',
+                data: { 'OpenHeadNew': $scope.ProcessParaList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.isCalculated = false;
+                for (var i = 0; i < response.data.NewData.length; i++) {
+                    for (var j = 0; j < $scope.ProcessParaList.length; j++) {
+                        if (response.data.NewData[i].UserName == $scope.ProcessParaList[j].UserName) {
+                            $scope.ProcessParaList[j].Value = response.data.NewData[i].Value;
+                        }
+                    }
+                    if (response.data.NewData[i].IsProduction == true) {
+                        $scope.productionSummaryNew.Quantity = response.data.NewData[i].Value;
+                    }
+                }
+            }, function errorCallback(response) {
+                $scope.ShowResultCustom(response.status.Message, "failure");
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
     $scope.Clear = function () {
         ClearFields();
         return true;
     }
 
     function ClearFields() {
+        $scope.isCalculated = true;
+        $scope.isChangeCalValue = true;
         $scope.Action = "Save";
         $scope.productionSummary = {};
         $scope.productionSummaryNew = {};
         $scope.productionSummaryNew.Active = true;
+        $scope.productionSummaryNew.ProductionGrade = 'A';
         $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy');
         $scope.ProdQtyCount = 0;
         $scope.TotalProductionBookingQty = 0;

@@ -96,6 +96,9 @@ angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.di
     .controller("voucherTypeController", VoucherTypeController)
     .controller("CostingComponentController", CostingComponentController)
     .controller("LICController", LICController)
+    .controller("voucherTypeMatrixController", VoucherTypeMatrixController)
+    .controller("voucherTypeConfigController", voucherTypeConfigController)
+    .controller("defineEnumController", defineEnumController)
 
     .config(HumanResourceConfig)
     .config(accountConfig)

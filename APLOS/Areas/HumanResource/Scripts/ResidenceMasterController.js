@@ -10,6 +10,18 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.deleteUrl = $scope.path + 'delete/';   
     baseService.init($scope.getListUrl);
 
+    //  #region Tab change
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
+
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+     //  #endregion Tab change
+
     // POP CLOSED FOR PLANT
     $scope.closePlantPop = function () {
         angular.element(document.querySelector('#PlantPop')).modal('hide');
@@ -70,6 +82,8 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.getData();
+
+    
 
     $scope.getPlant = function () {
         $http({
@@ -160,9 +174,11 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
        
         Location: null,
         Id: null,
-       // ResidenceCategory: null,
+        ResidenceCategory: null,
         ResidenceSubCategory: null,
-        
+        PlantId: null,
+        EmployeeCategoryId: null,
+        ResidenceGroupId:null,
         Block: null,
         Floor: null,
         ResidenceNumber: null,
@@ -176,11 +192,21 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
    
-    $scope.Get = function (args) {
-        $scope.ModalNew = Object.assign({}, args.data);
+    //$scope.Get = function (args) {
+    //    $scope.ModalNew = Object.assign({}, args.data);
        
-        $scope.Action = 'Update';
+    //    $scope.Action = 'Update';
         
+    //};
+
+    $scope.Get = function (args) {
+
+        $scope.ModalNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+
+        }
     };
 
     $scope.Save = function () {
@@ -272,4 +298,91 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         }
     });
     //$scope.GetSelectedValue();
+
+    $scope.residenceCategoryList = [];
+    $scope.dependency = function () {
+        var residentType = document.getElementById("ResidenceType").value;
+        if ($scope.ModalNew.ResidentType == "Family") {
+
+            $scope.residenceCategoryList = [
+                {
+                    'Value': 'Joint',
+                    'Text': 'Joint'
+                }
+               
+            ];
+        }
+        if ($scope.ModalNew.ResidentType == "Bachelor") {
+
+            $scope.residenceCategoryList = [
+                {
+                    'Value': 'Male',
+                    'Text': 'Male'
+                },
+                {
+                    'Value': 'Female',
+                    'Text': 'Female'
+                }
+               
+            ];
+        }
+    }
+
+    //  #region  Position Tab
+
+    $scope.ModalTempP = {
+        Id: null,
+        PlantId: null,
+        EntityId: null,
+        MPBudgetCodeId: null,
+        PositionId: null,
+    };
+    $scope.ModalNewPosition = Object.assign({}, $scope.ModalTempP);
+
+    // Lists
+    $scope.BudgetCodeList = [];
+    $scope.EntityList = [];
+    $scope.PositionList = [];
+
+    $scope.getEntity = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getEntity'
+        }).then(function successCallback(response) {
+            $scope.EntityList = response.data;
+        })
+    }
+    $scope.getEntity();
+    $scope.getPosition = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getPosition',
+            data: { 'MPBudgetId': $scope.ModalNewPosition.MPBudgetCodeId },
+        }).then(function successCallback(response) {
+            $scope.PositionList = response.data;
+        })
+    }
+
+    $scope.getBudgetCode = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getBudgetCode',
+            data: { 'entityId': $scope.ModalNewPosition.EntityId },
+        }).then(function successCallback(response) {
+            $scope.BudgetCodeList = response.data;
+        })
+    }
+
+    $scope.PositionTabgridList = [];
+    $scope.getPositionTabGridData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getPositionTabGridData',
+            dataType:'JSON'
+        }).then(function successCallback(response) {
+            $scope.PositionTabgridList = response.data;
+        })
+    }
+    $scope.getPositionTabGridData();
+    // #endregion Position Tab
 }

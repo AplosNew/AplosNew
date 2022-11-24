@@ -1,0 +1,239 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="form-elements form-horizontal" ng-form name="">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+               @* <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Employee Status/Allocation</a></li>*@
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Detail Residence Status</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Pending For Allocation</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Pending For UnAllocation</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Residence Summary Report</a></li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            @* <input type="hidden" name="Id" ng-model="ResidenceData.Id">*@
+            @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="form-elements form-horizontal" ng-form name="">
+                    <div class="tab-design" id="tab_show">
+
+                        <div class="tab-content">
+                            <input type="hidden" name="Id" ng-model="ResidenceData.Id">
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+                                <div id="Reportfilters">
+                                </div>
+
+                                <div class="row">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="ViewRSAFilters();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down "></i>View</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+
+                                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Report</span></legend>
+                                <div id="PR">
+                                    <div class="content-container-fluid" style="color:black;">
+
+                                        <div style="color:black;" id="GridRSA" ej-grid e-datasource="ModelList"
+                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                             e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                                             e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                                            <div e-columns>
+                                                <div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="180" textAlign='Left'></div>
+                                                <div e-column e-field="Designation" e-headertext="Employee Given/Legal Designation" e-width="180" textAlign='Left'></div>
+                                                <div e-column e-field="EmployeeName" e-headertext="Name" e-width="130" textAlign='Left'></div>
+                                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                                <div e-column e-field="Entity" e-headertext="Entity" e-width="200"></div>
+                                                <div e-column e-field="ResidenceGroup" e-headertext="Residence Group" e-width="180"></div>
+                                                <div e-column e-field="ResidenceId" e-headertext="Residence Id" e-width="180"></div>
+                                                <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="180"></div>
+                                                <div e-column e-field="Block" e-headertext="Block" e-width="180"></div>
+                                                <div e-column e-field="ResidentType" e-headertext="Resident Type" e-width="180"></div>
+                                                <div e-column e-field="ResidenceSubCategory" e-headertext="Residence Sub Category" e-width="180"></div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li>
+                                            <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="DownloadResidenceStatusAllocationReport();" e-width="width">
+                                                <button class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>*@
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="form-elements form-horizontal" ng-form name="EmployeeNewForm">
+                    <div class=" row">
+                        <div class="col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-2 control-label">Please Select</label>
+                                <div class="col-sm-6 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-change="detailResidenceStatusGrid();" ng-model="ModelNew.PartialVacantFullyOccupied" required name="Type" tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option value="PartialVacant">Partial Vacant</option>
+                                            <option value="FullyOccupied">Fully Occupied</option>
+                                            <option value="All">All</option>
+                                            @*<option ng-repeat="option in VacancyListN" value="{{option.Vacancy}}">{{option.Vacancy}}</option>*@
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            @*<div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="detailResidenceStatusReport();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+
+                            </ul>
+
+                        </div>*@
+                        </div>
+                        <div class="col-md-6">
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-xs-12" style="margin-top:20px">
+                        <div class="table-responsive" id="EGSGrid">
+                            <div id="designationTab" ej-grid style="z-index:3;"
+                                 e-datasource="DetailResidenceStatusList"
+                                 e-rowdatabound="onactivedatabound"
+                                 e-allowfiltering="true"
+                                 e-allowpaging="true"
+                                 e-allowsorting="true"
+                                 e-enabletouch="false"
+                                 e-responsive="true"
+                                 e-allowselection="true"
+                                 e-filtersettings-filterType="excel">
+                                <div e-columns>
+
+                                    <div e-column e-field="EmployeeStatus" e-headertext="Emp Status" e-width="100"></div>
+                                    <div e-column e-field="EmployeeCurrentStatus" e-headertext="Emp Ct Sts" e-width="100"></div>
+                                    <div e-column e-field="DOS" e-headertext="DOS" e-width="100"></div>
+                                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                                    <div e-column e-field="EmployeeCategory" e-headertext="Emp Category" e-width="100"></div>
+                                    <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+
+                                    <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                                    <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                                    <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                                    <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                    <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-width="100"></div>
+                                    <div e-column e-field="EmployeeName" e-headertext="Emp Name" e-width="100"></div>
+                                    <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
+                                    <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
+                                    @*<div e-column e-field="ResidenceId" e-headertext="Residence Id" e-width="100"></div>*@
+                                    <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
+
+                                    <div e-column e-field="Floor" e-headertext="Floor" e-width="100"></div>
+
+                                    <div e-column e-field="Vacancy" e-headertext="Vacancy" e-width="100"></div>
+                                    <div e-column e-field="Occupied" e-headertext="Occupied" e-width="100"></div>
+
+                                    <div e-column e-field="Available" e-headertext="Available" e-width="100"></div>
+
+                                    @*<div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                                    <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
+
+                                    <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>*@
+                                    <div e-column e-field="ResidenceGroup" e-headertext="Res Group" e-width="100"></div>
+
+
+
+
+                                    @*<div e-column e-field="Legal Designation" e-headertext="Legal Designation" e-width="100"></div>*@
+
+
+
+
+
+
+
+
+
+
+                                    <div e-column e-field="ResidenceCategory" e-headertext="Res Category" e-width="100"></div>
+
+                                    <div e-column e-field="ResidentType" e-headertext="Resi Type" e-width="100"></div>
+
+
+
+                                </div>
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="detailResidenceStatusReport();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+
+                                </ul>
+
+                            </div>
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class=" row">
+                    <div class="col-md-12">
+                        @{ Html.RenderPartial("pendingForAllocationGrid");}
+                      
+                       
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class=" row">
+                    <div class="col-md-12">
+
+                        @{ Html.RenderPartial("pendingForUnAllocationGrid");}
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class=" row">
+                    <div class="col-md-12">
+
+                        @{ Html.RenderPartial("residenceSummarGrid");}
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+@*</div>*@
+
+
+<confirm-modal></confirm-modal>
+

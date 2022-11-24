@@ -83,6 +83,80 @@ namespace Library.Service.EmployeeServices
             }
         }
 
+        #region CREATE By Nitesh
+        public string CreateDetentionLog(IEnumerable<CreateDetentionList> DataToSave)
+        {
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.DetentionLog";
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                int i = 0;
+
+                foreach (CreateDetentionList item in DataToSave)
+                {
+                    con.OpenDataSetThroughAdapter("select * from TRN.DetentionLog where Id='" + item.Id + "'", out dsMaster, false, "1");
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] = "DL" + _Id;
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["MachineMasterId"] = item.MachineMasterId;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        dr["Remarks"] = item.Remarks;
+                        //dr["AddedBy"] = By;
+                        dr["isClose"] = false;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        //dr["AddedFromIP"] = Ip;
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["DetentionTypeId"] = item.DetentionTypeId;
+                        dr["MachineMasterId"] = item.MachineMasterId;
+                        dr["IssueByNo"] = item.IssueByNo;
+                        dr["Remarks"] = item.Remarks;
+                        //dr["UpdatedBy"] = updatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        //dr["UpdatedFromIP"] = updatedFrom;
+                        dr.EndEdit();
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+                    }
+                    i++;
+                }
+                return i.ToString();
+
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        #endregion CREATE By Nitesh
+
         public string CreateOT(IEnumerable<PhysicalVerifyModel> DataToSave)
         {
             try
@@ -975,6 +1049,24 @@ namespace Library.Service.EmployeeServices
         public string WorkDate { get; set; }
         public string DayStatus { get; set; }
        
+    }
+
+    public class CreateDetentionList
+    {
+        public string Id { get; set; }
+        public string WorkCenterId { get; set; }
+        public string DetentionTypeId { get; set; }
+        public string MachineMasterId { get; set; }
+        public string IssueByNo { get; set; }
+        public string LogoutTime { get; set; } 
+        public bool isClose { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdateFromIP { get; set; }
+        public string AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
     }
 
 }

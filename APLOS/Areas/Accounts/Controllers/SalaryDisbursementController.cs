@@ -53,22 +53,22 @@ namespace Aplos.Areas.Accounts.Controllers
         }
         #region SalaryPayable
 
-        public ActionResult SalaryPayable()
-        {
-            return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryPayable.cshtml");
-        }
-
-        public ActionResult SalaryPayableDisbursement()
-        {
-            return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryPayableDisbursement.cshtml");
-        }
-
-
+        [Authorize, AllowAnonymous]
         public ActionResult Aplos()
         {
             return View();
         }
 
+        public ActionResult SalaryPayable()
+        {
+            return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryPayable.cshtml");
+        }
+
+        
+        public ActionResult SalaryPayableDisbursement()
+        {
+            return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryPayableDisbursement.cshtml");
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
@@ -651,7 +651,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
         #region Salary Disbusment ---------------------------------
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

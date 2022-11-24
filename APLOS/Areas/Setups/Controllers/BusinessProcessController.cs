@@ -7,6 +7,7 @@ using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Security.Core;
+using Library.Service.Core;
 using Library.Service.Setups;
 using System;
 using System.Collections.Generic;
@@ -23,11 +24,11 @@ namespace Aplos.Areas.Setups.Controllers
     {
         #region Constructor
 
-        private readonly IBusinessProcessService _brandService;
+        private readonly IBusinessProcessService _businessProcessService;
         private readonly ISqlRepository _sqlRepository;
-        public BusinessProcessController(IBusinessProcessService brandService, ISqlRepository R)
+        public BusinessProcessController(IBusinessProcessService businessProcessService, ISqlRepository R)
         {
-            _brandService = brandService;
+            _businessProcessService = businessProcessService;
             _sqlRepository = R;
         }
 
@@ -42,34 +43,34 @@ namespace Aplos.Areas.Setups.Controllers
         [HttpGet, Authorize]
         public JsonResult GetList(GridParameter parameters, string companyGroupId)
         {
-            return Json(_brandService.Query(parameters, companyGroupId), JsonRequestBehavior.AllowGet);
+            return Json(_businessProcessService.Query(parameters, companyGroupId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public JsonResult GetBusinessProcessList(string materialMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_brandService.GetBusinessProcessList(identity.CompanyGroupId, materialMasterId), JsonRequestBehavior.AllowGet);
+            return Json(_businessProcessService.GetBusinessProcessList(identity.CompanyGroupId, materialMasterId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
         public JsonResult Create(BusinessProcess BusinessProcess)
         {
-            _brandService.Insert(BusinessProcess);
+            _businessProcessService.Insert(BusinessProcess);
             return Json(new { BusinessProcess, Message = AplosMessage.Insert });
         }
 
         [HttpPost]
         public JsonResult Edit(BusinessProcess BusinessProcess)
         {
-            _brandService.Update(BusinessProcess);
+            _businessProcessService.Update(BusinessProcess);
             return Json(new { Message = AplosMessage.Updated });
         }
 
         [HttpPost]
         public JsonResult Delete(string id)
         {
-            _brandService.Delete(id);
+            _businessProcessService.Delete(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
@@ -382,6 +383,107 @@ namespace Aplos.Areas.Setups.Controllers
             }
         }
 
+        #region Define Enum
+        [Authorize]
+        public ActionResult DefineEnum()
+        {
+            return View();
+        }
 
+        [HttpGet, Authorize]
+        public JsonResult GetDefineEnumlist()
+        {
+
+            try
+            {
+                string _sql = @"SELECT * FROM dbo.[DefineEnum] ";
+                return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public enum DefineEnumName
+        {
+              BulkPacking
+            , Detention
+            , DirectMaterial
+            , DirectProcess
+            , FOB
+            , FinalPacking
+            , IndividualPacking
+            , Machine
+            , OrderLineItem
+            , Operation
+            , Profit
+            , Production
+            , ProductionOrder
+            , SalesOrder
+            , SalesExpense
+            , ValueLoss
+            , WorkCenter
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetCboDefineEnumName()
+        {
+            return Json(EnumService.GetEnumCbo<DefineEnumName>(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult SaveDefineEnum(Dictionary<string, object> datas)
+        {
+            try
+            {
+                var data = SaveDefineEnumData(datas);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+
+        public Dictionary<string, object> SaveDefineEnumData(Dictionary<string, object> datas)
+        {
+
+            try
+            {
+                //Master Table - PMSMaster
+                string TableName = "[DefineEnum]";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where EnumName ='" + datas["EnumName"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    AddNewRow(dsMaster.Tables[0], datas);
+                }
+                else
+                {
+                    EditRow(dsMaster.Tables[0].Rows[0], datas);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return datas;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

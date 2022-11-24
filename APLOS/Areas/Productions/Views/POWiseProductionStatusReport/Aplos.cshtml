@@ -1,0 +1,76 @@
+﻿<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background-color: #1c1f32;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>&nbsp;{{title}}</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="row">
+
+        <div class="col-xs-12">
+            <div id="filters">
+            </div>
+            <div class="common-btn"ng-show="filters.length>0">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="ViewData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                    @*<li> <button ng-click="ProductionData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>*@
+                    <li> <button ng-click="ProductionDataReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12" ng-show="ProductionDataReportList.length>0">
+            <div id="GridEmp" ej-grid e-datasource="ProductionDataReportList"
+                 e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                    <div e-column e-field="Process" e-headertext="Process" e-width="180"></div>
+                    <div e-column e-field="POProcessSequence" e-headertext="POProcessSequence" e-width="100"></div>
+                    <div e-column e-field="StandardProcessSequence" e-headertext="StandardProcessSequence" e-width="100"></div>
+                    <div e-column e-field="BaseProcess" e-headertext="BaseProcessApplicable" e-width="180"></div>
+                    <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="180"></div>
+                    <div e-column e-field="ProductionShift" e-headertext="Shift" e-width="180"></div>
+                    <div e-column e-field="ActualDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="Date" e-width="180"></div>
+                    <div e-column e-field="PONo" e-headertext="PONo" e-width="120"></div>
+                    <div e-column e-field="POStatus" e-headertext="POStatus" e-width="100"></div>
+                    <div e-column e-field="buyer" e-headertext="Buyer" e-width="100"></div>
+                    <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
+                    <div e-column e-field="LotNumber" e-headertext="LotNumber" e-width="150"></div>
+                    <div e-column e-field="OwnOrderNo" e-headertext="OwnOrderNo" e-width="180"></div>
+                    <div e-column e-field="BuyerItemNo" e-headertext="BuyerItemNo" e-width="180"></div>
+                    <div e-column e-field="OwnItemNo" e-headertext="OwnItemNo" e-width="180"></div>
+                    <div e-column e-field="SalesOrderIds" e-headertext="SalesOrderIds" e-width="180"></div>
+                    <div e-column e-field="Product" e-headertext="Product" e-width="180"></div>
+                    <div e-column e-field="Article" e-headertext="Article" e-width="180"></div>
+                    <div e-column e-field="WorkStation" e-headertext="WorkStation" e-width="180"></div>
+                    <div e-column e-field="WorkingHours" e-headertext="WorkingHours" e-width="100"></div>
+                    <div e-column e-field="ProductionQty" e-headertext="ProductionQty" e-width="100"></div>
+                    <div e-column e-field="UpToDateProduction" e-headertext="UpToDateProduction" e-width="180"></div>
+                    <div e-column e-field="PreProUDProd" e-headertext="PreProUDProd" e-width="180"></div>
+                    <div e-column e-field="WIP" e-headertext="WIP" e-width="100"></div>
+                    <div e-column e-field="UptoDateProductionPerecent" e-headertext="UptoDateProductionPerecent" e-width="100"></div>
+                    <div e-column e-field="FirstBookDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstBookDate" e-width="100"></div>
+                    <div e-column e-field="LastBookDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastBookDate" e-width="100"></div>
+                    @*<div e-column e-field="FirstShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstShipmentDate" e-width="100"></div>
+                    <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            
+

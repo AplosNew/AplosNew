@@ -63,7 +63,9 @@ namespace Library.Model.Accounts
         public string PartyPlantId { get; set; }
         public InventoryReceive InventoryReceive { get; set; }
         public string InventoryReceiveId { get; set; }
-       
+        public AdjustmentNote AdjustmentNote { get; set; }
+        public string AdjustmentNoteId { get; set; }
+
         #endregion Navigation Properties
 
     }

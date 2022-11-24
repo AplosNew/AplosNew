@@ -56,7 +56,7 @@ namespace Aplos.Areas.Products.Controllers
 
         }
 
-        [HttpGet]
+        [Authorize, HttpGet]
         public JsonResult GetPurchaseReturnPostedData(GridParameter parameters)
         {
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);

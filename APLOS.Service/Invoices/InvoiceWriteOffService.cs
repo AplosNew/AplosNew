@@ -69,7 +69,6 @@ namespace Library.Service.Invoices
         private readonly IFinancingService _financingService;
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
         private readonly IRepositoryAsync<FinancingWriteOff> _financingWriteOffRepository;
-
         public InvoiceWriteOffService(
               IRepositoryAsync<InvoiceWriteOff> invoiceWriteOffRepository
             , IUnitOfWork unitOfWork
@@ -103,7 +102,6 @@ namespace Library.Service.Invoices
             , IFinancingService financingService
             , IRepositoryAsync<FinancingSubsequentTransaction> loanInterestPayableRepository
             , IRepositoryAsync<FinancingWriteOff> financingWriteOffRepository
-
             ) : base(invoiceWriteOffRepository, unitOfWork, pkGeneratorService)
         {
             _sqlRepository = sqlRepository;
@@ -632,6 +630,7 @@ namespace Library.Service.Invoices
                     throw new CustomException("Bank Id not found!");
                 else if (string.IsNullOrEmpty(voucherVM.CashMasterId) && voucherVM.PaymentSource == PaymentSource.Cash.ToString())
                     throw new CustomException("Cash Id not found!");
+               
                 AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
@@ -677,7 +676,7 @@ namespace Library.Service.Invoices
                 var totalCurrencyAmountCr = 0.0M;
                 string voucherDetailTempId = null;
                 decimal taxDrAmount = 0;
-                var withholdgl = false;
+                
 
                 var invoiceIds = voucherDetailVMList.Select(r => r.InvoiceId);
                 var inviceDbList = _invoiceService.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
@@ -760,13 +759,13 @@ namespace Library.Service.Invoices
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherDetailVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherDetailVM.CompanyCurrencyRate),
-                        DrAmount = voucherDetailVM.CompanyCurrencyRate * voucherDetailDr.DrAmount
+                        DrAmount = Math.Round((voucherDetailVM.CompanyCurrencyRate * voucherDetailDr.DrAmount), 3, MidpointRounding.AwayFromZero)
                     });
 
                     totalAmountDr += voucherDetailDr.DrAmount;
-                    totalCurrencyAmountDr += voucherDetailVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
+                    totalCurrencyAmountDr += Math.Round((voucherDetailVM.CompanyCurrencyRate * voucherDetailDr.DrAmount), 3, MidpointRounding.AwayFromZero);
                     totalAmountCr += voucherDetailDr.CrAmount;
-                    totalCurrencyAmountCr += voucherVM.CompanyCurrencyRate * voucherDetailDr.CrAmount;
+                    totalCurrencyAmountCr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailDr.CrAmount), 3, MidpointRounding.AwayFromZero);
 
                     if (voucherDetailVM.ExchangeType == "ExchangeLoss" && voucherDetailVM.ExchangeAmount > 0)
                     {
@@ -890,7 +889,7 @@ namespace Library.Service.Invoices
                     totalCurrencyAmountCr += voucherVM.ExchangeAmount;
                 }
                 decimal totalCharges = 0;
-                decimal totalChargesCurrencyAmount = 0;
+                
                 if (null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0)
                 {
                     var currentBankChargeDetailId = 0;
@@ -1037,7 +1036,7 @@ namespace Library.Service.Invoices
                                 ToCurrencyId = companyCurrencyId,
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = companyCurrencyId,
-                                CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount,
+                                CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount), 3, MidpointRounding.AwayFromZero),
                                 ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
                             };
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencyTax);
@@ -1079,15 +1078,15 @@ namespace Library.Service.Invoices
                         voucherDetailCr.BankMasterId = bankMaster["Id"].ToString();
                         voucherDetailCr.PartyType = PartyType.Bank.ToString();
                         if (bankMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
-                            glTransactionDetail.CrAmount = voucherVM.BankAmount;
+                            glTransactionDetail.CrAmount = voucherDetailCr.CrAmount;
                         else
                             glTransactionDetail.CrAmount = voucherVM.BankAmount;
 
-                        if (bankMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
-                        {
-                            voucherVM.BankBookAmount = voucherVM.BankBookAmount * voucherVM.CompanyCurrencyRate;
+                        //if (bankMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
+                        //{
+                        //    voucherVM.BankBookAmount = Math.Round((voucherVM.BankBookAmount * voucherVM.CompanyCurrencyRate),3, MidpointRounding.AwayFromZero);
 
-                        }
+                        //}
 
                         // INSRT INTO GLTransactionDetail
 
@@ -1112,10 +1111,10 @@ namespace Library.Service.Invoices
 
                             voucherDetailCurrencyCr.CrAmount = voucherVM.BankBookAmount;
                             if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
-                                voucherDetailCurrencyCr.CrAmount -= (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount -= Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 
                             if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
-                                voucherDetailCurrencyCr.CrAmount += (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount += Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                         }
 
                         _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, voucherDetailCurrencyCr);
@@ -1164,7 +1163,7 @@ namespace Library.Service.Invoices
                             if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
                                 glTransactionDetail.CrAmount = voucherDetailCr.CrAmount;
                             else
-                                glTransactionDetail.CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount;
+                                glTransactionDetail.CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount), 3, MidpointRounding.AwayFromZero);
                         }
 
                         // INSRT INTO GLTransactionDetail
@@ -1190,18 +1189,18 @@ namespace Library.Service.Invoices
 
                             voucherDetailCurrencyCr.CrAmount = voucherVM.BankBookAmount;
                             if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
-                                voucherDetailCurrencyCr.CrAmount -= (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount -= Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 
                             if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
-                                voucherDetailCurrencyCr.CrAmount += (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount += Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 
                         }
                         if (!string.IsNullOrEmpty(voucherVM.CashMasterId))
                         {
                             if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
-                                voucherDetailCurrencyCr.CrAmount = voucherVM.Amount - (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount = voucherVM.Amount - Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                             else if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
-                                voucherDetailCurrencyCr.CrAmount = voucherVM.Amount + (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount = voucherVM.Amount + Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                             else if (voucherVM.ExchangeType == "ExchangeLoss")
                                 voucherDetailCurrencyCr.CrAmount = voucherVM.Amount;
                             else if (voucherVM.ExchangeType == "ExchangeGain")
@@ -1273,12 +1272,12 @@ namespace Library.Service.Invoices
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate)
                     };
-                    voucherDetailCurrencyCr.CrAmount = voucherVM.Amount;
+                    voucherDetailCurrencyCr.CrAmount = Math.Round((voucherDetailCr.CrAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
-                        voucherDetailCurrencyCr.CrAmount -= (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                        voucherDetailCurrencyCr.CrAmount -= Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
-                        voucherDetailCurrencyCr.CrAmount += (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                        voucherDetailCurrencyCr.CrAmount += Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 
                     _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, voucherDetailCurrencyCr);
                     totalCurrencyAmountCr += voucherDetailCurrencyCr.CrAmount;
@@ -1306,7 +1305,7 @@ namespace Library.Service.Invoices
                                 ToCurrencyId = companyCurrencyId,
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = companyCurrencyId,
-                                CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount,
+                                CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount), 3, MidpointRounding.AwayFromZero),
                                 ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
                             };
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencyTax);
@@ -1365,9 +1364,9 @@ namespace Library.Service.Invoices
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate)
                     };
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
-                        voucherDetailCurrencyCr.CrAmount = totalCurrencyAmountDr - (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                        voucherDetailCurrencyCr.CrAmount = totalCurrencyAmountDr - Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                     else if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
-                        voucherDetailCurrencyCr.CrAmount = totalCurrencyAmountDr + (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                        voucherDetailCurrencyCr.CrAmount = totalCurrencyAmountDr + Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                     else if (voucherVM.ExchangeType == "ExchangeLoss")
                         voucherDetailCurrencyCr.CrAmount = totalCurrencyAmountDr;
                     else if (voucherVM.ExchangeType == "ExchangeGain")
@@ -1410,7 +1409,7 @@ namespace Library.Service.Invoices
                                 ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                                 ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailRoundingDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailRoundingDr.DrAmount
+                                DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailRoundingDr.DrAmount), 3, MidpointRounding.AwayFromZero)
                             });
                             totalCurrencyAmountDr += voucherDetailCurrencyRoundingDr.DrAmount;
                         }
@@ -1439,13 +1438,13 @@ namespace Library.Service.Invoices
                                 ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                                 ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailRoundingDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailRoundingDr.CrAmount
+                                CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailRoundingDr.CrAmount), 3, MidpointRounding.AwayFromZero)
                             });
                             totalCurrencyAmountCr += voucherDetailCurrencyRoundingDr.CrAmount;
                         }
                     }
                 }
-                //totalCurrencyAmountCr = totalCurrencyAmountDr;
+                
                 totalAmountCr += taxDrAmount;
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
@@ -1473,6 +1472,60 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
+        //private AdvanceWriteOff InsertAdvanceWriteOff(AdvanceWriteOff advanceWriteOff)
+        //{
+        //    advanceWriteOff.Id = GetAutoNumber(nameof(AdvanceWriteOff), PKGeneratorEnum.Yearly, null, DateTime.Now);
+        //    AuditService.AddedLog(advanceWriteOff);
+        //    _advanceWriteOffRepository.Insert(advanceWriteOff);
+        //    return advanceWriteOff;
+        //}
+        //private AdvanceWriteOff InsertAdvanceWriteOff(VoucherViewModel voucherVM)
+        //{
+        //    return InsertAdvanceWriteOff(new AdvanceWriteOff
+        //    {
+        //        CompanyGroupId = voucherVM.CompanyGroupId,
+        //        CompanyId = voucherVM.CompanyId,
+        //        PlantId = voucherVM.PlantId,
+        //        EntityId = voucherVM.EntityId,
+        //        FiscalYearId = voucherVM.FiscalYearId,
+        //        FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+        //        TaxYearId = voucherVM.TaxYearId,
+        //        TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+        //        VoucherTypeId = voucherVM.VoucherTypeId,
+        //        CurrencyId = voucherVM.CurrencyId,
+        //        PartyType = voucherVM.PartyType,
+        //        PartyId = voucherVM.PartyId,
+        //        PartyPlantId = voucherVM.PartyPlantId,
+        //        EmployeeId = voucherVM.EmployeeId,
+        //        Amount = voucherVM.Amount,
+        //        VoucherDate = voucherVM.VoucherDate,
+        //        PostingDate = voucherVM.PostingDate,
+        //        DocDate = voucherVM.DocDate,
+        //        DocRefNo = voucherVM.DocRefNo,
+        //        Narration = voucherVM.Narration,
+        //        SourceType = voucherVM.SourceType,
+        //        IsPark = voucherVM.IsPark,
+        //        SettlementType = voucherVM.SettlementType,
+        //        PaymentSource = voucherVM.PaymentSource,
+        //        BankMasterId = voucherVM.BankMasterId,
+        //        CashMasterId = voucherVM.CashMasterId,
+        //        Archive = false
+        //    });
+        //}
+        //private void InsertAdvanceWriteOffDetail(AdvanceWriteOff advanceWriteOff, AdvanceWriteOffDetail advanceWriteOffDetail, int currentId)
+        //{
+        //    advanceWriteOffDetail.Id = MakePK(advanceWriteOff.Id, currentId, 2);
+        //    advanceWriteOffDetail.AddedBy = advanceWriteOff.AddedBy;
+        //    advanceWriteOffDetail.AddedDate = advanceWriteOff.AddedDate;
+        //    advanceWriteOffDetail.AddedFromIP = advanceWriteOff.AddedFromIP;
+        //    advanceWriteOffDetail.AdvanceWriteOffId = advanceWriteOff.Id;
+        //    advanceWriteOffDetail.Archive = advanceWriteOff.Archive;
+        //    _advanceWriteOffDetailRepository.Insert(advanceWriteOffDetail);
+        //}
+        //private string GetEmployeeSubsequentTransactionPK()
+        //{
+        //    return _pkGeneratorService.GetAutoNumber("EmployeeSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
+        //}
 
         public string InsertInvoiceToAcceptancePost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
                , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<VoucherDetailViewModel> glVMList)
@@ -2786,6 +2839,7 @@ namespace Library.Service.Invoices
 
         public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
+            
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount
                                     , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo
                                     ,Status=case when AW.IsPark=1 then 'Parked' else 'Posted' end
@@ -2829,8 +2883,31 @@ namespace Library.Service.Invoices
         }
         public GridModel GetNoteSetOff(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
+            string wc, wcc = string.Empty;
+            if (parameters.searchBy == "Status" && parameters.search.ToUpper() == "POSTED")
+            {
+                wc = "(case when TAB.IsPark = 1 then 'Parked' else 'Posted' end)";
+                wcc = "Posted";
+
+                parameters.searchBy = wc;
+                parameters.search = wcc;
+            }
+            else if (parameters.searchBy == "Status" && parameters.search.ToUpper() == "PARKED")
+            {
+                wc = "(case when TAB.IsPark = 1 then 'Parked' else 'Posted' end)";
+                wcc = "Parked";
+
+                parameters.searchBy = wc;
+                parameters.search = wcc;
+            }
+            else
+            {
+
+            }
+
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, vd.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(iwd.Amount) Amount
                                     , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId
+                                    , Status = case when AW.IsPark = 1 then 'Posted' else 'Parked' end
                                     FROM [TRN].[InvoiceWriteOff] AS AW
 									LEFT JOIN (SELECT Id,InvoiceWriteOffId,SUM(Amount) Amount,AdjustmentNoteDetailId 
 												FROM [TRN].[InvoiceWriteOffDetail] Group BY Id,InvoiceWriteOffId,AdjustmentNoteDetailId ) AS IWD ON IWD.InvoiceWriteOffId=AW.Id and IWD.AdjustmentNoteDetailId<>''
@@ -5721,7 +5798,6 @@ namespace Library.Service.Invoices
                         else
                             glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
 
-
                         currentVoucherDetailId++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
                         _voucherService.InsertGLTransactionDetail(voucherDetailDr, glTransactionDetail);
@@ -6290,6 +6366,7 @@ namespace Library.Service.Invoices
                 string voucherDetailTempId = null;
                 decimal taxDrAmount = 0;
                 //var withholdgl = false;
+                var voucherIds = voucherDetailVMList.FirstOrDefault().VoucherId;
                 var adjustNoteIds = voucherDetailVMList.Select(r => r.AdjustmentNoteId);
                 var adjustNoteDbList = _adjustmentNoteRepository.Query(r => adjustNoteIds.Contains(r.Id)).Select().ToList();
                 var adjustNoteDetailIds = voucherDetailVMList.Select(r => r.AdjustmentNoteDetailId);
@@ -6769,6 +6846,54 @@ namespace Library.Service.Invoices
                     }
                     else
                         throw new CustomException("Bank or Cash Id not found!");
+                }
+                if (voucherVM.PaymentSource == PaymentSource.Reverse.ToString())
+                {
+                        var voucherDetailCr = new VoucherDetail
+                        {
+                            Narration = voucher.Narration,
+                            CrAmount = voucherDetailVMList.Sum(r => r.Amount) + totalCharges,
+                            PaymentSource = invoiceWriteOff.PaymentSource
+                        };
+                        if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
+                            voucherDetailCr.CrAmount -= voucherVM.RoundingAmount;
+                        if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
+                            voucherDetailCr.CrAmount += voucherVM.RoundingAmount;
+                        totalAmountCr += voucherDetailCr.CrAmount;
+
+                        //var glTransactionDetail = new GLTransactionDetail
+                        //{
+                        //    SourceType = voucherDetailCr.PaymentSource,
+                        //    BankMasterId = voucherVM.BankMasterId,
+                        //    CashMasterId = voucherVM.CashMasterId
+                        //};
+
+                        var reverseGL = _accountsCommonService.GetReverseGL(voucherIds);
+                        voucherDetailCr.GLGeneralInfoId = reverseGL["GLGeneralInfoId"].ToString();
+                        voucherDetailCr.BudgetMasterId = reverseGL["BudgetMasterId"].ToString();
+                        voucherDetailCr.ActivityId = reverseGL["ActivityId"].ToString();
+                        voucherDetailCr.PartyType = "Reverse";
+                        //if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
+                        //    glTransactionDetail.CrAmount = voucherDetailCr.CrAmount;
+                        //else
+                        //    glTransactionDetail.CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount;
+
+                        // INSRT INTO GLTransactionDetail
+
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
+                        //_voucherService.InsertGLTransactionDetail(voucherDetailCr, glTransactionDetail);
+
+                        // INSERT INTO VoucherDetailCurrency
+                        var voucherDetailCurrencyCr = _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailCr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            CrAmount = totalCurrencyAmountDr
+                        });
                 }
 
                 if (!string.IsNullOrEmpty(invoiceWriteOff.RoundingType))

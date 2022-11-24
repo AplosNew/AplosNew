@@ -797,7 +797,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity,
                             unit.UserName as Unit , dess.UserName as LDesignation,
                            FORMAT(CAST(pv.InTime AS DATETIME),'hh:mm tt') as PVIn ,FORMAT(CAST(pv.OutTime AS DATETIME),'hh:mm tt') as PVOut , Pv.AddedBy as ScannedBy , uu.FullName as ScanName  , departmentu.UserName as SDept
-							, sectionu.UserName as SSec , subsectionu.UserName as SSubSec, DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration , DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration
+							, sectionu.UserName as SSec , subsectionu.UserName as SSubSec, DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration , DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration, pv.OThour
                             from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId

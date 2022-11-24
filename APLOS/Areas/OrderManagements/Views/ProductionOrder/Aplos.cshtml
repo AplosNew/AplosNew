@@ -136,7 +136,7 @@
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Process Set</a></li>
             <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Bulletin</a></li>
-            @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Work Cener</a></li>*@
+            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Work Center</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -211,7 +211,7 @@
                                 <th style="width: 130px;">Production Cycle Time({{model.RequiredTimeUnit}})/Per unit</th>
                                 <th>Material</th>
                                 <th>Article</th>
-                                <th>Qty</th>
+                                <th>(%)Actual Plan Qty</th>
                                 <th>UoM</th>
                                 <th style="width: 10px">Job Work Applicable</th>
                                 <th style="width: 170px;">Job Work Type</th>
@@ -802,36 +802,31 @@
             </div>
         </div>
 
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
             <div class="row" ng-form="tabFrom4">
-                <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="col-xs-12 col-sm-6 col-md-6" style="height:48px;">
                     <ul class="common-btn list-inline text-left">
-                        <li><button ng-click="workCenterPopUp();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Work Center</button></li>
+                        <li><button ng-click="workCenterPopUp('PREFERENCE');" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Work Center</button></li>
                     </ul>
                 </div>
-                <div class="col-md-12 table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>UserName</th>
-                                <th>Remove</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in productionWorkCenterList">
-                                <td>{{x.Code}}</td>
-                                <td>{{x.UserName}}</td>
-                                <td class="text-right table-td">
-                                    <ul class="list-inline action-list">
-                                        <li>
-                                            <button ng-click="removeRowModal(x.UserName, $index, 'productionWorkCenterList', 'WorkCenterMasterId', 'WorkCenterMasterId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-                                        </li>
-                                    </ul>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                @*<div class="col-xs-12 col-sm-6 col-md-6">
+                    <input type="radio" ng-model="model.WCPreferenceType" value="INCLUDE">
+                    <span>INCLUDE</span>
+                    <input type="radio" ng-model="model.WCPreferenceType" value="EXCLUDE">
+                    <span>EXCLUDE</span>
+                </div>*@
+                <div class="col-md-12">
+                    <div id="GridWorkCenter" ng-init="chkinit()" ej-grid e-datasource="productionWorkCenterList" e-rowdatabound="rowDataBoundWorkCenter"
+                         e-allowpaging="true" e-enabletouch="false" e-responsive="true">
+                        <div e-columns>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="150"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                            <div e-column e-field="UserName" e-headertext="Work Center" e-width="180"></div>
+
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -1173,73 +1168,41 @@
 </div>
 <!-- #endregion -->
 <!-- #region Work Center -->
-<div class="modal fade site-modal in" id="workCenterPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header"> Work Center<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="workCenterParameters.searchBy">
-                                            <option ng-repeat="option in workCenterFilterList" value="{{option.value}}">{{option.name}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="workCenterParameters.search" ng-enter="getWorkCenterData()">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getWorkCenterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<ej-dialog id="workCenterPopUp" title=" Work Center" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="550" e-target="#mainPOContainer" e-open="enableBtn">
+    <div class="row" style="width:540px">
+        <div class="col-xs-12 col-sm-12">
+            <div id="GridSelectWC" ej-grid e-datasource="workCenterList"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                 e-allowscrolling="true"
+                 e-allowselection="false" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-template="#workcenterselect" e-headertext="" e-width="1"></div>
+                    <div e-column e-field="Plant" e-headertext="Plant" e-width="3"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
+                    <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
+                    <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
                 </div>
 
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Select</th>
-                                <th>Code</th>
-                                <th>UserName</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in workCenterList|itemsPerPage:workCenterParameters.pageSize" total-items="workCenterParameters.total_count" pagination-id="metaData.name + 'workCenterList'">
-                                <td>
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="genericPushInTempList(x,$event, productionWorkCenterList, 'WorkCenterMasterId', 'WorkCenterMasterId');">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </td>
-                                <td>{{x.Code}}</td>
-                                <td>{{x.UserName}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <dir-pagination-controls max-size="10"
-                                             pagination-id="metaData.name + 'workCenterList'"
-                                             direction-links="true"
-                                             boundary-links="true"
-                                             on-page-change="getWorkCenterData(newPageNumber)">
-                    </dir-pagination-controls>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="addWorkCenter();" class="btn">Done</button></li>
-                    </ul>
-                </div>
             </div>
+            <script type="text/template" id="workcenterselect">
+                @*<input type="checkbox" ej-checkbox class="nodetext" e-value="data.Flag" e-checked="data.Flag" />*@
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-click="$parent.workcenterfor=='RUNNING'?$parent.genericPushInTempList(data,$event, $parent.runningWorkCenterList, 'WorkCenterMasterId', 'WorkCenterMasterId'):$parent.genericPushInTempList(data,$event, $parent.productionWorkCenterList, 'WorkCenterMasterId', 'WorkCenterMasterId')">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </script>
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="AddNewWorkCenter();" class="btn">Done</button></li>
+            </ul>
         </div>
     </div>
-</div>
+</ej-dialog>
 <!-- #endregion -->
 @*<confirm-archive-generic modalid="confirmDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="processSetRemoveRow();"></confirm-archive-generic>*@
 <ej-dialog id="dialogAPI" title="Confirm Delete?" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#mainPOContainer" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">

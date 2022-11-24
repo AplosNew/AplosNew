@@ -973,12 +973,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                 from SCS.OffDayMaster om left join scs.OffDayDetail od
                 on om.Id=od.OffDayMasterId where od.OffDayDate='" + WkDate + @"'
                 and om.PlantId='" + Plant + @"' and om.OffDayType='H'),'false'),
-                WeekOfftype=isnull((SELECT WOHeaderId FROM EmployeeWeeklyOff ex
+                WeekOfftype=isnull((SELECT TOP(1) WOHeaderId FROM EmployeeWeeklyOff ex
 				left join EmployeeInformation emp on emp.SystemId=ex.EmpSystemId
 				where  
 				emp.DOJ <= '" + WkDate + @"' AND (emp.DOS >= '" + WkDate + @"' OR 
 				ISNULL(emp.DOS,'') = '' 
-				OR emp.DOS = '01/01/1901') and emp.SystemId=e.SystemId),'CompanyWeekOff'),
+				OR emp.DOS = '01/01/1901') and emp.SystemId=e.SystemId ORDER BY ex.EffectiveDate DESC),'CompanyWeekOff'),
 				WeeklyStatus=isnull((select od.OffDayType
 				from scs.OffDayMaster od 
 				left join scs.OffDayDetail odd on odd.OffDayMasterId=od.Id

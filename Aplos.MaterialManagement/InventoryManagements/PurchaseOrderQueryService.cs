@@ -35,8 +35,27 @@ namespace Library.MaterialManagement.InventoryManagements
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+            var tempsql = "";
+            if (!string.IsNullOrEmpty(ContractId) && string.IsNullOrEmpty(VendorId))
+            {
+                tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
+                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId WHERE(isnull(MOI.ContractId, '') = '' OR isnull(MOI.ContractId, null) = '"+ ContractId + @"') ) ";
+            }
+            if (string.IsNullOrEmpty(ContractId) && !string.IsNullOrEmpty(VendorId))
+            {
+                tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
+                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId 
+                                    WHERE (isnull(b.VendorId,'')='" + VendorId + @"'))";
+            }
+            else
+            {
+                tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
+                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId 
+                                    WHERE (isnull(MOI.ContractId, null) = '" + ContractId + @"')
+                                    AND (isnull(b.VendorId,'')='" + VendorId + @"'))";
+            }
             var sql = "";
-            sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria
+            sql = @"SELECT DISTINCT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria
                         ,GroupId=CASE WHEN isnull(b.POCriteria,'CostingItem')='CostingItem' THEN b.CostingItemId ELSE b.Id END
                         ,b.Sequence Sequence1
 						,b.MasterOrderItemId
@@ -65,8 +84,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
 						b.BOMQty,C.Id
 						,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
-						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
-						,ISNULL(cpo.PONumber,'') PONumber
+						--,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
+						--,ISNULL(cpo.PONumber,'') PONumber
 						,b.RequiredQty
 						,uom.UserName BOQUOM
 						,b.POUoMId FromPoUomId
@@ -75,11 +94,14 @@ namespace Library.MaterialManagement.InventoryManagements
 						,b.RequiredQtyPO RequiredQtyPOOrginal
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
                         ,TransactionUoM=CASE WHEN b.POUoMId IS NULL THEN uom.UserName ELSE Tuom.UserName END 
-						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  ,ISNULL(DE.UserName,'') Destination
-						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
+						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  
+						--,ISNULL(DE.UserName,'') Destination
+						,mm.BaseUOMId,Isnull(OPC.Rate,0) TransactionRate
+						,Isnull(OPC.Rate,0) TransactionRateBOQ
                         ,ISNULL(POBoqMap.MapQty,0) OtherMapQty
                         , TransactionQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
                         , BalanceQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
+                        , BalanceTrnUOMQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
                         ,0 Tolerance
 						,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
 						 CASE WHEN isnull(moi.Consignment,0)=1 THEN
@@ -95,9 +117,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId,ISNULL(b.ItemRefNo,'') BOQItemRefNo
 						   ,ISNULL(CI.UserName,'') CostingItemName,ISNULL(b.SKUDesc,'')SKUDesc,ISNULL(b.RMDescription,'')RMDescription
 						   ,ISNULL(b.RMVendorSpec,'')RMVendorSpec,ISNULL(b.RMCustomerSpec,'')RMCustomerSpec
-                   ,b.BOQCriteria  , CriteriaDetail= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',de.UserName,' ',v1.UserName,' ',v2.UserName)),b.OwnReferenceNo BOQOwnReferenceNo
+                   ,b.BOQCriteria  , CriteriaDetail= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',v1.UserName,' ',v2.UserName)),b.OwnReferenceNo BOQOwnReferenceNo
 ,b.Rate*b.BOMQty AS BOMAmount ,b.Rate*b.RequiredQty AS PlanAmount ,  mm.Code AS MaterialCode,mma.Code AS ArticleCode,V1.UserName SKU1,v2.UserName SKU2
-, SKUDescConcat= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',DE.UserName,' ',v1.UserName,' ',v2.UserName))
+, SKUDescConcat= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',v1.UserName,' ',v2.UserName))
    ,b.RequiredQty,b.BOMQty-b.RequiredQty AS BalanceToPurchase,b.CostingItemId,b.Remark,b.[FileName]
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
@@ -106,10 +128,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
                         LEFT OUTER JOIN scs.UnitOfMeasurement AS Tuom ON Tuom.Id=b.POUoMId
 						LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
-						LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+						LEFT JOIN (Select DISTINCT SalesOrderId,CostingBOQMasterId,CostingItemId,OrderProcurementCostingDirectMaterialId from CostingBOQItems )CBI on CBI.CostingBOQMasterId=b.CostingBOQMasterId AND CBI.CostingItemId=b.CostingItemId --AND so.Id=CBI.SalesOrderId
 						LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
 						LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
-						left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
 
 						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FGFirstCharacteristicsValueId
 						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.FGSecondCharacteristicsValueId
@@ -118,7 +139,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
-                        left outer join mst.Destination DE ON DE.Id=so.DestinationId
+                        --left outer join mst.Destination DE ON DE.Id=so.DestinationId
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
 						LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
@@ -126,15 +147,10 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 						LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
                         LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
+						LEFT JOIN OrderProcurementCostingDirectMaterial OPC on OPC.Id=CBI.OrderProcurementCostingDirectMaterialId AND CBI.CostingItemId=OPC.CostingItemId AND b.CostingItemId=OPC.CostingItemId
                         LEFT JOIN (SELECT SUM(ISNULL(TransactionQty,0)) MapQty,BOQDetailId FROM TRN.POBOQMAP GROUP BY BOQDetailId) 
 									AS POBoqMap ON POBoqMap.BOQDetailId=B.Id
-						where b.Id in (
-						select B.ID from boq B
-						join trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
-						join trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
-						where (isnull(MOI.ContractId,'')='' OR isnull(MOI.ContractId,'')='" + ContractId + @"')
-						)
-						AND (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='" + VendorId + @"')
+						where " + tempsql + @"
                         AND b.MaterialMasterId<>'' AND b.ArticleId<>''
 						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
             var Data = _sqlRepository.GetDataCollection(sql);
@@ -149,9 +165,10 @@ namespace Library.MaterialManagement.InventoryManagements
 
             }
 
-            var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
-																	union
-																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
+            var UOMList = _sqlRepository.GetDataCollection(@"SELECT M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text],BaseUOMFactor FROM (
+																	SELECT Id,BaseUOMId UOMId,1 BaseUOMFactor  FROM mst.MaterialMaster
+																	UNION
+																	SELECT MaterialMasterId Id,AlternativeUOMId UOMId,BaseUOMFactor FROM mst.MaterialMasterAlternativeUOM
 																	) AS M
 																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
 																	 where m.Id in (" + MaterialMasterList + @")");
@@ -1527,9 +1544,9 @@ namespace Library.MaterialManagement.InventoryManagements
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var _sql = @"SELECT --ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo
-							POType= CASE WHEN IR.POType='PO' Then 'Individual PO' ELSE 'Requisition Based PO' END
-						,IR.Id POId
+                var _sql = @"SELECT --ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo,
+							IR.Id PONo
+                            ,POType= CASE WHEN IR.POType='PO' Then 'Individual PO' ELSE 'Requisition Based PO' END
 							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
 													when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
 													when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
@@ -1551,7 +1568,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue
 						,TUoM.UserName AS UOM
 						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-						,IM.TransactionQty
+						,IM.TransactionQty,Isnull(GRN.GRNQty,0) ReceiptQty,0 RejectionQty
+						,(IM.TransactionQty-Isnull(GRN.GRNQty,0)) BalanceQty,IM.Tolerance
 						,ROUND(Isnull(IM.TransactionRate,0),2) TransactionRate
 						,ROUND(Isnull(IM.TransactionAmount,0),2) TransactionAmount
 						,ROUND(Isnull(IM.TotalTaxAmount,0),2) TotalTaxAmount
@@ -1596,7 +1614,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
 						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId
 						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
-
+                        LEFT JOIN (SELECT PODetailsId,SUM(TransactionQty) GRNQty FROM TRN.InventoryReceiveDetail IRD  GROUP BY PODetailsId) GRN ON GRN.PODetailsId=IM.Id
 						LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
 						LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
                         LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
@@ -1679,7 +1697,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					, '' ThirdCharacteristicsValue
 					,'' UOM
 					,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-					,0 TransactionQty
+					,0 TransactionQty,0 ReceiptQty,0 RejectionQty
+					,0 BalanceQty,0 Tolerance
 					,0 TransactionRate
 					,IM.Amount TransactionAmount
 					,ROUND(Isnull(servicetax.TaxAmount,0),2) TotalTaxAmount
@@ -1988,7 +2007,7 @@ namespace Library.MaterialManagement.InventoryManagements
             }
         }
 
-        public IWorkbook CreatePurchaseOrderRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string Type)
+        public IWorkbook CreatePurchaseOrderRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string Type, string POId)
         {
             try
             {
@@ -1998,7 +2017,7 @@ namespace Library.MaterialManagement.InventoryManagements
                 var workbook = report.GetWorkbook(ref excelEngine, 2);
                 var sheet1 = workbook.Worksheets[0];
                 var Head = "Purchase Order Register";// + " " + fromDate + " " + "To" + " " + toDate ;
-                CreatePurchaseOrderRegisterReportSheets(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
+                CreatePurchaseOrderRegisterReportSheets(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type, POId);
                 workbook.Version = ExcelVersion.Excel2016;
                 return workbook;
             }
@@ -2642,7 +2661,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
         }
 
-        private void CreatePurchaseOrderRegisterReportSheets(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
+        private void CreatePurchaseOrderRegisterReportSheets(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type, string POId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var cmdText = "";
@@ -2774,7 +2793,7 @@ namespace Library.MaterialManagement.InventoryManagements
 											group By InventoryReceiveId
 											)servicetax ON servicetax.InventoryReceiveId=IM.InventoryReceiveId
 					
-			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.Id in (" + POId + @")
 			UNION ALL
 			SELECT --ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo
 					'ServicePO' POType
@@ -2891,7 +2910,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					left join(select ServicePOMasterId,sum(TaxAmount) TaxAmount from trn.[ServicePOTax] where ServicePOMasterId is null
 					group By ServicePOMasterId
 					)servicetax ON servicetax.ServicePOMasterId=IM.ServicePOMasterId
-					where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+					where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.Id in (" + POId + @")";
             var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
 
             var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
@@ -5280,70 +5299,82 @@ namespace Library.MaterialManagement.InventoryManagements
                 throw ex;
             }
         }
+
+
         public void PORollBackUnApproved(string MasterId, Dictionary<string, object> UserSendData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                string sql = "select * from TRN.PurchaseOrder where Id='" + MasterId + "'";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
-
-                string sqllog = "select * from [TRN].[PurchaseOrderApprovalLog] where 1=2";
-                con.OpenDataSetThroughAdapter(sqllog, out DataSet dsDetailLog, false, "1");
-
-                //for (int i = 0; i < UserSendData.Count; i++)
-                //{
-                dsDetail.Tables[0].DefaultView.RowFilter = "Id='" + UserSendData["Id"].ToString() + "'";
-                if (dsDetail.Tables[0].DefaultView.Count == 0)
+                var isgrn =  _sqlRepository.GetDataCollection(@" SELECT POId AS CheckingColumn FROM TRN.InventoryReceiveDetail    WHERE POId = '" + MasterId + @"'");
+                if (isgrn.Count==0)
                 {
-                    //DataRow dr = dsDetail.Tables[0].NewRow();
-                    //dr["Id"] = GRNDAddiTaxId();
-                    //dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
-                    //dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
-                    //dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
-                    //dr["AddedBy"] = identity.Name;
-                    //dr["AddedDate"] = System.DateTime.Now.ToString();
-                    //dr["AddedFromIP"] = identity.IPAddress;
-                    ////dr["UpdatedBy"] = "";
-                    ////dr["UpdatedDate"] = "";
-                    ////dr["UpdatedFromIP"] = "";
-                    //dr["InventoryReceiveId"] = MasterId.ToString();
-                    //dsDetail.Tables[0].Rows.Add(dr);
+                    string sql = "select * from TRN.PurchaseOrder where Id='" + MasterId + "'";
+                    
+                    con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
+
+                    string sqllog = "select * from [TRN].[PurchaseOrderApprovalLog] where 1=2";
+                    con.OpenDataSetThroughAdapter(sqllog, out DataSet dsDetailLog, false, "1");
+
+                    //for (int i = 0; i < UserSendData.Count; i++)
+                    //{
+                    dsDetail.Tables[0].DefaultView.RowFilter = "Id='" + UserSendData["Id"].ToString() + "'";
+                    if (dsDetail.Tables[0].DefaultView.Count == 0)
+                    {
+                        //DataRow dr = dsDetail.Tables[0].NewRow();
+                        //dr["Id"] = GRNDAddiTaxId();
+                        //dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
+                        //dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
+                        //dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
+                        //dr["AddedBy"] = identity.Name;
+                        //dr["AddedDate"] = System.DateTime.Now.ToString();
+                        //dr["AddedFromIP"] = identity.IPAddress;
+                        ////dr["UpdatedBy"] = "";
+                        ////dr["UpdatedDate"] = "";
+                        ////dr["UpdatedFromIP"] = "";
+                        //dr["InventoryReceiveId"] = MasterId.ToString();
+                        //dsDetail.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dsDetail.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["CheckedByStatus"] = "Pending";
+                        dr["AuthorizedBy"] = null;
+                        dr["AuthorizedByStatus"] = null;
+                        dr["IsApproved"] = 0;
+                        dr["IsClosed"] = 0;
+                        dr.EndEdit();
+                        DataRow drlog = dsDetailLog.Tables[0].NewRow();
+                        drlog["Id"] = MasterId.ToString() + '-' + PurchaseOrderApprovalLogId();
+                        drlog["CompanyGroupId"] = identity.CompanyGroupId;
+                        drlog["CompanyId"] = identity.CompanyId;
+                        drlog["PlantId"] = identity.PlantId;
+                        drlog["ApprovedBy"] = identity.EmployeeId;
+                        drlog["Date"] = System.DateTime.Now.ToString();
+                        drlog["POValue"] = UserSendData["TransactionQty"];
+                        drlog["Status"] = "UnApproved";
+                        drlog["AddedBy"] = identity.Name;
+                        drlog["AddedDate"] = System.DateTime.Now.ToString();
+                        drlog["AddedFromIP"] = identity.IPAddress;
+                        drlog["UpdatedBy"] = identity.Name; ;
+                        drlog["UpdatedDate"] = DateTime.Now;
+                        drlog["UpdatedFromIP"] = identity.IPAddress;
+                        drlog["POID"] = MasterId.ToString();
+                        dsDetailLog.Tables[0].Rows.Add(drlog);
+                    }
+                    //}
+
+
+                    clsStaticInfo info = new clsStaticInfo();
+                    info.SaveDataSets(dsDetail, dsDetailLog);
                 }
                 else
                 {
-                    DataRow dr = dsDetail.Tables[0].DefaultView[0].Row;
-                    dr.BeginEdit();
-                    dr["CheckedByStatus"] = "Pending";
-                    dr["AuthorizedBy"] = null;
-                    dr["AuthorizedByStatus"] = null;
-                    dr["IsApproved"] = 0;
-                    dr["IsClosed"] = 0;
-                    dr.EndEdit();
-                    DataRow drlog = dsDetailLog.Tables[0].NewRow();
-                    drlog["Id"] = MasterId.ToString() + '-' + PurchaseOrderApprovalLogId();
-                    drlog["CompanyGroupId"] = identity.CompanyGroupId;
-                    drlog["CompanyId"] = identity.CompanyId;
-                    drlog["PlantId"] = identity.PlantId;
-                    drlog["ApprovedBy"] = identity.EmployeeId;
-                    drlog["Date"] = System.DateTime.Now.ToString();
-                    drlog["POValue"] = UserSendData["TransactionQty"];
-                    drlog["Status"] = "UnApproved";
-                    drlog["AddedBy"] = identity.Name;
-                    drlog["AddedDate"] = System.DateTime.Now.ToString();
-                    drlog["AddedFromIP"] = identity.IPAddress;
-                    drlog["UpdatedBy"] = identity.Name; ;
-                    drlog["UpdatedDate"] = DateTime.Now;
-                    drlog["UpdatedFromIP"] = identity.IPAddress;
-                    drlog["POID"] = MasterId.ToString();
-                    dsDetailLog.Tables[0].Rows.Add(drlog);
+                    throw new CustomException("PO no "+ MasterId + " already have used in GRN. Rollback should not allow in this case!");
                 }
-                //}
-
-
-                clsStaticInfo info = new clsStaticInfo();
-                info.SaveDataSets(dsDetail, dsDetailLog);
+                
             }
             catch (Exception ex)
             {

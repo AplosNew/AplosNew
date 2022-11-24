@@ -253,7 +253,8 @@ UNION ALL
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN LoanAgainstAcceptanceDetail LAAD ON XP.Id=LAAD.PurchaseDocAcceptanceId
 													where	LAAD.LoanAgainstAcceptanceMasterId=LAA.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						
+						,(select TOP 1 I.CompanyCurrencyRate from  [dbo].[LoanAgainstAcceptanceDetail] ITWLD
+						INNER JOIN TRN.Invoice I ON I.Id=ITWLD.InvoiceId WHERE ITWLD.LoanAgainstAcceptanceMasterId=LAA.Id)CompanyCurrencyRate
 						FROM LoanAgainstAcceptanceMaster LAA 
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
@@ -263,6 +264,8 @@ UNION ALL
 						UNION ALL
 						SELECT 'Invoice' SourceType, LAA.Id LoanAgainstAcceptanceId,LAA.Id, LAA.CompanyGroupId, LAA.CompanyId, LAA.PlantId, LAA.EntityId, LAA.CurrencyId, LAA.VoucherId, 'Vendor' PartyType,LAA.PartyId, LAA.PartyPlantId,'LoanTaken' TransactionType,'Bank' PaymentSource , LAA.LoanDate, LAA.LoanNo, LAA.Amount, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
 						,LAA.BankMasterId, BM.AccountTitle, XVD.LCRef  PurchaseLCNo,XVD.PINo
+						,(select TOP 1 I.CompanyCurrencyRate from  [dbo].[InvoiceTaggingWithLCDetail] ITWLD
+						INNER JOIN TRN.Invoice I ON I.Id=ITWLD.InvoiceId WHERE ITWLD.InvoiceTaggingWithLCMasterId=LAA.Id)CompanyCurrencyRate
 						FROM InvoiceTaggingWithLCMaster LAA 
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId

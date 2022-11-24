@@ -790,7 +790,8 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        public IEnumerable<object> GetListForHold(string plantId, string PoType, string Status)
+        
+        public IEnumerable<object> GetListForHold(string plantId, string PoType, string Status,string vendorId)
         {
             var Sql = "";
             try
@@ -799,31 +800,27 @@ namespace Library.MaterialManagement.Inventory
                 {
                     Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';                                     
                     Select* from(
-                    SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106), ' ', '-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+                     SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106), ' ', '-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 	                                , CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106), ' ', '-') AS DocDate
-
-                                    --, IR.GateEntryNo
-                                    --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106), ' ', '-') AS EntryDate
                                       , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                                         , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-                                        --, IR.AlongwithInvoice
-                                        --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate
                                           , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+	                                , pod.TransactionQty
+									,ToleranceQty=((pod.TransactionQty*ir.Tolerance)/100)
+									,pod.GRNQty , pod.TransactionAmount, pod.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
-                                    --,pgl.CtnId
-	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, '' LCNo,IPP.GSTIN
+	                                ,0'Active',CU.Code Currency, C.UserName CountryName,pod.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, '' LCNo,IPP.GSTIN
 									,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
                                 LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
                                 ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
                                  LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
 								LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId
                                  LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
                                  LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
                                  LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
@@ -834,11 +831,18 @@ namespace Library.MaterialManagement.Inventory
                                  LEFT JOIN [ORG].Plant PL ON PL.Id= IR.PlantId
                                  LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id= PL.AddressMasterId
                                  LEFT JOIN [SCS].[State] AS SP ON SP.Id= AMP.StateId
-                                 LEFT JOIN (SELECT A.InventoryReceiveId, A.QtyStatus, C.UserName CountryName, C.Id CountryId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-                                 left JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id left join scs.country C on C.Id= A.CountryId WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.QtyStatus, C.UserName, C.Id) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                                       LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
-                                       WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                                        LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
+                                 
+								 LEFT JOIN (select pod.InventoryReceiveId,pod.CountryId,sum(pod.TransactionQty) TransactionQty
+										,sum(TransactionAmount) TransactionAmount,sum(BaseAmount) BaseAmount,sum(ird.GRNQty) GRNQty 
+										FROM  [TRN].[PurchaseOrderDetail] pod
+										left join (select isnull(sum(ird.TransactionQty),0) GRNQty,ird.PODetailsId FROM TRN.InventoryReceiveDetail ird 
+											left join trn.InventoryReceive Ir on ir.Id=ird.InventoryReceiveId
+											where (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject'
+											group by ird.PODetailsId
+											) ird on ird.PODetailsId=pod.Id
+											group by pod.InventoryReceiveId,pod.CountryId--,ird.GRNQty
+										)AS pod ON pod.InventoryReceiveId=IR.Id
+								 left join scs.country C on C.Id= pod.CountryId
 								 LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
 											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
 											trn.PurchaseOrder xpo
@@ -848,7 +852,7 @@ namespace Library.MaterialManagement.Inventory
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0
+                                AND IR.IsClosed= 0 and  (pod.TransactionQty+((pod.TransactionQty*ir.Tolerance)/100)) > ISNULL(pod.GRNQty,0) AND IR.PartyId='" + vendorId + @"'
                                          AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
 								UNION All
@@ -859,7 +863,7 @@ namespace Library.MaterialManagement.Inventory
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                                         , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
                                           , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+	                                , IRD.TransactionQty,0 ToleranceQty,0 GRNQty, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
@@ -896,7 +900,7 @@ namespace Library.MaterialManagement.Inventory
 										) POothers ON POothers.CustomerId = IR.PartyId
 								LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId                                        
 								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0
+                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
                                          AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') = 'LC'  and isnull(PLC.IsAccepptanceFirst,0)=0
 
@@ -909,7 +913,7 @@ namespace Library.MaterialManagement.Inventory
 											, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
 											  , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
 											, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-											, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+											, IRD.TransactionQty,0 ToleranceQty,0 GRNQty, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 											, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
@@ -945,7 +949,7 @@ namespace Library.MaterialManagement.Inventory
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ') 
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0
+                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
 								UNION All
@@ -956,7 +960,7 @@ namespace Library.MaterialManagement.Inventory
 											, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
 											  , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
 											, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-											, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+											, IRD.TransactionQty,0 ToleranceQty,0 GRNQty, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 											, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
@@ -995,7 +999,7 @@ namespace Library.MaterialManagement.Inventory
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
 								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ') 
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0
+                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') = 'LC' and isnull(PLC.IsAccepptanceFirst,0)=0
                                 UNION All
@@ -1007,7 +1011,7 @@ namespace Library.MaterialManagement.Inventory
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                                       , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
                                     , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+	                                , IRD.TransactionQty,0 ToleranceQty,0 GRNQty, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
@@ -1043,7 +1047,7 @@ namespace Library.MaterialManagement.Inventory
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0
+                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
                                          AND IR.IsApproved=1 AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus IS NULL
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
 								UNION All
@@ -1055,7 +1059,7 @@ namespace Library.MaterialManagement.Inventory
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                                       , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
                                     , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+	                                , IRD.TransactionQty,0 ToleranceQty,0 GRNQty, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
@@ -1093,7 +1097,7 @@ namespace Library.MaterialManagement.Inventory
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
 										WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0
+                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
                                          AND isnull(PT.PaymentMode,'') = 'LC' and isnull(PLC.IsAccepptanceFirst,0)=0
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus IS NULL
                                 )x
@@ -1175,327 +1179,6 @@ namespace Library.MaterialManagement.Inventory
 	                            ,PDA.VoucherId
 	                            ,PLC.LCDate,PDA.IsNonCreditable,PO.ContractNo,PO.LCANo,PO.LCDate
                             ORDER BY PO.POId";
-
-                }
-
-                return _sqlRepository.GetDataCollection(Sql);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-            }
-        }
-
-        public IEnumerable<object> GetPOListForAdvance(string plantId, string PoType, string Status,string vendorId)
-        {
-            var Sql = "";
-            try
-            {
-                if (Status == "PO")
-                {
-                    Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';                                     
-                    Select* from(
-                    SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106), ' ', '-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-	                                , CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
-	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106), ' ', '-') AS DocDate
-
-                                    --, IR.GateEntryNo
-                                    --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106), ' ', '-') AS EntryDate
-                                      , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
-                                        , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-                                        --, IR.AlongwithInvoice
-                                        --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate
-                                          , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
-	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
-	                                ,IPP.UserName As InvoicingByName
-                                    --,pgl.CtnId
-	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, '' LCNo,IPP.GSTIN
-									,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
-                                 FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
-                                LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-                                ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
-                                 LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
-								LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                                 LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
-                                 LEFT JOIN [SCS].[State] AS S1 ON AM.StateId= S1.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId= DPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId= AM2.Id
-                                 LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId= S2.Id
-                                 LEFT JOIN [ORG].Plant PL ON PL.Id= IR.PlantId
-                                 LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id= PL.AddressMasterId
-                                 LEFT JOIN [SCS].[State] AS SP ON SP.Id= AMP.StateId
-                                 LEFT JOIN (SELECT A.InventoryReceiveId, A.QtyStatus, C.UserName CountryName, C.Id CountryId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-                                 left JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id left join scs.country C on C.Id= A.CountryId WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.QtyStatus, C.UserName, C.Id) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                                       LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
-                                       WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                                        LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
-								 LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
-											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
-											trn.PurchaseOrder xpo
-											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
-											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-											from  dbo.MasterLC PDAMAP 							 
-											 group by  PDAMAP.CustomerId
-										) POothers ON POothers.CustomerId = IR.PartyId
-                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='"+ vendorId + @"'
-                                         AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
-                                         AND isnull(PT.PaymentMode,'') <> 'LC'
-								UNION All
-								SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106), ' ', '-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-	                                , CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
-	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106), ' ', '-') AS DocDate
-                                      , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
-                                        , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-                                          , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
-	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
-	                                ,IPP.UserName As InvoicingByName
-	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, ISNULL(PLC.LCRef,'') LCNo,IPP.GSTIN
-								 ,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
-                                 FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
-                                LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-                                ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
-                                 LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
-								LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                                 LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
-                                 LEFT JOIN [SCS].[State] AS S1 ON AM.StateId= S1.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId= DPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId= AM2.Id
-                                 LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId= S2.Id
-                                 LEFT JOIN [ORG].Plant PL ON PL.Id= IR.PlantId
-                                 LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id= PL.AddressMasterId
-                                 LEFT JOIN [SCS].[State] AS SP ON SP.Id= AMP.StateId
-                                 LEFT JOIN (SELECT A.InventoryReceiveId, A.QtyStatus, C.UserName CountryName, C.Id CountryId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-                                 left JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id left join scs.country C on C.Id= A.CountryId WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.QtyStatus, C.UserName, C.Id) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                                       LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
-                                       WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                                        LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
-								LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
-											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
-											trn.PurchaseOrder xpo
-											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
-											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-											from  dbo.MasterLC PDAMAP 							 
-											 group by  PDAMAP.CustomerId
-										) POothers ON POothers.CustomerId = IR.PartyId
-								LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId                                        
-								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
-                                         AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
-                                         AND isnull(PT.PaymentMode,'') = 'LC'  and isnull(PLC.IsAccepptanceFirst,0)=0
-
-
-										UNION All
-										SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-											, CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
-											, IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-											, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-											, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
-											  , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-											, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-											, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
-											, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
-	                                ,IPP.UserName As InvoicingByName
-	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, '' LCNo,IPP.GSTIN
-									,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
-                                 FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
-                                LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-                                ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
-                                 LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
-									LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                                 LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
-                                 LEFT JOIN [SCS].[State] AS S1 ON AM.StateId= S1.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId= DPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId= AM2.Id
-                                 LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId= S2.Id
-                                 LEFT JOIN [ORG].Plant PL ON PL.Id= IR.PlantId
-                                 LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id= PL.AddressMasterId
-                                 LEFT JOIN [SCS].[State] AS SP ON SP.Id= AMP.StateId
-                                 LEFT JOIN (SELECT A.InventoryReceiveId, A.QtyStatus, C.UserName CountryName, C.Id CountryId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-                                 left JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id left join scs.country C on C.Id= A.CountryId WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.QtyStatus, C.UserName, C.Id) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                                       LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
-                                       WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                                        LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
-								LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
-											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
-											trn.PurchaseOrder xpo
-											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
-											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-											from  dbo.MasterLC PDAMAP 							 
-											 group by  PDAMAP.CustomerId
-										) POothers ON POothers.CustomerId = IR.PartyId
-                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ') 
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
-                                         AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus= 'Approved'
-                                         AND isnull(PT.PaymentMode,'') <> 'LC'
-								UNION All
-										SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-											, CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
-											, IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-											, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-											, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
-											  , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-											, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-											, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
-											, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
-	                                ,IPP.UserName As InvoicingByName
-	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, ISNULL(PLC.LCRef,'') LCNo,IPP.GSTIN
-								,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
-                                 FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
-                                LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-                                ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
-                                 LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
-								LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                                 LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
-                                 LEFT JOIN [SCS].[State] AS S1 ON AM.StateId= S1.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId= DPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId= AM2.Id
-                                 LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId= S2.Id
-                                 LEFT JOIN [ORG].Plant PL ON PL.Id= IR.PlantId
-                                 LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id= PL.AddressMasterId
-                                 LEFT JOIN [SCS].[State] AS SP ON SP.Id= AMP.StateId
-                                 LEFT JOIN (SELECT A.InventoryReceiveId, A.QtyStatus, C.UserName CountryName, C.Id CountryId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-                                 left JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id left join scs.country C on C.Id= A.CountryId WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.QtyStatus, C.UserName, C.Id) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                                       LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
-                                       WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                                        LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
-                                         
-
-								LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId	
-								LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
-											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
-											trn.PurchaseOrder xpo
-											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
-											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-											from  dbo.MasterLC PDAMAP 							 
-											 group by  PDAMAP.CustomerId
-										) POothers ON POothers.CustomerId = IR.PartyId
-								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ') 
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
-                                         AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus= 'Approved'
-                                         AND isnull(PT.PaymentMode,'') = 'LC' and isnull(PLC.IsAccepptanceFirst,0)=0
-                                UNION All
-
-                                SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-	                                , CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
-	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-                                    , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
-                                      , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-                                    , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
-	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
-	                                ,IPP.UserName As InvoicingByName
-	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, '' LCNo,IPP.GSTIN
-								 ,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
-                                 FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
-                                LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-                                ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
-                                 LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
-								LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                                 LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
-                                 LEFT JOIN [SCS].[State] AS S1 ON AM.StateId= S1.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId= DPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId= AM2.Id
-                                 LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId= S2.Id
-                                 LEFT JOIN [ORG].Plant PL ON PL.Id= IR.PlantId
-                                 LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id= PL.AddressMasterId
-                                 LEFT JOIN [SCS].[State] AS SP ON SP.Id= AMP.StateId
-                                 LEFT JOIN (SELECT A.InventoryReceiveId, A.QtyStatus, C.UserName CountryName, C.Id CountryId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-                                 left JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id left join scs.country C on C.Id= A.CountryId WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.QtyStatus, C.UserName, C.Id) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                                       LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
-                                       WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                                        LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
-								 LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
-											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
-											trn.PurchaseOrder xpo
-											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
-											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-											from  dbo.MasterLC PDAMAP 							 
-											 group by  PDAMAP.CustomerId
-										) POothers ON POothers.CustomerId = IR.PartyId
-                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
-                                         AND IR.IsApproved=1 AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus IS NULL
-                                         AND isnull(PT.PaymentMode,'') <> 'LC'
-								UNION All
-
-                                SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-	                                , CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
-	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-                                    , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
-                                      , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
-                                    , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
-	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
-	                                ,IPP.UserName As InvoicingByName
-	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, ISNULL(PLC.LCRef,'') LCNo,IPP.GSTIN
-								,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
-                                 FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
-                                LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-                                ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
-                                 LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
-									LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                                 LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
-                                 LEFT JOIN [SCS].[State] AS S1 ON AM.StateId= S1.Id
-                                 LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId= DPP.Id
-                                 LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId= AM2.Id
-                                 LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId= S2.Id
-                                 LEFT JOIN [ORG].Plant PL ON PL.Id= IR.PlantId
-                                 LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id= PL.AddressMasterId
-                                 LEFT JOIN [SCS].[State] AS SP ON SP.Id= AMP.StateId
-                                 LEFT JOIN (SELECT A.InventoryReceiveId, A.QtyStatus, C.UserName CountryName, C.Id CountryId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-                                 left JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id left join scs.country C on C.Id= A.CountryId WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.QtyStatus, C.UserName, C.Id) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                                       LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
-                                       WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                                        LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
-                                         
-										LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId
-								LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
-											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
-											trn.PurchaseOrder xpo
-											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
-											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-											from  dbo.MasterLC PDAMAP 							 
-											 group by  PDAMAP.CustomerId
-										) POothers ON POothers.CustomerId = IR.PartyId
-										WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
-                                AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
-                                         AND isnull(PT.PaymentMode,'') = 'LC' and isnull(PLC.IsAccepptanceFirst,0)=0
-                                         AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus IS NULL
-                                )x
-                                Order by PODate ASC";
                 }
                 return _sqlRepository.GetDataCollection(Sql);
             }
@@ -2095,7 +1778,7 @@ namespace Library.MaterialManagement.Inventory
                                 FROM TRN.GateEntry GE
                                 left Join hkp.Party p on p.Id=GE.PartyId
                                 Where GE.CompanyGroupId='" + CompanyGroupId + "' AND GE.CompanyId='" + CompanyId + "' AND GE.PlantId='" + PlantId + "' AND GE.FlagStatus='Ok' and p.Id='" + partyCode + "' " +
-                                " and GE.GateEntryType='Vendor'and GE.Id  not in(select GateEntryNo from TRN.InventoryReceive where GateEntryNo is not null) Order By GE.EntryDate DESC";
+                                " and GE.GateEntryType='Vendor'and GE.Id  not in(select GateEntryNo from TRN.InventoryReceive where GateEntryNo is not null) and GE.Id  not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null) Order By GE.EntryDate DESC";
                 //AND GE.Id not in(select GateEntryNo from trn.InventoryReceive)
                 return _sqlRepository.GetDataCollection(Sql);
             }
@@ -2621,6 +2304,17 @@ namespace Library.MaterialManagement.Inventory
             try
             {
 
+                ConnectionManager.DAL.ConManager objCon1;
+                DataSet dsMaster1 = null;
+                string purchaseReturnSql = @"SELECT pr.InventoryReceiveId from trn.PurchaseReturn pr 
+                                        JOIN trn.InventoryReceive ir on ir.Id=pr.InventoryReceiveId where pr.InventoryReceiveId  = '" + GRNNo + "'";
+                objCon1 = new ConnectionManager.DAL.ConManager("1");
+                objCon1.OpenDataSetThroughAdapter(purchaseReturnSql, out dsMaster1, false, "1");
+
+                if (dsMaster1.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Approved not allow of GRN No "+ GRNNo + " ,  Purchase Return  Occured against this GRN !");
+                }
 
                 bool IsApproved;
                 var Status = "";
@@ -2820,8 +2514,16 @@ namespace Library.MaterialManagement.Inventory
 
                     //{TotalInWords}
                 }
-                document.Replace("{GrandTotal}", ((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
-                document.Replace("{TotalInWords}", ru.InWord(((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+                //document.Replace("{GrandTotal}", ((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                //document.Replace("{TotalInWords}", ru.InWord(((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+
+                var DiscountAmount = "";
+                DiscountAmount = dtOrderMaster.Rows[0]["DiscountAmount"].ToString();
+                document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{DiscountAmount}", (DiscountAmount).ToString() + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{AfterDiscountTotal}", ((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{TotalInWords}", ru.InWord(((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+                //document.Replace("{TrnAmount}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
@@ -3026,6 +2728,15 @@ namespace Library.MaterialManagement.Inventory
                             else ''
                             END
 							,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount
+                            ,BuyerPONumber=STUFF((SELECT DISTINCT ','+PO.PONumber from
+                            			BOQ boq
+                            			INNER JOin trn.POBOQMAP xboqMap on boq.Id=xboqMap.BOQDetailId
+										INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
+										LEFT OUTER JOIN [TRN].[SalesOrder] AS so ON so.MasterOrderItemId=boq.MasterOrderItemId
+										LEFT OUTER JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+										left join trn.GRNPORequisitionAllocation pogrnmap on pogrnmap.BOQDetailId=boq.Id
+                            			WHERE pogrnmap.InventoryReceiveDetailId=IRD.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -3219,6 +2930,7 @@ namespace Library.MaterialManagement.Inventory
                             else ''
                             END
 							,Null LotNo , Null QualityStatus , Null GrossAmount ,Null DiscountAmount
+                            ,'' BuyerPONumber
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -3737,6 +3449,436 @@ namespace Library.MaterialManagement.Inventory
             document.Replace(replaceString, textBodyPart, true, true);
             return total;
         }
+
+        //        public double BOQPOmakeOrderDetailsTable(WordDocument document, DataTable dsOrderMaster, string grnBOQPOId)
+        //        {
+        //            string replaceString = "{materialItems}";
+
+        //            DataTable dsOrderItems, dsTax;
+
+        //            dsOrderItems = loadOrderMasterItems(grnBOQPOId);
+        //            dsTax = loadOrderMasterTax(grnBOQPOId);
+
+        //            int LasColumnIndex = 15;
+        //            Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
+        //            DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
+        //            if (dv.Count > 0)
+        //            {
+        //                for (int i = 0; i < dv.Count; i++)
+        //                {
+        //                    LasColumnIndex++;
+        //                    dicTaxes.Add(dv[i]["TaxCode"].ToString(), LasColumnIndex);
+        //                    LasColumnIndex++;
+        //                }
+        //            }
+        //            WTable wTable = new WTable(document);
+        //            wTable.TableFormat.Borders.LineWidth = 1;
+        //            wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
+        //            wTable.TableFormat.IsAutoResized = true;
+
+        //            int ROW = 0; int COL = 0;
+        //            wTable.ResetCells(1, LasColumnIndex + 1);
+
+        //            WTableRow TemplateRow = wTable.Rows[0].Clone();
+        //            #region column headers
+        //            document.EnsureMinimal();
+
+        //            WCharacterFormat FontBold = new WCharacterFormat(document);
+        //            FontBold.Bold = true;
+
+        //            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SL");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colRo = COL; COL++;
+        //            wTable.Rows[ROW].Cells[colRo].Width = 30;
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Row Id");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colRowId = COL; COL++;
+        //            wTable.Rows[ROW].Cells[colRowId].Width = 50;
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colMaterialGroup = COL; COL++;
+        //            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 80;
+
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article ");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colArticle = COL; COL++;
+        //            wTable.Rows[ROW].Cells[colArticle].Width = 80;
+
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colChar1 = COL; COL++;
+        //            wTable.Rows[ROW].Cells[colChar1].Width = 36;
+
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU2");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colChar2 = COL; COL++;
+        //            wTable.Rows[ROW].Cells[colChar2].Width = 36;
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colChar3 = COL; COL++;
+        //            wTable.Rows[ROW].Cells[colChar3].Width = 36;
+
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN Code");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colHSNCode = COL; COL++;
+        //            wTable.Rows[ROW].Cells[colHSNCode].Width = 35;
+
+
+        //            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN NO");
+        //            //range.ApplyCharacterFormat(FontBold);
+        //            //int colHSNCode = COL; COL++;
+        //            //wTable.Rows[ROW].Cells[colChar3].Width = 45;
+
+
+        //            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Po Material Detail");
+        //            //range.ApplyCharacterFormat(FontBold);
+        //            //int colDescription = COL; COL++;
+        //            //wTable.Rows[ROW].Cells[colDescription].Width = 40;
+
+        //            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GRN Material Detail");
+        //            //range.ApplyCharacterFormat(FontBold);
+        //            //int colGRNMaterialDetail = COL; COL++;
+        //            //wTable.Rows[ROW].Cells[colGRNMaterialDetail].Width = 40;
+
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colQty = COL; COL++;
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No.");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colLotNo = COL; COL++;
+        //            wTable.Rows[ROW].Cells[colHSNCode].Width = 30;
+
+
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colRate = COL; COL++;
+        //            wTable.Rows[ROW].Cells[colRate].Width = 45;
+
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colUoM = COL; COL++;
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colQualityStatus = COL; COL++;
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Gross Amount");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colGrossAmount = COL; COL++;
+        //            wTable.Rows[ROW].Cells[colGrossAmount].Width = 50;
+
+        //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Discount Amount");
+        //            range.ApplyCharacterFormat(FontBold);
+        //            int colDiscountAmount = COL;
+
+        //            int colTotalTaxableAmount = COL;
+        //            if (dv.Count > 0)
+        //            {
+        //                COL++;
+        //                colTotalTaxableAmount = COL;
+        //                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount");
+        //                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 60;
+        //                range.ApplyCharacterFormat(FontBold);
+        //                //COL++;
+        //                for (int i = 0; i < dv.Count; i++)
+        //                {
+        //                    try
+        //                    {
+        //                        //two columns required for tax
+        //                        COL++;
+        //                        range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText(dv[i]["TaxCode"].ToString());
+        //                        range.ApplyCharacterFormat(FontBold);
+        //                        COL++;
+        //                        range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+        //                        range.ApplyCharacterFormat(FontBold);
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                    }
+
+        //                }
+        //            }
+        //            else
+        //            {
+        //                COL++;
+        //                colTotalTaxableAmount = COL;
+        //                range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Amount");
+        //                range.ApplyCharacterFormat(FontBold);
+        //            }
+
+
+        //            if (dv.Count > 0)
+        //            {
+        //                wTable.Rows.Add(TemplateRow);
+        //                ROW++;
+        //                WTableRow TROW = wTable.LastRow;
+        //                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+        //                {
+        //                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+        //                    {
+        //                        item.Text = "";
+        //                    }
+        //                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+        //                }
+        //                for (int i = 0; i < dv.Count; i++)
+        //                {
+        //                    try
+        //                    {
+        //                        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()]].AddParagraph().AppendText("Rate(%)");
+        //                        range.ApplyCharacterFormat(FontBold);
+        //                        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()] + 1].AddParagraph().AppendText("Amount");
+        //                        range.ApplyCharacterFormat(FontBold);
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+
+        //                    }
+
+        //                }
+        //            }
+        //            #endregion column headers
+        //            //if (dv.Count > 0)
+        //            //{
+        //            //    wTable.Rows.Add(TemplateRow);
+
+        //            //    WTableRow TROW = wTable.LastRow;
+        //            //    for (int CE = 0; CE < TROW.Cells.Count; CE++)
+        //            //    {
+        //            //        foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+        //            //        {
+        //            //            item.Text = "";
+        //            //        }
+        //            //        TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+        //            //    }
+        //            //    for (int i = 0; i < dv.Count; i++)
+        //            //    {
+
+        //            //        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()]].AddParagraph().AppendText("Rate(%)");
+        //            //        range.ApplyCharacterFormat(FontBold);
+        //            //        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()] + 1].AddParagraph().AppendText("Amount");
+        //            //        range.ApplyCharacterFormat(FontBold);
+        //            //    }
+        //            //    ROW++;
+        //            //}
+        //#endregion column headers
+        //            double totalValue = 0;
+        //            int sl = 0;
+        //            ROW++;
+        //            wTable.AddRow();
+        //            int startRow = 0;
+        //            for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
+        //            {
+        //                sl++;
+        //                ROW++;
+        //                wTable.AddRow();
+        //                //wTable.AddRow();
+        //                WTableRow TROW = wTable.LastRow;
+
+        //                // WTableRow TROW = wTable.Rows[1].Clone();
+        //                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+        //                {
+        //                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+        //                    {
+        //                        item.Text = "";
+        //                    }
+        //                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+        //                }
+        //                TROW.Cells[colRo].AddParagraph().AppendText(sl.ToString());
+        //                TROW.Cells[colRowId].AddParagraph().AppendText(dsOrderMaster.Rows[i]["InventoryReceiveDetailId"].ToString());
+        //                TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
+        //                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
+        //                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
+        //                TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
+        //                TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
+        //                TROW.Cells[colHSNCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
+        //                //TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
+        //                //TROW.Cells[colGRNMaterialDetail].AddParagraph().AppendText(dsOrderMaster.Rows[i]["GRDDescrition"].ToString());
+        //                TROW.Cells[colLotNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
+        //                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
+        //                TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
+        //                TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
+        //                //TROW.Cells[colExchangerate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["ToCurrencyRate"].ToString()).ToString("#,##0.0000"));
+
+        //                TROW.Cells[colQualityStatus].AddParagraph().AppendText(dsOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
+        //                TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("#,##0.00"));
+        //                TROW.Cells[colDiscountAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["DiscountAmount"].ToString()).ToString("#,##0.00"));
+        //                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+        //                totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
+        //                //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
+        //                if (dv.Count > 0)
+        //                {
+        //                    //dsTax.Tables[0].DefaultView.RowFilter = "MasterOrderItemId='" + dsOrderItems.Tables[0].Rows[i]["MasterOrderItemId"].ToString() + "'";
+        //                    DataView dvtax = new DataView(dsTax.DefaultView.ToTable());
+        //                    //double totalTax = 0;
+        //                    for (int T = 0; T < dv.Count; T++)
+        //                    {
+        //                        dvtax.RowFilter = "TaxCode='" + dv[T]["TaxCode"].ToString() + "' AND InventoryReceiveDetailId ='" + dsOrderMaster.Rows[i]["InventoryReceiveDetailId"].ToString() + "'";
+        //                        if (dvtax.Count > 0)
+        //                        {
+        //                            TROW.Cells[dicTaxes[dv[T]["TaxCode"].ToString()]].AddParagraph().AppendText(Convert.ToDouble(dvtax[0]["Percentage"].ToString()).ToString("#,##0.0000"));
+        //                            TROW.Cells[dicTaxes[dv[T]["TaxCode"].ToString()] + 1].AddParagraph().AppendText(Convert.ToDouble(dvtax[0]["TaxAmount"].ToString()).ToString("#,##0.00"));
+        //                        }
+        //                    }
+        //                }
+        //            }
+
+        //            //ROW++;
+        //            #region Total
+        //            int TotalRow = ROW;
+        //            wTable.AddRow();
+        //            WTableRow _TROW = wTable.LastRow;
+        //            _TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
+
+
+
+        //            for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
+        //            {
+        //                if (C == colHSNCode || C == colRate || C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate /*|| C == colUoM*/ || dicTaxes.ContainsValue(C))
+        //                    continue;
+
+        //                double value = 0;
+        //                for (int i = startRow; i < TotalRow; i++)
+        //                {
+
+        //                    foreach (WParagraph item in wTable.Rows[i].Cells[C].Paragraphs)
+        //                    {
+        //                        value += clsStdLib.dbl(item.Text);
+        //                    }
+        //                }
+        //                _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+
+        //            }
+        //            #endregion Total
+        //            ROW++;
+        //            #region Sub Total
+        //            //int SubTotalRow = ROW;
+        //            //int SubTotalColumn = 0;//_TROW.Cells.Count - 5;
+        //            //wTable.AddRow();
+        //            //_TROW = wTable.LastRow;
+
+        //            //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
+
+        //            double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(TrnAmount)", "").ToString())
+        //                //- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
+        //                + clsStdLib.dbl(dsTax.Compute("SUM(TaxAmount)", "").ToString());
+
+        //            //_TROW.Cells[SubTotalColumn + 1].AddParagraph().AppendText(total.ToString("F2") + " (" + ru.InWord(total, dsOrderMaster.Rows[0]["CurrencyId"].ToString()) + ")");
+
+        //            #endregion Total
+        //            ROW++;
+        //            #region Total Payable
+        //            //int TotalPayableRow = ROW;
+        //            //int TotalPayableColumn = 0;//_TROW.Cells.Count - 5;
+        //            //wTable.AddRow();
+        //            //_TROW = wTable.LastRow;
+
+        //            //_TROW.Cells[TotalPayableColumn].AddParagraph().AppendText("Total Amount Payable");
+        //            //_TROW.Cells[TotalPayableColumn + 1].AddParagraph().AppendText("Need To Discuss");
+
+        //            #endregion Total Payable
+        //            ROW++;
+        //            #region paragrpath formats
+        //            //Adds a new paragraph style named "MyStyle"
+        //            IWParagraphStyle myStyle = document.AddParagraphStyle("MyStyle");
+        //            //Sets the formatting of the style
+        //            myStyle.CharacterFormat.FontSize = 8f;
+        //            //myStyle.CharacterFormat.TextColor = Color.Black;
+        //            myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+        //            for (int R = 0; R < wTable.Rows.Count; R++)
+        //            {
+        //                WTableRow TROW = wTable.Rows[R];
+        //                // TROW.Cells[0].Width = 120;
+        //                //if (dv.Count < 3)
+        //                //    TROW.Cells[0].Width = 120 + ((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
+
+        //                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+        //                {
+        //                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+        //                    {
+        //                        item.ApplyStyle("MyStyle");
+        //                    }
+        //                }
+        //            }
+
+
+        //            IWParagraphStyle myStyleRightAlign = document.AddParagraphStyle("MyStyleRightAlign");
+        //            //Sets the formatting of the style
+        //            myStyleRightAlign.CharacterFormat.FontSize = 8f;
+        //            myStyleRightAlign.CharacterFormat.TextColor = Color.Black;
+        //            myStyleRightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+
+
+        //            for (int R = 1; R < wTable.Rows.Count; R++)
+        //            {
+        //                WTableRow TROW = wTable.Rows[R];
+
+
+
+        //                foreach (WParagraph item in TROW.Cells[colQty].Paragraphs)
+        //                {
+        //                    item.ApplyStyle("MyStyleRightAlign");
+        //                }
+
+
+        //                foreach (WParagraph item in TROW.Cells[colRate].Paragraphs)
+        //                {
+        //                    item.ApplyStyle("MyStyleRightAlign");
+        //                }
+
+
+        //                foreach (WParagraph item in TROW.Cells[colTotalTaxableAmount].Paragraphs)
+        //                {
+        //                    item.ApplyStyle("MyStyleRightAlign");
+        //                }
+
+
+        //            }
+
+        //            #endregion paragrpath formats
+        //            #region merging section
+
+        //            //tax codes merging (horizontal)
+        //            ROW = 0;
+        //            for (int i = 0; i < dv.Count; i++)
+        //                wTable.ApplyHorizontalMerge(ROW, dicTaxes[dv[i]["TaxCode"].ToString()], dicTaxes[dv[i]["TaxCode"].ToString()] + 1);
+
+        //            //primary cells merging (veritcal)
+        //            ROW++;
+        //            WTableRow TROWe = wTable.LastRow;
+        //            for (int i = 0; i <= colTotalTaxableAmount; i++)
+        //            {
+        //                TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
+        //                wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+        //            }
+        //            //wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+
+
+
+
+        //            IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
+        //            style.CharacterFormat.Bold = true;
+        //            style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
+        //            //Adds new paragraph to the section
+
+        //            #endregion merging section
+        //            TextBodyPart textBodyPart = new TextBodyPart(document);
+        //            textBodyPart.BodyItems.Add(wTable);
+        //            document.Replace(replaceString, textBodyPart, true, true);
+        //            return total;
+        //        }
 
         public DataTable BOQPOloadInventoryReceiveAdditionalTax(string grnBOQPOId)
         {
@@ -4852,6 +4994,12 @@ namespace Library.MaterialManagement.Inventory
 
                 dtOrderMaster = loadGRNMaterialMaster(grnId);
 
+                if (dtOrderMaster.Rows.Count==0)
+                {
+                    throw new Exception("No Data Found");
+                }
+               
+
 
                 var invoicePartyAddress = ru.GetAddress(dtOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dtOrderMaster.Rows[0]["InvoicingByAddress"].ToString());
                 document.Replace("{InvoicingPartyAddress}", invoicePartyAddress, false, false);
@@ -5100,7 +5248,7 @@ namespace Library.MaterialManagement.Inventory
             try
             {
 
-                strSQL = @"SELECT IR.Id grnNumber
+                strSQL = @"SELECT ISNULL(IR.Id,0) grnNumber
 							,PO1.PODate
 							,GTE.ModeofTransport
 							,HSNC.Code HSNCode
@@ -5125,7 +5273,7 @@ namespace Library.MaterialManagement.Inventory
                             ,REPLACE(Convert(VARCHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                             ,IR.InvoicingPartyPlantId
                             ,INVPARTYPL.UserName InvoicingPartyName
-                            ,INVPARTYPL.AddressMasterId InvoicePartyAddressMasterId
+                            ,isnull(INVPARTYPL.AddressMasterId,0) InvoicePartyAddressMasterId
                             ,INVPARTYPL.GSTIN InvoicingPartyGSTIN
                             ,ISNULL(IR.InvoicingByAddress,'') InvoicingByAddress
                             ,IR.DeliveryByAddress
@@ -5201,7 +5349,7 @@ namespace Library.MaterialManagement.Inventory
                             ,IRD.TransactionUoMId
                             ,TUoM.ShortName  AS TransactionUoM
                             ,IRD.Id InventoryReceiveDetailId
-						    ,IR.ProductionOrderId
+						    ,ISNULL(IR.ProductionOrderId,0) ProductionOrderId
 
 							,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
                             ,CheckStatus= CASE when IR.CheckedByStatus='ForChecked' Then 'To be checked'
@@ -5269,35 +5417,32 @@ namespace Library.MaterialManagement.Inventory
                             left join [SEC].[User] U on U.UserId=IR.AddedBy
                             LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
 							LEFT JOIN(
-									select PDAMAP.GRNId--, REPLACE(Convert(VARCHAR(11), IR.PODate, 106), ' ', '-') AS PODate 
+									select PDAMAP.InventoryReceiveId GRNId--, REPLACE(Convert(VARCHAR(11), IR.PODate, 106), ' ', '-') AS PODate 
 									,PoId=STUFF((select distinct ','+xpo.Id from
 									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									,PODate=STUFF(
-									(select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
-									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									
+									INNER JOin TRN.InventoryReceiveDetail xPDAMAP on xpo.Id=xPDAMAP.PoId
+									where xPDAMAP.InventoryReceiveId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 									,ContractNO=STUFF(
 									(select distinct ','+CNO.ContractNO from
 									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
+									INNER JOin TRN.InventoryReceiveDetail xPDAMAP on xpo.Id=xPDAMAP.PoId
 									LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = xpo.ContractId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-									from TRN.POGGRNMap PDAMAP
+									where xPDAMAP.InventoryReceiveId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,PODate=STUFF(
+									(select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
+									trn.PurchaseOrder xpo
+									INNER JOin TRN.InventoryReceiveDetail xPDAMAP on xpo.Id=xPDAMAP.PoId
+									where xPDAMAP.InventoryReceiveId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									from TRN.InventoryReceiveDetail PDAMAP
 									LEFT JOIN [TRN].PurchaseOrder IR ON IR.Id = PDAMAP.PoId
-									--where PDAMAP.GRNId='2020463'
-									group by PDAMAP.GRNId--, IR.podate
+									group by PDAMAP.InventoryReceiveId--, IR.podate
 
 									)PO1 ON PO1.GRNId = IRD.InventoryReceiveId
 							LEFT JOIN [TRN].[GateEntry] GTE  ON GTE.ID= IR.GateEntryNo
                             WHERE IR.Id ='" + OrderMasterID + @"' and IOM.MaterialMasterId is not NULL
 
                             Union ALL
-                            SELECT IR.Id grnNumber
+                            SELECT ISNULL(IR.Id,0) grnNumber
 							,GTE.ModeofTransport
 							,PO1.PODate
 							,HSNC.Code HSNCode
@@ -5321,7 +5466,7 @@ namespace Library.MaterialManagement.Inventory
                             ,IR.InvoicingPartyPlantId
 
                             ,INVPARTYPL.UserName InvoicingPartyName
-                            ,INVPARTYPL.AddressMasterId InvoicePartyAddressMasterId
+                            ,ISNULL(INVPARTYPL.AddressMasterId,0) InvoicePartyAddressMasterId
                             ,INVPARTYPL.GSTIN InvoicingPartyGSTIN
                             ,ISNULL(IR.InvoicingByAddress,'') InvoicingByAddress
                             ,IR.DeliveryByAddress
@@ -5454,20 +5599,21 @@ namespace Library.MaterialManagement.Inventory
                             left join [SEC].[User] U on U.UserId=IR.AddedBy
                             LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
 		              LEFT JOIN(
-									select PDAMAP.GRNId--, REPLACE(Convert(VARCHAR(11), IR.PODate, 106), ' ', '-') AS PODate 
+									select PDAMAP.InventoryReceiveId GRNId--, REPLACE(Convert(VARCHAR(11), IR.PODate, 106), ' ', '-') AS PODate 
 									,PoId=STUFF((select distinct ','+xpo.Id from
 									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									INNER JOin TRN.InventoryReceiveDetail xPDAMAP on xpo.Id=xPDAMAP.PoId
+									where xPDAMAP.InventoryReceiveId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									
 									,PODate=STUFF(
 									(select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
 									trn.PurchaseOrder xpo
 									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									from TRN.POGGRNMap PDAMAP
+									where xPDAMAP.GRNId=PDAMAP.InventoryReceiveId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									from TRN.InventoryReceiveDetail PDAMAP
 									LEFT JOIN [TRN].PurchaseOrder IR ON IR.Id = PDAMAP.PoId
 									--where PDAMAP.GRNId='2020463'
-									group by PDAMAP.GRNId--, IR.podate
+									group by PDAMAP.InventoryReceiveId--, IR.podate
 
 									)PO1 ON PO1.GRNId = IRD.InventoryReceiveId
 							LEFT JOIN [TRN].[GateEntry] GTE  ON GTE.ID= IR.GateEntryNo
@@ -8741,166 +8887,7 @@ namespace Library.MaterialManagement.Inventory
 
         #region un Approval for post
 
-        public IEnumerable<object> GetListForGRNUNApproval(string plantId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            try
-            {
-                //          var Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-                //                   SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
-                //                               , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-                //                               --,IR.GRNDate
-                //                              , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, isnull(P.UserName,'') AS PartyName
-                //                     , CP.UserName AS PartyAccountGroupName
-                //                           , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-                //                           , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-                //                           , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-                //                           , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-                //                           , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-                //                           , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, Round(IRD.TransactionAmount,2) TransactionAmount, round(IRD.BaseAmount,2) BaseAmount,Round(IRD.TotalMaterialBooksCurrencyAmount,2) TotalMaterialBooksCurrencyAmount, IR.ToCurrencyRate
-                //                              , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-                //			, IR.IsApproved, IR.IsPaymentHold,IR.POID, ISNULL(GAG.CtnId, 0) AS CtnId ,isnull(ei2.EmployeeName,'') As EmployeeName
-                //                              ,isnull(IR.GateEntryNo,0) GateEntryNo
-                //			,isnull(PWG.UserName ,'') GateName
-                //                  FROM [TRN].[InventoryReceive] AS IR Left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                //                  LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-                //                     ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-                //                  LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                //                  LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
-                //                  LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
-                //                  LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
-                //                  LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-                //                  LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
-                //                  LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
-                //                  LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-                //                  LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount ,sum(TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount FROM [TRN].[InventoryReceiveDetail] AS A
-                //                        JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id  GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                //                  LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
-                //                         GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                //                  LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-                //                 LEFT JOIN EmployeeInformation ei2 on ei2.SystemId=IR.EmployeeId
-                //                  LEFT JOIN (Select count(Id) as CtnId, GRNID from TRN.GRNApprovalLogTbl where Status='APPROVED' group by GRNID) as GAG on GAG.GRNID=IR.Id
-                //                 left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
-                //Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
-                //                  WHERE  --ISNULL(IR.[Status],'')<>'Posting' 
-                //                   IR.OpeningBalanceId IS NULL  
-                //                  And IR.IsApproved =1 And IR.CheckedByStatus='Checked' 
-                //                  And IR.AuthorizedByStatus='Approval' 
-                //                  AND IR.AuthorizedBy='" + identity.EmployeeId + "'" +
-                //                  "AND GAG.CtnId <> 0 Order by IR.GRNDate DESC";
-                var Sql = @"--DECLARE @plantId VARCHAR(10)='20171';
-                       select * from( SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
-                                    , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-                                    --,IR.GRNDate
-                                , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, isnull(P.UserName,'') AS PartyName
-			                    , CP.UserName AS PartyAccountGroupName
-	                            , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-	                            , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-	                            , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-	                            , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-	                            , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                            , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, Round(IRD.TransactionAmount,2) TransactionAmount, round(IRD.BaseAmount,2) BaseAmount,round(IRD.BaseAmount,2) TotalMaterialTranAmount,Round(IRD.TotalMaterialBooksCurrencyAmount,2) TotalMaterialBooksCurrencyAmount, IR.ToCurrencyRate
-                                , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-			                    , IR.IsApproved, IR.IsPaymentHold,IR.POID, ISNULL(GAG.CtnId, 0) AS CtnId ,isnull(ei2.EmployeeName,'') As EmployeeName
-			                    ,isnull(IR.GateEntryNo,0) GateEntryNo
-			                    ,isnull(PWG.UserName ,'') GateName,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.GRNType  GRNType1
-								,IRD.GRNQTY,IRD.GRNValue,IRD.Shortageqty,IRD.ShortageRatePercent,IRD.ShortageValue
-									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
-							        ,NetQty=IRD.TransactionQty-IRD.Shortageqty
-                    FROM [TRN].[InventoryReceive] AS IR Left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-                    LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                    LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
-                    LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
-                    LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
-                    LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-                    LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
-                    LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
-                    LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-                    LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount
-					, SUM(A.TotalMaterialTranAmount) AS BaseAmount ,sum(TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-					, SUM(GRNQty) AS GRNQTY,SUM (GRNTotalAmount) AS GRNValue ,SUM (ShortageQty) AS Shortageqty, SUM(ShortageRatePercent) AS ShortageRatePercent 
-					,Sum(ShortageValue) AS ShortageValue,Sum(RejectionQty) AS RejectionQty,Sum(RejectRatePercent) AS RejectRatePercent ,Sum(RejectValue) AS RejectionValue
-					,Sum(RejectClamPercent) AS RejectClamPercent,Sum(ChargesTranAmount) AS ServiceTranAmount,Sum( ChargesTaxTranAmount) ServiceTaxTranAmount,Sum(TotalTaxAmount) AS MaterialTaxAmount
-
-					FROM [TRN].[InventoryReceiveDetail] AS A
-		                        JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id  GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                    LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
-		                            GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                    LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-                    LEFT JOIN EmployeeInformation ei2 on ei2.SystemId=IR.EmployeeId
-                    LEFT JOIN (Select count(Id) as CtnId, GRNID from TRN.GRNApprovalLogTbl where Status='APPROVED' group by GRNID) as GAG on GAG.GRNID=IR.Id
-                    left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
-                    Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
-                    WHERE  --ISNULL(IR.[Status],'')<>'Posting' 
-                        IR.OpeningBalanceId IS NULL  
-                    And IR.IsApproved =1 And IR.CheckedByStatus='Checked' 
-                    And IR.AuthorizedByStatus='Approved' 
-                    AND IR.AuthorizedBy='" + identity.EmployeeId + @"'
-                    AND GAG.CtnId <> 0 
-
-                    UNION ALL
-                     SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
-                                    , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-                                    --,IR.GRNDate
-                                , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, isnull(P.UserName,'') AS PartyName
-			                    , CP.UserName AS PartyAccountGroupName
-	                            , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-	                            , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-	                            , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-	                            , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-	                            , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                            , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, Round(IRD.TransactionAmount,2) TransactionAmount, round(IRD.BaseAmount,2) BaseAmount, round(IRD.BaseAmount,2) TotalMaterialTranAmount,Round(IRD.TotalMaterialBooksCurrencyAmount,2) TotalMaterialBooksCurrencyAmount, IR.ToCurrencyRate
-                                , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
-			                    , IR.IsApproved, IR.IsPaymentHold,IR.POID, ISNULL(GAG.CtnId, 0) AS CtnId ,isnull(ei2.EmployeeName,'') As EmployeeName
-			                    ,isnull(IR.GateEntryNo,0) GateEntryNo
-			                    ,isnull(PWG.UserName ,'') GateName,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.GRNType  GRNType1
-								,IRD.GRNQTY,IRD.GRNValue,IRD.Shortageqty,IRD.ShortageRatePercent,IRD.ShortageValue
-								,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
-							    ,NetQty=IRD.TransactionQty-IRD.Shortageqty
-                    FROM [TRN].[InventoryReceive] AS IR Left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-                    LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                    LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
-                    LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
-                    LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
-                    LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-                    LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
-                    LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
-                    LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-                    LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount
-					, SUM(A.TotalMaterialTranAmount) AS BaseAmount ,sum(TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
-					, SUM(GRNQty) AS GRNQTY,SUM (GRNTotalAmount) AS GRNValue ,SUM (ShortageQty) AS Shortageqty, SUM(ShortageRatePercent) AS ShortageRatePercent 
-					,Sum(ShortageValue) AS ShortageValue,Sum(RejectionQty) AS RejectionQty,Sum(RejectRatePercent) AS RejectRatePercent ,Sum(RejectValue) AS RejectionValue
-					,Sum(RejectClamPercent) AS RejectClamPercent,Sum(ChargesTranAmount) AS ServiceTranAmount,Sum( ChargesTaxTranAmount) ServiceTaxTranAmount,Sum(TotalTaxAmount) AS MaterialTaxAmount
-					FROM [TRN].[InventoryReceiveDetail] AS A
-		                        JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id  GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                    LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
-		                            GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                    LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-                    LEFT JOIN EmployeeInformation ei2 on ei2.SystemId=IR.EmployeeId
-                    LEFT JOIN (Select count(Id) as CtnId, GRNID from TRN.GRNApprovalLogTbl where Status='APPROVED' group by GRNID) as GAG on GAG.GRNID=IR.Id
-                    left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
-                    Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
-                    WHERE  --ISNULL(IR.[Status],'')<>'Posting' 
-                        IR.OpeningBalanceId IS NULL  
-                    And IR.IsApproved =1 And IR.CheckedByStatus Is null
-                    And IR.AuthorizedByStatus='Approved'
-                    AND IR.AuthorizedBy='" + identity.EmployeeId + @"'
-                    AND GAG.CtnId <> 0 
-                    )x
-                    Order by GRNDate ASC";
-                return _sqlRepository.GetDataCollection(Sql);//IR.PlantId='" + plantId + @"' AND
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-            }
-        }
+        
 
         public void PoApproved1(string PoId, string PoValue)
         {
@@ -11611,1436 +11598,6 @@ namespace Library.MaterialManagement.Inventory
             }
         }
         #endregion
-        #region GetPurchaseRegister
-
-        public IEnumerable<object> GetPurchaseRegister(string fromDate, string toDate, string Type)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            try
-            {
-                var sql = "";
-
-
-                sql = @"Select * from (SELECT   --ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo                           
-						   Distinct REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
-							,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
-							,IR.Id As GRNId
-							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
-							when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
-							when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
-									else '' end
-						   ,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-						   --,p.Id
-                            ,p.UserName AS PartyName
-						   ,EI.EmployeeName FirstName						   
-						   ,IRD.Id As GrnDetailId
-						   ,IR.GateEntryNo,ISNULL(PWG.UserName,'') GateName
-						   --,IR.InvoiceNo
-						   --, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-						   ,IR.DocRefNo,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
-						  ,MT.UserName MaterialType
-						  ,MGM.UserName AS MaterialGroupMasterName
-						  ,IM.MaterialMasterId
-						  ,MM.UserName MaterialMasterName
-					   -- , IM.ArticleId
-						, ART.StandardName ArticleName
-                        ,IsAsset=CASE WHEN MM.IsAsset=0 then 'No' else 'Yes' END
-                        ,GRNAsset=CASE WHEN IRD.IsAsset =0 then 'No' else 'Yes' END 
-						--, IM.FirstCharacteristicsId
-						--, FC.UserName AS FirstCharacteristics
-						--, IM.FirstCharacteristicsValueId
-						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
-						--, IM.SecondCharacteristicsId
-						--, SC.UserName AS SecondCharacteristics
-						--, IM.SecondCharacteristicsValueId
-						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
-						--, IM.ThirdCharacteristicsId
-						--, TC.UserName AS ThirdCharacteristics
-						--, IM.ThirdCharacteristicsValueId
-						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-						,TUoM.UserName AS UOM
-						,IRD.TransactionQty
-						,IRD.ShortageQty
-						,IRD.ShortageRatePercent
-						,IRD.ShortageValue
-						,IRD.RejectionQty
-						,IRD.RejectRatePercent
-						,IRD.RejectValue
-						,IRD.RejectClamPercent
-						,IRD.ApprovedQty
-						,IR.IsNonCreditable
-						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-						,ROUND(Isnull(IRD.MaterialTranRate,0),2) MaterialTranRate
-						,ROUND(Isnull(IRD.MaterialTranAmount,0),2) MaterialTranAmount
-						,ROUND(Isnull(IRD.TrnCurrencyBaseRate,0),2) TrnCurrencyBaseRate,ROUND(Isnull(IRD.BooksCurrencyBaseRate,0),2) BooksCurrencyBaseRate
-						,TaxAmount=(SELECT SUM(TaxAmount) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveDetailId=IRD.Id)
-
-						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-						,IRD.ChargesTranAmount ServiceCharge
-						,IRD.ChargesTaxTranAmount ServiceTax
-						,ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2) TotalMaterialTranAmount
-						--,ROUND(Isnull(IRD.TotalMaterialBaseAmount,0),2) TotalMaterialBaseAmount
-						--,Case When IR.IsNonCreditable = 1 
-							--then ROUND(Isnull(IRD.MaterialTranAmount,0),2) + (SELECT SUM(TaxAmount) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveDetailId=IRD.Id) + ((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=IR.Id)/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount +((SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveId=IR.Id AND InventoryServiceId<>'')/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount
-						--when IR.IsNonCreditable = 0
-							--then ROUND(Isnull(IRD.MaterialTranAmount,0),2)  + ((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=IR.Id)/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount
-						--end TotalMaterialTranAmount
-                       ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) TotalMaterialBaseAmount ,IR.AddedBy
-                       ,CASE 
-					        	WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
-								WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.AuthorizedBy is null And IR.AuthorizedByStatus is null Then 'To be Checked'										
-								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  Then 'To be approved'
-							
-
-								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Hold' Then 'Checking Hold'
-								WHEN IR.CheckedBy is not null AND IR.CheckedByStatus = 'Rejected' Then 'Checking Rejected'
-                                WHEN IR.CheckedBy is not null ANd IR.AuthorizedByStatus = 'Hold' Then 'Approving Hold'
-								WHEN IR.CheckedBy is not null AND IR.AuthorizedByStatus = 'Rejected' Then 'Approving Rejected'	 
-								END GRNCheckStatus
-						,IGL.UserName AS GL
-						,IGL.AccountCode GLCode
-						,IA.Id ActivityId
-						,IA.UserName Activity
-						,IA.Code ActivityCode
-						,IBM.RefNo BudgetrefNo
-						,B.UserName AS Budget
-                        ,IGL1.UserName AS CGL
-						,IGL1.AccountCode CGLCode
-						,IA1.Id CActivityId
-						,IA1.UserName AS CActivity
-						,IA1.Code CActivityCode
-						,IBM1.RefNo CBudgetrefNo
-						,B1.UserName AS CBUdget
-                        ,EI1.EmployeeName CheckedBY
-						,EI2.EmployeeName AuthorizedBy
-                        --,IRD.POId
-						 ,POId= STUFF((select distinct ','+PG.POId
-			                            FROM TRN.POGGRNMap PG 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						,IRD.PODetailsId AS PORowId
-                        ,MS.UserName as StorageLocation--,V.VoucherNo
-
-						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
-						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
-						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
-                        --,isnull(p.TINNO,'') GSTINNo
-						,isnull(PP.GSTIN,'') GSTINNo
-						,IR.PartyId ,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
-						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
-						,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount--,Isnull(C.ContractNo,'') ContractNo
-						,ISNULL(PID.RefferenceNo,'') RefferenceNo
-						--,isnull(PO.POId,'') POId
-						,isnull(PO.PurchaseLCId,'') PurchaseLCId
-						,isnull(PO.ContractId,'') ContractId						
-						,ISNull(po.ContractNo,'') ContractNo
-						,isnull(PO.LCANo,'') LCANo
-						,isnull(PO.LCDate,'') LCDate
-						,ISNULL(IRD.IssueQty,0) IssueQty
-						,ISNULL(IRD.BaseIssueQty,0) BaseIssueQty
-						,ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty
-						,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty
-						,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty
-						,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty
-						,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty	 				
-						,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM,CU.Code CurrencyName
-					from TRN.InventoryMaterial AS IM
-					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
-					LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-					LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
-					LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
-					LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
-					LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
-					LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
-					LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
-					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
-					left jOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id --and ird.InventoryReceiveId='1987'
-					left join trn.InventoryReceiveTax IRT ON IRT.InventoryReceiveDetailId=IRD.Id
-				    --Left JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=IRT.HSNCodeId
-					left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=IRD.InventoryReceiveId
-					left JOIN [TRN].[PurchaseOrderDetail] AS PID on PID.Id=IRD.PODetailsId 
-					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id	
-					left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
-					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id				
-					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId 
-					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
-					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
-					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
-                    LEFT JOIN hkp.MaterialStorage AS MS ON MS.Id=IR.MaterialStorageId
-					LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
-					LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
-                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
-					left join trn.Voucher V on V.Id=I.VoucherId
-                    left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
-					left join trn.Voucher V1 on V1.Id=ep.VoucherId
-                    LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IRD.PostDrGLGeneralInfoId 
-					LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IRD.PostDrBudgetMasterId
-					LEFT JOIN HKP.Activity IA ON IA.Id=IRD.PostDrActivityId
-					Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-                    LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IRD.PostCrGLGeneralInfoId 
-					LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IRD.PostCrBudgetMasterId
-					LEFT JOIN HKP.Activity IA1 ON IA1.Id=IRD.PostCrActivityId
-					Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
-	               LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode 
-								FROM [TRN].[InventoryReceiveTax] A
-								LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-								left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-								WHERE B.Code='CGST' and A.InventoryServiceId IS NULL
-								--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 								
-							) TAxInfo	ON TAxInfo.InventoryReceiveDetailId=IRD.Id 
-						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode FROM [TRN].[InventoryReceiveTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='IGST' and A.InventoryServiceId IS NULL
-									--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
-
-									) TAxInfo1	ON TAxInfo1.InventoryReceiveDetailId=IRD.Id 
-							  		 
-						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode FROM [TRN].[InventoryReceiveTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='SGST' and A.InventoryServiceId IS NULL 
-									--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
-
-									) TAxInfo2	ON TAxInfo2.InventoryReceiveDetailId=IRD.Id 
-
-						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									WHERE B.Code='TDS' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
-									) TAxInfo3	ON TAxInfo3.InventoryReceiveDetailId=IRD.Id 
-
-
-							
-						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
-									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='VAT' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
-						) TAxInfo4 ON TAxInfo4.InventoryReceiveDetailId=IRD.Id
-
-						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
-									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='AIT' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-							
-						) TAxInfo5 ON TAxInfo5.InventoryReceiveDetailId=IRD.Id
-						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
-									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='TCS' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
-						) TAxInfo6 ON TAxInfo6.InventoryReceiveDetailId=IRD.Id
-	               
-						LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
-						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
-							--left join  trn.POGGRNMap POGGRNMap ON POGGRNMap.GRNId=IR.Id
-						--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
-						LEFT JOIN(
-							   SELECT distinct PDAMAP.GRNId, IR.IsClosed,IR.PartyId, IR.POType
-								,ContractId=STUFF((select distinct ','+xpo.ContractId from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								
-							    ,UDNo=STUFF((select distinct ','+C.UDNo from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								,ContractNo=STUFF((select distinct ','+C.ContractNo from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								
-								,PurchaseLCId=STUFF((select distinct ','+PLC.Id from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-
-								,LCANo=STUFF((select distinct ','+PLC.LCRef from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								
-								,LCDate=STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), PLC.LCDate, 106),' ','-') from
-								trn.PurchaseOrder xpo
-								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
-								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								from  trn.POGGRNMap PDAMAP 
-							  LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id = PDAMAP.POId
-							  LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
-							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
-							)PO ON PO.GRNId = IR.Id
-						 where  IR.PlantId='" + identity.PlantId + "'  AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
-
-							UNION ALL
-
-						SELECT 	--ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo                           
-						   Distinct REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
-							,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
-							,IR.Id As GRNId
-							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
-							when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
-							when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
-									else '' end --HSNC.Code HSNCode
-						   ,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-						   --,p.Id
-                            ,p.UserName AS PartyName
-						   ,EI.EmployeeName FirstName						   
-						   ,Null As GrnDetailId
-						   ,IR.GateEntryNo,ISNULL(PWG.UserName,'') GateName
-						   --,IR.InvoiceNo
-						   --, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-						   ,IR.DocRefNo,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
-						  ,NULL MaterialType
-						  ,NULL MaterialGroupMasterName
-						  ,NULL MaterialMasterId
-						    ,SM.UserName MaterialMasterName
-					   -- , IM.ArticleId
-						, SM.UserName ArticleName
-                        ,'No' IsAsset
-                        ,'No' GRNAsset
-						--, IM.FirstCharacteristicsId
-						--, FC.UserName AS FirstCharacteristics
-						--, IM.FirstCharacteristicsValueId
-						, NULL FirstCharacteristicsValue
-						--, IM.SecondCharacteristicsId
-						--, SC.UserName AS SecondCharacteristics
-						--, IM.SecondCharacteristicsValueId
-						, NULL SecondCharacteristicsValue
-						--, IM.ThirdCharacteristicsId
-						--, TC.UserName AS ThirdCharacteristics
-						--, IM.ThirdCharacteristicsValueId
-						, NULL ThirdCharacteristicsValue 
-						,NULL AS UOM
-						,0 TransactionQty
-						,0 ShortageQty
-						,0 ShortageRatePercent
-						,0 ShortageValue
-						,0 RejectionQty
-						,0 RejectRatePercent
-						,0 RejectValue
-						,0 RejectClamPercent
-						,0 ApprovedQty
-						,IsNULL(IR.IsNonCreditable,0) IsNonCreditable
-						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-						,0 MaterialTranRate
-						,ISs.Amount MaterialTranAmount
-						,0 TrnCurrencyBaseRate
-						,0 BooksCurrencyBaseRate
-						, 0 TaxAmount
-						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-						,round(isnull(TAxInfo5.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-						,0 ServiceCharge
-						,0 ServiceTax
-						--,ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2) TotalMaterialTranAmount
-						--,ROUND(Isnull(IRD.TotalMaterialBaseAmount,0),2) TotalMaterialBaseAmount
-						--,Case When IR.IsNonCreditable = 1 
-						--	then ROUND(Isnull(IRD.MaterialTranAmount,0),2) + (SELECT SUM(TaxAmount) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveDetailId=IRD.Id) + ((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=IR.Id)/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount +((SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveId=IR.Id AND InventoryServiceId<>'')/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount
-						--when IR.IsNonCreditable = 0
-						--	then ROUND(Isnull(IRD.MaterialTranAmount,0),2)  + ((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=IR.Id)/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount
-						--end TotalMaterialTranAmount
-						,0 TotalMaterialTranAmount
-                       ,0 TotalMaterialBaseAmount ,IR.AddedBy
-                       ,CASE 
-					        	WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
-								WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.AuthorizedBy is null And IR.AuthorizedByStatus is null Then 'To be Checked'										
-								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  Then 'To be approved'
-							
-
-								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Hold' Then 'Checking Hold'
-								WHEN IR.CheckedBy is not null AND IR.CheckedByStatus = 'Rejected' Then 'Checking Rejected'
-                                WHEN IR.CheckedBy is not null ANd IR.AuthorizedByStatus = 'Hold' Then 'Approving Hold'
-								WHEN IR.CheckedBy is not null AND IR.AuthorizedByStatus = 'Rejected' Then 'Approving Rejected'	 
-								END GRNCheckStatus
-						,Null AS GL
-						,Null GLCode
-						,Null ActivityId
-						,Null Activity
-						,Null ActivityCode
-						,Null BudgetrefNo
-						,Null AS Budget
-                        ,Null AS CGL
-						,Null CGLCode
-						,Null CActivityId
-						,Null AS CActivity
-						,Null CActivityCode
-						,Null CBudgetrefNo
-						,NULL AS CBUdget
-                        ,EI1.EmployeeName CheckedBY
-						,EI2.EmployeeName AuthorizedBy
-                         --,IR.POId
-						 ,POId= STUFF((select distinct ','+PG.POId
-			                            FROM TRN.POGGRNMap PG 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						,NULL AS PORowId
-                        ,MS.UserName as StorageLocation--,V.VoucherNo
-
-						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
-						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
-						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
-                       -- ,isnull(p.TINNO,'') GSTINNo
-					,isnull(PP.GSTIN,'') GSTINNo
-					,IR.PartyId ,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
-					,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
-					,Null LotNo , Null QualityStatus , Null GrossAmount ,Null DiscountAmount--,Isnull(C.ContractNo,'') ContractNo
-					,'' RefferenceNo
-					,'' PurchaseLCId
-					,'' ContractId						
-					,'' ContractNo
-					,'' LCANo
-					,'' LCDate
-					,0 IssueQty
-					,0 BaseIssueQty
-					,0 PurchaseReturnQty
-					,0 IssueReturnQty
-					,0 ReductionByAdjustmentQty
-					,0 InventorySalesQty
-					,0 InventoryScrapQty						
-					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM,'' CurrencyName
-			from trn.InventoryService AS ISs
-			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
-			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
-			--left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
-			LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId 
-			LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
-			LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
-			LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
-			LEFT JOIN hkp.MaterialStorage AS MS ON MS.Id=IR.MaterialStorageId
-			LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
-			LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
-			left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
-			left join trn.Voucher V on V.Id=I.VoucherId
-			left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
-			left join trn.Voucher V1 on V1.Id=ep.VoucherId
-			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-						,A.TaxAmount TaxAmount,HS.Code HSCode 
-						FROM  [TRN].[InventoryReceiveTax] A
-						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-						WHERE B.Code='CGST'  
-						--Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-						) TAxInfo	ON TAxInfo.InventoryServiceId=ISs.Id AND TAxInfo.InventoryServiceId IS NOT NULL
-
-			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,HS.Code HSCode 
-			FROM [TRN].[InventoryReceiveTax] A
-						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-						WHERE B.Code='IGST' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-
-						) TAxInfo1	ON TAxInfo1.InventoryServiceId=ISs.Id AND TAxInfo1.InventoryServiceId IS NOT NULL 
-							  		 
-			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,HS.Code HSCode 
-			FROM [TRN].[InventoryReceiveTax] A
-						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-						WHERE B.Code='SGST' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-								
-
-						) TAxInfo2	ON TAxInfo2.InventoryServiceId=ISs.Id AND TAxInfo2.InventoryServiceId IS NOT NULL
-
-			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
-						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-						WHERE B.Code='TDS' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-								
-						) TAxInfo3	ON TAxInfo3.InventoryServiceId=ISs.Id AND TAxInfo3.InventoryServiceId IS NOT NULL
-
-
-							
-			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
-						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-						WHERE B.Code='VAT' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-								
-			) TAxInfo4 ON TAxInfo4.InventoryServiceId=ISs.Id AND TAxInfo4.InventoryServiceId IS NOT NULL
-
-			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
-						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-						WHERE B.Code='AIT' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-							
-			) TAxInfo5 ON TAxInfo5.InventoryServiceId=ISs.Id AND TAxInfo5.InventoryServiceId IS NOT NULL
-			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
-						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-						WHERE B.Code='TCS' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-								
-			) TAxInfo6 ON TAxInfo6.InventoryServiceId=ISs.Id AND TAxInfo6.InventoryServiceId IS NOT NULL
-	               
-			LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
-			LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
-			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
-			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
-			--AND IRT.InventoryServiceId is not null
-			AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
-			)x
-			Order By X.GRNEntryDate ASC";
-
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-            }
-        }
-
-        public IEnumerable<object> GetSalesRegisterSql(string FromDate, string ToDate, string Type)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            try
-            {
-                var sql = @"SELECT ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
-								,SM.Id
-								,'' GRNNo
-								--,'' GRNDate
-								,'' InvoicingPartyPlant
-								,'' DeliveryPartyPlant
-								,PPI.GSTIN as GSTINNo
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
-
-								,MGM.UserName AS MaterialGroup
-								,MM.UserName Material
-								--,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
-								--	WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
-								--	ELSE  SA.SourceType END SourceType
-								,SM.SalesId SalesNo
-								--,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') Invoi
-								,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
-								--,SM.SalesOrderId
-								--,MO.Id MasterOrderId
-								--,SO.Id SONo
-								--,po.PONumber CustomerPONo
-								--,PPI.UserName AS BillTo
-								--,AM.Address1 as  BillToAddress
-								--,ST.UserName as  BillToState
-								--,PPD.UserName AS ShipTo
-								--,AMD.Address1 as ShipToAddress
-								--,STD.UserName as ShipToState
-		                        --,PPD.GSTIN as ShipToGSTNo
-								--, SA.ToCurrencyRate ExchangeRate
-								, SA.DocRefNo
-								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocRefDate
-								, P.UserName AS Party,p.Code PartyCode,p.PartyType
-								,ART.StandardName AS Article
-								,FCV.UserName FirstCharacteristicsValue
-								,SCV.UserName SecondCharacteristicsValue
-								,TCV.UserName ThirdCharacteristicsValue
-								--,'' HSNCode
-								--,SM.BaseRate
-								--,SM.BaseUoMFactor
-								,SM.TransactionRate
-								,SM.TransactionQty
-								--,SM.TransactionAmount
-								,SM.TaxAmount
-								--,SM.NetAmount
-								--,SM.NetAmount * SA.ToCurrencyRate BooksVal
-								--,v.VoucherNo
-								,BUoM.UserName AS BaseUoM
-								,TUoM.UserName AS TransactionUoM
-								,CU.Code AS Currency
-								--,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate
-								--,DT.UserName DestinationName
-								--,SO.SOType
-								--,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
-								--,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
-								--,E.UserName Entity
-								--,'' CheckedByName
-								--,'' CheckedBy
-								--,'' ApprovedByName
-								--,'' ApprovedBy
-								,Posted=CASE WHEN SA.VoucherId IS NULL THEN 'No' ELSE 'YES'  END
-								--,ISNULL(SA.Narration,'') NoteForAccounts
-								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-
-								,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
-
-		                        --,PSI.CNFContainerNo ContainerNo,PSI.TransportDriverName as TransporterName,PSI.TransportDocRefNo 
-								--,FORMAT( PSI.TransportDocDate, 'dd-MMM-yyyy')TransportDocDate,Agent.UserName as CNFAgent
-								,''AgentCommission
-								,'' Insurance
-								,PSI.CargoGrossWt GrossWeight,''LoTNo
-								,CON.ContractNo
-								,ML.LCRef
-								,SA.ComercialInvoiceNo
-								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
-								,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate
-								,PTM.UserName PaymentTerm,FORMAT(SA.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
-								,SA.BaseNoOfDays NoOfDays
-							    ,FORMAT(SA.MatureDate,'dd-MMM-yyyy') MatureDate
-								,PL.Amount LCAmount
-								,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
-								--,TA.UserName TransportAgent	
-
-								--,CNfA.UserName CNFAgent
-								,PSI.CNFContainerNo
-								,PSI.CNFVesselTrackingNo
-								, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
-		                                         from trn.SalesMaterial SMX									 
-												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
-												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
-									                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-													, RealizeAmount=isnull(I.WrittenOffAmount,0)
-
-									, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
-		                                         from trn.InvoiceWriteOffDetail IWD									 
-												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
-												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
-								                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
-
-
-								FROM TRN.SalesMaterial AS SM 
-								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
-
-									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
-									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
-									left outer join PurchaseLC PL on PL.ContractId=CON.Id
-									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
-									left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
-									left outer join MST.PaymentTerm PTM on PTM.Id=SA.PaymentTermId
-
-									left outer join HKP.Party CNfA on CNfA.Id=SA.PartyId
-									left outer join HKP.Party TA on TA.Id=SA.PartyId
-
-
-						--LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
-						--LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
-						LEFT JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
-						LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-						LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
-						LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
-						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-						LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
-						LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id=SM.FirstCharacteristicsId AND SM.SalesOrderId=FC.SalesOrderId
-						LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id=SM.FirstCharacteristicsValueId
-						LEFT JOIN [HKP].[Characteristics] AS CH ON FC.CharacteristicsId=CH.Id
-						LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=SM.SecondCharacteristicsId AND SM.SalesOrderId=SC.SalesOrderId
-						LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=SM.SecondCharacteristicsValueId
-						LEFT JOIN [HKP].[Characteristics] AS CH2 ON SC.CharacteristicsId=CH2.Id
-						LEFT JOIN TRN.ThirdCharacteristics AS TC ON TC.Id=SM.ThirdCharacteristicsId AND SM.SalesOrderId=TC.SalesOrderId
-						LEFT JOIN HKP.CharacteristicsValue AS TCV ON TCV.Id=SM.ThirdCharacteristicsValueId
-						LEFT JOIN [HKP].[Characteristics] AS CH3 ON TC.CharacteristicsId=CH3.Id
-						LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
-						LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON SM.BaseUOMId=BUoM.Id
-						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
-						LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
-						LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.InvoicingPartyPlantId
-						LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
-						LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
-						LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=SA.DeliveryPartyPlantId
-						LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id=PPD.AddressMasterId
-						LEFT JOIN [SCS].[State] AS STD ON STD.Id=AMD.StateId
-						LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
-						LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=SA.PlantId
-						Left JOIN [ORG].[Entity] E On E.id= SA.EntityId
-						LEFT JOIN (SELECT SUM(Amount) Amount,SUM(WrittenOffAmount) WrittenOffAmount,VoucherId 
-										FROM TRN.Invoice GROUP BY VoucherId) I ON I.VoucherId=SA.VoucherId
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='CGST' and A.SalesServiceId IS NULL
-									--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								   ) TAxInfo	ON TAxInfo.SalesMaterialId=SM.Id 
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='IGST' and A.SalesServiceId IS NULL	
-									) TAxInfo1	ON TAxInfo1.SalesMaterialId=SM.Id 
-							  		 
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='SGST' and A.SalesServiceId IS NULL	
-									) TAxInfo2	ON TAxInfo2.SalesMaterialId=SM.Id 
-
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TDS' and A.SalesServiceId IS NULL									
-									) TAxInfo3	ON TAxInfo3.SalesMaterialId=SM.Id 
-
-
-							
-					
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TCS' and A.SalesServiceId IS NULL		 
-								
-						) TAxInfo6 ON TAxInfo6.SalesMaterialId=SM.Id 
-						LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
-                        --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
-						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
-
-								WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
-
-									UNION ALL
-
-														Select                  
-								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
-								,ISs.Id
-								,'' SalesNo
-								--,'' GRNDate
-								,'' InvoicingPartyPlant
-								,'' DeliveryPartyPlant
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
-
-								--,IR.SourceType
-								,'' AS MaterialGroup
-								,SM.UserName Material
-								,IR.Id SalesId
-								--,FORMAT(IR.EntryDate, 'dd-MMM-yyyy') EntryDate
-								,'' InvoiceDate
-								--,'' SalesOrderId
-								--,'' MasterOrderId
-								--,'' SONo
-								--,'' CustomerPONo
-								--,'' AS BillTo
-								--,'' as BillToAddress
-								--,'' as BillToState
-								,'' as BillToGSTNo
-								--,'' AS ShipTo
-								--,'' AS ShipToAddress
-								--,'' AS ShipToState
-								--,'' as ShipToGSTNo
-								--, 0 ExchangeRate
-								, '' DocRefNo
-								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocRefDate
-								, P.UserName AS Party,p.Code PartyCode,p.PartyType
-								,'' AS Article
-								,''FirstCharacteristicsValue
-								,'' SecondCharacteristicsValue
-								,'' ThirdCharacteristicsValue
-								--, '' HSNCode
-								--,0 BaseRate
-								--,0 BaseUoMFactor
-								,0 TransactionRate
-								,0 TransactionQty
-								--,ISs.Amount TransactionAmount
-								,ISs.TaxAmount 
-								--,0 NetAmount
-								--,0 BooksVal
-								--,'' VoucherNo
-								,''  BaseUoM
-								,''  TransactionUoM
-								,''  Currency
-								--,'' DeliveryDate
-								--,'' DestinationName
-								--,'' SOType
-								--,0 ServiceCharge
-								--, 0 ServiceTax
-								--,E.UserName Entity
-								--,'' CheckedByName
-								--,'' CheckedBy
-								--,'' ApprovedByName
-								--,'' ApprovedBy
-								,'' Posted
-								--,'' 'NoteForAccounts'
-
-								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-
-								,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
-								--,''ContainerNo ,''TransporterName,''TransportDocRefNo 
-								--,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') TransportDocDate,''CNFAgent
-								,''AgentCommission
-								,'' Insurance
-		,''GrossWeight,''LoTNo
-		,CON.ContractNo
-								,ML.LCRef 
-								,IR.ComercialInvoiceNo
-								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
-								,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate
-								,PTM.UserName PaymentTerm,FORMAT(IR.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
-								,IR.BaseNoOfDays NoOfDays
-							    ,FORMAT(IR.MatureDate,'dd-MMM-yyyy') MatureDate
-								,PL.Amount LCAmount
-								,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
-								--,TA.UserName TransportAgent	
-
-								--,CNfA.UserName CNFAgent
-								,PSI.CNFContainerNo
-								,PSI.CNFVesselTrackingNo
-								, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
-		                                         from trn.SalesMaterial SMX									 
-												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
-												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
-									                where smx.SalesId=IR.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-													, RealizeAmount=isnull(I.WrittenOffAmount,0)
-
-									, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
-		                                         from trn.InvoiceWriteOffDetail IWD									 
-												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
-												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
-								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-									--, BalanceAmount=isnull(ISNULL(ISs.Amount,0)- ISNULL(I.WrittenOffAmount,0),0)
-
-								from trn.SalesService AS ISs
-								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
-								left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
-								left outer join trn.SalesMaterial IRM on IRM.SalesId=IR.Id
-									left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
-									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
-									left outer join PurchaseLC PL on PL.ContractId=CON.Id
-									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
-									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
-									left outer join MST.PaymentTerm PTM on PTM.Id=IR.PaymentTermId
-
-									left outer join HKP.Party CNfA on CNfA.Id=IR.PartyId
-									left outer join HKP.Party TA on TA.Id=IR.PartyId
-
-						LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
-						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
-						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
-						left JOIN trn.Invoice as I ON I.InventorySalesId=IR.Id					
-						left join trn.Voucher V on V.Id=I.VoucherId
-						left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
-						left join trn.Voucher V1 on V1.Id=ep.VoucherId
-						Left JOIN [ORG].[Entity] E On E.id= IR.EntityId
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='CGST'  
-									
-									) TAxInfo	ON TAxInfo.SalesServiceId=ISs.Id AND TAxInfo.SalesServiceId IS NOT NULL
-
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='IGST'  
-									) TAxInfo1	ON TAxInfo1.SalesServiceId=ISs.Id AND TAxInfo1.SalesServiceId IS NOT NULL 
-							  		 
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='SGST'  
-
-											) TAxInfo2	ON TAxInfo2.SalesServiceId=ISs.Id AND TAxInfo2.SalesServiceId IS NOT NULL
-
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TDS'  
-									) TAxInfo3	ON TAxInfo3.SalesServiceId=ISs.Id AND TAxInfo3.SalesServiceId IS NOT NULL
-
-
-						
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TCS'
-						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
-
-								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
-								union ALL
-
-								SELECT 
-								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
-								,IID.Id
-								,'' SalesNo
-								--,'' GRNDate
-								,'' InvoicingPartyPlant
-								,'' DeliveryPartyPlant
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
-
-								--,'InventorySales' SourceType
-								,MGM.UserName AS MaterialGroup
-								,MM.UserName Material
-								,II.Id SalesInvoiceNo
-								--,FORMAT(II.SalesDate, 'dd-MMM-yyyy') EntryDate
-								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') InvoiceDate
-								--,'' SalesOrderId
-								--,'' MasterOrderId
-								--,'' SONo
-								--,'' CustomerPONo
-								--,PPI.UserName AS BillTo
-								--,AM.Address1 as BillToAddress
-								--,ST.UserName as BillToState				
-								,PPI.GSTIN as BillToGSTNo
-								--,PPI1.UserName ShipTo
-								--,AM1.Address1 ShipToAddress
-								--,ST1.UserName ShipToState
-								--,PPI1.GSTIN ShipToGSTNo
-								--,II.ToCurrencyRate ExchangeRate
-								, II.DocRefNo
-								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocRefDate
-								, P.UserName AS Party,p.Code PartyCode,p.PartyType
-								,ART.StandardName AS Article
-								, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue							
-								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
-								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-								--, ISNULL(TAxInfo.HSCode,'') HSNCode
-
-								--,IID.SalesRate BaseRate
-								--,IRD.BaseUoMFactor 
-								,IID.SalesRate TransactionRate
-								,IID.TransactionQty 
-								--,IID.TransactionQty *IID.SalesRate TransactionAmount
-								,SCr1.TaxAmount TaxAmount
-								--,IID.[TotalSalesAmount] NetAmount
-								--,IID.[BooksCurrencyTransactionAmount] BooksVal
-								--,II.VoucherId VoucherNo
-								,TUoM.UserName AS BaseUoM
-								,TUoM.UserName AS TransactionUoM
-								,CU.Code AS Currency
-								--,'' DeliveryDate
-								--,'' DestinationName
-								--,'' SOType
-								--,SCr.Amount ServiceCharge
-								--,SCr.TotalTaxAmount ServiceTax
-
-								--,E.UserName AS Entity 
-								--,EI2.EmployeeName CheckedByName
-								--,II.CheckedBy
-								--,EI1.EmployeeName ApprovedByName
-								--,II.ApprovedBy
-								,Posted=CASE WHEN II.[Status]='Posting' then 'Yes' else 'No'  END
-								--,CAST(II.NoteForAccounts AS NVARCHAR(MAX)) 'NoteForAccounts'
-
-								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-
-								,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
-								--,''ContainerNo ,''TransporterName,''TransportDocRefNo 
-								--,''TransportDocDate,''CNFAgent
-								,''AgentCommission
-								,'' Insurance
-		,''GrossWeight,''LoTNo
-		,''ContractNo
-								,''LCRef
-								,''ComercialInvoiceNo
-								,''ExpiryDate
-								,''BLAWBNo,''BLAWBDate
-								,''PaymentTerm,''BaseOnDueDate
-								,0NoOfDays
-							    ,''MatureDate
-								,0LCAmount
-								,''ExFactoryDate
-								--,''TransportAgent	
-
-								--,''CNFAgent
-								,''CNFContainerNo
-								,''CNFVesselTrackingNo
-								,''OwnReferenceNo
-													,0 RealizeAmount
-
-									,''RealizeDate
-
-									--,0BalanceAmount
-
-								FROM[TRN].[InventorySalesDetail] AS IID
-								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
-								left JOIN [TRN].[InventorySalesHistory] AS ISH on ISH.InventorySalesDetailId=IID.ID
-								left JOIN [TRN].[InventoryReceiveDetail] AS IRD on ISH.InventoryReceiveDetailId=IRD.ID
-								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
-								left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
-								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
-								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-								LEFT JOIN SCS.Currency AS CU ON CU.Id=II.CurrencyId
-								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
-								LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
-								LEFT JOIN [SCS].[State] as ST on ST.Id=AM.StateId
-
-						LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId left Join hkp.Party P On p.id=II.CustomerId
-						LEFT JOIN [MST].[AddressMaster] AS AM1 ON AM1.Id=PPI1.AddressMasterId
-						LEFT JOIN [SCS].[State] as ST1 on ST1.Id=AM1.StateId
-						Left Join employeeinformation EI2 On EI2.SystemId=II.CheckedBy
-						Left Join employeeinformation EI1 On EI1.SystemId=II.CheckedBy
-						Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
-						Left Join [ORG].[Company] Com  ON Com.Id=II.CompanyId
-						Left Join [ORG].[CompanyGroup] ComG  ON ComG.Id=II.CompanyGroupId
-						--Left Join [HKP].[Party] Par As Par.Id=II.P
-						LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id=IID.InventoryMaterialId
-						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-					--	LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
-						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id			
-						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
-						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
-						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
-						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
-						LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
-						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
-						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
-						LEFT JOIN(Select sum(Amount) Amount, sum(TotalTaxAmount) TotalTaxAmount, InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
-						LEFT JOIN(Select distinct sum(TaxAmount) TaxAmount, InventorySalesId from trn.InventorySalesTax group by InventorySalesId)SCr1 ON SCr1.InventorySalesId=II.Id
-			LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
-									FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-
-									WHERE B.Code='CGST' and A.InventorySalesServiceId IS NULL	
-									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId								
-								   ) TAxInfo	ON TAxInfo.InventorySalesId=IID.InventorySalesId and TAxInfo.InventorySalesDetailId=IID.Id
-						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
-									FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-
-									WHERE B.Code='IGST' and A.InventorySalesServiceId IS NULL	
-									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId									
-									) TAxInfo1	ON TAxInfo1.InventorySalesId=IID.InventorySalesId and TAxInfo1.InventorySalesDetailId=IID.Id 
-							  		 
-						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
-									FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-
-									WHERE B.Code='SGST' and A.InventorySalesServiceId IS NULL	
-									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId										
-									) TAxInfo2	ON TAxInfo2.InventorySalesId=IID.InventorySalesId and TAxInfo2.InventorySalesDetailId=IID.Id 
-
-						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
-									FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-
-									WHERE B.Code='TDS' and A.InventorySalesServiceId IS NULL	
-									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId						
-									) TAxInfo3	ON TAxInfo3.InventorySalesId=IID.InventorySalesId and TAxInfo3.InventorySalesDetailId=IID.Id 							
-					
-						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount FROM 
-									[TRN].InventorySalesAdditionalTax A
-									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='TCS' 	
-									Group by A.InventorySalesId, B.UserName ,B.Code 
-						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
-						
-						WHERE II.PlantId='" + identity.PlantId + "' AND convert(Date,II.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
-					
-
-								UNION ALL
-
-								Select                  
-								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
-								,ISs.Id
-								,'' SalesNo
-								--,'' GRNDate
-								,'' InvoicingPartyPlant
-								,'' DeliveryPartyPlant
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
-
-								,IR.Id SalesInvoiceNo
-								,'' AS MaterialGroup
-								,SM.UserName MaterialM
-								--,'InventorySales' SourceType
-								--,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') EntryDate
-								,'' InvoiceDate
-								--,'' SalesOrderId
-								--,'' MasterOrderId
-								--,'' SONo
-								--,'' CustomerPONo
-								--,'' AS BillTo
-								--,'' AS BillToAddress
-								--,'' AS BillToState
-								,'' as BillToGSTNo
-								--,'' AS ShipTo
-								--,'' AS ShipToAddress
-								--,'' AS ShipToState	
-								--,'' as ShipToGSTNo
-								--, 0 ExchangeRate
-								, '' DocRefNo
-								,FORMAT(IR.DocDate,'') DocRefDate
-								, P.UserName AS Party,p.Code PartyCode,p.PartyType
-								,'' AS Article
-								,''FirstCharacteristicsValue
-								,'' SecondCharacteristicsValue
-								,'' ThirdCharacteristicsValue
-								--, '' HSNCode
-
-								--,0 BaseRate
-								--,0 BaseUoMFactor
-								,0 TransactionRate
-								,0 TransactionQty
-								--,ISs.Amount TransactionAmount
-								,0 TaxAmount
-								--,ISs.Amount NetAmount
-								--,ISs.Amount BooksVal
-								--,'' VoucherNo
-								,'' AS BaseUoM
-								,'' AS TransactionUoM
-								,'' AS Currency
-								--,'' DeliveryDate
-								--,'' DestinationName
-								--,'' SOType
-								--,0 ServiceCharge
-								--,0 ServiceTax
-								--,E.UserName Entity
-								--,'' CheckedByName
-								--,'' CheckedBy
-								--,'' ApprovedByName
-								--,'' ApprovedBy
-								,'' Posted
-								--,'' 'NoteForAccounts'
-
-						,round(isnull(TAxInfo.TaxAmount,0),2)  CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-
-						,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
-						--,''ContainerNo ,''TransporterName,''TransportDocRefNo 
-						--,''TransportDocDate,''CNFAgent
-						,''AgentCommission
-						,'' Insurance
-,''GrossWeight,''LoTNo
-,''ContractNo
-						,''LCRef
-						,''ComercialInvoiceNo
-						,''ExpiryDate
-						,''BLAWBNo,''BLAWBDate
-						,''PaymentTerm,''BaseOnDueDate
-						,0 NoOfDays
-					    ,''MatureDate
-						,0 LCAmount
-						,''ExFactoryDate
-						--,''TransportAgent	
-						
-						--,''CNFAgent
-						,''CNFContainerNo
-						,''CNFVesselTrackingNo
-						,''OwnReferenceNo
-						,0 RealizeAmount
-					    ,''RealizeDate
-
-							--,0BalanceAmount
-						from trn.InventoryService AS ISS
-						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
-						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
-						LEFT JOIN HKP.Party AS P ON P.Id=IR.CustomerId
-						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
-						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
-						left JOIN trn.Invoice as I ON I.InventorySalesId=IR.Id					
-						left join trn.Voucher V on V.Id=I.VoucherId
-						left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
-						left join trn.Voucher V1 on V1.Id=ep.VoucherId
-						Left JOIN [ORG].[Entity] E On E.id= IR.EntityId
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
-									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='CGST'  
-									Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
-									--Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-									) TAxInfo	ON TAxInfo.InventorySalesServiceId=ISs.Id AND TAxInfo.InventorySalesServiceId IS NOT NULL
-
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
-									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='IGST'  
-									Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
-									) TAxInfo1	ON TAxInfo1.InventorySalesServiceId=ISs.Id AND TAxInfo1.InventorySalesServiceId IS NOT NULL 
-							  		 
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
-									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='SGST'  
-                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
-											) TAxInfo2	ON TAxInfo2.InventorySalesServiceId=ISs.Id AND TAxInfo2.InventorySalesServiceId IS NOT NULL
-
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
-									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TDS' 
-                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
-									) TAxInfo3	ON TAxInfo3.InventorySalesServiceId=ISs.Id AND TAxInfo3.InventorySalesServiceId IS NOT NULL
-							
-					
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,Sum(A.Percentage) Percentage
-									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TCS' 
-                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
-						) TAxInfo6 ON TAxInfo6.InventorySalesServiceId=ISs.Id AND TAxInfo6.InventorySalesServiceId IS NOT NULL
-
-								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' ";
-
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-            }
-        }
-        #endregion
-
-
-
 
         #region Grn IssueRequest and Issue
 
@@ -14964,6 +13521,165 @@ namespace Library.MaterialManagement.Inventory
                                 LEFT JOIN SCS.Country C ON C.Id = MRD.CountryId
                                 WHERE MM.IsAsset = 0 
                                 ) AS TEMP WHERE " + strkey + @" order by  TotalQty desc,MaterialMasterName asc
+                                ";
+
+
+                List<Dictionary<string, object>> Data = _sqlRepository.GetDataCollection(sql);
+
+                StringCollection strCol = new StringCollection();
+                string MaterialMasterList = "''";
+                for (int i = 0; i < Data.Count; i++)
+                {
+                    if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
+                        continue;
+                    strCol.Add(Data[i]["MaterialMasterId"].ToString());
+                    MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
+
+                }
+
+                var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
+																	union
+																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
+																	) AS M
+																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
+																	 where m.Id in (" + MaterialMasterList + @")");
+
+                for (int i = 0; i < Data.Count; i++)
+                {
+                    var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
+                    Data[i]["uoMList"] = temp;
+                }
+
+
+                return Data;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GetStockForMaterialIssue(string plantId,string materialMasterId,string articleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = @"select top 500 * from ( SELECT MGM.UserName MaterialMasterGroupName
+                                	,GRN.InventoryMaterialId
+                                	,MT.UserName MaterialType
+                                	,NULL AS uoMList
+                                	,mm.Id MaterialMasterId
+                                	,mm.UserName MaterialMasterName
+                                	,MRD.ArticleId
+                                	,ART.StandardName
+                                	,MRD.FirstCharacteristicsId
+                                	,FC.UserName AS FirstCharacteristics
+                                	,MRD.FirstCharacteristicsValueId
+                                	,isnull(FCV.UserName, '') AS FirstCharacteristicsValue
+                                	,MRD.SecondCharacteristicsId
+                                	,SC.UserName AS SecondCharacteristics
+                                	,MRD.SecondCharacteristicsValueId
+                                	,isnull(SCV.UserName, '') AS SecondCharacteristicsValue
+                                	,MRD.ThirdCharacteristicsId
+                                	,TC.UserName AS ThirdCharacteristics
+                                	,MRD.ThirdCharacteristicsValueId
+                                	,isnull(TCV.UserName, '') AS ThirdCharacteristicsValue
+                                	,Isnull(C.UserName, '') CountryName
+                                	,C.Id CountryId
+                                	,TUoM.Id AS TransactionUoMId
+                                	,TUoM.UserName AS UOM
+                                	,(0) RequestedQty
+                                	,(0) RejectedQty
+                                	,(isnull(GRN.TransactionQty, 0) - (isnull(Issue.IssueQty, 0) - isnull(PurchaseReturnData.Qty, 0) - isnull(InventorySalesData.Qty, 0) - isnull(InventoryTransferData.Qty, 0))) TotalQty
+                                	,0 RequisitionQty
+                                    ,GRN.ShortageQty
+                                	,GRN.RejectionQty
+                                FROM [TRN].[InventoryMaterial] AS MRD
+                                LEFT JOIN MST.MaterialMaster AS MM ON MRD.MaterialMasterId = MM.Id
+                                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                                LEFT JOIN MST.MaterialMasterArticle AS ART ON MRD.ArticleId = ART.Id
+                                LEFT JOIN HKP.Characteristics AS FC ON MRD.FirstCharacteristicsId = FC.Id
+                                LEFT JOIN HKP.Characteristics AS SC ON MRD.SecondCharacteristicsId = SC.Id
+                                LEFT JOIN HKP.Characteristics AS TC ON MRD.ThirdCharacteristicsId = TC.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS FCV ON MRD.FirstCharacteristicsValueId = FCV.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS SCV ON MRD.SecondCharacteristicsValueId = SCV.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS TCV ON MRD.ThirdCharacteristicsValueId = TCV.Id
+                                LEFT JOIN (
+                                	SELECT IRD.InventoryMaterialId
+                                		,Sum(IRD.BaseQty) AS TransactionQty
+                                		,SUM(ird.ShortageQty) ShortageQty
+                                		,SUM(ird.RejectionQty) RejectionQty
+                                	FROM [TRN].[InventoryReceiveDetail] IRD
+                                	LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id = IRD.InventoryReceiveId
+                                	WHERE IR.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY IRD.InventoryMaterialId
+                                	) AS GRN ON GRN.InventoryMaterialId = MRD.Id
+                                LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
+                                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
+                                LEFT JOIN (
+                                	SELECT IID.InventoryMaterialId
+                                		,Sum(IH.Qty) IssueQty
+                                		,Sum(IID.PolicyAmount) PolicyAmount
+                                	FROM TRN.InventoryIssueDetail IID
+                                	LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId = II.Id
+                                	LEFT JOIN TRN.InventoryIssueHistory IH ON IH.InventoryIssueDetailId = IID.Id
+                                	WHERE II.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY IID.InventoryMaterialId
+                                	) Issue ON Issue.InventoryMaterialId = MRD.Id
+                                --Issue Return
+                                LEFT JOIN (
+                                	SELECT IH.InventoryMaterialId
+                                		,sum(IH.Qty) Qty
+                                		,sum(IRD.MaterialTranRate) MaterialTranRate
+                                		,(sum(IH.Qty) * sum(IRD.MaterialTranRate)) IssueReturnAmount
+                                	FROM trn.InventoryIssueReturnHistory IH
+                                	LEFT JOIN trn.InventoryIssueReturn II ON II.Id = IH.InventoryIssueReturnId
+                                	LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.Id = IH.InventoryReceiveDetailId
+                                	WHERE II.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY IH.InventoryMaterialId
+                                	) IssueReturnData ON IssueReturnData.InventoryMaterialId = MRD.Id
+                                --Purchase return
+                                LEFT JOIN (
+                                	SELECT IH.InventoryMaterialId
+                                		,sum(IH.TransactionQty) Qty
+                                		,sum(IRD.MaterialTranRate) MaterialTranRate
+                                		,(sum(IH.TransactionQty) * sum(IRD.MaterialTranRate)) PurchaseReturnAmount
+                                	FROM trn.PurchaseReturnDetail IH
+                                	LEFT JOIN trn.PurchaseReturn II ON II.Id = IH.PurchaseReturnId
+                                	LEFT JOIN trn.InventoryReceiveDetail IRD ON IRD.Id = IH.InventoryReceiveDetailId
+                                	WHERE II.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY IH.InventoryMaterialId
+                                	) PurchaseReturnData ON PurchaseReturnData.InventoryMaterialId = MRD.Id
+                                -- InventorySales
+                                LEFT JOIN (
+                                	SELECT ISD.InventoryMaterialId
+                                		,sum(ISH.Qty) Qty
+                                		,sum(ISH.BaseRate) Rate
+                                		,(sum(ISH.Qty) * sum(ISH.BaseRate)) InventorySalesAmount
+                                	FROM [TRN].[InventorySalesHistory] ISH
+                                	LEFT JOIN [TRN].[InventorySalesDetail] ISD ON ISD.Id = ISH.InventorySalesDetailId
+                                	LEFT JOIN [TRN].[InventorySales] Ins ON Ins.Id = ISD.InventorySalesId
+                                	--Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
+                                	WHERE Ins.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY ISD.InventoryMaterialId
+                                	) InventorySalesData ON InventorySalesData.InventoryMaterialId = MRD.Id
+                                --InventoryTransfer
+                                LEFT JOIN (
+                                	SELECT IRD.InventoryMaterialId
+                                		,sum(IRD.InventoryTransferQty) Qty
+                                		,sum(IRD.MaterialTranRate) Rate
+                                		,(sum(IRD.InventoryTransferQty) * sum(IRD.MaterialTranRate)) InventoryTransferAmount
+                                	FROM [TRN].[InventoryTransferHistory] ITH
+                                	LEFT JOIN [TRN].[InventoryReceiveDetail] IRD ON IRD.Id = ITH.InventoryReceiveDetailId
+                                	LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id = IRD.InventoryReceiveId
+                                	WHERE IR.PlantId = '" + identity.PlantId + @"'
+                                	GROUP BY IRD.InventoryMaterialId
+                                	) InventoryTransferData ON InventoryTransferData.InventoryMaterialId = MRD.Id
+                                LEFT JOIN SCS.Country C ON C.Id = MRD.CountryId
+                                WHERE MM.IsAsset = 0 and MRD.MaterialMasterId='"+materialMasterId+@"' AND MRD.ArticleId='"+articleId+@"'
+                                ) AS TEMP  order by  TotalQty desc,MaterialMasterName asc
                                 ";
 
 
@@ -20292,7 +19008,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 							--from  TRN.InventorySalesHistory 
 							--group by InventorySalesDetailId
 							--)  ISH ON ISH.InventorySalesDetailId=IRD.Id
-				LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 4) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 4)) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IRD.Id
+				LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 4) SalesRate,ROUND(sum(TransactionQty*SalesRate), 2)  TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IRD.Id
 
                 LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
                 INNER JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId

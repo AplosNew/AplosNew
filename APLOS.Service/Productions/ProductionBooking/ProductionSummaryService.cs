@@ -179,7 +179,7 @@ namespace Library.Service.Productions
 												where p.Id= '" + id + @"'                                                
 									) psd on psd.SalesOrderId=so.id and psd.MaterialMasterId=moi.MaterialMasterId and psd.ArticleId=moi.ArticleId
 									AND psd.FCharId=fc.Id 
-                                     WHERE so.id=(Select SalesOrderId from TRN.ProductionOrderDetail Where ProductionOrderId='"+soid+"')";
+                                     WHERE so.id=(Select SalesOrderId from TRN.ProductionOrderDetail Where ProductionOrderId='" + soid + "')";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)
@@ -449,10 +449,32 @@ namespace Library.Service.Productions
             }
         }
 
-        public IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId)
+        public IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId, string shiftId)
         {
-            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='"+ CompanyId + "' Order by Sequence";
+            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + CompanyId + "' AND Id IN(SELECT  WorkCenterMasterId FROM [dbo].[WorkCenterWiseShift] WHERE ShiftDefinationID='"+ shiftId + "') Order by Sequence";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");
+        }
+
+        public IEnumerable<ComboModel> GetToWCCbo(string plantId, string ProcessId, string entityId, string CompanyId)
+        {
+            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + CompanyId + "' Order by Sequence";
+            return _sqlRepository.GetCombo(sql, "Id", "UserName");
+        }
+        public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId)
+        {
+            var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,pw.Id,wc.UserName as WorkCenter,
+                        pw.ProductionOrderId,pw.LotNumber,M.EmployeeName as Mentor,R.EmployeeName as ResponsiblePerson,
+                        C.EmployeeName as CheckedByName,pw.Quantity,isnull(pw.ProductionGrade,'A') as ProductionGrade,pw.Remarks,isnull(SM.SumMinute,0) as SumMin
+                        FROM  SCS.WorkCenterMaster wc 
+                        LEFT JOIN TRN.ProductionSummary pw ON pw.WorkCenterMasterId=wc.Id AND pw.ProcessId = '" + ProcessId + @"' 
+                        AND  pw.EntityId='" + entityId + @"' AND PW.ProductionDate='" + productionDate + @"'  AND PW.ProductionShiftId='" + shiftId + @"'                   
+                        LEFT JOIN EmployeeInformation R ON PW.ResponsiblePersonId=R.SystemId
+                        LEFT JOIN EmployeeInformation M ON PW.MentorId=M.SystemId
+                        LEFT JOIN EmployeeInformation C ON PW.CheckedBy=C.SystemId
+						LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId from MachineMasterTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + entityId + @"' AND MT.Date='" + productionDate + @"'  AND MT.ShiftId='" + shiftId + @"' 
+						group by WorkCenterId) SM ON SM.WorkCenterId=wc.Id
+                        where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + entityId + @"' order by wc.UserName";
+            return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<ComboModel> GetCharacteristicsValueCbo(string soid)
@@ -464,7 +486,7 @@ namespace Library.Service.Productions
 
         public IEnumerable<ComboModel> GetCharacteristicsValueByPrOCbo(string soid)
         {
-           
+
             string sql = @"SELECT C.Id, C.UserName FROM [TRN].[FirstCharacteristics] FC
                             LEFT JOIN hkp.CharacteristicsValue C ON C.Id=FC.CharacteristicsValueId 
                             LEFT JOIN TRN.ProductionOrderDetail PD ON PD.SalesOrderId=FC.SalesOrderId
@@ -474,7 +496,7 @@ namespace Library.Service.Productions
 
         public IEnumerable<ComboModel> GetShiftGroupCbo(string plantId)
         {
-            var sql = @" select Id,Description UserName from mst.CompliedShiftGrouping where  PlantId='" + plantId + "' ";
+            var sql = @"SELECT Id,Description UserName FROM MST.CompliedShiftGrouping WHERE PlantId='" + plantId + "'";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");
         }
 
@@ -713,7 +735,6 @@ namespace Library.Service.Productions
             parameters.order = "X.StartTime";
             return _sqlRepository.GetGridData(parameters).Source;
         }
-
         public void SaveMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId)
         {
             var flag = false;
@@ -725,7 +746,7 @@ namespace Library.Service.Productions
                 if (ob_fromDB == null)
                 {
                     ps.Id = "P" + GetPK();
-                   
+
 
                     ps.ModelState = ModelState.Added;
                     AuditService.AddedLog(ps);
@@ -749,11 +770,13 @@ namespace Library.Service.Productions
                     }
 
 
-                    
+
                     base.Insert(ps);
                 }
                 else
                 {
+                    
+
                     //ps.Id = ob_fromDB.Id;
                     ob_fromDB.ArticleId = ps.ArticleId;
                     ob_fromDB.MaterialMasterId = ps.MaterialMasterId;
@@ -772,9 +795,17 @@ namespace Library.Service.Productions
                     ob_fromDB.InTime = ps.InTime;
                     ob_fromDB.OutTime = ps.OutTime;
                     ob_fromDB.LotNumber = ps.LotNumber;
+                    ob_fromDB.Remarks = ps.Remarks;
+                    ob_fromDB.CheckedBy = ps.CheckedBy;
+
 
                     ob_fromDB.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(ob_fromDB);
+
+                    //if (ob_fromDB.AddedDate.AddDays(1) >)
+                    //{
+
+                    //}
                     base.Update(ob_fromDB);
                 }
                 if (psd != null)
@@ -797,6 +828,199 @@ namespace Library.Service.Productions
                     _unitOfWork.Rollback();
             }
         }
+
+        
+        public void SaveMasterWC(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "TRN.ProductionSummary";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            //bplib.clsGenID genid = new bplib.clsGenID();
+                            //genid.GenID(TableName, out _Id);
+                            //item["Id"] = "P" + _Id;
+                            item["Id"] = "P" + GetPK();
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void SaveDetentionWC(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "MachineMasterTransaction";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+                        if (item["DetentionId"] == null)
+                        {
+
+                            throw new CustomException("Detention should not be blank!");
+                        }
+                        else
+                        {
+                            if (item["FromTime"] == null)
+                            {
+                                throw new CustomException("From time is required!");
+
+                            }
+                            else
+                            {
+                                if (item["ToTime"] == null)
+                                {
+                                    throw new CustomException("To Time is required!");
+                                }
+                                else
+                                {
+                                    if (dv.Count == 0)
+                                    {
+                                        DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                        DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                        DateTime NextDayDate = date2.AddDays(1);
+                                        TimeSpan ts = date2 - date1;
+                                        TimeSpan Nd = NextDayDate - date1;
+                                        int minutes = (int)ts.TotalMinutes;
+
+                                        if (minutes >= 720 || minutes < 0)
+                                        {
+                                            item["ToTime"] = NextDayDate;
+                                            item["Minute"] = Nd.TotalMinutes;
+                                        }
+                                        else
+                                        {
+                                            item["ToTime"] = date2;
+                                            item["Minute"] = ts.TotalMinutes;
+                                        }
+
+                                        item["Id"] = GetPK();
+                                        AddNewRow(dsProdBooked.Tables[0], item);
+                                    }
+                                    else
+                                    {
+
+                                        DataRow drpb = dv[0].Row;
+                                        DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                        DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                        DateTime NextDayDate = date2.AddDays(1);
+                                        TimeSpan ts = date2 - date1;
+                                        TimeSpan Nd = NextDayDate - date1;
+                                        int minutes = (int)ts.TotalMinutes;
+
+                                        if (minutes >= 720 || minutes < 0)
+                                        {
+                                            item["ToTime"] = NextDayDate;
+                                            item["Minute"] = Nd.TotalMinutes;
+                                        }
+                                        else
+                                        {
+                                            item["ToTime"] = date2;
+                                            item["Minute"] = ts.TotalMinutes;
+                                        }
+                                        EditRow(drpb, item);
+                                    }
+                                    clsStaticInfo obj = new clsStaticInfo();
+                                    obj.SaveDataSets(dsProdBooked);
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
 
         public void SaveInOutMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId)
         {
@@ -899,7 +1123,7 @@ namespace Library.Service.Productions
                 if (!string.IsNullOrEmpty(ps.ProcessId))
                 {
                     var productionOrderProcessSet = _ProductionOrderProcessSetRepository.Query(r => r.ProductionOrderId == ps.ProductionOrderId && r.ProcessId == ps.ProcessId).Select().FirstOrDefault();
-                    if (productionOrderProcessSet==null)
+                    if (productionOrderProcessSet == null)
                     {
                         throw new CustomException("Production Order ProcessSet not define.");
                     }
@@ -909,7 +1133,7 @@ namespace Library.Service.Productions
                         AuditService.UpdatedLog(productionOrderProcessSet);
                         _ProductionOrderProcessSetRepository.Update(productionOrderProcessSet);
                     }
-                    
+
                 }
 
                 _unitOfWork.SaveChanges();
@@ -1063,6 +1287,7 @@ namespace Library.Service.Productions
                 ProductionSummary entity = base.Find(masterid);
                 _FGInventoryReceiveRepository.ExecuteSqlCommand(@"Delete from TRN.FGInventoryReceive Where ProductionSummaryDetailId IN (Select D.Id from TRN.ProductionSummaryDetail  D 
                 LEFT JOIN TRN.ProductionSummary P ON P.Id=D.ProductionSummaryId Where P.Id='" + masterid + "')");
+                _ProductionOrderProcessSetRepository.ExecuteSqlCommand(@"Delete from dbo.ProductionSummaryParameterValue Where ProductionSummaryId='" + masterid + "'");
                 _psds.DeleteDetail(masterid);
                 base.Delete(entity);
                 _unitOfWork.SaveChanges();

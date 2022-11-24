@@ -4,6 +4,7 @@ using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Organizations;
 using Library.Model.Setups;
 using Library.Service.Organizations;
@@ -18,16 +19,19 @@ namespace Aplos.Areas.Organizations.Controllers
     public class DesignationController : BaseController
     {
         #region Constructor
+        private readonly ISqlRepository _sqlRepository;
 
         private readonly IDesignationService _designationService;
         private readonly ICompanyGroupDesignationService _companyGroupDesignationService;
 
         public DesignationController(
             IDesignationService designationService,
-            ICompanyGroupDesignationService companyGroupDesignationService)
+            ICompanyGroupDesignationService companyGroupDesignationService
+            , ISqlRepository sqlRepository)
         {
             _companyGroupDesignationService = companyGroupDesignationService;
             _designationService = designationService;
+            _sqlRepository = sqlRepository;
         }
 
         #endregion Constructor
@@ -57,6 +61,13 @@ namespace Aplos.Areas.Organizations.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_designationService.GetCbo(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetbyDesignationMasterCbo()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_sqlRepository.GetDataCollection(@"select Id [Value],UserName [Text] from HKP.Designation where Id IN(Select DesignationId from MST.DesignationMaster)"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

@@ -1045,8 +1045,10 @@
                                     <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="140"></div>
                                     <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="140"></div>
                                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div>
-                                    @*<div e-column e-type="string" e-field="SalesOrder" e-headertext="Sales Order" e-width="80"></div>
-                                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>*@
+                                    <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Reference No" e-width="120"></div>
+                                    <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Reference No" e-width="120"></div>
+                                    <div e-column e-type="string" e-field="TotalQty" e-headertext="Total Qty" e-width="120"></div>
+                                   @*<div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>*@
                                     <div e-column e-template="#deleteTemplateSO" e-width="32" e-textalign="center"></div>
 
                                 </div>
@@ -1552,6 +1554,9 @@
                             <div e-column e-type="string" e-field="ProductMaster" e-headertext="Product" e-width="150"></div>
                             <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="60"></div>
                             <div e-column e-type="numeric" e-field="Version" e-headertext="Version" e-width="60"></div>
+                            <div e-column e-type="numeric" e-field="BuyerReferenceNo" e-headertext="Buyer Reference No" e-width="120"></div>
+                            <div e-column e-type="numeric" e-field="OwnReferenceNo" e-headertext="Own Reference No" e-width="120"></div>
+                            <div e-column e-type="numeric" e-field="TotalQty" e-headertext="Total Qty" e-width="100"></div>
 
                             <div e-column e-field="Active" e-headertext="Active" e-width="100"></div>
                             <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
@@ -2010,7 +2015,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">Code<sup>*</sup></label>
                 <div class="col-sm-8 ">
-                    <input type="text" name="Code" ng-model="tempModel.Code" class="form-control" autocomplete="off" maxlength="10">
+                    <input type="text" name="Code" ng-model="tempModel.Code" class="form-control" autocomplete="off" maxlength="50">
                 </div>
             </div>
         </div>

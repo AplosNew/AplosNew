@@ -58,6 +58,7 @@ namespace Aplos.Areas.Attendances.Controllers
             return View();
         }
 
+        
         public ActionResult BuyerJobCardCompliance()
         {
             return View();
@@ -582,7 +583,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                 }
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = GetComplianceJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, EmpIdLoop, fromDate, toDate, chkAdditionInfo);
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + " Job Card Report";
                 switch (reportFormat)
                 {
                     case ReportFormat.Pdf:
@@ -1245,10 +1246,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         sheet1.Range[8, 10, 8, 10 + 2].CellStyle.Font.Bold = true;
                                         sheet1.Range[8, 10, 8, 10 + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                         sheet1.Range[8, 10, 8, 10 + 2].BorderAround(ExcelLineStyle.Hair);
-                                    }
-
-                                    if (chkAdditionInfo == true)
-                                    {
+                                    
                                         //xlsRow += 1;
                                         sheet1.Range[9, 10].Text = "Total OT Hour";
                                         sheet1.Range[9, 10, 9, 10 + 1].Merge();
@@ -1296,20 +1294,22 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iShiftOuttime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iShiftOuttime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    xlsCol += 1;
-                                    iInTime = xlsCol;
-                                    sheet1.Range[xlsRow, iInTime].Text = "InTime";
-                                    sheet1.Range[xlsRow, iInTime].ColumnWidth = 8;
-                                    sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                     xlsCol += 1;
+                                     iInTime = xlsCol;
+                                     sheet1.Range[xlsRow, iInTime].Text = "InTime";
+                                     sheet1.Range[xlsRow, iInTime].ColumnWidth = 8;
+                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    xlsCol += 1;
-                                    iOutTime = xlsCol;
-                                    sheet1.Range[xlsRow, iOutTime].Text = "OutTime";
-                                    sheet1.Range[xlsRow, iOutTime].ColumnWidth = 8;
-                                    sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
+                                     xlsCol += 1;
+                                     iOutTime = xlsCol;
+                                     sheet1.Range[xlsRow, iOutTime].Text = "OutTime";
+                                     sheet1.Range[xlsRow, iOutTime].ColumnWidth = 8;
+                                     sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                     sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                 
+                                   
+                                                                        
                                     xlsCol += 1;
                                     iDayStatus = xlsCol;
                                     sheet1.Range[xlsRow, iDayStatus].Text = "Day Status";
@@ -1418,8 +1418,24 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1427,10 +1443,25 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 else if (dvBioDvAC[i]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[i]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[i]["IsOTEntitled"].ToString().Trim()) == true)
                                 {
 
-                                    
 
-                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1442,8 +1473,24 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+                                    
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1455,8 +1502,24 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1469,12 +1532,30 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW"; 
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
                                     //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                 }
+                                
+
                                 else
                                 {
                                     if (dvBioDvAC[i]["InTimeShow"].ToString() != "")
@@ -1501,7 +1582,24 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         }
                                         else
                                         {
-                                            sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                            if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                            {
+                                                sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                            }
+                                            else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                            {
+                                                sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                            }
+                                            else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                            {
+                                                sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                            }
+                                            else
+                                            {
+                                                sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                            }
                                         }
                                     }
 
@@ -1509,6 +1607,38 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                                }
+                                if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CW")
+                                {
+                                    sheet1.Range[xlsRow, iInTime].Text = "";
+                                    sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, iOutTime].Text = "";
+                                    sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
+
+                                    sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
+                                    sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                 }
                                 if (dvBioDvAC[i]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[i]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[i]["IsOTEntitled"].ToString().Trim()) == false)
                                 {
@@ -1535,7 +1665,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                 }
 
-                                else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
                                 {
                                     sheet1.Range[xlsRow, iOutTime].Text = "";
                                     sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -1602,7 +1732,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 }
 
 
-                                if (dvBioDvAC[i]["DayStatus"].ToString() == "W" || dvBioDvAC[i]["DayStatus"].ToString() == "H" || dvBioDvAC[i]["DayStatus"].ToString() == "LV" || dvBioDvAC[i]["DayStatus"].ToString() == "CW" || dvBioDvAC[i]["DayStatus"].ToString() == "A" || dvBioDvAC[i]["DayStatus"].ToString() == "AH")
+                                if (dvBioDvAC[i]["DayStatus"].ToString() == "W" || dvBioDvAC[i]["DayStatus"].ToString() == "H" || dvBioDvAC[i]["DayStatus"].ToString() == "LV" || dvBioDvAC[i]["DayStatus"].ToString() == "CW" || dvBioDvAC[i]["DayStatus"].ToString() == "A" || dvBioDvAC[i]["DayStatus"].ToString() == "AH" || dvBioDvAC[i]["DayStatus"].ToString() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString() == "WP" || dvBioDvAC[i]["DayStatus"].ToString() == "WL" || dvBioDvAC[i]["DayStatus"].ToString() == "CWL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
                                 {
                                     sheet1.Range[xlsRow, iInTime].Text = "";
                                     sheet1.Range[xlsRow, iOutTime].Text = "";
@@ -1873,7 +2003,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                                         }
 
-                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CW" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
                                                         {
                                                             OTOverstay1 += 0.00;
                                                         }
@@ -1915,7 +2045,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                                         }
 
-                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
                                                         {
                                                             OTOverstay2 += 0.00;
                                                         }
@@ -1961,7 +2091,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                     }
 
-                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
                                     {
                                         overstay = "";
 
@@ -2200,7 +2330,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetBuyerComplianceJobCardReport(ReportFormat reportFormat, string[] employeeId, string fromDate, string toDate, bool chkAdditionInfo)
         {
             try
@@ -2322,28 +2452,28 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                 #region DataSet
 
-                GetBuyerEmpJobCardInfoWithInDateTimes(EmpIdLoop, fromDate, toDate, plantId, out dsBioDvAC);
+                GetEmpJobCardInfoWithInDateTimes(EmpIdLoop, fromDate, toDate, plantId, out dsBioDvAC);
                 dtBioDvAC = dsBioDvAC.Tables[0];
 
-                GetBuyerEmpJobCardMonthlySummary(EmpIdLoop, fromDate, toDate, out dsMonthlySummary);
+                GetEmpJobCardMonthlySummary(EmpIdLoop, fromDate, toDate, out dsMonthlySummary);
                 dtMonthlySummary = dsMonthlySummary.Tables[0];
 
                 DataSet dsExtraAbsent = null;
                 DataView dvExtraAbsent = null;
                 DataView dvExtraAbsentDate = null;
-                GetBuyerExtraAbsentCount(fromDate, toDate, plantId, out dsExtraAbsent);
+                GetExtraAbsentCount(fromDate, toDate, plantId, out dsExtraAbsent);
                 dvExtraAbsent = new DataView(dsExtraAbsent.Tables[0]);
                 dvExtraAbsentDate = new DataView(dsExtraAbsent.Tables[0]);
 
-                GetBuyerJobCardPayDays(EmpIdLoop, fromDate, toDate, out dsPayDays);
+                GetJobCardPayDays(EmpIdLoop, fromDate, toDate, out dsPayDays);
                 var ListPayDays = dsPayDays.Tables[0].ToList<PayDaysReport>();
                 ParaMontlyAttendance objm = new ParaMontlyAttendance();
                 dvWeeklyAbsnt = new DataView();
-                GetBuyerWeeklyAbsentismAssignment(plantId, EmpIdLoop, fromDate, toDate, out dsWeeklyAbsnt);
+                GetWeeklyAbsentismAssignment(plantId, EmpIdLoop, fromDate, toDate, out dsWeeklyAbsnt);
                 dtWeeklyAbsnt = dsWeeklyAbsnt.Tables[0];
                 dvWeeklyAbsnt.Table = dtWeeklyAbsnt;
-                SelectedBuyerPlantWiseCompany(plantId, out dsCmp);
-                SelectedBuyerPlant(plantId, out dsFactory);
+                SelectedPlantWiseCompany(plantId, out dsCmp);
+                SelectedPlant(plantId, out dsFactory);
                 #endregion DataSet
 
                 if (dsBioDvAC.Tables[0].Rows.Count > 0)
@@ -2621,10 +2751,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         sheet1.Range[8, 10, 8, 10 + 2].CellStyle.Font.Bold = true;
                                         sheet1.Range[8, 10, 8, 10 + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                         sheet1.Range[8, 10, 8, 10 + 2].BorderAround(ExcelLineStyle.Hair);
-                                    }
 
-                                    if (chkAdditionInfo == true)
-                                    {
                                         //xlsRow += 1;
                                         sheet1.Range[9, 10].Text = "Total OT Hour";
                                         sheet1.Range[9, 10, 9, 10 + 1].Merge();
@@ -2685,6 +2812,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iOutTime].ColumnWidth = 8;
                                     sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
 
                                     xlsCol += 1;
                                     iDayStatus = xlsCol;
@@ -2794,8 +2923,24 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2805,8 +2950,23 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
 
 
-                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2818,8 +2978,24 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2831,8 +3007,24 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2845,12 +3037,30 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
                                     //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                 }
+
+
                                 else
                                 {
                                     if (dvBioDvAC[i]["InTimeShow"].ToString() != "")
@@ -2877,7 +3087,24 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         }
                                         else
                                         {
-                                            sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                            if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                            {
+                                                sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                            }
+                                            else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                            {
+                                                sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                            }
+                                            else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                            {
+                                                sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                            }
+                                            else
+                                            {
+                                                sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                            }
                                         }
                                     }
 
@@ -2885,6 +3112,38 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                                }
+                                if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CW")
+                                {
+                                    sheet1.Range[xlsRow, iInTime].Text = "";
+                                    sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, iOutTime].Text = "";
+                                    sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "H";
+                                    }
+                                    else
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+
+                                    }
+
+                                    sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
+                                    sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                 }
                                 if (dvBioDvAC[i]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[i]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[i]["IsOTEntitled"].ToString().Trim()) == false)
                                 {
@@ -2911,7 +3170,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                 }
 
-                                else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
                                 {
                                     sheet1.Range[xlsRow, iOutTime].Text = "";
                                     sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -2937,7 +3196,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         }
 
                                         string TateandTime = TakeDate + " " + ot;
-                                        int minutesadd = Convert.ToInt32(dvBioDvAC[i]["MaxOTPerDay"].ToString().Trim());
+                                        //int minutesadd = Convert.ToInt32(dvBioDvAC[i]["MaxOTPerDay"].ToString().Trim());
+                                        int minutesadd = 240;
                                         DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
                                         DateTime RealOutTime = Convert.ToDateTime(dvBioDvAC[i]["OutTimeShow"].ToString().Trim());
 
@@ -2978,7 +3238,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 }
 
 
-                                if (dvBioDvAC[i]["DayStatus"].ToString() == "W" || dvBioDvAC[i]["DayStatus"].ToString() == "H" || dvBioDvAC[i]["DayStatus"].ToString() == "LV" || dvBioDvAC[i]["DayStatus"].ToString() == "CW" || dvBioDvAC[i]["DayStatus"].ToString() == "A" || dvBioDvAC[i]["DayStatus"].ToString() == "AH")
+                                if (dvBioDvAC[i]["DayStatus"].ToString() == "W" || dvBioDvAC[i]["DayStatus"].ToString() == "H" || dvBioDvAC[i]["DayStatus"].ToString() == "LV" || dvBioDvAC[i]["DayStatus"].ToString() == "CW" || dvBioDvAC[i]["DayStatus"].ToString() == "A" || dvBioDvAC[i]["DayStatus"].ToString() == "AH" || dvBioDvAC[i]["DayStatus"].ToString() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString() == "WP" || dvBioDvAC[i]["DayStatus"].ToString() == "WL" || dvBioDvAC[i]["DayStatus"].ToString() == "CWL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
                                 {
                                     sheet1.Range[xlsRow, iInTime].Text = "";
                                     sheet1.Range[xlsRow, iOutTime].Text = "";
@@ -3005,7 +3265,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         }
 
                                         string TateandTime = TakeDate + " " + ot;
-                                        int minutesadd = Convert.ToInt32(dvBioDvAC[i]["MaxOTPerDay"].ToString().Trim());
+                                        int minutesadd = 240;
+                                        //int minutesadd = Convert.ToInt32(dvBioDvAC[i]["MaxOTPerDay"].ToString().Trim());
                                         DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
                                         DateTime RealOutTime = Convert.ToDateTime(dvBioDvAC[i]["OutTimeShow"].ToString().Trim());
 
@@ -3203,7 +3464,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                                     }
 
                                                     string TateandTime = TakeDate + " " + ot;
-                                                    int minutesadd = Convert.ToInt32(dvBioDvAC[i]["MaxOTPerDay"].ToString().Trim());
+                                                    int minutesadd = 240;
+                                                    //int minutesadd = Convert.ToInt32(dvBioDvAC[i]["MaxOTPerDay"].ToString().Trim());
                                                     DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
                                                     DateTime RealOutTime = Convert.ToDateTime(dvBioDvAC[i]["OutTimeShow"].ToString().Trim());
                                                     double totalMinutes;
@@ -3249,7 +3511,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                                         }
 
-                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CW" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
                                                         {
                                                             OTOverstay1 += 0.00;
                                                         }
@@ -3291,7 +3553,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                                         }
 
-                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
                                                         {
                                                             OTOverstay2 += 0.00;
                                                         }
@@ -3337,7 +3599,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                     }
 
-                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "HL")
                                     {
                                         overstay = "";
 
@@ -3575,6 +3837,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
 
         }
+
+      
         private void GetBuyerEmpJobCardInfoWithInDateTimes(string EmpIdLoop, string FromDate, string ToDate, string plantId, out DataSet dsRef)
         {
 
@@ -3606,6 +3870,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                             	,A.IsManual
                             	,A.OTHr OverStay
                                 ,A.TotalOTHr FinalOT
+                                ,A.OTHrs
                             	,A.LvShortName
                             	,A.Code
                             	,A.LvDescrip
@@ -3631,8 +3896,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 									,A.LIN
 									,A.LO
                                     ,A.Line,A.WDate
-,A.MaxOTPerDay*2 MaxOTPerDay,A.IsNoPunchOnHolidayForOTEntitle,A.IsNoPunchOnHolidayForOTNotEntitle,A.IsNoPunchOnWeekOffForOTEntitle,A.IsNoPunchOnWeekOffForOTNotEntitle
-,A.SystemId
+,A.MaxOTPerDay,A.IsNoPunchOnHolidayForOTEntitle,A.IsNoPunchOnHolidayForOTNotEntitle,A.IsNoPunchOnWeekOffForOTEntitle,A.IsNoPunchOnWeekOffForOTNotEntitle
+,A.SystemId,A.TotalPresent
                             FROM(
                                 SELECT E.EmployeeCode,E.EmployeeCodeNumeric
                                     , E.EmployeeName
@@ -3674,6 +3939,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     , AR.IsManualInTime IsManual
                                     , AR.OTHr 
                                     ,OT.TotalOTHr
+                                    ,OTHrs=CASE WHEN (CASE WHEN OT.TotalOTHr>240 THEN 240 ELSE OT.TotalOTHr END)<121 THEN 0 ELSE ((CASE WHEN OT.TotalOTHr>240 THEN 240 ELSE OT.TotalOTHr END)-120)/60 END
                                     , LT.UserName LvShortName
                                     , LT.Description LvDescrip
                                     , LT.LeaveType
@@ -3704,6 +3970,13 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     , AR.IsManualDayStatus, AR.IsManualInTime, AR.IsManualOutTime,
 ar.CountedShortLeave ShortLeave,AR.IsOTEntitled,AR.IsOTComfirm,OT.WorkDate,dt.Category DayCategory
 ,CAS.MaxOTPerDay,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle
+ ,TotalPresent = CASE WHEN DT.Category = 'Present' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Present' and LTSystemID is not null and LEAVE.LeaveDuration<1 THEN (1-LEAVE.LeaveDuration)
+											WHEN DT.Category = 'Late' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Leave' and LTSystemID is not null and LEAVE.LeaveDuration<1 THEN (1-LEAVE.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is not null THEN (1-LEAVE.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is null THEN 0.5
+											ELSE 0 END
                                 FROM dbo.EmployeeInformation E
 
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode

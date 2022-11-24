@@ -2502,7 +2502,7 @@ namespace OTSBD
                                 (
                                 SELECT EmpSystemID, NormalOTHr = CASE WHEN OTDayType = 'NW' THEN NormalOTHr
 									                              ELSE 0 END,  
-					                         WeekOffOTHr = CASE WHEN OTDayType IN ('W','WL','WLV','WP') THEN NormalOTHr
+					                         WeekOffOTHr = CASE WHEN OTDayType IN ('W','WL','WLV','WP','CWP') THEN NormalOTHr
 									                              ELSE 0 END,  
 					                         HoliDayOTHr = CASE WHEN OTDayType IN ('HL','H','HLV','HLV','HP') THEN NormalOTHr
 									                              ELSE 0 END 

@@ -116,6 +116,10 @@
             controller: 'IssueMasterController'
         })
 
+        .when('/quality-process', {
+            templateUrl: 'QMS/QualityProcess/aplos',
+            controller: 'QualityProcessController'
+        })
         
 
 }

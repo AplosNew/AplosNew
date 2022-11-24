@@ -1,227 +1,166 @@
 ﻿<h3 class="site-heading">
-    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Employee Route Assignment
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
 </h3>
+<div class="form-elements form-horizontal" ng-form name="">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">To Assign</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Unassign</a></li>
+            </ul>
+        </div>
 
-
-<div class="tab-design" id="tab_show">
-
-    <div class="site-tab">
-        <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" ng-class="{ active: isSet11(11) }"><a ng-click="setTab11(11)" href="" aria-controls="aria1" role="tab" data-toggle="tab">Unassigned</a></li>
-            <li role="presentation" ng-class="{ active: isSet22(22) }"><a ng-click="setTab22(22)" href="" aria-controls="aria2" role="tab" data-toggle="tab">Assigned</a></li>
-        </ul>
-    </div>
-
-    <div class="tab-content" id="tabpaneldiv">
-
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet11(11), active: isSet11(11) }">
-            <div class="row">
-                <div class="form-elements">
-                    <div class="col-xs-12 ">
-
-                        <div class="col-xs-12 col-sm-3 col-md-3 col-md-3 col-md-3">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Route</label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="select-style">
-                                        <input ej-dropdownlist e-datasource="RouteList" e-change="getUAstopageUpDropDownList" e-value="UArouteEmployee.UARouteUpId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
-
-                                    </div>
-                                </div>
-                            </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="table-responsive" id="REGrid">
+                    <div id="GridRouteEmp" ej-grid style="z-index:3;"
+                         e-datasource="ModelList"
+                         e-allowfiltering="true"
+                         e-allowpaging="true"
+                         e-allowsorting="true"
+                         e-enabletouch="false"
+                         e-responsive="true"
+                         e-allowselection="true"
+                         e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Route" e-headertext="Route" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Transport" e-headertext="Transport" e-width="100"></div>
+                            <div e-column e-type="string" e-field="TripNo" e-headertext="Trip No" e-width="100"></div>
+                            <div e-column e-type="string" e-field="UpStart" e-headertext="Up Start" e-width="100"></div>
+                            <div e-column e-type="string" e-field="DownStart" e-headertext="Down Start" e-width="100"></div>
+                            <div e-column e-type="string" e-field="From" e-headertext="From" e-width="100"></div>
+                            <div e-column e-type="string" e-field="To" e-headertext="To" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Shift" e-headertext="Shift" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Vacancy" e-headertext="Vacancy" e-width="100"></div>
+                            <div e-column e-type="string" e-field="PlanCapacity" e-headertext="Plan" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Alloted" e-headertext="Alloted" e-width="100"></div>
+                            <div e-column e-template="#templateBalance" e-type="string" e-field="Balance" e-headertext="Balance" e-width="70"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
                         </div>
-
-                        <div class="col-xs-12 col-sm-3 col-md-3 col-md-3 col-md-3">
-                            <div class="form-group">
-                                <label class="col-sm-6 control-label">Stoppage</label>
-                                <div class="col-sm-6 show-message">
-                                    <div class="select-style">
-                                        <input ej-dropdownlist e-datasource="StopageList" e-change="GetUpDropDownStopageList" e-value="UArouteEmployee.UAStopageUpId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-12 col-sm-3 col-md-3 col-md-3 col-md-3">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Shift</label>
-                                <div class="col-sm-8 show-message">
-                                   
-                                    <div class="input-group">
-                                        <input type="text" name="Entity" ng-model="UArouteEmployee.Shift" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
-                                        <span class="input-group-btn">
-                                            <button ng-click="selectShift()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        </span>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
-                </div>
-
-                <div class="col-xs-12 col-sm-6 col-md-6">
-
-                </div>
-
-                <div class="col-xs-12 col-sm-6 col-md-6 ">
-
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li style="float:right"> <button ng-click="UnAssignApplyForAll();" class="btn"><i class="glyphicon glyphicon-ok-circle"></i> Apply For All</button></li>
-                        </ul>
-                    </div>
-
-                </div>
-
-                <div class="col-xs-12 col-sm-12 col-sm-12">
-                    <div class="content-container-fluid" style="color:black;">
-                        <div ng-init="chkinit()"
-                             id="UnassignGrid"
-                             ej-grid e-datasource="UnassignEmpList"
-                             e-gridlines="vertical"
-                             e-templaterefresh="refreshTemplateemployee"
-                             e-allowfiltering="true"
-                             e-allowpaging="true"
-                             e-allowsorting="true"
-                             e-enabletouch="false"
-                             e-rowdatabound="onrowdatabound1"
-                             e-responsive="true"
-                             e-pagesettings-pagesize="15"
-                             e-allowselection="true"
-                             e-filtersettings-filterType="excel">
-
-                            <div e-columns>
-                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="30"></div>
-                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="50"></div>
-                                <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="50"></div>
-                                <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="50"></div>
-                                <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="50"></div>
-                                <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="50"></div>
-                                <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="50"></div>
-                                @*<div e-column e-template="#UAUpRoute" e-headertext="Up Route" e-width="70"></div>
-                                <div e-column e-template="#UAUpStopage" e-headertext="Up Stopage" e-width="70"></div>
-                                <div e-column e-template="#UADownRoute" e-headertext="Down Route" e-width="70"></div>
-                                <div e-column e-template="#UADownStopage" e-headertext="Down Stopage" e-width="70"></div>*@
-                            </div>
+                    <script type="text/template" id="templateBalance">
+                        <div class="text-left" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.AvailablePopUpData(this);">{{data.Balance}}</a>
                         </div>
-                        <script type="text/template" id="checkboxTemplate">
-                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
-                        </script>
-                        <script type="text/x-jsrender" id="headerTemplate">
-                            <input type="checkbox" id="headchk" />
-                        </script>
-
-                        @*<script type="text/template" id="UAUpRoute">
-                            <input ej-dropdownlist e-datasource="data.UARouteUpList" e-change="$parent.getUAstopageUpList" e-value="data.UARouteUpGridId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
-
-                        </script>
-                        <script type="text/template" id="UAUpStopage">
-                            <input ej-dropdownlist e-datasource="data.UAStopageUpList" e-value="data.UAStopageUpGridId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
-
-                        </script>
-                        <script type="text/template" id="UADownRoute">
-                            <input ej-dropdownlist e-datasource="data.UARouteDownList" e-change="$parent.getUAstopageDownList" e-value="data.UARouteDownGridId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
-
-                        </script>
-                        <script type="text/template" id="UADownStopage">
-                            <input ej-dropdownlist e-datasource="data.UAStopageDownList" e-value="data.UAStopageDownGridId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
-
-                        </script>*@
-                    </div>
+                    </script>
                 </div>
-
 
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveUnAssign();" class="btn" tabindex="4"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
-                </div>
-            </div>
-
-        </div>
-
-
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet22(22), active: isSet22(22) }">
-            <div class="row">
-                <div class="form-horizontal" ng-form="routeEmployeeForm">
-                    <input type="hidden" ng-model="routeEmployee.Id">
-                    <div class="col-xs-12 col-sm-6 col-md-12">
-                        <div class="content-container-fluid" style="color:black;">
-                            <div id="EmpGrid"
-                                 ng-init="chkinit()"
-                                 ej-grid e-datasource="dataList"
-                                 e-gridlines="vertical"
-                                 e-templaterefresh="refreshTemplateemployeeTWO"
-                                 e-allowfiltering="true"
-                                 e-allowpaging="true"
-                                 e-allowsorting="true"
-                                 e-enabletouch="false"
-                                 e-responsive="true"
-                                 e-allowselection="true"
-                                 e-filtersettings-filterType="excel"
-                                 e-pagesettings-pagesize="15">
-                                <div e-columns>
-                                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="30"></div>
-                                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="50"></div>
-                                    <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="50"></div>
-                                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="50"></div>
-                                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="50"></div>
-                                    <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="50"></div>
-                                    <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="50"></div>
-                                    <div e-column e-field="Route" e-headertext="Route" e-allowediting="false" e-width="50"></div>
-                                    <div e-column e-field="Stoppage" e-headertext="Stoppage" e-allowediting="false" e-width="50"></div>
-                                    <div e-column e-field="Shift" e-headertext="DOJ" e-allowediting="Shift" e-width="50"></div>
-                                </div>
-                            </div>
 
                 </div>
 
-                <confirm-modal></confirm-modal>
-                <confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="table-responsive" id="EGSGrid" style="margin-top:20px;">
+                    <div id="GridEUnassign" ej-grid e-datasource="ModelUnassignList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" style="width:100vw !important">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerUnassignTemplate" e-template="#checkboxUnassignTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                            <div e-column e-type="string" e-field="EmployeeStatus" e-headertext="Employee Status" e-width="100"></div>
+                            <div e-column e-type="string" e-field="EmployeeCurrentStatus" e-headertext="Employee Current Status" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Stoppage" e-headertext="Stoppage" e-width="100"></div>
+                            <div e-column e-type="date" e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                            <div e-column e-type="date" e-field="DOS" e-headertext="DOS" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Route" e-headertext="Route" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Transport" e-headertext="Transport" e-width="100"></div>
+                            <div e-column e-type="string" e-field="TransportGroup" e-headertext="Transport Group" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Shift" e-headertext="Shift" e-width="100"></div>
+                            <div e-column e-type="string" e-field="From" e-headertext="From" e-width="100"></div>
+                            <div e-column e-type="string" e-field="To" e-headertext="To" e-width="100"></div>
+                            <div e-column e-type="string" e-field="TripId" e-headertext="Trip Id" e-width="100"></div>
+                            <div e-column e-type="string" e-field="TripNo" e-headertext="TripNo" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                            <div e-column e-type="string" e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="100"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                        </div>
+                        <script type="text/template" id="checkboxUnassignTemplate">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerUnassignTemplate">
+                            <input type="checkbox" id="headcheck" />
+                        </script>
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveUnassignData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    </ul>
+
+                </div>
+
             </div>
         </div>
-
     </div>
 </div>
-    <div class="modal fade site-modal in" id="ShiftPop" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify">
+<confirm-modal></confirm-modal>
+
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">Shift List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Double click to Select an Shift</p>
-                        <div style="color:black;" id="GridShift" ej-grid e-datasource="ShiftList"
-                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
-                             e-recorddoubleclick="doubleShift">
-                            <div e-columns>
-                                @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUps();">&times;</button>
+            </div>
+            <div class="modal-body">
 
-                                <div e-column e-field="Plant" e-headertext="Plant" e-width="50"></div>
-                                <div e-column e-field="ShiftDefinationDescription" e-headertext="ShiftDefinationDescription" e-width="50"></div>
-                                <div e-column e-field="ShiftDefination" e-headertext="Shift Defination" e-width="120"></div>
-                                <div e-column e-field="InTime" e-headertext="In Time" e-width="120"></div>
-                                <div e-column e-field="OutTime" e-headertext="Out Time" e-width="120"></div>
-                            </div>
-
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="dataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployee">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-type="string" e-template="#stoppageTemplate" e-field="Stoppage" e-headertext="Stoppage" e-width="90"></div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                            <div e-column e-type="string" e-field="EmployeeStatus" e-headertext="Employee Status" e-width="100"></div>
+                            <div e-column e-type="string" e-field="EmployeeCurrentStatus" e-headertext="Employee Current Status" e-width="100"></div>
+                            <div e-column e-type="date" e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                            <div e-column e-type="string" e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="100"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="100"></div>
+                            <div e-column e-type="string" e-field="EntityName" e-headertext="Entity" e-width="100"></div>
+                            <div e-column e-type="string" e-field="TransportGroup" e-headertext="Transport Group" e-width="100"></div>
                         </div>
-                       
                     </div>
                 </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="closeShiftPopUp();" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
 
-                </div>
+                <script type="text/template" id="templateBalance">
+                    <div class="text-left" style="width:100%">
+                        <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.AvailablePopUpData(this);">{{data.Balance}}</a>
+                    </div>
+                </script>
+
+                <script type="text/template" id="stoppageTemplate">
+                    <div class="text-left" style="width:100%">
+                        <div class="select-style">
+                                <input ej-dropdownlist e-datasource="$parent.StopageDataList" e-value="data.StoppageId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
+                        </div>
+                    </div>
+                </script>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Save</button>
             </div>
         </div>
     </div>
-    </div>
+</div>
+
+
+

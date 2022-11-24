@@ -11,6 +11,7 @@ namespace Library.Model.Productions
         public string PlantId { get; set; }
         public string CompanyGroupId { get; set; }
         public string BaseProcessId { get; set; }
+        public string SubProcessId { get; set; }
         public string PlanningType { get; set; }
         public string UserName { get; set; }
 

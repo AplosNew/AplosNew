@@ -122,43 +122,7 @@
 	<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Material Issue Register</h3>
 	<div class="form-elements form-horizontal">
 		<div class="col-xs-12 col-sm-12 col-md-12" ng-form="from0">
-			@*<div class="form-group" show-errors id="div_GL">
-					<label class="col-sm-3 control-label">GL<sup>*</sup></label>
-					<div class="col-sm-9 show-message">
-						<div class="input-group">
-							<div class="select-style">
-								<select name="Fiscal Year" class="form-control searchableDDL" ng-change="getBudgetMasterCboList(report.GLGeneralInfoId);" ng-model="report.GLGeneralInfoId" required>
-									<option ng-repeat="option in glList" value="{{option.GLGeneralInfoId}}">{{option.GLGeneralInfoCode}} - {{option.GLGeneralInfoName}}</option>
-								</select>
-							</div>
-							<span class="input-group-btn">
-								<button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-							</span>
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-3 control-label">Budget</label>
-					<div class="col-sm-9">
-						<div class="select-style">
-							<select name="Budget" class="form-control searchableDDL" ng-model="report.BudgetMasterId" ng-change="getBudgetMasterActivityCbo(report.BudgetMasterId)">
-								<option value="">--Select--</option>
-								<option ng-repeat="option in budgetList" value="{{option.BudgetMasterId}}">{{option.BudgetName}}</option>
-							</select>
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-3 control-label">Activity</label>
-					<div class="col-sm-9">
-						<div class="select-style">
-							<select name="Activity" class="form-control searchableDDL" ng-model="report.ActivityId">
-								<option value="">--Select--</option>
-								<option ng-repeat="option in activityList" value="{{option.ActivityId}}">{{option.ActivityName}}</option>
-							</select>
-						</div>
-					</div>
-				</div>*@
+			
 
 			<div class="col-xs-12 col-sm-12 col-md-12">
 				<div class="col-xs-6 col-sm-6 col-md-6">
@@ -170,7 +134,7 @@
 								<div class="col-sm-8 show-message">
 									<div class="radio">
 										<label>
-											<input ng-click="changeSourceFrom('NonPosted')" type="radio" name="source" ng-model="productNew.Type" value="Non Posted" ng-checked="true">
+											<input ng-click="changeSourceFrom('NonPosted')" type="radio" name="source" ng-model="productNew.Type" value="NonPosted" ng-checked="true">
 											<span class="cr" tabindex="21"><i class="cr-icon"></i></span>Non Posted
 										</label>
 										<label>
@@ -208,26 +172,7 @@
 
 
 
-			@*<div class="form-group" show-errors>
-					<label class="col-sm-3 control-label">Format<sup>*</sup></label>
-					<div class="col-sm-9 radio">
-						<label>
-							<input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
-							<span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
-						</label>
-						<label>
-							<input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
-							<span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
-						</label>
-					</div>
-				</div>*@
 		</div>
-		@*<div class="common-btn">
-			<ul class="list-inline text-left">
-				@*<li><button ng-click="getPurchaseRegisterReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
-				<li> <button id="go12" class="btn" ng-click="PrintPurchaseRegister();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-			</ul>
-		</div>*@
 		<div class="clearfix"></div>
 		<div class="tab-design" id="tab_show">
 			<div class="site-tab">
@@ -239,24 +184,8 @@
 			</div>
 			<div class="tab-content">
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIssueList(1), active: isSetIssueList(1) }">
-                    @*<div class="common-btn">
-                        <ul class="list-inline text-left">
-
-                            <li> <button id="go2" class="btn" ng-click="IssueRegisterReportPdf();"><i class="glyphicon glyphicon-download"></i> Export To Pdf</button></li>
-                            <li> <button id="go3" class="btn" ng-click="IssueRegisterReportExcel();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-                        </ul>
-                    </div>*@
-
-
                     <div class="common-btn">
                         <ul class="list-inline text-left">
-
-                            <li>
-                                <div ej-tooltip e-showshadow="true" e-content="All active orders with individual line items" ng-click="IssueRegisterReportPdf('Pdf');" e-width="width">
-                                    <button class="btn"><i class="glyphicon glyphicon-download"></i>Export To Pdf</button>
-                                </div>
-                            </li>
-
                             <li>
                                 <div ej-tooltip e-showshadow="true" e-content="All active orders with individual line items" ng-click="IssueRegisterReportExcel('Excel');" e-width="width">
                                     <button class="btn"><i class="glyphicon glyphicon-download"></i>Export To Excel</button>
@@ -281,8 +210,8 @@
                                     <div e-stackedheaderrows>
                                         <div e-stackedheaderrow>
                                             <div e-stackedheadercolumns>
-                                                <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GL,Budget,Activity" textAlign='Center'></div>
-                                                <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGL,CBUdget,CActivity" textAlign='Center'></div>
+                                                <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,Budget,Activity,BudgetRefNo" textAlign='Center'></div>
+                                                <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBUdget,CActivity,CBudgetRefNo" textAlign='Center'></div>
                                             </div>
                                         </div>
                                     </div>
@@ -291,10 +220,11 @@
                                         <div e-column e-field="IssueId" e-headertext="Issue Id" e-width="100" textAlign='Left'></div>
                                         <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                         <div e-column e-field="Entityname" e-headertext="Entityname" e-width="130" textAlign='Center'></div>
-                                        <div e-column e-field="CostCenterName" e-headertext="CostCenterName" e-width="130" textAlign='Center'></div>
-                                        <div e-column e-field="EmployeeName" e-headertext="Person Name" e-width="130" textAlign='Center'></div>
+                                        <div e-column e-field="CostCenterName" e-headertext="Cost Center" e-width="130" textAlign='Center'></div>
+                                        <div e-column e-field="EmployeeName" e-headertext="Issue By" e-width="130" textAlign='Center'></div>
+                                        <div e-column e-field="DepartmentName" e-headertext="Department" e-width="130" textAlign='Center'></div>
                                         @*<div e-column e-field="AddedBy" e-headertext="Added By" e-width="180" textAlign='Left'></div>
-                            <div e-column e-field="AddedDate" e-headertext="Added Date" e-width="130" textAlign='Left'></div>*@
+										<div e-column e-field="AddedDate" e-headertext="Added Date" e-width="130" textAlign='Left'></div>*@
                                         <div e-column e-field="MaterialStorageName" e-headertext="Material Storage Name" e-width="180"></div>
                                         <div e-column e-field="Status" e-headertext="Status" e-width="100"></div>
                                         <div e-column e-field="IssueDetailId" e-headertext="Issue Detail Id" e-width="100"></div>
@@ -314,13 +244,17 @@
                                         <div e-column e-field="PolicyAmount" e-headertext="Policy Amount" e-width="130" textAlign='Right'></div>
                                         <div e-column e-field="Policy" e-headertext="Policy" e-width="100" textAlign='Right'></div>
                                         <div e-column e-field="BaseQty" e-headertext="Base Qty" e-width="100" textAlign='Right'></div>
+                                        <div e-column e-field="GLCode" e-headertext="GL Code" e-width="130"></div>
                                         <div e-column e-field="GL" e-headertext="GL" e-width="130"></div>
                                         <div e-column e-field="Budget" e-headertext="Budget" e-width="130"></div>
                                         <div e-column e-field="Activity" e-headertext="Activity" e-width="130"></div>
+                                        <div e-column e-field="BudgetRefNo" e-headertext="Budget RefNo" e-width="130"></div>
 
+                                        <div e-column e-field="CGLCode" e-headertext="CGL Code" e-width="130"></div>
                                         <div e-column e-field="CGL" e-headertext="GL" e-width="130"></div>
                                         <div e-column e-field="CBUdget" e-headertext="Budget" e-width="130"></div>
                                         <div e-column e-field="CActivity" e-headertext="Activity" e-width="130"></div>
+                                        <div e-column e-field="CBudgetRefNo" e-headertext="CBudget RefNo" e-width="130"></div>
                                     </div>
                                 </div>
                             </div>
@@ -329,14 +263,6 @@
 
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNIssueList(2), active: isSetGRNIssueList(2) }">
-                    @*<div class="common-btn">
-                        <ul class="list-inline text-left">
-                            <li> <button id="go4" class="btn" ng-click="GRNIssueRegisterReportPdf();"><i class="glyphicon glyphicon-download"></i> Export To Pdf</button></li>
-                            <li> <button id="go5" class="btn" ng-click="GRNIssueRegisterReportExcel();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-                        </ul>
-                    </div>*@
-
-
                     <div class="common-btn">
                         <ul class="list-inline text-left">
 

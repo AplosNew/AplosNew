@@ -6,7 +6,9 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Enums;
+using Library.Model.Finances;
 using Library.Model.Parties;
+using Library.Model.Payments;
 using Library.Service.Currencies;
 using Library.Service.Enums;
 using Library.Service.Finances;
@@ -69,7 +71,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        public JsonResult InsertLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist, IEnumerable<FinancingMasterOrderViewModel> financingMasterOrderlist)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -108,11 +110,11 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (voucherVM.NoOfInstallmentPerYear == 0)
                     throw new CustomException("Please Input  No Of Installment!");
             }
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist, financingMasterOrderlist)) });
         }
 
         [HttpPost]
-        public JsonResult UpdateLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        public JsonResult UpdateLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist, IEnumerable<FinancingMasterOrderViewModel> financingMasterOrderlist)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -144,7 +146,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (voucherVM.NoOfInstallmentPerYear == 0)
                     throw new CustomException("Please Input  No Of Installment!");
             }
-            _loanService.InsertLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist);
+            _loanService.InsertLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist, financingMasterOrderlist);
             return Json(new { Message = AplosMessage.Updated });
         }
 
@@ -206,6 +208,14 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsLoanService.GetLoanList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
+        public JsonResult GetLoanPopUpListML(string transactionType, string partyType, string bankId)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsLoanService.GetLoanListMultipleSetoff(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType, partyType, bankId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
         public JsonResult GetLoanPopUpListForSalesRealization(string transactionType)
         {
             AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
@@ -224,7 +234,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertLoanPayment(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        public JsonResult InsertLoanPayment(VoucherViewModel voucherVM, VoucherViewModel loanAdditionVM, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -263,7 +273,28 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Please Input  No Of Installment!");
             }
 
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOff(voucherVM, loanRepaymentSchedulelist)) });
+            if(voucherVM.PaymentSource== PaymentSource.Loan.ToString())
+            {
+                if (voucherVM.FinancingId == loanAdditionVM.FinancingId)
+                    throw new CustomException("Please Select  Different Loan!");
+                if (loanAdditionVM.Amount < 0 || loanAdditionVM.Amount == 0 || loanAdditionVM.LoanSetOffAmount < 0 || loanAdditionVM.LoanSetOffAmount == 0)
+                    throw new CustomException("Please Input Books Amount !");
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOffLoanAddition(voucherVM, loanAdditionVM, loanRepaymentSchedulelist)) });
+            }
+            else
+            {
+                if (voucherVM.IsSplit == true)
+                {
+                    //Change Books Amount
+                    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOffChangeBooksAmount(voucherVM, loanRepaymentSchedulelist)) });
+                }
+                else
+                {
+                    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOff(voucherVM, loanRepaymentSchedulelist)) });
+                }
+                    
+            }
+            
         }
 
 
@@ -311,7 +342,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateLoanPayment(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        public JsonResult UpdateLoanPayment(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist, IEnumerable<FinancingMasterOrderViewModel> financingMasterOrderlist)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -343,7 +374,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (voucherVM.NoOfInstallmentPerYear == 0)
                     throw new CustomException("Please Input  No Of Installment!");
             }
-            _loanService.InsertLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist);
+            _loanService.InsertLoan(voucherVM, existingLoanList, loanRepaymentSchedulelist, financingMasterOrderlist);
             return Json(new { Message = AplosMessage.Updated });
         }
 
@@ -1131,5 +1162,11 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         #endregion
+        [HttpGet, Authorize]
+        public JsonResult getloanBankListcbo()
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+            return Json(_accountsLoanService.GetloanBankListcbo(), JsonRequestBehavior.AllowGet);
+        }
     }
 }

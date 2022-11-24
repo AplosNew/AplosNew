@@ -8,7 +8,9 @@ namespace Library.Service.WorkCenters
     public interface IWorkCenterMasterService : IService<WorkCenterMaster>
     {
         GridModel GetShiftList(GridParameter parameters, string sGroupID, string sPlantID, string[] ShiftDefinationIDs);
+        GridModel GetListForSubProcess(GridParameter parameters, string CompanyGroupId, string processId, string WorkCenterMasterId, string[] subProcessIds);
         IEnumerable<object> GetWorkCenterWiseShiftList(string sGroupID, string sPlantID, string workCenterMasterId);
+        IEnumerable<object> GetWorkCenterMasterSubProcessList(string workCenterMasterId);
         decimal GetAutoSequence();
         GridModel GetProductMasterList(GridParameter parameters, string groupId);
         GridModel EmployeeListByPlant(GridParameter parameters, string plantId);
@@ -45,7 +47,7 @@ namespace Library.Service.WorkCenters
 
         GridModel GetMaterialMasterList(GridParameter parameters, string groupId, string[] ids);
 
-        void InsertUpdateOrDeleteDetails(string masterId, IEnumerable<WorkCenterMasterEffectiveDate> effectiveDateList, IEnumerable<WorkCenterMasterManpowerBudge> budgetCodeList, IEnumerable<WorkCenterMasterProductPriority> productPriorityList, IEnumerable<WorkCenterWiseShift> shiftList);
+        void InsertUpdateOrDeleteDetails(string masterId, IEnumerable<WorkCenterMasterEffectiveDate> effectiveDateList, IEnumerable<WorkCenterMasterManpowerBudge> budgetCodeList, IEnumerable<WorkCenterMasterProductPriority> productPriorityList, IEnumerable<WorkCenterWiseShift> shiftList, IEnumerable<WorkCenterMasterSubProcess> subProcessList);
 
         IEnumerable<object> GetEffectiveDateList(string masterId);
 

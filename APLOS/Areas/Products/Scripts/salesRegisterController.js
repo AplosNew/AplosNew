@@ -9,6 +9,8 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
     $scope.path1 = 'Accounts/InventoryPayable/';
     //$scope.exportgriddataUrl = 'GridReports/ExcelExport';
     $scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
+    $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
+    $scope.exportgriddataUrlUpdate2 = 'GridReports/ExcelExportUpdate2';
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
@@ -114,11 +116,17 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
     };
 
 
-    $scope.SalesRegisterList = [];
+    $scope.SalesRegisterLists = [];
+    $scope.SalesRegisterPartyList = [];
+    $scope.SalesRegisterItemList = [];
     $scope.pivotTableFieldListID = [];
-    $scope.GetSalesRegister = function () {
-        debugger;
 
+
+
+    $scope.GetSalesRegisterView = function () {
+        $scope.SalesRegisterLists = [];
+        $scope.SalesRegisterPartyList = [];
+        $scope.SalesRegisterItemList = [];
         if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
             ShowResult('Select From Date', 'failure');
             return false;
@@ -127,21 +135,50 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             ShowResult('Select To Date', 'failure');
             return false;
         }
+        else if ($scope.report.ReportType === null || $scope.report.ReportType === "") {
+            ShowResult('Please select Report Type', 'failure');
+            return false;
+        }
+
+        if ($scope.report.ReportType == 'SaleWise') {
+            $scope.gridDataURL = 'Products/salesRegister/GetSalesRegister'
+        }
+        else if ($scope.report.ReportType == 'PartyWise') {
+            $scope.gridDataURL = 'Products/salesRegister/SalesRegisterCustomerWiseData'
+        }
+        else if ($scope.report.ReportType == 'ItemWise') {
+            $scope.gridDataURL = 'Products/salesRegister/GetSalesRegisterItemWiseData'
+        }
+        //'Materials/MaterialLedger/GetPurchaseRegister'
         $http({
             method: 'POST',
             //url: $scope.getSearchListUrl,
-            url: 'Products/salesRegister/GetSalesRegister',
+            url: $scope.gridDataURL,
             data: {
                 fromDate: $scope.report.FromDate,
                 toDate: $scope.report.ToDate,
-                Type: $scope.productNew.Type
+                Type: 'ForThePeriod'
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.SalesRegisterList = response.data;
-
-            for (var i = 0; i < $scope.SalesRegisterList.length; i++) {
-                response.data[i].GRNEntryDate = new Date($scope.SalesRegisterList[i].GRNEntryDate);
+            if ($scope.report.ReportType == 'SaleWise') {
+                $scope.SalesRegisterLists = response.data.NewData;
+                for (var i = 0; i < $scope.SalesRegisterLists.length; i++)
+                {
+                    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterLists[i].GRNEntryDate);
+                }
+            }
+            else if ($scope.report.ReportType == 'PartyWise') {
+                $scope.SalesRegisterPartyList = response.data.NewData;
+                for (var i = 0; i < $scope.SalesRegisterPartyList.length; i++) {
+                    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterPartyList[i].GRNEntryDate);
+                }
+            }
+            else if ($scope.report.ReportType == 'ItemWise') {
+                $scope.SalesRegisterItemList = response.data.NewData;
+                for (var i = 0; i < $scope.SalesRegisterItemList.length; i++) {
+                    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterItemList[i].GRNEntryDate);
+                }
             }
 
             $scope.load();
@@ -149,7 +186,19 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
     };
 
-    $scope.InventorySalesReportExcels = function (reportType) {
+    $scope.downloadReport = function () {
+        if ($scope.report.ReportType == 'SaleWise') {
+            $scope.InventorySalesReportExcels();
+        }
+        else if ($scope.report.ReportType == 'PartyWise') {
+            $scope.SalesPartyWiseReportExcel();
+        }
+        else if ($scope.report.ReportType == 'ItemWise') {
+            $scope.SalesRegisterItemWiseReport();
+        }
+    }
+
+    $scope.InventorySalesReportExcels = function () {
         var Type = null;
         if ($scope.productNew.AsOnDate === 'AsOnDate') {
 
@@ -172,2211 +221,73 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             Type = 'ForThePeriod';
         }
 
-        //var reportFormat = "Excel";
-        $window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + 'Excel' + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summary=' + reportType + '&WithTax=' + true + '&Type=' + Type);
-    };
-
-
-
-
-    $scope.getReport = function () {
-        $scope.getaldataMaterialLedger();
-    }
-    $scope.getSalesRegisterReport = function () {
-        $scope.GetSalesRegister();
-    }
-    $scope.getPurchaseRegisterReport1 = function () {
-        //$scope.GetSalesRegister();
-        $scope.ShowResultCustom("Coming Soon...");
-    }
-    //$scope.getalldata1 = function () {
-    //    $http({
-    //        method: "GET",
-    //        dataType: 'JSON',
-    //        //url: $scope.getSearchListUrl,
-    //        url: 'Products/PurchaseOrder/GetListForPOApproval',
-    //    }).then(function successCallback(response) {
-    //        $scope.Griddata1 = response.data;
-    //        //entrydata = copy(searchdata);
-    //    });
-    //};
-
-
-    $window.onresize = function (event) {
-
-        $scope.actionCompleteSelected();
-
-    };
-    $scope.actionCompleteSelected = function (args) {
-        try {
-            if (args.requestType === "refresh") {
-                var gridObj = $("#GridPrint").ejGrid("instance");
-                var scrollerwidth = $("#PR").width();//Obtain the width of the container
-
-                //   $("#GridReq").children('.e-grid.e-headercell').css('height', '100px');              
-                gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 300 } });//pass the obtainer width and height to gridmodel options
-                gridObj.windowonresize();
-            }
-        } catch (e) {
-            //$scope.ShowResultCustom(e, 'failure');
-        }
-
-    };
-
-
-    $scope.onClickReportDownloadWord = function (args) {
-
-        var gridObj = $("#GridPrint").data("ejGrid");
-        //getting corresponding record 
-        var data = gridObj.getSelectedRecords()[0];
-        var reportFormat = "Pdf";
-        var IsTaxApplicable = false;
-        if (baseService.isUndefinedOrNull(data.GRNId)) return ShowResult('No Id found', 'failure');
-        $window.open('Accounts/InventoryPayable/PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNId + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + IsTaxApplicable, '_blank');
-        //location.href = "Accounts/InventoryPayable/PabyableJournal?inventoryReceiveId=" + data.GrnId;
-    };
-
-    $scope.commandPDF = [{
-        type: "details", buttonOptions: {
-            text: "PDF",
-            width: "50",
-            height: "20",
-            //contentType: "imageonly",
-            //prefixIcon: "e-icon e-dataexport",
-
-            //prefixIcon: "e-icon e-edit" ,
-            //prefixIcon: "e-icon e-delete",
-            //prefixIcon: " e-icon e-save",
-            //prefixIcon: " e-icon e-cancel",
-
-            click: $scope.onClickReportDownloadWord
-        }
-    }];
-
-    $scope.onClickReportDownloadExcel = function (args) {
-
-        var gridObj = $("#GridPrint").data("ejGrid");
-        //getting corresponding record 
-        var data = gridObj.getSelectedRecords()[0];
-        var reportFormat = "Excel";
-        var IsTaxApplicable = false;
-        if (baseService.isUndefinedOrNull(data.GRNId)) return ShowResult('No Id found', 'failure');
-        $window.open('Accounts/InventoryPayable/PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNId + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + IsTaxApplicable, '_blank');
-
-    };
-    $scope.commandExcel = [{
-        type: "details", buttonOptions: {
-            text: "Excel",
-            width: "50",
-            height: "20",
-            //contentType: "imageonly",
-            //prefixIcon: "e-icon e-dataexport",
-
-            //prefixIcon: "e-icon e-edit" ,
-            //prefixIcon: "e-icon e-delete",
-            //prefixIcon: " e-icon e-save",
-            //prefixIcon: " e-icon e-cancel",
-
-            click: $scope.onClickReportDownloadExcel
-        }
-    }];
-
-
-    $scope.onClickGRNID = function (args) {
-
-
-        var gridObj = $("#GridPrint").data("ejGrid");
-        //getting corresponding record             
-        var data = gridObj.getSelectedRecords()[0];
-        //alert('jj' + data.Id);
-        // $scope.valuePassInDelModal(data); 
-        location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.GRNId;
-
-    };
-    $scope.commandGRN = [{
-
-
-        type: "details", buttonOptions: {
-            text: "GRN",
-            width: "50",
-            height: "20",
-
-            click: $scope.onClickGRNID
-        }
-    }];
-
-
-    $scope.load = function () {
-
-
-        $("#PivotGrid1").ejPivotGrid({
-            enableGroupingBar: true,
-            enableConditionalFormatting: true,
-            enableColumnResizing: true,
-            resizeColumnsToFit: true,
-            beforeExport: "Exporting",
-            //beforeExport: Export,
-            enableContextMenu: true,
-            dataSource: {
-                data: $scope.PurchaseRegisterLst,
-                //rows: [{
-                //	fieldName: "Country",
-                //	fieldCaption: "Country"
-                //}, {
-                //	fieldName: "State",
-                //	fieldCaption: "State"
-                //}],
-                //columns: [{
-                //	//fieldName: "Product",
-                //	//fieldCaption: "Product"
-                //	showSubTotal: false
-                //}],
-                //values: [
-                //	{
-                //		fieldName: "TransactionQty",
-                //		fieldCaption: "Quantity"
-                //	},
-                //	{
-                //		fieldName: "MaterialTranRate",
-                //		fieldCaption: "MaterialTranRate"
-                //	},
-                //	{
-                //		fieldName: "MaterialTranAmount",
-                //		fieldCaption: "MaterialTranAmount"
-                //	},
-                //	{
-                //		fieldName: "TotalMaterialTranAmount",
-                //		fieldCaption: "TotalMaterialTranAmount"
-                //	},
-                //	{
-                //		fieldName: "TotalMaterialBaseAmount",
-                //		fieldCaption: "TotalMaterialBaseAmount"
-                //	}],
-                //filters: [
-                //	{
-                //		fieldName: "GRNEntryDate",
-                //		fieldCaption: "GRNEntryDate"
-
-                //	},
-                //	{
-                //		fieldName: "GRNType",
-                //		fieldCaption: "GRNType"
-
-                //	},
-                //	{
-                //		fieldName: "PartyName",
-                //		fieldCaption: "PartyName"
-
-                //	},
-                //	{
-                //		fieldName: "FirstName",
-                //		fieldCaption: "FirstName"
-
-                //	},
-                //	{
-                //		fieldName: "MaterialType",
-                //		fieldCaption: "MaterialType"
-
-                //	},
-
-
-
-
-                //	{
-                //		fieldName: "MaterialGroupMasterName",
-                //		fieldCaption: "MaterialGroupMasterName"
-
-                //	},
-                //	{
-                //		fieldName: "MaterialMasterName",
-                //		fieldCaption: "MaterialMasterName"
-
-                //	},
-                //	{
-                //		fieldName: "ArticleName",
-                //		fieldCaption: "ArticleName"
-
-                //	},
-                //	{
-                //		fieldName: "FirstCharacteristicsValue",
-                //		fieldCaption: "FirstCharacteristicsValue"
-
-                //	},
-                //	{
-                //		fieldName: "SecondCharacteristicsValue",
-                //		fieldCaption: "SecondCharacteristicsValue"
-
-                //	},
-                //	{
-                //		fieldName: "ThirdCharacteristicsValue",
-                //		fieldCaption: "ThirdCharacteristicsValue"
-
-                //	},
-                //]
-            },
-            renderSuccess: RenderFieldList,
-        });
-        $("#btnExport").ejButton({
-            click: "exportBtnClick"
-        });
-        $("#Button1").ejButton({
-            size: "normal",
-            roundedCorner: true,
-            click: btnClick
-        });
-        $("#btnExport").ejButton({
-            click: exportBtnClick
-        });
-        //$("#btnExport").ejButton({
-        //	click: "exportBtnClick"
-        //});
-    };
-    function PrintPurchaseRegister1() {
-        debugger;
-        // var gridObj = $("#DetailGrid").data("ejGrid");
-        //var gridObj = $("#PivotGrid1").ejGrid("instance");
-        //var data = gridObj.model.dataSource;
-        var gridObj111 = $('#PivotGrid1').data("ejPivotGrid");
-        var data111 = gridObj111.model.dataSource.data;
-        $http({
-            method: 'POST',
-            url: $scope.exportgriddataUrl,
-            data: { 'obj': JSON.stringify(data111) }
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
-                // ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');
-
-            }
-            else {
-
-                location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
-            }
-        });
-    }
-    function exportBtnClick(args) {
-        var pGridObj = $('#PivotGrid1').data("ejPivotGrid");
-        //JSON export
-        pGridObj.exportPivotGrid("https://js.syncfusion.com/ejservices/api/PivotGrid/Olap/ExcelExport", "fileName");
-        //PivotEngine Export
-        pGridObj.exportPivotGrid(ej.PivotGrid.ExportOptions.Excel);
-    }
-    function Exporting(args) {
-        args.title = "PivotGrid";
-        args.description = "Displays both OLAP and Relational datasource in tabular format";
-        args.exportWithStyle = true;   // by default it sets as true. It improves performance on exporting huge data when it sets as false.
-    }
-
-
-
-
-    function RenderFieldList(args) {
-
-        $("#PivotSchemaDesigner1").ejPivotSchemaDesigner({
-            pivotControl: args,
-            layout: ej.PivotSchemaDesigner.Layouts.Excel
-
-        });
-        //$("#PivotSchemaDesigner1").ejPivotSchemaDesigner({
-        //	serviceMethod: { filtering: "FilteringMethod" }
-        //});
-
-
-    }
-    function btnClick(e) {
-        var pivotGridObj = $('#PivotGrid1').data("ejPivotGrid");
-        if (pivotGridObj.model.enableConditionalFormatting) {
-            pivotGridObj.openConditionalFormattingDialog();
-        }
-    }
-    function exportBtnClick(args) {
-        var pGridObj = $('#PivotGrid1').data("ejPivotGrid");
-        pGridObj.exportPivotGrid(ej.PivotGrid.ExportOptions.Excel);
-    }
-    function Export(args) {
-        args.exportMode = ej.PivotGrid.ExportMode.PivotEngine;
-    }
-
-    //$scope.load();	
-
-
-    $scope.MaterialLedgerReportPdf = function (id, reportFormat) {
-
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        var reportFormat = "Pdf";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/Report?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate, '_blank');
-    };
-
-    $scope.MaterialLedgerReportExcel = function (reportFormat) {
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/Report?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
-    }
-
-    //$scope.PurchaseOrderReportPdf = function (id, reportFormat) {
-
-    //	if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-    //		ShowResult('Select From Date', 'failure');
-    //		return false;
-    //	}
-    //	if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-    //		ShowResult('Select To Date', 'failure');
-    //		return false;
-    //	}
-    //	var reportFormat = "Pdf";
-    //	//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-    //	$window.open('Materials/MaterialLedger/PurchaseRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
-    //};
-
-
-
-    //$scope.PurchaseOrderReportExcel = function (reportFormat) {
-    //    debugger;
-    //    if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-    //        ShowResult('Select From Date', 'failure');
-    //        return false;
-    //    }
-    //    if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-    //        ShowResult('Select To Date', 'failure');
-    //        return false;
-    //    }
-    //    try {
-    //        var Excel;
-    //        var file_src = 'Materials/MaterialLedger/PurchaseRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type;
-    //        $rootScope.report(file_src);
-
-    //    } catch (e) {
-
-    //    }
-    //}
-
-
-    //$scope.PurchaseOrderReportExcel = function (reportFormat) {
-    //    debugger;
-    //    if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-    //        ShowResult('Select From Date', 'failure');
-    //        return false;
-    //    }
-    //    if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-    //        ShowResult('Select To Date', 'failure');
-    //        return false;
-    //    }
-    //    try {
-    //        var Excel;
-    //        var file_src = 'Materials/MaterialLedger/PurchaseRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type;
-    //        $rootScope.report(file_src);
-
-    //    } catch (e) {
-
-    //    }
-    //}
-
-    $scope.PurchaseOrderGRNWiseReportExcel = function () {
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        $http({
-            method: 'POST',
-            url: $scope.path + "PurchaseRegisterGRNWiseReport",
-            data: {
-                'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
-    }
-    //$scope.PurchaseOrderGRNWiseReportExcel = function (reportFormat) {
-    //    if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-    //        ShowResult('Select From Date', 'failure');
-    //        return false;
-    //    }
-    //    if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-    //        ShowResult('Select To Date', 'failure');
-    //        return false;
-    //    }
-    //    try {
-    //        var Excel;
-    //        var file_src = 'Materials/MaterialLedger/PurchaseRegisterGRNWiseReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
-    //        $rootScope.report(file_src);
-
-    //    } catch (e) {
-
-    //    }
-    //}
-
-    $scope.SalesOrderCustomerWiseReportExcel = function () {
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        $http({
-            method: 'POST',
-            url: $scope.path + "SalesOrderCustomerWiseReport",
-            data: {
-                'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
-    }
-
-   
-    $scope.SalesOrderItemReportExcel = function () {
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        $http({
-            method: 'POST',
-            url: $scope.path + "SalesRegisterItemWiseReport",
-            data: {
-                'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
-    }
-
-
-    $scope.productNew.AsOnDate = 'AsOnDate';
-    $scope.tab = 1;
-    $scope.setTabPR = function (newTab) {
-        $scope.tab = newTab;
-        //$scope.GetGRN();
-    };
-    $scope.isSetPR = function (tabNum) {
-        return $scope.tab === tabNum;
-        //$scope.GRN = 0;
-    };
-    $scope.setTabPRP = function (newTab) {
-        $scope.tab = newTab;
-        //$scope.GetGRN();
-    };
-    $scope.isSetPRP = function (tabNum) {
-        return $scope.tab === tabNum;
-        //$scope.GRN = 0;
-    };
-
-
-
-
-    $scope.report.ToDate = $filter("dateFiltering")(Date.now());
-    $scope.productNew.Qty = true;
-    $scope.productNew.Inventory = true;
-    $scope.change = function (e) {
-
-        $scope.status = e;
-        if ($scope.status === 'ForThePeriod') {
-            var date = new Date(), y = date.getFullYear(), m = date.getMonth();
-            var firstDay = new Date(y, m, 1);
-            FromDate: $filter('dateFiltering')(new Date(firstDay.getFullYear(), firstDay.getMonth(), 1)),
-                //$scope.report.FromDate = $filter("dateFiltering")(Date.now());
-                $scope.report.FromDate = $filter('dateFiltering')(new Date(firstDay.getFullYear(), firstDay.getMonth(), 1));
-            $scope.report.ToDate = $filter("dateFiltering")(Date.now());
-            $scope.productNew.ForThePeriod = 'ForThePeriod';
-            //$scope.productNew.Qty = true;
-            //$scope.productNew.Amount = false;
-
-        }
-        if ($scope.status === 'AsOnDate') {
-
-            $scope.productNew.RcptIssue = '';
-            $scope.report.FromDate = '';
-            $scope.productNew.AsOnDate = 'AsOnDate';
-            //$scope.productNew.Qty = true;
-            //$scope.productNew.Amount = false;
-
-
-
-        }
-
-    }
-
-
-
-
-
-    $scope.checkoptions = function (choice) {
-        //var details = [];
-        //angular.forEach(choice, function (value, key) {
-        //	if (choice[key].checked) {
-        //		details.push(choice[key].userid);
-        //	}
-        //});
-        if (choice[key].checked) {
-            details.push(choice[key].userid);
-        }
-    }
-    $scope.detailModel = {
-
-        MaterialMasterId: null
-        , MaterialMasterName: null
-        , ArticleId: null
-        , ArticleName: null
-        , CostCenterId: null
-        , CostCenterName: null
-
-        , FirstCharacteristicsId: null
-        , FirstCharacteristicsValueId: null
-
-        , SecondCharacteristicsId: null
-        , SecondCharacteristicsValueId: null
-
-        , ThirdCharacteristicsId: null
-        , ThirdCharacteristicsValueId: null
-
-
-    };
-
-    $scope.closeDetaiPopUp = function () {
-        $scope.detailModel = {};
-        $scope.taxCategoryList = [];
-        removeValidationMsg();
-        angular.element(document.querySelector('#detailPopUp')).modal('hide');
-    };
-
-
-    $scope.selectMaterialByType = function (ob) {
-        debugger;
-        var a = ob.IsAsset
-        if (a === true) {
-            $scope.IsAsset = 'It is  fixed asset';
-        }
-        else {
-            $scope.IsAsset = 'It is inventory';
-        }
-        $scope.detailModel = {};
-
-        $scope.detailModel.MaterialMasterId = ob.Id;
-        $scope.detailModel.MaterialMasterName = ob.UserName;
-        $scope.detailModel.BaseUOMId = ob.BaseUOMId;
-        $scope.detailModel.BaseUoM = ob.BaseUoM;
-        $scope.detailModel.OurStyleName = ob.OurStyleName;
-        $scope.detailModel.MaterialGroupMasterName = ob.MaterialGroupMasterName;
-        $scope.detailModel.ProductMasterName = ob.ProductMasterName;
-        $scope.detailModel.IsOurStyleRequired = ob.IsOurStyleRequired;
-        $scope.detailModel.IsProductMstRequired = ob.IsProductMstRequired;
-        $scope.detailModel.TransactionUoMId = ob.BaseUOMId;
-        $scope.detailModel.ArticleId = null;
-        $scope.detailModel.ArticleName = null;
-        $scope.detailModel.FirstCharacteristicsValueId = null;
-        $scope.detailModel.SecondCharacteristicsValueId = null;
-        $scope.detailModel.ThirdCharacteristicsValueId = null;
-        $scope.detailModel.IsOriginApplicable = ob.IsOriginApplicable;
-        $scope.detailModel.CountryId = null;
-
-        $scope.hasArticle = ob.HasAttribute;
-        $scope.hasSku = ob.WithSKU;
-        $scope.clearCharNames();
-        if (ob.HasAttribute) $scope.getArticleSearchList(ob.Id);
-        if (ob.WithSKU) $scope.getCharacteristicsList(ob.Id);
-
-        // getTaxCategoryList(ob.HSNCodeId);
-        var mmId = []; mmId.push(ob.Id);
-
-        cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (result) {
-            $scope.uoMList = result;
-            //$scope.detailModel.BaseUOMId = $filter("filter")($scope.uoMList, { IsBaseUom: 1 })[0].Value;
-        });
-
-        manualValidation('div_mm', false);
-        manualValidation('div_country', false);
-        $scope.closeMaterialMasterbyTypePopUp();
-    };
-
-    $scope.selectarticle = function (ob) {
-        try {
-            $scope.detailModel.ArticleId = ob.Id;
-            $scope.detailModel.ArticleName = ob.StandardName;
-            manualValidation('div_ar', false);
-            angular.element(document.querySelector('#articleSearchPop')).modal('hide');
-
-        } catch (e) {
-            ShowResult(e, '', 'articleSearchPop');
-
-        }
-    };
-
-    //-------Material Stock Balance Report--------//
-
-    $scope.MaterialStockBalanceReportPdf = function (id, reportFormat) {
-        $scope.productNew.Asset === false;
-        $scope.productNew.Inventory === false;
-        $scope.productNew.Country === false;
-        if ($scope.productNew.AsOnDate === 'AsOnDate') {
-
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-
-
-
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice1 = '';
-                $scope.choice2 = 'Amount';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-
-            if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-                ShowResult('Select Asset OR Inventory', 'failure');
-                return false;
-            }
-
-            if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
-                $scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = false;
-                $scope.productNew.Asset = true;
-            }
-            if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
-                $scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Asset = false;
-                $scope.productNew.Inventory = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-                $scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Country === true) {
-                $scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
-            if ($scope.productNew.Inventory === true && $scope.productNew.Country === true) {
-                $scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
-            if ($scope.productNew.Inventory === true && $scope.productNew.Asset === true && $scope.productNew.Country === true) {
-                $scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
-
-
-        }
-        else {
-
-            if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-                ShowResult('Select From Date', 'failure');
-                return false;
-            }
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-            if ($scope.productNew.RcptIssue != true) {
-                ShowResult('Select With Receipts & Issue', 'failure');
-                return false;
-            }
-
-
-
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice2 = 'Amount';
-                $scope.choice1 = '';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-
-            if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-                ShowResult('Select Asset OR Inventory', 'failure');
-                return false;
-            }
-            if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
-                $scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = false;
-                $scope.productNew.Asset = true;
-            }
-            if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
-                $scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Asset = false;
-                $scope.productNew.Inventory = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-                $scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Country === true) {
-                $scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
-            if ($scope.productNew.Inventory === true && $scope.productNew.Country === true) {
-                $scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
-
-
-        }
-
-
-        var reportFormat = "Pdf";
-        if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/MaterialStockBalanceReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory + '&Country=' + $scope.productNew.Country, '_blank');
-
-    };
-    $scope.MaterialStockBalanceReportExcel = function (reportFormat) {
-        $scope.productNew.Asset === false;
-        $scope.productNew.Inventory === false;
-        $scope.productNew.Country === false;
-        if ($scope.productNew.AsOnDate === 'AsOnDate') {
-
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice1 = '';
-                $scope.choice2 = 'Amount';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-
-            if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-                ShowResult('Select Asset OR Inventory', 'failure');
-                return false;
-            }
-
-            if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-
-                //$scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = false;
-                $scope.productNew.Asset = true;
-            }
-            if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Asset = false;
-                $scope.productNew.Inventory = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-                //$scope.productNew.Asset = 'Asset';
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Country === true) {
-                //$scope.productNew.Asset = 'Asset';
-                //$scope.productNew.Inventory = 'Inventory';
-                // $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
-            if ($scope.productNew.Inventory === true && $scope.productNew.Country === true) {
-                //$scope.productNew.Asset = 'Asset';
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                //$scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
-            if ($scope.productNew.Inventory === true && $scope.productNew.Asset === true && $scope.productNew.Country === true) {
-                //$scope.productNew.Asset = 'Asset';
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
-
-
-        }
-        else {
-
-            if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-                ShowResult('Select From Date', 'failure');
-                return false;
-            }
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-            //if ($scope.productNew.RcptIssue != true) {
-            //	ShowResult('Select With Receipts & Issue', 'failure');
-            //	return false;
-            //}
-
-
-
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice2 = 'Amount';
-                $scope.choice1 = '';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-
-            if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-                ShowResult('Select Asset OR Inventory', 'failure');
-                return false;
-            }
-            if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
-                //$scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = false;
-                $scope.productNew.Asset = true;
-            }
-            if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Asset = false;
-                $scope.productNew.Inventory = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-                //$scope.productNew.Asset = 'Asset';
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Country === true) {
-                //$scope.productNew.Asset = 'Asset';
-                //$scope.productNew.Inventory = 'Inventory';
-                // $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
-            if ($scope.productNew.Inventory === true && $scope.productNew.Country === true) {
-                //$scope.productNew.Asset = 'Asset';
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                //$scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
-            if ($scope.productNew.Inventory === true && $scope.productNew.Asset === true && $scope.productNew.Country === true) {
-                //$scope.productNew.Asset = 'Asset';
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-                $scope.productNew.Country = true;
-            }
-
-        }
-
-
-        try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/MaterialStockBalanceReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory + '&Country=' + $scope.productNew.Country + '&materialStorage=' + $scope.productNew.Storage;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
-    }
-
-    $scope.MaterialStoreLedgerReportExcel = function (reportFormat) {
-
-        if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.report.ToDate)) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        //}
-        try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/MaterialStoreLedgerReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&MaterialId=' + $scope.detailModel.MaterialMasterId + '&ArticleId=' + $scope.detailModel.ArticleId + '&Sku1=' + $scope.FirstCharacteristicsValueId + '&Sku2=' + $scope.SecondCharacteristicsValueId + '&Sku3=' + $scope.ThirdCharacteristicsValueId;
-            $rootScope.report(file_src);
-        } catch (e) {
-
-        }
-    }
-
-    $scope.MaterialStoreLedgerReportPdf = function (reportFormat) {
-
-        if ($scope.productNew.AsOnDate === 'AsOnDate') {
-
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-
-            if ($scope.detailModel.MaterialMasterName === "" || $scope.detailModel.MaterialMasterName === null || $scope.detailModel.MaterialMasterName === undefined) {
-                ShowResult('Please Select Material ', 'failure');
-                return false;
-            }
-
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice1 = '';
-                $scope.choice2 = 'Amount';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-
-
-            if ($scope.productNew.Asset) {
-                $scope.choice1 = 'Asset';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Inventory) {
-                $scope.choice2 = 'Inventory';
-                $scope.choice1 = '';
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-                $scope.choice1 = 'Asset';
-                $scope.choice2 = 'Inventory';
-            }
-            if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-                ShowResult('Select Asset OR Amount', 'failure');
-                return false;
-            }
-
-        }
-        else {
-
-            if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-                ShowResult('Select From Date', 'failure');
-                return false;
-            }
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-            if ($scope.productNew.RcptIssue != true) {
-                ShowResult('Select With Receipts & Issue', 'failure');
-                return false;
-            }
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice2 = 'Amount';
-                $scope.choice1 = '';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-        }
-
-
-        var reportFormat = "Pdf";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/MaterialStoreLedgerReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&MaterialId=' + $scope.detailModel.MaterialMasterId + '&ArticleId=' + $scope.detailModel.ArticleId, '_blank');
-
-    };
-
-    //-------Material Store Ledger Report---- End ----//
-
-
-
-    //-------Material Consumption Report--------//
-
-    $scope.MaterialConsumptionReportPdf = function (id, reportFormat) {
-
-        $scope.detailModel.CostCenterId = null;
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        var reportFormat = "Pdf";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/MaterialConsumptionReports?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&RcptIssue=' + $scope.detailModel.CostCenterId, '_blank');
-    };
-    $scope.MaterialConsumptionReportExcel = function (reportFormat) {
-        $scope.detailModel.CostCenterId = null;
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/MaterialConsumptionReports?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&RcptIssue=' + $scope.detailModel.CostCenterId;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
-    }
-
-
-    $scope.CostCenterLoad = function () {
-
-        $scope.costCenterList = [];
-        cboService.getCostCenterCbo(function (result) {
-            $scope.costCenterList = result;
-        });
-    }
-    $scope.CostCenterLoad();
-
-    $scope.MaterialConsumptionCCReportPdf = function (id, reportFormat) {
-
-
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-
-        }
-
-        if ($scope.detailModel.CostCenterId === "" || $scope.detailModel.CostCenterId === null || $scope.detailModel.CostCenterId === undefined) {
-            ShowResult('Select Cost Center', 'failure');
-            return false;
-        }
-        var reportFormat = "Pdf";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/MaterialConsumptionReports?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&RcptIssue=' + $scope.detailModel.CostCenterId, '_blank');
-
-    };
-    $scope.MaterialConsumptionCCReportExcel = function (reportFormat) {
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-
-
-        if ($scope.detailModel.CostCenterId === "" || $scope.detailModel.CostCenterId === null || $scope.detailModel.CostCenterId === undefined) {
-            ShowResult('Select Cost Center', 'failure');
-            return false;
-        }
-        try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/MaterialConsumptionReports?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&RcptIssue=' + $scope.detailModel.CostCenterId;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
-    }
-
-    $scope.tab = 1;
-    $scope.setTab1 = function (newTab) {
-
-        $scope.tab = newTab;
-        $scope.detailModel.CostCenterId === null;
-        $scope.CostCenterLoad();
-        //$scope.ReqStatus = 'ForChecked';
-        //  $scope.GetIssueRegister();
-
-    };
-    $scope.isSet1 = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
-    $scope.setTab2 = function (newTab) {
-        $scope.tab = newTab;
-    };
-    $scope.isSet2 = function (tabNum) {
-        return $scope.tab === tabNum;
-
-    };
-
-
-    $scope.IssueRegisterList = [];
-    $scope.GetIssueRegister = function () {
-
-        if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        else if ($scope.report.ToDate === null || $scope.report.ToDate === "") {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        $http({
-            method: 'POST',
-            //url: $scope.getSearchListUrl,
-            url: 'Materials/MaterialLedger/GetMaterialConsumptionGL',
-            data: {
-                fromDate: $scope.report.FromDate,
-                toDate: $scope.report.ToDate,
-                Type: $scope.productNew.Type
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.IssueRegisterList = response.data;
-
-            //entrydata = copy(searchdata);
-        });
-
-    };
-
-
-    $scope.IssueRegisterListByGRN = [];
-    $scope.GetIssueRegisterListByGRN = function () {
-
-        if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        else if ($scope.report.ToDate === null || $scope.report.ToDate === "") {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        $http({
-            method: 'POST',
-            //url: $scope.getSearchListUrl,
-            url: 'Materials/MaterialLedger/GetMaterialConsumptionCostCenter',
-            data: {
-                fromDate: $scope.report.FromDate,
-                toDate: $scope.report.ToDate,
-                Type: $scope.productNew.Type
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.IssueRegisterListByGRN = response.data;
-
-            //entrydata = copy(searchdata);
-        });
-    };
-
-
-    //-------Material Consumption Report---- End ----//
-
-    //--------Material Receipt Report---------//
-
-
-    $scope.MaterialReceiptsReportPdf = function (id, reportFormat) {
-        debugger;
-        $scope.productNew.Asset === false;
-        $scope.productNew.Inventory === false;
-        if ($scope.productNew.AsOnDate === 'AsOnDate') {
-
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice1 = '';
-                $scope.choice2 = 'Amount';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice1 = '';
-                $scope.choice2 = 'Amount';
-            }
-
-
-
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-
-
-            if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-                ShowResult('Select Asset OR Inventory', 'failure');
-                return false;
-            }
-
-
-            if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
-                //$scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = false;
-                $scope.productNew.Asset = true;
-            }
-            if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Asset = false;
-                $scope.productNew.Inventory = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-                //$scope.productNew.Asset = 'Asset';
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-            }
-
-
-        }
-        else {
-
-            if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-                ShowResult('Select From Date', 'failure');
-                return false;
-            }
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-            //if ($scope.productNew.RcptIssue != true) {
-            //    ShowResult('Select With Receipts & Issue', 'failure');
-            //    return false;
-            //}
-
-
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice2 = 'Amount';
-                $scope.choice1 = '';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-
-
-            if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-                ShowResult('Select Asset OR Inventory', 'failure');
-                return false;
-            }
-
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Inventory === false) {
-                debugger;
-                //$scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = false;
-                $scope.productNew.Asset = true;
-            }
-            if ($scope.productNew.Inventory === true && $scope.productNew.Asset === false) {
-                debugger;
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Asset = false;
-                $scope.productNew.Inventory = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-                //$scope.productNew.Asset = 'Asset';
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-            }
-
-        }
-
-        var reportFormat = "Pdf";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/MaterialReceiptsReports?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory, '_blank');
-
-    };
-
-    $scope.MaterialReceiptsReportExcel = function (reportFormat) {
-        $scope.productNew.Asset === false;
-        $scope.productNew.Inventory === false;
-        if ($scope.productNew.AsOnDate === 'AsOnDate') {
-
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice1 = '';
-                $scope.choice2 = 'Amount';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-            if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-                ShowResult('Select Asset OR Inventory', 'failure');
-                return false;
-            }
-
-            if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
-                //$scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = false;
-                $scope.productNew.Asset = true;
-            }
-            if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Asset = false;
-                $scope.productNew.Inventory = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-                //$scope.productNew.Asset = 'Asset';
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-            }
-        }
-        else {
-
-            if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-                ShowResult('Select From Date', 'failure');
-                return false;
-            }
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice2 = 'Amount';
-                $scope.choice1 = '';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-            if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-                ShowResult('Select Asset OR Inventory', 'failure');
-                return false;
-            }
-            if ($scope.productNew.Asset === true && $scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined) {
-                debugger;
-                //$scope.productNew.Asset = 'Asset';
-                $scope.productNew.Inventory = false;
-                $scope.productNew.Asset = true;
-            }
-            if ($scope.productNew.Inventory === true && $scope.productNew.Asset === false || $scope.productNew.Asset === undefined) {
-                debugger;
-                //$scope.productNew.Inventory = 'Inventory';
-                $scope.productNew.Asset = false;
-                $scope.productNew.Inventory = true;
-            }
-
-            if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-                $scope.productNew.Inventory = true;
-                $scope.productNew.Asset = true;
-            }
-        }
-        try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/MaterialReceiptsReports?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue +
-                '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
-    }
-    //--------Material Receipt Report---- End ----//
-
-    //#region --------Material Issue Report---------//
-
-
-    $scope.MaterialIssueReportPdf = function (id, reportFormat) {
-
-        if ($scope.productNew.AsOnDate === 'AsOnDate') {
-
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-
-
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice1 = '';
-                $scope.choice2 = 'Amount';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-
-        }
-        else {
-
-            if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-                ShowResult('Select From Date', 'failure');
-                return false;
-            }
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-            //if ($scope.productNew.RcptIssue != true) {
-            //    ShowResult('Select With Receipts & Issue', 'failure');
-            //    return false;
-            //}
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice2 = 'Amount';
-                $scope.choice1 = '';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-        }
-
-
-        var reportFormat = "Pdf";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/MaterialIssueReports?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue, '_blank');
-
-    };
-    $scope.MaterialIssueReportExcel = function (reportFormat) {
-        if ($scope.productNew.AsOnDate === 'AsOnDate') {
-
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-
-
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice1 = '';
-                $scope.choice2 = 'Amount';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-
-        }
-        else {
-
-            if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-                ShowResult('Select From Date', 'failure');
-                return false;
-            }
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-
-            if ($scope.productNew.Qty) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = '';
-            }
-            if ($scope.productNew.Amount) {
-                $scope.choice2 = 'Amount';
-                $scope.choice1 = '';
-            }
-            if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-                $scope.choice1 = 'Qty';
-                $scope.choice2 = 'Amount';
-            }
-            if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-                ShowResult('Select Qty OR Amount', 'failure');
-                return false;
-            }
-        }
-        try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/MaterialIssueReports?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
-    }
-
-
-    //#endregion --------Material Issue Report---------//
-
-
-    $scope.PendingGRNList = function (x) {
-
-        $scope.getStatusallGRNPendingList(x.Description);
-        angular.element(document.querySelector('#ListOfPendingGRNList')).modal('show');
-    };
-
-
-    $scope.PendingGRNListHide = function () {
-        $scope.taxCategoryList = [];
-        angular.element(document.querySelector('#ListOfPendingGRNList')).modal('hide');
-    };
-
-    $scope.GetStatusGRNPendingList = [];
-    $scope.getStatusallGRNPendingList = function (status) {
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
-            url: 'Materials/MaterialLedger/GetStatusAllGRNPendingList?GRNPendingStatus=' + status,
-        }).then(function successCallback(response) { //datagatefun
-            $scope.GetStatusGRNPendingList = response.data;
-            //entrydata = copy(searchdata);
-        });
-    };
-    //  $scope.getStatusallGRNPendingList();
-
-    $scope.GetGRNPendingList = [];
-    $scope.getallGRNPendingList = function (status) {
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
-            url: 'Materials/MaterialLedger/GetPendingListGRN?GRNPendingStatus=' + status,
-        }).then(function successCallback(response) { //datagatefun
-            $scope.GetGRNPendingList = response.data;
-            //entrydata = copy(searchdata);
-        });
-    };
-    $scope.getallGRNPendingList();
-
-    $scope.changeRadio = function (e) {
-
-        $scope.status = e;
-        if ($scope.status === '1-3') {
-
-            $scope.Lessthan3days = 'Lessthan3days';
-            $scope.GRNPendingStatus = 'Lessthan3days';
-            $scope.getStatusallGRNPendingList($scope.Lessthan3days);
-            $scope.PendingGRNList();
-
-        }
-        if ($scope.status === '4-10') {
-
-            $scope.Lessthan10days = 'Lessthan10days';
-            $scope.GRNPendingStatus = 'Lessthan10days';
-            $scope.getStatusallGRNPendingList($scope.Lessthan10days);
-            $scope.PendingGRNList();
-        }
-
-        if ($scope.status === '11-20') {
-
-            $scope.Lessthan20days = 'Lessthan20days';
-            $scope.GRNPendingStatus = 'Lessthan20days';
-            $scope.getStatusallGRNPendingList($scope.Lessthan20days);
-            $scope.PendingGRNList();
-
-        }
-        if ($scope.status === '21-30') {
-
-            $scope.Lessthan30days = 'Lessthan30days';
-            $scope.GRNPendingStatus = 'Lessthan30days';
-            $scope.getStatusallGRNPendingList($scope.Lessthan30days);
-            $scope.PendingGRNList();
-        }
-        if ($scope.status === 'More Than 30 Days') {
-
-            $scope.Morethan30days = 'Morethan30days';
-            //$scope.GRNPendingStatus = 'Morethan30days';
-            $scope.getStatusallGRNPendingList($scope.Morethan30days);
-            $scope.PendingGRNList();
-        }
-
-    }
-
-
-    $scope.productNew.WithStock === true;
-
-
-    $scope.MaterialMasterStatusReportExcel = function (reportFormat) {
-        $scope.productNew.WithStock === false;
-        $scope.productNew.WithoutStock === false;
-
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        //if ($scope.productNew.RcptIssue != true) {
-        //	ShowResult('Select With Receipts & Issue', 'failure');
-        //	return false;
-        //}
-
-
-
-        if ($scope.productNew.Qty) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = '';
-        }
-        if ($scope.productNew.Amount) {
-            $scope.choice2 = 'Amount';
-            $scope.choice1 = '';
-        }
-        if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = 'Amount';
-        }
-        if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-            ShowResult('Select Qty OR Amount', 'failure');
-            return false;
-        }
-
-        if ($scope.productNew.WithStock === false && $scope.productNew.WithoutStock === false) {
-            ShowResult('Select WithStock2 OR WithoutStock', 'failure');
-            return false;
-        }
-        if (($scope.productNew.WithStock === true) && ($scope.productNew.WithoutStock === false || $scope.productNew.WithoutStock === undefined)) {
-            debugger;
-            //$scope.productNew.Asset = 'Asset';
-            $scope.productNew.WithoutStock = false;
-            $scope.productNew.WithStock = true;
-        }
-        if (($scope.productNew.WithoutStock === true) && ($scope.productNew.WithStock === false || $scope.productNew.WithStock === undefined)) {
-            debugger;
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.WithStock = false;
-            $scope.productNew.WithoutStock = true;
-        }
-
-        if ($scope.productNew.WithStock === true && $scope.productNew.WithoutStock === true) {
-            //$scope.productNew.Asset = 'Asset';
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.WithoutStock = true;
-            $scope.productNew.WithStock = true;
-        }
-        try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/MaterialMasterStatus?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
-    }
-
-    $scope.MaterialMasterStatusReportPdf = function (reportFormat) {
-        debugger;
-        $scope.productNew.WithStock === false;
-        $scope.productNew.WithoutStock === false;
-
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        //if ($scope.productNew.RcptIssue != true) {
-        //	ShowResult('Select With Receipts & Issue', 'failure');
-        //	return false;
-        //}
-
-
-
-        if ($scope.productNew.Qty) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = '';
-        }
-        if ($scope.productNew.Amount) {
-            $scope.choice2 = 'Amount';
-            $scope.choice1 = '';
-        }
-        if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = 'Amount';
-        }
-        if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-            ShowResult('Select Qty OR Amount', 'failure');
-            return false;
-        }
-
-        if ($scope.productNew.WithStock === false && $scope.productNew.WithoutStock === false) {
-            ShowResult('Select WithStock2 OR WithoutStock', 'failure');
-            return false;
-        }
-        if (($scope.productNew.WithStock === true) && ($scope.productNew.WithoutStock === false || $scope.productNew.WithoutStock === undefined)) {
-            debugger;
-            //$scope.productNew.Asset = 'Asset';
-            $scope.productNew.WithoutStock = false;
-            $scope.productNew.WithStock = true;
-        }
-        if (($scope.productNew.WithoutStock === true) && ($scope.productNew.WithStock === false || $scope.productNew.WithStock === undefined)) {
-            debugger;
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.WithStock = false;
-            $scope.productNew.WithoutStock = true;
-        }
-
-        if ($scope.productNew.WithStock === true && $scope.productNew.WithoutStock === true) {
-            //$scope.productNew.Asset = 'Asset';
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.WithoutStock = true;
-            $scope.productNew.WithStock = true;
-        }
-        try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/MaterialMasterStatus?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
-    }
-
-
-
-    //#endregion -material - master - stock----
-
-    //#region Material Stationery Request
-
-    $scope.MaterialStationeryRequestReportPdf = function (id, reportFormat) {
-
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        //if ($scope.productNew.RcptIssue != true) {
-        //    ShowResult('Select With Receipts & Issue', 'failure');
-        //    return false;
-        //}
-
-
-
-        if ($scope.productNew.Qty) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = '';
-        }
-        if ($scope.productNew.Amount) {
-            $scope.choice2 = 'Amount';
-            $scope.choice1 = '';
-        }
-        if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = 'Amount';
-        }
-        if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-            ShowResult('Select Qty OR Amount', 'failure');
-            return false;
-        }
-
-        if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-            ShowResult('Select Asset OR Inventory', 'failure');
-            return false;
-        }
-        if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-            debugger;
-            //$scope.productNew.Asset = 'Asset';
-            $scope.productNew.Inventory = false;
-            $scope.productNew.Asset = true;
-        }
-        if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-            debugger;
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.Asset = false;
-            $scope.productNew.Inventory = true;
-        }
-
-        if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-            //$scope.productNew.Asset = 'Asset';
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.Inventory = true;
-            $scope.productNew.Asset = true;
-        }
-
-
-        // }
-
-
-        var reportFormat = "Pdf";
-
-        $window.open('Materials/MaterialLedger/MaterialStationeryRequestReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory, '_blank');
-
-    };
-    $scope.MaterialStationeryRequestReportExcel = function (id, reportFormat) {
-        debugger;
-        $scope.productNew.Asset === false;
-        $scope.productNew.Inventory === false;
-
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-
-        if ($scope.productNew.Qty) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = '';
-        }
-        if ($scope.productNew.Amount) {
-            $scope.choice2 = 'Amount';
-            $scope.choice1 = '';
-        }
-        if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = 'Amount';
-        }
-        if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-            ShowResult('Select Qty OR Amount', 'failure');
-            return false;
-        }
-
-        if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-            ShowResult('Select Asset OR Inventory', 'failure');
-            return false;
-        }
-        if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-            debugger;
-            //$scope.productNew.Asset = 'Asset';
-            $scope.productNew.Inventory = false;
-            $scope.productNew.Asset = true;
-        }
-        if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-            debugger;
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.Asset = false;
-            $scope.productNew.Inventory = true;
-        }
-
-        if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-            //$scope.productNew.Asset = 'Asset';
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.Inventory = true;
-            $scope.productNew.Asset = true;
-        }
-
-
-
-
-
-        // }
-
-        var reportFormat = "Excel";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/MaterialStationeryRequestReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory, '_blank');
-    };
-
-
-    //#endregion
-
-
-
-
-
-
-
-    //#region Physical Inventory Report
-
-    $scope.PhysicalInventoryReportPdf = function (id, reportFormat) {
-
-
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        if ($scope.productNew.Qty) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = '';
-        }
-        if ($scope.productNew.Amount) {
-            $scope.choice2 = 'Amount';
-            $scope.choice1 = '';
-        }
-        if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = 'Amount';
-        }
-        if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-            ShowResult('Select Qty OR Amount', 'failure');
-            return false;
-        }
-
-        if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-            ShowResult('Select Asset OR Inventory', 'failure');
-            return false;
-        }
-        if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-            debugger;
-            //$scope.productNew.Asset = 'Asset';
-            $scope.productNew.Inventory = false;
-            $scope.productNew.Asset = true;
-        }
-        if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-            debugger;
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.Asset = false;
-            $scope.productNew.Inventory = true;
-        }
-
-        if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-            //$scope.productNew.Asset = 'Asset';
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.Inventory = true;
-            $scope.productNew.Asset = true;
-        }
-
-
-        //}
-
-
-        var reportFormat = "Pdf";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/PhysicalInventoryReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory, '_blank');
-
-    };
-    $scope.PhysicalInventoryReportExcel = function (id, reportFormat) {
-        debugger;
-        $scope.productNew.Asset === false;
-        $scope.productNew.Inventory === false;
-        //if ($scope.productNew.AsOnDate === 'AsOnDate') {
-        //    ShowResult('Please Select for the Period', 'failure');
-        //    return false;
-        //if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-        //    ShowResult('Select To Date', 'failure');
-        //    return false;
-        //}
-
-
-
-        //if ($scope.productNew.Qty) {
-        //    $scope.choice1 = 'Qty';
-        //    $scope.choice2 = '';
-        //}
-        //if ($scope.productNew.Amount) {
-        //    $scope.choice1 = '';
-        //    $scope.choice2 = 'Amount';
-        //}
-        //if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-        //    $scope.choice1 = 'Qty';
-        //    $scope.choice2 = 'Amount';
-        //}
-        //if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-        //    ShowResult('Select Qty OR Amount', 'failure');
-        //    return false;
-        //}
-
-        //if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-        //    ShowResult('Select Asset OR Inventory', 'failure');
-        //    return false;
-        //}
-
-        //if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-        //    debugger;
-        //    //$scope.productNew.Asset = 'Asset';
-        //    $scope.productNew.Inventory = false;
-        //    $scope.productNew.Asset = true;
-        //}
-        //if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-        //    debugger;
-        //    //$scope.productNew.Inventory = 'Inventory';
-        //    $scope.productNew.Asset = false;
-        //    $scope.productNew.Inventory = true;
-        //}
-
-        //if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-        //    //$scope.productNew.Asset = 'Asset';
-        //    //$scope.productNew.Inventory = 'Inventory';
-        //    $scope.productNew.Inventory = true;
-        //    $scope.productNew.Asset = true;
-        //}
-
-
+        $scope.report.Summary = 'Summary';
+
+        var dataList = [];
+        var g = $("#GridSalesPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.SalesRegisterLists;
+        }
+
+        //var ids = "";
+        //if (baseService.arrayLength(dataList) > 0) {
+        //    for (var i = 0; i < dataList.length; i++) {
+        //        if (ids == "") {
+        //            ids = "'','" + dataList[i].SalesId + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + dataList[i].SalesId + "'";
+        //        }
+        //    }
         //}
         //else {
+        //    for (var i = 0; i < $scope.SalesRegisterLists.length; i++) {
+        //        if (ids == "") {
+        //            ids = "'','" + $scope.SalesRegisterLists[i].SalesId + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + $scope.SalesRegisterLists[i].SalesId + "'";
+        //        }
+        //    }
+        //}
+        $scope.fileName = 'Sales Register Sales Wise';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+        //$window.open('Products/SalesRegister/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.report.RcptIssue + '&Summary=' + $scope.productNew.Summary + '&WithTax=' + true + '&Type=' + Type);
 
+        $http({
+            method: 'POST',
+            //url: $scope.path + "InventorySalesReportExcel",
+            url: $scope.exportgriddataUrlUpdate2,
+            data: {
+                //'ToDate': $scope.report.ToDate,
+                //'FromDate': $scope.report.FromDate,
+                //'SalesId': ids,
+                //'Summary': $scope.report.Summary,
+                //'Type': 'ForThePeriod',
+                //'WithTax': true
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else
+            {
+                //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+
+    $scope.SalesRegisterItemWiseReport = function () {
         if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
             ShowResult('Select From Date', 'failure');
             return false;
@@ -2385,155 +296,134 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             ShowResult('Select To Date', 'failure');
             return false;
         }
-        //if ($scope.productNew.RcptIssue != true) {
-        //	ShowResult('Select With Receipts & Issue', 'failure');
-        //	return false;
+
+        var dataList = [];
+        var g = $("#GridItemPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.SalesRegisterItemList;
+        }
+
+        //var ids = "";
+        //if (baseService.arrayLength(dataList) > 0) {
+        //    for (var i = 0; i < dataList.length; i++) {
+        //        if (ids == "") {
+        //            ids = "'','" + dataList[i].SalesMaterialId + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + dataList[i].SalesMaterialId + "'";
+        //        }
+        //    }
         //}
+        //else {
+        //    for (var i = 0; i < $scope.SalesRegisterItemList.length; i++) {
+        //        if (ids == "") {
+        //            ids = "'','" + $scope.SalesRegisterItemList[i].SalesMaterialId + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + $scope.SalesRegisterItemList[i].SalesMaterialId + "'";
+        //        }
+        //    }
+        //}
+        $scope.fileName = 'Sales Register Item Wise';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+        //$window.open('Products/SalesRegister/SalesRegisterItemWiseReport?reportFormat=' + 'Excel' + '&PlantId=' + null + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate);
 
+        $http({
+            method: 'POST',
+            //url: $scope.path + "SalesRegisterItemWiseReport",
+            url: $scope.exportgriddataUrlUpdate2,
+            data: {
+                //'ToDate': $scope.report.ToDate,
+                //'FromDate': $scope.report.FromDate,
+                //'SMId': ids,
 
-
-        if ($scope.productNew.Qty) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = '';
-        }
-        if ($scope.productNew.Amount) {
-            $scope.choice2 = 'Amount';
-            $scope.choice1 = '';
-        }
-        if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-            $scope.choice1 = 'Qty';
-            $scope.choice2 = 'Amount';
-        }
-        if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-            ShowResult('Select Qty OR Amount', 'failure');
-            return false;
-        }
-
-        if (!$scope.productNew.Asset && !$scope.productNew.Inventory) {
-            ShowResult('Select Asset OR Inventory', 'failure');
-            return false;
-        }
-        if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-            debugger;
-            //$scope.productNew.Asset = 'Asset';
-            $scope.productNew.Inventory = false;
-            $scope.productNew.Asset = true;
-        }
-        if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-            debugger;
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.Asset = false;
-            $scope.productNew.Inventory = true;
-        }
-
-        if ($scope.productNew.Asset === true && $scope.productNew.Inventory === true) {
-            //$scope.productNew.Asset = 'Asset';
-            //$scope.productNew.Inventory = 'Inventory';
-            $scope.productNew.Inventory = true;
-            $scope.productNew.Asset = true;
-        }
-
-
-
-
-
-        // }
-
-        var reportFormat = "Excel";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/PhysicalInventoryReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.Asset + '&Inventory=' + $scope.productNew.Inventory, '_blank');
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     };
 
-    $scope.tab = 1;
-    $scope.setTabMLedger = function (newTab) {
-        $scope.tab = newTab;
-        // alert('Tab 1');
-        //$scope.GRN = 0;
-        //$scope.GetGRN();
-    };
-    $scope.isSetMLedger = function (tabNum) {
-        return $scope.tab === tabNum;
-        // $scope.GRN = 0;
-    };
-    $scope.setTabMLedger1 = function (newTab) {
-        $scope.tab = newTab;
-        // alert('Tab 1');
-        //$scope.GRN = 0;
-        //$scope.GetGRN();
-    };
-    $scope.isSetMLedger1 = function (tabNum) {
-        return $scope.tab === tabNum;
-        // $scope.GRN = 0;
-    };
-
-
-    //#region Material Store Ledger Report ALL
-
-    $scope.MaterialStoreLedgerReportExcelAll = function (reportFormat) {
-
-        var reportFormat = "Excel";
-        if (baseService.isUndefinedOrNull($scope.productNew.Asset) && baseService.isUndefinedOrNull($scope.productNew.Inventory)) {
-            ShowResult('Select Asset Or Inventory', 'failure');
-            return false;
-        }
-
-        if (baseService.isUndefinedOrNull($scope.report.FromDate1)) {
+    $scope.SalesPartyWiseReportExcel = function () {
+        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
             ShowResult('Select From Date', 'failure');
             return false;
         }
-        if (baseService.isUndefinedOrNull($scope.report.ToDate1)) {
+        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
             ShowResult('Select To Date', 'failure');
             return false;
         }
 
-        try {
-
-            var file_src = 'Materials/MaterialLedger/MaterialStoreLedgerReportAll?reportFormat=' + reportFormat + "&fromDate=" + $scope.report.FromDate1 + "&toDate=" + $scope.report.ToDate1 + "&Qty=" + $scope.productNew.Qty + "&Amount=" + $scope.productNew.Amount + "&RcptIssue=" + $scope.productNew.RcptIssue + "&MaterialId=" + $scope.detailModel.MaterialMasterId + "&ArticleId=" + $scope.detailModel.ArticleId + "&Asset=" + $scope.productNew.Asset + "&Inventory=" + $scope.productNew.Inventory;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
-    }
-
-    $scope.MaterialStoreLedgerReportPdfAll = function (reportFormat) {
-        if (baseService.isUndefinedOrNull($scope.productNew.Asset) && baseService.isUndefinedOrNull($scope.productNew.Inventory)) {
-            ShowResult('Select Asset Or Inventory', 'failure');
-            return false;
+        var dataList = [];
+        var g = $("#GridPartyPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.SalesRegisterPartyList;
         }
 
-        if (baseService.isUndefinedOrNull($scope.report.FromDate1)) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.report.ToDate1)) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        var reportFormat = "Pdf";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/MaterialStoreLedgerReportAll?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate1 + '&toDate=' + $scope.report.ToDate1 + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&MaterialId=' + $scope.detailModel.MaterialMasterId + '&ArticleId=' + $scope.detailModel.ArticleId + "&Asset=" + $scope.productNew.Asset + "&Inventory=" + $scope.productNew.Inventory, '_blank');
+        //var ids = "";
+        //if (baseService.arrayLength(dataList) > 0) {
+        //    for (var i = 0; i < dataList.length; i++) {
+        //        if (ids == "")
+        //        {
+        //            ids = "'','" + dataList[i].PartyId + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + dataList[i].PartyId + "'";
+        //        }
+        //    }
+        //}
+        //else {
+        //    for (var i = 0; i < $scope.SalesRegisterPartyList.length; i++) {
+        //        if (ids == "") {
+        //            ids = "'','" + $scope.SalesRegisterPartyList[i].PartyId + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + $scope.SalesRegisterPartyList[i].PartyId + "'";
+        //        }
+        //    }
+        //}
+        $scope.fileName = 'Sales Register Customer Wise';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+        //$window.open('Products/SalesRegister/SalesRegisterCustomerWiseReport?reportFormat=' + 'Excel' + '&PlantId=' + null + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate);
 
+        $http({
+            method: 'POST',
+            //url: $scope.path + "SalesRegisterCustomerWiseReport",
+            url: $scope.exportgriddataUrlUpd,
+            data: {
+                //'ToDate': $scope.report.ToDate,
+                //'FromDate': $scope.report.FromDate,
+                //'PartyId': ids,
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     };
 
-    $scope.setCharData = function (data) {
-        $scope[$scope.charValueSearchFor].CharacteristicsValueId = data.CharacteristicsValueId;
-        $scope[$scope.charValueSearchFor].FreeText = data.UserName;
-        $scope[$scope.charValueSearchFor].FlagDisable = $scope.isSearch;
-        if ($scope.charValueSearchFor === 'char1') {
-            $scope.FirstCharacteristicsValueId = data.CharacteristicsValueId;
-        }
-        if ($scope.charValueSearchFor === 'char2') {
-            $scope.SecondCharacteristicsValueId = data.CharacteristicsValueId;
-        }
-        if ($scope.charValueSearchFor === 'char3') {
-            $scope.ThirdCharacteristicsValueId = data.CharacteristicsValueId;
-        }
-
-        angular.element(document.querySelector('#searchcharactervaluepopup')).modal('hide');
-    };
-
-    //#endregion
 }
 
 

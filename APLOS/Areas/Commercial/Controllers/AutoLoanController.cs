@@ -353,7 +353,15 @@ namespace Aplos.Areas.Commercial.Controllers
             }
             else
             {
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _autoLoanService.ParkAutoLoanInvoice(voucherVM, voucherDetailVMList, existingLoanList, loanRepaymentSchedulelist)) });
+                if(voucherVM.CurrencyId != voucherVM.BankCurrencyId)
+                {
+                    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _autoLoanService.ParkAutoLoanInvoiceDifferentCurrency(voucherVM, voucherDetailVMList, existingLoanList, loanRepaymentSchedulelist)) });
+                }
+                else
+                {
+                    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _autoLoanService.ParkAutoLoanInvoice(voucherVM, voucherDetailVMList, existingLoanList, loanRepaymentSchedulelist)) });
+                }
+                
             }
         }
 

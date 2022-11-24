@@ -84,9 +84,6 @@ namespace Aplos.Areas.Materials.Controllers
         {
             return View();
         }
-
-
-
   
         public ActionResult IssueReturnRegister()
         {
@@ -94,35 +91,7 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
 
-        //      [Authorize, HttpPost]
-        //public JsonResult GetMaterialLedger(string fromDate,string toDate)
-        //      {
-        //          var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //          return Json(_inventoryReceiveService.GetMaterialLedger(fromDate,toDate), JsonRequestBehavior.AllowGet);
-        //      }
-        //[Authorize, HttpPost]
-        //public JsonResult GetPurchaseRegister(string fromDate, string toDate, string Type) 
-        //{
-        //	if(fromDate==null || fromDate == "")
-        //	{
-        //		throw new CustomException("Select From Date");
-        //	}
-        //	else if (toDate == null || toDate == "")
-        //	{
-        //		throw new CustomException("Select To Date");
-        //	}
-        //	var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //	return Json(_inventoryReceiveService.GetPurchaseRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-        //}
-        // [Authorize, HttpGet]
-        //public JsonResult GetOperationPositionMPBudget(string id)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_OperationPositionMPBudgetService.GetOperationPositionMPBudgetService(id), JsonRequestBehavior.AllowGet);
-        //}
-
-
-        [HttpPost]
+        [Authorize,HttpPost]
         public JsonResult GetIssueRegister(string fromDate, string toDate, string Type)
         {
             if (fromDate == null || fromDate == "")
@@ -134,10 +103,15 @@ namespace Aplos.Areas.Materials.Controllers
                 throw new CustomException("Select To Date");
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetIssueRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            //return Json(_inventoryIssueService.GetIssueRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(_inventoryIssueService.GetIssueRegister(fromDate, toDate, Type));
+            var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
-		[HttpPost]
+		[Authorize,HttpPost]
 		public JsonResult GetIssueRegisterBYGRN(string fromDate, string toDate, string Type) 
 		{
 			if (fromDate == null || fromDate == "")
@@ -240,7 +214,7 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
 
-        [HttpPost]
+        [Authorize,HttpPost]
         public JsonResult GetIssueReturnRegister(string fromDate, string toDate, string Type)
         {
             if (fromDate == null || fromDate == "")

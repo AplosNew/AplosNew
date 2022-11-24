@@ -1,10 +1,15 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Model.Materials;
+using Library.Security.Core;
 using Library.Service.Materials;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
@@ -27,7 +32,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         #region Pages
 
-      
+
         public ActionResult Aplos()
         {
             return View();
@@ -93,7 +98,7 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion List
 
         #region -- Operations
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult Comapre(List<MaterialMasterArticleNew> allArticles, List<MaterialMasterArticleValue> currentArticles)
         {
             try
@@ -141,6 +146,182 @@ namespace Aplos.Areas.Materials.Controllers
             _baseService.Delete(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
+
+        [HttpPost, Authorize]
+        public JsonResult XCreateArticleAlias(Dictionary<string, object> datas)
+        {
+            try
+            {
+                SaveArticleAlias(datas);
+
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+        public void SaveArticleAlias(Dictionary<string, object> datas)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            try
+            {
+                string sql = "SELECT * FROM ArticleAlias WHERE Id ='" + datas["Id"] + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    string sID = string.Empty;
+                    bplib.clsGenID objGenID = new bplib.clsGenID();
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ArticleAlias", out sID);
+                    dr["Id"] = sID;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                    dr.BeginEdit();
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dr.EndEdit();
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateArticleAlias(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from ArticleAlias where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ArticleAlias", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Id = _Id, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult getArticleAliaslist(string articleId)
+        {
+            try
+            {
+                return Json(_baseService.getArticleAliaslist(articleId), JsonRequestBehavior.AllowGet);
+            }
+            catch (System.Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult deleteArticleAliasData(string Id)
+        {
+            _baseService.deleteArticleAliasData(Id);
+            return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
         #endregion -- Operations
     }
 }

@@ -1,15 +1,20 @@
 ﻿#region Using
 using Aplos.Controllers;
+using Aplos.HumanResource;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Model.Employees;
 using Library.Service.Employees;
+using Library.Service.Helpers;
 using OTSBD;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -22,6 +27,7 @@ namespace Aplos.Areas.Employees.Controllers
         #region Constructor
         private readonly IRouteEmployeeService _routeEmployeeService;
         private readonly ISqlRepository _sqlRepository;
+        EmployeeTransport ET = new EmployeeTransport();
         public RouteEmployeeController(
               IRouteEmployeeService routeEmployeeService,
               ISqlRepository sqlRepository
@@ -33,159 +39,17 @@ namespace Aplos.Areas.Employees.Controllers
         }
         #endregion
         #region -- Pages
+        public ActionResult Report()
+        {
+            return View();
+        }
         public ActionResult Aplos()
         {
             return View();
         }
         #endregion
-        #region -- Operations 
-       
-        [HttpPost]
-        public ActionResult delete(List<RouteEmployeeList> DeleteEmpList)
-        {
-            try
-            {
-                foreach (var item in DeleteEmpList)
-                {
-                    ConnectionManager.DAL.ConManager objCon;
-                    DataSet dsExceptionEmployeeList;
-                    try
-                    {
-                        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                        string sql = @"Update [TRN].[RouteEmployee] set Active=0 WHERE EmployeeId='" + item.SystemID + @"'";
-                        objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter(sql, out dsExceptionEmployeeList, false, "1");
 
-                    }
-                    catch (Exception ex)
-                    {
-
-                        throw (ex);
-                    } 
-                }
-                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        [HttpPost]
-        public ActionResult Save(RouteEmployee routeEmployee, List<RouteEmployeeList> routeEmployeeList)
-        {
-            try
-            {
-                foreach (var item in routeEmployeeList)
-                {
-                    if (item.RouteUpGridId != null && item.StopageUpGridId == null)
-                    {
-                        Exception ex = new Exception("Please Select Up Stopage");
-                        throw (ex);
-                    }
-                    if (item.RouteDownGridId != null && item.StopageDownGridId == null)
-                    {
-                        Exception ex = new Exception("Please Select Down Stopage");
-                        throw (ex);
-                    }
-
-                    if (item.RouteUpGridId == null && item.RouteDownGridId == null)
-                    {
-                        Exception ex = new Exception("Please Select Route");
-                        throw (ex);
-                    }
-                }               
-                SaveRouteEmployeeSepLis(routeEmployee, routeEmployeeList);
-                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-        public void SaveRouteEmployeeSepLis(RouteEmployee routeEmployee, List<RouteEmployeeList> routeEmployeeList)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster;
-            try
-            {
-
-                foreach (var item in routeEmployeeList)
-                {
-
-                    string sql = "SELECT * FROM [TRN].[RouteEmployee] WHERE ID='" + item.Id + "' ";
-                    objCon = new ConnectionManager.DAL.ConManager("1");
-                    objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-                    DataView DvMaster = new DataView(dsMaster.Tables[0]);
-
-                    if (DvMaster.Count == 0)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-
-                        string sID = string.Empty;
-                        bplib.clsGenID objGenID = new bplib.clsGenID();
-                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[RouteEmployee]", out sID);
-
-                        dr["Id"] = "RE" + sID;
-                        dr["EmployeeId"] = item.SystemID;
-
-                        //dr["RouteId"] = item.RouteId;
-                        //dr["StoppageId"] = item.StoppageId;
-                        //dr["ShiftId"] = item.ShiftId;
-
-                        //dr["UpRouteId"] = item.RouteUpGridId;
-                        //dr["UpStoppageId"] = item.StopageUpGridId;
-
-                        //dr["DownRouteId"] = item.RouteDownGridId;                        
-                        //dr["DownStoppageId"] = item.StopageDownGridId;
-
-                        dr["PlantId"] = identity.PlantId;
-                        dr["Active"] = true;
-
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = DateTime.Now;
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dsMaster.Tables[0].Rows.Add(dr);
-                    }
-                    else
-                    {
-                        DataRow dr = DvMaster[0].Row;
-                        dr.BeginEdit();
-
-                        dr["EmployeeId"] = item.SystemID;
-
-                        //dr["RouteId"] = item.RouteId;
-                        //dr["StoppageId"] = item.StoppageId;
-                        //dr["ShiftId"] = item.ShiftId;
-
-                        //dr["UpRouteId"] = item.RouteUpGridId;
-                        //dr["UpStoppageId"] = item.StopageUpGridId;
-
-                        //dr["DownRouteId"] = item.RouteDownGridId;
-                        //dr["DownStoppageId"] = item.StopageDownGridId;
-
-                        dr["PlantId"] = identity.PlantId;
-                        dr["Active"] = true;
-
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-                        dr.EndEdit();
-                    }
-                    DvMaster.RowFilter = null;
-                    clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+       #region -- Operations 
 
         [HttpPost,Authorize]
         public ActionResult SaveUnAssign(List<UARouteEmployeeList> UArouteEmployeeList)
@@ -241,7 +105,7 @@ namespace Aplos.Areas.Employees.Controllers
                         objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[RouteEmployee]", out sID);
 
                         dr["Id"] = "RE" + sID;
-                        dr["EmployeeId"] = item.SystemID;
+                        dr["EmployeeId"] = item.EmployeeId;
 
                         dr["RouteId"] = item.RouteId;
                         dr["StoppageId"] = item.StoppageId;
@@ -266,7 +130,7 @@ namespace Aplos.Areas.Employees.Controllers
                         DataRow dr = DvMaster[0].Row;
                         dr.BeginEdit();
 
-                        dr["EmployeeId"] = item.SystemID;
+                        dr["EmployeeId"] = item.EmployeeId;
 
                         dr["RouteId"] = item.RouteId;
                         dr["StoppageId"] = item.StoppageId;
@@ -297,303 +161,222 @@ namespace Aplos.Areas.Employees.Controllers
             }
         }
 
-        #region Gried Drop Down
-
+        #region -- New
+       
+        //Route Emp start
         [HttpGet, Authorize]
-        public ActionResult GetGridUpRouteList()
+        public ActionResult GetRouteEmployeesData()
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select Id,UserName from [MST].[Route] where PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
-            var data = _sqlRepository.GetDataCollection(sql);
-            return Json(data, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetGridUpStopageList(string RouteUpGridId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select s.Id,s.UserName
-                            from [HKP].[Stoppage] s
-                            left join [MST].[RouteStoppage] rs on rs.StoppageId=s.Id
-                            left join [MST].[Route] r on r.Id=rs.RouteId
-                            where r.Id='" + RouteUpGridId + @"' and r.UpOrDown='Up'
-                            and r.PlantId='" + identity.PlantId + "' and r.CompanyId='" + identity.CompanyId + "' ";
-            var data = _sqlRepository.GetDataCollection(sql);
-            return Json(data, JsonRequestBehavior.AllowGet);
-        }
-        
-        #endregion
-        
-        [HttpGet, Authorize]
-        public ActionResult GetUpRouteList()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select Id,UserName from [MST].[Route] where PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
-            var data = _sqlRepository.GetDataCollection(sql);
-            return Json(data, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetDownRouteList()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select Id,UserName from [MST].[Route] where PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
-            var data = _sqlRepository.GetDataCollection(sql);
-            return Json(data, JsonRequestBehavior.AllowGet);
-        }
-
-
-        [HttpGet, Authorize]
-        public ActionResult GetUpDropDownStopageList(string RouteUpId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select s.Id,s.UserName
-                            from [HKP].[Stoppage] s
-                            left join [MST].[RouteStoppage] rs on rs.StoppageId=s.Id
-                            left join [MST].[Route] r on r.Id=rs.RouteId
-                            where r.Id='" + RouteUpId + @"'
-                            and r.PlantId='" + identity.PlantId + "' and r.CompanyId='" + identity.CompanyId + "' ";
-            var data = _sqlRepository.GetDataCollection(sql);
-            return Json(data, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetDownDropDownStopageList(string RouteDownId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select s.Id,s.UserName
-                            from [HKP].[Stoppage] s
-                            left join [MST].[RouteStoppage] rs on rs.StoppageId=s.Id
-                            left join [MST].[Route] r on r.Id=rs.RouteId
-                            where r.Id='" + RouteDownId + @"' and r.UpOrDown='Down'
-                            and r.PlantId='" + identity.PlantId + "' and r.CompanyId='" + identity.CompanyId + "' ";
-            var data = _sqlRepository.GetDataCollection(sql);
-            return Json(data, JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult GetShift()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription,SD.UserName ShiftDefination 
-						,CONVERT(varchar(5),SD.InTime,108) InTime,CONVERT(VARCHAR(5), SD.InTime, 108) OutTime
-						
-						from ShiftDefination SD
-						left join ORG.Plant P on P.Id=SD.PlantID";
-
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet,Authorize]
-        public ActionResult getEmployee()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" SELECT Null AS RouteUpList,Null as StopageUpList,Null AS RouteDownList,Null as StopageDownList, Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
-                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy') DOC
-                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
-                                        ,re.Id,re.Id,re.RouteId,R.UserName [Route],re.StoppageId,St.UserName Stoppage,re.ShiftId,SD.UserName [Shift]
-                                        FROM EmployeeInformation EMP
-                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
-                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
-                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
-                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
-                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-										left join [TRN].[RouteEmployee] re on re.EmployeeId=emp.SystemId
-										left join [MST].[Route] R on R.Id=re.RouteId
-										left join [HKP].[Stoppage] St on St.Id=re.StoppageId
-										left join ShiftDefination SD on SD.SystemID=re.ShiftId
-                              Where EMP.PlantId='" + identity.PlantId + @"' 
-                                AND EMP.EmployeeStatus='Active'  And EMP.CompanyId='" + identity.CompanyId + @"'
-AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=1)
-                        ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
-
-            string sqlRouteUpList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'";
-            string sqlStopageUpList = @" select re.EmployeeId,sp.Id,sp.UserName
-								from EmployeeInformation ei 
-								inner join [TRN].[RouteEmployee] re on re.EmployeeId=ei.SystemId
-								inner join [MST].[RouteStoppage] rs on re.RouteId=rs.RouteId 
-								inner join [HKP].[Stoppage] sp on sp.Id=rs.StoppageId 
-								inner join [MST].[Route] r on r.Id=rs.RouteId
-								where 
-								ei.PlantId='" + identity.PlantId + @"' 
-                                AND ei.EmployeeStatus='Active'  And ei.CompanyId='" + identity.CompanyId + @"'
-								order by re.EmployeeId";
-
-            var data = _sqlRepository.GetDataCollection(sql);
-
-            List<Dictionary<string, string>> UpStopage;
-
-            var DTRouteUpList = _sqlRepository.GetDataCollection(sqlRouteUpList);
-            DataTable dtUpStopageList = _sqlRepository.GetDataTable(sqlStopageUpList);
-
-            for (int i = 0; i < data.Count; i++)
+            try
             {
-                data[i]["RouteUpList"] = DTRouteUpList;
-                UpStopage = new List<Dictionary<string, string>>();
-                dtUpStopageList.DefaultView.RowFilter = "EmployeeId='" + data[i]["SystemID"].ToString() + "'";
-                for (int DUP = 0; DUP < dtUpStopageList.DefaultView.Count; DUP++)
-                {
-                    Dictionary<string, string> _data = new Dictionary<string, string>();
-                    _data.Add("Id", dtUpStopageList.DefaultView[DUP]["Id"].ToString());
-                    _data.Add("UserName", dtUpStopageList.DefaultView[DUP]["UserName"].ToString());
-                    UpStopage.Add(_data);
-                }
-                data[i]["StopageUpList"] = UpStopage;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"select RS.Id TripId,RS.TripNo,R.Id RouteId,R.StandardName Route,TD.Id TransportId,TD.TransportUserName+'-'+TD.TransportNo Transport 
+					                        --,RSD.UpDown
+											,REPLACE(REPLACE(
+                                                    STUFF((select distinct ','+A.UpDown +':'+ISNULL(format(A.StartTime,'hh:mm tt'),'')StartTime from
+                                                        RouteScheduleChild A
+                                                            
+                                                            where A.RouteScheduleId=RS.Id and A.UpDown='Up'  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''
+															)
+                                                                    ,'&amp;','&'), 'amp;', '') UpStart
+											,REPLACE(REPLACE(
+                                                    STUFF((select distinct ','+A.UpDown +':'+ISNULL(format(A.StartTime,'hh:mm tt'),'')StartTime from
+                                                        RouteScheduleChild A
+                                                            
+                                                            where A.RouteScheduleId=RS.Id and A.UpDown='Down'  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''
+															)
+                                                                    ,'&amp;','&'), 'amp;', '') DownStart
+											,R.[From],R.[To],SD.UserName [Shift],TD.Capacity Vacancy,TD.PlanCapacity
+					                        ,isnull(O.Alloted,0)Alloted,R.PlantId
+					                        ,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
+										
+					                        ,R.Remarks
+
+					                        from RouteSchedule RS
+					                        left join [MST].[Route] R on R.Id=RS.RouteId 
+					                        left join TransportDetail TD on TD.Id=RS.TransportId
+					                        left join ShiftDefination SD on SD.SystemID=RS.ShiftId
+					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId
+															
+															from dbo.EmployeeTransportAllocation A
+															where A.AssignStatus=1
+									                        Group BY TripId) O ON O.TripId=RS.Id
+
+											Where R.PlantId ='" + identity.PlantId+"'";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
-
-            string sqlRouteDownList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'";
-       
-            return Json(data, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult getUpStopage(string RouteId, string UpOrDown)
-        {
-            string sqlStopageUpList = @"  select sp.Id,sp.UserName from
-								[MST].[RouteStoppage] rs
-								inner join [HKP].[Stoppage] sp on sp.Id=rs.StoppageId 
-								inner join [MST].[Route] r on r.Id=rs.RouteId
-								where 
-								r.UpOrDown='"+UpOrDown+@"' AND r.Id='"+ RouteId + @"'";
-
-            return Json(_sqlRepository.GetDataCollection(sqlStopageUpList), JsonRequestBehavior.AllowGet);
-        }
-
-
-        [HttpGet, Authorize]
-        public ActionResult getDownStopage(string RouteId, string UpOrDown)
-        {
-            string sqlStopageUpList = @"  select sp.Id,sp.UserName from
-								[MST].[RouteStoppage] rs
-								inner join [HKP].[Stoppage] sp on sp.Id=rs.StoppageId 
-								inner join [MST].[Route] r on r.Id=rs.RouteId
-								where 
-								r.UpOrDown='" + UpOrDown + @"' AND r.Id='" + RouteId + @"'";
-
-            return Json(_sqlRepository.GetDataCollection(sqlStopageUpList), JsonRequestBehavior.AllowGet);
-        }
-       
-        [HttpGet,Authorize]
-        public ActionResult getUnassignEmployee()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" SELECT Null AS UARouteUpList,Null as UAStopageUpList,Null AS UARouteDownList,Null as UAStopageDownList  ,
-          Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
-                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy') DOC
-                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,re.Id,re.RouteId,re.StoppageId,re.ShiftId
-		
-                                        FROM EmployeeInformation EMP
-                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
-                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
-                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
-                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
-                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-										Left join [TRN].[RouteEmployee] re on re.EmployeeId=emp.SystemId
-                              Where EMP.PlantId='" + identity.PlantId + @"' 
-                                AND EMP.EmployeeStatus='Active'  And EMP.CompanyId='" + identity.CompanyId + @"' 
-                        AND EMP.SystemId not in (select EmployeeId from [TRN].[RouteEmployee] where Active=1)
-                        ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
-
-            string sqlUARouteUpList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'";
-            string sqlUAStopageUpList = @"select re.EmployeeId,sp.Id,sp.UserName
-								from EmployeeInformation ei 
-								inner join [TRN].[RouteEmployee] re on re.EmployeeId=ei.SystemId
-								inner join [MST].[RouteStoppage] rs on re.RouteId=rs.RouteId 
-								inner join [HKP].[Stoppage] sp on sp.Id=rs.StoppageId 
-								inner join [MST].[Route] r on r.Id=rs.RouteId
-								where 
-								ei.PlantId='" + identity.PlantId + @"' 
-                                AND ei.EmployeeStatus='Active'  And ei.CompanyId='" + identity.CompanyId + @"'
-								order by re.EmployeeId";
-
-            var data = _sqlRepository.GetDataCollection(sql);
-
-            List<Dictionary<string, string>> UAUpStopage;
-
-            var DTRouteUpList = _sqlRepository.GetDataCollection(sqlUARouteUpList);
-            DataTable dtUpStopageList = _sqlRepository.GetDataTable(sqlUAStopageUpList);
-
-            for (int i = 0; i < data.Count; i++)
+            catch (Exception e)
             {
-                data[i]["UARouteUpList"] = DTRouteUpList;
-                UAUpStopage = new List<Dictionary<string, string>>();
-                dtUpStopageList.DefaultView.RowFilter = "EmployeeId='" + data[i]["SystemID"].ToString() + "'";
-                for (int DUP = 0; DUP < dtUpStopageList.DefaultView.Count; DUP++)
-                {
-                    Dictionary<string, string> _data = new Dictionary<string, string>();
-                    _data.Add("Id", dtUpStopageList.DefaultView[DUP]["Id"].ToString());
-                    _data.Add("UserName", dtUpStopageList.DefaultView[DUP]["UserName"].ToString());
-                    UAUpStopage.Add(_data);
-                }
-                data[i]["UAStopageUpList"] = UAUpStopage;
+                throw e;
             }
-
-            string sqlUARouteDownList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'	and UpOrDown='Down' ";
-       
-            return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        #region UnAssignData
+        [HttpGet, Authorize]
+        public JsonResult getemployeeDataListRouteEmp(string plantId)
+        {
+            return Json(ET.GetemployeeDataListRouteEmp(plantId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
-        public ActionResult GetUAUpRouteList()
-        
+        public JsonResult getemployeeListRoute(string plantId)
+        {
+            return Json(ET.GetemployeeListRoute(plantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetTransportSummaryData()
+        {
+            try
+            {
+                var sql = @"select O.TransportGroup,O.Stoppage,R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo
+											,TD.Capacity Vacancy,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
+											,O.EmployeeCode,O.EmployeeName,O.EmployeeStatus,O.EmployeeCurrentStatus,o.BudgatedShift,O.AssignedShift
+											,O.InTime,O.TBS,O.LAbs
+											,O.DOJ
+                                            ,Skill =isnull(O.OperationMaster,O.OperationVariation),O.GivenDesignation
+											,O.Section,O.SubSection,O.Department,O.EntityName,O.Plant,O.EID
+
+					                        from RouteSchedule RS
+					                        left join [MST].[Route] R on R.Id=RS.RouteId 
+					                        left join TransportDetail TD on TD.Id=RS.TransportId
+					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId,EMP.EmployeeName,EMP.EmployeeCode,EMP.SystemId EID
+															,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
+															,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,PR.PaymentLink Skill,DEG.UserName GivenDesignation
+															,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName EntityName
+															,PL.UserName Plant,TG.UserName TransportGroup,A.AssignStatus,ST.UserName Stoppage
+															,FORMAT(apd.InTime,'hh:mm:tt') InTime
+															,MSD.UserName BudgatedShift,ESD.UserName AssignedShift
+															,OV.UserName OperationVariation,OM.UserName OperationMaster
+															,ISNULL(TE.TBSEmp,0) TBS,ISNULL(LA.LONGEmp,0) LAbs
+
+															from dbo.EmployeeTransportAllocation A
+															left join EmployeeInformation EMP on EMP.SystemId=A.EmployeeSystemId
+															LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+															LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+															LEFT JOIN ShiftDefination MSD on MSD.SystemID=PMB.ShiftDefinationId 
+															LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+															LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+															--LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+															LEFT JOIN HKP.LegalDesignation DEG ON EMP.LegalDesignationId=DEG.Id
+															LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+															LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+															LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+															left join [dbo].[TransportGroup] TG on TG.Id=EMP.TransportGroupId
+                                                            left join HKP.Stoppage ST on ST.Id=A.StoppageId
+															LEFT JOIN dbo.AttdnProcessData apd on apd.EmpSystemID=EMP.SystemId AND apd.WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy')
+															LEFT JOIN ShiftDefination ESD on ESD.SystemID=apd.ShiftSystemID 
+															LEFT JOIN MST.OperationVariation OV on OV.Id=EMP.OperationVariationId
+															LEFT JOIN MST.OperationMaster OM on OM.Id=EMP.OperationMasterID 
+															LEFT JOIN (SELECT COUNT(SystemId) TBSEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='TBS' AND BudgetCode IS NOT NULL GROUP BY SystemId) TE ON TE.SystemId=A.EmployeeSystemId
+															LEFT JOIN (SELECT COUNT(SystemId) LONGEmp,SystemId From EmployeeInformation Where EmployeeStatus='Active' AND EmployeeCurrentStatus='LONG ABSENTEEISM' AND BudgetCode IS NOT NULL GROUP BY SystemId) LA ON LA.SystemId=A.EmployeeSystemId
+
+									                        Group BY TripId,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode
+															,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
+															,emp.DOJ,PR.PaymentLink,DEG.UserName
+															,S.UserName,SS.UserName,DEPT.UserName,E.UserName
+															,PL.UserName,TG.UserName,A.AssignStatus,ST.UserName,apd.InTime
+															,MSD.UserName,ESD.UserName
+															,OV.UserName,OM.UserName,TE.TBSEmp,LA.LONGEmp) O ON O.TripId=RS.Id
+															where O.AssignStatus=1";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        //Route Emp end
+
+        [HttpGet, Authorize]
+        public JsonResult viewUnassign(string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select Id,UserName from [MST].[Route] where PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
+            return Json(ET.getviewUnassign(PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+
+        #region Save Operations
+        [HttpPost]
+        public JsonResult employeeTransportAllocationSave(List<Dictionary<string, object>> EmployeeList)
+        {
+
+            try
+            {
+                ET.SaveEmployeeTransportAllocation(EmployeeList);
+                return Json(new { Data = EmployeeList, Message = AplosMessage.Insert });
+                //return Json(new { Error = "No", Data = rsl.Save( EmployeeList, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetStopageInformation(string routeId)
+        {
+            string sql = @"select S.Id,S.UserName
+                                        from [MST].[RouteStoppage] RS
+                                        left join [HKP].[Stoppage] S on S.Id=RS.StoppageId
+                                        where RS.RouteId ='"+routeId+"'";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult getUAUpStopage(string RouteId, string UpOrDown)
-        {
-            string sqlStopageUpList = @"  select sp.Id,sp.UserName from
-								[MST].[RouteStoppage] rs
-								inner join [HKP].[Stoppage] sp on sp.Id=rs.StoppageId 
-								inner join [MST].[Route] r on r.Id=rs.RouteId
-								where 
-								r.UpOrDown='" + UpOrDown + @"' AND r.Id='" + RouteId + @"'";
 
-            return Json(_sqlRepository.GetDataCollection(sqlStopageUpList), JsonRequestBehavior.AllowGet);
+        [Authorize, HttpPost]
+        public JsonResult SaveUnassignData(List<Dictionary<string, object>> employeeList)
+        {
+
+            try
+            {
+
+                ET.SaveUnassignData(employeeList);
+                return Json(new { Data = employeeList, Message = AplosMessage.Insert });
+                //return Json(new { Error = "No", Data = rsl.Save( EmployeeList, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetUADownRouteList()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select Id,UserName from [MST].[Route] where PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
-            var data = _sqlRepository.GetDataCollection(sql);
-            return Json(data, JsonRequestBehavior.AllowGet);
-        }
-        [HttpGet, Authorize]
-        public ActionResult getUADownStopage(string RouteId, string UpOrDown)
-        {
-            string sqlStopageUpList = @"  select sp.Id,sp.UserName from
-								[MST].[RouteStoppage] rs
-								inner join [HKP].[Stoppage] sp on sp.Id=rs.StoppageId 
-								inner join [MST].[Route] r on r.Id=rs.RouteId
-								where 
-								r.UpOrDown='" + UpOrDown + @"' AND r.Id='" + RouteId + @"'";
+        #endregion Save Operations
 
-            return Json(_sqlRepository.GetDataCollection(sqlStopageUpList), JsonRequestBehavior.AllowGet);
+        [HttpGet, Authorize]
+        public ActionResult getResidenceReportFilters()
+
+        {
+            try
+            {
+                var sql = @"select ei.SystemId EmployeeId,DE.UserName Designation,ei.EmployeeName,S.UserName Section,SS.UserName SubSection,D.UserName Department
+                            ,RG.UserName ResidenceGroup,RM.Id ResidenceId,RM.ResidenceNumber,RM.[Block],RM.ResidentType,RM.ResidenceSubCategory
+							,E.UserName Entity
+
+							from dbo.ResidenceAllocatedEmployees rae
+                            left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+                            left join HKP.Designation DE on DE.Id=ei.DesignationSystemID
+                            left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
+                            left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
+                            left join org.Section S on S.Id = ei.SectionId
+                            left join org.SubSection SS on SS.Id = ei.SubSectionId
+                            left join org.Department D on D.Id = ei.DepartmentId
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
+
+
         #endregion
-
         public class RouteEmployee : BaseModel
         {
             #region Scalar Properties            
@@ -640,7 +423,7 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
         public class UARouteEmployeeList
         {
             public string Id { get; set; }
-            public string SystemID { get; set; }
+            public string EmployeeId { get; set; }
             public string RouteId { get; set; }
             public string StoppageId { get; set; }
             public string ShiftId { get; set; }

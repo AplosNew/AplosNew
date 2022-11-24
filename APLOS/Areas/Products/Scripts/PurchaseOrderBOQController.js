@@ -232,6 +232,9 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.poBoqItemList = [];
     $scope.GetPOBoqItem = function () {
         $scope.poBoqItemList = [];
+        if (baseService.isUndefinedOrNull($scope.SubmitContractId))
+            $scope.SubmitContractId = '';
+        $scope.SubmitContractId
         $http.get("Products/PurchaseOrder/GetPOBOQItems?ContractId=" + $scope.SubmitContractId + '&VendorId=' + $scope.SubmitPartyId)
             .then(
                 function successCallback(response) {
@@ -242,6 +245,12 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
+    }
+
+    $scope.ConvertedDataRow = function (list,trnuomId) {
+        var BaseUOMFactortemp = $.grep(list, function (item) {
+            return item.Value === trnuomId;
+        })[0].BaseUOMFactor;
     }
 
 
@@ -710,6 +719,23 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             ShowResult('Please select Vendor', 'failure');
             return true;
         }
+        if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false && $scope.productNew.CheckedBy==null) {
+            ShowResult('Please select Checked By', 'failure');
+            return true;
+        }
+        else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true && $scope.productNew.CheckedBy == null) {
+            ShowResult('Please select Approved By', 'failure');
+            return true;
+        }
+        else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && $scope.productNew.CheckedBy == null) {
+            ShowResult('Please select Checked By', 'failure');
+            return true;
+        }
+       
+        //if (baseService.isUndefinedOrNull($scope.productNew.DeliveryDate)) {
+        //    ShowResult('Please Input DeliveryDate', 'failure');
+        //    return true;
+        //}
 
         return false;
     }
@@ -728,7 +754,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         if (!baseService.isUndefinedOrNull(!baseService.isUndefinedOrNull($scope.productNew.CurrencyId))) {
             $http({
                 method: "GET",
-                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.productNew.DocDate + "&currencyId=" + $scope.productNew.CurrencyId
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter('dateFiltering')($scope.productNew.DocDate) + "&currencyId=" + $scope.productNew.CurrencyId
             }).then(function successCallback(response) {
                 $scope.currencyExchangeRate = response.data;
                 $scope.productNew.ToCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
@@ -1255,12 +1281,20 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
 
 
     };
-    $scope.PO = function (z) {
+    $scope.POWithTax = function (z) {
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        location.href = "Products/PurchaseOrder/GePurchaseOrderBOQReport?purchaseOrderBOQId=" + data.Id;
+        location.href = "Products/PurchaseOrder/GePurchaseOrderBOQReportWithTax?purchaseOrderBOQId=" + data.Id;
     };
+
+    $scope.POWithoutTax = function (z) {
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = "Products/PurchaseOrder/GePurchaseOrderBOQReportWithoutTax?purchaseOrderBOQId=" + data.Id;
+    };
+
     $scope.POBOQReportXl = function (data) {
 
         try {

@@ -57,6 +57,7 @@ namespace Library.Service.OrderManagements
         private readonly IRepositoryAsync<FirstCharacteristics> _firstCharacteristicsRepository;
         private readonly IRepositoryAsync<SecondCharacteristics> _secondCharacteristicsRepository;
         private readonly IRepositoryAsync<ThirdCharacteristics> _thirdCharacteristicsRepository;
+        private readonly IRepositoryAsync<SOCostingConfirmation> _SOCostingConfirmationRepository;
 
 
         private readonly ISqlRepository _sqlRepository;
@@ -76,6 +77,7 @@ namespace Library.Service.OrderManagements
             , IRepositoryAsync<FirstCharacteristics> firstCharacteristicsRepository
             , IRepositoryAsync<SecondCharacteristics> secondCharacteristicsRepository
             , IRepositoryAsync<ThirdCharacteristics> thirdCharacteristicsRepository
+            , IRepositoryAsync<SOCostingConfirmation> SOCostingConfirmationRepository
 
             , IUnitOfWork unitOfWork) :
             base(baseRepository, unitOfWork, pkGeneratorService)
@@ -95,6 +97,7 @@ namespace Library.Service.OrderManagements
             _firstCharacteristicsRepository = firstCharacteristicsRepository;
             _secondCharacteristicsRepository = secondCharacteristicsRepository;
             _thirdCharacteristicsRepository = thirdCharacteristicsRepository;
+            _SOCostingConfirmationRepository = SOCostingConfirmationRepository;
         }
 
         #endregion Constructor
@@ -524,6 +527,62 @@ namespace Library.Service.OrderManagements
             }
         }
 
+
+        public IEnumerable<object> GetItemsData(string masterOrderId)
+        {
+            try
+            {
+                
+                var sql = @"SELECT  mo.MasterOrderNo,moi.Id MasterOrderItemId
+	                                ,ISNULL(so.Id,'') SOId
+	                                ,SO.CustomerPOId
+	                                ,CPO.PONumber
+	                                ,mm.Id MaterialMasterId
+	                                ,mm.UserName MaterialMaster
+	                                ,ISNULL(mma.StandardName, '') Article
+	                                ,b.UserName Customer
+	                                ,mo.TotalQty MOQty
+	                                ,ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage [ExtraP]
+	                                ,moi.OrderWastagePercentage [WastageP]
+	                                ,ISNULL(mma.Id, '') ArticleId
+	                                ,mmc.CharCount
+	                                ,B.UserName Buyer
+	                                ,PM.UserName AS ProductMasterName
+	                                ,CEILING(SO.PlannedQty) PlannedQty
+	                             
+                                    ,SO.Description
+									,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
+                                FROM trn.MasterOrderItem moi
+                               LEFT JOIN (
+	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                FROM trn.SalesOrder AS s
+	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                ) so ON moi.Id = SO.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN (SELECT COUNT(Id) CharCount, MaterialMasterId	FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+	                                ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+                                LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+                                  WHERE moi.MasterOrderId ='" + masterOrderId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
+
         public IEnumerable<object> GetAttributeListByMaterialMasterId(string materialMasterId)
         {
             try
@@ -620,14 +679,16 @@ namespace Library.Service.OrderManagements
                             ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
                             , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
                             ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
-                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense
+                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other,SO.StockResponsiblePersonId,SO.ShipmentFromStock,SO.ProductionType,SEMP.EmployeeName StockResponsiblePerson,SO.PackingTypeId,PT.UserName PackingType
                     FROM [TRN].[SalesOrder] AS SO
                    -- LEFT JOIN TRN.FirstCharacteristics SKU ON SKU.SalesOrderId=SO.Id
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
                     LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                     LEFT JOIN dbo.EmployeeInformation AS EMP ON EMP.SystemId = SO.ResponsiblePersonId
+                    LEFT JOIN dbo.EmployeeInformation AS SEMP ON SEMP.SystemId = SO.StockResponsiblePersonId
                     LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
                     LEFT JOIN [MST].[Destination] D ON D.Id=SO.DestinationId
+                    LEFT JOIN HKP.PackingType PT ON PT.Id=SO.PackingTypeId
                     WHERE SO.MasterOrderItemId='" + masterItemId + "' ORDER BY SO.DeliveryDate";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -639,7 +700,58 @@ namespace Library.Service.OrderManagements
             }
         }
 
-       
+        public IEnumerable<object> GetpackingTypeList(string SOId,string PackingType)
+        {
+            try
+            {
+                string sql = "";
+                if (PackingType == "AssortedAssorted")
+                {
+                    sql = @"select NULL Id,CV1.Id FGFirstCharacteristicsId,CV1.UserName Color,CV2.Id FGSecondCharacteristicsId,CV2.UserName Size,sum(sku2.Qty) Quantity,0 ToPlanQuantity,0 [Plan]
+                                                from TRN.SalesOrder SO
+                                                left join TRN.FirstCharacteristics sku1 on sku1.SalesOrderId=SO.Id
+                                                left join [HKP].[CharacteristicsValue] CV1 on CV1.Id=sku1.CharacteristicsValueId
+                                                left join TRN.SecondCharacteristics sku2 on sku2.SalesOrderId=SO.Id
+                                                left join [HKP].[CharacteristicsValue] CV2 on CV2.Id=sku2.CharacteristicsValueId
+                                                where SO.Id " + SOId +@" and CV1.UserName is not null
+                                                group by CV1.Id,CV1.UserName ,CV2.Id ,CV2.UserName";
+                }
+                else if(PackingType == "AssortedSolid")
+                {
+                    sql = @"select NULL Id,CV1.Id FGFirstCharacteristicsId,CV1.UserName Color,sum(sku1.Qty) Quantity,0 ToPlanQuantity,0 [Plan]
+                                                from TRN.SalesOrder SO
+                                                left join TRN.FirstCharacteristics sku1 on sku1.SalesOrderId=SO.Id
+                                                left join [HKP].[CharacteristicsValue] CV1 on CV1.Id=sku1.CharacteristicsValueId
+
+                                                where SO.Id " + SOId + @" and CV1.UserName is not null
+                                                group by CV1.UserName,CV1.Id";
+                }
+                else if (PackingType == "SolidSolid")
+                {
+                    sql = @"select NULL Id,sum(SO.Qty) Quantity,0 ToPlanQuantity,0 [Plan]
+                                                from TRN.SalesOrder SO
+                                                where SO.Id " + SOId + @"";
+                }
+                else 
+                {
+                    sql = @"select NULL Id,CV2.Id FGSecondCharacteristicsId,CV2.UserName Size,sum(sku2.Qty) Quantity,0 ToPlanQuantity,0 [Plan]
+                                                from TRN.SalesOrder SO
+                                                left join TRN.SecondCharacteristics sku2 on sku2.SalesOrderId=SO.Id
+                                                left join [HKP].[CharacteristicsValue] CV2 on CV2.Id=sku2.CharacteristicsValueId
+                                                where SO.Id " + SOId + @" and CV2.UserName is not null
+                                                group by CV2.Id,CV2.UserName";
+                }
+                return _sqlRepository.GetDataCollection(sql);
+                
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
+
 
         public IEnumerable<object> GetFirstSkuSalesOrderId(string salesOrderId)
         {
@@ -1340,6 +1452,7 @@ namespace Library.Service.OrderManagements
                     var firstCharDbList = _firstCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                     var secondCharDbList = _secondCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                     var thirdCharDbList = _thirdCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
+                    var SOCostingConfirmationDbList = _SOCostingConfirmationRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
 
                     var count = _itemRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
                     foreach (var item in itemList)
@@ -1370,6 +1483,7 @@ namespace Library.Service.OrderManagements
                                     var firstList = firstCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     var secondList = secondCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     var thirdList = thirdCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
+                                    var SOCostingList = SOCostingConfirmationDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     foreach (var third in thirdList)
                                     {
                                         _thirdCharacteristicsRepository.Delete(third);
@@ -1381,6 +1495,10 @@ namespace Library.Service.OrderManagements
                                     foreach (var first in firstList)
                                     {
                                         _firstCharacteristicsRepository.Delete(first);
+                                    }
+                                    foreach (var costing in SOCostingList)
+                                    {
+                                        _SOCostingConfirmationRepository.Delete(costing);
                                     }
                                     _salesOrderRepository.Delete(so);
                                 }
@@ -1439,6 +1557,7 @@ namespace Library.Service.OrderManagements
                         var firstCharDbList = _firstCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                         var secondCharDbList = _secondCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                         var thirdCharDbList = _thirdCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
+                        var SOCostingConfirmationDbList = _SOCostingConfirmationRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                         foreach (var item in itemDbDataList)
                         {
                             if (!itemList.Any(t => t.Id == item.Id))
@@ -1449,6 +1568,7 @@ namespace Library.Service.OrderManagements
                                     var firstList = firstCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     var secondList = secondCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     var thirdList = thirdCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
+                                    var SOCostingList = SOCostingConfirmationDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     foreach (var third in thirdList)
                                     {
                                         _thirdCharacteristicsRepository.Delete(third);
@@ -1460,6 +1580,10 @@ namespace Library.Service.OrderManagements
                                     foreach (var first in firstList)
                                     {
                                         _firstCharacteristicsRepository.Delete(first);
+                                    }
+                                    foreach (var costing in SOCostingList)
+                                    {
+                                        _SOCostingConfirmationRepository.Delete(costing);
                                     }
                                     _salesOrderRepository.Delete(so);
                                 }
@@ -1842,7 +1966,10 @@ namespace Library.Service.OrderManagements
         {
             try
             {
-                CheckUnique(salesOrderMaster);
+                if (salesOrderMaster.ParentId==null || string.IsNullOrEmpty(salesOrderMaster.ParentId))
+                {
+                    CheckUnique(salesOrderMaster); 
+                }
                 var itemQty = _itemRepository.Query(t => t.Id == salesOrderMaster.MasterOrderItemId).Select(t => t.TotalQty).FirstOrDefault();
                 var soTotalQty = _salesOrderRepository.Query(t => t.Id != salesOrderMaster.Id && t.MasterOrderItemId == salesOrderMaster.MasterOrderItemId).Select(t => t.Qty).Sum() + salesOrderMaster.Qty;
 
@@ -1924,6 +2051,7 @@ namespace Library.Service.OrderManagements
                     _thirdCharacteristicsRepository.Delete(_thirdCharacteristicsRepository.Query(t => t.SalesOrderId == salesOrderMaster.Id).Select().AsEnumerable());
                     _secondCharacteristicsRepository.Delete(_secondCharacteristicsRepository.Query(t => t.SalesOrderId == salesOrderMaster.Id).Select().AsEnumerable());
                     _firstCharacteristicsRepository.Delete(_firstCharacteristicsRepository.Query(t => t.SalesOrderId == salesOrderMaster.Id).Select().AsEnumerable());
+                    _SOCostingConfirmationRepository.Delete(_SOCostingConfirmationRepository.Query(t => t.SalesOrderId == salesOrderMaster.Id).Select().AsEnumerable());
 
                     _salesOrderTaxRepository.Delete(_salesOrderTaxRepository.Query(t => t.SalesOrderId == salesOrderMaster.Id).Select().AsEnumerable());
 

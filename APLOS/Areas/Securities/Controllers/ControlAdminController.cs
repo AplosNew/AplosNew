@@ -31,7 +31,7 @@ namespace Aplos.Areas.Securities.Controllers
 
         #endregion Constructor
 
-        [HttpGet]
+        [Authorize, HttpGet]
         public ActionResult GetList(GridParameter parameters)
         {
             return Json(_controlAdminService.Query(parameters), JsonRequestBehavior.AllowGet);
@@ -77,7 +77,7 @@ namespace Aplos.Areas.Securities.Controllers
 
         #endregion Reset
 
-        [HttpGet]
+        [Authorize, HttpGet]
         public ActionResult Get(string id)
         {
             var data = _controlAdminService.Find(id);

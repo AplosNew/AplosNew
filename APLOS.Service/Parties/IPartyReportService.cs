@@ -9,6 +9,7 @@ namespace Library.Service.Parties
     {
         IWorkbook GetPartyLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId);
         IWorkbook GetPartyLedgerReportXls(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId);
+        IWorkbook GetPartyCategoryLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, string partyType, string partyCategoryId, string fromDate, string toDate);
         IWorkbook GetPartyLedgerReportGroupByGL(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId);
         IWorkbook GetPartyLedgerReportGroupByGLXls(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId);
         IWorkbook GetInterPartyLedger(string companyGroupId, string CompanyId, string PlantId,string PlantName,string FromDate, string ToDate);

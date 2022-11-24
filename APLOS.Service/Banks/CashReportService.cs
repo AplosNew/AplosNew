@@ -10,6 +10,7 @@ using System;
 using System.Data;
 using System.Linq;
 
+
 namespace Library.Service.Banks
 {
     public class CashReportService : ICashReportService
@@ -1523,7 +1524,9 @@ namespace Library.Service.Banks
                 row++;
                 int StartRow = row;
                 // Get Cash transaction data.
-                var ledgerData = _cashJournalService.GetCashLedgerData(companyGroupId, companyId, plantId, cashMasterId, fromDate, toDate);
+                //var ledgerData = _cashJournalService.GetCashLedgerData(companyGroupId, companyId, plantId, cashMasterId, fromDate, toDate);
+
+                var ledgerData = GetCashLedgerDataByplant(companyGroupId, companyId, plantId, cashMasterId, fromDate, toDate);
                 if (ledgerData.Rows.Count > 0)
                 {
                     for (int i = 0; i < ledgerData.Rows.Count; i++)
@@ -1564,6 +1567,8 @@ namespace Library.Service.Banks
                             sheet.Range[row, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
                         }
                         sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"  Dr\", \"  Cr\")";
+                        sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                         row++;
                     }
                 }
@@ -1606,7 +1611,132 @@ namespace Library.Service.Banks
                 throw;
             }
         }
-
+        public DataTable GetCashLedgerDataByplant(string companyGroupId, string companyId, string plantId, string cashMasterId, string fromDate, string toDate)
+        {
+            var cmdText = @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"';
+                        DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                        DECLARE @plantId VARCHAR(10)='" + plantId + @"';
+                        DECLARE @cashMasterId VARCHAR(10)='" + cashMasterId + @"';
+                        SELECT V.VoucherNo, V.PostingDate, V.CurrencyId,
+                         VD.DrAmount ,
+                         VD.CrAmount 
+						 , V.Narration
+                        , CC.CompanyCurrencyDrAmount, CC.CompanyCurrencyCrAmount
+						 ,OtherSide = concat( STUFF((select distinct ','+XPP.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join HKP.PartyPlant XPP ON XPP.Id=XVD.PartyPlantId
+                    where XVD.VoucherId=V.Id AND XVD.PartyPlantId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XEI.AccountTitle from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join mst.BankMaster XEI ON XEI.id=XVD.BankMasterId
+					LEFT JOIN HKP.Bank BX ON BX.Id=XEI.BankId
+                    where XVD.VoucherId=V.Id AND XVD.BankMasterId <>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    
+                    ,STUFF((select distinct ','+XEI.EmployeeName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join dbo.EmployeeInformation XEI ON XEI.SystemId=XVD.EmployeeId
+                    where XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XCM.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join MST.CashMaster XCM ON XCM.Id=XVD.CashMasterId
+                    where XVD.VoucherId=V.Id AND XVD.CashMasterId!=vd.CashMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XA.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join HKP.Activity XA ON XA.Id=XVD.ActivityId
+                    where XVD.VoucherId=V.Id AND XVD.CashMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                        FROM  [TRN].[VoucherDetail] AS VD 
+                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                        LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
+                        LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
+                        LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                        LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId AND VD.CashMasterId=@cashMasterId AND V.SourceType!='OpeningBalance'
+						 AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"' AND V.SourceType!='OpeningBalance' AND VD.LoanSetOffGroupNo IS NULL
+                        UNION ALL
+                        SELECT V.VoucherNo, V.PostingDate, V.CurrencyId,
+                         VD.DrAmount ,
+                         VD.CrAmount 
+						 , V.Narration
+                        , CC.CompanyCurrencyDrAmount, CC.CompanyCurrencyCrAmount
+						, OtherSide=CASE 
+	                        WHEN P.UserName<>'' THEN P.UserName
+							WHEN BM.AccountTitle<>'' THEN BM.AccountTitle
+	                        WHEN CM.UserName<>'' THEN CM.UserName
+	                        ELSE ''	END
+                        FROM  [TRN].[VoucherDetail] AS VD 
+                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                        LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
+                        LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
+                        LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                        LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId AND VD.CashMasterId=@cashMasterId AND V.SourceType!='OpeningBalance'
+						 AND V.PostingDate > '" + fromDate + @"' AND V.SourceType='OpeningBalance' AND VD.LoanSetOffGroupNo IS NULL
+                        UNION ALL
+						 SELECT  VoucherNo=STUFF((select distinct ','+XV.VoucherNo from
+							trn.VoucherDetail XVD 
+							LEFT JOIN TRN.Voucher XV ON XVD.VoucherId=XV.Id
+							where  XVD.LoanSetOffGroupNo=VD.LoanSetOffGroupNo  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						 , V.PostingDate, V.CurrencyId,
+                         SUM(VD.DrAmount) DrAmount,
+                         SUM(VD.CrAmount )CrAmount
+						 , V.Narration
+                        , SUM(CC.CompanyCurrencyDrAmount)CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount)CompanyCurrencyCrAmount
+						 ,OtherSide = concat( STUFF((select distinct ','+XPP.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join HKP.PartyPlant XPP ON XPP.Id=XVD.PartyPlantId
+                    where XVD.LoanSetOffGroupNo=VD.LoanSetOffGroupNo AND XVD.PartyPlantId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XEI.AccountTitle from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join mst.BankMaster XEI ON XEI.id=XVD.BankMasterId
+					LEFT JOIN HKP.Bank BX ON BX.Id=XEI.BankId
+                    where XVD.LoanSetOffGroupNo=VD.LoanSetOffGroupNo AND XVD.BankMasterId <>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    
+                    ,STUFF((select distinct ','+XEI.EmployeeName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join dbo.EmployeeInformation XEI ON XEI.SystemId=XVD.EmployeeId
+                    where XVD.LoanSetOffGroupNo=VD.LoanSetOffGroupNo AND XVD.EmployeeId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XCM.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join MST.CashMaster XCM ON XCM.Id=XVD.CashMasterId
+                    where XVD.LoanSetOffGroupNo=VD.LoanSetOffGroupNo AND XVD.CashMasterId!=vd.CashMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XA.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join HKP.Activity XA ON XA.Id=XVD.ActivityId
+                    where XVD.LoanSetOffGroupNo=VD.LoanSetOffGroupNo AND XVD.CashMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                        FROM  [TRN].[VoucherDetail] AS VD 
+                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                        LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
+                        LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
+                        LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                        LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId AND VD.CashMasterId=@cashMasterId AND V.SourceType!='OpeningBalance'
+                        AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"' AND V.SourceType!='OpeningBalance' AND VD.LoanSetOffGroupNo <>''
+						 GROUP BY  V.PostingDate, V.CurrencyId, V.Narration,VD.LoanSetOffGroupNo,VD.CashMasterId
+						 ORDER BY V.PostingDate ASC";
+            return _sqlRepository.GetDataTable(cmdText);
+        }
         #region Cash Receipt Payment Report
         public IWorkbook GetCashReceiptPaymentReport(string companyGroupId, string companyId, string plantId, string plantName, string cashMasterId, string fromDate, string toDate)
         {

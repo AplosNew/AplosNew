@@ -112,10 +112,20 @@
                 </div>
             </div>
         </div>
-        <div class="form-group" id="div_ReviewDate">
-            <label class="col-sm-4 control-label">Review Date</label>
+        <div class="form-group" id="div_ReviewDate" show-errors>
+            <label class="col-sm-4 control-label">Review Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" id="Review Date" name="Review Date" ng-model="advance.ReviewDate" datepicker="checkReviewDate();" class="form-control" tabindex="7">
+                <input type="text" id="Review Date" name="Review Date" ng-model="advance.ReviewDate" datepicker="checkReviewDate();" class="form-control" tabindex="7" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label" title="Contract">Contract</label>
+            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                <input type="text" name="ContractId" ng-model="advance.ContractId" class="form-control" maxlength="100" ng-hide="true">
+                <input type="text" name="ContractNo" ng-model="advance.ContractNo" ng-disabled="true" class="form-control" maxlength="100">
+                <span class="input-group-btn">
+                    <button ng-click="GetPopUpContract()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
             </div>
         </div>
         @*<div class="form-group">
@@ -179,7 +189,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label title="Responsible Person" class="col-sm-4 control-label">Res.Person</label>
+            <label title="Responsible Person" class="col-sm-4 control-label">Res.Person<sup>*</sup></label>
             <div class="col-sm-8">
                 <div class="input-group">
                     <input type="text" name="Responsible Person" ng-model="advance.ResponsiblePerson" class="form-control" readonly>
@@ -188,6 +198,15 @@
                         <button ng-click="clearEmployeePopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                     </span>
                 </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label" title="Contract">Master Order</label>
+            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                <input type="text" name="MasterOrderId" ng-model="advance.MasterOrderId" ng-disabled="true" class="form-control" maxlength="100">
+                <span class="input-group-btn">
+                    <button ng-click="ShowResultMasterOrderPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
             </div>
         </div>
 
@@ -365,11 +384,40 @@
         <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
     </div>
 </div>
+<div class="modal fade site-modal in" id="ContractPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Contract <button type="button" class="close" ng-click="CloseContractPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="Gridd" ej-grid e-datasource="contractList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="SelectedContract"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="ContractId" e-headertext="Contract Id" e-width="70"></div>
+                                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
+                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
+                                <div e-column e-field="LCRef" e-headertext="Master LC Ref No" e-width="80"></div>
+                                <div e-column e-field="MasterLCNo" e-headertext="Master Lc Id" e-width="70"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="CloseContractPopUp();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 @Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_AdvanceJournalPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_MasterOrderPopUp.cshtml")
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmUnPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="unPost(advanceId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId)"></confirm-archive-generic>

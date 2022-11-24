@@ -41,6 +41,10 @@ namespace Library.Model.OrderManagements
         public decimal ValueLoss { get; set; }
         public decimal Other { get; set; }
         public decimal DirectProcessCost { get; set; }
+        public decimal Commission { get; set; }
+        public string ProductionType { get; set; }
+        public bool ShipmentFromStock { get; set; }
+        public string StockResponsiblePersonId { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
@@ -103,6 +107,7 @@ namespace Library.Model.OrderManagements
         public string CustomerPOId { get; set; }
         public string OrderCategoryId { get; set; }
         public string ResponsiblePersonId { get; set; }
+        public string PackingTypeId { get; set; }
 
         #endregion Navigation Properties
     }

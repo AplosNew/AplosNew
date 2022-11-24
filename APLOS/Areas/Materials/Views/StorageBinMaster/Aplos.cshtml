@@ -1,0 +1,245 @@
+﻿<togglable name="{{title}}"></togglable>
+
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+           <div class="form-group">
+            <label class="col-sm-4 control-label">Storage Location<sup>*</sup></label>
+            <div class="col-sm-6">
+                <input type="text" name="Storage Location" ng-model="StorageLocation" class="form-control" maxlength="100" tabindex="5" ng-disabled="true  ">
+            </div>
+            <div class="col-sm-2">
+                <button ng-click="OpenStorageLocation()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+            </div>
+        </div>
+            @*<div class="form-group">
+                <label class="col-sm-4 control-label">Storage Location<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.StorageLocation" required name="Storage Location"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in StorageLocationList" value="{{option.Text}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Area / Rack Code</label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="Area / Rack Code" ng-model="ModelNew.AreaRackCode" class="form-control" tabindex="5" maxlength="50">
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Row No</label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="Row Number" ng-model="ModelNew.RowNo" class="form-control" tabindex="5" maxlength="6">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Bin Reference <sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="Bin Reference" ng-model="ModelNew.BinReference" class="form-control" required tabindex="5" maxlength="4">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Capacity Value (CFT)</label>
+                <div class="col-sm-6 show-message">
+                    <input type="number" name="Capacity Value" ng-model="ModelNew.CapacityValue" class="form-control" tabindex="5" maxlength="4">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">User Location Type </label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="User Location Type" ng-model="ModelNew.UserLocationType" class="form-control" tabindex="5" maxlength="30">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-6">
+                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" tabindex="7" maxlength="250"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Storage Sub Location<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="Storage Sub Location" ng-model="ModelNew.StorageSubLocation" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Column No</label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="Colum Number" ng-model="ModelNew.ColumnNo" class="form-control" tabindex="5" maxlength="6">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Bin Code <sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="Bin Code" ng-model="ModelNew.BinCode" class="form-control" required tabindex="5" maxlength="4">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">User Name <sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="30">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Access Type<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="PriorityLevel" ng-model="ModelNew.AccessType" required name="Vacancy Status"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option value="Secure">Secure</option>
+                            <option value="UnSecure">UnSecure</option>
+                            <option value="Open">Open</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="text" name="Responsible Person" ng-model="ResponsiblePerson" class="form-control" maxlength="100" tabindex="5" ng-disabled="true  ">
+                </div>
+                <div class="col-sm-2">
+                    <button ng-click="OpenEmployeePopUp()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="50" e-isprimarykey="true"></div>
+           
+            @*<div e-column e-field="UserName" e-headertext="Storage Location" e-width="120"></div>*@
+            <div e-column e-field="StorageSubLocation" e-headertext="Storage Sub Location" e-width="120"></div>
+            <div e-column e-field="AreaRackCode" e-headertext="Area Rack Code" e-width="70"></div>
+            
+            <div e-column e-field="ColumnNo" e-headertext="Column No" e-width="80"></div>
+            <div e-column e-field="RowNo" e-headertext="RowNo" e-width="80"></div>
+            <div e-column e-field="BinReference" e-headertext="Bin Reference" e-width="100"></div>
+            <div e-column e-field="BinCode" e-headertext="Bin Code" e-width="80"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>
+            <div e-column e-field="CapacityValue" e-headertext="Capacity Value " e-width="80"></div>
+            <div e-column e-field="AccessType" e-headertext="Access Type" e-width="100"></div>
+            <div e-column e-field="UserLocationType" e-headertext="User Location Type" e-width="100"></div>
+            <div e-column e-field="EmployeeName" e-headertext="Responsible Person" e-width="100"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+        </div>
+    </div>
+</div>
+<!--POP UP SCREEN  FOR Responsible Person (EmployeeInformation)   -->
+<div class="modal fade site-modal in" id="EmployeePop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify ">
+        <div class="modal-content">
+            <div class="modal-header">Employee Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Please Select Employee Detail .</p>
+                        <div style="color:black;" id="GridEmployee" ej-grid e-datasource="ResponsiblePersonList" e-recorddoubleclick="selectResponsible"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
+                            <div e-columns>
+                                <div e-column e-field="SystemId" e-headertext="System Id" e-width="50"></div>
+
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="120"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--POP UP SCREEN  FOR Storage Location   -->
+<div class="modal fade site-modal in" id="StorageLocationPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify ">
+        <div class="modal-content">
+            <div class="modal-header">Storage Location <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p></p>
+                        <div style="color:black;" ej-grid e-datasource="StorageLocationList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true" e-recorddoubleclick="selectStorageLocation"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                                <div e-column e-field="UserName" e-headertext="Storage Location" e-width="100"></div>
+                                <div e-column e-field="Plant" e-headertext="Plant" e-width="100"></div>
+                                <div e-column e-field="Company" e-headertext="Company" e-width="100"></div>
+                                <div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeStorageLocation();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

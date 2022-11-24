@@ -125,6 +125,10 @@ namespace Aplos.Areas.Productions.Controllers
             int ColArt = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "ContractID", 20, ExcelHAlign.HAlignCenter);
+            int ColCont = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Own Ref No", 12, ExcelHAlign.HAlignCenter);
             int ColOwn = COL;
             COL++;
@@ -174,6 +178,10 @@ namespace Aplos.Areas.Productions.Controllers
             int ColRate = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "ExchangeRate", 12, ExcelHAlign.HAlignCenter);
+            int ColExRate = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Dispatch Qty", 12, ExcelHAlign.HAlignCenter);
             int ColDis = COL;
             COL++;
@@ -210,15 +218,9 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColMO].Number = clsStaticInfo.dbl(data.Rows[i]["MasterOrderNo"].ToString());
                 sheet[ROW, ColMOD].DateTime = Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
                 sheet[ROW, ColCd].DateTime = Convert.ToDateTime(data.Rows[i]["CreatedDate"].ToString());
-                if (data.Rows[i]["DeliveryDate"].ToString() == "")
-                {
-                    sheet[ROW, ColDel].Text = string.Empty;
-                }
-                else
-                {
-                    sheet[ROW, ColDel].DateTime = Convert.ToDateTime(clsStaticInfo.GetDate(data.Rows[i]["DeliveryDate"].ToString()));
-                }
+                sheet[ROW, ColDel].DateTime = Convert.ToDateTime(data.Rows[i]["DeliveryDate"].ToString());
                 sheet[ROW, ColOwn].Text = data.Rows[i]["OwnReferenceNo"].ToString();
+                sheet[ROW, ColCont].Text = data.Rows[i]["ContractID"].ToString();
                 sheet[ROW, ColBuy].Text = data.Rows[i]["BuyerOrderNo"].ToString();
                 sheet[ROW, ColArt].Text = data.Rows[i]["Article"].ToString();
                 sheet[ROW, ColItem].Text = data.Rows[i]["ItemId"].ToString();
@@ -227,10 +229,11 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColProdC].Text = data.Rows[i]["ProductCode"].ToString();
                 sheet[ROW, ColPR].Text = data.Rows[i]["ProductionOrderId"].ToString();
                 sheet[ROW, ColQty].Text = data.Rows[i]["SOQty"].ToString();
-                sheet[ROW, ColEFD].Text = clsStaticInfo.GetDate(data.Rows[i]["ExFactoryDate"].ToString());
-                sheet[ROW, ColComm].Text = clsStaticInfo.GetDate(data.Rows[i]["CommitmentDate"].ToString());
+                sheet[ROW, ColEFD].Text = data.Rows[i]["ExFactoryDate"].ToString();
+                sheet[ROW, ColComm].Text = data.Rows[i]["CommitmentDate"].ToString();
                 sheet[ROW, ColSOCat].Text = data.Rows[i]["SOCategory"].ToString();
                 sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rates"].ToString());
+                sheet[ROW, ColExRate].Number = clsStaticInfo.dbl(data.Rows[i]["ExchangeRate"].ToString());
                 sheet[ROW, ColDis].Number = clsStaticInfo.dbl(data.Rows[i]["DispatchQty"].ToString());
                 sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceToDispatch"].ToString());
                 sheet[ROW, ColAll].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedStock"].ToString());
@@ -273,7 +276,7 @@ namespace Aplos.Areas.Productions.Controllers
                     ent += ")";
                 }
 
-                var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,mo.OwnReferenceNo , mo.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
+                var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,moi.ContractId, moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
                             format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
                             (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
 
@@ -288,17 +291,18 @@ namespace Aplos.Areas.Productions.Controllers
                             from dbo.ItemScanChild sc
                             left join dbo.ItemScan s on s.Id = sc.MasterId 
                             left join dbo.ProductLibrary pl on pl.Code = sc.ProductCode
+                            left join MST.MaterialMovementMaster MMM ON MMM.Id = SC.LocMasterId
                             where pl.Id = moi.ProductLibraryId 
                             and s.WorkDate <= GetDate()
-                            and sc.Booked = 0 and sc.IsDespatch = 0) as AllotedStock
-                            , mor.ExchangeRate * so.Rate as Rates
+                            and sc.Booked = 0 and  (MMM.PurposeId <> 'MP7' AND MMM.PurposeId <> 'MP8' AND MMM.PurposeId <> 'MP9' AND MMM.PurposeId <> 'MP12')) as AllotedStock
+                            , so.Rate as Rates, mor.ExchangeRate
                             from trn.SalesOrder so
                             left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
                             left join mst.MaterialMasterArticle mma on mma.Id = moi.ArticleId
                             left join hkp.OrderCategory oc on oc.Id = so.OrderCategoryId
                             left outer join [HKP].[OrderStatus] OS on OS.id=so.OrderStatusId
-							left join dbo.ProductLibrary pl on pl.ID = moi.ProductLibraryId
+                            left join dbo.ProductLibrary pl on pl.ID = moi.ProductLibraryId
                             left join MasterOrderExchangeRates mor on mor.TransactionId = mo.Id
                             left join
                             (
@@ -309,8 +313,8 @@ namespace Aplos.Areas.Productions.Controllers
                             left join hkp.Party p on p.Id = mo.PartyId
                             LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer'
                              LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
-							 left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
-                            where os.Id not in ('Closed' , 'Cancelled') " + ent + @"
+                             left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
+                            where os.Id not in ('Closed' , 'Cancelled') 
                             order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc
                             ";
 
@@ -325,4 +329,3 @@ namespace Aplos.Areas.Productions.Controllers
         #endregion
     }
 }
-

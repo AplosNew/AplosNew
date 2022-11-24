@@ -7,8 +7,8 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
 	$scope.products = [];
 	$scope.path = 'Materials/MaterialLedger/';
 	$scope.path1 = 'Accounts/InventoryPayable/';
-	//$scope.exportgriddataUrl = 'GridReports/ExcelExport';
-	$scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
@@ -144,7 +144,6 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
 				response.data[i].GRNEntryDate = new Date($scope.PurchaseRegisterLst[i].GRNEntryDate);
 			}
 
-			$scope.load();
 		});
 
     };
@@ -153,7 +152,7 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
 		$scope.GetPurchaseRegister();
 	}
 
-    $scope.PurchaseOrderReportPdf = function (id, reportFormat) {
+    $scope.PurchaseOrderReportPdf = function () {
 
         if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
             ShowResult('Select From Date', 'failure');
@@ -163,12 +162,39 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
             ShowResult('Select To Date', 'failure');
             return false;
         }
-        var reportFormat = "Pdf";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/PurchaseOrderRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
+
+        var dataList = [];
+        var g = $("#GridPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.PurchaseRegisterLst;
+        }
+
+        $scope.fileName = 'Purchase Order Register';
+       
+        $http({
+            method: 'POST',
+            //url: $scope.path + "StockRegisterReport",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     };
 
-    $scope.PurchaseOrderReportExcel = function (reportFormat) {
+    $scope.PurchaseOrderReportExcel = function () {
         if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
             ShowResult('Select From Date', 'failure');
             return false;
@@ -177,10 +203,38 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
             ShowResult('Select To Date', 'failure');
             return false;
         }
+
+        var dataList = [];
+        var g = $("#GridPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.PurchaseRegisterLst;
+        }
+
         try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/PurchaseOrderRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
-            $rootScope.report(file_src);
+            $scope.fileName = 'Purchase Order Register';
+
+            $http({
+                method: 'POST',
+                //url: $scope.path + "StockRegisterReport",
+                url: $scope.exportgriddataUrl,
+                data: {
+                    'data': dataList,
+                    'reportFileName': $scope.fileName,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
 
         } catch (e) {
 
@@ -279,8 +333,6 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
             for (var i = 0; i < $scope.ServiceAcknowledgementLst.length; i++) {
                 response.data[i].GRNEntryDate = new Date($scope.ServiceAcknowledgementLst[i].GRNEntryDate);
             }
-
-            $scope.load();
         });
 
     };

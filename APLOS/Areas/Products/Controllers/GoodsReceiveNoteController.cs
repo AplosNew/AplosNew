@@ -209,7 +209,8 @@ namespace Aplos.Areas.Products.Controllers
 
         #region GRN-By-PO
         [HttpPost]
-        public JsonResult CreateGRNBYPO(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        public JsonResult CreateGRNBYPO(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList
+            , IEnumerable<GRNPORequisitionMap> requisitionDetailList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         {
             if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
             {
@@ -302,7 +303,7 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
             }
 
-            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, requisitionDetailList);
             ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
@@ -382,6 +383,56 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
+        public JsonResult UpdateGRNBYPOMaster(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+           
+            _inventoryDetailService.UpdateGRNBYPOMaster(entity, GRNType);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+        [HttpPost]
         public ActionResult DeleteGRNBYPO(string id)
         {
             if (!string.IsNullOrEmpty(id))
@@ -393,6 +444,7 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException(Resources.IdNotFound);
         }
 
+       
         #endregion GRN-By-PO
 
         #region GRN-BOQ-PO
@@ -512,7 +564,7 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
             }
 
-            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType,null);
             ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
@@ -781,7 +833,7 @@ namespace Aplos.Areas.Products.Controllers
 
                 }
             }
-            DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType,null);
             ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
@@ -878,17 +930,17 @@ namespace Aplos.Areas.Products.Controllers
             return Json(inventoryReceiveQueryService.QueryGetListForGRNSaveData(identity.PlantId, GRNWithReqPOCheckStatus), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public JsonResult GetListOfPO(string PoType, string Status)
+        public JsonResult GetListOfPO(string PoType, string Status,string vendorId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetListForHold(identity.PlantId, PoType, Status), JsonRequestBehavior.AllowGet);
+            return Json(_inventoryReveiveService.GetListForHold(identity.PlantId, PoType, Status, vendorId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
         public JsonResult GetPOListForAdvance(string PoType, string Status, string vendorId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetPOListForAdvance(identity.PlantId, PoType, Status, vendorId), JsonRequestBehavior.AllowGet);
+            return Json(_inventoryReveiveService.GetListForHold(identity.PlantId, PoType, Status, vendorId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -1038,10 +1090,10 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_inventoryReveiveService.GetToCurrencyRate(currencyId, baseCurrencyId, Convert.ToDateTime(docDate), identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-        public JsonResult DetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+        public JsonResult DetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<GRNPORequisitionMap> requisitionDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _inventoryDetailService.InsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
+            _inventoryDetailService.InsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType, requisitionDetailList);
             return Json(new { Message = AplosMessage.Success });
         }
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
@@ -1173,8 +1225,14 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialListByOnlyPO(GridParameter parameters, string inveReveiveId, string AcceptanceId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryMaterialService.QueryOnlyPO(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            return Json(inventoryReceiveQueryService.QueryOnlyPO(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetRequsitionQtyListByPO(GridParameter parameters, string poIds)
+        {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            return Json(inventoryReceiveQueryService.GetRequsitionQtyListByPO(parameters, poIds), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialPayable(string inveReveiveId, string employeeId, bool isReversCharge)
@@ -1450,8 +1508,9 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetListForGRNUNApproval()
         {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetListForGRNUNApproval(identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(inventoryReceiveQueryService.GetListForGRNUNApproval(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -1600,7 +1659,12 @@ namespace Aplos.Areas.Products.Controllers
 
         }
 
-
+        [HttpGet, Authorize]
+        public JsonResult IssueListDataByProudctionOrder(string IssueStatus, string IssueSlipType,string productionOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_issueRequestService.IssueListDataByProudctionOrder(IssueStatus, IssueSlipType, productionOrderId), JsonRequestBehavior.AllowGet);
+        }
 
         #region Requisition Inventory IssueUI Or Request
 
@@ -1723,6 +1787,14 @@ namespace Aplos.Areas.Products.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_inventoryReveiveService.GetIssueSlipFilterData(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetStockForMaterialIssue(string materialMasterId,string articleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetStockForMaterialIssue(identity.PlantId, materialMasterId, articleId), JsonRequestBehavior.AllowGet);
 
         }
         #endregion
@@ -2948,17 +3020,17 @@ UNION ALL
             }
 
         }
-        [Authorize, HttpGet]
-        public JsonResult ApprovedGRNList()
+        [Authorize, HttpPost]
+        public JsonResult PostedGRNListForPurchaseReturn(string column, string value, string plantId)
         {
 
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
-
-                var Sql = @"SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var Sql = @"select top 300 * from (SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
                                      ,IR.GRNDate
                                     , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
@@ -2995,20 +3067,47 @@ UNION ALL
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
 						Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
-
-                        --LEFT JOIN(
-			                            --select 
-			                            --POId=STUFF((select distinct ','+xpo.Id from
-			                           -- trn.PurchaseOrder xpo
-			                            --INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-			                            --where xPDAMAP.PoId=PDAMAP.PoId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')			
-										--from  trn.POGGRNMap PDAMAP 
-													--LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id = PDAMAP.POId
-		                              --group by  PDAMAP.PoId
-		                            --)pur ON pur.PoId = map.PoId
-                        --where IR.Id not in (select InventoryReceiveId from trn.PurchaseReturn where InventoryReceiveId is not null)
-						where IR.Status='Posting' AND IR.GRNType<>'FG'
-                        Order by IR.GRNDate ASC";
+						WHERE IR.Status='Posting' AND IR.GRNType<>'FG' AND IR.PlantId='" + identity.PlantId + @"'
+                        UNION ALL
+                        SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                                    , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
+                                     ,IR.GRNDate
+                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName
+	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+	                                , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.DocRefNo InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS InvoiceDate
+	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold,isnull(IR.POID,'') POID,IR.CheckedByStatus,IR.AuthorizedByStatus
+                                    ,isnull(IR.GateEntryNo,0) GateEntryNo
+									,isnull(PWG.UserName ,'') GateName, IR.NoteForAccounts
+                                    ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
+                        FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						--left join trn.POGGRNMap map on map.GRNId=ir.id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        left JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.AuthorizedBy
+                        LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TotalMaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialBooksCurrencyAmount) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
+		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='202034' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+                        left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
+						Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
+						WHERE   IR.GRNType<>'FG' AND IR.PlantId='" + identity.PlantId + @"' AND (CheckedByStatus='Reject' OR AuthorizedByStatus='Reject') AND ir.IsApproved=0
+                        ) AS TEMP WHERE " + strkey + " Order by GRNDate  DESC";
                 var res = _sqlRepository.GetDataCollection(Sql);
                 var jsondata = Json(res, JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -4839,8 +4938,8 @@ UNION ALL
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialListByOnlyPOBOQ(GridParameter parameters, string inveReveiveId, string AcceptanceId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryMaterialService.QueryOnlyPOBOQ(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+            BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
+            return Json(bOQQueryService.QueryOnlyPOBOQ(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetServiceChargeListPOBOQ(string receiveId, string AcceptanceId)

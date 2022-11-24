@@ -1,0 +1,58 @@
+﻿<div class="modal fade site-modal in" id="sicknessPopUpid" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> Sickness List <button type="button" class="close" ng-click="closeSicknessPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchBySickness">
+                                            <option ng-repeat="option in SicknessSearchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchSickness" ng-enter="getSearchSicknessData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getSearchSicknessData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        @*style="color:black;overflow:scroll"*@
+                        <div style="color:black;"  ej-grid e-datasource="MedicinePurposeList" e-recorddoubleclick="closePartyPopUp"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-headertext="Apply" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                <div e-column e-field="Category" e-headertext="Category" e-width="50"></div>
+                                <div e-column e-field="Sickness" e-headertext="Purpose" e-width="50"></div>
+                                <div e-column e-field="CategoryRemarks" e-headertext="Category Remarks" e-width="50"></div>
+                                <div e-column e-field="PurposeRemarks" e-headertext="Purpose Remarks" e-width="50"></div>
+                            </div>
+                        </div>
+                        <script type="text/x-jsrender" id="headerTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>
+                        <script type="text/template" id="checkboxTemplate">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
+                        </script>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="SendSickness();" class="btn"> Add</button></li>
+                    <li><button ng-click="closeSicknessPopUp();" class="btn"> Close</button></li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</div>

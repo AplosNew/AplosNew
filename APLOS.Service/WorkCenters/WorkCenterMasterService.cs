@@ -31,6 +31,7 @@ namespace Library.Service.WorkCenters
         private readonly IRepositoryAsync<WorkCenterMasterManpowerBudge> _budgetCodeRepository;
         private readonly IRepositoryAsync<WorkCenterMasterProductPriority> _productPriorityRepository;
         private readonly IRepositoryAsync<WorkCenterWiseShift> _workCenterWiseShiftRepository;
+        private readonly IRepositoryAsync<WorkCenterMasterSubProcess> _WorkCenterMasterSubProcessRepository;
 
         public WorkCenterMasterService(
             IRepositoryAsync<WorkCenterMaster> recipeMasterRepository
@@ -39,6 +40,7 @@ namespace Library.Service.WorkCenters
             , IRepositoryAsync<WorkCenterMasterManpowerBudge> budgetCodeRepository
             , IRepositoryAsync<WorkCenterMasterProductPriority> productPriorityRepository
             , IRepositoryAsync<WorkCenterWiseShift> workCenterWiseShiftRepository
+            , IRepositoryAsync<WorkCenterMasterSubProcess> WorkCenterMasterSubProcessRepository
             , IPKGeneratorService pkGeneratorService
             , ISqlRepository sqlRepository
             , IUnitOfWork unitOfWork) :
@@ -51,6 +53,7 @@ namespace Library.Service.WorkCenters
             _productPriorityRepository = productPriorityRepository;
             _workcentermastermachineservice = workcentermastermachineservice;
             _workCenterWiseShiftRepository = workCenterWiseShiftRepository;
+            _WorkCenterMasterSubProcessRepository = WorkCenterMasterSubProcessRepository;
             _pkGeneratorService = pkGeneratorService;
             _sqlRepository = sqlRepository;
         }
@@ -146,7 +149,7 @@ namespace Library.Service.WorkCenters
 								, m.ResponsiblePersonId, RES.EmployeeName AS ResponsiblePersonName
 								, m.MentorId, MNT.EmployeeName AS MentorName, m.BuyerId
                                 , m.AccountHolder, AH.EmployeeName AS AccountHolderName
-                                , m.AccountInCharge, AC.EmployeeName AS AccountInChargeName,M.GroupingData
+                                , m.AccountInCharge, AC.EmployeeName AS AccountInChargeName,M.GroupingData,M.Active
                             FROM [SCS].[WorkCenterMaster] m
                             LEFT JOIN [HKP].[WorkCenterCategory] c ON c.Id = m.WorkCenterCategoryId
                             LEFT JOIN [HKP].[WorkCenterSubCategory] sc ON sc.Id = m.WorkCenterSubCategoryId
@@ -602,6 +605,40 @@ namespace Library.Service.WorkCenters
             }
         }
 
+        public GridModel GetListForSubProcess(GridParameter parameters, string CompanyGroupId, string processId, string WorkCenterMasterId, string[] subProcessIds)
+        {
+            try
+            {
+             
+                var subProcess = "";
+                if (subProcessIds.Length > 0)
+                    subProcess = string.Join(",", subProcessIds.Select(item => "'" + item + "'"));
+                else
+                    subProcess = "' '";
+                parameters.order = "asc";
+                parameters.sort = "Sequence";
+                parameters.CmdText = "SELECT SP.Id, " +
+                                               "SP.Code, " +
+                                               "SP.UserName, " +
+                                               "SP.Sequence," +
+                                               "SP.Active, " +
+                                               "SP.Archive, " +
+                                               "SPC.UserName AS SubProcessCategoryName," +
+                                               "'' AS Flag " +
+                                        $"FROM {DbSchema.HKP}.[{DbTable.SubProcess}] AS SP  " +
+                                        $"LEFT OUTER JOIN HKP.[SubProcessCategory] AS SPC ON SP.SubProcessCategoryId=SPC.Id " +
+                                        $"WHERE SP.CompanyGroupId='{CompanyGroupId}' AND SP.Archive=0 AND SP.ProcessId='{processId}' " +
+                                        $"AND SP.Id NOT IN (SELECT SubProcessId FROM [SCS].[WorkCenterMasterSubProcess] Where WorkCenterMasterId='"+ WorkCenterMasterId + "')";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Process.ToString()));
+            }
+        }
+
         public IEnumerable<object> GetWorkCenterWiseShiftList(string sGroupID, string sPlantID, string workCenterMasterId)
         {
             try
@@ -612,6 +649,26 @@ namespace Library.Service.WorkCenters
                                   FROM [dbo].[WorkCenterWiseShift] WS 
                                   LEFT JOIN ShiftDefination SD ON WS.ShiftDefinationID=SD.SystemID
                                   WHERE SD.GroupID = '" + sGroupID + @"' AND SD.PlantID = '"+ sPlantID + @"' AND WS.WorkCenterMasterId='"+ workCenterMasterId + @"' Order By SD.ShiftDefinationName";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GetWorkCenterMasterSubProcessList(string workCenterMasterId)
+        {
+            try
+            {
+
+                string CmdText = @"SELECT WSP.*, SP.Code, SP.UserName SubProcessName, SP.Sequence,SP.Active, SP.Archive, SPC.UserName AS SubProcessCategoryName
+FROM [SCS].[WorkCenterMasterSubProcess] WSP
+LEFT JOIN HKP.[SubProcess] AS SP ON SP.Id = WSP.SubProcessId  
+LEFT OUTER JOIN HKP.[SubProcessCategory] AS SPC ON SP.SubProcessCategoryId=SPC.Id
+WHERE WSP.WorkCenterMasterId='" + workCenterMasterId + "' ORDER BY SP.Sequence";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)
@@ -682,6 +739,7 @@ namespace Library.Service.WorkCenters
                     from_db.AccountHolder = from_ui.AccountHolder;
                     from_db.AccountInCharge = from_ui.AccountInCharge;
                     from_db.GroupingData = from_ui.GroupingData;
+                    from_db.Active = from_ui.Active;
 
                     #endregion Add
                 }
@@ -725,6 +783,7 @@ namespace Library.Service.WorkCenters
                     from_db.AccountHolder = from_ui.AccountHolder;
                     from_db.AccountInCharge = from_ui.AccountInCharge;
                     from_db.GroupingData = from_ui.GroupingData;
+                    from_db.Active = from_ui.Active;
                     #endregion Edit
                 }
             }
@@ -882,7 +941,7 @@ namespace Library.Service.WorkCenters
 
         public void InsertUpdateOrDeleteDetails(string masterId, IEnumerable<WorkCenterMasterEffectiveDate> effectiveDateList
             , IEnumerable<WorkCenterMasterManpowerBudge> budgetCodeList, IEnumerable<WorkCenterMasterProductPriority> productPriorityList
-            , IEnumerable<WorkCenterWiseShift> shiftList)
+            , IEnumerable<WorkCenterWiseShift> shiftList, IEnumerable<WorkCenterMasterSubProcess> subProcessList)
         {
             var flag = false;
             try
@@ -895,11 +954,13 @@ namespace Library.Service.WorkCenters
                 var dbBudgetCodeList = _budgetCodeRepository.Query(t => t.WorkCenterMasterId == masterId).Select().ToList();
                 var dbProductPriorityList = _productPriorityRepository.Query(t => t.WorkCenterMasterId == masterId).Select().ToList();
                 var dbShiftList = _workCenterWiseShiftRepository.Query(t => t.WorkCenterMasterId == masterId).Select().ToList();
+                var dbsubProcessList = _WorkCenterMasterSubProcessRepository.Query(t => t.WorkCenterMasterId == masterId).Select().ToList();
 
                 InsertUpdateOrDeleteEffectiveDate(masterId, effectiveDateList, dbEffectiveList);
                 InsertUpdateOrDeleteManpowerBudgetCode(masterId, budgetCodeList, dbBudgetCodeList);
                 InsertUpdateOrDeleteProduct(masterId, productPriorityList, dbProductPriorityList);
                 InsertUpdateOrDeleteShift(masterId, shiftList, dbShiftList);
+                InsertUpdateOrDeleteWCSubProcess(masterId, subProcessList, dbsubProcessList);
 
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -1096,6 +1157,48 @@ namespace Library.Service.WorkCenters
                     {
                         if (!shiftList.Any(t => t.Id == item.Id))
                             _workCenterWiseShiftRepository.Delete(item);
+                    }
+                }
+            }
+        }
+
+        private void InsertUpdateOrDeleteWCSubProcess(string masterId, IEnumerable<WorkCenterMasterSubProcess> subProcessList, List<WorkCenterMasterSubProcess> dbsubProcessList)
+        {
+            if (subProcessList != null)
+            {
+                if (subProcessList.GroupBy(t => t).Any(t => t.Count() > 1)) throw new CustomException("SubProcess can not be duplicate.");
+                foreach (var item in subProcessList)
+                {
+                    if (string.IsNullOrEmpty(item.Id))
+                    {
+                        item.Id = shiftPK;
+                        item.WorkCenterMasterId = masterId;
+                        AuditService.AddedLog(item);
+                        _WorkCenterMasterSubProcessRepository.Insert(item);
+                    }
+                    else
+                    {
+                        if (!dbsubProcessList.Any(t => t.Id == item.Id)) throw new CustomException("Data not found.");
+                        AuditService.UpdatedLog(item);
+                        _WorkCenterMasterSubProcessRepository.Update(item);
+                    }
+                }
+            }
+            if (dbsubProcessList != null)
+            {
+                if (subProcessList == null)
+                {
+                    foreach (var item in dbsubProcessList)
+                    {
+                        _WorkCenterMasterSubProcessRepository.Delete(item);
+                    }
+                }
+                else
+                {
+                    foreach (var item in dbsubProcessList)
+                    {
+                        if (!subProcessList.Any(t => t.Id == item.Id))
+                            _WorkCenterMasterSubProcessRepository.Delete(item);
                     }
                 }
             }

@@ -21,5 +21,7 @@ namespace Library.Service.Banks
         IWorkbook GetPaymentByBankReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId, SourceType sourceType);
         void CRReconcileReport(string BankMasterID, string fromDate, string toDate);
         void DRReconcileReport(string BankMasterID, string fromDate, string toDate, string cutOffDate);
+        void DRReconcilePendingReport(string bankMasterId, string fromDate, string toDate);
+        void CRReconcilePendingReport(string bankMasterId, string fromDate, string toDate);
     }
 }

@@ -24,10 +24,17 @@ function voucherTypeConfigController(cboService, commonMessage, $scope, $rootSco
         IsBackDatePostingAllow: false
     };
 
-    $scope.companyList = [];
-    cboService.getCboCompanyByCompanyGroup(null, function (result) {
-        $scope.companyList = result;
+    $scope.companyGroupList = [];
+    cboService.getCboCompanyGroup(function (result) {
+        $scope.companyGroupList = result;
     });
+    $scope.companyList = [];
+    $scope.companyLoad = function () {
+        cboService.getCboCompanyByCompanyGroup($scope.voucherTypeConfig.CompanyGroupId, function (result) {
+            $scope.companyList = result;
+        });
+    }
+   
 
     $scope.plantList = [];
     $scope.getPlantList = function () {

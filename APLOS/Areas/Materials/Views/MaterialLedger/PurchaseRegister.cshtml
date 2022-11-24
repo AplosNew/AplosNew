@@ -1,5 +1,4 @@
-﻿
-<style>
+﻿<style>
 
 	.loaderr {
 		width: 300px;
@@ -119,172 +118,86 @@
 	}
 </style>
 
-
-
 <div id="Test">
-
-
-	
-
-
-
-	@*<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Material Receipts Register</h3>*@
 	<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Purchase Register</h3>
-	<div class="form-elements form-horizontal">
-		<div class="col-xs-12 col-sm-12 col-md-12" ng-form="from0">
+    <div class="form-elements form-horizontal">
+        <div class="col-xs-12 col-sm-12 col-md-12" ng-form="from0">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="col-xs-6 col-sm-6 col-md-6">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Filter By GRN Date</legend>
+                        <div class="clearfix"></div>
+                        <div class="form-group" show-errors id="div_FromDate">
+                            <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                            <div class="col-sm-9 show-message">
+                                <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors id="div_ToDate">
+                            <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
+                            <div class="col-sm-9  show-message">
+                                <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors id="div_ToDate">
+                            <label class="col-sm-3 control-label">Report Type<sup>*</sup></label>
+                            <div class="col-sm-9 show-message">
+                                <div class="select-style">
+                                    <select name="ReportType" ng-model="report.ReportType" class="col-sm-3 form-control">
+                                        <option value="PartyWise">Party Wise</option>
+                                        <option value="GRNWise">GRN Wise</option>
+                                        <option value="ItemWise">Item Wise</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="getPurchaseRegisterReport();" ng-disabled="report.ReportType==null" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                            </ul>
+                        </div>
+                    </fieldset>
+                </div>
 
-			@*<div class="form-group" show-errors id="div_GL">
-					<label class="col-sm-3 control-label">GL<sup>*</sup></label>
-					<div class="col-sm-9 show-message">
-						<div class="input-group">
-							<div class="select-style">
-								<select name="Fiscal Year" class="form-control searchableDDL" ng-change="getBudgetMasterCboList(report.GLGeneralInfoId);" ng-model="report.GLGeneralInfoId" required>
-									<option ng-repeat="option in glList" value="{{option.GLGeneralInfoId}}">{{option.GLGeneralInfoCode}} - {{option.GLGeneralInfoName}}</option>
-								</select>
-							</div>
-							<span class="input-group-btn">
-								<button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-							</span>
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-3 control-label">Budget</label>
-					<div class="col-sm-9">
-						<div class="select-style">
-							<select name="Budget" class="form-control searchableDDL" ng-model="report.BudgetMasterId" ng-change="getBudgetMasterActivityCbo(report.BudgetMasterId)">
-								<option value="">--Select--</option>
-								<option ng-repeat="option in budgetList" value="{{option.BudgetMasterId}}">{{option.BudgetName}}</option>
-							</select>
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-3 control-label">Activity</label>
-					<div class="col-sm-9">
-						<div class="select-style">
-							<select name="Activity" class="form-control searchableDDL" ng-model="report.ActivityId">
-								<option value="">--Select--</option>
-								<option ng-repeat="option in activityList" value="{{option.ActivityId}}">{{option.ActivityName}}</option>
-							</select>
-						</div>
-					</div>
-				</div>*@
+                <div class="col-xs-6 col-sm-6 col-md-6">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Pending GRN List</legend>
 
-			<div class="col-xs-12 col-sm-12 col-md-12">
-				<div class="col-xs-6 col-sm-6 col-md-6">
-					<fieldset class="scheduler-border">
-						<legend class="scheduler-border">Filter By GRN Date</legend>
-						@*<div class="col-xs-12 col-sm-6 col-md-6">
-								<div class="form-group">
-									<label class="col-sm-4 control-label">Select Type<sup>*</sup></label>
-									<div class="col-sm-8 show-message">
-										<div class="radio">
-											<label>
-												<input ng-click="changeSourceFrom('NonPosted')" type="radio" name="source" ng-model="productNew.Type" value="Non Posted" ng-checked="true">
-												<span class="cr" tabindex="21"><i class="cr-icon"></i></span>Non Posted
-											</label>
-											<label>
-												<input ng-click="changeSourceFrom('Posted')" type="radio" name="source" ng-model="productNew.Type" value="Posted">
-												<span class="cr" tabindex="22"><i class="cr-icon"></i></span>Posted
-											</label>
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
 
-										</div>
-									</div>
-								</div>
-							</div>*@
-						<div class="clearfix"></div>
-						<div class="form-group" show-errors id="div_FromDate">
-							<label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-							<div class="col-sm-9 show-message">
-								<input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control">
-							</div>
-						</div>
+                                    <tr>
+                                        <th>Date delay</th>
+                                        <th>No of Get Entry</th>
+                                    </tr>
 
-						<div class="form-group" show-errors id="div_ToDate">
-							<label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
-							<div class="col-sm-9  show-message">
-								<input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
-							</div>
-						</div>
-						<div class="common-btn">
-							<ul class="list-inline text-right">
-								<li><button ng-click="getPurchaseRegisterReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in GetGRNPendingList" ng-dblclick="PendingGRNList(x)">
 
-								@*<li> <button id="go12" class="btn" ng-click="PrintPurchaseRegister();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>*@
-							</ul>
-						</div>
-					</fieldset>
-				</div>
+                                        @*<td>{{x.From}}-{{x.To}}</td>*@
+                                        <td>{{x.Description}}</td>
+                                        <td class="text-right">{{x.Count}}</td>
 
 
-				@*<div class="col-xs-6 col-sm-6 col-md-6">
-							<div class="common-btn">
-								<ul class="list-inline text-center">
-									@*<li><button ng-click="getPurchaseRegisterReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
-									<li> <br><br><br><button ng-click="PendingGRNList();" class="btn"><span style="color:coral;font-weight:bold">Pending GRN List</span></button></li>
+                                    </tr>
+                                    <tr>
+
+                                        <td class="text-left"><strong>Total : </strong></td>
+                                        <td class="text-right"><strong>{{GetGRNPendingList | sumByKey : 'Count' }}</strong></td>
 
 
-								</ul>
-							</div>
-						</div>
-					</div>*@
+                                </tbody>
+                            </table>
+                        </div>
+                    </fieldset>
 
-
-				<div class="col-xs-6 col-sm-6 col-md-6">
-					<fieldset class="scheduler-border">
-						<legend class="scheduler-border">Pending GRN List</legend>
-
-						<div class="table-responsive modal-table">
-							<table class="table table-striped">
-								<thead>
-
-									<tr>
-										<th>Date delay</th>
-										<th>No of Get Entry</th>
-									</tr>
-
-								</thead>
-								<tbody>
-									<tr ng-repeat="x in GetGRNPendingList" ng-dblclick="PendingGRNList(x)">
-
-										@*<td>{{x.From}}-{{x.To}}</td>*@
-										<td>{{x.Description}}</td>
-										<td class="text-right">{{x.Count}}</td>
-
-
-									</tr>
-									<tr>
-
-										<td class="text-left"><strong>Total : </strong></td>
-										<td class="text-right"><strong>{{GetGRNPendingList | sumByKey : 'Count' }}</strong></td>
-
-
-								</tbody>
-							</table>
-						</div>
-					</fieldset>
-
-				</div>
-			</div>
-		</div>
-		<!--<div class="common-btn">
-			<ul class="list-inline text-left">-->
-		@*<li><button ng-click="getPurchaseRegisterReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>*@
-		<!--<li> <button id="go2" class="btn" ng-click="PurchaseOrderReportPdf();"><i class="glyphicon glyphicon-download"></i> Export To Pdf</button></li>
-		<li> <button id="go3" class="btn" ng-click="PurchaseOrderReportExcel();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>-->
-		@*<li> <button id="go12" class="btn" ng-click="PrintPurchaseRegister();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>*@
-		<!--</ul>
-		</div>-->
-
-		<div class="common-btn">
-            <ul class="list-inline text-left">
-
-                @*<li>
-            <div ej-tooltip e-showshadow="true" e-content="Export To Pdf" ng-click="PurchaseOrderReportPdf('Pdf');" e-width="width">
-                <button class="btn"><i class="glyphicon glyphicon-file"></i>Export To Pdf</button>
+                </div>
             </div>
-        </li>*@
+        </div>
+        @*<div class="common-btn">
+            <ul class="list-inline text-left">
                 <li>
                     <div ej-tooltip e-showshadow="true" e-content="GRN Wise" ng-click="PurchaseOrderGRNWiseReportExcel('Excel');" e-width="width">
                         <button class="btn"><i class="glyphicon glyphicon-file"></i>GRN Wise</button>
@@ -303,168 +216,239 @@
                     </div>
                 </li>
             </ul>
-		</div>
-		<div class="clearfix"></div>
-		<fieldset class="scheduler-border">
-			<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-			<div id="PR">
-				<div class="content-container-fluid" style="color:black;">
+        </div>*@
+        <div class="clearfix"></div>
+        <fieldset class="scheduler-border" ng-show="report.ReportType=='GRNWise'">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">GRN Wise</span></legend>
+            <div id="PR">
+                <div class="content-container-fluid" style="color:black;">
 
-					<div style="color:black;" id="GridPrint" ej-grid e-datasource="PurchaseRegisterLst"
-						 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-						 e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
-						 e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
-						<div e-stackedheaderrows>
-							<div e-stackedheaderrow>
-								<div e-stackedheadercolumns>
+                    <div style="color:black;" id="GridGRNWise" ej-grid e-datasource="PurchaseRegisterList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                        @*<div e-stackedheaderrows>
+                            <div e-stackedheaderrow>
+                                <div e-stackedheadercolumns>
 
-									<div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,BudgetrefNo,Budget,ActivityId,ActivityCode,Activity" textAlign='Center'></div>
-									<div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBudgetrefNo,CBUdget,CActivityId,CActivityCode,CActivity" textAlign='Center'></div>
-								</div>
-							</div>
-						</div>
-						<div e-columns>
+                                    <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,BudgetrefNo,Budget,ActivityId,ActivityCode,Activity" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBudgetrefNo,CBUdget,CActivityId,CActivityCode,CActivity" textAlign='Center'></div>
+                                </div>
+                            </div>
+                        </div>*@
+                        <div e-columns>
+                            <div e-column e-field="GRNNo" e-headertext="GRN No" e-width="90" textAlign='Left'></div>
+                            <div e-column e-field="GRNEntryDate" e-headertext="GRN Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="120"></div>
+                            <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="90"></div>
+                            <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                            <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="100"></div>
+                            <div e-column e-field="PartyName" e-headertext="Party" e-width="200" textAlign='Left'></div>
+                            <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="95"></div>
+                            <div e-column e-field="GSTINNo" e-headertext="GSTIN No" e-width="130" textAlign='Left'></div>
+                            <div e-column e-field="MaterialTranAmount" e-headertext="Base Amount" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="TotalTaxAmount" e-headertext="Total Tax Amount" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="TotalMaterialBaseAmount" e-headertext="Total Base Amount" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="Payment" e-headertext="Payment" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="Balance" e-headertext="Balance" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="PartySubCategory" e-headertext="Party Sub Category" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="PartyType" e-headertext="Party Type" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="PartyAccountGroup" e-headertext="Party Account Group" e-width="140" textAlign='Right'></div>
+                        </div>
 
-							@*<div e-column e-field="SLNo" e-headertext="SI" e-width="50" e-filter="false"></div>*@
-							<div e-column e-field="GRNId" e-headertext="GRN No" e-width="100" textAlign='Left'></div>
-							<div e-column e-field="GRNEntryDate" e-headertext="GRN Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-							<div e-column e-field="GRNType" e-headertext="Type" e-width="130" textAlign='Center'></div>
-							<div e-column e-field="PartyName" e-headertext="Party" e-width="180" textAlign='Left'></div>
-							<div e-column e-field="GSTINNo" e-headertext="GSTIN No" e-width="180" textAlign='Left'></div>
-							<div e-column e-field="FirstName" e-headertext="Employee" e-width="130" textAlign='Left'></div>
-							<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="100"></div>
-							<div e-column e-field="GateName" e-headertext="Gate Name" e-width="100"></div>
-							@*<div e-column e-field="InvoiceNo" e-headertext="InvoiceNo" e-width="100"></div>
-		<div e-column e-field="InvoiceDate" e-headertext="InvoiceDate" e-width="100"></div>*@
-							<div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
-							<div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100"></div>
-							<div e-column e-field="GrnInvoiceDateDifference" e-headertext="Grn Doc Date Difference" e-width="200"></div>
-							<div e-column e-field="MaterialType" e-headertext="Material Type" e-width="180"></div>
-							<div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group" e-width="180"></div>
-							<div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180"></div>
-							<div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
-							<div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
-							<div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
-							<div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
-							<div e-column e-field="HSNCode" e-headertext="HSNCode" e-width="80"></div>
-							<div e-column e-field="TransactionQty" e-headertext="Transaction Qty" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="UOM" e-headertext="UoM" e-width="100"></div>
-							<div e-column e-field="BaseQty" e-headertext="Base Qty" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="BaseUoM" e-headertext="BaseUoM" e-width="100"></div>
+                    </div>
 
-							<div e-column e-field="MaterialTranRate" e-headertext="Transaction Rate" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="CredtibleStatus" e-headertext="Credtible Status" e-width="130"></div>
-							<div e-column e-field="CurrencyName" e-headertext="CurrencyName" e-width="100" textAlign='Right'></div>
-							<div e-column e-field="MaterialTranAmount" e-headertext="Taxable Amount" e-width="180" textAlign='Right'></div>
+                </div>
+            </div>>
+        </fieldset>
+        <fieldset class="scheduler-border" ng-show="report.ReportType=='PartyWise'">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Party Wise</span></legend>
+            <div id="PR">
+                <div class="content-container-fluid" style="color:black;">
 
-							<div e-column e-field="TotalMaterialTranAmount" e-headertext="TotalMaterialTranAmount" e-width="180" textAlign='Right'></div>
-							<div e-column e-field="TotalMaterialBaseAmount" e-headertext="TotalMaterialBooksCurrencyAmount" e-width="180" textAlign='Right'></div>
-							@*<div e-column e-field="TaxAmount" e-headertext="Tax Amount" e-width="130" textAlign='Right'></div>*@
+                    <div style="color:black;" id="GridPartyWise" ej-grid e-datasource="PurchaseRegisterPartyWiseList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                        @*<div e-stackedheaderrows>
+                            <div e-stackedheaderrow>
+                                <div e-stackedheadercolumns>
 
-							@*<div e-column e-field="TaxCategoryName" e-headertext="Tax Category Name" e-width="130" textAlign='Right'></div>
-		<div e-column e-field="MaterialTaxPer" e-headertext="Material Tax percentage" e-width="130" textAlign='Right'></div>*@
-							<div e-column e-field="CGST" e-headertext="CGST" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="CGSTTaxPercentage" e-headertext="CGST Tax Percentage" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="SGST" e-headertext="SGST" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="SGSTTaxPercentage" e-headertext="SGST Tax Percentage" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="IGST" e-headertext="IGST" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="IGSTTaxPercentage" e-headertext="IGST Tax Percentage" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="TDS" e-headertext="TDS" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="TDSTaxPercentage" e-headertext="TDS Tax Percentage" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="TCS" e-headertext="TCS" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="TCSTaxPercentage" e-headertext="TCS Tax Percentage" e-width="130" textAlign='Right'></div>
+                                    <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,BudgetrefNo,Budget,ActivityId,ActivityCode,Activity" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBudgetrefNo,CBUdget,CActivityId,CActivityCode,CActivity" textAlign='Center'></div>
+                                </div>
+                            </div>
+                        </div>*@
+                        <div e-columns>
+                            <div e-column e-field="PartyName" e-headertext="Party" e-width="220" textAlign='Left'></div>
+                            <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="120" textAlign='Left'></div>
+                            <div e-column e-field="GSTINNo" e-headertext="GSTIN No" e-width="120" textAlign='Left'></div>
+                            <div e-column e-field="BaseAmount" e-headertext="Tran Amount" e-width="110"></div>
+                            <div e-column e-field="TaxAmount" e-headertext="Tax Amount" e-width="100"></div>
+                            <div e-column e-field="TotalBaseAmount" e-headertext="Total Base Amount" e-width="130"></div>
+                            <div e-column e-field="Payment" e-headertext="Payment" e-width="100"></div>
+                            <div e-column e-field="Balance" e-headertext="Balance" e-width="100"></div>
+                            <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="100"></div>
+                            <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="110"></div>
+                            <div e-column e-field="PartySubCategory" e-headertext="Party Sub Category" e-width="125"></div>
+                            <div e-column e-field="PartyType" e-headertext="Party Type" e-width="100"></div>
+                            <div e-column e-field="PartyAccountGroup" e-headertext="Party Account Group" e-width="135"></div>
+                        </div>
 
-							@*<div e-column e-field="VAT" e-headertext="VAT" e-width="130" textAlign='Right'></div>
-		<div e-column e-field="VATTaxPercentage" e-headertext="VAT Tax Percentage" e-width="130" textAlign='Right'></div>
-		<div e-column e-field="AIT" e-headertext="AIT" e-width="130" textAlign='Right'></div>
-		<div e-column e-field="AITTaxPercentage" e-headertext="AIT Tax Percentage" e-width="130" textAlign='Right'></div>*@
+                    </div>
 
-							@*<div e-column e-field="ServiceCharge" e-headertext="Service Charge" e-width="130" textAlign='Right'></div>*@
-							@*<div e-column e-field="ServiceTax" e-headertext="Service Tax" e-width="130" textAlign='Right'></div>*@
-							@*<div e-column e-field="TotalMaterialTranAmount" e-headertext="Total Material Tran Amount" e-width="130" textAlign='Right'></div>
-		<div e-column e-field="TotalMaterialBaseAmount" e-headertext="Total Material Books Currency Amount" e-width="130" textAlign='Right'></div>*@
-							<div e-column e-field="TrnCurrencyBaseRate" e-headertext="Trn Currency Base Rate" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="BooksCurrencyBaseRate" e-headertext="Books Currency Base Rate" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="IsAsset" e-headertext="MM-IsAsset" e-width="80"></div>
-							<div e-column e-field="GRNAsset" e-headertext="GRN-IsAsset" e-width="80"></div>
-							<div e-column e-field="POId" e-headertext="PO Id" e-width="130"></div>
-							<div e-column e-field="StorageLocation" e-headertext="Storage Location" e-width="180"></div>
-							<div e-column e-field="ShortageQty" e-headertext="ShortageQty" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="ShortageRatePercent" e-headertext="ShortageRatePercent" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="ShortageValue" e-headertext="ShortageValue" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="RejectionQty" e-headertext="RejectionQty" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="RejectRatePercent" e-headertext="RejectRatePer" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="RejectValue" e-headertext="RejectionValue" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="RejectClamPercent" e-headertext="RejectionClam" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="ApprovedQty" e-headertext="ApprovedQty" e-width="130" textAlign='Right'></div>
-							<div e-column e-field="GrnDetailId" e-headertext="GRN Row ID" e-width="130"></div>
-							<div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="130"></div>
-							<div e-column e-field="GRNCheckStatus" e-headertext="Status" e-width="130"></div>
-							<div e-column e-field="CheckedBY" e-headertext="Checking Name" e-width="130"></div>
-							<div e-column e-field="AuthorizedBy" e-headertext="Approving Name" e-width="130"></div>
-							<div e-column e-field="Posted" e-headertext="Posted" e-width="130"></div>
-							<div e-column e-field="PostedBy" e-headertext="Posted By" e-width="130"></div>
-							<div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="130"></div>
-							<div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="130"></div>
-							<div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="130"></div>
-							<div e-column e-field="GLCode" e-headertext="GL Code" e-width="130"></div>
-							<div e-column e-field="GL" e-headertext="GL" e-width="130"></div>
-							<div e-column e-field="BudgetrefNo" e-headertext="Budget Code" e-width="130"></div>
-							<div e-column e-field="Budget" e-headertext="Budget" e-width="130"></div>
-							<div e-column e-field="ActivityId" e-headertext="Activity Id" e-width="130"></div>
-							<div e-column e-field="ActivityCode" e-headertext="Activity Code" e-width="130"></div>
-							<div e-column e-field="Activity" e-headertext="Activity" e-width="130"></div>
-							<div e-column e-field="CGLCode" e-headertext="GL Code" e-width="130"></div>
-							<div e-column e-field="CGL" e-headertext="GL" e-width="130"></div>
-							<div e-column e-field="CBudgetrefNo" e-headertext="Budget Code" e-width="130"></div>
-							<div e-column e-field="CBUdget" e-headertext="Budget" e-width="130"></div>
-							<div e-column e-field="CActivityId" e-headertext="CActivity Id" e-width="130"></div>
-							<div e-column e-field="CActivityCode" e-headertext="CActivity Code" e-width="130"></div>
-							<div e-column e-field="CActivity" e-headertext="Activity" e-width="130"></div>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset class="scheduler-border" ng-show="report.ReportType=='ItemWise'">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Item Wise</span></legend>
+            <div id="PR">
+                <div class="content-container-fluid" style="color:black;">
 
-							<div e-column e-field="RefferenceNo" e-headertext="PORefference" e-width="130"></div>
-							<div e-column e-field="LCANo" e-headertext="LCRef" e-width="130"></div>
-							<div e-column e-field="ContractNo" e-headertext="ContractNO" e-width="130"></div>
+                    <div style="color:black;" id="GridItemWise" ej-grid e-datasource="PurchaseRegisterItemWiseList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                        <div e-stackedheaderrows>
+                            <div e-stackedheaderrow>
+                                <div e-stackedheadercolumns>
+
+                                    <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,BudgetrefNo,Budget,ActivityId,ActivityCode,Activity" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBudgetrefNo,CBUdget,CActivityId,CActivityCode,CActivity" textAlign='Center'></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div e-columns>
+                            <div e-column e-field="GRNId" e-headertext="GRN No" e-width="80" textAlign='Left'></div>
+                            <div e-column e-field="GRNEntryDate" e-headertext="GRN Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="GRNType" e-headertext="Type" e-width="70" textAlign='Center'></div>
+                            <div e-column e-field="PartyName" e-headertext="Party" e-width="195" textAlign='Left'></div>
+                            <div e-column e-field="GSTINNo" e-headertext="GSTIN No" e-width="120" textAlign='Left'></div>
+                            <div e-column e-field="FirstName" e-headertext="Employee" e-width="130" textAlign='Left'></div>
+                            <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="110"></div>
+                            <div e-column e-field="GateName" e-headertext="Gate Name" e-width="100"></div>
+                            <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                            <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100"></div>
+                            <div e-column e-field="GrnInvoiceDateDifference" e-headertext="Grn Doc Date Difference" e-width="155"></div>
+                            <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="160"></div>
+                            <div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group" e-width="160"></div>
+                            <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180"></div>
+                            <div e-column e-field="ArticleName" e-headertext="Article" e-width="200"></div>
+                            <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
+                            <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
+                            <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
+                            <div e-column e-field="HSNCode" e-headertext="HSNCode" e-width="90"></div>
+                            <div e-column e-field="TransactionQty" e-headertext="Transaction Qty" e-width="115" textAlign='Right'></div>
+                            <div e-column e-field="UOM" e-headertext="UoM" e-width="65"></div>
+                            <div e-column e-field="BaseQty" e-headertext="Base Qty" e-width="90" textAlign='Right'></div>
+                            <div e-column e-field="BaseUoM" e-headertext="BaseUoM" e-width="90"></div>
+                            <div e-column e-field="MaterialTranRate" e-headertext="Transaction Rate" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="CredtibleStatus" e-headertext="Credtible Status" e-width="115"></div>
+                            <div e-column e-field="CurrencyName" e-headertext="Currency Name" e-width="115" textAlign='Right'></div>
+                            <div e-column e-field="MaterialTranAmount" e-headertext="Taxable Amount" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="TotalMaterialTranAmount" e-headertext="Total Material Tran Amount" e-width="170" textAlign='Right'></div>
+                            <div e-column e-field="TotalMaterialBaseAmount" e-headertext="Total Material Books Currency Amount" e-width="175" textAlign='Right'></div>
+                            <div e-column e-field="CGST" e-headertext="CGST" e-width="80" textAlign='Right'></div>
+                            <div e-column e-field="CGSTTaxPercentage" e-headertext="CGST Tax Percentage" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="SGST" e-headertext="SGST" e-width="80" textAlign='Right'></div>
+                            <div e-column e-field="SGSTTaxPercentage" e-headertext="SGST Tax Percentage" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="IGST" e-headertext="IGST" e-width="80" textAlign='Right'></div>
+                            <div e-column e-field="IGSTTaxPercentage" e-headertext="IGST Tax Percentage" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="TDS" e-headertext="TDS" e-width="80" textAlign='Right'></div>
+                            <div e-column e-field="TDSTaxPercentage" e-headertext="TDS Tax Percentage" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="TCS" e-headertext="TCS" e-width="80" textAlign='Right'></div>
+                            <div e-column e-field="TCSTaxPercentage" e-headertext="TCS Tax Percentage" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="TrnCurrencyBaseRate" e-headertext="Trn Currency Base Rate" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="BooksCurrencyBaseRate" e-headertext="Books Currency Base Rate" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="IsAsset" e-headertext="MM-IsAsset" e-width="80"></div>
+                            <div e-column e-field="GRNAsset" e-headertext="GRN-IsAsset" e-width="80"></div>
+                            <div e-column e-field="POId" e-headertext="PO Id" e-width="130"></div>
+                            <div e-column e-field="StorageLocation" e-headertext="Storage Location" e-width="180"></div>
+                            <div e-column e-field="ShortageQty" e-headertext="ShortageQty" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="ShortageRatePercent" e-headertext="ShortageRatePercent" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="ShortageValue" e-headertext="ShortageValue" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="RejectionQty" e-headertext="RejectionQty" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="RejectRatePercent" e-headertext="RejectRatePer" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="RejectValue" e-headertext="RejectionValue" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="RejectClamPercent" e-headertext="RejectionClam" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="ApprovedQty" e-headertext="ApprovedQty" e-width="130" textAlign='Right'></div>
+                            <div e-column e-field="GrnDetailId" e-headertext="GRN Row ID" e-width="130"></div>
+                            <div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="130"></div>
+                            <div e-column e-field="GRNCheckStatus" e-headertext="Status" e-width="130"></div>
+                            <div e-column e-field="CheckedBY" e-headertext="Checking Name" e-width="130"></div>
+                            <div e-column e-field="AuthorizedBy" e-headertext="Approving Name" e-width="130"></div>
+                            <div e-column e-field="Posted" e-headertext="Posted" e-width="130"></div>
+                            <div e-column e-field="PostedBy" e-headertext="Posted By" e-width="130"></div>
+                            <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="130"></div>
+                            <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="130"></div>
+                            <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="130"></div>
+                            <div e-column e-field="GLCode" e-headertext="GL Code" e-width="130"></div>
+                            <div e-column e-field="GL" e-headertext="GL" e-width="130"></div>
+                            <div e-column e-field="BudgetrefNo" e-headertext="Budget Code" e-width="130"></div>
+                            <div e-column e-field="Budget" e-headertext="Budget" e-width="130"></div>
+                            <div e-column e-field="ActivityId" e-headertext="Activity Id" e-width="130"></div>
+                            <div e-column e-field="ActivityCode" e-headertext="Activity Code" e-width="130"></div>
+                            <div e-column e-field="Activity" e-headertext="Activity" e-width="130"></div>
+                            <div e-column e-field="CGLCode" e-headertext="GL Code" e-width="130"></div>
+                            <div e-column e-field="CGL" e-headertext="GL" e-width="130"></div>
+                            <div e-column e-field="CBudgetrefNo" e-headertext="Budget Code" e-width="130"></div>
+                            <div e-column e-field="CBUdget" e-headertext="Budget" e-width="130"></div>
+                            <div e-column e-field="CActivityId" e-headertext="CActivity Id" e-width="130"></div>
+                            <div e-column e-field="CActivityCode" e-headertext="CActivity Code" e-width="130"></div>
+                            <div e-column e-field="CActivity" e-headertext="Activity" e-width="130"></div>
+                            <div e-column e-field="RefferenceNo" e-headertext="PORefference" e-width="130"></div>
+                            <div e-column e-field="LCANo" e-headertext="LCRef" e-width="130"></div>
+                            <div e-column e-field="ContractNo" e-headertext="ContractNO" e-width="130"></div>
+                            <div e-column e-field="IssueQty" e-headertext="IssueQty" e-width="130"></div>
+                            <div e-column e-field="BaseIssueQty" e-headertext="BaseIssueQty" e-width="130"></div>
+                            <div e-column e-field="PurchaseReturnQty" e-headertext="PurchaseReturnQty" e-width="130"></div>
+                            <div e-column e-field="IssueReturnQty" e-headertext="IssueReturnQty" e-width="130"></div>
+                            <div e-column e-field="ReductionByAdjustmentQty" e-headertext="ReductionByAdjustmentQty" e-width="130"></div>
+                            <div e-column e-field="InventorySalesQty" e-headertext="InventorySalesQty" e-width="130"></div>
+                            <div e-column e-field="InventoryScrapQty" e-headertext="InventoryScrapQty" e-width="130"></div>
+                            <div e-column e-field="InventoryTransferQty" e-headertext="InventoryTransferQty" e-width="130"></div>
+                            <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="PartySubCategory" e-headertext="Party SubCategory" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="PartyAccountGroup" e-headertext="Party AccountGroup" e-width="180"></div>
+                            <div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
+                            <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
+                            <div e-column e-headertext="GRN" e-commands="commandGRN" e-isunbound=true e-textalign="left" e-width="60"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </fieldset>
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li>
+                    <div ej-tooltip e-showshadow="true" ng-disabled="report.ReportType==null" e-content="Export To Excel" ng-click="downloadReport();" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="clearfix"></div>
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+
+            <!--Create a tag which acts as a container for PivotGrid-->
+            <div id="PivotGrid1" style="width: 60%; height: 670px; overflow: scroll; float: left;"></div>
+            <button id="Button1">Apply formatting</button>
+            @*<button id="btnExport" ng-click="PrintPurchaseRegister1()">Export</button>*@
+            <button id="btnExport">Export</button>
 
 
-							<div e-column e-field="IssueQty" e-headertext="IssueQty" e-width="130"></div>
-							<div e-column e-field="BaseIssueQty" e-headertext="BaseIssueQty" e-width="130"></div>
-							<div e-column e-field="PurchaseReturnQty" e-headertext="PurchaseReturnQty" e-width="130"></div>
-							<div e-column e-field="IssueReturnQty" e-headertext="IssueReturnQty" e-width="130"></div>
-							<div e-column e-field="ReductionByAdjustmentQty" e-headertext="ReductionByAdjustmentQty" e-width="130"></div>
-							<div e-column e-field="InventorySalesQty" e-headertext="InventorySalesQty" e-width="130"></div>
-							<div e-column e-field="InventoryScrapQty" e-headertext="InventoryScrapQty" e-width="130"></div>
-							<div e-column e-field="InventoryTransferQty" e-headertext="InventoryTransferQty" e-width="130"></div>
+            <!--Create a tag which acts as a container for PivotTable Field List-->
+            <div id="PivotSchemaDesigner1" style="height:650px;width:40%;"></div>
+        </fieldset>
 
 
-
-							<div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
-							<div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
-							<div e-column e-headertext="GRN" e-commands="commandGRN" e-isunbound=true e-textalign="left" e-width="60"></div>
-						</div>
-
-					</div>
-
-				</div>
-			</div>
-		</fieldset>
-
-		<fieldset class="scheduler-border">
-			<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-
-			<!--Create a tag which acts as a container for PivotGrid-->
-			<div id="PivotGrid1" style="width: 60%; height: 670px; overflow: scroll; float: left;"></div>
-			<button id="Button1">Apply formatting</button>
-			@*<button id="btnExport" ng-click="PrintPurchaseRegister1()">Export</button>*@
-			<button id="btnExport">Export</button>
-
-
-			<!--Create a tag which acts as a container for PivotTable Field List-->
-			<div id="PivotSchemaDesigner1" style="height:650px;width:40%;"></div>
-		</fieldset>
-
-
-	</div>
+    </div>
 </div>
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
 <div class="modal fade site-modal in" id="ListOfPendingGRNList" role="dialog" data-backdrop="static">

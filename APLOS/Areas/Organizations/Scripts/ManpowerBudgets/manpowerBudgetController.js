@@ -112,10 +112,12 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         AttendanceGroupId: null,
         ResponsiblePerson: null,
         Email: null,
+        Deployment:0,
         AccountsGroupId: null,
         IsRosterApplicable: false,
-        IsScattedWeekOffApplicable:false
-        //CostCenterId:null
+        IsScattedWeekOffApplicable:false,
+        IsResidencePlan: false,
+        IsTransportPlan: false
     };
 
     $scope.manpowerBudgetAllowance = {
@@ -138,8 +140,12 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         Female: 0,
         TotalNumber: 0,
         Active: true,
+        TransportVacancy:0,
+        ResidenceVacancy:0
     }
     $scope.manPowerbudgetmasterNew = Object.assign({}, $scope.manPowerbudgetmaster);
+
+  
 
     $scope.companyList = [];
     $scope.lineList = [];
@@ -232,6 +238,7 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
                 $scope.Action = 'Update';
                 $scope.getAllowance();
                 $scope.getManpowerBudgetDetail();
+                $scope.GetSavedAdditionalPlanData();
                 //$scope.GetCostCenterCboByCompanyandEntity($scope.manPowerbudgetmasterNew.EntityId);
                 if (!$rootScope.isCollapsed) {
                     $rootScope.toggle();
@@ -1028,10 +1035,11 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         $scope.jobDescriptionSelectedList = [];
         $scope.msg = null;
         $scope.tableShow = false;
-        IsRosterApplicable = false;
-        IsScattedWeekOffApplicable = false;
+        $scope.IsRosterApplicable = false;
+        $scope.IsScattedWeekOffApplicable = false;
         $scope.clearPosition();
         $scope.clearEntity();
+        $scope.SavedAdditionalPlanList = [];
     }
 
     $scope.selectMessage = '';
@@ -1121,5 +1129,85 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         //setUserImage(data);
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
     };
+
+    //#region AdditionalPlan
+
+    $scope.ManpowerBudgetAdditionalPlan = {
+        Id: null,
+        ManpowerBudgetId: null,
+        FromDate: null,
+        ToDate: null,
+        AdditionalPlan: 0,
+        Remarks: null
+    }
+    $scope.ManpowerBudgetAdditionalPlanNew = Object.assign({}, $scope.ManpowerBudgetAdditionalPlan);
+
+    $scope.SaveAdditional = function () {
+        try {
+            $scope.ManpowerBudgetAdditionalPlanNew.ManpowerBudgetId = $scope.manPowerbudgetmasterNew.Id;
+            if (baseService.isUndefinedOrNull($scope.ManpowerBudgetAdditionalPlanNew.ManpowerBudgetId)) {
+                throw "Manpower Budget is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ManpowerBudgetAdditionalPlanNew.FromDate)) {
+                throw "From Date is required.";
+            }
+
+            if (baseService.isUndefinedOrNull($scope.ManpowerBudgetAdditionalPlanNew.ToDate)) {
+                throw "ToDate is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ManpowerBudgetAdditionalPlanNew.AdditionalPlan)) {
+                throw "Additional Plan is required.";
+            }
+            $http({
+                method: 'POST',
+                url: '/Organizations/ManpowerBudget/CreateAdditional',
+                data: { 'data': $scope.ManpowerBudgetAdditionalPlanNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearAdditionalPlan();
+                    $scope.GetSavedAdditionalPlanData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.ClearAdditionalPlan = function () {
+        $scope.ManpowerBudgetAdditionalPlan = {
+            Id: null,
+            ManpowerBudgetId: null,
+            FromDate: null,
+            ToDate: null,
+            AdditionalPlan: 0,
+            Remarks: null
+        }
+        $scope.ManpowerBudgetAdditionalPlanNew = Object.assign({}, $scope.ManpowerBudgetAdditionalPlan);
+    }
+
+    $scope.SavedAdditionalPlanList = [];
+    $scope.GetSavedAdditionalPlanData = function () {
+        $http.get('Organizations/ManpowerBudget/GetSavedAdditionalPlanData?masterId=' + $scope.manPowerbudgetmasterNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SavedAdditionalPlanList = response.data;
+                }
+            });
+    }
+
+    $scope.EditPlanAdditionalPlan = function (obj) {
+        obj.data.FromDate = $filter('dateFiltering')(new Date(obj.data.FromDate), 'dd-MM-yyyy');
+        obj.data.ToDate = $filter('dateFiltering')(new Date(obj.data.ToDate), 'dd-MM-yyyy');
+        $scope.ManpowerBudgetAdditionalPlanNew = Object.assign({}, obj.data);
+    }
+
+    //#endregion
 
 }

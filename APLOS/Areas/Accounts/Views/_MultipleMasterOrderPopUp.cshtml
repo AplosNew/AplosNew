@@ -1,0 +1,44 @@
+﻿<style>
+    .modellgModify {
+        width: 1200px;
+    }
+</style>
+<div class="modal fade site-modal in" id="masterOrderPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Master Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <label style="color:cornflowerblue">Select Master Order</label>
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridOperation" ej-grid e-datasource="masterOrderList" 
+                             e-allowfiltering="true" e-allowpaging="true" e-allowResizing="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-templaterefresh="refreshTemplateemployee"
+                             e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="MasterOrderId" e-headertext="Master OrderNo" e-width="80"></div>
+                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                <div e-column e-field="InvoicingPartyPlant" e-headertext="Invoicing Party Plant" e-width="150"></div>
+                                <div e-column e-field="DeliveryPartyPlant" e-headertext="Delivery Party Plant" e-width="150"></div>
+                                <div e-column e-field="Type" e-headertext="Type" e-width="150"></div>
+                                <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaster">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseMasterOrder();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

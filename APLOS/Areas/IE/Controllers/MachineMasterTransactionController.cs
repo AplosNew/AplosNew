@@ -28,7 +28,7 @@ namespace Aplos.Areas.IE.Controllers
     public class MachineMasterTransactionController : BaseController
     {
 
-
+       
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
         public MachineMasterTransactionController(ISqlRepository R)
@@ -66,6 +66,32 @@ namespace Aplos.Areas.IE.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetDetentionDepartment()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select distinct DD.DepartmentId,D.Code,D.Sequence,D.ShortName,D.StandardName
+,D.UserName DepartmentName,D.Description,D.Remarks from DetentionMasterDepartment DD
+left outer join ORG.Department D on D.id=DD.DepartmentId";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetDetentionResponsible(string detentionId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select distinct E.SystemId as ResponsiblePersonId,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
+  SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId from DetentionMasterResponsible DR
+left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
+							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+where DetentionMasterId='" + detentionId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpPost]
         public ActionResult GetShift()
         {
@@ -114,20 +140,60 @@ namespace Aplos.Areas.IE.Controllers
         public JsonResult GetDetentionList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"Select DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster";
+            var sql = @"Select DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable,IsMachineParaApplicable from DetentionMaster";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetDetentionListWC(string DetentiontypeId)
+        {
+            var sql = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            
+            sql = @"Select distinct DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster where DetentionTypeId='" + DetentiontypeId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
         public JsonResult GetDetentionTypeList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"Select DetentionType As Text, Id As Value from DetentionMaster";
+            var sql = @"Select DT.UserName As Text, DT.Id As Value from hkp.DetentionType DT";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetDetentionCodeList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"Select DetentionCode As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable,IsMachineParaApplicable from DetentionMaster";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult getDetentionTypeListByDepartment(string departmentid)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select distinct DT.UserName As Text, DT.Id As Value from DetentionMasterDepartment DD
+                        left join DetentionMaster DM ON DM.Id=DD.DetentionMasterId
+                        left join hkp.DetentionType DT ON DT.id=DM.DetentionTypeId
+            where DepartmentId='" + departmentid + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult getDetentionListByDepartment(string departmentid)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select distinct DM.DetentionUserName As Text, DM.Id As Value from DetentionMasterDepartment DD
+                        left join DetentionMaster DM ON DM.Id=DD.DetentionMasterId
+            where DepartmentId='" + departmentid + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpPost]
         public JsonResult GetAssetTypeList(string machineMasterId)
         {
@@ -141,11 +207,15 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> DetentionParaList)
         {
             try
             {
                 SaveMachineMasterTransactionData(data);
+                if (DetentionParaList != null)
+                {
+                    SaveMasterOrderItemCostingRateData(DetentionParaList,data["Id"].ToString());
+                }
 
                 return Json(new { Message = AplosMessage.Insert });
             }
@@ -235,12 +305,64 @@ namespace Aplos.Areas.IE.Controllers
                 }
                 else
                 {
-                    data["Id"] = MachineMasterTransactionId;
+                    data["Id"] = data["Id"];
                     EditMachineMasterTransactionRow(dsMasterOrder.Tables[0].Rows[0], data);
                 }
-
+              
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMasterOrder);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                if (string.IsNullOrEmpty(masterId))
+                {
+                    throw new Exception("Select Line Item.");
+                }
+                #region FUND 
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster = null;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.DetentionMasterMachineParameterValue where  MachineMasterTransactionId='" + masterId + "'", out dsMaster, false, "1");
+                int idc = 0;
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        idc++;
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = masterId + idc;
+                            item["MachineMasterTransactionId"] = masterId;
+
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            item["MachineMasterTransactionId"] = masterId;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+
             }
             catch (Exception ex)
             {
@@ -253,11 +375,12 @@ namespace Aplos.Areas.IE.Controllers
         public JsonResult GetMachineMasterTransaction()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           
-                var sql = @"SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionTypeId, MMT.MachineMasterId, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.AssetId, MMT.ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
-,E.UserName Entity,D.UserName Department,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],MM.UserName MachineMaster,P.UserName Process
+
+            var sql = @"SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionTypeId, MMT.MachineMasterId, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.AssetId, MMT.ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
+,E.UserName Entity,D.UserName Department,DM.DetentionUserName Detention,DT.UserName DetentionType,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],MM.UserName MachineMaster,P.UserName Process
 										,CONVERT(varchar(5),MMT.FromTime,108)FromTime,CONVERT(VARCHAR(5), MMT.ToTime, 108) ToTime,MMT.Minute,SD.UserName Shift
-										,MMA.Id AssetId,MMA.AssetName Asset,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark
+										,MMA.Id AssetId,MMA.AssetName Asset,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter,
+                                         MMT.DetentionCodeId,DM.DetentionCode DetentionCode
 			                            from MachineMasterTransaction MMT
 			                            left join ORG.Entity E on E.Id=MMT.EntityId
 										left join ORG.Department D on D.Id=MMT.DepartmentId
@@ -266,22 +389,80 @@ namespace Aplos.Areas.IE.Controllers
 										left join HKP.Process P on P.Id=MMT.ProcessId
 										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
 										left join MachineMasterAsset MMA on MMA.Id=MMT.AssetId
+										left Join hkp.DetentionType DT ON DT.Id=MMT.DetentionTypeId
+                                        left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
 										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId";
-          
+
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-        //Omar End
-        [HttpGet, Authorize]
-        public JsonResult GetWCCbo(string entityId)
+        [Authorize, HttpGet]
+        public JsonResult GetDetentionParameter(string DetentionId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        
-            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE PlantId='" + identity.PlantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + identity.CompanyId + "' Order by Sequence";
+
+            var sql = @"select DM.DetentionUserName as Detention,MMT.DetentionId,MMT.Id from MachineMasterTransaction MMT
+                        left Join DetentionMaster DM ON DM.id=MMT.DetentionId where MMT.DetentionId='"+ DetentionId + "' and DM.IsMachineParaApplicable=1";
+
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            
         }
 
+        //Omar End
+        [HttpGet, Authorize]
+        public JsonResult GetWCCbo(string entityId, string processId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = "";
+            if (entityId != "null" && processId != "null")
+            {
+            sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE PlantId='" + identity.PlantId + "'  AND EntityId='" + entityId + "' AND CompanyId = '" + identity.CompanyId + "' AND ProcessId = '"+ processId +"' Order by Sequence";
+            }
+            else
+            {
+                sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE PlantId='" + identity.PlantId + "' AND CompanyId = '" + identity.CompanyId + "' Order by Sequence";
+            }
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetEntityProcessByWorkCenter(string id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+           
+             var  sql = @"SELECT distinct E.UserName as Entity,P.UserName as Process,WC.EntityId,WC.ProcessId,WC.Id,WC.UserName as Workcenter 
+                           FROM SCS.WorkCenterMaster WC
+                           left Join Org.Entity E ON E.Id=WC.EntityId
+                           left join hkp.Process P ON P.Id=WC.ProcessId
+                           where WC.Id='" + id + "'";
+            
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetDetentionTypeById(string id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select DT.UserName As DetentionType, DT.Id As DetentionTypeId from DetentionMaster DM
+                        left join hkp.DetentionType DT ON DT.Id=DM.DetentionTypeId
+                        where DM.Id='" + id + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetDetentionTypeAndDetentionByCode(string code)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select DT.UserName As DetentionType, DT.Id As DetentionTypeId,DM.DetentionUserName as Detention,DM.Id as DetentionId from DetentionMaster DM
+                        left join hkp.DetentionType DT ON DT.Id=DM.DetentionTypeId
+                        where DM.DetentionCode='" + code + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+        }
         public ActionResult Delete(string id)
         {
             string strUSQL;
@@ -403,8 +584,8 @@ namespace Aplos.Areas.IE.Controllers
             }
         }
 
-       
-       
+
+
     }
 
     public class MachineMasterTransaction

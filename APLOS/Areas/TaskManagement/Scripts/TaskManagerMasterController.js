@@ -35,7 +35,6 @@ function taskManagerMasterController(cboService, commonMessage, $scope, $rootSco
         Remarks: null,
         Active: true
     };
-
     $scope.taskManagerMasterNew = Object.assign({}, $scope.taskManagerMaster);
     
     $scope.Get = function (id, index) {
@@ -120,7 +119,6 @@ function taskManagerMasterController(cboService, commonMessage, $scope, $rootSco
             });
         }
     };
-
  
     function ClearFields(seq) {
         $scope.Action = 'Save';

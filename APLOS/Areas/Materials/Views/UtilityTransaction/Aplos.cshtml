@@ -14,7 +14,7 @@
                     <label class="col-sm-4 control-label">Utility Master<sup>*</sup> </label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select id="CategoryId" class="form-control" ng-model="ModelNew.UtilityMasterId" ng-change="GetUoMAndReadingApplicable()" name="Category" tabindex="1">
+                            <select id="CategoryId" class="form-control" ng-model="ModelNew.UtilityMasterId" ng-change="GetEditReadingList();" name="Category" tabindex="1">
                                 <option value="">--Select--</option>
                                 <option ng-repeat="option in utilityMasterList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
@@ -24,19 +24,19 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Last Reading</label>
                     <div class="col-sm-8">
-                        <input type="text" ng-model="LastReading" ng-disabled="true" class="form-control" maxlength="250" tabindex="8">
+                        <input type="text" ng-model="ModelNew.LastReading" ng-disabled="true" n-decimals="3" class="form-control" maxlength="250" tabindex="8">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Last Reading Date</label>
                     <div class="col-sm-8">
-                        <input type="text" ng-model="LastReadingDate" ng-disabled="true" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="8">
+                        <input type="text" ng-model="ModelNew.LastReadingDate" ng-disabled="true" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="8">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Last Reading Time</label>
                     <div class="col-sm-8">
-                        <input type="text" ng-model="LastReadingTime" ng-disabled="true" class="form-control" maxlength="250" tabindex="8">
+                        <input type="text" ng-model="ModelNew.LastReadingTime" ng-disabled="true" class="form-control" maxlength="250" tabindex="8">
                     </div>
                 </div>
 
@@ -52,14 +52,14 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Reading<sup>*</sup></label>
                     <div class="col-sm-8">
-                        <input type="text" ng-model="ModelNew.Reading" ng-change="GetQuantity();" class="form-control" maxlength="250" tabindex="8" required>
+                        <input type="text" ng-model="ModelNew.Reading" ng-change="GetQuantity();"  n-decimals="3" class="form-control" maxlength="250" tabindex="8" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
                     <div class="col-sm-2 show-message">
-                        <input type="text" name="Quantity" ng-model="ModelNew.Quantity" ng-disabled="true" class="form-control" only-numbers required autocomplete="off" tabindex="4" maxlength="50">
+                        <input type="text" name="Quantity" ng-model="ModelNew.Quantity" ng-disabled="true"  n-decimals="3" class="form-control" only-numbers required autocomplete="off" tabindex="4" maxlength="50">
                     </div>
                     <label class="col-sm-4 control-label">{{UoMName}}</label>
 
@@ -91,12 +91,16 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="Id" e-headertext="Id" e-width="3" e-isprimarykey="true"></div>
             <div e-column e-field="Date" e-headertext="Date" e-width="2"></div>
-            <div e-column e-field="UtilityMaster" e-headertext="Utility Master" e-width="3"></div>
+            <div e-column e-field="UtilityMaster" e-headertext="Utility Master" e-width="5"></div>
             <div e-column e-field="UoM" e-headertext="UoM" e-width="5"></div>
-            <div e-column e-field="Quantity" e-headertext="Quantity" e-width="5"></div>
-            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
+            <div e-column e-field="Quantity" e-headertext="Quantity" e-width="4"></div>
+            <div e-column e-field="Reading" e-headertext="Reading" e-width="4"></div>
+            <div e-column e-field="LastReading" e-headertext="Last Reading" e-width="4"></div>
+            <div e-column e-field="LastReadingDate" e-headertext="Last Reading Date" e-width="4"></div>
+            <div e-column e-field="LastReadingTime" e-headertext="Last Reading Time" e-width="4"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
         </div>
     </div>
 </div>

@@ -147,6 +147,17 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Work Center</label>
+                        <div class="col-sm-7">
+                            <div class="checkbox-site">
+                                <label class="control-label">
+                                    <input type="checkbox" ng-model="materialMasterNew.IsWorkCenterApplicable" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 pdl3 pdr3">
                     <div class="form-group">
@@ -193,6 +204,17 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Machine</label>
+                        <div class="col-sm-7">
+                            <div class="checkbox-site">
+                                <label class="control-label">
+                                    <input type="checkbox" ng-model="materialMasterNew.IsMachineApplicable" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 pdl3">
                     <div class="form-group" show-errors>
@@ -225,6 +247,31 @@
                                     <input type="checkbox" ng-model="materialMasterNew.Active">
                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Is Replacement</label>
+                        <div class="col-sm-7">
+                            <div class="checkbox-site">
+                                <label class="control-label">
+                                    <input type="checkbox" ng-model="materialMasterNew.IsReplacement">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                   
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Order Level</label>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select id="OrderLevelId" class="form-control" ng-model="materialMasterNew.OrderLevel" name="Order Level"
+                                        tabindex="2">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in EnumList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
                             </div>
                         </div>
                     </div>

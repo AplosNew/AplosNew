@@ -211,7 +211,7 @@ namespace Library.Service.Setups
                                 }
                                 PFPolicyHeadList = mypFPolicyList.ToArray();
                             }
-                            if (item.PFPolicyMasterID != null)
+                            if (item.PFPolicyMasterID != null) 
                             {
                                 //if (PFPolicyHeadList == null)
                                 //{
@@ -441,7 +441,7 @@ namespace Library.Service.Setups
 
         public IEnumerable<object> QueryDesignation(string designationGroupId, string plantId, string companyGroupId)
         {
-            var _sql = @"SELECT DC.Id,DM.Id DesignationMasterId,DC.RecruitmentProcessSetId,DC.SalaryRuleMasterId,DC.PlantId,DC.LeavePolicyMasterId,DC.SalaryFixationSettingId,DC.AttdnBonusPmtPolicyMasterId,
+            var _sql = @"SELECT DC.Id,DM.Id DesignationMasterId,DC.RecruitmentProcessSetId,DC.AccountsGroupId,DC.SalaryRuleMasterId,DC.PlantId,DC.LeavePolicyMasterId,DC.SalaryFixationSettingId,DC.AttdnBonusPmtPolicyMasterId,
                          DC.BonusPolicyMasterId,DC.PFPolicyMasterID,DC.ESICPolicyMasterID,DC.IsOTEntitled,DC.BnsPlcMthRetainID,DC.OverTimePmtPolicyMasterID ,D.Id DesignationId,
                          D.UserName,D.Code,C.UserName EmployeeCategory,DC.AddedBy,DC.AddedDate,DC.AddedFromIP,DC.UpdatedBy,DC.UpdatedDate,DC.UpdatedFromIP,DC.HolidayPayDayMasterId
                          ,LegalDesignation=STUFF((SELECT DISTINCT ','+LD.UserName FROM 

@@ -6,13 +6,13 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
     $scope.index = -1;
     $scope.products = [];
     $scope.path = 'Accounts/InventoryPayable/';
-    $scope.getListUrl = 'Accounts/InventoryPayable/GetServicePostingList/';
+    /*$scope.getListUrl = 'Accounts/InventoryPayable/GetServicePostingList/';*/
     $scope.saveUrl = 'Accounts/InvoicePost/ServicePost';
     $scope.AcceptanceId = null;
 
     $scope.products = [];    $scope.searchByPostedService = "Id"; $scope.searchService = "";    $scope.searchByPostedServiceList = [{ value: 'Id', name: "Acknowledge No" }, { value: 'GRNDate', name: "Acknowledge Date" }, { value: 'Particular', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }
-        , { value: 'PostingDate', name: "PostingDate" }, { value: 'DocRefNo', name: "DocRef No" }
-        , { value: 'DocDate', name: "Doc Date" }];    $scope.getDataList = function () {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetServicePostingList',            data: { column: $scope.searchByPostedService, value: $scope.searchService },    
+        , { value: 'PostingDate', name: "PostingDate" }, { value: 'DocRefNo', name: "DocRef No" }, { value: 'TDSVoucherNo', name: "TDS VoucherNo" }
+        , { value: 'DocDate', name: "Doc Date" }];    $scope.getDataList = function () {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetServicePostingList',            data: { column: $scope.searchByPostedService, value: $scope.searchService },
         }).then(function successCallback(response) {            $scope.products = response.data;        });    };
     $scope.getDataList();
 
@@ -186,6 +186,7 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
         getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable);
         factoryService.getCurrencyPrecision(data.data.BaseCurrencyId);
         GetCurrencyExchangeRateList();
+        $scope.TDSList = [];
         $scope.closeGRNPopUp();
     };
 
@@ -321,6 +322,20 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
                     newList.push(list[i]);
             }
             else if (row.OtherName === 'Svc' && row.TrnType === 'Dr') {
+                newInvRecDetailList.push(list[i]);
+                var has = false;
+                for (var a = 0; a < baseService.arrayLength(newList); a++) {
+                    if (row.OtherName === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId && row.BudgetMasterId === newList[a].BudgetMasterId && row.ActivityId === newList[a].ActivityId) {
+                        newList[a].Dr += row.Dr;
+                        newList[a].Amount += row.Dr;
+                        has = true;
+                        break;
+                    }
+                }
+                if (!has)
+                    newList.push(list[i]);
+            }
+            else if (row.OtherName === 'Charges' && row.TrnType === 'Dr') {
                 newInvRecDetailList.push(list[i]);
                 var has = false;
                 for (var a = 0; a < baseService.arrayLength(newList); a++) {
@@ -606,9 +621,7 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
             });
         }
     }
-    $scope.getNewDataList = function (grnId) {        $http({            method: 'GET',            url: 'Accounts/InventoryPayable/GetServicePostingList',            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
-            dataType: 'JSON',        }).then(function successCallback(response) {            $scope.products = response.data;            var rowdata = $filter("filter")($scope.products, { Id: grnId });            if (!baseService.isUndefinedOrNull(rowdata[0].AdditionalTaxId)) {                $scope.onClickadditionalTaxPop(rowdata[0]);
-            }            $scope.Clear();        });    };
+    
     $scope.Post = function () {
         if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
 
@@ -654,7 +667,8 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
                 ShowResult(response.data.Message, 'failure');
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.getNewDataList($scope.modelNew.Id);
+                $scope.getDataList();
+                $scope.Clear();
             }
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
@@ -758,12 +772,16 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
         TaxAmount: null,
         ValueOfFixed: null,
         CompanyCurrencyAmount: null,
-        Type: null
+        Type: null,
+        TaxCategoryId: null
     };
     $scope.selectTDS = function () {
         $scope.TDS.ValueOfFixed = $.grep($scope.TDSCboList, function (item) {
             return item.Id === $scope.TDS.TaxCodeId;
         })[0].ValueOfFixed;
+        $scope.TDS.TaxCategoryId = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].TaxCategoryId;
         $scope.TDS.Type = $.grep($scope.TDSCboList, function (item) {
             return item.Id === $scope.TDS.TaxCodeId;
         })[0].Type;

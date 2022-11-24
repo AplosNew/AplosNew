@@ -3,6 +3,8 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
+using Library.Model.Accounts;
+using Library.Model.Banks;
 using Library.Model.Currencies;
 using Library.Model.Employees;
 using Library.Model.FixedAssets;
@@ -14,6 +16,7 @@ using Library.Service.Enums;
 using Library.Service.Logs;
 using Library.Service.Properties;
 using Library.Service.Systems;
+using Library.ViewModel.Accounts;
 using Library.ViewModel.Vouchers;
 using OTSBD;
 using System;
@@ -796,6 +799,139 @@ namespace Library.Accounting.Accounts
 
         #endregion
 
+        #region Bank Reconciliation Data Upload
+        public void SaveBankReconciliationUploadData(BankReconciliationUpload bankReconciliationUploadvm, IEnumerable<BankReconciliationUploadedData> bankReconciliationUploadedDataList)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet _BankReconciliationUploadedData = null;
+                DataSet _BankReconciliationUpload = null;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var bankReconciliationUpload = new BankReconciliationUpload
+                {
+                    BankMasterId = bankReconciliationUploadvm.BankMasterId,
+                    OpeningBlance = bankReconciliationUploadvm.OpeningBlance,
+                    ClosingBalance = bankReconciliationUploadvm.ClosingBalance,
+                    BankStatementNo = bankReconciliationUploadvm.BankStatementNo,
+                    FromDate = bankReconciliationUploadvm.FromDate,
+                    ToDate = bankReconciliationUploadvm.ToDate,
+                    EmployeeId = bankReconciliationUploadvm.EmployeeId,
+                    Remarks = bankReconciliationUploadvm.Remarks,
+                    CompanyGroupId = identity.CompanyGroupId,
+                    CompanyId = identity.CompanyId,
+                    PlantId = identity.PlantId,
+
+                };
+
+                InserBankReconciliationUpload(bankReconciliationUpload, ref _BankReconciliationUpload);
+
+                foreach (var item in bankReconciliationUploadedDataList)
+                {
+                    var bankReconciliationUploadedData = new BankReconciliationUploadedData
+                    {
+                        BankReconciliationUploadId = bankReconciliationUpload.Id,
+                        BankStatementDate = item.BankStatementDate,
+                        BankRefNo = item.BankRefNo,
+                        BankParticulars = item.BankParticulars,
+                        DrAmount = item.DrAmount,
+                        CrAmount = item.CrAmount,
+                        Remarks = item.Remarks,
+                        OwnRefNo = item.OwnRefNo,
+                        CompanyGroupId = identity.CompanyGroupId,
+                        CompanyId = identity.CompanyId,
+                        PlantId = identity.PlantId,
+
+                    };
+
+                    InserBankReconciliationUploadedData(bankReconciliationUploadedData, ref _BankReconciliationUploadedData);
+                }
+
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets( _BankReconciliationUpload, _BankReconciliationUploadedData);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public void InserBankReconciliationUpload(BankReconciliationUpload bankReconciliationUpload, ref DataSet dsData)
+        {
+            bankReconciliationUpload.Id = GetAutoNumber(nameof(BankReconciliationUpload), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+            if (string.IsNullOrEmpty(bankReconciliationUpload.AddedBy))
+                AuditService.AddedLog(bankReconciliationUpload);
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[BankReconciliationUpload] where 1=2", out dsData);
+            }
+            AddNewRow<BankReconciliationUpload>(dsData.Tables[0], bankReconciliationUpload);
+
+        }
+        public void InserBankReconciliationUploadedData(BankReconciliationUploadedData bankReconciliationUploadedData, ref DataSet dsData)
+        {
+            bankReconciliationUploadedData.Id = GetAutoNumber(nameof(BankReconciliationUploadedData), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+            if (string.IsNullOrEmpty(bankReconciliationUploadedData.AddedBy))
+                AuditService.AddedLog(bankReconciliationUploadedData);
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[BankReconciliationUploadedData] where 1=2", out dsData);
+            }
+            AddNewRow<BankReconciliationUploadedData>(dsData.Tables[0], bankReconciliationUploadedData);
+
+        }
+        public void SaveBankReconciliationMap(BankReconciliation bankReconciliation, IEnumerable<BankReconciliationUploadedDataViewModel> bankReconciliationList)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet _BankReconciliationUploadedData = null;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                foreach (var item in bankReconciliationList)
+                {
+                    var bankReconciliationMap = new BankReconciliationMap
+                    {
+                        BankReconciliationUploadedDataId = item.BankReconciliationUploadedDataId,
+                        VoucherDetailId = item.VoucherDetailId,
+                        GLTransactionDetailId = item.GLTransactionDetailId,
+                    };
+
+                    InsertBankReconciliationMap(bankReconciliationMap, ref _BankReconciliationUploadedData);
+                }
+
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_BankReconciliationUploadedData);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public void InsertBankReconciliationMap(BankReconciliationMap bankReconciliationMap, ref DataSet dsData)
+        {
+            bankReconciliationMap.Id = GetAutoNumber(nameof(BankReconciliationMap), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+            if (string.IsNullOrEmpty(bankReconciliationMap.AddedBy))
+                AuditService.AddedLog(bankReconciliationMap);
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[BankReconciliationMap] where 1=2", out dsData);
+            }
+            AddNewRow<BankReconciliationMap>(dsData.Tables[0], bankReconciliationMap);
+
+        }
+
+        #endregion
+
         #region Update Invoice for Confirm
         public void UpdateInvoiceforConfirm(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
@@ -1081,7 +1217,7 @@ C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,e.UserNa
                                     LEFT JOIN ORG.Entity AS e ON e.Id=v.EntityId
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
                                     ) AS VD ON VD.VoucherId=V.Id
-where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable','IssueJournal') ";
+where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable','IssueJournal','JournalVoucher') ";
             return _sqlRepository.GetDataCollection(sql);
 
         }

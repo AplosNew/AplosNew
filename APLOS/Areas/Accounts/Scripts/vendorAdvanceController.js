@@ -69,6 +69,10 @@ function vendorAdvanceController(bankService, cboService, baseService, commonMes
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
 
@@ -398,6 +402,10 @@ function vendorAdvanceController(bankService, cboService, baseService, commonMes
             }
             if ($scope.advance.GLGeneralInfoId === null) {
                 ShowResult("Please select Cash or Bank!", "failure");
+                return false;
+            }
+            if ($scope.advance.ResponsiblePerson === null || $scope.advance.ResponsiblePerson === "") {
+                ShowResult("Please select Responsible Person!", "failure");
                 return false;
             }
         }

@@ -186,7 +186,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                       
                             var dosDate = Convert.ToDateTime(db.DOS).ToString("dd-MMM-yyyy");
 
-                            string sqlEmployeeInfo = @"update EmployeeInformation set DOSBy='Schedule',EmployeeStatus='Separated',DOS='"+ dosDate+@"',DateUpdated=GETDATE()
+                            string sqlEmployeeInfo = @"update EmployeeInformation set DOSBy='Schedule',EmployeeStatus='Separated',DOS='"+ dosDate+ @"',DOSDate='" + dosDate + @"',DateUpdated=GETDATE()
                             where SYSTEMid='" + db.SystemId+"'";
 
 

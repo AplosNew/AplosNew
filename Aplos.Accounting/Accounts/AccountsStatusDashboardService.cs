@@ -381,7 +381,7 @@ namespace Library.Accounting.Accounts
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('VendorPayment')
+                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('VendorPayment','CreditNote')
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                 
 				)
@@ -394,7 +394,7 @@ namespace Library.Accounting.Accounts
         }
 
         //Summary Report
-        public IWorkbook GetPartyPaymentStatusReport(Dictionary<string, string> MasterLCList, string companyGroupId, string companyId, string plantId)
+        public IWorkbook GetPartyPaymentStatusReport(Dictionary<string, string> MasterLCList, string fromDate, string toDate, string companyGroupId, string companyId, string plantId)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -563,7 +563,7 @@ namespace Library.Accounting.Accounts
 
 
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                var dsData = vendorReportSQL(MasterLCList, companyGroupId, companyId, plantId);
+                var dsData = vendorReportSQL(MasterLCList, fromDate, toDate, companyGroupId, companyId, plantId);
 
                 //objCon.OpenDataSetThroughAdapter(sql, out DataSet dsData, false, "1");
 
@@ -724,7 +724,7 @@ namespace Library.Accounting.Accounts
             }
         }
 
-        public DataTable vendorReportSQL(Dictionary<string, string> MasterLCList, string companyGroupId, string companyId, string plantId)
+        public DataTable vendorReportSQL(Dictionary<string, string> MasterLCList, string fromDate, string toDate, string companyGroupId, string companyId, string plantId)
         {
             try
             {
@@ -738,7 +738,20 @@ namespace Library.Accounting.Accounts
                     var itemValue = item.Value;
                     masterLCList += ",'" + itemValue + "'";
                 }
+                var searchDate = "";
+                var searchDateODue = "";
+                if (fromDate != "" && toDate != "")
+                {
 
+                    searchDate = "AND ( convert(Date,IV.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
+                    searchDateODue = "AND ( convert(Date,I.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
+                }
+                if (fromDate == "" && toDate != "")
+                {
+
+                    searchDate = "AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )";
+                    searchDateODue = "AND ( convert(Date,I.PostingDate) <= '" + toDate + @"' )";
+                }
 
                 string sql = @"--select * from TRN.Advance where SourceType='VendorAdvance' and PartyId='2021242'
                 DECLARE @plantCountryId varchar(10)= (SELECT CountryId FROM ORG.Plant p join MST.AddressMaster m on m.Id=p.AddressMasterId WHERE p.Id='" + plantId + @"')
@@ -840,37 +853,37 @@ namespace Library.Accounting.Accounts
                       				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 
 							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30
 							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM15 ON OM15.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15
 							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OV ON OV.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                                group by Id) TB ON TB.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7 
 							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) OTS ON OTS.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30 
 							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) ETT ON ETT.Id=IV.Id
 
 								LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60
 							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) TTS ON TTS.Id=IV.Id
 
 
@@ -878,7 +891,7 @@ group by Id) TTS ON TTS.Id=IV.Id
 				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 and 
 							I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (
                 SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
@@ -889,7 +902,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-               AND IV.CompanyGroupId='" + companyGroupId + "'  and IV.PartyId in 	(" + masterLCList + @")  AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+               AND IV.CompanyGroupId='" + companyGroupId + "'  and IV.PartyId in 	(" + masterLCList + @")  AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
 
                         UNION ALL
                         SELECT IV.PartyId NoOfInvoice,IV.PartyId, IV.PartyPlantId,P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
@@ -955,37 +968,37 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 AND I.SourceType in ('InventoryPayable','ServicePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30 AND I.SourceType in ('InventoryPayable','ServicePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) OM15 ON OM15.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15 AND I.SourceType in ('InventoryPayable','ServicePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) OV ON OV.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 AND I.SourceType in ('InventoryPayable','ServicePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) TB ON TB.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7 AND I.SourceType in ('InventoryPayable','ServicePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) OTS ON OTS.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30 AND I.SourceType in ('InventoryPayable','ServicePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) ETT ON ETT.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60
 							and I.SourceType in ('InventoryPayable','ServicePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) TTS ON TTS.Id=IV.Id
 
 				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 AND I.SourceType in ('InventoryPayable','ServicePayable') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (
                 SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
@@ -996,7 +1009,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventoryPayable','ServicePayable')
-                 AND IV.CompanyGroupId='" + companyGroupId + "'  and IV.PartyId in 	(" + masterLCList + @")  AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                 AND IV.CompanyGroupId='" + companyGroupId + "'  and IV.PartyId in 	(" + masterLCList + @")  AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                 AND IR.PurchaseDocumentAcceptanceId IS NULL
 
                         union all
@@ -1054,38 +1067,38 @@ group by Id) O60 ON O60.Id=IV.Id
          				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-30 
 							and I.SourceType in ('VendorPayment','CreditNote') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-30
 							and I.SourceType in ('VendorPayment','CreditNote') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM15 ON OM15.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-15
 							and I.SourceType in ('VendorPayment','CreditNote') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OV ON OV.Id=IV.Id
 
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)=0 and I.SourceType in ('VendorPayment','CreditNote') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TB ON TB.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=7 
 							and I.SourceType in ('VendorPayment','CreditNote') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OTS ON OTS.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=30 
 							and I.SourceType in ('VendorPayment','CreditNote') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) ETT ON ETT.Id=IV.Id
 
 								LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=60
 							and I.SourceType in ('VendorPayment','CreditNote') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TTS ON TTS.Id=IV.Id
 
 
@@ -1093,7 +1106,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>60 and 
 							I.SourceType in ('VendorPayment','CreditNote') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0 
                             group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (
                 SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
@@ -1104,7 +1117,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('VendorPayment','CreditNote')
-               and IV.PartyId in 	(" + masterLCList + @") AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+               and IV.PartyId in 	(" + masterLCList + @") AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
 
                         )
                         X
@@ -1122,7 +1135,7 @@ group by Id) O60 ON O60.Id=IV.Id
             }
         }
         //Detail Or Aging Report
-        public string GetPartyPaymentStatusAgingReport(Dictionary<string, string> parameters, string CompanyGroupId, string CompanyId, string PlantId,  string SheetName) 
+        public string GetPartyPaymentStatusAgingReport(Dictionary<string, string> parameters, string fromDate, string toDate, string CompanyGroupId, string CompanyId, string PlantId,  string SheetName) 
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -1167,7 +1180,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 DataTable dtRCMPayable = null;
                 string taxyearId = GetTaxYearId(CompanyId);
-                dtRCMPayable = GetVendorPayableAgingDetailData(CompanyGroupId, CompanyId, PlantId, parameters, taxyearId);
+                dtRCMPayable = GetVendorPayableAgingDetailData(CompanyGroupId, CompanyId, PlantId, parameters, taxyearId, fromDate, toDate);
                 if (dtRCMPayable.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found....");
@@ -1638,7 +1651,7 @@ group by Id) O60 ON O60.Id=IV.Id
             }
         }
 
-        private DataTable GetVendorPayableAgingDetailData(string CompanyGroupId, string CompanyId, string PlantId, Dictionary<string, string> parameters, string taxyearId) //string plantName, string fromDate, string toDate,
+        private DataTable GetVendorPayableAgingDetailData(string CompanyGroupId, string CompanyId, string PlantId, Dictionary<string, string> parameters, string taxyearId, string fromDate, string toDate) //string plantName, string fromDate, string toDate,
         {
             string vendorIdLoop = "''";
            
@@ -1650,6 +1663,20 @@ group by Id) O60 ON O60.Id=IV.Id
                 var itemValue = item.Value;
                 vendorIdLoop += ",'" + itemValue + "'";
 
+            }
+            var searchDate = "";
+            var searchDateODue = "";
+            if (fromDate != "" && toDate != "")
+            {
+
+                searchDate = "AND ( convert(Date,IV.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
+                searchDateODue = "AND ( convert(Date,I.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
+            }
+            if (fromDate == "" && toDate != "")
+            {
+
+                searchDate = "AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )";
+                searchDateODue = "AND ( convert(Date,I.PostingDate) <= '" + toDate + @"' )";
             }
 
             string strSql = "";
@@ -1723,7 +1750,7 @@ group by Id) O60 ON O60.Id=IV.Id
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' --AND IV.PlantId='20171'
+                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @" --AND IV.PlantId='20171'
                                         and IV.PartyId in(" + vendorIdLoop + @")
 										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
 
@@ -1794,7 +1821,7 @@ group by Id) O60 ON O60.Id=IV.Id
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventoryPayable','ServicePayable')
-                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' 
+                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @"
 										AND IR.PurchaseDocumentAcceptanceId IS NULL  and IV.PartyId in(" + vendorIdLoop + @")
 
 										) x
@@ -2887,8 +2914,22 @@ group by Id) O60 ON O60.Id=IV.Id
         #endregion Vendor Tab
 
         #region Customer Tab
-        public List<Dictionary<string, object>> GetFinancialDashboardCustomerReceiptMasterListData(string companyGroupId, string companyId, string plantId)
+        public List<Dictionary<string, object>> GetFinancialDashboardCustomerReceiptMasterListData(string companyGroupId, string companyId, string plantId,string fromDate, string toDate)
         {
+            var searchDate = "";
+            var searchDateODue = "";
+            if (fromDate != "" && toDate != "")
+            {
+
+                searchDate = "AND ( convert(Date,IV.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
+                searchDateODue = "AND ( convert(Date,I.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
+            }
+            if (fromDate == "" && toDate != "")
+            {
+
+                searchDate = "AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )";
+                searchDateODue = "AND ( convert(Date,I.PostingDate) <= '" + toDate + @"' )";
+            }
             var sql = @"SELECT ISNULL( count(X.NoOfInvoice),0 )NoOfInvoice, convert(bit,0) AS isSelected
                     ,ISNULL( X.PartyId,'')PartyId,ISNULL( X.PartyPlantId,'')PartyPlantId,ISNULL( X.PartyCode,'')PartyCode
                     ,ISNULL( X.PartyName,'')PartyName,ISNULL( X.PartyPlantName,'')PartyPlantName,ISNULL( x.CurrencyCode,'')CurrencyCode
@@ -2896,6 +2937,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				 ,ISNULL(SUM(X.GrossSales),0 )GrossSales 
 				,ISNULL( SUM(X.Receipts),0 )Receipts
 				,ISNULL( SUM(X.Balance),0) Balance
+				,ISNULL( SUM(X.ActualBalance),0) ActualBalance
 
                 ,ISNULL( SUM(X.BooksGrossSales) ,0)BooksGrossSales
 				,ISNULL( SUM(X.BooksReceipts) ,0)BooksReceipts
@@ -2916,71 +2958,82 @@ group by Id) O60 ON O60.Id=IV.Id
 				, ISNULL( IV.PartyPlantId,'')PartyPlantId,ISNULL( P.Code,'') PartyCode
 				,ISNULL( P.UserName,'') PartyName,ISNULL( PP.UserName,'') AS PartyPlantName ,ISNULL( c.Code,'') CurrencyCode
 
-                ,ISNULL(IVD.Amount,0) AS GrossSales
-				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
-				,ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
+                , ISNULL(IVD.InvoiceBooksAmount,0) AS GrossSales
+				, ISNULL(IVD.SetOffBooksAmount,0) AS Receipts
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS Balance
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
+                , ISNULL(IVD.InvoiceBooksAmount,0) AS BooksGrossSales
+				, ISNULL(IVD.SetOffBooksAmount,0) AS BooksReceipts
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS BooksBalance
+                , ISNULL(OM30.ODueMoreThan30 *IV.CompanyCurrencyRate,0) ODueMoreThan30
+                , ISNULL(OM15.ODueMoreThan15*IV.CompanyCurrencyRate ,0) ODueMoreThan15
+                , ISNULL(OV.OverDdueBalance*IV.CompanyCurrencyRate ,0) ODueLessThan15
+				, ISNULL(TB.TodayBalance *IV.CompanyCurrencyRate ,0) TodayBalance
+				, ISNULL(OTS.OneToSevenBalance*IV.CompanyCurrencyRate,0) OneToSevenBalance
+				, ISNULL(ETT.EightToThirtyBalance*IV.CompanyCurrencyRate,0) EightToThirtyBalance
+				, ISNULL(TTS.ThirtyToSixtyBalance*IV.CompanyCurrencyRate,0) ThirtyToSixtyBalance
+				, ISNULL(O60.Onword60*IV.CompanyCurrencyRate,0) Onword60
+                , ISNULL(IVD.InvoiceBooksAmount,0) AS GrossTranAmount
+				, ISNULL(IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate,0) AS GrossAmount
 
-                ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
-				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
-				,ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
-                , ISNULL(OM30.ODueMoreThan30 *CC.CompanyCurrencyRate,0) ODueMoreThan30
-                , ISNULL(OM15.ODueMoreThan15*CC.CompanyCurrencyRate ,0) ODueMoreThan15
-                , ISNULL(OV.OverDdueBalance*CC.CompanyCurrencyRate ,0) ODueLessThan15
-				, ISNULL(TB.TodayBalance *cc.CompanyCurrencyRate ,0) TodayBalance
-				, ISNULL(OTS.OneToSevenBalance*cc.CompanyCurrencyRate,0) OneToSevenBalance
-				, ISNULL(ETT.EightToThirtyBalance*cc.CompanyCurrencyRate,0) EightToThirtyBalance
-				, ISNULL(TTS.ThirtyToSixtyBalance*cc.CompanyCurrencyRate,0) ThirtyToSixtyBalance
-				, ISNULL(O60.Onword60*cc.CompanyCurrencyRate,0) Onword60
-
-				, ISNULL(IVD.Amount,0) AS GrossTranAmount
-				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS GrossAmount
-
-
-                FROM [TRN].[InvoiceDetail] AS IVD
-                LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                FROM [TRN].[Invoice] AS IV 
+                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.DrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+						FROM  [TRN].[InvoiceDetail] IDE
+						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,SUM(VDC.CrAmount) SetOffBooksAmount
+							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+							LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+							 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+							WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' )
+							GROUP BY iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId
+							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+						WHERE VI.IsPark=0 --AND VD.PartyId='202017395'
+						GROUP BY IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,IwV.SetOffBooksAmount
+				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
+                 
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
-                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
-                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-
-						
-
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId+"'   AND I.CompanyId='"+companyId+"' AND I.PlantId='"+plantId+ @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId+"'   AND I.CompanyId='"+companyId+"' AND I.PlantId='"+plantId+ @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM15 ON OM15.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OV ON OV.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TB ON TB.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7 
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OTS ON OTS.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30 
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) ETT ON ETT.Id=IV.Id
 
 								LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TTS ON TTS.Id=IV.Id
 
 
@@ -2988,18 +3041,12 @@ group by Id) O60 ON O60.Id=IV.Id
 				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 and 
 							I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) O60 ON O60.Id=IV.Id
-                LEFT JOIN (
-                SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
-                VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
-                FROM [TRN].[VoucherDetailCurrency] AS VDC
-                JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+ @"'
-                ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
-                and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                WHERE  V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
+                and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
+                and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                 UNION ALL
                 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId
 				, ISNULL( IV.PartyPlantId,'')PartyPlantId,ISNULL( P.Code,'') PartyCode
@@ -3007,7 +3054,7 @@ group by Id) O60 ON O60.Id=IV.Id
 			      ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
 				 , ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-
+                , ISNULL(IVD.Amount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
                  ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
 				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
 				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
@@ -3053,19 +3100,19 @@ group by Id) O60 ON O60.Id=IV.Id
 
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 AND I.SourceType in ('InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30 AND I.SourceType in ('InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM15 ON OM15.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15 AND I.SourceType in ('InventorySales') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OV ON OV.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 AND I.SourceType in ('InventorySales') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TB ON TB.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7 AND I.SourceType in ('InventorySales') 
@@ -3073,28 +3120,28 @@ group by Id) O60 ON O60.Id=IV.Id
                             group by Id) OTS ON OTS.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30 AND I.SourceType in ('InventorySales') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) ETT ON ETT.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60
 							and I.SourceType in ('InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TTS ON TTS.Id=IV.Id
 
 				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 AND I.SourceType in ('InventorySales') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (
                 SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+ @"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId+ @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
-                  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                -- AND IR.PurchaseDocumentAcceptanceId IS NULL
                 
                 union all
@@ -3106,7 +3153,7 @@ group by Id) O60 ON O60.Id=IV.Id
                    ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
 				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-
+                , ISNULL(IVD.Amount,0)-ISNULL(IV.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS ActualBalance
                  ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
 				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
 				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
@@ -3137,38 +3184,38 @@ group by Id) O60 ON O60.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-30 
 							and I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-30
 							and I.SourceType in ('CustomerReceipt') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM15 ON OM15.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-15
 							and I.SourceType in ('CustomerReceipt') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OV ON OV.Id=IV.Id
 
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)=0 and I.SourceType in ('CustomerReceipt') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TB ON TB.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=7 
 							and I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OTS ON OTS.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=30 
 							and I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) ETT ON ETT.Id=IV.Id
 
 								LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=60
 							and I.SourceType in ('CustomerReceipt') 
-                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TTS ON TTS.Id=IV.Id
 
 
@@ -3176,22 +3223,21 @@ group by Id) O60 ON O60.Id=IV.Id
 				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>60 and 
 							I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @" and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (
                 SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+ @"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId+ @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerReceipt')
-                 and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                 and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                 
 				)
-                X
-				--where x.PartyCode='2020100'
+				X 
                 GROUP BY PartyId,PartyPlantId,PartyName,PartyPlantName,PartyCode,CurrencyCode
                 order by X.PartyName";
             return _sqlRepository.GetDataCollection(sql);
@@ -3512,7 +3558,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
         }
 
-        public IWorkbook GetFinancialDashboardCustomerReceiptSummaryReport(ExcelEngine excelEngine, string masterCustomerReceiptSummaryList, string companyGroupId, string companyId, string plantId)
+        public IWorkbook GetFinancialDashboardCustomerReceiptSummaryReport(ExcelEngine excelEngine, string masterCustomerReceiptSummaryList, string companyGroupId, string companyId, string plantId,string fromDate, string toDate)
         {
             excelEngine = new ExcelEngine();
             //Instantiate the Excel application object
@@ -3591,7 +3637,13 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, COL].ColumnWidth = 20;
                 COL++;
 
-               
+
+                worksheet[ROW, COL].Text = "Actual Balance";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colActualBalance = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                COL++;
+
                 worksheet[ROW, COL].Text = "Over DueMoreThan30";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colODueMoreThan30 = COL;
@@ -3655,7 +3707,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
 
-                var dsData = CustomerReporSQL (masterCustomerReceiptSummaryList, companyGroupId, companyId, plantId);
+                var dsData = CustomerReporSQL (masterCustomerReceiptSummaryList, companyGroupId, companyId, plantId, fromDate, toDate);
 
                 //ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                 //objCon.OpenDataSetThroughAdapter(sql, out DataSet dsData, false, "1");
@@ -3692,6 +3744,9 @@ group by Id) O60 ON O60.Id=IV.Id
                     
                     worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksBalance"].ToString());
                     worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colActualBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["ActualBalance"].ToString());
+                    worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     worksheet[ROW, colODueMoreThan30].Number = clsStaticInfo.dbl(dsData.Rows[i]["OverDueMoreThan30"].ToString());
                     worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -3744,6 +3799,9 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                worksheet[ROW, colActualBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colActualBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colActualBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colActualBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -3806,10 +3864,25 @@ group by Id) O60 ON O60.Id=IV.Id
 
         }
 
-        public DataTable CustomerReporSQL(string masterCustomerReceiptSummaryList, string companyGroupId, string companyId, string plantId)
+        public DataTable CustomerReporSQL(string masterCustomerReceiptSummaryList, string companyGroupId, string companyId, string plantId, string fromDate, string toDate)
         {
             try
             {
+                var searchDate = "";
+                var searchDateODue = "";
+                if (fromDate != "" && toDate != "")
+                {
+
+                    searchDate = "AND ( convert(Date,IV.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
+                    searchDateODue = "AND ( convert(Date,I.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
+                }
+                if (fromDate == "" && toDate != "")
+                {
+
+                    searchDate = "AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )";
+                    searchDateODue = "AND ( convert(Date,I.PostingDate) <= '" + toDate + @"' )";
+                }
+
                 string sql = @"SELECT ISNULL( count(X.NoOfInvoice),0 )NoOfInvoice, convert(bit,0) AS isSelected
                     ,ISNULL( X.PartyId,'')PartyId,ISNULL( X.PartyPlantId,'')PartyPlantId,ISNULL( X.PartyCode,'')PartyCode
                     ,ISNULL( X.PartyName,'')PartyName,ISNULL( X.PartyPlantName,'')PartyPlantName,ISNULL( x.CurrencyCode,'')CurrencyCode
@@ -3818,7 +3891,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				 ,ISNULL(SUM(X.GrossSales),0 )GrossSales 
 				,ISNULL( SUM(X.Receipts),0 )Receipts
 				,ISNULL( SUM(X.Balance),0) Balance
-
+                ,ISNULL( SUM(X.ActualBalance),0) ActualBalance
                 ,ISNULL( SUM(X.BooksGrossSales) ,0)BooksGrossSales
 				,ISNULL( SUM(X.BooksReceipts) ,0)BooksReceipts
 				,SUM(X.BooksBalance) BooksBalance
@@ -3834,41 +3907,52 @@ group by Id) O60 ON O60.Id=IV.Id
 				--,CompanyCurrencyRate
 				
                 FROM (
-                SELECT ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId --,cc.CompanyCurrencyRate
+                 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId--,cc.CompanyCurrencyRate
 				, ISNULL( IV.PartyPlantId,'')PartyPlantId,ISNULL( P.Code,'') PartyCode
 				,ISNULL( P.UserName,'') PartyName,ISNULL( PP.UserName,'') AS PartyPlantName ,ISNULL( c.Code,'') CurrencyCode
+                , ISNULL(Ad.AdvanceAmount,0) Advance
+                , ISNULL(IVD.InvoiceBooksAmount,0) AS GrossSales
+				, ISNULL(IVD.SetOffBooksAmount,0) AS Receipts
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS Balance
+                , ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
+                , ISNULL(IVD.InvoiceBooksAmount,0) AS BooksGrossSales
+				, ISNULL(IVD.SetOffBooksAmount,0) AS BooksReceipts
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS BooksBalance
+                , ISNULL(OM30.ODueMoreThan30 *IV.CompanyCurrencyRate,0) ODueMoreThan30
+                , ISNULL(OM15.ODueMoreThan15*IV.CompanyCurrencyRate ,0) ODueMoreThan15
+                , ISNULL(OV.OverDdueBalance*IV.CompanyCurrencyRate ,0) ODueLessThan15
+				, ISNULL(TB.TodayBalance *IV.CompanyCurrencyRate ,0) TodayBalance
+				, ISNULL(OTS.OneToSevenBalance*IV.CompanyCurrencyRate,0) OneToSevenBalance
+				, ISNULL(ETT.EightToThirtyBalance*IV.CompanyCurrencyRate,0) EightToThirtyBalance
+				, ISNULL(TTS.ThirtyToSixtyBalance*IV.CompanyCurrencyRate,0) ThirtyToSixtyBalance
+				, ISNULL(O60.Onword60*IV.CompanyCurrencyRate,0) Onword60
+                , ISNULL(IVD.InvoiceBooksAmount,0) AS GrossTranAmount
+				, ISNULL(IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate,0) AS GrossAmount
 
-	            ,ISNULL(Ad.AdvanceAmount,0) Advance
-                ,ISNULL(IVD.Amount,0) AS GrossSales
-				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
-				,ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-
-                ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
-				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
-				,ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
-                , ISNULL(OM30.ODueMoreThan30 *CC.CompanyCurrencyRate,0) ODueMoreThan30
-                , ISNULL(OM15.ODueMoreThan15*CC.CompanyCurrencyRate ,0) ODueMoreThan15
-                , ISNULL(OV.OverDdueBalance*CC.CompanyCurrencyRate ,0) ODueLessThan15
-				, ISNULL(TB.TodayBalance *cc.CompanyCurrencyRate ,0) TodayBalance
-				, ISNULL(OTS.OneToSevenBalance*cc.CompanyCurrencyRate,0) OneToSevenBalance
-				, ISNULL(ETT.EightToThirtyBalance*cc.CompanyCurrencyRate,0) EightToThirtyBalance
-				, ISNULL(TTS.ThirtyToSixtyBalance*cc.CompanyCurrencyRate,0) ThirtyToSixtyBalance
-				, ISNULL(O60.Onword60*cc.CompanyCurrencyRate,0) Onword60
-
-				, ISNULL(IVD.Amount,0) AS GrossTranAmount
-				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS GrossAmount
-
-
-                FROM [TRN].[InvoiceDetail] AS IVD
-                LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                FROM [TRN].[Invoice] AS IV 
+                 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+						FROM  [TRN].[InvoiceDetail] IDE
+						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId ,SUM(VDC.CrAmount) SetOffBooksAmount
+							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+							LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+							 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+							WHERE WV.IsPark=0 
+							GROUP BY iwd.InvoiceDetailId,iw.PartyId
+							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+						WHERE VI.IsPark=0 
+						GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
+                 
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
-                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
-                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-
-					
 											--********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum( (A.Amount-A.WrittenOffAmount) * A.CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
                         where A.PlantId='" + plantId + @"' and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0
@@ -3878,37 +3962,37 @@ group by Id) O60 ON O60.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"   and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM15 ON OM15.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"   and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OV ON OV.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"   and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TB ON TB.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7 
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"   and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OTS ON OTS.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30 
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"   and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) ETT ON ETT.Id=IV.Id
 
 								LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"   and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TTS ON TTS.Id=IV.Id
 
 
@@ -3916,18 +4000,11 @@ group by Id) O60 ON O60.Id=IV.Id
 				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 and 
 							I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"   and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) O60 ON O60.Id=IV.Id
-                LEFT JOIN (
-                SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
-                VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
-                FROM [TRN].[VoucherDetailCurrency] AS VDC
-                JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
-                ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
-                  and IV.PartyId in (" + masterCustomerReceiptSummaryList + @")   and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                WHERE  V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
+                  and IV.PartyId in (" + masterCustomerReceiptSummaryList + @")   and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                 
                 UNION ALL
                 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId
@@ -3938,7 +4015,7 @@ group by Id) O60 ON O60.Id=IV.Id
 			      ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
 				 , ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-
+                , ISNULL(IVD.Amount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
                  ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
 				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
 				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
@@ -3988,37 +4065,37 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 AND I.SourceType in ('InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30 AND I.SourceType in ('InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM15 ON OM15.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15 AND I.SourceType in ('InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OV ON OV.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 AND I.SourceType in ('InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TB ON TB.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7 AND I.SourceType in ('InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OTS ON OTS.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30 AND I.SourceType in ('InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) ETT ON ETT.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60
 							and I.SourceType in ('InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TTS ON TTS.Id=IV.Id
 
 				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 AND I.SourceType in ('InventorySales') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (
                 SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
@@ -4029,7 +4106,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
-                and IV.PartyId in 	(" + masterCustomerReceiptSummaryList + @")  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                and IV.PartyId in 	(" + masterCustomerReceiptSummaryList + @")  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                 AND IR.PurchaseDocumentAcceptanceId IS NULL
                 
                 union all
@@ -4042,7 +4119,7 @@ group by Id) O60 ON O60.Id=IV.Id
                    ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
 				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-
+                , ISNULL(IVD.Amount,0)-ISNULL(IV.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS ActualBalance
                  ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
 				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
 				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
@@ -4078,38 +4155,38 @@ group by Id) O60 ON O60.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-30 
 							and I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-30
 							and I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM15 ON OM15.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-15
 							and I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OV ON OV.Id=IV.Id
 
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)=0 and I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TB ON TB.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=7 
 							and I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OTS ON OTS.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=30 
 							and I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) ETT ON ETT.Id=IV.Id
 
 								LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=60
 							and I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) TTS ON TTS.Id=IV.Id
 
 
@@ -4117,7 +4194,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>60 and 
 							I.SourceType in ('CustomerReceipt') 
-                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' " + searchDateODue + @"  and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (
                 SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
@@ -4128,11 +4205,10 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerReceipt')
-                and IV.PartyId in 	(" + masterCustomerReceiptSummaryList + @") and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                and IV.PartyId in 	(" + masterCustomerReceiptSummaryList + @") and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                 
 				)
-                X
-				--where x.PartyCode='2020100'
+                X where x.BooksGrossSales-x.BooksReceipts>0
                 GROUP BY PartyId,PartyPlantId,PartyName,PartyPlantName,PartyCode,CurrencyCode,Advance
                 order by X.PartyName";
 
@@ -4177,8 +4253,22 @@ group by Id) O60 ON O60.Id=IV.Id
             }
         }
 
-        private DataTable GetCustomerReceiptAging(string CompanyGroupId, string CompanyId, string PlantId, string masterCustomerReceiptAgingList, string taxyearId) 
+        private DataTable GetCustomerReceiptAging(string CompanyGroupId, string CompanyId, string PlantId, string masterCustomerReceiptAgingList, string taxyearId, string fromDate, string toDate) 
         {
+            var searchDate = "";
+            var searchDateODue = "";
+            if (fromDate != "" && toDate != "")
+            {
+
+                searchDate = "AND ( convert(Date,IV.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
+                searchDateODue = "AND ( convert(Date,I.PostingDate) Between '" + fromDate + @"' and '" + toDate + @"')";
+            }
+            if (fromDate == "" && toDate != "")
+            {
+
+                searchDate = "AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )";
+                searchDateODue = "AND ( convert(Date,I.PostingDate) <= '" + toDate + @"' )";
+            }
             string strSql = "";
             strSql = @"select x.* from (
 
@@ -4268,7 +4358,7 @@ group by Id) O60 ON O60.Id=IV.Id
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
-                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' AND IV.PlantId='" + PlantId + @"'
+                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' AND IV.PlantId='" + PlantId + @"' " + searchDate + @"
                                        and IV.PartyId in(" + masterCustomerReceiptAgingList + @")
 										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
 
@@ -4354,7 +4444,7 @@ group by Id) O60 ON O60.Id=IV.Id
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
-                                              AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' AND IV.PlantId='" + PlantId + @"'
+                                              AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' AND IV.PlantId='" + PlantId + @"' " + searchDate + @"
                                        and IV.PartyId in(" + masterCustomerReceiptAgingList + @")
 										--AND IR.PurchaseDocumentAcceptanceId IS NULL  
 										--and IV.PartyId in(201948,20189,2019226)
@@ -4448,7 +4538,7 @@ group by Id) O60 ON O60.Id=IV.Id
 									) AS CC ON CC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
-                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' AND IV.PlantId='" + PlantId + @"'
+                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' AND IV.PlantId='" + PlantId + @"'  " + searchDate + @"
                                        and IV.PartyId in(" + masterCustomerReceiptAgingList + @")
 										--AND IR.PurchaseDocumentAcceptanceId IS NULL  
 										--and IV.PartyId in(201948,20189,2019226)
@@ -4459,7 +4549,7 @@ group by Id) O60 ON O60.Id=IV.Id
             return _sqlRepository.GetDataTable(strSql);
 
         }
-        public IWorkbook GetFinancialDashboardCustomerReceiptAgingReport(ExcelEngine excelEngine, string masterCustomerReceiptAgingList, string CompanyGroupId, string CompanyId, string PlantId, string name) 
+        public IWorkbook GetFinancialDashboardCustomerReceiptAgingReport(ExcelEngine excelEngine, string masterCustomerReceiptAgingList, string CompanyGroupId, string CompanyId, string PlantId, string name, string fromDate, string toDate) 
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -4496,7 +4586,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 DataTable dtRCMPayable = null;
                 string taxyearId = GetCustomerReceiptTaxYearId(CompanyId);
-                dtRCMPayable = GetCustomerReceiptAging(CompanyGroupId, CompanyId, PlantId, masterCustomerReceiptAgingList, taxyearId);
+                dtRCMPayable = GetCustomerReceiptAging(CompanyGroupId, CompanyId, PlantId, masterCustomerReceiptAgingList, taxyearId, fromDate, toDate);
                 if (dtRCMPayable.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found....");
@@ -22000,6 +22090,436 @@ group by Id) O60 ON O60.Id=IV.Id
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
+        }
+
+
+        public List<Dictionary<string, object>> GetReceiptPaymentStatusDataList()
+        {
+            var sql = @"select distinct S.InvoiceNo,P.Code CustomerCode,P.UserName Customer ,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
+												,C.Code Currency
+												,I.Amount,SM.TaxableAmount TaxableAmount
+												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
+						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate)
+												,IWOD.Amount ReceiveAgainstInvoice
+												,TotalReceiveAgainstInvoice=sum(IWOD.Amount) over (partition by s.InvoiceNo)
+												,I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)  BalancePaymentAgainstInvoice
+						                        ,MO.Id,IWOD.Amount*ISNULL(MOC.[Value],0) CommissionAmount
+												,I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)-(sum(IWOD.Amount) over (partition by s.InvoiceNo)*ISNULL(MOC.[Value],0)) [Balance Amount after adjust commission]
+												,IWOD.Amount*ISNULL(MOCD.[Value],0) CDAmount
+                                                ,NULL MasterOrderDate,0 BalanceAmountAfterAdjustCommission
+
+						                        from TRN.InvoiceWriteOffDetail IWOD
+						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
+						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
+						                        left join TRN.Invoice I on I.Id=IWOD.InvoiceId
+						                        left join SCS.Currency C on C.Id=I.CurrencyId
+						                         JOIN TRN.Sales S on S.VoucherId=I.VoucherId
+												 LEFT JOIN (SELECT SalesId,SUM(TransactionAmount) TaxableAmount from TRN.SalesMaterial SM GROUP BY SalesId) SM ON SM.SalesId=S.Id
+						                        LEFT JOIN(select distinct SalesId,MasterOrderId from  TRN.SalesOrderItem )SI on SI.SalesId=S.Id
+						                        LEFT JOIN TRN.MasterOrder MO on MO.Id=SI.MasterOrderId
+												LEFT JOIN (
+														SELECT distinct MI.MasterOrderId,MC.UserName,MC.[Value]
+														FROM  dbo.MasterOrderItemCostingRate MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														LEFT JOIN TRN.MasterOrderItem MI ON MI.Id=MC.MasterOrderItemId
+														WHERE OLC.SOItemName='Commission' 
+														) MOC ON MOC.MasterOrderId=MO.Id
+												LEFT JOIN (SELECT MI.MasterOrderId,MC.UserName,MC.[Value]
+														FROM  dbo.MasterOrderItemCostingRate MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														LEFT JOIN TRN.MasterOrderItem MI ON MI.Id=MC.MasterOrderItemId
+														WHERE OLC.SOItemName='Discount'
+														) MOCD ON MOCD.MasterOrderId=MO.Id
+						                        LEFT JOIN HKP.Party P on I.PartyId=P.Id
+                                                where IWO.SourceType = 'CustomerReceipt' and IWO.PartyType = 'Customer' and S.SourceType in ('MasterOrderSales','Sales') and I.IsWrittenOff=0
+												group by S.InvoiceNo,P.Code ,P.UserName  ,S.InvoiceDate ,I.BaseOnDueDate ,C.Code
+												,I.Amount,SM.TaxableAmount  ,I.ActualDueDate,IWO.PostingDate  ,IWOD.Amount ,MO.Id,MOC.[Value] ,MOCD.[Value]
+                                                UNION 
+
+												select distinct S.InvoiceNo,P.Code CustomerCode,P.UserName Customer,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
+												,C.Code Currency
+												,I.Amount,SM.TaxableAmount
+												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
+						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate)
+												,IWOD.Amount ReceiveAgainstInvoice
+												,TotalReceiveAgainstInvoice=sum(IWOD.Amount) over (partition by s.InvoiceNo)
+												,I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)  BalancePaymentAgainstInvoice
+						                        ,NULL  Id
+												,ISNULL(MOC.CommissionAmount,0) CommissionAmount
+												,I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)-(ISNULL(MOC.CommissionAmount,0)) [Balance Amount after adjust commission]
+												,ISNULL(MOCD.CDAmount,0) CDAmount
+												,NULL MasterOrderDate,0 BalanceAmountAfterAdjustCommission
+
+						                        FROM TRN.InvoiceWriteOffDetail IWOD
+						                        LEFT JOIN TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
+						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
+						                        LEFT JOIN TRN.Invoice I on I.Id=IWOD.InvoiceId
+						                        LEFT JOIN SCS.Currency C on C.Id=I.CurrencyId
+						                        JOIN TRN.Sales S on S.VoucherId=I.VoucherId
+												LEFT JOIN (SELECT SalesId,SUM(TransactionAmount) TaxableAmount from TRN.SalesMaterial SM GROUP BY SalesId) SM ON SM.SalesId=S.Id
+												
+												LEFT JOIN (select  SM.SalesId,SUM(SM.TransactionAmount*(ISNULL(MC.[Value],1)/100)) CommissionAmount 
+															from TRN.SalesMaterial SM
+															left join   TRN.SalesOrder SO ON SO.Id=SalesOrderId
+															LEFT JOIN dbo.MasterOrderItemCostingRate MC ON MC.MasterOrderItemId=SO.MasterOrderItemId
+															LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+															WHERE OLC.SOItemName='Commission' 
+															group by SM.SalesId
+												) MOC ON MOC.SalesId=S.Id
+												LEFT JOIN (select  SM.SalesId,SUM(SM.TransactionAmount*(ISNULL(MC.[Value],1)/100)) CDAmount 
+															from TRN.SalesMaterial SM
+															left join   TRN.SalesOrder SO ON SO.Id=SalesOrderId
+															LEFT JOIN dbo.MasterOrderItemCostingRate MC ON MC.MasterOrderItemId=SO.MasterOrderItemId
+															LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+															WHERE OLC.SOItemName='Discount' 
+															group by SM.SalesId
+												) MOCD ON MOCD.SalesId=S.Id
+						                        LEFT JOIN HKP.Party P on I.PartyId=P.Id
+                                                WHERE IWO.SourceType = 'CustomerReceipt' and IWO.PartyType = 'Customer' and S.SourceType='Packing' and I.IsWrittenOff=0
+                                                GROUP BY S.InvoiceNo,P.Code ,P.UserName  ,S.InvoiceDate ,I.BaseOnDueDate ,C.Code ,I.Amount,SM.TaxableAmount 
+												,I.ActualDueDate,IWO.PostingDate ,IWOD.Amount ,MOC.CommissionAmount,MOCD.CDAmount";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public string CreateReceiptPaymentStatusSummaryReportSheet(Dictionary<string, string> data)
+        {
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+            DataTable dtGatenntryRegisterList = GetReceiptPaymentStatusDataSql();
+           
+            var filePath = "";
+
+            if (dtGatenntryRegisterList.Rows.Count == 0)
+                throw new Exception("No data found");
+            // throw new Exception("To date must be above or equal to From Date.");
+
+            worksheet.Name = "Receipt Payment Status Summary Report";
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            // worksheet[ROW, COL].Text = "Employee Advance Due List Details:";
+            // worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //  ROW++;
+
+            worksheet[ROW, COL].Text = "Customer";
+            int colCustomer = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Master Order No.";
+            int colMasterOrderNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Master Order Date";
+            int colMasterOrderDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+
+            worksheet[ROW, COL].Text = "Invoice No";
+            int colInvoiceNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Invoice Date";
+            int colInvoiceDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Base On Due Date";
+            int colBaseOnDueDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+
+            worksheet[ROW, COL].Text = "Maturity Date";
+            int colMaturityDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Currency";
+            int colCurrency = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Taxable Amount";
+            int coltaxableValue = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Invoice Amount";
+            int colInvoiceAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Receive Date";
+            int colReceiveDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Receive Against Invoice";
+            int colReceiveAgainstInvoice = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "DelayDay";
+            int colDelayDay = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Balance Payment Against Invoice";
+            int colBalancePaymentAgainstInvoice = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Commission Amount";
+            int colCommissionAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Balance Amount After Adjust Commission";
+            int colBalanceAmountAfterAdjustCommission = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            
+            worksheet[ROW, COL].Text = "CD Amount";
+            int colCDAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            //ROW++;
+            int StartRow = ROW;
+            //int margeRow = 0;
+            List<string> list = new List<string>();
+            for (int i = 0; i < dtGatenntryRegisterList.Rows.Count; i++)
+            {
+                //margeRow = ROW +1;
+                ROW++;
+                var rcvid = dtGatenntryRegisterList.Rows[i]["InvoiceNo"].ToString();
+                if (list.Contains(rcvid))
+                {
+
+                }
+                else//nai
+                {
+                    list.Add(rcvid);
+
+                    //worksheet.Range[margeRow, colCustomer, ROW, colCustomer].Merge();
+                    worksheet[ROW, colMasterOrderNo].Text = dtGatenntryRegisterList.Rows[i]["MasterOrderNo"].ToString();
+                    worksheet[ROW, colMasterOrderDate].Text = dtGatenntryRegisterList.Rows[i]["MasterOrderDate"].ToString();
+                    
+                    worksheet[ROW, colMaturityDate].Text = dtGatenntryRegisterList.Rows[i]["MaturityDate"].ToString();
+                    worksheet[ROW, colCurrency].Text = dtGatenntryRegisterList.Rows[i]["Currency"].ToString();
+
+                    worksheet[ROW, coltaxableValue].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["TaxableAmount"].ToString());
+                    worksheet[ROW, coltaxableValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                    worksheet[ROW, colInvoiceAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["Amount"].ToString());
+                    worksheet[ROW, colInvoiceAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                   
+
+                
+                    worksheet[ROW, colBalancePaymentAgainstInvoice].Text = dtGatenntryRegisterList.Rows[i]["BalancePaymentAgainstInvoice"].ToString();
+                    worksheet[ROW, colBalancePaymentAgainstInvoice].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                    worksheet[ROW, colCommissionAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["CommissionAmount"].ToString());
+                    worksheet[ROW, colCommissionAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    
+                    worksheet[ROW, colBalanceAmountAfterAdjustCommission].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["BalanceAmountAfterAdjustCommission"].ToString());
+                    worksheet[ROW, colBalanceAmountAfterAdjustCommission].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                    worksheet[ROW, colCDAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["CDAmount"].ToString());
+                    worksheet[ROW, colCDAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                    //ROW++;
+
+                }
+                worksheet[ROW, colCustomer].Text = dtGatenntryRegisterList.Rows[i]["Customer"].ToString();
+                worksheet[ROW, colInvoiceNo].Text = dtGatenntryRegisterList.Rows[i]["InvoiceNo"].ToString();
+                worksheet[ROW, colInvoiceDate].Text = dtGatenntryRegisterList.Rows[i]["InvoiceDate"].ToString();
+                worksheet[ROW, colBaseOnDueDate].Text = (dtGatenntryRegisterList.Rows[i]["BaseOnDueDate"].ToString());
+
+                worksheet[ROW, colReceiveDate].Text = dtGatenntryRegisterList.Rows[i]["ReceiveDate"].ToString();
+                worksheet[ROW, colReceiveAgainstInvoice].Text = dtGatenntryRegisterList.Rows[i]["ReceiveAgainstInvoice"].ToString();
+                worksheet[ROW, colReceiveAgainstInvoice].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colDelayDay].Text = dtGatenntryRegisterList.Rows[i]["DelayDay"].ToString();
+                
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+               
+            }
+
+            worksheet.UsedRange.WrapText = true;
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                worksheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+            //worksheet["A" + StartRow.ToString()].FreezePanes();
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            //worksheet.FirstVisibleColumn = 1;
+            //worksheet.FirstVisibleRow = 17;
+
+            #endregion Freeze Panes
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref worksheet, endCol, "Receipt Payment Status Report", identity.PlantId);
+                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //worksheet.Range[6, 1, 7, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                worksheet.Range[6, 1, 7, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                // return workbook;
+
+                
+                var SheetName = "ReceiptPaymentStatus";
+                //return workbook;
+                workbook.Version = ExcelVersion.Excel97to2003;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+        }
+        public DataTable GetReceiptPaymentStatusDataSql()
+        {
+            var sql = @"select distinct S.InvoiceNo,P.Code CustomerCode,P.UserName Customer ,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
+												,C.Code Currency
+												,FORMAT(I.Amount,'N2') Amount,FORMAT(SM.TaxableAmount,'N2') TaxableAmount
+												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
+						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate)
+												,FORMAT(IWOD.Amount,'N2') ReceiveAgainstInvoice
+												,TotalReceiveAgainstInvoice=FORMAT(sum(IWOD.Amount) over (partition by s.InvoiceNo),'N2')
+												,FORMAT(I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo),'N2') BalancePaymentAgainstInvoice
+						                        ,MO.Id MasterOrderNo,IWOD.Amount*ISNULL(MOC.[Value],0) CommissionAmount
+												,FORMAT(I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)-(sum(IWOD.Amount) over (partition by s.InvoiceNo)*ISNULL(MOC.[Value],0)),'N2') [BalanceAmountAfterAdjustCommission]
+												,FORMAT(IWOD.Amount*ISNULL(MOCD.[Value],0),'N2') CDAmount
+                                                ,NULL MasterOrderDate
+
+						                        from TRN.InvoiceWriteOffDetail IWOD
+						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
+						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
+						                        left join TRN.Invoice I on I.Id=IWOD.InvoiceId
+						                        left join SCS.Currency C on C.Id=I.CurrencyId
+						                         JOIN TRN.Sales S on S.VoucherId=I.VoucherId
+												 LEFT JOIN (SELECT SalesId,SUM(TransactionAmount) TaxableAmount from TRN.SalesMaterial SM GROUP BY SalesId) SM ON SM.SalesId=S.Id
+						                        LEFT JOIN(select distinct SalesId,MasterOrderId from  TRN.SalesOrderItem )SI on SI.SalesId=S.Id
+						                        LEFT JOIN TRN.MasterOrder MO on MO.Id=SI.MasterOrderId
+												LEFT JOIN (
+														SELECT distinct MI.MasterOrderId,MC.UserName,MC.[Value]
+														FROM  dbo.MasterOrderItemCostingRate MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														LEFT JOIN TRN.MasterOrderItem MI ON MI.Id=MC.MasterOrderItemId
+														WHERE OLC.SOItemName='Commission' 
+														) MOC ON MOC.MasterOrderId=MO.Id
+												LEFT JOIN (SELECT MI.MasterOrderId,MC.UserName,MC.[Value]
+														FROM  dbo.MasterOrderItemCostingRate MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														LEFT JOIN TRN.MasterOrderItem MI ON MI.Id=MC.MasterOrderItemId
+														WHERE OLC.SOItemName='Discount'
+														) MOCD ON MOCD.MasterOrderId=MO.Id
+						                        LEFT JOIN HKP.Party P on I.PartyId=P.Id
+                                                where IWO.SourceType = 'CustomerReceipt' and IWO.PartyType = 'Customer' and S.SourceType in ('MasterOrderSales','Sales') and I.IsWrittenOff=0
+												group by S.InvoiceNo,P.Code ,P.UserName  ,S.InvoiceDate ,I.BaseOnDueDate ,C.Code
+												,I.Amount,SM.TaxableAmount  ,I.ActualDueDate,IWO.PostingDate  ,IWOD.Amount ,MO.Id,MOC.[Value] ,MOCD.[Value]
+                                                UNION 
+
+												select distinct S.InvoiceNo,P.Code CustomerCode,P.UserName Customer,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
+												,C.Code Currency
+												,FORMAT(I.Amount,'N2') Amount,FORMAT(SM.TaxableAmount,'N2') TaxableAmount
+												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
+						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate)
+												,FORMAT(IWOD.Amount,'N2') ReceiveAgainstInvoice
+												,TotalReceiveAgainstInvoice=FORMAT(sum(IWOD.Amount) over (partition by s.InvoiceNo),'N2')
+												,FORMAT(I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo),'N2')  BalancePaymentAgainstInvoice
+						                        ,NULL MasterOrderNo
+												,ISNULL(MOC.CommissionAmount,0) CommissionAmount
+												,FORMAT(I.Amount-sum(IWOD.Amount) over (partition by s.InvoiceNo)-(ISNULL(MOC.CommissionAmount,0)),'N2') [BalanceAmountAfterAdjustCommission]
+												,FORMAT(ISNULL(MOCD.CDAmount,0),'N2') CDAmount
+												,NULL MasterOrderDate
+
+						                        FROM TRN.InvoiceWriteOffDetail IWOD
+						                        LEFT JOIN TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
+						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
+						                        LEFT JOIN TRN.Invoice I on I.Id=IWOD.InvoiceId
+						                        LEFT JOIN SCS.Currency C on C.Id=I.CurrencyId
+						                        JOIN TRN.Sales S on S.VoucherId=I.VoucherId
+												LEFT JOIN (SELECT SalesId,SUM(TransactionAmount) TaxableAmount from TRN.SalesMaterial SM GROUP BY SalesId) SM ON SM.SalesId=S.Id
+												
+												LEFT JOIN (select  SM.SalesId,SUM(SM.TransactionAmount*(ISNULL(MC.[Value],1)/100)) CommissionAmount 
+															from TRN.SalesMaterial SM
+															left join   TRN.SalesOrder SO ON SO.Id=SalesOrderId
+															LEFT JOIN dbo.MasterOrderItemCostingRate MC ON MC.MasterOrderItemId=SO.MasterOrderItemId
+															LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+															WHERE OLC.SOItemName='Commission' 
+															group by SM.SalesId
+												) MOC ON MOC.SalesId=S.Id
+												LEFT JOIN (select  SM.SalesId,SUM(SM.TransactionAmount*(ISNULL(MC.[Value],1)/100)) CDAmount 
+															from TRN.SalesMaterial SM
+															left join   TRN.SalesOrder SO ON SO.Id=SalesOrderId
+															LEFT JOIN dbo.MasterOrderItemCostingRate MC ON MC.MasterOrderItemId=SO.MasterOrderItemId
+															LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+															WHERE OLC.SOItemName='Discount' 
+															group by SM.SalesId
+												) MOCD ON MOCD.SalesId=S.Id
+						                        LEFT JOIN HKP.Party P on I.PartyId=P.Id
+                                                WHERE IWO.SourceType = 'CustomerReceipt' and IWO.PartyType = 'Customer' and S.SourceType='Packing' and I.IsWrittenOff=0
+                                                GROUP BY S.InvoiceNo,P.Code ,P.UserName  ,S.InvoiceDate ,I.BaseOnDueDate ,C.Code ,I.Amount,SM.TaxableAmount 
+												,I.ActualDueDate,IWO.PostingDate ,IWOD.Amount ,MOC.CommissionAmount,MOCD.CDAmount";
+            return _sqlRepository.GetDataTable(sql);
         }
 
         #endregion 

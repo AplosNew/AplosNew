@@ -55,8 +55,10 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
-							            ,UT.Reading,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Remarks
+            string sql = @"select distinct UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
+							            ,UT.Reading,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Reading
+                                        ,UT.LastReading,UT.LastReadingDate,UT.LastReadingTime
+                                        ,UT.Remarks
 							            from dbo.UtilityTransaction UT
 										left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
 										left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId";
@@ -68,16 +70,13 @@ namespace Aplos.Areas.Materials.Controllers
         public JsonResult GetUtilityMasterList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select UM.Id as [Value],UM.UserName as Text,UOM.UserName UoM,UM.IsReadingApplicable
-						            ,A.LastReadingDate
-						            ,B.LastReadingTime
-						            ,C.LastReading
+            var sql = @"select distinct UM.UserName as Text,UM.Id as [Value],UOM.UserName UoM,UM.IsReadingApplicable,C.LastReading
 
-                                    from UtilityMaster UM
-                                    left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId
-						            left join (Select MAX(FORMAT(AddedDate,'dd-MMM-yyyy'))LastReadingDate,UtilityMasterId from UtilityTransaction group by AddedDate,UtilityMasterId) A on A.UtilityMasterId=UM.Id
-						            left join (Select MAX(CONVERT(varchar(5),AddedDate,108))LastReadingTime,UtilityMasterId from UtilityTransaction group by AddedDate,UtilityMasterId) B on B.UtilityMasterId=UM.Id
-						            left join (Select TOP(1) Quantity as LastReading,UtilityMasterId from UtilityTransaction ORDER by AddedDate,UtilityMasterId DESC) C on C.UtilityMasterId=UM.Id";
+                                from UtilityMaster UM
+                                left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId
+                                --left join (Select MAX(FORMAT(AddedDate,'dd-MMM-yyyy'))LastReadingDate,UtilityMasterId from UtilityTransaction group by AddedDate,UtilityMasterId) A on A.UtilityMasterId=UM.Id
+                                --left join (Select MAX(CONVERT(varchar(5),AddedDate,108))LastReadingTime,UtilityMasterId from UtilityTransaction group by AddedDate,UtilityMasterId) B on B.UtilityMasterId=UM.Id
+                                left join (Select TOP(1) Quantity as LastReading,UtilityMasterId from UtilityTransaction ORDER by AddedDate,UtilityMasterId DESC) C on C.UtilityMasterId=UM.Id";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -97,12 +96,23 @@ namespace Aplos.Areas.Materials.Controllers
         [Authorize, HttpGet]
         public JsonResult GetEditReadingList(string utilityMasterId,string utilityTransactionId)
         {
+            if (utilityTransactionId=="null"|| utilityTransactionId == "undefind")
+            {
+                utilityTransactionId = "";
+            }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select FORMAT(AddedDate,'dd-MMM-yyyy')LastReadingDate,CONVERT(varchar(5),AddedDate,108) LastReadingTime,Quantity LastReading
+            //   var sql = @"select LastReading=(select top(1) Reading from UtilityTransaction  order by Id desc)
+            //, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction  order by Id desc)
+            //, LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction  order by Id desc)
+            //                           from UtilityTransaction
+            //                           Where UtilityMasterId='" + utilityMasterId + @"' and Id='" + utilityTransactionId + @"'";
+
+            string sql = @"Select TOP(1)* from (
+select LastReading=(select top(1) Reading from UtilityTransaction  order by Id desc)
+									, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction  order by Id desc)
+									, LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction  order by Id desc)
                                     from UtilityTransaction
-					                Where UtilityMasterId='" + utilityMasterId + @"'
-                                    and Id in ( select top (1) Id from UtilityTransaction where Id<'" + utilityTransactionId + @"' order by Id desc)
-                                    group by AddedDate,Quantity";
+                                    Where UtilityMasterId='"+ utilityMasterId + "')A";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -119,15 +129,10 @@ namespace Aplos.Areas.Materials.Controllers
                 try
                 {
                     objCon = new ConnectionManager.DAL.ConManager("1");
-                    //string mosql = "SELECT * FROM dbo.UtilityTransaction WHERE Id ='" + data["Id"] + "'";
-                    //objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
 
                     objCon.OpenDataSetThroughAdapter("select * from dbo.UtilityTransaction where Id='" + data["Id"] + "'", out dsMasterOrder, false, "1");
 
-                    string cId = string.Empty;
                     string UtilityTransactionId = "";
-
-
 
                     DataView dv = new DataView(dsMasterOrder.Tables[0]);
                     dv.RowFilter = "Id='" + data["Id"] + "'";
@@ -139,11 +144,6 @@ namespace Aplos.Areas.Materials.Controllers
 
                         data["Id"] = UtilityTransactionId;
                         AddNewRow(dsMasterOrder.Tables[0], data);
-                    }
-                    else
-                    {
-                        data["Id"] = UtilityTransactionId;
-                        EditRow(dsMasterOrder.Tables[0].Rows[0], data);
                     }
 
                     clsStaticInfo obj = new clsStaticInfo();
@@ -159,6 +159,44 @@ namespace Aplos.Areas.Materials.Controllers
             }
 
         }
+
+        [HttpPost]
+        public JsonResult Update(Dictionary<string, object> data)
+        {
+
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMasterOrder;
+                string id = string.Empty;
+                try
+                {
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+
+                    objCon.OpenDataSetThroughAdapter("select * from dbo.UtilityTransaction where Id='" + data["Id"] + "'", out dsMasterOrder, false, "1");
+
+                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                    dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                    if (dsMasterOrder.Tables[0].Rows.Count > 0)
+                    {
+                        EditRow(dsMasterOrder.Tables[0].Rows[0], data);
+                    }
+                    
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMasterOrder);
+
+                    return Json(new { Error = false, Message = AplosMessage.Insert });
+
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { Error = true, Message = ex.Message });
+                }
+            }
+
+        }
+
         public ActionResult Delete(string id)
         {
             try

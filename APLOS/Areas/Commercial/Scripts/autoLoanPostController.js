@@ -85,6 +85,7 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
         $scope.voucher.AccountTitle = autoLoandata.AccountTitle;
         $scope.voucher.Amount = autoLoandata.Amount;
         $scope.voucher.CurrencyId = autoLoandata.CurrencyId;
+        $scope.voucher.BankCurrencyId = autoLoandata.CurrencyId;
         $scope.voucher.DocRefNo = autoLoandata.LoanNo;
         $scope.voucher.PostingDate = $filter("dateFiltering")(autoLoandata.LoanDate);
         $scope.voucher.DocDate = $filter("dateFiltering")(autoLoandata.LoanDate);
@@ -98,6 +99,7 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
         $scope.voucher.BudgetMasterId = autoLoandata.BudgetMasterId;
         $scope.voucher.ActivityId = autoLoandata.ActivityId;
         $scope.voucher.CompanyCurrencyRate = autoLoandata.CompanyCurrencyRate;
+        $scope.voucher.BankBookAmount = Math.round((autoLoandata.Amount * autoLoandata.CompanyCurrencyRate) * 100 + Number.EPSILON) / 100;
         $scope.voucher.InvoiceId = autoLoandata.InvoiceId;
         $scope.voucher.InvoiceDetailId = autoLoandata.InvoiceDetailId;
         $scope.voucher.LoanAgainstAcceptanceId = autoLoandata.LoanAgainstAcceptanceId;
@@ -149,7 +151,6 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
             "value": "Currency"
         }
     ];
-
     baseService.init("Commercial/AutoLoan/GetAutoLoanList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
@@ -170,7 +171,8 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
     });
 
     $scope.getCboVoucherTypeLoanList = function () {
-        cboService.getCboVoucherTypeAutoLoanList(function (result) {
+       /* cboService.getCboVoucherTypeAutoLoanList(function (result) {*/
+            accountService.getCboVoucherTypeLoanList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;

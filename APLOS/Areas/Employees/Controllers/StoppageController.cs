@@ -32,7 +32,7 @@ namespace Aplos.Areas.Employees.Controllers
         #endregion
 
         #region -- Pages
-        [Authorize]
+       
         public ActionResult Aplos()
         {
             return View();
@@ -40,7 +40,7 @@ namespace Aplos.Areas.Employees.Controllers
         #endregion
 
         #region -- Operations
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetCbo(string routeId)
         {
             return Json(_stoppageService.GetCbo(routeId).Rows, JsonRequestBehavior.AllowGet);
@@ -67,7 +67,7 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -190,6 +190,17 @@ namespace Aplos.Areas.Employees.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
+                //ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from mst.RouteStoppage where StoppageId = '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Already used in Route Schedule!!!");
+                }
+
                 strSQL = "DELETE FROM  HKP.Stoppage WHERE Id='" + Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");

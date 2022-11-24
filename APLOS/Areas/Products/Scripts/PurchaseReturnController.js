@@ -34,13 +34,8 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
 	$controller('partyBaseController', { $scope: $scope, $http: $http });
 	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
-	//, CAST(GRNDate AS DATE)
-
 	$scope.POReturnNo = null;
-	//#region notification setting Purchase Return
-
 	$scope.NotificationSettingStatus = function () {
-		//debugger;
 		$http({
 			method: 'GET',
 			url: 'Products/GoodsReceiveNote/NotificationSettingForPurchaserReturn',
@@ -49,7 +44,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			$scope.NotificationSetting = response.data;
 			$scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
 			$scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
-			$scope.GetCheckedByAndApprovedBy1();
+			//$scope.GetCheckedByAndApprovedBy1();
 			if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
 				$scope.productNew.labelCheckAndApproved = 'To be checked by';
 			}
@@ -59,10 +54,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
 				$scope.productNew.labelCheckAndApproved = 'To be checked by';
 			}
-			//else {
-			//    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
-			//}
-
+			
 		});
 	}
 	$scope.NotificationSettingStatus();
@@ -85,12 +77,10 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
 	}
 
-
-
-
-	//#endregion
-
-	//#region New Code start here
+	$scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
+	$scope.searchByPostedGRNList = [{ value: 'Id', name: "GRN No" }, { value: 'GRNDate', name: "GRN Date" }, { value: 'PartyName', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }
+		, { value: 'PostingDate', name: "PostingDate" }, { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
+		, { value: 'DocDate', name: "Doc Date" }];
 
 	$scope.getListPOByReqG = [];
 	$scope.ApprovedGRNList = [];
@@ -98,9 +88,10 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		//debugger;
 		var PoType = 'POByReq';
 		$http({
-			method: "GET",
+			method: "POST",
 			dataType: 'JSON',
-			url: 'Products/GoodsReceiveNote/ApprovedGRNList',
+			url: 'Products/GoodsReceiveNote/PostedGRNListForPurchaseReturn',
+			data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
 		}).then(function successCallback(response) {
 			$scope.ApprovedGRNList = response.data;
 			$scope.productNew.GRNDate = $filter("dateFiltering")(Date.now());
@@ -108,7 +99,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 	};
 
 	$scope.POPopUpGRNPOReqList = function () {
-		//debugger;
 		$scope.ApprovedGRNListFordisplay();
 
 		angular.element(document.querySelector('#POPopUp')).modal('show');
@@ -125,19 +115,14 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			return false;
 		}
 		else {
-			//debugger;
 			$scope.POId1 = x.data.Id;
 			$scope.POID = x.data.POID;
 			$scope.product = $scope.products[$scope.index];
 			$scope.productNew = Object.assign({}, $scope.product);
 			$scope.productNew = x.data;
-			// $scope.productNew.GRNDate = x.data.GRNDate1;
-			$scope.GRNDate = $filter("dateFiltering")(Date.now());
-
+			$scope.productNew.GRNDate = x.data.GRNDate1;
 			$scope.productNew.CheckedBy = "";
-			//$scope.product.CheckedByName = x.data.CheckedByName;
-			//$scope.product.ApprovedByName = x.data.ApprovedByName;
-
+			
 			getPartyPlantList();
 			getInventoryMaterialList(Id);
 			getServiceChargeList(Id);
@@ -145,8 +130,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			getTCSData(Id)
 			$scope.productId = Id;
 
-			//$scope.GetSavedPOList1(Id);
-			//$scope.getToCurrencyRate();
 			if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
 				var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
 				if (paymentTerm.BaseLineDate !== null)
@@ -155,9 +138,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 					else
 						$scope.IsBaseOnDueDateEnable = false;
 			}
-
-			//$scope.Action = 'Update';
-			//if (!$rootScope.isCollapsed) $rootScope.toggle();
 
 			angular.element(document.querySelector('#POPopUp')).modal('hide');
 		}
@@ -173,17 +153,14 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 				$scope.inventoryMaterialList = response.data;
 				$scope.inventoryMaterialListPO = response.data;
 				$scope.POIDs = $scope.inventoryMaterialList.POId;
-				//$scope.productNew.CheckedBy = $scope.inventoryMaterialList[0].CheckedBy;
 				$scope.productNew.PODate = $scope.inventoryMaterialList[0].AddedDate;
 				checkSameValueInColumnList($scope.inventoryMaterialList, 'TransactionUoM');
 				getGrossAmount($scope.inventoryMaterialList, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
-				//$scope.GetMaterialTaxData();
 				$scope.GetPOMaterialTaxData();
 			});
 	}
 
 	function getPartyPlantList() {
-		//debugger;
 		$scope.plantList = [];
 		$http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId).then(function (response) {
 			angular.forEach(response.data, function (item) {
@@ -203,8 +180,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 	}
 
 	$scope.calculateAmount1 = function (data, index) {
-
-		//debugger;
 		if ($scope.Action === 'Save') {
 			data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);//BooksCurrencyBaseRate
 			if (data.TrnAmount == 'NaN')
@@ -248,7 +223,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 					}
 					$scope.inventoryMaterialList[i].TrnAmount = Math.round(data.TrnAmount * 100 + Number.EPSILON) / 100;
 					$scope.inventoryMaterialList[i].ServiceCharge = Math.round((data.ServiceChargeGRN * data.TransactionQty) * 100 + Number.EPSILON) / 100; //* $scope.inventoryMaterialList[i].TrnAmount;
-					//$scope.inventoryMaterialList[i].ServiceTax = parseFloat(ServiceTax).toFixed(2);// * $scope.inventoryMaterialList[i].TrnAmount;
 					$scope.inventoryMaterialList[i].BaseTaxAmount = Math.round(data.BaseTaxAmount * 100 + Number.EPSILON) / 100;//+ $scope.inventoryMaterialList[i].OtherReturned
 					$scope.inventoryMaterialList[i].Balance = (($scope.inventoryMaterialList[i].GRNReceived - ($scope.inventoryMaterialList[i].BaseIssueQty + $scope.inventoryMaterialList[i].ReductionByAdjustmentQty + $scope.inventoryMaterialList[i].InventorySalesQty + $scope.inventoryMaterialList[i].InventoryScrapQty + $scope.inventoryMaterialList[i].PurchaseReturnQty) + $scope.inventoryMaterialList[i].IssueReturnQty) - $scope.inventoryMaterialList[i].TransactionQty);
 					var totalTaxAmountTemp = 0;
@@ -257,18 +231,12 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 				else {
 					if ($scope.inventoryMaterialList[i].InventoryReceiveDetailId == data.InventoryReceiveDetailId) {
 						$scope.inventoryMaterialList[i].ServiceCharge = Math.round((TotalServiceAmount * data.TransactionQty) * 100 + Number.EPSILON) / 100; //* $scope.inventoryMaterialList[i].TrnAmount;
-						//$scope.inventoryMaterialList[i].ServiceTax = parseFloat(ServiceTax).toFixed(2);// * $scope.inventoryMaterialList[i].TrnAmount;
 						$scope.inventoryMaterialList[i].BaseTaxAmount = Math.round(data.BaseTaxAmount * 100 + Number.EPSILON) / 100;//+ $scope.inventoryMaterialList[i].OtherReturned 
 						$scope.inventoryMaterialList[i].Balance = (($scope.inventoryMaterialList[i].GRNReceived - ($scope.inventoryMaterialList[i].BaseIssueQty + $scope.inventoryMaterialList[i].ReductionByAdjustmentQty + $scope.inventoryMaterialList[i].InventorySalesQty + $scope.inventoryMaterialList[i].InventoryScrapQty + $scope.inventoryMaterialList[i].PurchaseReturnQty) + $scope.inventoryMaterialList[i].IssueReturnQty) - $scope.inventoryMaterialList[i].TransactionQty);
 						var totalTaxAmountTemp = 0;
 						var ServiceMasterId = '';
-						
 					}
-
 				}
-				
-
-
 			}
 			for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
 				for (var i4 = 0; i4 < $scope.chargesList.length; i4++) {					
@@ -276,10 +244,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 					for (var i2 = 0; i2 < $scope.ServiceTaxList.length; i2++) {
 						if ($scope.chargesList[i4].ServiceMasterId === $scope.ServiceTaxList[i2].ServiceMasterId) {
 							$scope.ServiceTaxList[i2].TaxAmount = Math.round((($scope.chargesList[i4].Amount * $scope.ServiceTaxList[i2].Percentage).toFixed(2) / 100) * 100 + Number.EPSILON) / 100;
-						
 						}
-					
-
 					}
 					var TotalChargesTaxSum = $filter('sumByKey')($filter('filter')($scope.ServiceTaxList, { "ServiceMasterId": $scope.chargesList[i4].ServiceMasterId }), 'TaxAmount');
 					$scope.chargesList[i4].TotalTaxAmount = Math.round(TotalChargesTaxSum * 100 + Number.EPSILON) / 100;
@@ -357,7 +322,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 					}
 					$scope.inventoryMaterialList[i].TrnAmount = Math.round(data.TrnAmount * 100 + Number.EPSILON) / 100;
 					$scope.inventoryMaterialList[i].ServiceCharge = Math.round((data.ServiceChargeGRN * data.TransactionQty) * 100 + Number.EPSILON) / 100; //* $scope.inventoryMaterialList[i].TrnAmount;
-					//$scope.inventoryMaterialList[i].ServiceTax = parseFloat(ServiceTax).toFixed(2);// * $scope.inventoryMaterialList[i].TrnAmount;
 					$scope.inventoryMaterialList[i].BaseTaxAmount = Math.round(data.BaseTaxAmount * 100 + Number.EPSILON) / 100;//+ $scope.inventoryMaterialList[i].OtherReturned
 					$scope.inventoryMaterialList[i].Balance = (($scope.inventoryMaterialList[i].GRNReceived - ($scope.inventoryMaterialList[i].BaseIssueQty + $scope.inventoryMaterialList[i].ReductionByAdjustmentQty + $scope.inventoryMaterialList[i].InventorySalesQty + $scope.inventoryMaterialList[i].InventoryScrapQty + $scope.inventoryMaterialList[i].PurchaseReturnQty) + $scope.inventoryMaterialList[i].IssueReturnQty) - $scope.inventoryMaterialList[i].TransactionQty);
 					var totalTaxAmountTemp = 0;
@@ -366,7 +330,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 				else {
 					if ($scope.inventoryMaterialList[i].InventoryReceiveDetailId == data.InventoryReceiveDetailId) {
 						$scope.inventoryMaterialList[i].ServiceCharge = Math.round((TotalServiceAmount * data.TransactionQty) * 100 + Number.EPSILON) / 100; //* $scope.inventoryMaterialList[i].TrnAmount;
-						//$scope.inventoryMaterialList[i].ServiceTax = parseFloat(ServiceTax).toFixed(2);// * $scope.inventoryMaterialList[i].TrnAmount;
 						$scope.inventoryMaterialList[i].BaseTaxAmount = Math.round(data.BaseTaxAmount * 100 + Number.EPSILON) / 100;//+ $scope.inventoryMaterialList[i].OtherReturned 
 						$scope.inventoryMaterialList[i].Balance = (($scope.inventoryMaterialList[i].GRNReceived - ($scope.inventoryMaterialList[i].BaseIssueQty + $scope.inventoryMaterialList[i].ReductionByAdjustmentQty + $scope.inventoryMaterialList[i].InventorySalesQty + $scope.inventoryMaterialList[i].InventoryScrapQty + $scope.inventoryMaterialList[i].PurchaseReturnQty) + $scope.inventoryMaterialList[i].IssueReturnQty) - $scope.inventoryMaterialList[i].TransactionQty);
 						var totalTaxAmountTemp = 0;
@@ -414,58 +377,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 				var Totalsumtrnamt = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialList), 'TrnAmount');
 				$scope.inventoryMaterialList[i7].ServiceTax = Math.round(((TotalServiceNewTax / Totalsumtrnamt) * $scope.inventoryMaterialList[i7].TrnAmount) * 100 + Number.EPSILON) / 100;
 			}
-			//data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
-			//if (data.TrnAmount == 'NaN')
-			//	data.TrnAmount = 0;
-			//data.TaxAmount = 0;
-			//data.BaseTaxAmount = 0;
-			//angular.forEach(data.POMaterialTaxList, function (item) {
-			//	item.TaxAmount = data.TrnAmount * item.Percentage / 100;
-			//	data.BaseTaxAmount += item.TaxAmount;
-			//});			
-			//data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-			//var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesList), 'Amount');
-			//var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialList), 'TrnAmount');
-			//var TotalServiceTaxAmount = $filter('sumByKey')($filter('filter')($scope.ServiceTaxList), 'TaxAmount');
-			//for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-			//	if ($scope.inventoryMaterialList[i].InventoryReceiveDetailId == data.InventoryReceiveDetailId) {
-			//		if (data.TransactionQty <= ($scope.inventoryMaterialList[i].GRNReceived - ($scope.inventoryMaterialList[i].BaseIssueQty + $scope.inventoryMaterialList[i].OtherReturned + $scope.inventoryMaterialList[i].ReductionByAdjustmentQty + $scope.inventoryMaterialList[i].InventorySalesQty + $scope.inventoryMaterialList[i].InventoryScrapQty + $scope.inventoryMaterialList[i].PurchaseReturnQty + $scope.inventoryMaterialList[i].InventoryTransferQty) + $scope.inventoryMaterialList[i].IssueReturnQty)) {
-
-			//		}
-			//		else {
-			//			ShowResult('Return qty can not grater than balance qty', 'failure');
-			//			$scope.inventoryMaterialList[i].TransactionQty = "";
-			//		}
-			//		$scope.inventoryMaterialList[i].TrnAmount = data.TrnAmount;
-			//		$scope.inventoryMaterialList[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount); //* $scope.inventoryMaterialList[i].TrnAmount;
-			//		$scope.inventoryMaterialList[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount);// * $scope.inventoryMaterialList[i].TrnAmount;
-			//		$scope.inventoryMaterialList[i].BaseTaxAmount = (data.BaseTaxAmount).toFixed(2);
-			//		$scope.inventoryMaterialList[i].Balance = (($scope.inventoryMaterialList[i].GRNReceived - ($scope.inventoryMaterialList[i].BaseIssueQty + $scope.inventoryMaterialList[i].OtherReturned + $scope.inventoryMaterialList[i].ReductionByAdjustmentQty + $scope.inventoryMaterialList[i].InventorySalesQty + $scope.inventoryMaterialList[i].InventoryScrapQty + $scope.inventoryMaterialList[i].PurchaseReturnQty) + $scope.inventoryMaterialList[i].IssueReturnQty) - $scope.inventoryMaterialList[i].TransactionQty);
-			//	}
-			//	else {
-			//		if ($scope.inventoryMaterialList[i].InventoryReceiveDetailId == data.InventoryReceiveDetailId) {
-			//			$scope.inventoryMaterialList[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialList[i].TrnAmount;
-			//			$scope.inventoryMaterialList[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialList[i].TrnAmount;
-			//			$scope.inventoryMaterialList[i].BaseTaxAmount = (data.BaseTaxAmount).toFixed(2);
-			//			$scope.inventoryMaterialList[i].Balance = (($scope.inventoryMaterialList[i].GRNReceived - ($scope.inventoryMaterialList[i].BaseIssueQty + $scope.inventoryMaterialList[i].OtherReturned + $scope.inventoryMaterialList[i].ReductionByAdjustmentQty + $scope.inventoryMaterialList[i].InventorySalesQty + $scope.inventoryMaterialList[i].InventoryScrapQty + $scope.inventoryMaterialList[i].PurchaseReturnQty) + $scope.inventoryMaterialList[i].IssueReturnQty) - $scope.inventoryMaterialList[i].TransactionQty);
-			//		}
-
-			//	}
-			//	if ($scope.productNew.IsNonCreditable == 1) {
-			//		if ($scope.inventoryMaterialList[i].InventoryReceiveDetailId == data.InventoryReceiveDetailId) {
-			//			$scope.inventoryMaterialList[i].TotalMaterialTranAmount = parseFloat(parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)).toFixed(2);//data.TrnAmount+;//
-			//			$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = parseFloat(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.productNew.ToCurrencyRate)).toFixed(2);//data.TrnAmount;
-			//		}
-			//	}
-			//	else {
-			//		if ($scope.inventoryMaterialList[i].InventoryReceiveDetailId == data.InventoryReceiveDetailId) {
-			//			//$scope.inventoryMaterialList[i].TotalMaterialTranAmount = data.TrnAmount;//parseFloat(parseFloat(data.TrnAmount) + parseFloat(data.ServiceCharge)).toFixed(2);
-			//			//$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = data.TrnAmount;//parseFloat((parseFloat(data.TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.productNew.ToCurrencyRate).toFixed(2);
-			//			$scope.inventoryMaterialList[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge)).toFixed(2);
-			//			$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = (parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) * $scope.productNew.ToCurrencyRate).toFixed(2);
-			//		}
-			//	}
-			//}
+			
 			
 		}
 
@@ -617,6 +529,33 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		});
 	}
 	$scope.GetPurchaseReturnCheckedBy();
+	$scope.invalidPostingDate = false;
+
+	$scope.checkPostingDate = function () {
+		var msg = "";
+		if (new Date($scope.GRNDate) > new Date()) {
+			msg = "Return date must be below or equal to current Date!";
+			$scope.currencyExchangeRate = [];
+			$scope.invalidPostingDate = true;
+		}
+		else if (new Date($scope.productNew.GRNDate) > new Date($scope.GRNDate)) {
+			msg = "Return date must be below or equal to GRN Date!";
+			$scope.invalidPostingDate = true;
+		}
+		else if (new Date($scope.GRNDate) < new Date($scope.productNew.DocDate)) {
+			msg = "Doc date must be below or equal to Return Date!";
+			$scope.invalidPostingDate = true;
+		}
+		
+		else if (baseService.isUndefinedOrNull($scope.GRNDate)) {
+			msg = "Return Date is required.";
+			$scope.invalidPostingDate = true;
+		}
+		else {
+			$scope.invalidPostingDate = false;
+		}
+		return manualValidation("div_ReturnDate", $scope.invalidPostingDate, msg);
+	};
 
 	$scope.inventoryMaterialListPOnew = [];
 	$scope.Save = function () {
@@ -628,14 +567,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			}
 			if (baseService.isUndefinedOrNull($scope.productNew.InvoicingPartyPlantId)) return ShowResult('Invoicing by is required', 'failure');
 			if (baseService.isUndefinedOrNull($scope.productNew.DeliveryPartyPlantId)) return ShowResult('Delivery by is required', 'failure');
-			$scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
-			$scope.modelValidation('div_docDate', 'productNew', 'DocDate');
-			$scope.modelValidation('div_entryNo', 'productNew', 'GateEntryNo');
-			$scope.modelValidation('div_entryDate', 'productNew', 'EntryDate', 'Gate Entry Date');
-			if ($scope.Action === 'Update')
-				$scope.modelValidation('div_grnNo', 'productNew', 'Id');
-			//  $scope.modelValidation('div_grnDate', 'productNew', 'GRNDate');
-
 			$scope.manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');
 
 			if ($scope.productNew.CurrencyId !== $scope.productNew.BaseCurrencyId)
@@ -644,14 +575,8 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 				manualValidation('div_rate', false);
 
 			$scope.$broadcast('show-errors-check-validity');
-			if ($scope.productNewForm.$valid) {
-				//if (new Date($scope.productNew.EntryDate) < new Date($scope.productNew.DocDate))
-				//	return manualValidation('div_entryDate', true, "Gate entry date can't be less than Doc Date");
-				//else
-				//	manualValidation('div_entryDate', false);
-				//if (new Date($scope.productNew.GRNDate) < new Date($scope.productNew.EntryDate))
-				//	return manualValidation('div_grnDate', true, "GRN date can't be less than gate entry date");
-				//else
+			if ($scope.productNewForm.$valid && !$scope.invalidPostingDate) {
+				
 					manualValidation('div_grnDate', false);
 				$scope.productNew.POReturnDate = $scope.GRNDate;
 
@@ -659,11 +584,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 				$scope.product = Object.assign({}, $scope.productNew);
 				$scope.product.POId = $scope.POId;
 				$scope.product.InventoryReceiveId = $scope.POId1;
-				//for (var i = 0; i < $scope.chargesList.length; i++) {
-
-				//	$scope.ServiceTaxList.ServiceMasterId = $scope.chargesList[i].ServiceMasterId;
-				//}
-
+				
 				if ($scope.Action === "Save") {
 					$scope.inventoryMaterialListPOnew = [];
 					for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
@@ -954,13 +875,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		if ($scope.Action === 'Update') {
 			$scope.taxAbleAmnt = data.TrnAmount;
 			$scope.percentageColumn = flag;
-			//$http({
-			//    method: 'GET',
-			//    url: $scope.path + 'GetReceiveTaxListGRNPurchaseReturnModifyshowtax?receiveDetailId=' + data.InventoryReceiveDetailId
-			//}).then(function (response) {
-			//    $scope.receiveTaxList = response.data;
-			//    angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
-			//});
+			
 			for (var i = 0; i < $scope.POMaterialTaxList.length; i++) {
 				if ($scope.POMaterialTaxList[i].PurchaseReturnDetailId === Id) {
 					$scope.receiveTaxList.push($scope.POMaterialTaxList[i]);
@@ -972,13 +887,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		else {
 			$scope.taxAbleAmnt = data.TrnAmount;
 			$scope.percentageColumn = flag;
-			//$http({
-			//    method: 'GET',
-			//    url: $scope.path + 'GetReceiveTaxListGRNPurchaseReturnSaveshowtax?receiveDetailId=' + data.InventoryReceiveDetailId
-			//}).then(function (response) {
-			//    $scope.receiveTaxList = response.data;
-			//    angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
-			//});
+			
 
 			for (var i = 0; i < $scope.POMaterialTaxList.length; i++) {
 				if ($scope.POMaterialTaxList[i].InventoryReceiveDetailId === Id) {
@@ -990,26 +899,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
 		}
 
-
-		////debugger;
-		//$scope.taxAbleAmnt = data.TrnAmount;
-		//$scope.percentageColumn = flag;
-		//$scope.Currency = $("#currency option:selected").text();
-		//$scope.currentMaterialRow = index;
-		//$scope.currentInventoryReceiveDetailIdRow = Id;
-		//$scope.taxAbleAmnt = data.TrnAmount;
-		//$scope.percentageColumn = flag;
-		//$scope.currentMaterialRow = index;
-		//$scope.receiveTaxList = [];
-		//if (data.POMaterialTaxList.length > 0) {
-		//    $scope.HSNCode = data.POMaterialTaxList[0].HSNCode;
-		//    $scope.receiveTaxList = data.POMaterialTaxList;
-		//}
-		//$scope.total = 0;
-		//for (var j = 0; j < $scope.receiveTaxList.length; j++) {
-		//    $scope.total = $scope.total + $scope.receiveTaxList[j].TaxAmount;
-		//}
-		//angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
 
 	};
 
@@ -1025,29 +914,10 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		else {
 			if (event.currentTarget.checked) {
 
-
-
-				//$scope.index = index;
-				////$scope.staus = false;
-				//x.enableid = false;
-
-				//if (x.POQty === (x.GRNRcvQty + x.TransactionQty)) {
-				//    x.POClosStatus = true;
-				//}
-				//else if (x.POQty > (x.GRNRcvQty + x.TransactionQty)) {
-				//    $scope.PODetailId = x.PODetailId;
-				//    $scope.message = 'Are you want to close this PO line item?';
-				//    angular.element(document.querySelector('#ConfirmationForReqClosePopUp')).modal('show');
-				//}
 			}
 			else {
-				//x.enableid = true;
-				////$scope.index = index;
-				//x.POClosStatus = false;
-				//x.TransactionQty = "";
-				//x.Balance = x.POQty - x.GRNRcvQty;//parseFloat(x.POQty - x.GRNRcvQty).toFixed(2);
+				
 				x.enableid = true;
-				//$scope.index = index;
 				x.POClosStatus = false;
 				x.TransactionQty = "";
 				x.Balance = (x.GRNReceived - (x.OtherReturned + x.BaseIssueQty));//parseFloat(x.POQty - x.GRNRcvQty).toFixed(2);
@@ -1108,102 +978,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 	};
 
 
-
-	//#endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	//#region GRN Detail
 	$scope.lst = [];
 	$scope.GRNListDetails = function () {
@@ -1237,13 +1011,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		});
 		e.detailsElement.find(".tabcontrol").ejTab();
 	}
-
-
-
-
-
-
-
 
 
 	$scope.PurchaserReturn1st = [];
@@ -1930,37 +1697,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		});
 	};
 	$scope.closeReceiveTaxPopUp = function () {
-		//debugger;
-		//$scope.detailModel = {};
-		//$scope.receiveTaxList = [];
-
-		//for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-		//    //if ($scope.inventoryMaterialListPO[i].PODetailsID == data.PODetailsID) {
-		//    //    $scope.inventoryMaterialListPO[i].TrnAmount = data.TrnAmount;
-		//    //    $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//    //    $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//    //    $scope.inventoryMaterialListPO[i].Balance = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
-		//    //}
-		//    //else {
-		//    //    $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//    //    $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//    //    $scope.inventoryMaterialListPO[i].Balance = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
-		//    //}
-		//    if ($scope.productNew.IsNonCreditable == 1) {
-		//        //data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);               
-		//        //$scope.inventoryMaterialListPO[i].BaseAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat(data.ServiceTax);
-		//        $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax);
-		//        $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax)) * $scope.productNew.ToCurrencyRate);
-
-
-		//    }
-		//    else {
-		//        //data.BaseAmount = parseFloat(data.TrnAmount) + parseFloat(data.ServiceCharge);
-		//        $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge);
-		//        $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate);
-		//    }
-
-		//}
+	
 		angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
 	}
 
@@ -1988,17 +1725,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			angular.element(document.querySelector('#ValueSet')).modal('hide');
 		}
 		else {
-			//for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-			//    if ($scope.inventoryMaterialList[i].InventoryReceiveDetailId === $scope.PODetailsID) {
-			//        $scope.inventoryMaterialList[i].ShortageRate = $scope.inventoryMaterialList[i].ShortageRate;
-			//        $scope.inventoryMaterialList[i].ShortageValue = $scope.inventoryMaterialList[i].ShortageValue;
-			//        $scope.inventoryMaterialList[i].RejectionRate = $scope.inventoryMaterialList[i].RejectionRate;
-			//        $scope.inventoryMaterialList[i].RejectionValue = $scope.inventoryMaterialList[i].RejectionValue;
-			//        $scope.inventoryMaterialList[i].RejectionClamRate = $scope.inventoryMaterialList[i].RejectionClamRate;
-			//    }
-
-
-			//}
+			
 			for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
 				var row = $filter('filter')($scope.new1, { 'PODetailsID': $scope.inventoryMaterialList[i].PODetailsID });
 				if (row.length != 0) {
@@ -2018,58 +1745,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			}
 			angular.element(document.querySelector('#ValueSet')).modal('hide');
 		}
-		//angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//     if ($scope.Action === 'Save') {
-		//         for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-		//             var row = $filter('filter')($scope.new, { 'PODetailsID': $scope.inventoryMaterialList[i].PODetailsID });
-		//             if (row.length != 0) {
-		//                 if ($scope.inventoryMaterialList[i].PODetailsID === row[0].PODetailsID) {
-		//                     $scope.inventoryMaterialList[i].ShortageRate = row[0].ShortageRate;
-		//                     $scope.inventoryMaterialList[i].ShortageValue = row[0].ShortageValue;
-		//                     $scope.inventoryMaterialList[i].RejectionRate = row[0].RejectionRate;
-		//                     $scope.inventoryMaterialList[i].RejectionValue = row[0].RejectionValue;
-		//                     $scope.inventoryMaterialList[i].RejectionClamRate = row[0].RejectionClamRate;
-		//		}
-		//		//angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//             }
-		//             else {
-		//                 angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//             }
-		//	angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//}
-		//angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//     }
-		//     else {
-		//         //for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-		//         //    if ($scope.inventoryMaterialList[i].InventoryReceiveDetailId === $scope.PODetailsID) {
-		//         //        $scope.inventoryMaterialList[i].ShortageRate = $scope.inventoryMaterialList[i].ShortageRate;
-		//         //        $scope.inventoryMaterialList[i].ShortageValue = $scope.inventoryMaterialList[i].ShortageValue;
-		//         //        $scope.inventoryMaterialList[i].RejectionRate = $scope.inventoryMaterialList[i].RejectionRate;
-		//         //        $scope.inventoryMaterialList[i].RejectionValue = $scope.inventoryMaterialList[i].RejectionValue;
-		//         //        $scope.inventoryMaterialList[i].RejectionClamRate = $scope.inventoryMaterialList[i].RejectionClamRate;
-		//         //    }
-
-
-		//         //}
-		//         for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-		//             var row = $filter('filter')($scope.new1, { 'PODetailsID': $scope.inventoryMaterialList[i].PODetailsID });
-		//             if (row.length != 0) {
-		//                 if ($scope.inventoryMaterialList[i].PODetailsID === row[0].PODetailsID) {
-		//                     $scope.inventoryMaterialList[i].ShortageRate = row[0].ShortageRate;
-		//                     $scope.inventoryMaterialList[i].ShortageValue = row[0].ShortageValue;
-		//                     $scope.inventoryMaterialList[i].RejectionRate = row[0].RejectionRate;
-		//                     $scope.inventoryMaterialList[i].RejectionValue = row[0].RejectionValue;
-		//                     $scope.inventoryMaterialList[i].RejectionClamRate = row[0].RejectionClamRate;
-		//		}
-
-		//             }
-		//             else {
-		//                 angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//             }
-		//	angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//         }
-		//     }        
-		//     angular.element(document.querySelector('#ValueSet')).modal('hide');
+		
 	}
 
 
@@ -2249,19 +1925,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 	};
 
 
-	//Command By shakawat If need open
-	//$scope.getServiceTaxListPO = function (data, flag) {
-	//    //debugger;
-	//    $scope.taxAbleAmnt = data.Amount + data.TotalTaxAmount;
-	//    $scope.percentageColumn = flag;
-	//    $http({
-	//        method: 'GET',
-	//        url: $scope.path + 'GetServiceTaxListPO?serviceId=' + data.Id
-	//    }).then(function (response) {
-	//        $scope.receiveTaxListPO = response.data;
-	//        angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
-	//    });
-	//}
 
 	function getServiceChargeList(inveReveiveId) {
 		$scope.masterId12 = inveReveiveId;
@@ -2405,14 +2068,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		}
 
 
-
-
-
-
-
-		//debugger;
-
-
 	}
 
 	$scope.GetSavedPOListNew = [];
@@ -2456,20 +2111,13 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		});
 	};
 	$scope.recorddoubleclickGateEntry = function ($event) {
-		//debugger;
 		var x = $event;
 		var Id = x.data.Id;
-		//alert('Id'+Id);
-		// $scope.productNew = x.data;
-		//  $scope.productId = "";
 		$scope.productNew.GateEntryNo = x.data.Id;
 		$scope.productNew.EntryDate = x.data.EntryDate;
 
 		$scope.POPopUpCloseGateEntry();
 	}
-
-
-
 
 
 
@@ -2498,11 +2146,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 	};
 
 	$scope.getReceiveTaxListPOValueSet = function (data, flag, index, Id) {
-		//debugger;
-		//$scope.TransactionRate = '';
-		//$scope.ShortageQty = '';
-		//$scope.RejectionQty ='';
-		//$scope.PODetailsID = '';
+	
 		if ($scope.Action === 'Save') {
 			$scope.ShortageRate = '';
 			$scope.ShortageValue = '';
@@ -2562,43 +2206,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		//debugger;
 		//angular.element(document.querySelector('#ValueSet')).modal('show');
 		if ($scope.Action === 'Save') {
-			//$scope.ShortageRate = '';
-			//$scope.ShortageValue = '';
-			//$scope.RejectionRate = '';
-			//$scope.RejectionValue = '';
-			//$scope.RejectionClamRate = '';
-			//for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-			//    $scope.MaterialGroupMasterName = $scope.inventoryMaterialListPO[i].MaterialGroupMasterName;
-			//    $scope.UserName = $scope.inventoryMaterialListPO[i].UserName;
-			//    $scope.StandardName = $scope.inventoryMaterialListPO[i].StandardName;
-			//    $scope.FirstCharacteristicsValue = $scope.inventoryMaterialListPO[i].FirstCharacteristicsValue;
-			//    $scope.SecondCharacteristicsValue = $scope.inventoryMaterialListPO[i].SecondCharacteristicsValue;
-			//    $scope.ThirdCharacteristicsValue = $scope.inventoryMaterialListPO[i].ThirdCharacteristicsValue;
-
-			//    $scope.TransactionRate = $scope.inventoryMaterialListPO[i].TransactionRate;
-			//    $scope.ShortageQty = $scope.inventoryMaterialListPO[i].ShortageQty;
-			//    $scope.RejectionQty = $scope.inventoryMaterialListPO[i].RejectionQty;
-
-			//    $scope.PODetailsID = $scope.inventoryMaterialListPO[i].PODetailsID;
-			//    $scope.ShortageRate = $scope.inventoryMaterialListPO[i].ShortageRate;
-			//    $scope.ShortageValue = $scope.inventoryMaterialListPO[i].ShortageValue;
-			//    $scope.RejectionRate = $scope.inventoryMaterialListPO[i].RejectionRate;
-			//    $scope.RejectionValue = $scope.inventoryMaterialListPO[i].RejectionValue;
-			//    $scope.RejectionClamRate = $scope.inventoryMaterialListPO[i].RejectionClamRate;
-			//}
-			//GetInventoryMaterialListByPO($scope.POId);
-			//$scope.ShortageRate = '110';
-
-			//$scope.CalculateShortageValPop = function () {
-			//    //debugger;
-			//    for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-			//        $scope.inventoryMaterialListPO[i].ShortageRate = 110;
-			//        $scope.inventoryMaterialListPO[i].ShortageValue = ($scope.inventoryMaterialListPO[i].TransactionRate * $scope.inventoryMaterialListPO[i].ShortageRate) / 100;
-			//        $scope.inventoryMaterialListPO[i].RejectionRate = 50;
-			//        $scope.inventoryMaterialListPO[i].RejectionValue = ($scope.inventoryMaterialListPO[i].TransactionRate * $scope.inventoryMaterialListPO[i].RejectionRate) / 100;
-			//        $scope.inventoryMaterialListPO[i].RejectionClamRate = (100 - $scope.inventoryMaterialListPO[i].RejectionRate);
-			//    }
-			//}
+			
 			$scope.new = [];
 			//$scope.new = $scope.inventoryMaterialListPO;
 			for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
@@ -2626,48 +2234,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			angular.element(document.querySelector('#ValueSet')).modal('show');
 		}
 		else {
-			//$scope.ShortageRate = '';
-			//$scope.ShortageValue = '';
-			//$scope.RejectionRate = '';
-			//$scope.RejectionValue = '';
-			//$scope.RejectionClamRate = '';
-			//$scope.MaterialGroupMasterName = data.MaterialGroupMasterName;
-			//$scope.UserName = data.UserName;
-			//$scope.StandardName = data.StandardName;
-			//$scope.FirstCharacteristicsValue = data.FirstCharacteristicsValue;
-			//$scope.SecondCharacteristicsValue = data.SecondCharacteristicsValue;
-			//$scope.ThirdCharacteristicsValue = data.ThirdCharacteristicsValue;
-
-			//$scope.TransactionRate = data.TransactionRate;
-			//$scope.ShortageQty = data.ShortageQty;
-			//$scope.RejectionQty = data.RejectionQty;
-
-			//$scope.PODetailsID = data.InventoryReceiveDetailId;
-			//$scope.ShortageRate = data.ShortageRate;
-			//$scope.ShortageValue = data.ShortageValue;
-			//$scope.RejectionRate = data.RejectionRate;
-			//$scope.RejectionValue = data.RejectionValue;
-			//$scope.RejectionClamRate = data.RejectionClamRate;
-
-			//$scope.inventoryMaterialListPO = $scope.inventoryMaterialList;
-			//$scope.new = [];
-			//$scope.new = $scope.inventoryMaterialListPO;
-			//$scope.inventoryMaterialList = [];
-			//for (var i = 0; i < $scope.new.length; i++) {
-			//    if ($scope.new[i].check == true) {
-			//        if ($scope.new[i].ShortageQty > 0 || $scope.new[i].RejectionQty >0) {
-			//            $scope.new[i].ShortageRate = 110;
-			//            $scope.new[i].ShortageValue = ($scope.new[i].TransactionRate * $scope.new[i].ShortageRate) / 100;
-			//            $scope.new[i].RejectionRate = 50;
-			//            $scope.new[i].RejectionValue = ($scope.new[i].TransactionRate * $scope.new[i].RejectionRate) / 100;
-			//            $scope.new[i].RejectionClamRate = (100 - $scope.new[i].RejectionRate);
-			//            $scope.inventoryMaterialList.push($scope.new[i]);
-			//        }
-
-			//    }
-			//}
-			//angular.element(document.querySelector('#ValueSet')).modal('show');
-
+		
 			$scope.new1 = [];
 
 			for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
@@ -2822,15 +2389,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			$scope.total = $scope.total + $scope.ServiceTaxList[j].TaxAmount;
 		}
 		angular.element(document.querySelector('#ServiceTaxPopUp')).modal('show');
-		//$http({
-		//    method: 'GET',
-		//    url: $scope.path + 'GetServiceTaxListPO?serviceId=' + data.Id
-		//}).then(function (response) {
-		//    $scope.receiveTaxList = response.data;
-		//    angular.element(document.querySelector('#ServiceTaxPopUp')).modal('show');
-		//});
-
-
+	
 	}
 
 
@@ -2854,57 +2413,13 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			$scope.total = $scope.total + $scope.ServiceTaxList[j].TaxAmount;
 		}
 		angular.element(document.querySelector('#ServiceTaxPopUp')).modal('show');
-		//$http({
-		//    method: 'GET',
-		//    url: $scope.path + 'GetServiceTaxListPO?serviceId=' + data.Id
-		//}).then(function (response) {
-		//    $scope.receiveTaxList = response.data;
-		//    angular.element(document.querySelector('#ServiceTaxPopUp')).modal('show');
-		//});
 
 	}
 
 	$scope.closeReceiveTaxPopUp1 = function () {
-		//var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesListPO), 'Amount');
-		//var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO), 'TrnAmount');
-		//var TotalServiceTaxAmount = $filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount');
-		//for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-		//	//if ($scope.inventoryMaterialListPO[i].PODetailsID == data.Id) {
-		//	//$scope.inventoryMaterialListPO[i].TrnAmount = data.TrnAmount;
-		//	$scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//	$scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//	//}
-		//	//else {
-		//	//    $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//	//    $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//	//}
-		//	if ($scope.productNew.IsNonCreditable == 1) {
-		//		//data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//		$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax);
-		//		$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax)) * $scope.productNew.ToCurrencyRate);
-
-		//	}
-		//	else {
-		//		$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge);
-		//		$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate);
-		//	}
-
-		//}
+		
 		angular.element(document.querySelector('#ServiceTaxPopUp')).modal('hide');
 	}
-
-	//$scope.enable = true;
-	//$scope.selectAll = function () {
-	//    // Loop through all the entities and set their isChecked property
-	//    for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-	//        $scope.model.entities[i].isChecked = $scope.model.allItemsSelected;
-	//    }
-	//};
-
-
-
-
-
 
 	$scope.YesMessageForClosed = function ($event) {
 		//debugger
@@ -2952,13 +2467,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			data.BaseTaxAmount += item.TaxAmount;
 		});
 		data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-		//if ($scope.productNew.IsNonCreditable==1) {
-		//    //data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//    data.BaseAmount = data.TrnAmount+ data.BaseTaxAmount;
-		//}
-		//else {
-		//    data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-		//}
+		
 
 	};
 	$scope.calculateAmount = function (data, index) {
@@ -3002,28 +2511,18 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			else {
 				if ($scope.inventoryMaterialListPO[i].PODetailsID == data.PODetailsID) {
 					$scope.inventoryMaterialListPO[i].TrnAmount = data.TrnAmount;
-					//$scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-					//$scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
 					$scope.inventoryMaterialListPO[i].Balance = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
-					//$scope.inventoryMaterialListPO[i].ShortageQty = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
 					$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - ($scope.inventoryMaterialListPO[i].ShortageQty + $scope.inventoryMaterialListPO[i].RejectionQty));
-					//$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].RejectionQty);
 					$scope.inventoryMaterialListPO[i].NetQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].ShortageQty);
 
 				}
 				else {
-					//$scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-					//$scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
 					$scope.inventoryMaterialListPO[i].Balance = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
-					//$scope.inventoryMaterialListPO[i].ShortageQty = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty+$scope.inventoryMaterialListPO[i].TransactionQty));
 					$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - ($scope.inventoryMaterialListPO[i].ShortageQty + $scope.inventoryMaterialListPO[i].RejectionQty));
-					//$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].RejectionQty);
 					$scope.inventoryMaterialListPO[i].NetQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].ShortageQty);
 				}
 				if ($scope.productNew.IsNonCreditable == 1) {
 					if ($scope.inventoryMaterialListPO[i].PODetailsID == data.PODetailsID) {
-						//data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);               
-						//$scope.inventoryMaterialListPO[i].BaseAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat(data.ServiceTax);
 						$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat(data.ServiceTax)).toFixed(2);
 						$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.productNew.ToCurrencyRate).toFixed(2);
 					}
@@ -3033,31 +2532,17 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 				else {
 					if ($scope.inventoryMaterialListPO[i].PODetailsID == data.PODetailsID) {
 
-						//data.BaseAmount = parseFloat(data.TrnAmount) + parseFloat(data.ServiceCharge);
 						$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = (parseFloat(data.TrnAmount) + parseFloat(data.ServiceCharge)).toFixed(2);
 						$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat(data.TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.productNew.ToCurrencyRate).toFixed(2);
 					}
 				}
 			}
 		}
-		//angular.forEach($scope.inventoryMaterialListPO, function (item) {
-		//    item.ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * data.TrnAmount;
-
-		//});
-
-		//$scope.detailModel.BaseUOMId = $filter("filter")($scope.chargesListPO, { IsBaseUom: 1 })[0].Value;
-
-		// data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-
+		
 	};
 
 
 	// #endregion
-
-
-
-
 
 
 	$scope.enableid1 = true;
@@ -3085,28 +2570,12 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			$scope.chargesList[i].check = true;
 		}
 		
-		//if (event.currentTarget.checked) {
-		//	$scope.index = index;
-		//	//$scope.staus = false;
-		//	$scope.enableid2 = false;
-		//	x.check = true;
-		//}
-
-
-		//else {
-		//	$scope.enableid2 = true;
-		//	//$scope.index = index;
-		//	x.check = false;
-		//}
+		
 	}
 	
 
 	$scope.calculateAmountForServiceCharge = function (data) {
-		//debugger;
-		//data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
-		//if (data.TrnAmount == 'NaN')
-		//    data.TrnAmount = 0;
-		//data.TaxAmount = 0;
+		
 		data.TotalTaxAmount = 0;
 		var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesListPO), 'Amount');
 		var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO), 'TrnAmount');
@@ -3118,48 +2587,13 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			}
 		}
 		var TotalServiceTaxAmount = $filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount');
-		// data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-
-
-		//for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-		//    if ($scope.inventoryMaterialListPO[i].PODetailsID == data.PODetailsID) {
-		//        $scope.inventoryMaterialListPO[i].Amount = data.Amount;
-		//        $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / data.Amount) * $scope.inventoryMaterialListPO[i].Amount;
-		//        $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / data.Amount) * $scope.inventoryMaterialListPO[i].Amount;
-		//    }
-		//    else {
-		//        $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / data.Amount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//        $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / data.Amount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-		//    }
-		//    if ($scope.productNew.IsNonCreditable == 1) {
-		//        //data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//        $scope.inventoryMaterialListPO[i].BaseAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + $scope.inventoryMaterialListPO[i].ServiceCharge + data.ServiceTax;
-
-		//    }
-		//    else {
-		//        data.BaseAmount = parseFloat(data.TrnAmount) + data.ServiceCharge;
-		//    }
-
-		//}
-
+		
 
 		for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-			//if ($scope.inventoryMaterialListPO[i].PODetailsID == data.Id) {
-			//$scope.inventoryMaterialListPO[i].TrnAmount = data.TrnAmount;
 			$scope.inventoryMaterialListPO[i].ServiceCharge = (parseFloat(TotalServiceAmount).toFixed(2) / parseFloat(TotalTrnAmount).toFixed(2)) * parseFloat($scope.inventoryMaterialListPO[i].TrnAmount).toFixed(2);
 			$scope.inventoryMaterialListPO[i].ServiceTax = (parseFloat(TotalServiceTaxAmount).toFixed(2) / parseFloat(TotalTrnAmount).toFixed(2)) * parseFloat($scope.inventoryMaterialListPO[i].TrnAmount).toFixed(2);
-			//}
-			//else {
-			//    $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-			//    $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-			//}
+			
 			if ($scope.productNew.IsNonCreditable == 1) {
-				//data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-
-				// $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = $scope.inventoryMaterialListPO[i].TrnAmount + $scope.inventoryMaterialListPO[i].BaseTaxAmount;
-				//$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = parseFloat((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax).toFixed(2)) * $scope.productNew.ToCurrencyRate).toFixed(2);
-
 				$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax)).toFixed(2);
 				$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax)) * $scope.productNew.ToCurrencyRate).toFixed(2);
 
@@ -3169,10 +2603,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
 				$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)).toFixed(2);
 				$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate).toFixed(2);
-
-
-				//data.TotalMaterialTranAmount = parseFloat(parseFloat($scope.inventoryMaterialListPO[i].TrnAmount).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge).toFixed(2)).toFixed(2);
-				//data.TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount).toFixed(2) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge).toFixed(2)) * $scope.productNew.ToCurrencyRate);
 			}
 
 		}
@@ -3181,23 +2611,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
 
 	$scope.calculateAmountForServiceCharge1 = function (data) {
-		////debugger;
-		////data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
-		////if (data.TrnAmount == 'NaN')
-		////    data.TrnAmount = 0;
-		////data.TaxAmount = 0;
-		//data.TotalTaxAmount = 0;
-		//for (var i = 0; i < $scope.ServiceTaxList.length; i++) {
-		//    if ($scope.ServiceTaxList[i].InventoryServiceId == data.Id) {
-		//        $scope.ServiceTaxList[i].TaxAmount = data.Amount * $scope.ServiceTaxList[i].Percentage / 100;
-		//        data.TotalTaxAmount += $scope.ServiceTaxList[i].TaxAmount;
-		//    }
-		//}
-		//// data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		////data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-
-
-		//debugger;
+		
 
 		data.TotalTaxAmount = 0;
 		var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesList), 'Amount');
@@ -3248,26 +2662,14 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 	//#endregion
 
 	$scope.calculateMaterialTax = function (data, index) {
-		//debugger;
-		// data.TransactionRate = (data.TrnAmount / data.TransactionQty).toFixed(2);
-		//data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
-		//if (data.TrnAmount == 'NaN')
-		//    data.TrnAmount = 0;
-		//data.TaxAmount = 0;
-		//data.BaseTaxAmount = 0;
+		
 		var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesListPO), 'Amount');
 		var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO), 'TrnAmount');
 		var TotalMaterialTaxAmount = $filter('sumByKey')($filter('filter')($scope.receiveTaxList), 'TaxAmount');
 
-		//angular.forEach(data.POMaterialTaxList, function (item) {
-		//    item.TaxAmount = data.TrnAmount * item.Percentage / 100;
-		//    data.BaseTaxAmount += item.TaxAmount;
-
-		//});
 
 		for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
 			if ($scope.inventoryMaterialListPO[i].PODetailsID == data.PODetailId) {
-				//$scope.inventoryMaterialListPO[i].TrnAmount = data.TrnAmount;
 				$scope.inventoryMaterialListPO[i].BaseTaxAmount = TotalMaterialTaxAmount;
 				$scope.inventoryMaterialListPO[i].ServiceCharge = parseFloat((TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(4);
 				$scope.inventoryMaterialListPO[i].ServiceTax = parseFloat((TotalMaterialTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(4);
@@ -3286,16 +2688,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			}
 
 		}
-		//angular.forEach($scope.inventoryMaterialListPO, function (item) {
-		//    item.ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * data.TrnAmount;
-
-		//});
-
-		//$scope.detailModel.BaseUOMId = $filter("filter")($scope.chargesListPO, { IsBaseUom: 1 })[0].Value;
-
-		// data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
-		//data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
-
+		
 	};
 
 	$scope.calculateSerciceTax = function (data) {
@@ -3312,16 +2705,10 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		}
 
 		for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-			//if ($scope.inventoryMaterialListPO[i].PODetailsID == data.Id) {
-			//$scope.inventoryMaterialListPO[i].TrnAmount = data.TrnAmount;  
-			//$scope.inventoryMaterialListPO[i].ServiceTax = Math.round(Math$scope.chargesListPO[i].TotalTaxAmount);
+			
 			$scope.inventoryMaterialListPO[i].ServiceCharge = parseFloat((TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(4);
 			$scope.inventoryMaterialListPO[i].ServiceTax = parseFloat((TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount).toFixed(4);
-			//}
-			//else {
-			//    $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-			//    $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
-			//}
+			
 			if ($scope.productNew.IsNonCreditable == 1) {
 				//data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
 				$scope.inventoryMaterialListPO[i].BaseAmount = parseFloat($scope.inventoryMaterialListPO[i].TrnAmount + $scope.inventoryMaterialListPO[i].BaseTaxAmount + $scope.inventoryMaterialListPO[i].ServiceCharge + $scope.inventoryMaterialListPO[i].ServiceTax).toFixed(4);
@@ -3355,11 +2742,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			contentType: "imageonly",
 			prefixIcon: "e-icon e-dataexport",
 
-			//prefixIcon: "e-icon e-edit" ,
-			//prefixIcon: "e-icon e-delete",
-			//prefixIcon: " e-icon e-save",
-			//prefixIcon: " e-icon e-cancel",
-
 			click: $scope.onClickReportDownloadExcel
 		}
 	}];
@@ -3380,12 +2762,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			height: "20",
 			contentType: "imageonly",
 			prefixIcon: "e-icon e-dataexport",
-
-			//prefixIcon: "e-icon e-edit" ,
-			//prefixIcon: "e-icon e-delete",
-			//prefixIcon: " e-icon e-save",
-			//prefixIcon: " e-icon e-cancel",
-
 			click: $scope.onClickReportDownloadPdf
 		}
 	}];
@@ -3419,32 +2795,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 	};
 
 
-
-
-
-
-
-
-
-	//$scope.PODetailsUpdatePOPUp = function (x) {
-	//    //debugger;
-	//    $scope.Action1 = 'Update'
-	//    // $scope.GetListForMasterOrder = [];
-	//    getInventoryMaterialListForUpdate(x);
-	//    // $scope.GerRequisition();
-	//    angular.element(document.querySelector('#ListOfRequisition')).modal('show');
-	//};
-
-	//function getInventoryMaterialListForUpdate(inveReveiveId) {
-	//    $scope.masterId = inveReveiveId;
-	//    //debugger;
-	//    //$scope.inventoryMaterialList = [];
-	//    $http.get($scope.path + 'GetInventoryMaterialListForPOUpdate?inveReveiveId=' + inveReveiveId)
-	//        .then(function (response) {
-	//            $scope.GetListForMasterOrder = response.data;
-
-	//        });
-	//}
 	$scope.MasterOrderListHide = function () {
 		$scope.taxCategoryList = [];
 		angular.element(document.querySelector('#ListOfRequisition')).modal('hide');
@@ -3486,30 +2836,21 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
 	}
 
-	// #region checkbox all
 
 	angular.isUndefinedOrNull = function (val) {
 		return angular.isUndefined(val) || val === null || val === ""
 	}
 	function getTaxList(inveReveiveId) {
-		//debugger;
 		$http({
 			method: 'GET',
 			url: $scope.path + 'GetTaxCategoryListPO?receiveDetailId=' + inveReveiveId
 		}).then(function (response) {
 			$scope.taxCategoryList = response.data;
-			//$scope.HSNCode = response.data[0]['HSNCode'];
-			//angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
 		});
 	}
 	function checkChangeemployee(e) {
-		//debugger;
-		//alert('dd');
 		var val = e.model.value;
 		var hsnCodeId = $scope.GetListForMasterOrder[0].HSNCodeId;
-		// $scope.hsnCodeId = $event.data.hsnCodeId;
-
-		//item level check
 		var row = $filter('filter')($scope.GetListForMasterOrder, { 'RequisitionDetailId': e.model.value });
 
 		if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
@@ -3520,17 +2861,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			else
 				row[0].CheckedStatus = false;
 		}
-		//if ($scope.Action1 === 'Save') {
-		//    getTaxCategoryList(row[0].HSNCodeId);
-		//}
-		//else {
-		//    getTaxCategoryList(row[0].HSNCodeId);
-		//    getTaxList(row[0].InventoryReceiveId)
-		//   // getTaxCategoryList(row[0].InventoryReceiveId);
-		//}
-
-
-
+		
 	}
 	function headCheckChangeemployee(e) {
 		var val = e.model.value;
@@ -3540,7 +2871,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		if (e.model.checkState == "check") {
 			// alert('2');
 
-			// var gridObj = $("#Gridemployee").data("ejGrid");
 			var filtered = $("#GridReq").data("ejGrid").getFilteredRecords();
 			if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
 				for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
@@ -3587,7 +2917,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 				$($("#GridReq .rowCheckbox")[i]).ejCheckBox({ "change": checkChangeemployee });
 			}
 		}
-		//header level check
 	}
 	$scope.dataBoundemployee = function (args) {
 		$("#GridReq .rowCheckbox").ejCheckBox({ "change": checkChange });
@@ -3617,22 +2946,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
 
 
-
-
-	//$scope.GetListForMasterOrder = [];
-	//$scope.getalldataListForUpdatePoDetails = function () {
-	//    $scope.GetListForMasterOrder = [];
-	//    $http({
-	//        method: "GET",
-	//        dataType: 'JSON',
-	//        //url: $scope.getSearchListUrl,
-	//        url: 'Products/PurchaseOrder/GetInventoryMaterialListForPOUpdate',
-	//    }).then(function successCallback(response) { //datagatefun
-	//        $scope.GetListForMasterOrder = response.data;
-	//        //entrydata = copy(searchdata);
-	//    });
-	//};
-
 	$scope.tab1 = 1;
 	$scope.setTabIndex = function (newTab) {
 		$scope.tab1 = newTab;
@@ -3649,20 +2962,9 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 	$scope.isSetIndex1 = function (tabNum) {
 		return $scope.tab1 === tabNum;
 	};
-	// #endregion
-
-
-
-
-
-
-	//#region ----- GRN-With-Req-PO-----ALL Print Buton For Approval  -------
-
 
 	$scope.onClickReportAHRDownloadWord = function (args) {
-		//debugger;
 		var gridObj = $("#GriddataMasterAHR1").data("ejGrid");
-		//getting corresponding record 
 		var data = gridObj.getSelectedRecords()[0];
 		var reportFormat = "Pdf";
 		if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
@@ -3682,16 +2984,8 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 	}];
 
 
-
-
-
-
-
-
 	$scope.onClickReportPostedDownloadWord3 = function (args) {
-		//debugger;
 		var gridObj = $("#GriddataMasterAHR3").data("ejGrid");
-		//getting corresponding record 
 		var data = gridObj.getSelectedRecords()[0];
 		var reportFormat = "Pdf";
 		if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
@@ -3710,132 +3004,19 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		}
 	}];
 
-	//#endregion ----- GRN-With-Req-PO-----PrintButon
-
-
-
-
-
-
-	//#region ----- GRN-With-Req-PO----- Index GridData  -------
-
-
-
-
-
 	$scope.GriddataMaster2 = [];
 	$scope.getalldataMaster2 = function () {
-		//debugger;
 		$http({
 			method: "GET",
 			dataType: 'JSON',
 			url: 'Products/GoodsReceiveNote/GetListForGrnByPoReq?GRNWithReqPOApprovedStatus=' + $scope.GRNWithReqPOApprovedStatus,
-			// url: $scope.getListUrl2,
 		}).then(function successCallback(response) {
 			$scope.GriddataMaster2 = response.data;
 
 		});
 	};
-	// $scope.getalldataMaster2();
-
-
-	//#endregion ----- GRN-With-Req-PO----- Index GridData  -------
-
-	//#region ----- GRN-With-Req-PO----- All Tab -------
-
-
-
-	//$scope.GRN = "";
-	////$scope.tab = 1;
-	//$scope.tabGL = 1;
-	////debugger;
-	//$scope.GRNWithReqPOCheckStatus = "ForChecked";
-	//$scope.setTabGRNList = function (newTab) {
-	//    $scope.tabGL = newTab;
-	//    $scope.GRNWithReqPOCheckStatus = "ForChecked";
-	//    // $scope.GRN = 0;
-	//    $scope.getalldataMaster();
-	//};
-	//$scope.isSetGRNList = function (tabNum) {
-	//    return $scope.tabGL === tabNum;
-	//    //$scope.GRN = 1;
-
-	//};
-
-
-
-
-	//$scope.setTabCheckedHoldReject = function (newTab) {
-	//    $scope.tabGL = newTab;
-	//    $scope.GRNWithReqPOCheckStatus = "CheckedHoldReject";
-	//    $scope.getalldataMaster();
-
-	//};
-	//$scope.isSetCheckedHoldReject = function (tabNum) {
-	//    return $scope.tabGL === tabNum;
-	//    $scope.GRN = 2;
-
-	//};
-
-
-
-	//$scope.setTabNotApprovedChecked = function (newTab) {
-	//    $scope.tabGL = newTab;
-	//    $scope.GRNWithReqPOCheckStatus = "Checked";
-	//    $scope.getalldataMaster();
-
-	//};
-	//$scope.isSetNotApprovedChecked = function (tabNum) {
-	//    return $scope.tabGL === tabNum;
-	//    $scope.GRN = 3;
-
-	//};
-
-
-
-	//$scope.GRNWithReqPOApprovedStatus = "ApprovedHoldReject";
-	//$scope.setTabApprovedHoldReject = function (newTab) {
-
-	//    $scope.tabGL = newTab;
-	//    $scope.GRNWithReqPOApprovedStatus = "ApprovedHoldReject";
-	//    $scope.getalldataMaster2();
-	//};
-	//$scope.isSetApprovedHoldReject = function (tabNum) {
-	//    return $scope.tabGL === tabNum;
-	//    $scope.GRN = 4;
-	//};
-
-
-	//$scope.setTabApprovedNotPosted = function (newTab) {
-	//    $scope.tabGL = newTab;
-	//    $scope.GRNWithReqPOApprovedStatus = "Approved";
-	//    $scope.getalldataMaster2();
-	//};
-	//$scope.isSetApprovedNotPosted = function (tabNum) {
-	//    return $scope.tabGL === tabNum;
-	//    $scope.GRN = 5;
-	//};
-
-
-
-	//$scope.setTabPosted = function (newTab) {
-	//    $scope.tabGL = newTab;
-	//    $scope.GRNWithReqPOApprovedStatus = "Posted";
-	//    $scope.getalldataMaster2();
-	//};
-	//$scope.isSetPosted = function (tabNum) {
-	//    return $scope.tabGL === tabNum;
-	//    $scope.GRN = 6;
-	//};
-
-	//#endregion ----- GRN-With-Req-PO----- All Tab -------
-
-
-	//#region ----Inventory Receive GRN Print Option ------
-
-
+	
 	$scope.onClickReportANPDownloadWord1 = function (args) {
-		//debugger;
 		var gridObj = $("#GriddataMaster1").data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
 		var reportFormat = "Pdf";
@@ -3856,7 +3037,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
 
 	$scope.onClickReportANPDownloadWord2 = function (args) {
-		//debugger;
 		var gridObj = $("#GriddataMasterHR").data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
 		var reportFormat = "Pdf";
@@ -3879,7 +3059,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
 
 	$scope.onClickReportANPDownloadWord3 = function (args) {
-		//debugger;
 		var gridObj = $("#GriddataMasterAC").data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
 		var reportFormat = "Pdf";
@@ -3899,11 +3078,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 		}
 	}];
 
-
-
-
 	$scope.onClickReportANPDownloadWord4 = function (args) {
-		//debugger;
 		var gridObj = $("#GriddataMasterAHR4").data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
 		var reportFormat = "Pdf";
@@ -3924,7 +3099,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
 
 	$scope.onClickReportANPDownloadWord5 = function (args) {
-		//debugger;
 		var gridObj = $("#GriddataMasterANP5").data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
 		var reportFormat = "Pdf";
@@ -3947,7 +3121,6 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 
 
 	$scope.onClickReportANPDownloadWord6 = function (args) {
-		//debugger;
 		var gridObj = $("#GriddataMasterANP6").data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
 		var reportFormat = "Pdf";
@@ -4154,12 +3327,5 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			$scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
 
 		}
-
-
-
-
-
 	}
-
-	//#endregion
 }

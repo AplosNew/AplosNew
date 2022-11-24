@@ -152,6 +152,29 @@ namespace Library.Service.Helpers
 			}
 		}
 
+		public static string GetMSADocumentPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/MSADocument/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
+		public static string GetICUDocumentPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/ICUDocument/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 		public static string GetInvoiceDocumentPath()
 		{
 			try

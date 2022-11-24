@@ -29,9 +29,10 @@
                              e-detailstemplate="detailTemp"
                              e-detailsdatabound="detailgrid">
                             <div e-columns>
-                                <div e-column e-headertext="Actions" e-width="70">
+                                <div e-column e-headertext="Actions" e-width="100">
                                     @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>*@
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report" ng-click="$parent.PO('Grid');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report with Tax" ng-click="$parent.POWithTax('Grid');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report without Tax" ng-click="$parent.POWithoutTax('Grid');" style="margin: -6px;"></i></button>
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.POBOQReportXl(data);" style="margin: -6px;"></i></button>
                                 </div>
 
@@ -86,8 +87,10 @@
                          e-detailstemplate="detailTemp"
                          e-detailsdatabound="detailgrid">
                         <div e-columns>
-                            <div e-column e-headertext="Actions" e-width="50">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GridCHR');" style="margin: -6px;"></i></button>
+                            <div e-column e-headertext="Actions" e-width="100">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report with Tax" ng-click="$parent.POWithTax('GridCHR');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report without Tax" ng-click="$parent.POWithoutTax('GridCHR');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.POBOQReportXl(data);" style="margin: -6px;"></i></button>
                             </div>
                             <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
                             <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
@@ -144,8 +147,10 @@
                          e-detailstemplate="detailTemp"
                          e-detailsdatabound="detailgrid">
                         <div e-columns>
-                            <div e-column e-headertext="Actions" e-width="50">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PO('GridChecked');" style="margin: -6px;"></i></button>
+                            <div e-column e-headertext="Actions" e-width="100">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report with Tax" ng-click="$parent.POWithTax('GridChecked');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report without Tax" ng-click="$parent.POWithoutTax('GridChecked');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.POBOQReportXl(data);" style="margin: -6px;"></i></button>
                             </div>
                             <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
                             <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
@@ -204,8 +209,10 @@
                          e-detailstemplate="detailTemp"
                          e-detailsdatabound="detailgrid">
                         <div e-columns>
-                            <div e-column e-headertext="Actions" e-width="50">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridApprovedHR');" style="margin: -6px;"></i></button>
+                            <div e-column e-headertext="Actions" e-width="100">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report with Tax" ng-click="$parent.POWithTax('GridApprovedHR');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report without Tax" ng-click="$parent.POWithoutTax('GridApprovedHR');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.POBOQReportXl(data);" style="margin: -6px;"></i></button>
                             </div>
                             <div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>
                             <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -262,8 +269,10 @@
                          e-detailstemplate="detailTemp"
                          e-detailsdatabound="detailgrid">
                         <div e-columns>
-                            <div e-column e-headertext="Actions" e-width="50">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.PO('GridApproved');" style="margin: -6px;"></i></button>
+                            <div e-column e-headertext="Actions" e-width="100">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report with Tax" ng-click="$parent.POWithTax('GridApproved');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf Report without Tax" ng-click="$parent.POWithoutTax('GridApproved');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.POBOQReportXl(data);" style="margin: -6px;"></i></button>
                             </div>
                             <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
                             <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
@@ -400,17 +409,15 @@
                         <div e-column e-field="RequiredQtyPO" e-headertext="BOQ Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-field="OtherMapQty" e-headertext="OtherBOQ Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-field="BalanceQty" e-headertext="Balance Qty" e-width="100" textAlign='Right'></div>
+                        <div e-column e-field="BalanceTrnUOMQty" e-headertext="Balance TRN UOM Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
-                        @*<div e-column e-field="TransactionRate" e-textalign="right" e-headertext="BOQRate" e-width="100"></div>*@
                         <div e-column e-template="#BOQQRate" e-field="TransactionRate" e-textalign="right" e-decimalplaces="4" e-headertext="Rate" e-width="100"></div>
                         <div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" e-textalign="right"></div>
+                        <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
                         <div e-column e-field="RMDescription" e-headertext="Item Desc" e-width="100"></div>
                         <div e-column e-field="RMVendorSpec" e-headertext="Vendor Ref." e-width="100"></div>
                         <div e-column e-field="RMCustomerSpec" e-headertext="Customer Ref." e-width="100"></div>
                         <div e-column e-field="BOQOwnReferenceNo" e-headertext="Own Ref." e-width="100"></div>
-
-                        <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
-
                         <div e-column e-field="RequiredQty" e-headertext="Required Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-type="number" e-field="BOMQty" e-headertext="Plan Qty" e-width="100" textAlign='Right'></div>
                         @*<div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="120px"></div>*@
@@ -466,7 +473,7 @@
                 </script>
                 <script type="text/template" id="UOM">
                     <div class="select-style">
-                        <select name="Entity" ng-model="data.TransactionUoMId" class="form-control" ng-change="$parent.ConvertedDataRow(data)"
+                        <select name="Entity" ng-model="data.TransactionUoMId" class="form-control" ng-change="$parent.ConvertedDataRow(data.uoMList,data.TransactionUoMId)"
                                 ng-options="item.Value as item.Text for item in data.uoMList"></select>
                     </div>
 
@@ -543,7 +550,7 @@
             <div class="form-group" id="div_docDate">
                 <label class="col-sm-4 control-label ">Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message ">
-                    <input type="text" name="Date" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
+                    <input type="text" name="Date" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');GetCurrencyExchangeRateList();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
                 </div>
             </div>
             <div class="form-group" id="div_currency">
@@ -787,7 +794,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="7" class="text-right"><strong>Total : </strong></td>
+                                <td colspan="6" class="text-right"><strong>Total : </strong></td>
+                                <td class="text-right"><strong>{{poBoqItemListNew | sumByKey : 'TransactionQty'| setDecimal:2| number:2 }}</strong></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>

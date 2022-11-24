@@ -127,11 +127,12 @@ namespace Library.Service.Employees
             }
         }
 
-        public GridModel Query(GridParameter parameters,string CompanyId,string PlantId, string actionStatus)
+        public IEnumerable<object> Query(string CompanyId,string PlantId, string actionStatus)
         {
             try
             {
-                parameters.CmdText = @"SELECT SSU.Id,SSU.ActionStatus, SSU.EmployeeId,EI.EmployeeName,EI.CompanyId,EI.PlantId,EI.GroupId,EI.EmployeeCode
+               
+               string CmdText = @"SELECT SSU.Id,SSU.ActionStatus, SSU.EmployeeId,EI.EmployeeName,EI.CompanyId,EI.PlantId,EI.GroupId,EI.EmployeeCode
                                       ,EI.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                       PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection
                                       ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EI.EmpPicPath,EI.EmployeeStatus,C.UserName Company
@@ -149,8 +150,8 @@ namespace Library.Service.Employees
                                       LEFT JOIN ORG.Line L ON L.Id=EI.LineId
                                       LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
                                       LEFT JOIN HKP.LegalDesignation LDEG ON EI.LegalDesignationId=LDEG.Id
-									  WHERE SSU.ActionStatus='" + actionStatus + "'";
-                return _sqlRepository.GetGridData(parameters);
+									  WHERE SSU.ActionStatus='" + actionStatus + "' ORDER BY EI.EmployeeStatus";
+                return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)
             {
@@ -181,7 +182,7 @@ namespace Library.Service.Employees
         {
             try
             {
-               string  CmdText = @"SELECT E.SystemId
+               string  CmdText = @"SELECT CAST (0 AS bit) Flag,E.SystemId
 							    	,E.PlantId
 							    	,E.GroupID
 							    	,E.CompanyId

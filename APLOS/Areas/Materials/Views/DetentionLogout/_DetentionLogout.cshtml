@@ -1,0 +1,292 @@
+﻿<style>
+    .modal.active {
+        display: block
+    }
+</style>
+<div class="row">
+
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Process</label>
+            <div class="col-sm-6">
+                <div class="select-style">
+                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="MachineMasterAssetList" e-value="ModalNew.ProcessId" e-fields-value="Value" e-fields-text="Text" e-change="getWorkCenter" e-enabled="false" e-width="100%" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
+            <div class="col-sm-6">
+                <div class="select-style">
+                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNew.DetentionTypeId" e-enabled="false" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Logout Time<sup>*</sup></label>
+            <div class="col-sm-6">
+                <div class="select-style">
+                    <input type="text" ej-timepicker e-value="LogoutTime" e-enabled="false" e-width="100%" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+            <div class="col-sm-6">
+                <input type="text" name="Workcenter" ng-model="ModalNew.ByWhom" class="form-control" ng-disabled="true" maxlength="200" tabindex="5">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Update Remarks</label>
+            <div class="col-sm-6">
+                <textarea name="Update Remarks" ng-model="ModalNew.UpdateRemarks" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Workcenter<sup>*</sup></label>
+            <div class="col-sm-6">
+                <div class="select-style">
+                    @*<input ej-dropdownlist e-enablefiltersearch="true" e-datasource="WorkCenterList" e-value="ModalNew.WorkCenterId" e-fields-value="Value" e-fields-text="Text" e-enabled="false" e-width="100%" />*@
+                    <select class="form-control" ng-model="ModalNew.WorkCenterId" ng-disabled="true" required name="Workcenter"
+                            tabindex="2">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in WorkCenterList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+            <div class="col-sm-6">
+                <div class="select-style">
+                   @* <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DepartmentList" e-value="ModalNew.DepartmentId" e-enabled="false" e-fields-value="Value" e-fields-text="Text" e-width="100%" />*@
+                    <select class="form-control" ng-model="ModalNew.DepartmentId" ng-disabled="true" required name="Department"
+                            tabindex="2">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in DepartmentList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+            <div class="col-sm-6">
+                @*<div class="col-sm-10" style="padding:0px;">
+                    <input type="text" name="ResponsiblePersonD" ng-model="ModalNew.EmployeeName" ng-disabled="true" class="form-control" readonly>
+                </div>*@
+                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                    <button ng-click="openEmployeePopUp();" class="btn single-small-btn" ng-disabled="true" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-6">
+                <textarea name="Remarks" ng-model="ModalNew.Remarks" ng-disabled="true" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
+            </div>
+        </div>
+
+
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                @*<li> <button onclick="openModal()" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Submit</button></li>*@
+                @*<li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+
+            </ul>
+
+        </div>
+    </div>
+
+</div>
+<div class="row">
+
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="table-responsive modal-table" ng-show="DetLogResPersonList.length>0">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>CellPhnNo</th>
+                        <th>Department</th>
+                        <th>Section</th>
+                        <th>Sub Section</th>
+                        <th>Legal Designation</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in DetLogResPersonList" ng-class="{selected : x.Id==null}">
+                        <td>{{x.EmployeeCode}}</td>
+                        <td>{{x.EmployeeName}}</td>
+                        <td>{{x.CellPhnNo}}</td>
+                        <td>{{x.Department}}</td>
+                        <td>{{x.Section}}</td>
+                        <td>{{x.SubSection}}</td>
+                        <td>{{x.LegalDesignation}}</td>
+                        <td class="text-right table-td">
+                            <ul class="list-inline action-list">
+                                <li>
+                                    <button ng-click="removeDetentionLResPerson(x.EmployeeName, $index, 'DetLogResPersonList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Remove" ng-disabled="true"><i class="glyphicon glyphicon-remove"></i></button>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li>
+                        <button onclick="openModal()" class="btn"><i class=""></i> Close</button>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+
+        @*</div>
+            </div>*@
+    </div>
+</div>
+
+
+
+<confirm-modal></confirm-modal>
+
+<div class="modal fade site-modal in" id="DepartmentPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Department List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Department</p>
+                        <div style="color:black;" id="GridDepartment" ej-grid e-datasource="DepartmentList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleDepartment">
+                            <div e-columns>
+
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="50"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                                <div e-column e-field="DepartmentName" e-headertext="Department" e-width="120"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeDepartmentPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ResponiblePersonPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Responible Person List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Responible Person</p>
+                        <div style="color:black;" id="GridResponsible" ej-grid e-datasource="ResponsibleList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleResponsible">
+                            <div e-columns>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
+                                <div e-column e-field="ResponsiblePerson" e-headertext="Employee Name" e-width="50"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="120"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeResponsiblePopUp();" class="btn" data-bs-target="#exampleModal"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*------------------------------------------------------------------------------------*@
+<style>
+    button.btn-primary {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin-top: -50px;
+        margin-left: -100px;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    .show {
+        display: block;
+    }
+</style>
+
+<div class="container">
+    <!-- Button to Open the Modal -->
+    <!-- The Modal -->
+    <div class="modal" id="myModal">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    @*<h4 class="modal-title">Modal Heading</h4>*@
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    Are You Sure You want to Submit?
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button class="btn btn-danger" ng-click="Submit();">Yes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@*--------------------------------------------------------------------------*@
+
+

@@ -87,7 +87,7 @@
             </div>
 
             <script type="text/template" id="checkboxTemplate">
-                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" @*e-enabled="{{data.Lock == true && data.PayableVoucherId != '' ?'false':'true'}}"*@ />
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isToBeSelect" @*e-enabled="{{data.Lock == true && data.PayableVoucherId != '' ?'false':'true'}}"*@ />
             </script>
 
             <script type="text/x-jsrender" id="headerTemplate">

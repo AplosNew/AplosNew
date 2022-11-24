@@ -2702,6 +2702,12 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     $scope.LocalTaxInvoiceReport = function (data) {
         location.href = "Sales/LocalTaxInvoice?salesId=" + data.Id;
     };
+    $scope.LocalTaxInvoiceWithProductDetailService = function (data) {
+        location.href = "Sales/LocalTaxInvoiceWithProductDetailService?salesId=" + data.Id;
+    };
+    $scope.LocalTaxInvoiceWithoutSUIReport = function (data) {
+        location.href = "Sales/LocalTaxInvoiceWithoutSKU?salesId=" + data.Id;
+    };
     $scope.CommercialInvoiceReport = function (data) {
         location.href = "Sales/CommercialInvoice?salesId=" + data.Id;
     };

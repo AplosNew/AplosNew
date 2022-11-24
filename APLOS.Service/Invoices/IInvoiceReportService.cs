@@ -15,7 +15,7 @@ namespace Library.Service.Invoices
         IWorkbook GetCustomerInvoiceReceiptReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId, string sourceType);
         IWorkbook GetCustomerInvoiceReceiptGovtSubsidyReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId, string sourceType);
         IWorkbook GetVendorInvoiceReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId);
-
+        IWorkbook GetIncentiveReceivableInvoiceReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId);
 
         IWorkbook GetInvoiceOverheadReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId);
         IWorkbook GetVendorPaymentReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId);

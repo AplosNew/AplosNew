@@ -59,12 +59,31 @@ namespace Aplos.Areas.WorkCenters.Controllers
                 throw ex;
             }
         }
+        [HttpGet, Authorize]
+        public ActionResult GetWorkCenterMasterSubProcessList(string workCenterMasterId)
+        {
+            try
+            {
+                return Json(_workcentermasterservice.GetWorkCenterMasterSubProcessList(workCenterMasterId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetShiftList(GridParameter parameters, string ShiftDefinationIDs)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_workcentermasterservice.GetShiftList(parameters, identity.CompanyGroupId, identity.PlantId, new JavaScriptSerializer().Deserialize<string[]>(ShiftDefinationIDs)), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetListForSubProcess(GridParameter parameters, string processId, string WorkCenterMasterId, string subProcessIds)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_workcentermasterservice.GetListForSubProcess(parameters, identity.CompanyGroupId, processId, WorkCenterMasterId, new JavaScriptSerializer().Deserialize<string[]>(subProcessIds)), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -81,6 +100,46 @@ namespace Aplos.Areas.WorkCenters.Controllers
             try
             {
                 strSQL = "DELETE FROM [dbo].[WorkCenterWiseShift] WHERE Id='" + Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteSP(string id)
+        {
+            DeleteSPData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteSPData(string Id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [SCS].[WorkCenterMasterSubProcess] WHERE Id='" + Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
@@ -195,9 +254,9 @@ namespace Aplos.Areas.WorkCenters.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult DetailSave(string masterId, IEnumerable<WorkCenterMasterEffectiveDate> effectiveDateList, IEnumerable<WorkCenterMasterManpowerBudge> budgetCodeList, IEnumerable<WorkCenterMasterProductPriority> productPriorityList, IEnumerable<WorkCenterWiseShift> shiftList)
+        public JsonResult DetailSave(string masterId, IEnumerable<WorkCenterMasterEffectiveDate> effectiveDateList, IEnumerable<WorkCenterMasterManpowerBudge> budgetCodeList, IEnumerable<WorkCenterMasterProductPriority> productPriorityList, IEnumerable<WorkCenterWiseShift> shiftList, IEnumerable<WorkCenterMasterSubProcess> subProcessList)
         {
-            _workcentermasterservice.InsertUpdateOrDeleteDetails(masterId, effectiveDateList, budgetCodeList, productPriorityList, shiftList);
+            _workcentermasterservice.InsertUpdateOrDeleteDetails(masterId, effectiveDateList, budgetCodeList, productPriorityList, shiftList, subProcessList);
             return Json(new { Message = AplosMessage.Insert });
         }
 

@@ -241,7 +241,7 @@ function ProductConfig($routeProvider, $locationProvider) {
         })
         .when('/slip-issue', {
             templateUrl: 'Products/inventoryIssue/SlipIssue',
-            controller: 'inventoryIssueController'
+            controller: 'inventoryIssueSlipBaseController'
         })
         .when('/issue-return', {
             templateUrl: 'Products/inventoryIssue/IssueReturn',
@@ -406,6 +406,11 @@ function ProductConfig($routeProvider, $locationProvider) {
         .when('/inventory-sales-report-marketing', {
             templateUrl: 'Products/InventorySalesReportMarketing/Aplos',
             controller: 'InventorySalesReportMarketingController'
+        })
+
+        .when('/purchase-confirmation', {
+            templateUrl: 'Products/inventoryReceiveAddition/PurchaseConfirmation',
+            controller: 'PurchaseConfirmationController'
         })
         ;
 }

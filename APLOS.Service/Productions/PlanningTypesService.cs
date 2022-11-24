@@ -196,8 +196,9 @@ namespace Library.Service.Productions
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                parameters.CmdText = @"SELECT PT.*,P.UserName BaseProcess,PN.UserName Plant,C.UserName Company,C.Id CompanyId FROM dbo.PlanningTypes PT
+                parameters.CmdText = @"SELECT PT.*,P.UserName BaseProcess,PN.UserName Plant,C.UserName Company,C.Id CompanyId,SP.UserName SubProcess FROM dbo.PlanningTypes PT
                                     LEFT JOIN HKP.Process P ON P.Id=PT.BaseProcessId
+                                    LEFT JOIN HKP.SubProcess SP ON SP.Id=PT.SubProcessId
 									LEFT JOIN [ORG].[Plant] PN ON PN.Id=PT.PlantId
                                     LEFT JOIN [ORG].[Company] C ON C.Id=PN.CompanyId
                                     WHERE PT.CompanyGroupId='" + identity.CompanyGroupId + "'";
@@ -210,6 +211,25 @@ namespace Library.Service.Productions
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+
+        public GridModel GetShiftList(GridParameter parameters, string sGroupID, string sPlantID, string[] ShiftDefinationIDs, string wcids)
+        {
+            try
+            {
+                parameters.sort = "ShiftDefinationName";
+                parameters.CmdText = @"SELECT 0 Flag,SystemID ShiftDefinationID, ShiftDefinationName, ShiftDefinationDescription, ShiftType, SequenceNo ShiftSequence, CONVERT(VARCHAR(10), InTime, 108) AS InTime,
+                                        InTimeStartMargin, LateMargin, AbsentEndMargin, CONVERT(VARCHAR(10), OutTime, 108) AS OutTime,
+                                        OutTimeEndMargin, OTStartTime, CONVERT(VARCHAR(10), BreakStratTime, 108) AS BreakStratTime,
+                                        CONVERT(VARCHAR(10), BreakEndTime, 108) AS BreakEndTime, BreakPeriod, WorkingHour, IsActive, DefaultShift, IsGapInclude
+                                FROM ShiftDefination WHERE GroupID = '" + sGroupID + @"' AND PlantID = '" + sPlantID + @"' AND SystemID NOT IN (" + ReturnStringArray(ShiftDefinationIDs) + ") AND SystemID IN(SELECT  ShiftDefinationId FROM WorkCenterWiseShift WHERE WorkCenterMasterId IN("+ wcids + "))";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
     }
 }

@@ -21,8 +21,6 @@ namespace Library.Model.Products
         public string BudgetMasterId { get; set; }
         public string GLGeneralInfoId { get; set; }
 
-
-
 		public string MaterialMasterId { get; set; }
 		public string ArticleId { get; set; }
 		public string FirstCharacteristicsId { get; set; }
@@ -38,17 +36,10 @@ namespace Library.Model.Products
 
 		public string CountryId { get; set; } 
 
-
-
-
-
-
-
-
-
 		public IssueRequestMaster IssueRequestMaster { get; set; } 
 
         public string IssueRequestMasterId { get; set; }
+        public string MaterialIssueControlDetailId { get; set; }
 
 		#endregion Scalar Properties
 

@@ -1,0 +1,196 @@
+﻿<div class="form-elements form-horizontal" ng-form name="ModalNewForm">
+    <div class="row">
+        <input type="hidden" name="Id" ng-model="ModalNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <select class="form-control" id="Plant" ng-model="ModalNew.PlantId" required name="Residence Type" tabindex="0">
+
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+
+                        </select>
+
+                    </div>
+                    @*<input type="text" name="Plant" ng-model="Plant" class="form-control" maxlength="200" tabindex="5" ng-disabled="true">
+                        <div class="col-sm-2">
+                            <button ng-click="openPlantPop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>*@
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Location<sup>*</sup></label>
+                <div class="col-sm-6">
+                    @*<input type="text" name="Location" ng-model="ModalNew.Location" class="form-control" maxlength="200" tabindex="5">*@
+                    <div class="select-style">
+                        <select class="form-control" id="Location" ng-model="ModalNew.Location" required name="Residence Type"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option value="Guest House">Guest House</option>
+                            <option value="Staff Colony">Staff Colony</option>
+                            <option value="Worker Family Colony">Worker Family Colony</option>
+                            <option value="Girls Hostel">Girls Hostel</option>
+                            <option value="Near HRD Center">Near HRD Center</option>
+                            <option value="New Worker Colony">New Worker Colony</option>
+                            <option value="Old Worker Colony">Old Worker Colony</option>
+                            <option value="Fitter Staff Colony">Fitter Staff Colony</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Residence Type<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="ResidenceType" ng-change="dependency()" ng-model="ModalNew.ResidentType" required name="Residence Type"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option value="Family">Family</option>
+                            <option value="Bachelor">Bachelor</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Block<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="text" name="Block" ng-model="ModalNew.Block" class="form-control" maxlength="200" tabindex="5">
+
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Floor<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <select class="form-control" id="Floor" ng-model="ModalNew.Floor" required name="Floor" tabindex="2">
+                            <option value="">--Select--</option>
+                            <option value="G">G</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Residence Number<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="text" name="Residence Number" ng-model="ModalNew.ResidenceNumber" class="form-control" maxlength="200" tabindex="5">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Rent (If Applicable)</label>
+                <div class="col-sm-6">
+                    <input type="text" name="Rent" ng-model="ModalNew.Rent" class="form-control" maxlength="200" tabindex="5">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label" style="margin-top:-5px !important">Is Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site" id="">
+                        <label>
+                            <input type="checkbox" name="is Active" ng-model="ModalNew.isActive" tabindex="8" style="margin-top:10px !important">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Residence Group<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <select class="form-control" id="ResidenceGroup" ng-model="ModalNew.ResidenceGroupId" required name="Residence Group" tabindex="2">
+
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ResidenceGroupList" value="{{option.Value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <select class="form-control" id="EmployeeCategoryId" ng-model="ModalNew.EmployeeCategoryId" required name="Residence Type" tabindex="4">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EmployeeCategoryList" value="{{option.value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Residence Category<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="ResidenceSubCategory" ng-model="ModalNew.ResidenceCategory" required name="Residence Sub Category" tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in residenceCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Rooms<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="number" name="Rooms" ng-model="ModalNew.Rooms" class="form-control" maxlength="200" tabindex="5">
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Vacancy<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="number" name="Vacancy" ng-model="ModalNew.Vacancy" class="form-control" maxlength="200" tabindex="5">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Asset Name<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="text" name="Asset Name" ng-model="ModalNew.AssetName" class="form-control" maxlength="200" tabindex="5">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-6">
+                    <textarea name="Remarks" ng-model="ModalNew.Remarks" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+
+            </ul>
+
+        </div>
+    </div>
+</div>

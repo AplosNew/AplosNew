@@ -88,6 +88,7 @@ namespace Aplos.Areas.Products.Controllers
         {
             return View();
         }
+       
         #endregion Aplos
 
 
@@ -201,7 +202,7 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-        public JsonResult DetailCreate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
+        public JsonResult DetailCreate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList, IEnumerable<GRNBinAllocationMap> gRNBinAllocationMapList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             entity.CompanyGroupId = identity.CompanyGroupId;
@@ -224,7 +225,7 @@ namespace Aplos.Areas.Products.Controllers
 
                 }
             }
-            _inventoryDetailService.InsertOrUpdateGraph(entity, taxCategoryList);
+            _inventoryDetailService.InsertOrUpdateGraph(entity, taxCategoryList, gRNBinAllocationMapList);
             return Json(new { entity.Id, Message = AplosMessage.Success });
         }
 
@@ -869,9 +870,12 @@ namespace Aplos.Areas.Products.Controllers
             //return Json(_inventoryReveiveService.GetListEmpPosted(), JsonRequestBehavior.AllowGet);
             try
             {
-
                 Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-                return Json(obj.GetListEmpPosted(), JsonRequestBehavior.AllowGet);
+                var res = obj.GetListEmpPosted();
+                var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+
             }
             catch (Exception ex)
             {

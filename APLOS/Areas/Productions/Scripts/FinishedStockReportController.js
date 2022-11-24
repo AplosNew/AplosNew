@@ -26,6 +26,7 @@ function FinishedStockReportController(cboService, commonMessage, $scope, $rootS
         $rootScope.LocId = obj.option("value");
     }
 
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
 
     $scope.getFinishedStocksReport = function () {
 
@@ -45,7 +46,8 @@ function FinishedStockReportController(cboService, commonMessage, $scope, $rootS
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FullPath + "&fileName=" + response.data.FileName);//downloadgriddataUrlPath
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');

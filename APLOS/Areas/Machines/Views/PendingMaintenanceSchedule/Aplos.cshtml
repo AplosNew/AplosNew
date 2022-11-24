@@ -1,0 +1,313 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Pending Maintenance Schedule
+</h3>
+<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .modellgModify {
+        width: 1600px;
+    }
+</style>
+<div class="form-horizontal form-elements">
+    <div class="row">
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">From Date</label>
+                <div class="col-sm-8">
+                    <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="statusNew.FromDate" datepicker class="form-control">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">To Date</label>
+                <div class="col-sm-8">
+                    <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="statusNew.ToDate" datepicker class="form-control" ng-change="">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="IsProrataMonthlyColu" ng-model="statusNew.Status" value="Pending">
+                        <span class="cr"><i class="cr-icon"></i></span>Pending Schedules
+                    </label>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="IsProrataMonthlyColu" ng-model="statusNew.Status" value="Completed">
+                        <span class="cr"><i class="cr-icon"></i></span>Completed Schedules
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="IsProrataMonthlyColu" ng-model="statusNew.Status" value="All">
+                        <span class="cr"><i class="cr-icon"></i></span>All Schedules
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Action.Person</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="statusNew.ActResponsiblePerson" name="ActResponsiblePerson" required
+                                ng-options="item.Value as item.Text for item in ActionablePersonList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            </div>
+            @*<div class="col-xs-12 col-sm-2 col-md-2">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="getFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
+                    </ul>
+                </div>
+            </div>*@
+            <div class="col-xs-12">
+                <div id="filters">
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="View();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div id="maindiv" class="table-responsive modal-table">
+                    <div id="GridPendingMaintenanceSchedule" ej-grid e-datasource="PendingMaintenanceScheduleList" e-recorddoubleclick="GetDetails"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBound"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="100"></div>
+                            <div e-column e-type="string" e-field="PlannedDate" e-headertext="Planning Date" e-width="100"></div>
+                            <div e-column e-template="#Actual" e-headertext="Actual" e-width="80"></div>
+                            <div e-column e-template="#Responsible" e-headertext="Actionable Person" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ActionableResponsiblePerson" e-headertext="Actionable Person" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ScheduleName" e-headertext="Schedule Name" e-width="100"></div>
+                            <div e-column e-type="string" e-field="MachineName" e-headertext="Machine Name" e-width="150"></div>
+                            <div e-column e-type="string" e-field="Make" e-headertext="Make" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Model" e-headertext="Model" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ScheduleCode" e-headertext="Schedule Code" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ResponsiblePersonBudgetCode" e-headertext="Responsible Person Bgt Code" e-width="100"></div>
+                            <div e-column e-type="string" e-field="AssetName" e-headertext="Asset Name" e-width="100"></div>
+                            <div e-column e-type="string" e-field="AssetCode" e-headertext="Asset Code" e-width="100"></div>
+                            <div e-column e-type="string" e-field="AssetReference" e-headertext="Asset Reference" e-width="100"></div>
+                            <div e-column e-type="string" e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ScheduleDays" e-headertext="Schedule Days" e-width="100"></div>
+                            <div e-column e-type="string" e-field="LastMaintenanceDate" e-headertext="Last Maintenance Date" e-width="100"></div>
+                            <div e-column e-type="string" e-field="CurrentMaintanceDate" e-headertext="Current Maintance Date" e-width="100"></div>
+                            <div e-column e-type="string" e-field="DueDays" e-headertext="Due Days" e-width="100"></div>
+                            <div e-column e-type="string" e-field="OverDue" e-headertext="Over Due" e-width="100"></div>
+                            <div e-column e-type="string" e-field="DueToday" e-headertext="Due Today" e-width="100"></div>
+                            <div e-column e-type="string" e-field="FutureDue" e-headertext="Future Due" e-width="100"></div>
+                            <div e-column e-type="string" e-field="StandardScheduleMinutes" e-headertext="Standard Schedule Minutes" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                            <div e-column e-field="MaintenanceGroup" e-headertext="Maintenance Group" e-width="100"></div>
+                            <div e-column e-template="#JobCart" e-headertext="Print" e-width="50"></div>
+                            <div e-column e-template="#AttachmentPending" e-headertext="Attachment" e-width="100"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="Actual">
+                        <div class="form-group">
+                            <div class="col-sm-5 text-right" style="padding:0px;padding-left:6px">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li><button ng-click="$parent.GetAssetPopUp(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </script>
+                    <script type="text/template" id="Responsible">
+                        <div class="form-group">
+                            <div class="col-sm-5 text-right" style="padding:0px;padding-left:5px">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li><button ng-click="$parent.GetReponsiblePersonPopUp(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </script>
+                    <script type="text/template" id="JobCart">
+                        <div class="form-group">
+                            <div class="col-sm-5 text-center" style="padding:0px;padding-left:4px">
+                                <div class="common-btn">
+                                    <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardReportView?PlannedId={{data.MachineAssetId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </script>
+                    <script type="text/template" id="AttachmentPending">
+                        <div class="col-md-12">
+                            <div class="col-md-8 text-left" style="padding:0px;">
+                                <label class="col-sm-12 control-label text-left" ng-click="$parent.FileDownload(data,data.test)"><a href="{{$parent.dwonloadUrl}}" style="text-decoration:underline" download="{{data.FileName}}" target="_self">{{data.FileName}}</a></label>
+                            </div>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade site-modal in" id="MachineAssetPop" role="dialog" data-backdrop="static">
+            <div class="modal-dialog modal-lg modellgModify">
+                <div class="modal-content">
+                    <div class="modal-header">Machine Asset Detatils <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                    <div class="modal-body form-elements form-horizontal">
+                        <div class="col-md-12">
+                            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                <p>Please Select an Machine</p>
+                                <div style="color:black;" id="GridPlannedMachineAsset" ej-grid e-datasource="MaintenanceStatusPlannedDetailsList"
+                                     e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                                     e-recorddoubleclick="" e-templaterefresh="refreshTemplateMachineAsset">
+                                    <div e-columns>
+                                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateMachineAsset" e-template="#checkboxTemplateMachineAsset" e-textalign="center" e-width="1"></div>
+                                        <div e-column e-type="string" e-field="Id" e-visible="false" e-headertext="Id" e-width="2"></div>
+                                        <div e-column e-type="string" e-field="AssetId" e-headertext="Asset Id" e-width="2"></div>
+                                        <div e-column e-template="#FromDate" e-headertext="From Date" e-width="4"></div>
+                                        <div e-column e-template="#fromtime" e-headertext="From Time" e-width="3"></div>
+                                        <div e-column e-template="#ActualDate" e-headertext="To Date" e-width="4"></div>
+                                        <div e-column e-template="#totime" e-headertext="To Time" e-width="3"></div>
+                                        <div e-column e-type="string" e-field="MaintenanceSchedulingId" e-visible="false" e-headertext="Maintenance Scheduling Id" e-width="2"></div>
+                                        <div e-column e-type="string" e-field="AssetName" e-headertext="Asset Name" e-width="3"></div>
+                                        <div e-column e-template="#Minute" e-headertext="Minute" e-width="3"></div>
+                                        <div e-column e-template="#Remark" e-headertext="Remarks(Actual)" e-width="5"></div>
+                                        <div e-column e-template="#Attachment" e-headertext="Attachment" e-width="5"></div>
+                                    </div>
+                                    <script type="text/template" id="checkboxTemplateMachineAsset">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                                    </script>
+                                    <script type="text/x-jsrender" id="headerTemplateMachineAsset">
+                                        <input type="checkbox" id="headchk" />
+                                    </script>
+                                    <script type="text/template" id="ActualDate">
+                                        <div class="col-sm-12" style="padding:0px;">
+                                            <input type="text" id="ActualDate" ng-model="data.ActualDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
+                                        </div>
+                                    </script>
+                                    <script type="text/template" id="FromDate">
+                                        <div class="col-sm-12" style="padding:0px;">
+                                            <input type="text" id="From Date" ng-model="data.FromDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
+                                        </div>
+                                    </script>
+                                    <script type="text/template" id="fromtime">
+                                        <input type="text" ej-timepicker e-value="data.FromTime" e-width="100%" />
+                                    </script>
+                                    <script type="text/template" id="totime">
+                                        <input type="text" ej-timepicker e-value="data.ToTime" e-width="100%" />
+                                    </script>
+                                    <script type="text/template" id="Minute">
+                                        <div class="col-sm-6" style="padding:0px;">
+                                            <input type="text" name="Minute" ng-model="data.Minute" class="form-control" required disabled tabindex="4" maxlength="50">
+                                        </div>
+                                    </script>
+                                    <script type="text/template" id="Remark">
+                                        <div class="col-sm-12" style="padding:0px;">
+                                            <input type="text" name="Remark" ng-model="data.ActualRemark" ng-click="" class="form-control">
+                                        </div>
+                                    </script>
+                                    <script type="text/template" id="Attachment">
+                                        <div class="col-md-12">
+                                            <div class="col-md-8 text-left" style="padding:0px;">
+                                                <label class="col-sm-12 control-label text-left" ng-click="$parent.FileDownload(data,data.test)"><a href="{{$parent.dwonloadUrl}}" style="text-decoration:underline" download="{{data.FileName}}" target="_self">{{data.FileName}}</a></label>
+                                            </div>
+                                            <div class="col-md-4 text-right">
+                                                <div id="UploadDefault" e-id="{{data.Id}}" e-data="data.Id" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" @*e-height="30"*@ e-autoupload="true" e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" e-error="$parent.errorUpload"></div>
+                                            </div>
+                                        </div>
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-center">
+                                <li>
+                                    <button ng-click="closeMachinePopUp();" class="btn"><i class=""></i> Close</button>
+                                    <button ng-click="SavePlannedDetails();" class="btn"><i class=""></i> Save</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade site-modal in" id="ResponsiblePersonPopup" role="dialog" data-backdrop="static">
+            <div class="modal-dialog modal-lg modellgModify">
+                <div class="modal-content">
+                    <div class="modal-header">ResponsiblePerson List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                    <div class="modal-body form-elements form-horizontal">
+                        <div class="col-md-12">
+                            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                <p>Please Select an Responsible Person</p>
+                                <div style="color:black;" id="GridResponsiblePopUp" ej-grid e-datasource="ReponsiblePersonList"
+                                     e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                                     e-recorddoubleclick="doubleEmployee" e-templaterefresh="refreshTemplateResponsiblePerson">
+                                    <div e-columns>
+                                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateResponsiblePerson" e-template="#checkboxTemplateResponsiblePerson" e-textalign="center" e-width="50"></div>
+                                        <div e-column e-template="#ActualMinutes" e-headertext="Actual Minutes" e-width="50"></div>
+                                        <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                        <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                        <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                        <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                                    </div>
+                                    <script type="text/template" id="checkboxTemplateResponsiblePerson">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsActive" />
+                                    </script>
+                                    <script type="text/x-jsrender" id="headerTemplateResponsiblePerson">
+                                        <input type="checkbox" id="headchk" />
+                                    </script>
+                                    <script type="text/template" id="ActualMinutes">
+                                        <div class="col-sm-12" style="padding:0px;">
+                                            <input type="number" name="Actual Minutes" ng-model="data.ActualMinutes" ng-click="" class="form-control">
+                                        </div>
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li>
+                                    <button ng-click="closeResponsiblePersonPopUp();" class="btn"><i class=""></i> Close</button>
+                                    <button ng-click="SaveResponsiblePerson();" class="btn"><i class=""></i> Save</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+

@@ -947,6 +947,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }
 
+      
 
         [HttpPost, Authorize]
         public ActionResult GetEmpInfoDateRang(string fromDate, string toDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)

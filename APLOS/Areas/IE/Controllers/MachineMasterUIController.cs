@@ -287,7 +287,7 @@ namespace Aplos.Areas.IE.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public JsonResult CreateAsset(Dictionary<string, object> data, string machineMasterId)
         {
             try
@@ -383,7 +383,7 @@ namespace Aplos.Areas.IE.Controllers
                 }
                 else
                 {
-                    data["Id"] = MachineMasterAssetId;
+                    //data["Id"] = MachineMasterAssetId;
                     data["MachineMasterId"] = machineMasterId;
                     EditAssetRow(dsMasterOrder.Tables[0].Rows[0], data);
                 }
@@ -399,19 +399,65 @@ namespace Aplos.Areas.IE.Controllers
         [Authorize, HttpPost]
         public ActionResult GetAsset(string machineMasterId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select MMA.Id,MM.Id MachineMasterId,E.Id EntityId,E.UserName Entity,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference
+            string sql = @"SELECT MMA.Id,MM.Id MachineMasterId,E.Id EntityId,E.UserName Entity,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference
                                         ,MMA.IsOldCode,MMA.OldCode,CONVERT(NUMERIC(10,2),MMA.TargetUtilization) TargetUtilization
 										,CONVERT(NUMERIC(10,2),MMA.PlanUtilization) PlanUtilization,MMA.Remark,MMA.AssetCategory
                                         ,CONVERT(NUMERIC(10,2),MMA.RepairAndMaintanenceBudget) RepairAndMaintanenceBudget
-										,CONVERT(NUMERIC(10,2),MMA.ConsumableBudget)ConsumableBudget
+										,CONVERT(NUMERIC(10,2),MMA.ConsumableBudget)ConsumableBudget,A.StandardName Article,wcm.UserName WorkCenterMaster
                                         from MachineMasterAsset MMA
                                         left join ORG.Entity E on E.Id=MMA.EntityId
                                         left join MST.MachineMaster MM on MM.Id=MMA.MachineMasterId
+                                        left join MST.MaterialMasterArticle A ON A.Id=MMA.ArticleId
+                                        left join SCS.WorkCenterMaster AS wcm ON wcm.Id = MMA.WorkCenterMasterId
 										where MMA.MachineMasterId='" + machineMasterId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public ActionResult GetAssetData()
+        {
+            string sql = @"SELECT CAST(0 AS BIT)Active,MMA.Id MachineMasterAssetId,MM.Id MachineMasterId,E.Id EntityId,E.UserName Entity,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference
+                                        ,MMA.IsOldCode,MMA.OldCode,CONVERT(NUMERIC(10,2),MMA.TargetUtilization) TargetUtilization
+										,CONVERT(NUMERIC(10,2),MMA.PlanUtilization) PlanUtilization,MMA.Remark,MMA.AssetCategory
+                                        ,CONVERT(NUMERIC(10,2),MMA.RepairAndMaintanenceBudget) RepairAndMaintanenceBudget
+										,CONVERT(NUMERIC(10,2),MMA.ConsumableBudget)ConsumableBudget,A.StandardName Article,wcm.UserName WorkCenterMaster
+                                        from MachineMasterAsset MMA
+                                        left join ORG.Entity E on E.Id=MMA.EntityId
+                                        left join MST.MachineMaster MM on MM.Id=MMA.MachineMasterId
+                                        left join MST.MaterialMasterArticle A ON A.Id=MMA.ArticleId
+                                        left join SCS.WorkCenterMaster AS wcm ON wcm.Id = MMA.WorkCenterMasterId";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetWorkCenterList(string entityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT WCM.Id AS WorkCenterMasterId,e.UserName AS Entity,p.UserName AS Plant
+	                             , WCM.EntityId, WCM.Code, WCM.UserName
+                            FROM SCS.WorkCenterMaster AS WCM
+                            INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
+                            INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
+                            WHERE WCM.PlantId='"+identity.PlantId+ "' AND WCM.EntityId='"+ entityId + "' order by p.userName, e.UserName,WCM.sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetArticleList()
+        {
+            string sql = @"SELECT MA.Id,MA.Code,MA.ShortName,MA.StandardName,MT.UserName as MaterialType,
+Case when MM.IsAsset = 0 then 'No' else 'Yes' end IsAsset FROM MST.MaterialMasterArticle MA
+left join MST.MaterialMaster MM on MM.Id=MA.MaterialMasterId
+left join MST.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
+left join HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId";
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+
         [Authorize, HttpPost]
         public ActionResult AssetDelete(string id)
         {
@@ -560,7 +606,7 @@ namespace Aplos.Areas.IE.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult CreateEntityCapacity(Dictionary<string, object> data, string machineMasterId)
         {
             try

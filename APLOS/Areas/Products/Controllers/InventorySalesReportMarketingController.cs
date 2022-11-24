@@ -2569,121 +2569,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
-                    #region ExtraHeaders1
-                    //worksheet[ROW, COL].Text = "Id";
-                    //int colId = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 10;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-                    //worksheet[ROW, COL].Text = "SKU1";
-                    //int colSKU1 = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 10;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "SKU2";
-                    //int colSKU2 = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 10;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "SKU3";
-                    //int colSKU3 = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 12;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-
-                    //worksheet[ROW, COL].Text = "SO No";
-                    //int colSONO = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 20;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Enrty Date";
-                    //int colSalesDate = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 15;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-
-
-
-                    //worksheet[ROW, COL].Text = "Doc Ref No";
-                    //int colDocRefNo = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-                    //worksheet[ROW, COL].Text = "Doc Date";
-                    //int colDocDate = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-                    //worksheet[ROW, COL].Text = "Customer Code";
-                    //int colPartyCode = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-
-                    //worksheet[ROW, COL].Text = "HSN No";
-                    //int colHSNCode = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 12;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Base Rate";
-                    //int colBaseRate = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 12;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Base UoM Factor";
-                    //int colBaseUoMFactor = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 20;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Base UoM";
-                    //int colBaseUoM = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 12;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-
-
-
-                    //worksheet[ROW, COL].Text = "Transaction UoM";
-                    //int colTransactionUoM = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 12;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    #endregion
+                  
 
                     int colCGST = 0;
                     int colCGSTTax = 0;
@@ -2692,55 +2578,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
                     int colIGST = 0;
                     int colIGSTTax = 0;
 
-                    //if (WithTax == true)
-                    //{
-
-                    //    worksheet[ROW, COL].Text = "CGST";
-                    //    colCGST = COL;
-                    //    worksheet[ROW, COL].ColumnWidth = 20;
-                    //    worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //    worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //    COL++;
-                    //    worksheet[ROW, COL].Text = "CGST Tax (%)";
-                    //    colCGSTTax = COL;
-                    //    worksheet[ROW, COL].ColumnWidth = 20;
-                    //    worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //    worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //    COL++;
-
-                    //    worksheet[ROW, COL].Text = "SGST";
-                    //    colSGST = COL;
-                    //    worksheet[ROW, COL].ColumnWidth = 20;
-                    //    worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //    worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //    COL++;
-                    //    worksheet[ROW, COL].Text = "SGST Tax (%)";
-                    //    colSGSTTax = COL;
-                    //    worksheet[ROW, COL].ColumnWidth = 20;
-                    //    worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //    worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //    COL++;
-
-                    //    worksheet[ROW, COL].Text = "IGST";
-                    //    colIGST = COL;
-                    //    worksheet[ROW, COL].ColumnWidth = 20;
-                    //    worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //    worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //    COL++;
-                    //    worksheet[ROW, COL].Text = "IGST Tax (%)";
-                    //    colIGSTTax = COL;
-                    //    worksheet[ROW, COL].ColumnWidth = 20;
-                    //    worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //    worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //    COL++;
-
-                    //}
+                    
 
 					worksheet[ROW, COL].Text = "Transporter Name";//25
 					int colTransporterName = COL;
@@ -2887,230 +2725,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
-                    #region extraHEaders2
-                    //worksheet[ROW, COL].Text = "Books Val.";
-                    //int colBooksVal = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 20;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-
-                    //worksheet[ROW, COL].Text = "Insurance Y/N";
-                    //int colInsurance = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 20;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-
-
-
-                    //worksheet[ROW, COL].Text = "Voucher Detail Id";
-                    //int colVoucherDetailId = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 12;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-                    //worksheet[ROW, COL].Text = "Delivery Date";
-                    //int colDeliveryDate = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 12;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-
-                    //worksheet[ROW, COL].Text = "SO Type";
-                    //int colSOType = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 12;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-                    //worksheet[ROW, COL].Text = "Entity";
-                    //int colEntity = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Checked By Name";
-                    //int colCheckedByName = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 20;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-                    //worksheet[ROW, COL].Text = "Approved By Name";
-                    //int colApprovedByName = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 20;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-
-                    //worksheet[ROW, COL].Text = "Is Posted";
-                    //int colPosted = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 12;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-                    //worksheet[ROW, COL].Text = "Note For Accounts";
-                    //int colNoteForAccounts = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Contract";
-                    //int colContract = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "MastrerLC Ref No";
-                    //int colMastrerLCRefNo = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Commercial Invoice No";
-                    //int colComercialInvoiceNo = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Expiry Date";
-                    //int colExpiryDatet = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "BL/AWB No.";
-                    //int colBLAWBNo = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "BL/AWB Date";
-                    //int colBLAWBDate = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-                    //worksheet[ROW, COL].Text = "No Of Days";
-                    //int colNoOfDays = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Mature Date";
-                    //int colMatureDate = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "LC Amount";
-                    //int colLCAmount = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "ExFactory Date";
-                    //int colExFactoryDate = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Transport Agent";
-                    //int colTransportAgent = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Transport Doc Date";
-                    //int colTransportDocDate = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "CNF Agent";
-                    //int colCNFAgent = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Container No.";
-                    //int colContainerNo = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-                    //worksheet[ROW, COL].Text = "Vessel Tracking No.";
-                    //int colVesselTrackingNo = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                    //worksheet[ROW, COL].Text = "Own Order Ref.";
-                    //int colOwnOrderRef = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-                    //worksheet[ROW, COL].Text = "Realize date";
-                    //int colRealizeDate = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-                    //worksheet[ROW, COL].Text = "Realize amount";
-                    //int colRealizeAmount = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //COL++;
-
-                    //worksheet[ROW, COL].Text = "Balance";
-                    //int colBalance = COL;
-                    //worksheet[ROW, COL].ColumnWidth = 30;
-                    //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-                    //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    //worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    #endregion
+                    
 
                     int endCol = COL;
                     worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 10f;
@@ -3197,94 +2812,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								worksheet[ROW, colDriverNo].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TransportDriverNo"].ToString());
 								worksheet.Range[ROW, colDriverNo].NumberFormat = NumberFormatTwoDecimal;
 
-
-
-								//if (WithTax == true)
-        //                        {
-        //                            worksheet[ROW, colCGST].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["CGST"].ToString());
-        //                            worksheet.Range[ROW, colCGST].NumberFormat = NumberFormatTwoDecimal;
-        //                            worksheet[ROW, colCGSTTax].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["CGSTTaxPercentage"].ToString());
-        //                            worksheet.Range[ROW, colCGSTTax].NumberFormat = NumberFormatFourDecimal;
-        //                            worksheet[ROW, colSGST].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["SGST"].ToString());
-        //                            worksheet.Range[ROW, colSGST].NumberFormat = NumberFormatTwoDecimal;
-        //                            worksheet[ROW, colSGSTTax].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["SGSTTaxPercentage"].ToString());
-        //                            worksheet.Range[ROW, colSGSTTax].NumberFormat = NumberFormatFourDecimal;
-        //                            worksheet[ROW, colIGST].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["IGST"].ToString());
-        //                            worksheet.Range[ROW, colIGST].NumberFormat = NumberFormatFourDecimal;
-        //                            worksheet[ROW, colIGSTTax].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["IGSTTaxPercentage"].ToString());
-        //                            worksheet.Range[ROW, colIGSTTax].NumberFormat = NumberFormatFourDecimal;
-
-        //                        }
-
-								#region extraWkSheets
-								//worksheet[ROW, colId].Text = dtInventorySalesReportList.Rows[i]["Id"].ToString();
-								//worksheet[ROW, colSalesDate].Text = dtInventorySalesReportList.Rows[i]["SalesDate"].ToString();
-								//worksheet[ROW, colSONO].Text = dtInventorySalesReportList.Rows[i]["SONo"].ToString();
-								//worksheet[ROW, colDocRefNo].Text = dtInventorySalesReportList.Rows[i]["DocRefNo"].ToString();
-								//worksheet[ROW, colDocDate].Text = dtInventorySalesReportList.Rows[i]["DocDate"].ToString();
-								//worksheet[ROW, colPartyCode].Text = dtInventorySalesReportList.Rows[i]["Code"].ToString();
-								//worksheet[ROW, colMaterialMasterId].Text = dtInventorySalesReportList.Rows[i]["MaterialMasterId"].ToString();
-
-								//worksheet[ROW, colSKU1].Text = dtInventorySalesReportList.Rows[i]["FirstCharacteristicsValue"].ToString();
-								//worksheet[ROW, colSKU2].Text = dtInventorySalesReportList.Rows[i]["SecondCharacteristicsValue"].ToString();
-								//worksheet[ROW, colSKU3].Text = dtInventorySalesReportList.Rows[i]["ThirdCharacteristicsValue"].ToString();
-								//worksheet[ROW, colHSNCode].Text = dtInventorySalesReportList.Rows[i]["HSNCode"].ToString();
-								//worksheet[ROW, colBaseRate].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BaseRate"].ToString());
-								//worksheet.Range[ROW, colBaseRate].NumberFormat = NumberFormatFourDecimal;
-								//worksheet[ROW, colBaseUoMFactor].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BaseUoMFactor"].ToString());
-								//worksheet.Range[ROW, colBaseUoMFactor].NumberFormat = NumberFormatTwoDecimal;
-								//worksheet[ROW, colTDS].Text = dtInventorySalesReportList.Rows[i]["TDS"].ToString();
-								//worksheet[ROW, colTDSTax].Text = dtInventorySalesReportList.Rows[i]["TDSTaxPercentage"].ToString();
-								//worksheet[ROW, colTCS].Text = dtInventorySalesReportList.Rows[i]["TCS"].ToString();
-								//worksheet[ROW, colTCSTax].Text = dtInventorySalesReportList.Rows[i]["TCSTaxPercentage"].ToString(); 
-
-								//worksheet[ROW, colBooksVal].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["NetBookValue"].ToString());
-								//worksheet.Range[ROW, colBooksVal].NumberFormat = NumberFormatTwoDecimal;
-								//worksheet[ROW, colVoucherDetailId].Text = dtInventorySalesReportList.Rows[i]["VoucherDetailId"].ToString();
-								//worksheet[ROW, colBaseUoM].Text = dtInventorySalesReportList.Rows[i]["BaseUoM"].ToString();
-								//worksheet[ROW, colTransactionUoM].Text = dtInventorySalesReportList.Rows[i]["TransactionUoM"].ToString();
-
-
-								//worksheet[ROW, colDeliveryDate].Text = dtInventorySalesReportList.Rows[i]["DeliveryDate"].ToString();
-
-								//worksheet[ROW, colSOType].Text = dtInventorySalesReportList.Rows[i]["SOType"].ToString();
-
-								//worksheet[ROW, colEntity].Text = dtInventorySalesReportList.Rows[i]["Entity"].ToString();
-								//worksheet[ROW, colCheckedByName].Text = dtInventorySalesReportList.Rows[i]["CheckedByName"].ToString();
-								//worksheet[ROW, colApprovedByName].Text = dtInventorySalesReportList.Rows[i]["ApprovedByName"].ToString();
-								//worksheet[ROW, colPosted].Text = dtInventorySalesReportList.Rows[i]["Posted"].ToString();
-								//worksheet[ROW, colNoteForAccounts].Text = dtInventorySalesReportList.Rows[i]["NoteForAccounts"].ToString();
-
-								//worksheet[ROW, colInsurance].Text = dtInventorySalesReportList.Rows[i]["Insurance"].ToString();
-
-
-								////worksheet[ROW, colNoteForAccounts].Text = dtInventorySalesReportList.Rows[i]["NoteForAccounts"].ToString();
-								//worksheet[ROW, colRealizeAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["RealizeAmount"].ToString());
-								//worksheet.Range[ROW, colRealizeAmount].NumberFormat = NumberFormatTwoDecimal;
-
-								//worksheet[ROW, colRealizeDate].Text = dtInventorySalesReportList.Rows[i]["RealizeDate"].ToString();
-								//worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BalanceAmount"].ToString());
-								//worksheet.Range[ROW, colBalance].NumberFormat = NumberFormatTwoDecimal;
-
-								//worksheet[ROW, colOwnOrderRef].Text = dtInventorySalesReportList.Rows[i]["OwnReferenceNo"].ToString();
-								//worksheet[ROW, colContract].Text = dtInventorySalesReportList.Rows[i]["ContractNo"].ToString();
-								//worksheet[ROW, colMastrerLCRefNo].Text = dtInventorySalesReportList.Rows[i]["MasterLcNo"].ToString();
-								//worksheet[ROW, colComercialInvoiceNo].Text = dtInventorySalesReportList.Rows[i]["ComercialInvoiceNo"].ToString();
-								//worksheet[ROW, colExpiryDatet].Text = dtInventorySalesReportList.Rows[i]["ExpiryDate"].ToString();
-								//worksheet[ROW, colBLAWBNo].Text = dtInventorySalesReportList.Rows[i]["BLAWBNo"].ToString();
-								//worksheet[ROW, colBLAWBDate].Text = dtInventorySalesReportList.Rows[i]["BLAWBDate"].ToString();
-
-								//worksheet[ROW, colNoOfDays].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["NoOfDays"].ToString());
-								//worksheet[ROW, colNoOfDays].NumberFormat = NumberFormatZeroDecimal;
-								//worksheet[ROW, colMatureDate].Text = dtInventorySalesReportList.Rows[i]["MatureDate"].ToString();
-								//worksheet[ROW, colLCAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["LCAmount"].ToString());
-								//worksheet[ROW, colExFactoryDate].Text = dtInventorySalesReportList.Rows[i]["ExFactoryDate"].ToString();
-								//worksheet[ROW, colTransportAgent].Text = dtInventorySalesReportList.Rows[i]["TransportAgent"].ToString();
-								//worksheet[ROW, colTransportDocDate].Text = dtInventorySalesReportList.Rows[i]["TransportDocDate"].ToString();
-								//worksheet[ROW, colCNFAgent].Text = dtInventorySalesReportList.Rows[i]["CNFAgent"].ToString();
-								//worksheet[ROW, colContainerNo].Text = dtInventorySalesReportList.Rows[i]["CNFContainerNo"].ToString();
-								//worksheet[ROW, colVesselTrackingNo].Text = dtInventorySalesReportList.Rows[i]["CNFVesselTrackingNo"].ToString();
-								#endregion
+								
 
 								worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                                 worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -3795,18 +3323,11 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
                                 worksheet[ROW, colCurrency].Text = dtInventorySalesReportList.Rows[i]["Currency"].ToString();
 
 
-                                //worksheet[ROW, colBaseRate].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BaseRate"].ToString());
-                                //worksheet.Range[ROW, colBaseRate].NumberFormat = NumberFormatFourDecimal;
-                                //worksheet[ROW, colBaseUoMFactor].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BaseUoMFactor"].ToString());
-                                //worksheet.Range[ROW, colBaseUoMFactor].NumberFormat = NumberFormatTwoDecimal;
-                                //worksheet[ROW, colTransactionRate].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TransactionRate"].ToString());
-                                //worksheet.Range[ROW, colTransactionRate].NumberFormat = NumberFormatTwoDecimal;
-                                //worksheet[ROW, colTransactionQty].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TransactionQty"].ToString());
-                                //worksheet.Range[ROW, colTransactionQty].NumberFormat = NumberFormatTwoDecimal;
+                               
+                               
                                 worksheet[ROW, colMatAmt].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TransactionAmount"].ToString());
                                 worksheet.Range[ROW, colMatAmt].NumberFormat = NumberFormatTwoDecimal;
-                                //worksheet[ROW, colTaxAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TaxAmount"].ToString());
-                                //worksheet.Range[ROW, colTaxAmount].NumberFormat = NumberFormatTwoDecimal;
+                               
 
                                 worksheet[ROW, colServAmt].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["ServiceCharge"].ToString());
                                 worksheet.Range[ROW, colServAmt].NumberFormat = NumberFormatTwoDecimal;
@@ -3840,47 +3361,17 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
                                 worksheet[ROW, colBooksTtlTaxableAmt].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BooksTotalTaxableAmt"].ToString());
                                 worksheet.Range[ROW, colBooksTtlTaxableAmt].NumberFormat = NumberFormatTwoDecimal;
 
-                                //worksheet[ROW, colServiceTax].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["ServiceTax"].ToString());
-                                //worksheet.Range[ROW, colServiceTax].NumberFormat = NumberFormatTwoDecimal;								
-                                //worksheet[ROW, colBooksCurrencyTransactionAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BooksCurrencyTransactionAmount"].ToString());
-                                //worksheet.Range[ROW, colBooksCurrencyTransactionAmount].NumberFormat = NumberFormatTwoDecimal;
+                               
                                 worksheet[ROW, colVoucherDetailId].Text = dtInventorySalesReportList.Rows[i]["VoucherId"].ToString();
 
 
-
-                                //worksheet[ROW, colSOType].Text = dtInventorySalesReportList.Rows[i]["SOType"].ToString();
 
                                 worksheet[ROW, colEntity].Text = dtInventorySalesReportList.Rows[i]["Entity"].ToString();
                                 worksheet[ROW, colCheckedByName].Text = dtInventorySalesReportList.Rows[i]["CheckedByName"].ToString();
                                 worksheet[ROW, colApprovedByName].Text = dtInventorySalesReportList.Rows[i]["ApprovedByName"].ToString();
                                 worksheet[ROW, colPosted].Text = dtInventorySalesReportList.Rows[i]["Posted"].ToString();
                                 worksheet[ROW, colNoteForAccounts].Text = dtInventorySalesReportList.Rows[i]["NoteForAccounts"].ToString();
-                                //worksheet[ROW, colRealizeAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["RealizeAmount"].ToString());
-                                //worksheet.Range[ROW, colRealizeAmount].NumberFormat = NumberFormatTwoDecimal;
-
-                                //worksheet[ROW, colRealizeDate].Text = dtInventorySalesReportList.Rows[i]["RealizeDate"].ToString();
-                                //worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BalanceAmount"].ToString());
-                                //worksheet.Range[ROW, colBalance].NumberFormat = NumberFormatTwoDecimal;
-
-                                //worksheet[ROW, colOwnOrderRef].Text = dtInventorySalesReportList.Rows[i]["OwnReferenceNo"].ToString();
-                                //worksheet[ROW, colContract].Text = dtInventorySalesReportList.Rows[i]["ContractNo"].ToString();
-                                //worksheet[ROW, colMastrerLCRefNo].Text = dtInventorySalesReportList.Rows[i]["MasterLcNo"].ToString();
-                                //worksheet[ROW, colComercialInvoiceNo].Text = dtInventorySalesReportList.Rows[i]["ComercialInvoiceNo"].ToString();
-                                //worksheet[ROW, colExpiryDatet].Text = dtInventorySalesReportList.Rows[i]["ExpDate"].ToString();
-                                //worksheet[ROW, colBLAWBNo].Text = dtInventorySalesReportList.Rows[i]["BLAWBNo"].ToString();
-                                //worksheet[ROW, colBLAWBDate].Text = dtInventorySalesReportList.Rows[i]["BLAWBDate"].ToString();
-                                //worksheet[ROW, colPaymentTerm].Text = dtInventorySalesReportList.Rows[i]["PaymentTerm"].ToString();
-                                //worksheet[ROW, colBaseOnDueDate].Text = dtInventorySalesReportList.Rows[i]["BaseOnDueDate"].ToString();
-                                //worksheet[ROW, colNoOfDays].Number = clsStaticInfo.dbl( dtInventorySalesReportList.Rows[i]["NoOfDays"].ToString());
-                                //worksheet[ROW, colNoOfDays].NumberFormat = NumberFormatZeroDecimal;
-                                //worksheet[ROW, colMatureDate].Text = dtInventorySalesReportList.Rows[i]["MatureDate"].ToString();
-                                //worksheet[ROW, colLCAmount].Number =clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["LCAmount"].ToString());
-                                //worksheet[ROW, colExFactoryDate].Text = dtInventorySalesReportList.Rows[i]["ExFactoryDate"].ToString();
-                                //worksheet[ROW, colTransportAgent].Text = dtInventorySalesReportList.Rows[i]["TransportAgent"].ToString();
-                                //worksheet[ROW, colTransportDocDate].Text = dtInventorySalesReportList.Rows[i]["TransportDocDate"].ToString();
-                                //worksheet[ROW, colCNFAgent].Text = dtInventorySalesReportList.Rows[i]["CNFAgent"].ToString();
-                                //worksheet[ROW, colContainerNo].Text = dtInventorySalesReportList.Rows[i]["CNFContainerNo"].ToString();
-                                //worksheet[ROW, colVesselTrackingNo].Text = dtInventorySalesReportList.Rows[i]["CNFVesselTrackingNo"].ToString();
+                               
                                 worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                                 worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                                 worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;

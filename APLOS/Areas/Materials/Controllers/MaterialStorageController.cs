@@ -2,8 +2,11 @@
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Materials;
+using Library.Service.Employees;
 using Library.Service.Materials;
+using Library.Service.Organizations;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -14,10 +17,16 @@ namespace Aplos.Areas.Materials.Controllers
         #region -- Constructor
 
         private readonly IMaterialStorageService _storageService;
+        private readonly IRecruitmentSelectionService _preRecruitmentEmployee;
+        private readonly IManpowerBudgetService _manpowerBudgetService;
+        private readonly ISqlRepository _sqlRepository;
 
-        public MaterialStorageController(IMaterialStorageService storageService)
+        public MaterialStorageController(IMaterialStorageService storageService,IRecruitmentSelectionService preRecruitmentEmployee, IManpowerBudgetService manpowerBudgetService, ISqlRepository sqlRepository)
         {
             _storageService = storageService;
+            _preRecruitmentEmployee = preRecruitmentEmployee;
+            _manpowerBudgetService = manpowerBudgetService;
+            _sqlRepository = sqlRepository;
         }
 
         #endregion -- Constructor
@@ -33,6 +42,15 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion Pages
 
         #region -- Operations
+
+        [HttpGet, Authorize]
+        public ActionResult GetBudgetCodeList(GridParameter parameters,string companyId, string plantId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            parameters.CmdText = _manpowerBudgetService.GetManpowerBudgetListSql(identity.CompanyGroupId, companyId, plantId);
+
+            return Json(_sqlRepository.GetGridData(parameters), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetList(GridParameter parameters, string companyId, string plantId)

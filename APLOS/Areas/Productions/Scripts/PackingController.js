@@ -633,7 +633,6 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
                     $scope.cartonDetail = response.data.Data;
 
                     $scope.inactiveCartons = response.data.Inactive;
-                    console.log($scope.cartonCollection);
                     fillCartons();
                     angular.element(document.querySelector('#cartonDetailModal')).modal('show');
                 });
@@ -734,43 +733,49 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
 
     $scope.PoLoTCollection = [];
     //Saving All The Data
+    $scope.soqty = 0;
     $scope.saveAll = function () {
-        var counter = 0;
-        for (var i = 0; i < $scope.PackingLineItemGrid.length; i++) {
-            if ($scope.PackingLineItemGrid[i]["checked"] == true) {
-                counter++;
+        try {
+            var counter = 0;
+            for (var i = 0; i < $scope.PackingLineItemGrid.length; i++) {
+                if ($scope.PackingLineItemGrid[i]["checked"] == true) {
+                    counter++;
+                }
             }
-        }
-        if (counter == 0) {
-            ShowResult("Please Select SO");
-            throw("Please Select SO");
-        }
-        if (counter > 1) {
-            ShowResult("Please Select only 1 SO");
-            throw("Please Select only 1 SO");
-        }
-        $scope.AllVals();
-        var so = "";
-        for (var i = 0; i < $scope.PackingLineItemGrid.length; i++) {
-
-            if ($scope.PackingLineItemGrid[i]["checked"] == true) {
-                so = $scope.PackingLineItemGrid[i]["SO"];
+            if (counter == 0) {
+                ShowResult("Please Select SO");
+                throw ("Please Select SO");
             }
-        }
+            if (counter > 1) {
+                ShowResult("Please Select only 1 SO");
+                throw ("Please Select only 1 SO");
+            }
+            $scope.AllVals();
+            var so = "";
+            $scope.soqty = 0;
+            $scope.todispatchqty = 0;
+            for (var i = 0; i < $scope.PackingLineItemGrid.length; i++) {
 
-        $scope.PackingLineItem.SOId = so;
+                if ($scope.PackingLineItemGrid[i]["checked"] == true) {
+                    so = $scope.PackingLineItemGrid[i]["SO"];
+                    $scope.soqty = $scope.PackingLineItemGrid[i]["SoQty"];
+                    $scope.todispatchqty = $scope.PackingLineItemGrid[i]["toDespatch"];
+                }
+            }
 
-        $scope.PoLoTCollection = [];
-        for (var i = 0; i < $scope.PoLotRefGrid.length; i++) {
-            //if ($scope.PoLotRefGrid[i]["checked"] == true) {
+            $scope.PackingLineItem.SOId = so;
 
-            //    if ($scope.PoLoTCollection.length > 0) {
-            //        for (var j = $scope.PoLoTCollection.length - 1; j >= 0; j--) {
-            //            if ($scope.PoLoTCollection[j]["LotNo"] == $scope.PoLotRefGrid[i]["LotNo"]) {
-            //                $scope.PoLoTCollection.splice(j, 1);
-            //            }
-            //        }
-            //    }
+            $scope.PoLoTCollection = [];
+            for (var i = 0; i < $scope.PoLotRefGrid.length; i++) {
+                //if ($scope.PoLotRefGrid[i]["checked"] == true) {
+
+                //    if ($scope.PoLoTCollection.length > 0) {
+                //        for (var j = $scope.PoLoTCollection.length - 1; j >= 0; j--) {
+                //            if ($scope.PoLoTCollection[j]["LotNo"] == $scope.PoLotRefGrid[i]["LotNo"]) {
+                //                $scope.PoLoTCollection.splice(j, 1);
+                //            }
+                //        }
+                //    }
                 if ($scope.PoLotRefGrid[i]["checked"] == true) {
                     $scope.POLotRef = {
                         Id: null,
@@ -793,68 +798,76 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
                     $scope.POLotRef.Available = $scope.PoLotRefGrid[i]["Available"];
                     $scope.PoLoTCollection.push($scope.POLotRef);
                 }
-                
+
+                //}
+
+
+            }
+
+            var cartons = "''";
+            var cartonsAllObj = [];
+            if ($scope.cartonCollection.length > 0) {
+                var k = $scope.cartonCollection[0]["LotNo"];
+                var kk = $scope.cartonCollection[0]["ProductCode"];
+                var kkk = $scope.cartonCollection[0]["PO"];
+                for (var i = 0; i < $scope.cartonCollection.length; i++) {
+                    var j = $scope.cartonCollection[i]["LotNo"];
+                    var jj = $scope.cartonCollection[i]["ProductCode"];
+                    var jjj = $scope.cartonCollection[i]["PO"];
+                    if (j == k && jj == kk && jjj == kkk) {
+                        cartons = cartons + ',' + "'" + $scope.cartonCollection[i]["RefNo"] + "'";
+                        k = j; kk = jj; kkk = jjj;
+                    }
+                    else {
+                        cartonsAllObj.push({ ProductCode: kk, PO: kkk, LotNo: k, RefNo: cartons });
+                        cartons = "''," + "'" + $scope.cartonCollection[i]["RefNo"] + "'";
+                        k = j;
+                        kk = jj;
+                        kkk = jjj;
+                    }
+                }
+
+                cartonsAllObj.push({ ProductCode: kk, PO: kkk, LotNo: k, RefNo: cartons });
+            }
+
+
+
+            //for (var i = 0; i < $scope.cartonCollection.length; i++) {
+            //    cartons = cartons + ',' + "'"+$scope.cartonCollection[i]["RefNo"]+"'";
             //}
 
+            var cartonsList = cartonsAllObj;
 
-        }
+            $scope.secondVals();
 
-        var cartons = "''";
-        var cartonsAllObj = [];
-        if ($scope.cartonCollection.length > 0) {
-            var k = $scope.cartonCollection[0]["LotNo"];
-            var kk = $scope.cartonCollection[0]["ProductCode"];
-            var kkk = $scope.cartonCollection[0]["PO"];
-            for (var i = 0; i < $scope.cartonCollection.length; i++) {
-                var j = $scope.cartonCollection[i]["LotNo"];
-                var jj = $scope.cartonCollection[i]["ProductCode"];
-                var jjj = $scope.cartonCollection[i]["PO"];
-                if (j == k && jj==kk && jjj ==kkk) {
-                    cartons = cartons + ',' + "'" + $scope.cartonCollection[i]["RefNo"] + "'";
-                    k = j; kk = jj; kkk = jjj;
+            if ($scope.POLotRef.PlanQty > $scope.soqty) {
+                throw "Plan Qty can't greater than SO Qty.";
+            }
+            if ($scope.todispatchqty<=0) {
+                throw "Qty is not available.";
+            }
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "CreateAll",
+                data: { 'Packingdata': $scope.Packing, 'PackingLineItemdata': $scope.PackingLineItem, 'POLotRefData': $scope.POLotRef, 'Cartons': cartonsList, 'POLotCollection': $scope.PoLoTCollection, 'lastIndex': $scope.lastIndex },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    cartonsAllObj.push({ ProductCode: kk, PO:kkk ,LotNo: k, RefNo: cartons });
-                    cartons = "''," + "'" + $scope.cartonCollection[i]["RefNo"] + "'";
-                    k = j;
-                    kk = jj;
-                    kkk = jjj;
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Packing = response.data.Data;
+                    $scope.lastIndex = response.data.lastIndex;
+                    $scope.ClearAll();
+                    $scope.getSoFromCustomerList();
                 }
-            }
-
-            cartonsAllObj.push({ ProductCode: kk, PO: kkk, LotNo: k, RefNo: cartons  });
-        }
-
-
-
-        //for (var i = 0; i < $scope.cartonCollection.length; i++) {
-        //    cartons = cartons + ',' + "'"+$scope.cartonCollection[i]["RefNo"]+"'";
-        //}
-
-        var cartonsList = cartonsAllObj;
-
-        $scope.secondVals();
-
-
-
-        $http({
-            method: 'POST',
-            url: $scope.path + "CreateAll",
-            data: { 'Packingdata': $scope.Packing, 'PackingLineItemdata': $scope.PackingLineItem, 'POLotRefData': $scope.POLotRef, 'Cartons': cartonsList, 'POLotCollection': $scope.PoLoTCollection, 'lastIndex': $scope.lastIndex },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+            }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.Packing = response.data.Data;
-                $scope.lastIndex = response.data.lastIndex;
-                $scope.ClearAll();
-                $scope.getSoFromCustomerList();
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     }
     //Clear the Selections
@@ -1033,6 +1046,16 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     $scope.PackingListReport = function (obj) {
         try {
             var file_src = $scope.path + "PackingList?PackingId=" + obj.data.PackingId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.PackingListPDFReport = function (obj) {
+        try {
+            var file_src = $scope.path + "PackingListPDFReport?reportFormat=" + 'Pdf' +'&PackingId=' + obj.data.PackingId;
             $rootScope.report(file_src);
 
         } catch (e) {

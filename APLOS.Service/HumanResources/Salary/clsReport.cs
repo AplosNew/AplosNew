@@ -1679,6 +1679,293 @@ namespace OTSBD
             }
         }//End Function
 
+        public void GetMaintenanceSchedulePlannedConsumableDetails(string PlannedId,string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select distinct 'Consumable' type, E.UserName Entity,MS.UserName ScheduleName,APD.Id as PlannedId,MS.ScheduleCode,
+MM.UserName MachineName,MA.AssetName,MM.MachineMake Make,MM.MachineModel Model,MS.ScheduleDays,Case when isnull((SELECT TOP 1 format(MPD.ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ORDER BY MPD.Id DESC),'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (MS.ScheduleDays+GETDATE())) end DueDays,
+Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,Format(APD.FromDate,'dd-MMM-yyyy') as FromDate,Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,MS.StandardScheduleMinutes as StandardTime,MS.MaxScheduleMinutes as Maximumtime,
+format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as ToTime,APD.Minute as [Minute],MA.AssetCode,WC.UserName WorkCenter,
+Reverse(stuff(Reverse((Select EmployeeName + ',' from EmployeeInformation where 
+SystemId in (select ResponsiblePersonId from [TRN].[ResponsiblePlannedDetails] where PlannedId=APD.Id and IsActive=1) for xml PATH(''))),1,1,'')) as ResponsiblePerson,
+'' as [Item Name],'' as ItemSNO,'' CriticalLevel,'' ItemRemarks,
+'' as CheckPoints, 
+MSC.SNO as StoresSNO,MSC.ItemName as StoreItemName,
+(select UserName from SCS.UnitOfMeasurement where Active=1 and Id=MSC.UOMId) as UOM,
+(select StandardName from MST.MaterialMasterArticle where Id=MSC.ArticleId) as Article,
+MSC.EstimatedQty,
+MSC.Category,MSC.CostType,MSC.EstimationLevel,MSC.Remarks as StoresRemarks,
+isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id=APD.Id
+ ORDER BY Id DESC),'') as LastMaintenanceDate,
+Case when isnull((SELECT TOP 1 format(MPD.ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
+ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
+MA.AssetReference,Y.Closing as StockQty
+from TRN.Maintenancescheduling MS
+--left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
+left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
+left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
+left join ORG.Entity E ON E.Id=MMA.EntityId
+left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
+left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
+left join TRN.MaintenanceStoresConsumable MSC ON MSC.MaintenanceSchedulingId=MS.Id 
+left join (SELECT X.Closing,X.ArticleId FROM (
+                        SELECT Distinct 
+                               ROW_NUMBER() Over(Order by  IM.Id) As[S.N]             
+                              , isnull(MT.UserName,'') MaterialType
+                              , isnull(MGM.UserName,'') AS MaterialGroup                        
+                             ,isnull(MM.UserName,'') MaterialMasterName    
+                             ,MM.Id    MaterialMasterId    
+                            ,HSNC.Code HSNCode
+                            ,isnull( ART.StandardName,'') ArticleName    
+                             ,ART.Id ArticleId        
+                            , ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
+                            , ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+                            , ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue --,MS.UserName MaterialStorageLocation    
+                            ,TUoM.UserName UOM,  opbal.IsAsset
+                            ,(((((((isnull(opbal.TransactionQty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.Qty,0)) Closing 
+
+
+
+                        from TRN.InventoryMaterial AS IM
+                        left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+                        LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
+                        left join( 
+                                    SELECT IRD.InventoryMaterialId--, IRD.MaterialStorageId
+                                    ,IRD.IsAsset,Sum(IRD.BaseQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+                                    FROM [TRN].[InventoryReceiveDetail] IRD
+                                    LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
+                                    where convert(Date,IR.GRNDate) <= Format(GETDATE(),'dd-MMM-yyyy') AND IR.OpeningBalanceId IS NOT NULL  
+                                    group By IRD.InventoryMaterialId--,IRD.MaterialStorageId
+                            ,IRD.IsAsset
+                                    
+                                    ) AS opbal ON opbal.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"'
+                                    -- left join[HKP].[MaterialStorage] MS on ms.id = opbal.MaterialStorageId 
+                                    LEFT JOIN[HKP].[MaterialType] AS MT On MGM.MaterialTypeId = MT.Id 
+                                    left JOIN[SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id 
+                                    left join(SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty) AS TransactionQty , Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+FROM[TRN].[InventoryReceiveDetail] IRD
+LEFT JOIN[TRN].[InventoryReceive] IR ON IR.Id= IRD.InventoryReceiveId
+where convert(Date, IR.GRNDate) > Format(GETDATE(), 'dd-MMM-yyyy') group By IRD.InventoryMaterialId--) AS opbal1 ON opbal1.InventoryMaterialId = IM.Id AND IM.PlantId = '"+plantId+@"'
+UNION ALL
+SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+FROM[TRN].[InventoryReceiveDetail] IRD
+LEFT JOIN[TRN].[InventoryReceive] IR ON IR.Id = IRD.InventoryReceiveId
+where convert(Date, IR.GRNDate) = Format(GETDATE(), 'dd-MMM-yyyy') group By IRD.InventoryMaterialId) AS opbal1 ON opbal1.InventoryMaterialId = IM.Id AND IM.PlantId = '"+plantId+ @"'
+left join(SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty) AS TransactionQty , Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+FROM[TRN].[InventoryReceiveDetail] IRD
+LEFT JOIN[TRN].[InventoryReceive] IR ON IR.Id= IRD.InventoryReceiveId
+where convert(Date, IR.GRNDate) <= Format(GETDATE(), 'dd-MMM-yyyy') AND IR.OpeningBalanceId IS NULL
+  --AND(ISNULL(IR.AuthorizedByStatus, '') != 'Reject') AND ISNULL(IR.CheckedByStatus,'')!= 'Reject'
+GROUP BY IRD.InventoryMaterialId
+                                    ) AS opbal2 ON opbal2.InventoryMaterialId = IM.Id AND IM.PlantId = '" + plantId+ @"'
+left join(select IID.InventoryMaterialId, Sum(IH.Qty) IssueQty, Sum(IID.PolicyAmount) PolicyAmount
+FROM TRN.InventoryIssueDetail IID
+LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId= II.Id
+LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId= IID.Id
+WHERE convert(Date, II.IssueDate) <= Format(GETDATE(), 'dd-MMM-yyyy') AND II.PlantId = '" + plantId+ @"' GROUP BY IID.InventoryMaterialId
+                                    ) IFD On IFD.InventoryMaterialId = IM.Id
+ left join(select IID.InventoryMaterialId, Sum(IH.Qty) IssueQty, Sum(IH.TotalAmount) PolicyAmount
+FROM TRN.InventoryIssueDetail IID
+LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId= II.Id
+LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId= IID.Id
+WHERE convert(Date, II.IssueDate) <= Format(GETDATE(), 'dd-MMM-yyyy') AND II.PlantId = '" + plantId+ @"' GROUP BY IID.InventoryMaterialId
+                                ) IFD1 On IFD1.InventoryMaterialId = IM.Id
+--Issue Return
+Left join(select IH.InventoryMaterialId, sum(IH.Qty) Qty, sum(IRD.MaterialTranRate) MaterialTranRate, (sum(IH.Qty)* sum(IRD.MaterialTranRate)) IssueReturnAmount from trn.InventoryIssueReturnHistory IH
+Left join trn.InventoryIssueReturn II ON II.Id = IH.InventoryIssueReturnId
+Left join trn.InventoryReceiveDetail IRD ON IRD.Id = IH.InventoryReceiveDetailId
+WHERE convert(Date, II.IssueDate) <= Format(GETDATE(), 'dd-MMM-yyyy') AND II.PlantId = '" + plantId+ @"' GROUP BY IH.InventoryMaterialId
+                                 )IssueReturnData ON IssueReturnData.InventoryMaterialId = IM.Id
+--Purchase return
+Left join(select IH.InventoryMaterialId, sum(IH.TransactionQty) Qty, sum(IRD.MaterialTranRate) MaterialTranRate, (sum(IH.TransactionQty * IRD.MaterialTranRate)) PurchaseReturnAmount
+from trn.PurchaseReturnDetail IH
+Left join trn.PurchaseReturn II ON II.Id = IH.PurchaseReturnId
+Left join trn.InventoryReceiveDetail IRD ON IRD.Id = IH.InventoryReceiveDetailId
+WHERE convert(Date, II.[POReturnDate]) <= Format(GETDATE(), 'dd-MMM-yyyy') AND II.PlantId = '" + plantId+ @"' GROUP BY IH.InventoryMaterialId
+)PurchaseReturnData ON PurchaseReturnData.InventoryMaterialId = IM.Id
+
+-- Adjustment
+Left join(select psad.InventoryMaterialId, sum(IH.Qty) Qty, sum(IH.Rate) Rate, (sum(IH.Qty) * sum(IH.Rate)) AdjustmentAmount
+from trn.PhysicalStockAdjustmentHistory IH
+Left JOIN TRN.PhysicalStockAdjustmentDetail psad on psad.Id = IH.PhysicalStockAdjustmentDetailId
+Left join trn.PhysicalStockAdjustmentMaster II ON II.Id = psad.PhysicalStockAdjustmentMasterID
+--Left join trn.InventoryReceiveDetail IRD ON IRD.Id = IH.InventoryReceiveDetailId
+WHERE convert(Date, II.IssueDate) <= Format(GETDATE(), 'dd-MMM-yyyy') AND II.PlantId = '" + plantId+ @"' GROUP BY psad.InventoryMaterialId
+)AdjustmentData ON AdjustmentData.InventoryMaterialId = IM.Id
+-- where opbal.IsAsset = 0 AND IM.PlantId = '" + plantId+ @"' AND MM.UserName is not null
+
+-- InventorySales
+    Left join(select ISD.InventoryMaterialId, sum(ISH.Qty) Qty, sum(ISH.BaseRate) Rate, (sum(ISH.Qty * ISH.BaseRate)) InventorySalesAmount
+    from[TRN].[InventorySalesHistory] ISH
+    Left JOIN[TRN].[InventorySalesDetail] ISD on ISD.Id = ISH.InventorySalesDetailId
+    Left join[TRN].[InventorySales] Ins on Ins.Id = ISD.InventorySalesId
+    --Left join trn.InventoryReceiveDetail IRD ON IRD.Id = IH.InventoryReceiveDetailId
+   WHERE convert(Date, Ins.SalesDate) <= Format(GETDATE(), 'dd-MMM-yyyy') AND Ins.PlantId = '" + plantId+ @"' GROUP BY ISD.InventoryMaterialId
+    )InventorySalesData ON InventorySalesData.InventoryMaterialId = IM.Id
+    -- where IM.PlantId = '" + plantId+ @"' AND MM.UserName is not null--AND MM.UserName like '%Bed Sheet%'
+
+   --InventoryScrap
+     Left join(select ISCD.InventoryMaterialId, sum(ISCH.Qty) Qty, sum(ISCH.Rate) Rate, (sum(ISCH.Qty * ISCH.Rate)) InventoryScrapAmount
+ from[TRN].[InventoryScrapHistory] ISCH
+  Left JOIN[TRN].[InventoryScrapDetail] ISCD on ISCD.Id = ISCH.InventoryScrapDetailId
+Left join[TRN].[InventoryScrap] ISC on ISC.Id = ISCD.InventoryScrapId
+     --Left join trn.InventoryReceiveDetail IRD ON IRD.Id = IH.InventoryReceiveDetailId
+  WHERE convert(Date, ISC.ScrapDate) <= Format(GETDATE(), 'dd-MMM-yyyy') AND ISC.PlantId = '"+plantId+@"' GROUP BY ISCD.InventoryMaterialId
+     )InventoryScrapData ON InventoryScrapData.InventoryMaterialId = IM.Id
+     --InventoryTransfer
+     Left join(select IRD.InventoryMaterialId, sum(IRD.InventoryTransferQty) Qty, sum(IRD.MaterialTranRate) Rate, (sum(IRD.InventoryTransferQty) * sum(IRD.MaterialTranRate)) InventoryTransferAmount
+ from[TRN].[InventoryTransferHistory] ITH
+  Left JOIN[TRN].[InventoryReceiveDetail] IRD on IRD.Id = ITH.InventoryReceiveDetailId
+  Left join[TRN].[InventoryReceive] IR on IR.Id = IRD.InventoryReceiveId
+ WHERE convert(Date, IR.GRNDate) <= Format(GETDATE(), 'dd-MMM-yyyy') AND IR.PlantId = '" + plantId+ @"'
+ GROUP BY IRD.InventoryMaterialId
+     )InventoryTransferData ON InventoryTransferData.InventoryMaterialId = IM.Id
+where IM.PlantId = '" + plantId+ @"' AND MM.UserName is not null ) X )  Y ON Y.ArticleId = MSC.ArticleId
+where MMA.Id = '" + PlannedId + @"' order by MSC.SNO";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public void GetMaintenanceSchedulePlannedItemDetails(string PlannedId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select distinct MS.ScheduleCode,MI.Id,MI.SNO,
+ROW_NUMBER() OVER(ORDER BY MI.SNO ASC) as ItemSNO,MI.ItemName as [Item Name],MI.CriticalLevel,MI.Remarks as ItemRemarks,
+Reverse(stuff(Reverse((Select CheckPoints + '[ ],' from ItemParameterDetails where 
+ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,EAC.UserName ItemType,MI.ItemMinutes
+from TRN.MaintenanceItem MI
+left join HKP.EmployeeActivityCategory EAC ON EAC.Id=MI.ItemType
+left join TRN.Maintenancescheduling MS ON MS.Id=MI.MaintenanceSchedulingId
+left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
+where MMA.Id='" + PlannedId + @"' order by MI.SNO";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetSpecialIssueControlDetails(string IssueId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select SIC.Category,SIC.SubCategory,SIC.SpecialIssueName,SIC.SpecialIssueDetails,format(SIC.TargetDate,'dd-MMM-yyyy') as TargetDate,
+SIC.Remarks,(select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=SIC.ResponsiblePersonId) as ResponsiblePerson,
+SIC.MonitoringPeriod as MonitoringPeriods,SIC.IssueStatus from [TRN].[SpecialIssueControl] SIC where Id='" + IssueId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetSpecialIssueControlItemDetails(string IssueId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"SELECT (select SpecialIssueName from [TRN].[SpecialIssueControl] SIC where SIC.Id='SIC1') as SpecialIssueName,ROW_NUMBER() OVER(ORDER BY SII.Id) SNO,SII.SpecialIssueItem,SII.Actiontaken,
+(select EmployeeName from EmployeeInformation where SystemId=ActiontakenById) as ActiontakenBy
+,SII.SampleSize,'' Remarks
+FROM [TRN].[SpecialIssueItem] SII where SII.SpecialIssueControlId='" + IssueId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetSpecialIssueControlPeriodDetails(string Shift, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"SELECT PeriodName FROM [MST].[SpecialIssueDefinePeriod] where Shift ='" + Shift + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetExtraAbsentCount(string fromDate, string toDate, string plantid, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -8143,6 +8430,74 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
             }
         }//End Function
 
+        public void GetMonthlyDailyAttendanceDicCom(ParaMontlyAttendance objm, Dictionary<string, string> parameters, out DataSet dsRef)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                string strSql = string.Empty;
+                 strSql = @"SELECT A.* FROM
+	                                (SELECT E.systemId EmpSystemId,E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,
+                                            D.UserName Designation, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
+                                            S.UserName Section, SB.UserName SubSection, L.UserName Line,  REPLACE(CONVERT(VARCHAR(11), AD.WorkDate, 113), ' ', '-') PDate,
+                                            AD.DayStatus, FORMAT(AD.InTime, 'hh.mm tt') InTime, ARIN.DeviceID InDeviceID, FORMAT(AD.OutTime, 'hh.mm tt') OutTime,
+                                            AROUT.DeviceID OutDeviceID,CONVERT(VARCHAR(10),CONVERT(DECIMAL(18,2),AD.OTHr/60), 108) OTHr,FinalOT.TotalOTHr, LT.UserName LvShortName
+											,AD.WorkDate, DD.UserName GivenDesignation,DATEPART(day,ad.WorkDate) AS D,DT.Category DayCategory
+
+                                            ,CAS.MaxOTPerDay,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle
+											,AD.IsOTEntitled,ShiftOutTime = CASE WHEN cs.OutTime IS NULL THEN CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)END 
+											,ShiftInTime = Format(AD.WorkDate, 'yyyy-MM-dd') + ' ' + CASE WHEN cs.InTime IS NULL THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)  ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100) END
+											, AD.InTime InTimeShow, AD.OutTime as OutTimeShow,AD.WorkDate WDate,E.EmployeeCodeNumeric,AD.IsManualOutTime, HR.OTConsiderOn, dt.OriginalDayType,E.SystemId,AD.OTHr OverStay
+
+                                    FROM dbo.EmployeeInformation E
+                                                INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
+                                                Left JOIN dbo.DayType DT ON DT.DayType = AD.DayStatus
+                                                LEFT JOIN dbo.AttdnRawData ARIN ON AD.InTimeRowID = ARIN.RowID
+                                                LEFT JOIN dbo.AttdnRawData AROUT ON AD.OutTimeRowID = AROUT.RowID
+											    LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = E.SystemId AND AD.WorkDate = FinalOT.WorkDate                                                
+                                                LEFT JOIN dbo.LeaveType LT ON AD.LTSystemID = LT.Id
+                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
+                                                LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+												LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
+
+                                                LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+												left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.CompanyGroupId and cas.PlantId=e.PlantId
+												left join EmpDateWiseShiftAssign es on es.EmpSystemID = E.SystemId AND AD.WorkDate = ES.WorkDate
+												left join(
+                                SELECT  m.ShiftDefinationID, c.ShiftDate, m.InTime, m.SystemID,m.OutTime  FROM[ShiftTimeChgMaster] m
+                                left join[ShiftTimeChgChild] c on m.SystemID = c.STCMasterSystemID
+                                         ) CS on cs.ShiftDefinationID = es.ShiftSystemID and cs.ShiftDate = AD.WorkDate
+										 left join[ShiftDefination] sd on sd.SystemID = es.ShiftSystemID
+                                        LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId
+                                        --LEFT JOIN DayType dt on dt.Daytype=AD.DayStatus
+
+                                    WHERE AD.PlantID = '" + objm.PlantId + @"' AND AD.WorkDate BETWEEN '" + objm.FDate + @"' AND '" + objm.TDate + @"' 
+                                    AND (E.DOS is null or E.DOS >= '" + objm.FDate + @"')									
+									";
+                if (parameters.Count > 0)
+                {
+                    if (parameters.Keys.ElementAt(0) != "")
+                    {
+                        strSql += @" AND E.SystemID IN(" + parameters["EmpSystemId"] + ")";
+                    }
+                }
+                strSql += ") A ORDER BY EmpSystemId";
+                DataTable dt = _sqlRepository.GetDataTable(strSql);
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
 
         public void GetComplianceMonthlyAttnSummaryRptForDetails(string plantId, string month, string year, out DataSet dsRef)
         {
@@ -8345,6 +8700,13 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                             WHEN AD.IsManualInTime = 1 THEN 'MANUAL'
                                             WHEN AD.IsManualOutTime = 1 THEN 'MANUAL'
 											ELSE '' END,AD.CountedShortLeave
+                                    ,TotalPresent = CASE WHEN DT.Category = 'Present' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Present' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Late' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Leave' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is not null THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is null THEN 0.5
+											ELSE 0 END
                                     FROM dbo.EmployeeInformation E
                                                 INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
                                                 Left JOIN dbo.DayType DT ON DT.DayType = AD.DayStatus
@@ -8389,6 +8751,151 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                 }
 
                 return dicShift;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public Dictionary<string, List<DataRow>> GetEOTMonthlyDailyAttendanceDic(string IsDayStatus, string plantId, string fromDate, string toDate, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            try
+            {
+                var strSql = @"SELECT A.* FROM
+	                                (SELECT E.systemId EmpSystemId,E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ, 
+                                            U.UserName Unit,D.UserName Department,S.UserName Section,L.UserName Line,
+											REPLACE(CONVERT(VARCHAR(11), AD.WorkDate, 113), ' ', '-') PDate,
+                                            AD.DayStatus, FORMAT(ad.InTime, 'hh.mm tt') InTime,  FORMAT(ad.OutTime, 'hh.mm tt') OutTime
+                                            ,OTHr=CASE WHEN (CASE WHEN FinalOT.TotalOTHr>240 THEN 240 ELSE FinalOT.TotalOTHr END)<121 THEN 0 ELSE ((CASE WHEN FinalOT.TotalOTHr>240 THEN 240 ELSE FinalOT.TotalOTHr END)-120)/60 END											 
+                                            , LT.ShortName LvShortName
+											,AD.WorkDate, DATEPART(day,ad.WorkDate) AS D,DT.Category DayCategory,SD.UserName ShiftName,LT.Code LeaveCode
+											, LTD.LeaveDuration
+                                            ,MANUALStatus = CASE WHEN  AD.IsManualDayStatus=1 THEN 'MANUAL'
+                                            WHEN AD.IsManualInTime = 1 THEN 'MANUAL'
+                                            WHEN AD.IsManualOutTime = 1 THEN 'MANUAL'
+											ELSE '' END,AD.CountedShortLeave
+                                    ,TotalPresent = CASE WHEN DT.Category = 'Present' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Present' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Late' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Leave' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is not null THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is null THEN 0.5
+											ELSE 0 END,GS.DefineAmount Gross,OTRate=cast(round((BS.DefineAmount/208)*2,2) as numeric(36,2))
+                                   ,ShiftOutTime = CASE WHEN cs.OutTime IS NULL THEN CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)END 
+											,ShiftInTime = Format(AD.WorkDate, 'yyyy-MM-dd') + ' ' + CASE WHEN cs.InTime IS NULL THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)  ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100) END
+											, AD.InTime InTimeShow, AD.OutTime as OutTimeShow,DT.OriginalDayType, HR.OTConsiderOn,MaxOTPerDay=240,AD.OTHr OverStay,E.SystemId
+                                            ,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle,AD.IsOTEntitled
+                                    FROM dbo.EmployeeInformation E
+                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                                     LEFT JOIN [ORG].[Unit] U ON U.Id = EN.UnitId
+                                     LEFT JOIN [ORG].[Department] D ON D.Id = E.DepartmentId
+                                        LEFT JOIN [ORG].[Section] S ON S.Id = E.SectionId
+                                        LEFT JOIN [ORG].[Line]L ON L.Id = mpb.LineId
+                                                INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
+                                                LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId
+                                                left join [dbo].[ComplianceAttendanceSetting] CAS ON cas.PlantId=e.PlantId
+                                                left join EmpDateWiseShiftAssign es on es.EmpSystemID = E.SystemId AND AD.WorkDate = ES.WorkDate
+												left join(
+                                SELECT  m.ShiftDefinationID, c.ShiftDate, m.InTime, m.SystemID,m.OutTime  FROM[ShiftTimeChgMaster] m
+                                left join[ShiftTimeChgChild] c on m.SystemID = c.STCMasterSystemID
+                                         ) CS on cs.ShiftDefinationID = es.ShiftSystemID and cs.ShiftDate = AD.WorkDate
+                                                Left JOIN dbo.DayType DT ON DT.DayType = AD.DayStatus                                              
+											    LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = E.SystemId AND Convert(Date,AD.WorkDate) = Convert(Date,FinalOT.WorkDate)                                                
+                                                LEFT JOIN dbo.LeaveType LT ON AD.LTSystemID = LT.Id												
+											    left join (SELECT t.EmpSystemID,d.WorkDate,d.LeaveDuration FROM LeaveTransaction t
+                                left join LeaveTransactionDetails d on d.LvTrnsSystemID = t.SystemID
+                                where d.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
+                                and d.IsAvailed = 1 
+                                and d.LeaveDuration = 0.5) lTD on LTD.WorkDate = AD.WorkDate AND LTD.EmpSystemID = AD.EmpSystemID                                            
+                                                LEFT JOIN dbo.ShiftDefination SD ON AD.ShiftSystemID = SD.SystemID                                            
+                                            LEFT JOIN (SELECT SPC.EntryAmount, SPC.DefineAmount,SPM.EmpInfoSystemID,sh.SalaryHead, sh.HeadCategory, sh.HeadType
+                                                FROM SalaryInfoDefine SPC
+                                                LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
+                                                LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                                                Where  sh.HeadCategory='GROSS') GS ON GS.EmpInfoSystemID=E.SystemId
+                                            LEFT JOIN (SELECT SPC.EntryAmount, SPC.DefineAmount,SPM.EmpInfoSystemID,sh.SalaryHead, sh.HeadCategory, sh.HeadType
+                                                FROM SalaryInfoDefine SPC
+                                                LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
+                                                LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                                                Where  sh.HeadCategory='BASIC') BS ON BS.EmpInfoSystemID=E.SystemId
+                                    WHERE --E.PlantID = '" + plantId + @"' AND
+                                        AD.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND AD.IsOTEntitled=1
+                                    AND (E.DOS is null or E.DOS >= '" + fromDate + @"')									
+									";
+                if (parameters.Count > 0)
+                {
+                    if (parameters.Keys.ElementAt(0) != "")
+                    {
+                        strSql += @" AND E.SystemID IN(" + parameters["EmpSystemId"] + ")";
+                    }
+                }
+                strSql += ") A ORDER BY EmpSystemId";
+                DataTable dt = _sqlRepository.GetDataTable(strSql);
+
+                Dictionary<string, List<DataRow>> dicShift = new Dictionary<string, List<DataRow>>();
+                List<DataRow> _data = new List<DataRow>();
+                string empId = "";
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (empId != dt.Rows[i]["EmpSystemId"].ToString())
+                    {
+                        _data = new List<DataRow>();
+                        dicShift.Add(dt.Rows[i]["EmpSystemId"].ToString(), _data);
+                    }
+                    _data.Add(dt.Rows[i]);
+
+                    empId = dt.Rows[i]["EmpSystemId"].ToString();
+                }
+
+                return dicShift;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public DataTable GetEOTMonthlyDailyAttendanceDT(string plantId, string fromDate, string toDate)
+        {
+            try
+            {
+                var strSql = @"SELECT A.Unit,A.Department,A.Section,A.Line,COUNT(A.EmpSystemId) TotalEmployee,SUM(A.Gross) TotalGross,SUM(A.OTHr) TotalOTHour,SUM(A.Total) Total FROM
+(
+SELECT E.systemId EmpSystemId,U.UserName Unit,D.UserName Department,S.UserName Section,L.UserName Line,O.OTHr
+                    ,(O.OTHr*cast(round((BS.DefineAmount/208)*2,2) as numeric(36,2))) Total
+                    ,GS.DefineAmount Gross,OTRate=cast(round((BS.DefineAmount/208)*2,2) as numeric(36,2))
+            FROM dbo.EmployeeInformation E
+                LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+                LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                LEFT JOIN [ORG].[Unit] U ON U.Id = EN.UnitId
+                LEFT JOIN [ORG].[Department] D ON D.Id = E.DepartmentId
+                LEFT JOIN [ORG].[Section] S ON S.Id = E.SectionId
+                LEFT JOIN [ORG].[Line]L ON L.Id = mpb.LineId
+                INNER JOIN 
+                (
+                SELECT SUM(CASE WHEN (CASE WHEN FinalOT.TotalOTHr>240 THEN 240 ELSE FinalOT.TotalOTHr END)<121 THEN 0 ELSE ((CASE WHEN FinalOT.TotalOTHr>240 THEN 240 ELSE FinalOT.TotalOTHr END)-120)/60 END) OTHr,FinalOT.EmpSystemID FROM dbo.AttdnProcessData AD                                                                                         
+				LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = AD.EmpSystemID AND Convert(Date,AD.WorkDate) = Convert(Date,FinalOT.WorkDate)
+                WHERE AD.WorkDate BETWEEN '"+fromDate+@"' AND '"+toDate+@"' AND AD.IsOTEntitled=1
+                GROUP BY FinalOT.EmpSystemID                                                
+                ) O ON E.SystemID = O.EmpSystemID                                         
+                    LEFT JOIN (SELECT SPC.EntryAmount, SPC.DefineAmount,SPM.EmpInfoSystemID,sh.SalaryHead, sh.HeadCategory, sh.HeadType
+                        FROM SalaryInfoDefine SPC
+                        LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
+                        LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                        Where  sh.HeadCategory='GROSS') GS ON GS.EmpInfoSystemID=E.SystemId
+                    LEFT JOIN (SELECT SPC.EntryAmount, SPC.DefineAmount,SPM.EmpInfoSystemID,sh.SalaryHead, sh.HeadCategory, sh.HeadType
+                        FROM SalaryInfoDefine SPC
+                        LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
+                        LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                        Where  sh.HeadCategory='BASIC') BS ON BS.EmpInfoSystemID=E.SystemId
+            WHERE E.PlantID = '"+plantId+@"'  AND (E.DOS is null or E.DOS >= '"+fromDate+@"')
+) A
+GROUP BY A.Unit,A.Department,A.Section,A.Line ORDER BY A.Unit,A.Department,A.Section";
+                return _sqlRepository.GetDataTable(strSql);
             }
             catch (Exception ex)
             {
@@ -17262,10 +17769,15 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
             }
             else
             {
+                //salaryProcessSystemId = @"SystemId IN( SELECT SystemID FROM SalaryProcMaster
+                //                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                //                                        WHERE PlantID = '" + para.PlantId + @"' GROUP BY SlrProcMstSystemID)
+                //                        AND MonthNo = Month('" + para.FromDate + "') AND YearNo = Year('" + para.FromDate + "')  and IsCompleteMonth = 1)";
+
                 salaryProcessSystemId = @"SystemId IN( SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
                                                         WHERE PlantID = '" + para.PlantId + @"' GROUP BY SlrProcMstSystemID)
-                                        AND MonthNo = Month('" + para.FromDate + "') AND YearNo = Year('" + para.FromDate + "')  and IsCompleteMonth = 1)";
+                                        AND MonthNo = Month('" + para.FromDate + "') AND YearNo = Year('" + para.FromDate + "'))";
             }
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;

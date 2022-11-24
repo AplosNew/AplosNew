@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using APLOS;
+using Library.Service.EmployeeServices;
 
 namespace Aplos.Controllers
 {
@@ -363,6 +364,56 @@ namespace Aplos.Controllers
 
             }
         }
+
+        #region Detention save api By Aman
+        [HttpPost]
+        [Route("api/MyTask/savedetention")]
+        public string savedetention([FromBody] IEnumerable<DetentionMoidel> DataSaveok)
+        {
+            try
+            {
+                string Id = _task.savedetention(DataSaveok);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        [HttpPost]
+        [Route("api/MyTask/saveresponsibleperson")]
+        public string saveresponsibleperson([FromBody] IEnumerable<ResponsiblePersonModel> DataSaveresponsible)
+        {
+            try
+            {
+                string Id = _task.saveresponsibleperson(DataSaveresponsible);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        [HttpPost]
+        [Route("api/MyTask/PostDetentionLog")]
+        public string PostDetentionLog([FromBody] IEnumerable<PostDetentionLog> DataSaveok)
+        {
+            try
+            {
+                string Id = _task.PostDetentionLog(DataSaveok);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        #endregion Detention save api By Aman
 
         [HttpPost]
         [Route("api/Sub/MId/{MId}")]

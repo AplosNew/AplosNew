@@ -1,0 +1,215 @@
+﻿<div>
+    <h5>{{title}}</h5>
+    <br />
+</div>
+<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Service" role="tab" data-toggle="tab">Medical Log</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Medicine Stock</a></li>
+
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">From<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="ModalNew.FromDate" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Employee</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+
+                                    <input type="text" name="Responsible Person" ng-model="ModalNew.EmployeeName" class="form-control" required readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="openEmpPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">To<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="ModalNew.ToDate" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="common-btn" style="position:relative; right:240px; bottom:30px">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="medicallogGridView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="MedicalLogGridList"
+                     e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick" e-allowfiltering="true" e-allowpaging="true"
+                     e-allowsorting="true" e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+                     e-allowselection="true" e-detailsdatabound="detailgrid">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="true" e-width="50"></div>
+                        <div e-column e-field="Date" e-headertext="Date" e-width="80"></div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="100"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+
+                        <div e-column e-field="Sickness" e-headertext="Sickness" e-width="150"></div>
+                        <div e-column e-field="Medicines" e-headertext="Medicines" e-width="150"></div>
+                        <div e-column e-field="Days" e-headertext="Days" e-width="100"></div>
+                        <div e-column e-field="Quantity" e-headertext="Quantity" e-width="100"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                        <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                        <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
+                        <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                        <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="XlsMedicalLogReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
+
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Medicins</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+
+                                    <input type="text" name="Medicins" ng-model="ModalNewT.UserName" class="form-control" required readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="openMedicinePopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-8 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">To</label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="ModalNewT.To" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetMedinceStockGrid();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="MedicineStockList"
+                     e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick" e-allowfiltering="true" e-allowpaging="true"
+                     e-allowsorting="true" e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+                     e-allowselection="true" e-detailsdatabound="detailgrid">
+                    <div e-columns>
+                       
+                        <div e-column e-field="Medicine" e-headertext="Medicines" e-width="150"></div>
+                        <div e-column e-field="ExpiryDate" e-headertext="ExpiryDate" e-width="100"></div>
+                        <div e-column e-field="OpeningStock" e-headertext="Opening Stock" e-width="100"></div>
+                        <div e-column e-field="StockReceived" e-headertext="Stock Received" e-width="100"></div>
+                        <div e-column e-field="StockIssue" e-headertext="Stock Issue" e-width="100"></div>
+                        <div e-column e-field="InHandStock" e-headertext="In Hand Stock" e-width="100"></div>
+                        
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="XlsMedicalLogReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@Html.Partial("~/Areas/HumanResource/Views/MedicalLogReport/_MedicinsListPopUp.cshtml")
+
+<div class="modal fade site-modal in" id="empPopUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> Employee List <button type="button" class="close" ng-click="closeEmpPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByEmployee">
+                                            <option ng-repeat="option in EmployeeSearchList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchEmployee" ng-enter="getSearchedEmployee()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getSearchedEmployee()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        @*style="color:black;overflow:scroll"*@
+                        <div style="color:black;" ej-grid e-datasource="MedicalLogEmp" e-recorddoubleclick="doubleEmployee"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                @*<div e-column e-field="Entity" e-headertext="Entity" e-width="50"></div>*@
+
+                                <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                                <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                            </div>
+                        </div>
+                        <script type="text/x-jsrender" id="headerTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>
+                        <script type="text/template" id="checkboxTemplate">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
+                        </script>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="SendMedicine();" class="btn"> Add</button></li>
+                    <li><button ng-click="closeEmpPopUp();" class="btn"> Close</button></li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</div>

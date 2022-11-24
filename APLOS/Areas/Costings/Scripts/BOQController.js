@@ -127,6 +127,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
                 $scope.MaterialAttachmentList[i].ArticleId = $scope.SelectedMaterial.ArticleId;
                 $scope.MaterialAttachmentList[i].Article = $scope.SelectedMaterial.Article;
                 $scope.MaterialAttachmentList[i].Vendor = $scope.SelectedMaterial.Vendor;
+                $scope.MaterialAttachmentList[i].VendorId = $scope.SelectedMaterial.VendorId;
                 break;
             }
         }
@@ -136,6 +137,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
                 $scope.MaterialQtyEditList[i].Material = $scope.SelectedMaterial.Material;
                 $scope.MaterialQtyEditList[i].Article = $scope.SelectedMaterial.Article;
                 $scope.MaterialQtyEditList[i].Vendor = $scope.SelectedMaterial.Vendor;
+                $scope.MaterialQtyEditList[i].VendorId = $scope.SelectedMaterial.VendorId;
                 $scope.MaterialQtyEditList[i]["WithSKU"] = $scope.SelectedMaterial.WithSKU;
             }
         }
@@ -151,7 +153,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
 
     }
 
-   // $controller('partyBaseController', { $scope: $scope, $http: $http });
+    // $controller('partyBaseController', { $scope: $scope, $http: $http });
     $scope.partyType = 'Vendor';
 
     //#region Customer info
@@ -185,8 +187,8 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         limit: 10
         , offset: 0
         , order: 'ASC'
-        , sort: 'PartyName, PartyAccountGroupName'
-        , searchBy: 'PartyName'
+        , sort: 'UserName'
+        , searchBy: 'UserName'
         , pageSize: 10
         , total_count: 0
         , search: null
@@ -239,9 +241,28 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         }
     ];
 
+    $scope.SelectedMaterial = {
+        Article: null,
+        ArticleCode: null,
+        ArticleId: null,
+        BOMMaterialRefNo: null,
+        CostingItem: null,
+        CostingItemId: null,
+        Material: null,
+        MaterialCode: null,
+        MaterialMasterId: null,
+        Sequence: null,
+        Vendor: null,
+        VendorId: null
+    };
     $scope.showPartyPopUpNew = function (data) {
-       
-        $scope.SelectedMaterial = data;
+        $scope.searchByParty = "UserName";
+        if (baseService.isUndefinedOrNull(data)) {
+            $scope.SelectedMaterial = Object.assign({}, $scope.SelectedMaterial);
+
+        } else {
+            $scope.SelectedMaterial = Object.assign({}, data);
+        }
         $scope.partyList = [];
         if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
             $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
@@ -278,17 +299,30 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     };
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
-            
 
-            $scope.SelectedMaterial.Vendor = party.UserName;
-            $scope.SelectedMaterial.VendorId = party.Id;
-            angular.element(document.querySelector('#partyPopUp')).modal('hide');
-            UpdateGrid($scope.SelectedMaterial);
-        
+
+        $scope.SelectedMaterial.Vendor = party.UserName;
+        $scope.SelectedMaterial.VendorId = party.Id;
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+        UpdateGrid($scope.SelectedMaterial);
+
 
     };
 
+    $scope.CalPlanAmount = function (data) {
+        data.data.PlanAmount = (data.data.Rate + data.data.UpDownCharge) * data.data.BOMQty;
+        data.data.BOMAmount = (data.data.Rate + data.data.UpDownCharge) * data.data.RequiredQty;
+        var gridObjs = $("#GridMaterialQuantity").data("ejGrid");
+        gridObjs.refreshContent();
+        gridObjs.refreshTemplate();
+    }
 
+    $scope.CalRequiredAmount = function (data) {
+        data.data.BOMAmount = (data.data.Rate + data.data.UpDownCharge) * data.data.RequiredQty;
+        var gridObjs = $("#GridMaterialQuantity").data("ejGrid");
+        gridObjs.refreshContent();
+        gridObjs.refreshTemplate();
+    }
 
     $scope.Update = function () {
         $http({
@@ -312,50 +346,124 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         };
     }
 
+    $scope.BOMDetailDataList = [];
+    $scope.getBOMDetailData = function () {
+        $http({
+            method: 'POST',
+            url: "Costings/BOMDetailMaster/GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.BOMDetailDataList = response.data;
+        });
+        angular.element(document.querySelector('#BOMDetailPopUp')).modal('show');
+    }
 
-    //$scope.SelectedItemData = {};
-    //$scope.UploadTableName = '';
-    //$scope.uploadUrl = $scope.path + "UploadAttachment/";
-    //$scope.ShowUploadBox = function (data/*, costingStage, DBTableName*/) {
-    //    $scope.SelectedItemData = data;
+    $scope.BOMDetailMasterId = null;
+    $scope.BOMDetailMasterName = null;
+    $scope.SelectBoMDetail = function (obj) {
+        $scope.BOMDetailMasterId = obj.data.Id;
+        $scope.BOMDetailMasterName = obj.data.UserName;
+        $scope.GetSOData();
+
+    }
+
+    $scope.GetSOData = function () {
+        try {
+            $http.get('Costings/BOMDetailMaster/GetSODataList?masterid=' + $scope.BOMDetailMasterId)
+                .then(function (response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.GetChild2Data();
+                    }
+                    else {
+                        ShowResult("Select SO for this BoM Detail " + $scope.BOMDetailMasterName + "", 'failure');
+                        return false;
+                    }
+                });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    }
+
+    $scope.ChildDataList = [];
+    $scope.GetChild2Data = function () {
+        $http.get('Costings/BOMDetailMaster/GetBOMDetailData?masterid=' + $scope.BOMDetailMasterId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.ChildDataList = response.data;
+                }
+
+                for (var i = 0; i < $scope.MaterialAttachmentList.length; i++) {
+                    for (var j = 0; j < $scope.ChildDataList.length; j++) {
+                        if ($scope.MaterialAttachmentList[i].CostingItemId === $scope.ChildDataList[j].CostingItemId) {
+                            if (baseService.isUndefinedOrNull($scope.MaterialAttachmentList[i].MaterialMasterId)) {
+                                $scope.MaterialAttachmentList[i].MaterialCode = $scope.ChildDataList[j].MaterialCode;
+                                $scope.MaterialAttachmentList[i].Material = $scope.ChildDataList[j].MaterialMaster;
+                                $scope.MaterialAttachmentList[i].MaterialMasterId = $scope.ChildDataList[j].MaterialMasterId;
+                            }
+
+                            if (baseService.isUndefinedOrNull($scope.MaterialAttachmentList[i].ArticleId)) {
+                                $scope.MaterialAttachmentList[i].ArticleCode = $scope.ChildDataList[j].ArticleCode;
+                                $scope.MaterialAttachmentList[i].Article = $scope.ChildDataList[j].Article;
+                                $scope.MaterialAttachmentList[i].ArticleId = $scope.ChildDataList[j].ArticleId;
+                            }
+
+                            if (baseService.isUndefinedOrNull($scope.MaterialAttachmentList[i].VendorId)) {
+                                $scope.MaterialAttachmentList[i].Vendor = $scope.ChildDataList[j].VendorName;
+                                $scope.MaterialAttachmentList[i].VendorId = $scope.ChildDataList[j].VendorId;
+                            }
 
 
-    //    var _title = "Pre Costing";
+                        }
+                    }
+                }
+                for (var k = 0; k < $scope.MaterialQtyEditList.length; k++) {
+                    for (var m = 0; m < $scope.ChildDataList.length; m++) {
+                        if ($scope.MaterialQtyEditList[k].CostingItemId === $scope.ChildDataList[m].CostingItemId && $scope.MaterialQtyEditList[k].BOQCriteria === 'SKU1'
+                            && baseService.isUndefinedOrNull($scope.ChildDataList[m].SecondCharacteristicsValueId) && !baseService.isUndefinedOrNull($scope.ChildDataList[m].FirstCharacteristicsValueId)
+                            && $scope.MaterialQtyEditList[k].FGFirstCharacteristicsValueId === $scope.ChildDataList[m].FirstCharacteristicsValueId) {
 
-    //    //$("#UploadBox").ejDialog("setTitle", "Upload File (" + _title + ")");
-    //    var eDialog = $("#UploadBox").data("ejDialog");
-    //    eDialog.open();
-    //}
+                            $scope.MaterialQtyEditList[k].RMDescription = $scope.ChildDataList[m].BOMMaterialDetail;
+                            $scope.MaterialQtyEditList[k].RMVendorSpec = $scope.ChildDataList[m].VendorRefNo;
+                            $scope.MaterialQtyEditList[k].RMCustomerSpec = $scope.ChildDataList[m].CustomerRefNo;
+                            $scope.MaterialQtyEditList[k].OwnReferenceNo = $scope.ChildDataList[m].OwnRefNo;
+                        }
+                        if ($scope.MaterialQtyEditList[k].CostingItemId === $scope.ChildDataList[m].CostingItemId && $scope.MaterialQtyEditList[k].BOQCriteria === 'SKU2'
+                            && !baseService.isUndefinedOrNull($scope.ChildDataList[m].SecondCharacteristicsValueId) && baseService.isUndefinedOrNull($scope.ChildDataList[m].FirstCharacteristicsValueId)
+                            && $scope.MaterialQtyEditList[k].FGSecondCharacteristicsValueId === $scope.ChildDataList[m].SecondCharacteristicsValueId) {
+                            $scope.MaterialQtyEditList[k].RMDescription = $scope.ChildDataList[m].BOMMaterialDetail;
+                            $scope.MaterialQtyEditList[k].RMVendorSpec = $scope.ChildDataList[m].VendorRefNo;
+                            $scope.MaterialQtyEditList[k].RMCustomerSpec = $scope.ChildDataList[m].CustomerRefNo;
+                            $scope.MaterialQtyEditList[k].OwnReferenceNo = $scope.ChildDataList[m].OwnRefNo;
+                        }
+                        if ($scope.MaterialQtyEditList[k].CostingItemId === $scope.ChildDataList[m].CostingItemId && $scope.MaterialQtyEditList[k].BOQCriteria === 'SKU1SKU2'
+                            && !baseService.isUndefinedOrNull($scope.ChildDataList[m].SecondCharacteristicsValueId) && !baseService.isUndefinedOrNull($scope.ChildDataList[m].FirstCharacteristicsValueId)
+                            && $scope.MaterialQtyEditList[k].FGFirstCharacteristicsValueId === $scope.ChildDataList[m].FirstCharacteristicsValueId
+                            && $scope.MaterialQtyEditList[k].FGSecondCharacteristicsValueId === $scope.ChildDataList[m].SecondCharacteristicsValueId) {
+                            $scope.MaterialQtyEditList[k].RMDescription = $scope.ChildDataList[m].BOMMaterialDetail;
+                            $scope.MaterialQtyEditList[k].RMVendorSpec = $scope.ChildDataList[m].VendorRefNo;
+                            $scope.MaterialQtyEditList[k].RMCustomerSpec = $scope.ChildDataList[m].CustomerRefNo;
+                            $scope.MaterialQtyEditList[k].OwnReferenceNo = $scope.ChildDataList[m].OwnRefNo;
+                        }
+                    }
+                }
 
+            });
+        var gridObj = $("#GridMaterialQuantity").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
 
-    //$scope.uploadPBUrl ="Costings/BOQ/UploadAttachment";
+        var gridObjs = $("#GridMaterialAttachment").data("ejGrid");
+        gridObjs.refreshContent();
+        gridObjs.refreshTemplate();
 
-    //$scope.onBeginPBUpload = function (args) {
-    //    try {
-    //        if (angular.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
-    //            throw 'Please select/save the production order first'
+        angular.element(document.querySelector('#BOMDetailPopUp')).modal('hide');
+    }
 
-    //        args.data = $scope.bulletinTemplateNew.Id;
-    //    } catch (e) {
-
-    //        args.cancel = true;
-    //        ShowResult(e, 'Error');
-    //    }
-
-    //}
-    //$scope.errorPBPicUpload = function (e) {
-    //    if (angular.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
-    //        ShowResult('Please select/save the production order first', 'Error');
-    //    else
-    //        ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
-    //}
-
-
-    //#region Production Bulletin Picture upload
-
-
-
-
+    $scope.closeBOMDetailPopUp = function () {
+        angular.element(document.querySelector('#BOMDetailPopUp')).modal('show');
+    }
 
     $scope.onBeginPBUpload = function (args) {
         try {

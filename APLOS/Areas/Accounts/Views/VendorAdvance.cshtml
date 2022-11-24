@@ -108,10 +108,10 @@
                 <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BankAmount" ng-model="advance.BankAmount">
             </div>
         </div>
-        <div class="form-group" id="div_ReviewDate">
-            <label class="col-sm-4 control-label">Review Date</label>
+        <div class="form-group" id="div_ReviewDate" show-errors>
+            <label class="col-sm-4 control-label">Review Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" id="Review Date" name="Review Date" ng-model="advance.ReviewDate" datepicker="checkReviewDate();" class="form-control" tabindex="15">
+                <input type="text" id="Review Date" name="Review Date" ng-model="advance.ReviewDate" datepicker="checkReviewDate();" class="form-control" tabindex="15" required>
             </div>
         </div>
         <div class="form-group" ng-show="advance.PartyId">
@@ -161,11 +161,11 @@
                 <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="advance.CompanyCurrencyRate" ng-keyup="rateChangeBankCharge(advance.CompanyCurrencyRate)" class="form-control text-right" tabindex="6" required autocomplete="off" n-decimals="4" ng-disabled="advance.CurrencyId==companyCurrencyId">
             </div>
         </div>
-        <div class="form-group">
-            <label title="Responsible Person" class="col-sm-4 control-label">Res.Person</label>
+        <div class="form-group" show-errors>
+            <label title="Responsible Person" class="col-sm-4 control-label">Res.Person<sup>*</sup></label>
             <div class="col-sm-8">
-                <div class="input-group">
-                    <input type="text" name="Responsible Person" ng-model="advance.ResponsiblePerson" class="form-control" readonly>
+                <div class="input-group" show-message>
+                    <input type="text" name="Responsible Person" ng-model="advance.ResponsiblePerson" class="form-control" readonly required>
                     <span class="input-group-btn">
                         <button ng-click="showEmployeeListPopUp()" class="btn single-small-btn" tabindex="20"><i class="glyphicon glyphicon-search"></i></button>
                         <button ng-click="clearEmployeePopUp()" class="btn single-small-btn" tabindex="21"><i class="glyphicon glyphicon-refresh"></i></button>

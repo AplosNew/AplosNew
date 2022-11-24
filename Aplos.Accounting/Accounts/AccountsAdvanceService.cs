@@ -8,6 +8,7 @@ using Library.Service.Enums;
 using Library.Service.Logs;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -439,6 +440,36 @@ namespace Library.Accounting.Accounts
                                  LEFT JOIN [TRN].[BankCharge] AS BC ON BC.AdvanceId=A.Id
                                 WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + SourceType.InterTransaction + "'";
             return _sqlRepository.GetGridData(parameters);
+        }
+        public IEnumerable<object> GetAvailableAdvanceByVendor(string companyGroupId, string companyId, string plantId, SourceType sourceType,string vendorId)
+        {
+            var sql = @"SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.PartyId, AM.PartyPlantId,P.Code AS  PartyCode, P.UserName As PartyName, PP.UserName AS PartyPlantName, AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherDetailId, VD.EntityId
+								, EN.UserName AS EntityName, AM.CurrencyId, C.Code AS CurrencyCode, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+								, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
+                                , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration, AD.Amount AS Receivable, AD.WrittenOffAmount AS Received
+                                , AD.Amount-AD.WrittenOffAmount AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion 
+                                FROM [TRN].[AdvanceDetail] AS AD
+                                LEFT JOIN [TRN].[Advance] AS AM ON AD.AdvanceId=AM.Id
+                                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdvanceDetailId=AD.Id
+                                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=AD.GLGeneralInfoId
+                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=AD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=AD.ActivityId
+                                LEFT JOIN [SCS].[Currency] AS C ON C.Id=AM.CurrencyId
+                                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AM.EntityId
+                                LEFT JOIN [HKP].[Party] AS P ON P.Id=AM.PartyId
+                                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
+								LEFT JOIN (
+								    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+								    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.CrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+								    FROM [TRN].[VoucherDetailCurrency] AS VDC
+								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+								    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+							    ) AS CC ON CC.VoucherDetailId=VD.Id
+                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType='" + sourceType + @"'
+                                AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "' AND AM.PartyId='"+ vendorId + @"'  ";
+            return _sqlRepository.GetDataCollection(sql);
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Model.Vouchers;
 using System;
 using System.Xml.Serialization;
 
@@ -65,6 +66,12 @@ namespace Library.Model.Inventory
         public InventoryService InventoryService { get; set; }
         public string InventoryServiceId { get; set; }
 
+        public VoucherDetail DrVoucherDetail { get; set; }
+
+        public string DrVoucherDetailId { get; set; }
+        public VoucherDetail CrVoucherDetail { get; set; }
+
+        public string CrVoucherDetailId { get; set; }
         #endregion Navigation Properties
     }
 }

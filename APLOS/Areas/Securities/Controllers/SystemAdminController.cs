@@ -49,12 +49,13 @@ namespace Aplos.Areas.Securities.Controllers
             return View();
         }
 
+        [Authorize, HttpGet]
         public JsonResult GetAllCompanyGroupWise(string comnanyGroupId)
         {
             return Json(_userService.GetAllSysAdmin(comnanyGroupId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet]
+        [Authorize, HttpGet]
         public ActionResult GetUserList(GridParameter parameters)
         {
             return Json(_userService.GetAllSystemAdmin(parameters), JsonRequestBehavior.AllowGet);
@@ -150,7 +151,7 @@ namespace Aplos.Areas.Securities.Controllers
             return Json(new { UserLocked = false, Message = AplosMessage.Updated });
         }
 
-        [HttpGet]
+        [HttpGet,Authorize]
         public ActionResult GetAllUserByCompanyGroupList(GridParameter parameters,string companyGroupId)
         {
             return Json(_userService.GetAllUserByCompanyGroupList(parameters,companyGroupId), JsonRequestBehavior.AllowGet);

@@ -80,8 +80,10 @@ namespace Library.Service.OrderManagements
             try
             {
                 string systemid = "";
-                bplib.clsGenID objID = new bplib.clsGenID();
-                objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out systemid);
+                //bplib.clsGenID objID = new bplib.clsGenID();
+                //objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out systemid);
+
+                systemid= GetAutoNumber(nameof(ProductionOrder), PKGeneratorEnum.Auto, null, DateTime.Now);
 
                 master.Id = systemid;
 
@@ -131,7 +133,7 @@ namespace Library.Service.OrderManagements
                 InsertUpdateOrDeleteGraph(master.Id, detaillist);
                 InsertUpdateOrDeleteGraph(master.Id, processSetlist);
                 InsertUpdateOrDeleteGraph(master.Id, entitylist);
-                // InsertUpdateOrDeleteGraph(master.Id, workcenterlist);
+                 InsertUpdateOrDeleteGraph(master.Id, workcenterlist);
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 _unitOfWork.SaveChanges();
@@ -410,7 +412,7 @@ namespace Library.Service.OrderManagements
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-					   LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id
+					   --LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id
 
 
 							LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
@@ -791,13 +793,13 @@ namespace Library.Service.OrderManagements
 
             try
             {
-                //var _sql = @"SELECT PWCM.Id,e.UserName AS Entity,p.UserName AS Plant, PWCM.ProductionOrderId, PWCM.WorkCenterMasterId, WCM.Code, WCM.UserName
-                //                FROM [TRN].[ProductionOrderWorkCenter] AS PWCM
-                //                JOIN [SCS].[WorkCenterMaster] AS WCM ON PWCM.WorkCenterMasterId = WCM.Id
-                //                INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
-                //                INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
-                //                WHERE PWCM.ProductionOrderId='" + productionOrderId + "' ORDER BY p.UserName,e.UserName,wcm.sequence";
-                //return _sqlRepository.GetDataCollection(_sql, null);
+                var _sql = @"SELECT PWCM.Id,e.UserName AS Entity,p.UserName AS Plant, PWCM.ProductionOrderId, PWCM.WorkCenterMasterId, WCM.Code, WCM.UserName
+                                FROM [TRN].[ProductionOrderWorkCenter] AS PWCM
+                                JOIN [SCS].[WorkCenterMaster] AS WCM ON PWCM.WorkCenterMasterId = WCM.Id
+                                INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
+                                INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
+                                WHERE PWCM.ProductionOrderId='" + productionOrderId + "' ORDER BY p.UserName,e.UserName,wcm.sequence";
+                return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (CustomException)
             {
@@ -811,6 +813,33 @@ namespace Library.Service.OrderManagements
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
             }
             return null;
+        }
+
+        public IEnumerable<object> GetWorkCenterListByEntity(string entityId)
+        {
+
+            try
+            {
+
+                var _sql = @"SELECT WCM.Id AS WorkCenterMasterId, NULL AS ProductionOrderId,e.UserName AS Entity,p.UserName AS Plant
+	                             , WCM.EntityId, WCM.Code, WCM.UserName, Flag = Convert(bit,0)
+                            FROM SCS.WorkCenterMaster AS WCM
+                            INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
+                            INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
+                            WHERE WCM.EntityId='"+entityId+"' order by p.userName, e.UserName,WCM.sequence";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
         }
 
         private void InsertUpdateOrDeleteGraph(string masterId, IEnumerable<ProductionOrderWorkCenter> entities)

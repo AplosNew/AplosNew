@@ -57,6 +57,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Accounts\BankReconciliationUploadedDataViewModel.cs" />
     <Compile Include="HR\Attendance\JobcardVM.cs" />
     <Compile Include="HR\LeaveTransactionVM.cs" />
     <Compile Include="HR\SalaryFixationVM.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="OrderManagements\InventoryReportViewModel.cs" />
     <Compile Include="OrderManagements\SalesOrderCharacteristicsViewModel.cs" />
     <Compile Include="OrderManagements\PurchaseLCChargesViewModel.cs" />
+    <Compile Include="OrderManagements\QuaityProcessBookingParameterValue.cs" />
     <Compile Include="OrderManagements\SampleOrderViewModel.cs" />
     <Compile Include="Organizations\OrgStrunctureListViewModel.cs" />
     <Compile Include="Organizations\OrganoNode.cs" />

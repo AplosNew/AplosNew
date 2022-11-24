@@ -215,7 +215,7 @@ namespace Library.Service.SalesManagements
                             TransactionQty = salesMaterialVM.TransactionQty,
                             TransactionAmount = salesMaterialVM.TransactionAmount,
                             //BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * voucherVM.CompanyCurrencyRate),
-                            BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate),
+                            BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate,2),
                             TaxAmount = salesMaterialVM.TaxAmount,
                             //BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * voucherVM.CompanyCurrencyRate, 2),
                             BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * sales.ToCurrencyRate, 2),
@@ -443,7 +443,7 @@ namespace Library.Service.SalesManagements
                             TaxAmount = salesMaterialVM.TaxAmount,
                             NetAmount = salesMaterialVM.TaxAmount + salesMaterialVM.TransactionAmount,
                             //BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * voucherVM.CompanyCurrencyRate),
-                            BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate),
+                            BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate,2),
                             BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * sales.ToCurrencyRate, 2),
                             //BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * voucherVM.CompanyCurrencyRate, 2),
                             BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * salesMaterialVM.TransactionRate, 4),
@@ -544,7 +544,7 @@ namespace Library.Service.SalesManagements
                             TransactionQty = salesMaterialVM.TransactionQty,
                             TransactionAmount = salesMaterialVM.TransactionAmount,
                             TaxAmount = salesMaterialVM.TaxAmount,
-                            BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate),
+                            BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate,2),
                             //BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * voucherVM.CompanyCurrencyRate),
                             //BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * voucherVM.CompanyCurrencyRate, 2),
                             BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * salesMaterialVM.TransactionRate, 4),
@@ -2916,6 +2916,7 @@ namespace Library.Service.SalesManagements
                 var vendorAdWrsql = "";
                 vendorAdWrsql = @"update trn.SalesMaterial set VoucherDetailId=null where SalesId='" + salesId + "' ";
                 vendorAdWr.Append(vendorAdWrsql);
+
                 vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
                 vendorAdWr.Append(vendorAdWrsql);
                 
@@ -2940,10 +2941,7 @@ namespace Library.Service.SalesManagements
                 _unitOfWork.Commit();
 
             }
-            catch (CustomException)
-            {
-                throw;
-            }
+          
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message, ex,

@@ -26,6 +26,8 @@ using Syncfusion.DocToPDFConverter;
 using Syncfusion.Pdf;
 using Aplos.Areas.Commercial.Controllers;
 using System.Drawing;
+using Library.Model.Enums;
+using Syncfusion.ExcelToPdfConverter;
 
 #endregion Using
 
@@ -52,11 +54,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetList(string ToDate, string FromDate, string type, string group, string column, string value , string Loc)
+        public ActionResult GetList(string ToDate, string FromDate, string type, string group, string column, string value, string Loc)
         {
             try
             {
-                var jj = det.GetData(ToDate, FromDate, type, group, column, value,Loc);
+                var jj = det.GetData(ToDate, FromDate, type, group, column, value, Loc);
                 var jsondata = Json(new { Error = false, DATA = jj }, JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
@@ -98,7 +100,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        [HttpGet , Authorize]
+        [HttpGet, Authorize]
         public ActionResult getLocations()
         {
             return Json(det.getLocations(), JsonRequestBehavior.AllowGet);
@@ -271,6 +273,202 @@ namespace Aplos.Areas.Productions.Controllers
             return View();
         }
 
+
+        [Authorize, HttpGet]
+        public ActionResult PackingListPDFReport(ReportFormat reportFormat, string packingId)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IWorkbook workbook = PackingListPDFReport(packingId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + " PackingList";
+
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        PdfDocument document = new PdfDocument();
+                        ExcelToPdfConverterSettings settings = new ExcelToPdfConverterSettings();
+                        settings.TemplateDocument = document;
+                        for (int i = 0; i < workbook.Worksheets.Count; i++)
+                        {
+                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
+                            document = converter1.Convert(settings);
+                        }
+                        document.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
+                        return null;
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+
+                    default:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        private IWorkbook PackingListPDFReport(string packingId)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+            ReportUtility ru = null;
+            var data = det.GetScanDataReport(packingId);
+            var sheet = workbook.Worksheets[0];
+
+            ru = new ReportUtility();
+
+            #region sheet1
+            sheet.Name = "Report";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+            string Article = "";
+
+            #region Grid Headers
+            sheet.Range[ROW, COL + 2].Text = "Invoice No:";
+            sheet.Range[ROW, COL, ROW, COL + 2].Merge();
+            sheet.Range[ROW, COL, ROW, COL + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL, ROW, COL + 2].BorderAround(ExcelLineStyle.Thin);
+
+            sheet.Range[ROW, COL + 3].Text = data.Rows[0]["InvoiceNo"].ToString();
+            sheet.Range[ROW, COL + 3, ROW, COL + 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL + 3, ROW, COL + 4].Merge();
+            sheet.Range[ROW, COL + 3, ROW, COL + 4].BorderAround(ExcelLineStyle.Thin);
+            ROW++;
+
+            sheet.Range[ROW, COL + 2].Text = "Invoice Date:";
+            sheet.Range[ROW, COL, ROW, COL + 2].Merge();
+            sheet.Range[ROW, COL, ROW, COL + 2].BorderAround(ExcelLineStyle.Thin);
+            sheet.Range[ROW, COL + 3].Text = data.Rows[0]["InvoiceDate"].ToString();
+            sheet.Range[ROW, COL + 3, ROW, COL + 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL + 3, ROW, COL + 4].Merge();
+            sheet.Range[ROW, COL + 3, ROW, COL + 4].BorderAround(ExcelLineStyle.Thin);
+            ROW++;
+
+            sheet.Range[ROW, COL + 2].Text = "Name of Consignee:";
+            sheet.Range[ROW, COL, ROW, COL + 2].Merge();
+            sheet.Range[ROW, COL, ROW, COL + 2].BorderAround(ExcelLineStyle.Thin);
+            sheet.Range[ROW, COL + 3].Text = data.Rows[0]["ConsigneeBilltoName"].ToString();
+            sheet.Range[ROW, COL + 3, ROW, COL + 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL + 3, ROW, COL + 4].Merge();
+            sheet.Range[ROW, COL + 3, ROW, COL + 4].WrapText = true;
+            sheet.Range[ROW, COL + 3, ROW, COL + 4].BorderAround(ExcelLineStyle.Thin);
+            ROW++;
+
+            int ArtRow = ROW;
+            
+            ROW = 10;
+            report.SetHeaderText(ref sheet, ROW, COL, "S.No", 13, ExcelHAlign.HAlignCenter);
+            int SNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "LOT NO", 13, ExcelHAlign.HAlignCenter);
+            int ColLot = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "REF NO", 13, ExcelHAlign.HAlignCenter);
+            int ColREF = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "N.WEIGHT", 13, ExcelHAlign.HAlignCenter);
+            int ColNtWt = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "G.WEIGHT", 13, ExcelHAlign.HAlignCenter);
+            int ColGWt = COL;
+            COL++;
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+            ROW = 11;
+            int catFRow = ROW;
+            int SRC = 0;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                SRC++;
+                if (Article != data.Rows[i]["StandardName"].ToString())
+                {
+                    SRC = 1;
+                    Article = data.Rows[i]["StandardName"].ToString();
+                   
+                    if (catFRow < ROW)
+                    {
+                        sheet[ROW, 2].Text = "TOTAL:";
+
+                        sheet.Range[ROW, ColNtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColNtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColNtWt) + (ROW - 1) + ")";
+                        sheet.Range[ROW, ColNtWt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet[ROW, ColNtWt].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet.Range[ROW, ColGWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColGWt) + catFRow + ":" + ru.GetColumnNameForXls(ColGWt) + (ROW - 1) + ")";
+                        sheet.Range[ROW, ColGWt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet[ROW, ColGWt].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet.Range[ROW, 1, ROW, ColGWt].BorderAround(ExcelLineStyle.Thin);
+                        sheet.Range[ROW, 1, ROW, ColGWt].CellStyle.Font.Bold = true;
+                        ROW++;
+                        ArtRow = ROW;
+                        ROW++;
+                    }
+                    sheet[ArtRow, 1, ArtRow, 5].Text = data.Rows[i]["StandardName"].ToString();
+                    sheet.Range[ArtRow, 1, ArtRow, 5].Merge();
+                    sheet.Range[ArtRow, 1, ArtRow, 5].WrapText = true;
+                    sheet.Range[ArtRow, 1, ArtRow, 5].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet.Range[ArtRow, 1, ArtRow, 5].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[ArtRow, 1, ArtRow, 5].BorderAround(ExcelLineStyle.Thin);
+                    if (catFRow < ROW)
+                    {
+                        catFRow = ROW;
+                    }
+                }
+                sheet[ROW, SNo].Text = SRC.ToString();
+                sheet.Range[ROW, SNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, SNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
+                sheet.Range[ROW, ColLot].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColLot].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet[ROW, ColREF].Text = data.Rows[i]["RefNo"].ToString();
+                sheet.Range[ROW, ColREF].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColREF].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet[ROW, ColNtWt].Number = clsStaticInfo.dbl(data.Rows[i]["netWeight"].ToString());
+                sheet.Range[ROW, ColNtWt].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColNtWt].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet[ROW, ColGWt].Number = clsStaticInfo.dbl(data.Rows[i]["GWeight"].ToString());
+                sheet.Range[ROW, ColGWt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColGWt].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[ROW, SNo, ROW, ColGWt].BorderAround(ExcelLineStyle.Thin);
+                ROW++;
+                ArtRow = ROW;
+            }
+
+            sheet[ROW, 2].Text = "TOTAL:";
+
+            sheet.Range[ROW, ColNtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColNtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColNtWt) + (ROW - 1) + ")";
+            sheet.Range[ROW, ColNtWt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColNtWt].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW, ColGWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColGWt) + catFRow + ":" + ru.GetColumnNameForXls(ColGWt) + (ROW - 1) + ")";
+            sheet.Range[ROW, ColGWt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet[ROW, ColGWt].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW, 1, ROW, ColGWt].BorderAround(ExcelLineStyle.Thin);
+            sheet.Range[ROW, 1, ROW, ColGWt].CellStyle.Font.Bold = true;
+
+            #endregion sheet1
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "Packing List", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Portrait);
+
+            return workbook;
+        }
+
         public void GetPackingListReport(string companyGroupId, string companyId, string plantId, string UserId, string PackingId)
         {
             var fileName = "";
@@ -383,7 +581,7 @@ namespace Aplos.Areas.Productions.Controllers
                                 from dbo.ItemScanChild isc 
 								left join trn.POLotReference pol on pol.Id = isc.PackingId
 							    left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
-                                where isc.NetWeight=sc.NetWeight and isc.GWeight=sc.GWeight and pli.PackingId = '"+ PackingId + @"'
+                                where isc.NetWeight=sc.NetWeight and isc.GWeight=sc.GWeight and pli.PackingId = '" + PackingId + @"'
                                 for xml path('')
                                 ),1,1,''))
 
@@ -574,10 +772,10 @@ namespace Aplos.Areas.Productions.Controllers
                 TROW.Cells[colcolAvgGrossWeight].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GWeight"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colNoOFPackage].AddParagraph().AppendText(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
                 //TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CartonSerialNo"].ToString());
-                if (i==0)
+                if (i == 0)
                 {
-                    if(Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString())==1)
-                    TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
+                    if (Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString()) == 1)
+                        TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
                     else
                         TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(1 + "-" + dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
                     PreviousNo += Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
@@ -586,7 +784,7 @@ namespace Aplos.Areas.Productions.Controllers
                 else
                 {
                     int LastPkg = Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString()) + PreviousNo;
-                    TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(PreviousNo + 1 +"-"+ LastPkg);
+                    TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(PreviousNo + 1 + "-" + LastPkg);
                     PreviousNo += Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
 
                 }
@@ -1109,7 +1307,7 @@ namespace Aplos.Areas.Productions.Controllers
 
             try
             {
-                var workbook = GetStockReportForm( ToDate,  FromDate,  type,  group,  column,  value,Loc);
+                var workbook = GetStockReportForm(ToDate, FromDate, type, group, column, value, Loc);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "StockReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -1124,7 +1322,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook GetStockReportForm(string ToDate, string FromDate, string type, string group, string column, string value,string Loc)
+        private IWorkbook GetStockReportForm(string ToDate, string FromDate, string type, string group, string column, string value, string Loc)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -1261,7 +1459,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
 
             ROW++;
-           
+
             endRow = ROW - 1;
             endRow = ROW - 1;
 
@@ -1275,12 +1473,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetFinishedStocksReport(string Loc , string ToDate , string FromDate)
+        public ActionResult GetFinishedStocksReport(string Loc, string ToDate, string FromDate)
         {
 
             try
             {
-                var workbook = GetFinishedStocksReportForm(Loc , ToDate , FromDate);
+                var workbook = GetFinishedStocksReportForm(Loc, ToDate, FromDate);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "FinishedStockReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -1290,7 +1488,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
             catch (Exception ex)
             {
-                
+
                 throw ex;
             }
         }
@@ -1305,7 +1503,7 @@ namespace Aplos.Areas.Productions.Controllers
 
             var data = det.getGroupFinishedStocksReport(Loc);
 
-            var data1 = det.getAllFinishedStocksReport(Loc, ToDate , FromDate);
+            var data1 = det.getAllFinishedStocksReport(Loc, ToDate, FromDate);
 
             var sheet = workbook.Worksheets[0];
             var sheet1 = workbook.Worksheets[1];
@@ -1328,7 +1526,7 @@ namespace Aplos.Areas.Productions.Controllers
 
             #region Grid Headers
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Article", 40, ExcelHAlign.HAlignCenter );
+            report.SetHeaderText(ref sheet, ROW, COL, "Article", 40, ExcelHAlign.HAlignCenter);
             int ColArt = COL;
             COL++;
 
@@ -1371,15 +1569,15 @@ namespace Aplos.Areas.Productions.Controllers
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                if(Article != data.Rows[i]["StandardName"].ToString())
+                if (Article != data.Rows[i]["StandardName"].ToString())
                 {
-                    
+
                     Article = data.Rows[i]["StandardName"].ToString();
                     sheet[ROW, ColArt].Text = data.Rows[i]["StandardName"].ToString();
-                    
-                    if(i!=0 && ArtRow != (ROW - 1))
+
+                    if (i != 0 && ArtRow != (ROW - 1))
                     {
-                        sheet.Range[ArtRow, ColArt, ROW-1, ColArt].Merge();
+                        sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].Merge();
                         sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                     }
                     ArtRow = ROW;
@@ -1387,10 +1585,10 @@ namespace Aplos.Areas.Productions.Controllers
 
                 if (LotNum != data.Rows[i]["LotNo"].ToString())
                 {
-                    
+
                     LotNum = data.Rows[i]["LotNo"].ToString();
                     sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
-                    if (i != 0 && LotRow != (ROW-1))
+                    if (i != 0 && LotRow != (ROW - 1))
                     {
                         sheet.Range[LotRow, ColLot, ROW - 1, ColLot].Merge();
                         sheet.Range[LotRow, ColLot, ROW - 1, ColLot].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1425,7 +1623,7 @@ namespace Aplos.Areas.Productions.Controllers
             sheet.Range[ROW, ColArt, ROW, ColBagSize].Merge();
             sheet.Range[ROW, ColArt, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
             sheet.Range[ROW, ColArt, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[ROW, ColArt , ROW, endCol].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, ColArt, ROW, endCol].CellStyle.Font.Bold = true;
             ROW++;
 
             endRow = ROW - 1;
@@ -1489,8 +1687,8 @@ namespace Aplos.Areas.Productions.Controllers
             //double[] arr1 = new double[3];
 
             for (int i = 0; i < data1.Rows.Count; i++)
-            { 
-                sheet1[ROW1, ColArt1].Text = data1.Rows[i]["StandardName"].ToString();                   
+            {
+                sheet1[ROW1, ColArt1].Text = data1.Rows[i]["StandardName"].ToString();
                 sheet1[ROW1, ColLot1].Text = data1.Rows[i]["LotNo"].ToString();
                 sheet1[ROW1, ColCarton].Text = data1.Rows[i]["Cartons"].ToString();
                 sheet1[ROW1, ColNtWt1].Number = clsStaticInfo.dbl(data1.Rows[i]["NtWt"].ToString());
@@ -1539,5 +1737,5 @@ namespace Aplos.Areas.Productions.Controllers
             reportUtility.PageSetup(ref sheet1, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
-    }   
+    }
 }

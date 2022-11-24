@@ -1067,7 +1067,7 @@ namespace Library.Service.Materials
                                         , FAMT.FixedAssetMasterId AS AssetMasterId, FAM.UserName AS AssetMasterName, FAM.AssetType
                                         , IsRevenue=CASE WHEN (MM.IsInventory=1 OR MM.IsExpenseOut=1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
                                         , MM.BudgetMasterId, B.UserName AS AssetBudgetCode, MM.MaterialCategoryId, MM.MaterialSubCategoryId
-                                        , MM.Image,MM.ActivityId, ACT.UserName AS ActivityName, MM.SkillId,MM.MaterialMasterTypeId, MMT.UserName MaterialMasterType,MM.IsRegular,MM.IssueByUoM
+                                        , MM.Image,MM.ActivityId, ACT.UserName AS ActivityName, MM.SkillId,MM.MaterialMasterTypeId, MMT.UserName MaterialMasterType,MM.IsRegular,MM.IssueByUoM,MM.IsReplacement
                                    FROM [MST].[MaterialMaster] AS MM
                                    LEFT OUTER JOIN [MST].[MaterialGroupMaster] AS MGP ON MM.MaterialGroupMasterId = MGP.Id
                                    LEFT OUTER JOIN [HKP].[MaterialType] AS MT ON MGP.MaterialTypeId = MT.Id
@@ -8537,7 +8537,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 
             cmdText = @"select 						
-				     IRD.Id
+				     Id=Case when (isnull(ir.AuthorizedByStatus,'')='Reject' OR   isnull(ir.CheckedByStatus,'')='Reject') then  IRD.Id+'-'+IR.AuthorizedByStatus else IRD.Id end
 ,MS.UserName MaterialStorage
                      ,isnull(MM.UserName,'') MaterialMasterName	
 					,MM.id MId
@@ -8789,7 +8789,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                     group by IRD.Id,Ins.SalesDate,Ins.Id--,Ins.Iss
                                      )main on main.InventoryReceiveDetailId=IRD.Id			
                                      									 
-						where  	IM.PlantId='" + plantId + @"' AND MM.Id='" + MaterialId + @"' AND Art.Id='" + ArticleId + @"' AND 
+						where  	IM.PlantId='" + plantId + @"' AND MM.Id='" + MaterialId + @"' AND Art.Id='" + ArticleId + @"' AND
+                        --(isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject' AND 
 						Convert(date ,IR.GRNDate) between '" + fromDate + @"' AND '" + toDate + @"'  
                         " + Sku + @" ";
 

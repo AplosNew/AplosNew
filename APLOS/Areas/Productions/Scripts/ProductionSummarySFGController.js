@@ -248,13 +248,32 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         });
     };
 
+    //$scope.shiftList = [];
+    //cboService.GetProductionShiftCbo(function (result) {
+    //    $scope.shiftList = result;
+    //    if (baseService.arrayLength(result) === 1) {
+    //        $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+    //    }
+    //});
+
     $scope.shiftList = [];
-    cboService.GetProductionShiftCbo(function (result) {
-        $scope.shiftList = result;
-        if (baseService.arrayLength(result) === 1) {
-            $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+    $scope.GetShiftList = function () {
+        $scope.shiftList = [];
+        if ($scope.Status === 'PROCESS') {
+            $scope.ProcessId = $scope.productionSummaryNew.ProcessId;
+        } else {
+            $scope.ProcessId = $scope.productionSummaryNew.ToProcessId;
         }
-    });
+        $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.ProcessId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.shiftList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+                    }
+                }
+            });
+    }
 
     function CheckField(fieldname, field) {
         try {
@@ -391,10 +410,14 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     $scope.loadWC = function (processid) {
         $scope.wcList = [];
         if ($scope.Status === 'PROCESS') {
-            cboService.GetWCProcessCbo(processid, $scope.productionSummaryNew.EntityId, function (result) {
-                $scope.wcList = result;
+            //cboService.GetWCProcessCbo(processid, $scope.productionSummaryNew.EntityId, function (result) {
+            //    $scope.wcList = result;
 
+            //});
+            cboService.GetWCProcessCbo(processid, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProductionShiftId, function (result) {
+                $scope.wcList = result;
             });
+
         }
     };
 
@@ -454,7 +477,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         else {
             $scope.disGo = true;
             $scope.PQEnable = true;
-            ShowResult('Production Booking Level is not defined for selected process.','failure');
+            ShowResult('Production Booking Level is not defined for selected process.', 'failure');
         }
 
         if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true) {
@@ -501,13 +524,16 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
         $scope.wcToProcessList = [];
         if ($scope.ToStatus === 'PROCESS') {
-            cboService.GetWCProcessCbo($scope.productionSummaryNew.ToProcessId, $scope.productionSummaryNew.ToEntityId, function (result) {
+            cboService.GetToWCProcessCbo($scope.productionSummaryNew.ToProcessId, $scope.productionSummaryNew.ToEntityId, function (result) {
                 $scope.wcToProcessList = result;
             });
         }
+        if ($scope.shiftList.length == 0) {
+            $scope.GetShiftList();
+        }
     };
 
-  
+
     //#endregion SFG Movement
 
     $scope.SOItemList = [];
@@ -637,7 +663,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
             $scope.WorkCenterMasterId = $scope.productionSummaryNew.ToWorkCenterMasterId;
         }
 
-        
+
         $scope.ProductOrderList = [];
         $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&status=' + $scope.Status)
             .then(
@@ -1449,7 +1475,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
             }
 
-           
+
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
@@ -1506,7 +1532,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                 }
             }
             $scope.ProdQty = 0;
-            
+
             if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
                 for (var i = 0; i < $scope.ProductionSummaryDetail.length; i++) {
                     if (!baseService.isUndefinedOrNull($scope.ProductionSummaryDetail[i].Qty)) {

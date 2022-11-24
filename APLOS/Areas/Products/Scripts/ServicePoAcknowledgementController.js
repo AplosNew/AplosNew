@@ -299,6 +299,8 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
         , TaxOptionService: 'Yes'
         , TaxOptionServiceModify: 'Yes'
         , TaxOptionAddiTax: 'Yes'
+        , GateEntryNo: null
+        , GateEntryDate: null
     };
     $scope.productNew = Object.assign({}, $scope.product);
     $scope.productNew.TaxOptionService = 'Yes';
@@ -555,6 +557,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
                             $scope.getalldataMaster();
                             $scope.ServiceListDetails();
                             getServiceChargeList($scope.productId);
+                            getACKTaxList($scope.productId);
                             $scope.Action = "Update";
                         }
                     }), function (response) {
@@ -736,6 +739,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
         //getInventoryMaterialList(Id);
         $scope.productNew.TaxOptionAddiTax = 'Yes';
         getServiceChargeList(Id);
+        getServiceChargeListForCharge(Id);
         getACKTaxList(Id);
         $scope.productId = Id;
         $scope.GetSavedPOList1(Id);
@@ -1269,6 +1273,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
             else {
                 ShowResult(response.data.Message, 'success');
                 getServiceChargeList($scope.productId);
+                getServiceChargeListForCharge($scope.productId);
                 angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
 
             }
@@ -1780,7 +1785,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
                             , IsNonCreditable: $scope.productNew.IsNonCreditable
                         };
                         $scope.taxCategoryList = [];
-                        getServiceChargeList($scope.productNew.Id);
+                         getServiceChargeList($scope.productNew.Id);
                         //getInventoryMaterialList($scope.productNew.Id);
                         getServiceChargeListForCharge($scope.productNew.Id);
                         //$scope.getDataList();
@@ -1819,5 +1824,62 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
             //$scope.HSNCode = $scope.receiveTaxList[0].HSNCode;
         });
 
+    }
+    $scope.POPopUpGateEntry = function () {
+        $scope.getalldataGateEntry();
+        angular.element(document.querySelector('#POPopUpGateEntry')).modal('show');
+    };
+    $scope.POPopUpCloseGateEntry = function () {
+        angular.element(document.querySelector('#POPopUpGateEntry')).modal('hide');
+    };
+    $scope.GriddataGateEntry = [];
+    $scope.getalldataGateEntry = function () {
+        //debugger;
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            //url: $scope.getSearchListUrl,
+            url: 'Products/GoodsReceiveNote/GetListOfPOGateEntry?partyCode=' + $scope.productNew.PartyId,
+        }).then(function successCallback(response) {
+            $scope.GriddataGateEntry = response.data;
+            //entrydata = copy(searchdata);
+        });
+    };
+    $scope.recorddoubleclickGateEntry = function ($event) {
+        //debugger;
+        var x = $event;
+        var Id = x.data.Id;
+        //alert('Id'+Id);
+        // $scope.productNew = x.data;
+        //  $scope.productId = "";
+        $scope.productNew.GateEntryNo = x.data.Id;
+        $scope.productNew.GateEntryDate = x.data.EntryDate;
+
+        $scope.POPopUpCloseGateEntry();
+    }
+
+    $scope.delModal = function (id) {
+        //debugger;
+        if (baseService.arrayLength($scope.chargesList) > 0) {
+            if (!baseService.isUndefinedOrNull($scope.productId)) {
+                $http({
+                    method: 'POST',
+                    url: 'Products/PurchaseOrder/DeleteServiceAckChargesRow?Id=' + id,
+                    dataType: 'JSON'
+                }).then(function (response) {
+                    if (response.data.Error === true)
+                        ShowResult('Delete Error', 'failure');
+                    else {
+                        ShowResult('Deleted Service line Successfully', 'success');
+                        getServiceChargeList($scope.productId);
+                        getServiceChargeListForCharge($scope.productId)
+                        //ClearFields();
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+            }
+        }
     }
 }

@@ -33,6 +33,7 @@ namespace Library.Service.Finances
         private readonly IPKGeneratorService _pkGeneratorService;
         private readonly IVoucherService _voucherService;
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
+        private readonly IRepositoryAsync<FinancingMasterOrder> _financingMasterOrderRepository;
 
         public FinancingService(
               IRepositoryAsync<Financing> financingRepository
@@ -46,6 +47,7 @@ namespace Library.Service.Finances
             , IVoucherService voucherService
             , IRepositoryAsync<Voucher> voucherRepository
             , IRepositoryAsync<FinancingSubsequentTransaction> loanInterestPayableRepository
+            , IRepositoryAsync<FinancingMasterOrder> financingMasterOrderRepository
             )
         {
             _sqlRepository = sqlRepository;
@@ -59,6 +61,7 @@ namespace Library.Service.Finances
             _voucherService = voucherService;
             _voucherRepository = voucherRepository;
             _loanInterestPayableRepository = loanInterestPayableRepository;
+            _financingMasterOrderRepository = financingMasterOrderRepository;
         }
 
         #endregion Constructor
@@ -121,6 +124,14 @@ namespace Library.Service.Finances
             financingSchedule.AddedDate = financing.AddedDate;
             financingSchedule.AddedFromIP = financing.AddedFromIP;
             _financingScheduleRepository.Insert(financingSchedule);
+        }
+        public void InsertFinancingMasterOrder(Financing financing, FinancingMasterOrder financingMasterOrder, int currentId)
+        {
+            financingMasterOrder.Id = _pkGeneratorService.MakePK(financing.Id, currentId, 3);
+            financingMasterOrder.AddedBy = financing.AddedBy;
+            financingMasterOrder.AddedDate = financing.AddedDate;
+            financingMasterOrder.AddedFromIP = financing.AddedFromIP;
+            _financingMasterOrderRepository.Insert(financingMasterOrder);
         }
 
         public void Post(string financingId)
@@ -450,7 +461,7 @@ namespace Library.Service.Finances
                     vendorAdWrsql = @"declare @writeOffAmount decimal(18,2)=(select Amount from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.LoanPayment.ToString() + "' AND VoucherId = '" + voucherId + "'))";
                     vendorAdWr.Append(vendorAdWrsql);
 
-                    vendorAdWrsql = @"update TRN.Financing set WrittenOffAmount=(WrittenOffAmount - @writeOffAmount),IsWrittenOff=case when (WrittenOffAmount-@writeOffAmount) =0 then 1 else 0 end
+                    vendorAdWrsql = @"update TRN.Financing set WrittenOffAmount=(WrittenOffAmount - @writeOffAmount),IsWrittenOff= 0 
                                 where Id in (select FinancingId from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.LoanPayment.ToString() + "' AND VoucherId = '" + voucherId + "'))";
                     vendorAdWr.Append(vendorAdWrsql);
                     vendorAdWrsql = @"update TRN.FinancingDetail set WrittenOffAmount=(WrittenOffAmount - @writeOffAmount)

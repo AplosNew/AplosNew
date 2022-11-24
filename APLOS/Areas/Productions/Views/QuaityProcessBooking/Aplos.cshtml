@@ -1,0 +1,265 @@
+﻿@*<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Quaity Process Booking</h3>*@
+<togglable name="Quaity Process Booking"></togglable>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Production Process<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" name="ProcessId" ng-options="item.Id as item.UserName for item in processList" ng-change="getqualityprocessList();" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Production Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+            </div>
+
+        </div>
+        <h3 class="site-heading" style="cursor:unset;height:25px;"></h3>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label">Lot Number<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" name="Lot Number" ng-model="productionSummaryNew.LotNumber" class="form-control" tabindex="5" maxlength="20" ng-keyup="CheckValidLotNumber();">
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label">Sample Size<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" name="Lot Number" ng-model="productionSummaryNew.SampleSize" class="form-control" tabindex="5" maxlength="20" @*ng-keyup="CheckValidLotNumber();"*@>
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="1" ng-model="productionSummaryNew.Remarks" name="Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Quality Process<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.QualityProcessId" name="ProcessId" ng-options="item.Id as item.UserName for item in qualityprocessList" required ng-change="GetQualityProcessParameterList();">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="masterGo(true);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
+                    <li> <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
+                </ul>
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label">Batch No<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" name="Batch No" ng-model="productionSummaryNew.BatchNo" class="form-control" tabindex="5" maxlength="20" @*ng-keyup="CheckValidLotNumber();"*@>
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true" show-errors>
+            <label class="col-sm-4 control-label">Grade<sup>*</sup></label>
+            <div class="col-sm-8 show-message" style="padding-right:-1px;">
+                <div class="select-style">
+                    <select class="form-control" ng-model="productionSummaryNew.ProductionGrade" placeholder="Grade" name="ProductionGrade" ng-options="item.Value as item.Text for item in gradeList" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label">CheckedBy</label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Responsible Person" ng-model="productionSummaryNew.CheckedByName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showEmployeeListPopUp('CheckedBy');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        <button ng-click="ClearEmployee('CheckedBy')" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12" ng-show="IsGo===true">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Prod Book</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Quality Parameter</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div style="color:black;" id="PBGrid" ej-grid e-datasource="ProdBookedDataList" e-allowscrolling="true" e-templaterefresh="refreshTemplateAdditionalInfo"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateAdditionalInfo" e-template="#checkboxTemplateAdditionalInfo" e-textalign="center" e-width="30"></div>
+                            <div e-column e-type="string" e-field="ProductionSummaryId" e-headertext="Production BookingId" e-width="80"></div>
+                            <div e-column e-type="string" e-field="WorkCenterMaster" e-headertext="Work Center" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PrOId" e-headertext="PrO" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                            <div e-column e-field="BuyerOrder" e-headertext="Buyer Order" e-width="80"></div>
+                            <div e-column e-field="OwnOrder" e-headertext="Own Order" e-width="80"></div>
+                            <div e-column e-field="BuyerItem" e-headertext="Buyer Item" e-width="80"></div>
+                            <div e-column e-field="OwnItem" e-headertext="Own Item" e-width="80"></div>
+                            <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductionGrade" e-headertext="Grade" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Quantity" e-headertext="Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BookingPeriod" e-headertext="Booking Period" e-width="80"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplateAdditionalInfo">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplateAdditionalInfo">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div style="color:black;" id="QPGrid" ej-grid e-datasource="QualityProcessParameterList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-columns>
+
+                            <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                            <div e-column e-type="string" e-field="GradeLot" e-headertext="LotNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ParameterGrade" e-headertext="Grade" e-width="80"></div>
+                            <div e-column e-type="string" e-field="EntryState" e-headertext="EntryState" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ValueIN" e-headertext="ValueIN" e-width="80"></div>
+                            <div e-column e-template="#Values" e-headertext="Values" e-width="80" style="height: 20px;"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="Values">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ng-model="data.Value" ng-disabled="data.Formula!==null" only-numbers style="color:black;" class="form-control" />
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div id="GridMain" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Process" e-headertext="Process" e-width="5"></div>
+            <div e-column e-field="QualityProcess" e-headertext="Quality Process" e-width="5"></div>
+            <div e-column e-field="Description" e-headertext="Shift" e-width="5"></div>
+            <div e-column e-field="PD" e-headertext="Production Date" e-type="date" e-format="{0:dd-MMM-yyyy}" e-width="5"></div>
+            <div e-column e-field="LotNumber" e-headertext="LotNumber" e-width="5"></div>
+            <div e-column e-field="BatchNo" e-headertext="BatchNo" e-width="5"></div>
+            <div e-column e-field="SampleSize" e-headertext="Sample Size" e-width="5"></div>
+            <div e-column e-field="ProductionGrade" e-headertext="Grade" e-width="2"></div>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="common-btn" ng-show="IsGo===true">
+    <ul class="list-inline text-right">
+        <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+        <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+    </ul>
+</div>
+<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">{{popUpTitle}}<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in employeeFilterList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>First Name</th>
+                                <th>Middle Name</th>
+                                <th>Last Name</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Designation</th>
+                                <th>Entity</th>
+                                <th>Department</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-click="selectEmployeePopUp($index, x.SystemId)" ng-class="{selected : x.SystemId == selectedEmployee}" ng-dblclick="closeEmployeePopUp();" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.FirstName}}</td>
+                                <td>{{x.MiddleName}}</td>
+                                <td>{{x.LastName}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOB | dateFiltering}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.EmploymentType}}</td>
+                                <td>{{x.EmployeeStatus}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>

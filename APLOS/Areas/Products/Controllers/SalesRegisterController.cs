@@ -24,6 +24,7 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using Aplos.MaterialManagement.MaterialQuery;
 
 
 
@@ -173,7 +174,7 @@ namespace Aplos.Areas.Products.Controllers
             return jsondata;
         }
         [Authorize, HttpPost]
-        public JsonResult GetSalesRegister(string FromDate, string ToDate, string Type)
+        public ActionResult GetSalesRegister(string FromDate, string ToDate, string Type)
         {
 
             DateTime fDate = DateTime.Parse(FromDate);
@@ -188,13 +189,15 @@ namespace Aplos.Areas.Products.Controllers
             }
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryReceiveService.GetSalesRegisterSql(FromDate, ToDate, Type), JsonRequestBehavior.AllowGet);
+
+            SalesQueryService obj = new SalesQueryService(_sqlRepository);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson
+                (obj.GetSalesRegisterSql(FromDate, ToDate, Type));
+            var jsondata = Json(new { NewData, Message = AplosMessage.Success });
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
+
         }
-
-
-
 
         #endregion Pages
         #region material-ledger Reports
@@ -340,96 +343,48 @@ namespace Aplos.Areas.Products.Controllers
         }
         #endregion
 
-        #region PurchaseRegister
+        #region SalesRegister
+
+
 
         [HttpPost, Authorize]
-        public ActionResult PurchaseRegisterGRNWiseReport(string PlantId, string ToDate, string FromDate)
+        public ActionResult SalesRegisterCustomerWiseData(string PlantId, string FromDate, string ToDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-                var workbook = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
-
-                var strFileName = "Purchase Report Register GRN Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+                SalesQueryService obj = new SalesQueryService(_sqlRepository);
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.getSalesOrderCustomerWiseReportSql(identity.CompanyId, identity.PlantId, FromDate, ToDate,null,false));
+                var jsondata= Json(new { NewData, Message = AplosMessage.Success });
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
+                throw ex;
+            }
+        }
 
+        
+        [HttpPost, Authorize]
+        public ActionResult GetSalesRegisterItemWiseData(string PlantId, string ToDate, string FromDate)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                SalesQueryService obj = new SalesQueryService(_sqlRepository);
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetSalesRegisterItemWiseData(identity.CompanyId, identity.PlantId, FromDate, ToDate));
+                var jsondata= Json(new { NewData, Message = AplosMessage.Success });
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
                 throw ex;
             }
         }
 
        
-        [HttpPost, Authorize]
-        public ActionResult SalesOrderCustomerWiseReport(string PlantId, string ToDate, string FromDate)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-                var workbook = obj.CreateSalesOrderCustomerWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
-
-                var strFileName = "Sales Register Report Party Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult SalesRegisterItemWiseReport(string PlantId, string ToDate, string FromDate)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-                var workbook = obj.CreateSalesRegisterItemWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
-
-                var strFileName = "Sales Report Register Item Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-        }
-
-        //[Authorize, HttpGet]
-        //public ActionResult SalesRegisterItemWiseReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    plantId = identity.PlantId;
-        //    var reportFileName = "Sales Report Register Item Wise" + fromDate + "To" + toDate + "";
-        //    Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-        //    return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-        //    var workbook = obj.CreateSalesRegisterItemWiseReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
-
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-        //        default:
-        //            return View();
-        //    }
-        //}
-
 
         [Authorize, HttpGet]
         public ActionResult GetStatusAllGRNPendingList(string CompanyId, string GRNPendingStatus)
@@ -446,426 +401,7 @@ namespace Aplos.Areas.Products.Controllers
             public int To { get; set; } = 0;
             public int Count { get; set; } = 0;
         }
-        [Authorize, HttpGet]
-        public ActionResult GetPendingListGRN()
-        {
-
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string CompanyId = identity.CompanyId;
-                List<TempGRNDelay> Slot = new List<TempGRNDelay>();
-                Slot.Add(new TempGRNDelay { Description = "1-3", From = 1, To = 3, Count = 0 });
-                Slot.Add(new TempGRNDelay { Description = "4-10", From = 4, To = 10, Count = 0 });
-                Slot.Add(new TempGRNDelay { Description = "11-20", From = 11, To = 20, Count = 0 });
-                Slot.Add(new TempGRNDelay { Description = "21-30", From = 21, To = 30, Count = 0 });
-                Slot.Add(new TempGRNDelay { Description = "More Than 30 Days", From = 30, To = 9000000, Count = 0 });
-
-                string sql = @"SELECT G.Id
-                          ,ISNULL(PWG.UserName,'') GateName
-                          ,Replace(CONVERT(VARCHAR(11),G.EntryDate, 106), ' ', '-') EntryDate ,DATEDIFF(day,G.EntryDate,getdate()) AS DaysCount
-                          ,P.Code PartyCode 
-						  ,isnull(p.UserName,'') PartyName
-						  ,CG.UserName CompanyGrpName
-						  ,C.UserName CompanyName
-						  ,Pl.UserName PlantName
-	                      --,isnull(P.UserName,'') As PartyName
-                          ,isnull(G.Description,'') Description
-                          ,G.PackageQty
-                          ,G.ModeofTransport
-                          ,G.Bill
-                          ,G.PersonName
-                          ,G.MobileNo
-                          ,Isnull(G.Remarks,'') Remarks
-                          ,G.AddedBy
-                          ,G.AddedDate
-                          ,G.AddedFromIP
-                          ,G.UpdatedBy
-                          ,G.UpdatedDate
-                          ,G.UpdatedFromIp
-                          ,EI.FirstName As MaterialReceivedBy,G.GateEntryTime
-                          ,IR.Id GRNId
-						  ,Isnull(EI1.SystemId +'-'+ EI1.FirstName,'') AS EmployeeName
-                      FROM TRN.[GateEntry] G
-                      LEFT Join hkp.Party p ON P.Id= G.PartyId
-					  LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
-					  LEFT Join ORG.Company C ON C.Id= G.CompanyId
-					  LEFT Join ORG.Plant Pl ON Pl.Id= G.PlantId
-                      Left join trn.InventoryReceive IR ON IR.GateEntryNo=G.Id
-                      LEFT JOin dbo.EmployeeInformation EI ON  EI.SystemId=G.EmployeeId
-                      LEFT JOin dbo.EmployeeInformation EI1 ON  EI1.SystemId=G.EmployeeIdForGateEntry
-                      LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
-                      Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
-                      Where G.FlagStatus!='Cancel' 
-                        AND G.PlantId='" + identity.PlantId + @"'
-                     AND G.Id not in (select GateEntryNo from trn.InventoryReceive where GateEntryNo is not null)
-					AND  CONVERT(DATE, G.EntryDate)<Convert(date,GETDATE())
-                    Order By G.Id Desc";
-                DataTable dtDays = _sqlRepository.GetDataTable(sql);
-
-                foreach (TempGRNDelay item in Slot)
-                {
-                    item.Count = (int)clsStaticInfo.dbl(dtDays.Compute("COUNT(DaysCount)", "DaysCount >= " + item.From.ToString() + " AND " + "DaysCount <= " + item.To.ToString()).ToString());
-
-                }
-                return Json(Slot, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        #region material-Receipts- Reports
-
-        [Authorize, HttpGet]
-        public ActionResult MaterialReceiptsReports(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Material Receipts Reports" + fromDate + "To" + toDate + "";
-            var workbook = _materialMasterService.CreateMaterialReceiptsReports(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return View();
-            }
-        }
-        #endregion
-
-        #region material-issue- Reports
-        [Authorize, HttpGet]
-        public ActionResult MaterialIssueReports(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Material Issue Reports" + fromDate + "To" + toDate + "";
-            var workbook = _materialMasterService.CreateMaterialIssueReports(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return View();
-            }
-        }
-        #endregion
-
-        [Authorize, HttpGet]
-        public ActionResult MaterialMasterStatus(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Material Master Stock " + fromDate + "To" + toDate + "";
-            var workbook = _materialMasterService.MaterialMasterStatus(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return View();
-            }
-        }
-
-        #region material-stationery-request
-        [Authorize, HttpGet]
-        public ActionResult MaterialStationeryRequestReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Material Stationery Request" + fromDate + "To" + toDate + "";
-            var workbook = _materialMasterService.CreateMaterialStationeryRequestReport(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return View();
-            }
-        }
-        #endregion
-
-        #region Physical Inventory Report
-        [Authorize, HttpGet]
-        public ActionResult PhysicalInventoryReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Physical Inventory Report" + fromDate + "To" + toDate + "";
-            var workbook = _materialMasterService.CreatePhysicalInventoryReport(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return View();
-            }
-        }
-        #endregion
-
-        #region purchase return register
-
-        [Authorize, HttpPost]
-        public JsonResult GetPurchaseReturnRegister(string fromDate, string toDate, string Type)
-        {
-
-            DateTime fDate = DateTime.Parse(fromDate);
-            DateTime tDate = DateTime.Parse(toDate);
-            if (fromDate == null || fromDate == "")
-            {
-                throw new CustomException("Select From Date");
-            }
-            else if (toDate == null || toDate == "")
-            {
-                throw new CustomException("Select To Date");
-            }
-
-            //else if (tDate  < fDate)
-            //{
-            //	throw new CustomException("To Date can not less than From date");
-            //}
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryReceiveService.GetPurchaseReturnRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-        }
-        [HttpGet]
-        public ActionResult PurchaseRegisterReturnReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Material Return Register" + fromDate + "To" + toDate + "";
-            var workbook = _materialMasterService.CreatePurchaseRegisterReturnReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return View();
-            }
-        }
-
-        #endregion
-
-        #region Purchase Order Register
-        public JsonResult GetPurchaseOrderRegister(string fromDate, string toDate, string Type)
-        {
-            try
-            {
-                DateTime fDate = DateTime.Parse(fromDate);
-                DateTime tDate = DateTime.Parse(toDate);
-                if (fromDate == null || fromDate == "")
-                {
-                    throw new CustomException("Select From Date");
-                }
-                else if (toDate == null || toDate == "")
-                {
-                    throw new CustomException("Select To Date");
-                }
-
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
-                var jsondata = Json(obj.PurchaseOrderRegisterData(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-                jsondata.MaxJsonLength = int.MaxValue;
-                return jsondata;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult PurchaseOrderRegisterReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Purchase Report Register" + fromDate + "To" + toDate + "";
-            Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
-            // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-            var workbook = obj.CreatePurchaseOrderRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcelx(workbook, reportFileName);
-                default:
-                    return View();
-            }
-        }
-
-        #endregion Purchase Order Register
-
-        #region Service PO Register
-        [Authorize, HttpPost]
-        public JsonResult GetServicePurchaseOrderRegister(string fromDate, string toDate, string Type)
-        {
-            try
-            {
-                DateTime fDate = DateTime.Parse(fromDate);
-                DateTime tDate = DateTime.Parse(toDate);
-                if (fromDate == null || fromDate == "")
-                {
-                    throw new CustomException("Select From Date");
-                }
-                else if (toDate == null || toDate == "")
-                {
-                    throw new CustomException("Select To Date");
-                }
-
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
-                var jsondata = Json(obj.ServicePurchaseOrderRegisterData(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-                jsondata.MaxJsonLength = int.MaxValue;
-                return jsondata;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        [Authorize, HttpGet]
-        public ActionResult ServicePORegisterReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Service PO Register Report" + fromDate + "To" + toDate + "";
-            Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
-            var workbook = obj.CreateServicePurchaseOrderRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcelx(workbook, reportFileName);
-                default:
-                    return View();
-            }
-        }
-
-        #endregion
-
-        #region service-acknowledgement-register
-        public JsonResult GetServiceAcknowledgementRegister(string fromDate, string toDate, string Type)
-        {
-            try
-            {
-                DateTime fDate = DateTime.Parse(fromDate);
-                DateTime tDate = DateTime.Parse(toDate);
-                if (fromDate == null || fromDate == "")
-                {
-                    throw new CustomException("Select From Date");
-                }
-                else if (toDate == null || toDate == "")
-                {
-                    throw new CustomException("Select To Date");
-                }
-
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
-                return Json(obj.ServiceAcknowledgementRegisterGridData(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult ServiceAcknowledgementRegisterReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Service Acknowledgement Register" + fromDate + "To" + toDate + "";
-            Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
-            // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-            var workbook = obj.CreateServiceAcknowledgementRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-                default:
-                    return View();
-            }
-        }
-
-        #endregion Purchase Order Register
-
-        #region Material-Store-Ledger ALL
-
-        [Authorize, HttpGet]
-        public ActionResult MaterialStoreLedgerReportAll(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId, string Asset, string Inventory)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var reportFileName = "";
-            plantId = identity.PlantId;
-            if (Asset == "" || Asset == "undefined" || Asset == null || Asset == "false")
-                Asset = null;
-            if (Inventory == "" || Inventory == "undefined" || Inventory == null || Inventory == "false")
-                Inventory = null;
-            if (Asset == null && Inventory != null)
-            {
-                reportFileName = "Material Store Ledger Of Inventory";// + fromDate + "To" + toDate + "";
-            }
-            if (Asset != null && Inventory == null)
-            {
-                reportFileName = "Material Store Ledger Of Asset";// + fromDate + "To" + toDate + "";
-            }
-            if (Asset != null && Inventory != null)
-            {
-                reportFileName = "Material Store Ledger Of Inventory And Asset";// + fromDate + "To" + toDate + "";
-            }
-
-            Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-            var workbook = obj.CreateMaterialStoreLedgerAll(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, MaterialId, ArticleId, Asset, Inventory);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcelx(workbook, reportFileName);
-
-                default:
-                    return View();
-            }
-        }
-        #endregion
+       
     }
 
 

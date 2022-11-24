@@ -33,8 +33,8 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 	$scope.grossTotal = 0;
 	$scope.updateUrl1 = $scope.path + 'UpdareGRN';
 	$scope.updateUrlForSRValue = $scope.path + 'UpdateShortageRejectionValue';
-	$controller('employeeBaseController', { $scope: $scope, $http: $http });
 	$controller('partyBaseController', { $scope: $scope, $http: $http });
+	$controller('employeeBaseController', { $scope: $scope, $http: $http });
 	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 	//, CAST(GRNDate AS DATE)
 	//#region notification setting
@@ -92,13 +92,17 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 
 
 	$scope.AllTabPrint = function (z) {
-		//debugger;
-		var x = "#" + z;
-		var gridObj = $(x).data("ejGrid");
-		var data = gridObj.getSelectedRecords()[0];
-		location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.Id;
 
-
+		try {
+			//debugger;
+			var x = "#" + z;
+			var gridObj = $(x).data("ejGrid");
+			var data = gridObj.getSelectedRecords()[0];
+			location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.Id;
+		}
+			catch (e) {
+			$scope.ShowResultCustom(e, "failure");
+			}
 	};
 	$scope.closeEmployeePopUp = function () {
 		if ($scope.employeeIndex !== -1) {
@@ -198,8 +202,32 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		});
 	}
 
+	$scope.searchByParty = "UserName"; $scope.searchParty = "";
+	$scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 
+	$scope.partyUrl = "";
+	$scope.showPartyByGateEntryPopUpNew = function () {
 
+		if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataByGateEntryListNew?partyType=' + $scope.partyType;
+		}
+		else if ($scope.partyType === 'Party') {
+			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataByGateEntryListNew';
+		}
+		else if ($scope.partyType === 'Other') {
+			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataByGateEntryListNew';
+		}
+		$http({
+			method: 'POST',
+			url: $scope.partyUrl,
+			data: { column: $scope.searchByParty, value: $scope.searchParty },
+			dataType: 'JSON'
+		}).then(function successCallback(response) {
+			$scope.partyList = response.data;
+		});
+		//}
+		angular.element(document.querySelector('#partyPopUp')).modal('show');
+	};
 
 
 
@@ -1138,6 +1166,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 			$scope.getCharacteristicsList(ob.Id);
 
 		getTaxCategoryList(ob.HSNCodeId, ob.HSNCode);
+		getBinMasterByMaterial(ob.Id);
 		var mmId = []; mmId.push(ob.Id);
 		cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (result) {
 			$scope.uoMList = result;
@@ -1149,6 +1178,23 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		$scope.closeMaterialMasterbyTypePopUp();
 
 	};
+
+	$scope.binMasterList = [];
+	function getBinMasterByMaterial(materialMasterId) {
+		$scope.binMasterList = [];
+		$http({
+			method: 'Post'
+			, url: 'Materials/StorageBinAllocation/GetBinAllocationByMaterialId?materialMasterId=' + materialMasterId + '&materialStorageId=' + $scope.productNew.MaterialStorageId
+		}).then(function (response) {
+			$scope.binMasterList = response.data;
+		});
+	}
+    $scope.getbinAllocationPopUp = function() {
+		angular.element(document.querySelector('#binAllocationPopUp')).modal('show');
+	}
+	$scope.CloseBinAllocationPopUp = function () {
+		angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
+	}
 	$scope.LoadMaterialStatusLoad = function (ob) {
 		////debugger;
 		$http({
@@ -1177,6 +1223,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		try {
 			$scope.detailModel.ArticleId = ob.Id;
 			$scope.detailModel.ArticleName = ob.StandardName;
+			getTaxCategoryList(ob.HSNCodeId, ob.HSNCode);
 			manualValidation('div_ar', false);
 			angular.element(document.querySelector('#articleSearchPop')).modal('hide');
 		} catch (e) {
@@ -1190,7 +1237,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		$scope[$scope.charValueSearchFor].FlagDisable = $scope.isSearch;
 		angular.element(document.querySelector('#searchcharactervaluepopup')).modal('hide');
 	};
-
+	$scope.selectedBinAllocationList = [];
 	$scope.detailSave = function () {
 		//debugger;
 		try {
@@ -1310,7 +1357,14 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 			$scope.detailModel.ThirdCharacteristicsId = $scope.char3.CharacteristicsId;
 			$scope.detailModel.ThirdCharacteristicsValueId = $scope.char3.CharacteristicsValueId;
 
-
+			if ($scope.binMasterList.length) {
+				$scope.selectedBinAllocationList = [];
+				for (var b = 0; b < $scope.binMasterList.length; b++) {
+					if ($scope.binMasterList[b].check == true) {
+						$scope.selectedBinAllocationList.push($scope.binMasterList[b]);
+                    }
+                }
+            }
 
 			for (var i = 0; i < baseService.arrayLength($scope.inventoryMaterialList); i++) {
 				if ($scope.detailModel.MaterialMasterId === $scope.inventoryMaterialList[i].MaterialMasterId &&
@@ -1335,6 +1389,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 				data: {
 					entity: $scope.detailModel
 					, taxCategoryList: $scope.taxCategoryList
+					, gRNBinAllocationMapList: $scope.selectedBinAllocationList
 				},
 				dataType: 'JSON'
 			}).then(function successCallback(response) {
@@ -1359,6 +1414,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 						, RejectionQty: null
 					};
 					$scope.taxCategoryList = [];
+					$scope.selectedBinAllocationList = [];
 					getInventoryMaterialList($scope.productNew.Id);
 					$scope.getDataList();
 					$scope.clearCharNames();
@@ -3410,7 +3466,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
+			url: 'Products/PurchaseOrder/GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyId + '&IsOwnVendor=' + $scope.IsOwnVendor + '&inveReveiveMasterId=' + $scope.productNew.Id + '&istradingPO=' + $scope.productNew.IsTradingPO,
 		}).then(function successCallback(response) { //datagatefun			
 			$scope.GetListForMasterOrder = [];
 			$scope.GetListForMasterOrder = response.data;
@@ -3628,6 +3684,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		try {
 			$scope.check();
 			$scope.GetListForMasterOrdernew = [];
+			$scope.tempList = [];
 			if ($scope.ActionPOBOQ === 'Save') {
 				for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
 					if ((baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionQty) || $scope.GetListForMasterOrder[i].TransactionQty === 0) && $scope.GetListForMasterOrder[i].CheckedStatus === true) {
@@ -3723,9 +3780,9 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 			}
 
 
-			for (var j = 0; j < $scope.GetListForMasterOrdernew.length; j++) {
-				if ($scope.GetListForMasterOrdernew[j].CheckedStatus === true) {
-					$scope.tempList.push($scope.GetListForMasterOrdernew[j]);
+			for (var j = 0; j < $scope.GetListForMasterOrder.length; j++) {
+				if ($scope.GetListForMasterOrder[j].CheckedStatus === true) {
+					$scope.tempList.push($scope.GetListForMasterOrder[j]);
 				}
 			}
 
@@ -3744,10 +3801,10 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 
 			$scope.UOMValidation();
 			$scope.groupList = [];
-			$scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
-			for (var i = 0; i < $scope.GetListForMasterOrdernew.length; i++) {
-				$scope.GetListForMasterOrdernew[i].Tolerance = $scope.productNew.Tolerance;
-				$scope.GetListForMasterOrdernew[i].MaterialStorageId = $scope.productNew.MaterialStorageId;
+			$scope.processgroupList($scope.GetListForMasterOrder, $scope.groupList);
+			for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
+				$scope.GetListForMasterOrder[i].Tolerance = $scope.productNew.Tolerance;
+				$scope.GetListForMasterOrder[i].MaterialStorageId = $scope.productNew.MaterialStorageId;
 			}
 			for (var i = 0; i < $scope.groupList.length; i++) {
 				$scope.groupList[i].Tolerance = $scope.productNew.Tolerance;

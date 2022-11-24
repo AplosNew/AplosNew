@@ -3,7 +3,7 @@
 </h3>
 <div class="form-elements form-horizontal" ng-form id="partyReportNew" name="partyNewReportForm">
     <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group">
+        @*<div class="form-group">
             <label class="col-sm-4 control-label">Company Group Level</label>
             <div class="col-sm-8">
                 <div class="radio">
@@ -13,13 +13,13 @@
                     </label>
                 </div>
             </div>
-        </div>
+        </div>*@
         <div class="form-group">
             <label class="col-sm-4 control-label">Company Level</label>
             <div class="col-sm-8">
                 <div class="radio">
                     <label>
-                        <input type="radio" name="CompanyGroupLevel" ng-model="partyReportNew.CompanyGroupLevel" ng-change="CompanyShowFn();" value="CompanyLevel">
+                        <input type="radio" name="CompanyLevel" ng-model="partyReportNew.CompanyGroupLevel" ng-change="CompanyShowFn();" value="CompanyLevel">
                         <span class="cr"><i class="cr-icon"></i></span>
                     </label>
                 </div>
@@ -30,7 +30,7 @@
             <div class="col-sm-8">
                 <div class="radio">
                     <label>
-                        <input type="radio" name="CompanyGroupLevel" ng-model="partyReportNew.CompanyGroupLevel" ng-change="CompanyShowFn();" value="PlantLevel">
+                        <input type="radio" name="PlantLevel" ng-model="partyReportNew.CompanyGroupLevel" ng-change="CompanyShowFn();" value="PlantLevel">
                         <span class="cr"><i class="cr-icon"></i></span>
                     </label>
                 </div>

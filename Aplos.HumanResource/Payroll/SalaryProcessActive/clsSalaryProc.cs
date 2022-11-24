@@ -335,11 +335,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=apd.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
                                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
                                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id AND l.LeaveTypeId=apd.LTSystemID
-
-                                WHERE WorkDate BETWEEN '" + sfrmDate + @"'
-                                    AND '" + sToDate + @"'  
-                                    AND (" + sEmpSystemID + @")) A
-                            GROUP BY EmpSystemID";
+                                WHERE WorkDate BETWEEN '" + sfrmDate + @"' AND '" + sToDate + @"'  
+                                AND (" + sEmpSystemID + @")) A
+                                GROUP BY EmpSystemID";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");

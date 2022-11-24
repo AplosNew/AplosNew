@@ -1,6 +1,7 @@
 ﻿using Library.Core;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Data.UnitOfWorks;
 using Library.Model.Banks;
 using Library.Service.Enums;
 using Library.Service.Helpers;
@@ -17,10 +18,65 @@ namespace Library.Accounting.Accounts
     public class AccountsBankReconcilliationService
     {
         private readonly ISqlRepository _sqlRepository;
+        private readonly IUnitOfWork _unitOfWork;
         public AccountsBankReconcilliationService(ISqlRepository sqlRepository
             )
         {
             _sqlRepository = sqlRepository;
+        }
+        public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId)
+        {
+            parameters.CmdText = @"select top 1 BR.Id,BM.AccountTitle BankName,BR.BankStatementNo
+                                ,REPLACE(CONVERT(CHAR(11), BR.FromDate, 106),' ','-') FromDate
+                                ,REPLACE(CONVERT(CHAR(11),  BR.ToDate, 106),' ','-') ToDate
+                                ,BR.OpeningBlance,BR.ClosingBalance
+                                from trn.BankReconciliation BR
+                                LEFT JOIN [MST].[BankMaster] BM ON BM.Id=BR.BankMasterId
+                                WHERE BR.CompanyGroupId='" + companyGroupId + "'AND BR.CompanyId='" + companyId + "' order by BR.AddedDate desc";
+            return _sqlRepository.GetGridData(parameters);
+        }
+        public GridModel GetAvailableBankReconciliationUploadedDataList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            parameters.CmdText = @"SELECT BRUD.Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, DrAmount, CrAmount, BRUD.Remarks, OwnRefNo
+                                FROM TRN.BankReconciliationUploadedData  BRUD
+                                INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
+                                WHERE BRUD.CompanyGroupId='" + companyGroupId + "'AND BRUD.CompanyId='" + companyId + "' AND BRU.BankMasterId='" + bankMasterId + "' ";
+            return _sqlRepository.GetGridData(parameters);
+        }
+        public void DeleteBankreconciliation(string bankReconciliationId)
+        {
+            var flag = false;
+            try
+            {
+                flag = true;
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                
+                vendorAdWrsql = @"UPDATE trn.GLTransactionDetail SET ReconcileId=NULL,ReconcileDate=NULL where ReconcileId='" + bankReconciliationId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"DELETE FROM trn.BankReconciliation WHERE Id='" + bankReconciliationId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                
+                flag = false;
+                
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                //if (flag)
+                    //_unitOfWork.Rollback();
+            }
         }
         public IEnumerable<object> GetBankReconciledList(string companyGroupId, string companyId, DateTime cutOffDate, string bankMasterId, DateTime fromDate, DateTime toDate)
         {
@@ -285,6 +341,70 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public IEnumerable<object> GetBankDrReconListUploadedData(string companyGroupId, string companyId, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var sql = @"SELECT V.Id AS VoucherId
+	                                         ,VD.Id AS VoucherDetailId
+                                             ,VD.Id AS VoucherDetail
+                                             ,GLT.Id AS GLTransactionDetailId
+	                                         ,V.VoucherNo
+	                                         ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
+	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
+                                             ,VD.DocRefNo, VD.PartyType, VD.Narration
+	                                         ,GLT.DrAmount AS Amount --[Add : BanK other Credit]
+	                                         ,'' AS CheckNo
+	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS EncashmentDate 
+                                       FROM TRN.VoucherDetail AS VD
+                                       INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                       INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+                                       WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' )
+                                       AND V.CompanyGroupId='" + companyGroupId + @"' AND V.CompanyId='" + companyId + @"' AND V.IsPark=0
+                                       AND VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate BETWEEN CONVERT(DATE,'" + fromDate + @"') AND CONVERT(DATE,'" + toDate + @"')
+                                       AND VD.DrAmount<>0.0000 
+                                       AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) "; 
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public IEnumerable<object> GetBankCrReconListUploadedData(string companyGroupId, string companyId, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var sql = @"SELECT V.Id AS VoucherId
+	                                         ,VD.Id AS VoucherDetailId
+                                             ,VD.Id AS VoucherDetail
+                                             ,GLT.Id AS GLTransactionDetailId
+	                                         ,V.VoucherNo
+	                                         ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
+	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
+                                             ,VD.DocRefNo, VD.PartyType, VD.Narration
+	                                         ,GLT.CrAmount AS Amount --[Add : BanK other Credit]
+	                                         ,'' AS CheckNo
+	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS EncashmentDate 
+                                       FROM TRN.VoucherDetail AS VD
+                                       INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                       INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+                                       WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' )
+                                       AND V.CompanyGroupId='" + companyGroupId + @"' AND V.CompanyId='" + companyId + @"' AND V.IsPark=0
+                                       AND VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate BETWEEN CONVERT(DATE,'" + fromDate + @"') AND CONVERT(DATE,'" + toDate + @"')
+                                       AND VD.CrAmount<>0.0000 
+                                       AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
 
         public GridModel GetBankDrReconList(GridParameter parameters, string companyGroupId, string companyId, DateTime cutOffDate, string bankMasterId, DateTime fromDate, DateTime toDate)
         {
@@ -331,6 +451,12 @@ namespace Library.Accounting.Accounts
 						   FROM [TRN].[BankReconciliation] where BankMasterId='" + bankMasterId + "' AND CompanyGroupId='" + companyGroupId + "' AND CompanyId='" + companyId + @"'
                             ORDER BY ToDate DESC");
         }
+        public Dictionary<string, object> GetBankReconUploadLastDate(string companyGroupId, string companyId, string bankMasterId)
+        {
+            return _sqlRepository.GetData(@"SELECT TOP(1) REPLACE(CONVERT(CHAR(11), dateadd(DAY,1,ToDate), 106),' ','-') AS FromDate, OpeningBlance, ClosingBalance
+						   FROM [TRN].[BankReconciliationUpload] where BankMasterId='" + bankMasterId + "' AND CompanyGroupId='" + companyGroupId + "' AND CompanyId='" + companyId + @"'
+                            ORDER BY ToDate DESC");
+        }
         public Dictionary<string, object> GetBankReconDrCrTotalAmount(string companyGroupId, string companyId, string bankMasterId, DateTime fromDate, DateTime toDate)
         {
             return _sqlRepository.GetData(@"select sum(x.DrAmount) bankDrAmmount,sum(x.CrAmount) bankCrAmmount from (
@@ -352,6 +478,184 @@ namespace Library.Accounting.Accounts
                                 AND (VD.BankMasterId= '" + bankMasterId + "'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"'))
                                 AND (VD.CrAmount<>0.0000) 
                 				) x");
+        }
+        public IEnumerable<object> GetBankReconciliationUploadedData(string companyGroupId, string companyId, string plantId, string bankMasterId)
+        {
+            try
+            {
+                var sql = @"SELECT BRU.Id,B.UserName  BankName,OpeningBlance, ClosingBalance, BankStatementNo, BRU.Remarks,EI.EmployeeName
+                            ,REPLACE(CONVERT(CHAR(11), BRU.FromDate, 106),' ','-') AS FromDate
+                            ,REPLACE(CONVERT(CHAR(11), BRU.ToDate, 106),' ','-') AS ToDate
+                            FROM TRN.BankReconciliationUpload BRU
+                            INNER JOIN [MST].[BankMaster] BM ON BM.Id=BRU.BankMasterId
+                            INNER JOIN [HKP].[Bank] B ON B.Id=BM.BankId
+                            INNER JOIN [dbo].[EmployeeInformation] EI ON EI.SystemId=BRU.EmployeeId
+                            WHERE BRU.CompanyGroupId='" + companyGroupId + @"' AND BRU.CompanyId='" + companyId + @"'  AND BRU.PlantId='" + plantId + @"'
+                            AND BRU.BankMasterId='" + bankMasterId + @"'  ORDER BY BRU.AddedDate DESC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public void DeleteBankReconciliationUploadedData(string bankReconciliationUploadId)
+        {
+            var flag = false;
+            try
+            {
+                flag = true;
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+
+                vendorAdWrsql = @"DELETE FROM TRN.BankReconciliationUploadedData where BankReconciliationUploadId='" + bankReconciliationUploadId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"DELETE FROM TRN.BankReconciliationUpload WHERE Id='" + bankReconciliationUploadId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+
+                flag = false;
+
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                //if (flag)
+                //_unitOfWork.Rollback();
+            }
+        }
+        public void DeleteBankReconciliationMapData(string voucherDetailId)
+        {
+            var flag = false;
+            try
+            {
+                flag = true;
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+
+                vendorAdWrsql = @"DELETE FROM TRN.BankReconciliationMap where VoucherDetailId='" + voucherDetailId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+
+                flag = false;
+
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                //if (flag)
+                //_unitOfWork.Rollback();
+            }
+        }
+        public IEnumerable<object> GetAvailableBankReconciliationUploadedDrDataList(string companyGroupId, string companyId, string plantId, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                
+                var sql = @"SELECT BRUD.Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, DrAmount CrAmount, BRUD.Remarks, OwnRefNo
+                                FROM TRN.BankReconciliationUploadedData  BRUD
+                                INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
+                                WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND DrAmount>0 
+                                AND BRUD.Id NOT IN(select BankReconciliationUploadedDataId from TRN.BankReconciliationMap)";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public IEnumerable<object> GetBankDrReconciledList(string companyGroupId, string companyId, string plantId, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+
+                var sql = @"SELECT BRM.Id BankReconciliationMapId,BRM.VoucherDetailId,BRM.BankReconciliationUploadedDataId
+								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, BRUD.CrAmount UploadedAmount
+								,V.VoucherNo,VD.DocRefNo,VD.DrAmount VoucherAmount
+                                FROM TRN.BankReconciliationMap BRM
+								INNER JOIN TRN.BankReconciliationUploadedData  BRUD ON BRUD.Id=BRM.BankReconciliationUploadedDataId
+                                INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
+                                INNER JOIN TRN.VoucherDetail AS VD ON VD.Id=BRM.VoucherDetailId
+								INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND BRUD.CrAmount>0  ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public IEnumerable<object> GetAvailableBankReconciliationUploadedCrDataList(string companyGroupId, string companyId, string plantId, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+
+                var sql = @"SELECT BRUD.Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, CrAmount DrAmount, BRUD.Remarks, OwnRefNo
+                                FROM TRN.BankReconciliationUploadedData  BRUD
+                                INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
+                                WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND CrAmount>0 
+                                AND BRUD.Id NOT IN(select BankReconciliationUploadedDataId from TRN.BankReconciliationMap)";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public IEnumerable<object> GetBankCrReconciledList(string companyGroupId, string companyId, string plantId, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+
+                var sql = @"SELECT BRM.Id BankReconciliationMapId,BRM.VoucherDetailId,BRM.BankReconciliationUploadedDataId
+								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, BRUD.DrAmount UploadedAmount
+								,V.VoucherNo,VD.DocRefNo,VD.CrAmount VoucherAmount
+                                FROM TRN.BankReconciliationMap BRM
+								INNER JOIN TRN.BankReconciliationUploadedData  BRUD ON BRUD.Id=BRM.BankReconciliationUploadedDataId
+                                INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
+                                INNER JOIN TRN.VoucherDetail AS VD ON VD.Id=BRM.VoucherDetailId
+								INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
+                                AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND BRUD.DrAmount>0  ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
         }
     }
 }

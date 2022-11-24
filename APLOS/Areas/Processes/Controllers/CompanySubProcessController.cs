@@ -7,6 +7,8 @@ using Library.Core;
 using System.Collections.Generic;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using Library.Crosscutting.Security;
+using System.Threading;
 
 #endregion
 
@@ -41,7 +43,14 @@ namespace Aplos.Areas.Processes.Controllers
         [Authorize]
         public JsonResult GetCbo(string processid)
         {
-            return Json(_companySubProcessService.GetCbo(processid), JsonRequestBehavior.AllowGet);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_companySubProcessService.GetCbo(processid,identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize]
+        public JsonResult GetCbobyprocessid(string processid,string companyId)
+        {
+            return Json(_companySubProcessService.GetCbo(processid, companyId), JsonRequestBehavior.AllowGet);
         }
 
 

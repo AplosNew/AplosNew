@@ -75,6 +75,17 @@ namespace Aplos.Areas.Accounts.Controllers
                             throw new CustomException("Voucher Park Mode not allowed, GRN already issued !");
                         }
                     }
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT VoucherNo from trn.InvoiceWriteOffDetail iwd JOIN trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
+                                            WHERE InvoiceId in (select Id from trn.invoice where VoucherId = '" + voucherId + "')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed, Payment Voucher No '"+ dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var InvoiceSql = @"UPDATE [TRN].Invoice SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
@@ -191,6 +202,18 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 if (sourceType == SourceType.SalesInvoice.ToString() || sourceType == SourceType.PostInvoice.ToString())
                 {
+
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT VoucherNo from trn.InvoiceWriteOffDetail iwd JOIN trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
+                                            WHERE InvoiceId in (select Id from trn.invoice where VoucherId = '" + voucherId + "')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed,  Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var invoiceSql = @"UPDATE [TRN].Invoice SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     var salesSql = @"UPDATE [TRN].Sales SET RowState='Parked' WHERE VoucherId='" + voucherId + "'";

@@ -1351,7 +1351,7 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
                 SendNotification("-------------Starting Simulation-------------");
                 DataTable dtWCValidation = _sqlRepository.GetDataTable(@"SELECT wcm.Id,ed.StartDate,wcm.UserName FROM scs.WorkCenterMaster AS wcm 
                                         LEFT JOIN scs.WorkCenterMasterEffectiveDate AS ED ON ed.WorkCenterMasterId=wcm.Id AND ed.Id=(SELECT TOP 1 Id FROM scs.WorkCenterMasterEffectiveDate WHERE WorkCenterMasterId=wcm.Id ORDER BY StartDate DESC)
-                                        WHERE wcm.EntityId IN (" + ProcessingEntities + @")  AND wcm.ProcessId='" + processid + @"'");
+                                        WHERE wcm.EntityId IN (" + ProcessingEntities + @")  AND wcm.ProcessId='" + processid + @"'  AND wcm.Active=1");
 
                 if (dtWCValidation.Rows.Count == 0)
                     throw new Exception("No workcenter found. Please create workcenters and try again");
@@ -2348,7 +2348,7 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
         {
             string _sql = @"SELECT  W.Id,ISNULL(D.StartDate,CONVERT(DATE,GETDATE())) AS StartDate,ISNULL(D.Hour,w.MaxTimePerDay) AS RunningHour FROM scs.WorkCenterMaster AS w
                         LEFT JOIN scs.WorkCenterMasterEffectiveDate AS D ON d.WorkCenterMasterId=w.Id
-                        --WHERE w.EntityId=''
+                        WHERE w.Active=1
                         ORDER BY id,ISNULL(D.StartDate,CONVERT(DATE,GETDATE())) DESC";
 
             DataTable dt = _sqlRepository.GetDataTable(_sql);
@@ -2430,7 +2430,7 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
                 {
                     sql = @"SELECT WC.*,convert(bit,0) as isResidualApplicable FROM  [SCS].[WorkCenterMaster] WC 
 
-                                WHERE WC.ProcessId ='" + processid + @"' AND WC.EntityId IN (
+                                WHERE wc.[Active]=1 and  WC.ProcessId ='" + processid + @"' AND WC.EntityId IN (
                                 SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrder D
                                
                                 WHERE d.Id='" + productionOrderID + @"'
@@ -2484,7 +2484,7 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
                         sbLog.AppendLine("No workcenter preference was defined in product configuration");
                         sql = @"SELECT WC.*,convert(bit,0) as isResidualApplicable FROM  [SCS].[WorkCenterMaster] WC 
 
-                                WHERE WC.ProcessId ='" + processid + @"' AND WC.EntityId IN (
+                                WHERE wc.[Active]=1 and WC.ProcessId ='" + processid + @"' AND WC.EntityId IN (
                                 SELECT DISTINCT d.EntityId FROM [TRN].ProductionOrder D
                                
                                 WHERE d.Id='" + productionOrderID + @"'
@@ -2538,7 +2538,7 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
                                         GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
 		                    ) AS K WHERE K.[RANK]=1
                     ) AS P ON p.WorkCenterMasterId=wc.Id
-                    WHERE WC.Id IN (" + workcenterlist + ")";
+                    WHERE WC.[Active]=1 AND WC.Id IN (" + workcenterlist + ")";
                 dtWorkCenter = _sqlRepository.GetDataTable(sql);
             }
             else
@@ -2572,7 +2572,7 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
                                         GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
 		                    ) AS K WHERE K.[RANK]=1
                     ) AS P ON p.WorkCenterMasterId=wc.Id
-                    WHERE WC.Id IN (" + workcenterlist + ")";
+                    WHERE WC.[Active]=1 AND WC.Id IN (" + workcenterlist + ")";
                 dtWorkCenter = _sqlRepository.GetDataTable(sql);
 
             }
@@ -2628,9 +2628,7 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
         private DataTable dtAllAvailableWrokcenters(string entityid, string processid)
         {
 
-            string sql = @"SELECT WC.* FROM  [SCS].[WorkCenterMaster] WC 
-
-                                WHERE WC.EntityId IN(" + entityid + @") AND WC.ProcessId='" + processid + @"'
+            string sql = @"SELECT WC.* FROM  [SCS].[WorkCenterMaster] WC WHERE WC.EntityId IN(" + entityid + @") AND WC.ProcessId='" + processid + @"' AND WC.[Active]=1 
                                 ";
             DataTable dtWorkCenter = _sqlRepository.GetDataTable(sql);
 
@@ -2666,7 +2664,7 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
 					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
 		                    ) AS K WHERE K.[RANK]=1
                     ) AS P ON p.WorkCenterMasterId=wc.Id
-                    WHERE WC.Id IN (" + workcenterlist + ")";
+                    WHERE WC.[Active]=1 AND WC.Id IN (" + workcenterlist + ")";
             dtWorkCenter = _sqlRepository.GetDataTable(sql);
 
 
@@ -2932,7 +2930,7 @@ ORDER BY k.Entity,K.WorkCenterMasterId,CONVERT(DATE, K.ProductionDate) ";
                             LEFT OUTER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=wc.Id
                             LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=wc.ResponsiblePersonId
                              WHERE WC.EntityID='" + entityid
-                + @"' AND WC.ProcessId='" + processid + "' ORDER BY WC.Sequence";
+                + @"' AND WC.[Active]=1 AND WC.ProcessId='" + processid + "' ORDER BY WC.Sequence";
             DataTable _dtWC = _sqlRepository.GetDataTable(sqlWC);
 
 
@@ -3078,7 +3076,7 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
                               FROM [SCS].[WorkCenterMaster] WC 
                             LEFT OUTER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=wc.Id
                             LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=wc.ResponsiblePersonId WHERE WC.EntityID='" + entityid
-                + @"' AND WC.ProcessId='" + processid + "' ORDER BY WC.UserName";
+                + @"' AND WC.ProcessId='" + processid + "' AND WC.[Active]=1 ORDER BY WC.UserName";
             DataTable _dtWC = _sqlRepository.GetDataTable(sqlWC);
 
 
@@ -3315,10 +3313,10 @@ LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM
                         LEFT OUTER JOIN hkp.Process AS p ON p.Id=wc.ProcessId
                         LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=wc.UoMId
                         LEFT OUTER JOIN scs.Currency AS c ON c.Id=wc.CurrencyId
-                        WHERE wc.Id='" + WorkCenterMasterId + @"'";
+                        WHERE WC.[Active]=1 AND wc.Id='" + WorkCenterMasterId + @"'";
 
             string sqlWORKCENTERProductList = @"SELECT pm.Id, PM.Code,pc.UserName AS ProductCategory,psc.UserName AS ProductSubCategory,pm.UserName AS ProductName
-                        FROM   [SCS].[WorkCenterMasterProductPriority] PP
+                        FROM [SCS].[WorkCenterMasterProductPriority] PP
                                 INNER JOIN mst.ProductMaster AS pm ON pm.Id=pp.ProductMasterId
                              LEFT OUTER JOIN hkp.ProductCategory AS pc ON pc.Id=pm.ProductCategoryId
                              LEFT OUTER JOIN hkp.ProductSubCategory PSC ON psc.Id=pm.ProductSubCategoryId
@@ -3582,7 +3580,7 @@ LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM
                             CASE WHEN ISNULL(E.StartDate,'')='' THEN wc.UserName+' (Missing Start Date)' ELSE wc.UserName + ' ('+ei.NickName+')' END AS UserName
                               FROM [SCS].[WorkCenterMaster] WC 
                             LEFT OUTER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=wc.Id
-                            LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=wc.ResponsiblePersonId WHERE WC.EntityID='" + entityid
+                            LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=wc.ResponsiblePersonId WHERE WC.[Active]=1 AND  WC.EntityID='" + entityid
                 + @"' AND WC.ProcessId='" + processid + "' ORDER BY WC.UserName";
             DataTable _dtWC = _sqlRepository.GetDataTable(sqlWC);
 

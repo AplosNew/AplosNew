@@ -63,7 +63,7 @@ namespace Aplos.Areas.QMS.Controllers
         [Authorize, HttpGet]
         public JsonResult GetWorkCenter()
         {
-            return Json(_sqlRepository.GetDataCollection("select Id as Value,UserName AS Text FROM [SCS].[WorkCenterMaster]"), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("select Id as Value,UserName AS Text FROM [SCS].[WorkCenterMaster] where Active=1"), JsonRequestBehavior.AllowGet);
         }
 
 

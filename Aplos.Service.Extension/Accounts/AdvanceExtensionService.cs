@@ -32,7 +32,7 @@ namespace Library.Service.Extension.Accounts
 							
 							,CLD1.Id CheckLotDetailId, CLD1.CheckNumber, CLH.CheckDate
 							--, CL.LotNumber,p.UserName Party
-
+                            ,BJ.POId PONo
 							, AddedBy =case when u.FullName<>'' then u.FullName else v.AddedBy end
 						   ,PostedBy = case when up.FullName<>'' then up.FullName else v.PostedBy end
                             FROM [TRN].[Advance] AS BJ

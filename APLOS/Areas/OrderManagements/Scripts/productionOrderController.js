@@ -737,6 +737,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.productionEntityList = [];
         $scope.productionWorkCenterList = [];
         $scope.recipeMaterialListSelected = [];
+        $scope.productionWorkCenterList = [];
         try {
             var gridObj = $("#GridSOItem").ejGrid("instance");
             gridObj.refreshContent(true);
@@ -1086,7 +1087,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             return ShowResult('Please at first select required time unit.', 'failure');
 
 
-        $scope.popUpProcessUrl = 'Processes/Process/GetProductionProcessList';
+        $scope.popUpProcessUrl = 'Processes/Process/GetProductionProcessList?productionOrderId=' + $scope.model.Id;
         $scope.getProcessData = function (pageno) {
             baseService.paginationBase($scope.popUpProcessUrl, pageno, $scope.processPopUpParameters)
                 .then(function (result) {
@@ -1473,88 +1474,229 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     // #endregion Entity
 
     // #region  Work Center
-
-    $scope.workCenterFilterList = [
-        {
-            'name': 'Code',
-            'value': 'Code'
-        },
-        {
-            'name': 'Work Center',
-            'value': 'UserName'
-        }
-    ];
-
-    $scope.workCenterParameters = {
-        limit: 10
-        , offset: 0
-        , order: 'asc'
-        , sort: 'UserName'
-        , searchBy: 'UserName'
-        , pageSize: 10
-        , total_count: 0
-        , search: null
-        , serverPagination: true
-    };
-
-    $scope.workCenterPopUp = function () {
+    $scope.model = { WCPreferenceType: 'INCLUDE' };
+    $scope.workCenterList = [];
+    $scope.workcenterfor = '';
+    //$scope.workcenterDialog = $("#workCenterPopUp").ejDialog({ target: "#entrycontainer" });
+    $scope.workCenterPopUp = function (wcfor) {
+        $scope.workcenterfor = wcfor;
         $rootScope.tempList = [];
-        $rootScope.workCenterList = [];
-        angular.forEach($scope.productionWorkCenterList, function (a) {
-            $rootScope.tempList.push({
-                Id: a.Id
-                , WorkCenterMasterId: a.WorkCenterMasterId
-                , ProductionOrderId: a.ProductionOrderId
-                , Code: a.Code
-                , UserName: a.UserName
-                , Flag: true
-            });
-        });
-        baseService.setCurrentPage('workCenterList');
-        $scope.workCenterParameters.entityIds = baseService.getColumnValueList($scope.productionEntityList, 'EntityId');
-        $scope.getWorkCenterData = function (pageno) {
-            baseService.paginationBase($scope.path + 'GetWorkCenterList', pageno, $scope.workCenterParameters)
-                .then(function (result) {
-                    $scope.workCenterList = result;
-                    $scope.workCenterParameters.total_count = result.total;
-                    for (var t = 0; t < baseService.arrayLength($scope.workCenterList); t++) {
-                        $scope.workCenterList[t].Flag = baseService.valueCheckInList($rootScope.tempList, 'WorkCenterMasterId', $scope.workCenterList[t].WorkCenterMasterId);
-                    }
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#workCenterPopUp')).modal('show');
-        $scope.getWorkCenterData();
-    };
+        $scope.workCenterList = [];
 
-    $scope.addWorkCenter = function () {
-        if (baseService.arrayLength($rootScope.tempList) > 0) {
-            angular.forEach($rootScope.tempList, function (a) {
-                if (!baseService.valueCheckInList($scope.productionWorkCenterList, 'WorkCenterMasterId', a.WorkCenterMasterId)) {
-                    $scope.productionWorkCenterList.push({
-                        Id: null
-                        , WorkCenterMasterId: a.WorkCenterMasterId
-                        , ProductionOrderId: $scope.model.Id
-                        , Code: a.Code
-                        , UserName: a.UserName
-                    });
-                }
+        if (wcfor == 'RUNNING') {
+            angular.forEach($scope.runningWorkCenterList, function (a) {
+                $rootScope.tempList.push({
+                    Id: a.Id
+                    , Plant: a.Plant
+                    , Entity: a.Entity
+                    , WorkCenterMasterId: a.WorkCenterMasterId
+                    , ProductionOrderId: a.ProductionOrderId
+                    , Code: a.Code
+                    , UserName: a.UserName
+                    , Flag: true
+                });
             });
         }
-        else
-            $scope.productionWorkCenterList = [];
-        angular.forEach($scope.productionWorkCenterList, function (a) {
-            if (!baseService.valueCheckInList($rootScope.tempList, 'WorkCenterMasterId', a.WorkCenterMasterId))
-                $scope.productionWorkCenterList.splice(a, 1);
+        else {
+            angular.forEach($scope.productionWorkCenterList, function (a) {
+                $rootScope.tempList.push({
+                    Id: a.Id
+                    , Plant: a.Plant
+                    , Entity: a.Entity
+                    , WorkCenterMasterId: a.WorkCenterMasterId
+                    , ProductionOrderId: a.ProductionOrderId
+                    , Code: a.Code
+                    , UserName: a.UserName
+                    , Flag: true
+                });
+            });
+        }
+
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetWorkCenterListByEntity?entityId=' + $scope.model.EntityId
+        }).then(function successCallback(res) {
+            $scope.workCenterList = res.data;
+
+            if (baseService.arrayLength($scope.workCenterList) > 0) {
+                for (var i = 0; i < $scope.workCenterList.length; i++) {
+                    if (wcfor == 'RUNNING') {
+                        for (var j = 0; j < $scope.runningWorkCenterList.length; j++) {
+                            if ($scope.runningWorkCenterList[j].WorkCenterMasterId === $scope.workCenterList[i].WorkCenterMasterId) {
+                                $scope.workCenterList[i].Flag = true;
+                            }
+                        }
+                    }
+                    else {
+                        for (var j = 0; j < $scope.productionWorkCenterList.length; j++) {
+                            if ($scope.productionWorkCenterList[j].WorkCenterMasterId === $scope.workCenterList[i].WorkCenterMasterId) {
+                                $scope.workCenterList[i].Flag = true;
+                            }
+                        }
+                    }
+
+                }
+            }
         });
+
+
+        var eDialog = $("#workCenterPopUp").data("ejDialog");
+        eDialog.open();
+    }
+    $scope.TabActiveIndex = -1;
+    $scope.onactivetab = function (args) {
+        try {
+            $scope.TabActiveIndex = args.activeIndex;
+            if (args.activeIndex == 1) {
+                $scope.OpenSimulatedData();
+                $scope.OpenSimulatedData();
+            }
+            else if (args.activeIndex == 2) {
+
+                $scope.GetAllWorkcenterWisePlanningSummary();
+            }
+        } catch (e) {
+
+        }
+
+    }
+    $scope.addWorkCenter = function () {
+        if ($scope.workcenterfor == 'RUNNING') {
+            if (baseService.arrayLength($rootScope.tempList) > 0) {
+                angular.forEach($rootScope.tempList, function (a) {
+                    if (!baseService.valueCheckInList($scope.runningWorkCenterList, 'WorkCenterMasterId', a.WorkCenterMasterId)) {
+                        $scope.runningWorkCenterList.push({
+                            Id: null
+                            , isResidualApplicable: false
+                            , Entity: a.Entity
+                            , Plant: a.Plant
+                            , WorkCenterMasterId: a.WorkCenterMasterId
+                            , ProductionOrderId: $scope.model.Id
+                            , Code: a.Code
+                            , UserName: a.UserName
+                        });
+                    }
+                });
+            }
+            else
+                $scope.runningWorkCenterList = [];
+            angular.forEach($scope.runningWorkCenterList, function (a) {
+                if (!baseService.valueCheckInList($rootScope.tempList, 'WorkCenterMasterId', a.WorkCenterMasterId))
+                    $scope.runningWorkCenterList.splice(a, 1);
+            });
+        }
+        else {
+            if (baseService.arrayLength($rootScope.tempList) > 0) {
+                angular.forEach($rootScope.tempList, function (a) {
+                    if (!baseService.valueCheckInList($scope.productionWorkCenterList, 'WorkCenterMasterId', a.WorkCenterMasterId)) {
+                        $scope.productionWorkCenterList.push({
+                            Id: null
+                            , Entity: a.Entity
+                            , Plant: a.Plant
+                            , WorkCenterMasterId: a.WorkCenterMasterId
+                            , ProductionOrderId: $scope.model.Id
+                            , Code: a.Code
+                            , UserName: a.UserName
+                        });
+                    }
+                });
+            }
+            else
+                $scope.productionWorkCenterList = [];
+            angular.forEach($scope.productionWorkCenterList, function (a) {
+                if (!baseService.valueCheckInList($rootScope.tempList, 'WorkCenterMasterId', a.WorkCenterMasterId))
+                    $scope.productionWorkCenterList.splice(a, 1);
+            });
+
+        }
+
+
         $scope.CloseWorkCenterPopUp();
     };
 
     $scope.CloseWorkCenterPopUp = function () {
-        angular.element(document.querySelector('#workCenterPopUp')).modal('hide');
+
+        var eDialog = $("#workCenterPopUp").data("ejDialog");
+        eDialog.close();
     };
+    $scope.productWorkCenterList = [];
+    $scope.rowDataBoundWorkCenter = function rowDataBoundWorkCenter(e) {
+
+        if (angular.isUndefinedOrNull($scope.productWorkCenterList) == false) {
+            for (var i = 0; i < $scope.productWorkCenterList.length; i++) {
+                if ($scope.productWorkCenterList[i].Code == e.data.Code)
+                    e.row.css("background-color", "#00ff00");
+
+            }
+        }
+
+    }
+
+    $scope.productionWorkCenterList = [];
+    //function getProductionOrderWorkCenterList() {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + 'GetProductionOrderWorkCenterList?productionOrderId=' + $scope.productionOrderModel.Id
+    //    }).then(function successCallback(response) {
+    //        $scope.productionWorkCenterList = response.data;
+    //    });
+    //}
+
+
+    $scope.AddNewWorkCenter = function () {
+        if ($scope.workcenterfor == 'RUNNING') {
+            for (var i = 0; i < $scope.workCenterList.length; i++) {
+                var exists = ej.DataManager($scope.runningWorkCenterList).executeLocal(ej.Query().where("Code", "equal", $scope.workCenterList[i].Code));
+                if ($scope.workCenterList[i].Flag == true) {
+                    if (exists.length == 0) {
+                        $scope.runningWorkCenterList.push({
+                            Id: null
+                            , isResidualApplicable: false
+                            , Plant: $scope.workCenterList[i].Plant
+                            , Entity: $scope.workCenterList[i].Entity
+                            , WorkCenterMasterId: $scope.workCenterList[i].WorkCenterMasterId
+                            , ProductionOrderId: $scope.model.Id
+                            , Code: $scope.workCenterList[i].Code
+                            , UserName: $scope.workCenterList[i].UserName
+                        });
+                    }
+                }
+                else {
+                    if (exists.length > 0) {
+                        exists.pop();
+                    }
+                }
+            }
+
+        }
+        else {
+
+            for (var i = 0; i < $scope.workCenterList.length; i++) {
+                var exists = ej.DataManager($scope.productionWorkCenterList).executeLocal(ej.Query().where("Code", "equal", $scope.workCenterList[i].Code));
+                if ($scope.workCenterList[i].Flag == true) {
+                    if (exists.length == 0) {
+                        $scope.productionWorkCenterList.push({
+                            Id: null
+                            , Plant: $scope.workCenterList[i].Plant
+                            , Entity: $scope.workCenterList[i].Entity
+                            , WorkCenterMasterId: $scope.workCenterList[i].WorkCenterMasterId
+                            , ProductionOrderId: $scope.model.Id
+                            , Code: $scope.workCenterList[i].Code
+                            , UserName: $scope.workCenterList[i].UserName
+                        });
+                    }
+                }
+                else {
+                    if (exists.length > 0) {
+                        exists.pop();
+                    }
+                }
+            }
+        }
+
+        $scope.CloseWorkCenterPopUp();
+    }
+
 
     // #endregion  Work Center
 

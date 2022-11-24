@@ -2433,7 +2433,7 @@ GROUP BY FAR.FABudgetMasterId
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-        private Dictionary<string, object> GetFixedAssetCapitalizeJournalHeader(string companyGroupId, string companyId, string plantId, string voucherId, SourceType sourceType)
+        private Dictionary<string, object> GetFixedAssetCapitalizeJournalHeader(string companyGroupId, string companyId, string plantId, string voucherId, string sourceType)
         {
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
                             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, V.AddedBy, V.PostedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
@@ -2457,7 +2457,7 @@ GROUP BY FAR.FABudgetMasterId
             return _sqlRepository.GetData(cmdText);
         }
 
-        public IWorkbook GetFixedAssetCapitalizeJournalReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId)
+        public IWorkbook GetFixedAssetCapitalizeJournalReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId,string sourceType)
         {
             var reportUtility = new ReportUtility();
             var excelEngine = new ExcelEngine();
@@ -2466,7 +2466,7 @@ GROUP BY FAR.FABudgetMasterId
             var sheet = workbook.Worksheets[0];
             sheet.Name = "Voucher";
 
-            var header = GetFixedAssetCapitalizeJournalHeader(companyGroupId, companyId, plantId, voucherId, SourceType.FixedAssetCapitalizeJournal);
+            var header = GetFixedAssetCapitalizeJournalHeader(companyGroupId, companyId, plantId, voucherId, sourceType);
 
             if (header.Count>0)
             {
@@ -3276,8 +3276,9 @@ GROUP BY FAR.FABudgetMasterId
         {
             try
             {
+                // have to modified. search option needed.
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"SELECT FAR.Id FixedAssetRegisterId,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName
+                var sql = @"SELECT top(5000)  FAR.Id FixedAssetRegisterId,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName
                     , FAM.UserName AS AssetMasterName,FAR.Price,FAR.CapitalizeRegisterNo,FAR.InvoiceNo,0 Active,0 Amount,NULL CapitalizationDate,NULL SubAssetTypeId 
                     FROM TRN.FixedAssetRegister FAR 
                     LEFT JOIN [MST].[MaterialMaster] MM ON FAR.MaterialMasterId=MM.Id
@@ -3757,8 +3758,10 @@ GROUP BY FAR.FABudgetMasterId
 				,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
 
 				,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
-				,ISNULL(FR.ADBaseAmount,0)+ISNULL(FADP.FixedAssetDepreciationAmount,0) ADBaseAmount
-				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0) NetFixedAssetsBaseAmount
+				,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
+				,ISNULL(FADP.FixedAssetDepreciationAmount,0) ProcessDepreciationAmount
+				,ISNULL(FR.AdjustmentDepreciationAmount,0) AdjustmentDepreciationAmount
+				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0)-ISNULL(FR.AdjustmentDepreciationAmount,0) NetFixedAssetsBaseAmount
 
                 ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
                 ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
@@ -3772,7 +3775,7 @@ GROUP BY FAR.FABudgetMasterId
 				,CASE WHEN fard.IsPark=0 THEN 'Posted' ELSE 'Non Posted' END PostingStatus
 				,Customer.UserName CustomerName,CU.Code Currency,CAST(fard.ToCurrencyRate AS decimal(18,4))ToCurrencyRate,rdd.NegotiationValue
 				 ,rdd.BaseNagotiationValue
-				 ,(rdd.BaseNagotiationValue-( ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0)) )LossOrGain
+				 ,(rdd.BaseNagotiationValue-( ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0)-ISNULL(FR.AdjustmentDepreciationAmount,0)) )LossOrGain
 				 ,isnull(GP.Id,GPS.Id) GatePassNo,CASE WHEN GP.GatePassEntryDate IS NOT NULL THEN format( GP.GatePassEntryDate,'dd-MMM-yyyy') 
 				 ELSE format( GPS.GatePassEntryDate,'dd-MMM-yyyy') END GatePassDate
                 , ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
@@ -4478,7 +4481,21 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
-           
+
+            worksheet[ROW, COL].Text = "Process Depreciation Amount";
+            int colProcessDepreciationAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Adjustment Depreciation Amount";
+            int colAdjustmentDepreciationAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 22;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
 
             worksheet[ROW, COL].Text = "Invoice No.";
             int colInvoiceNo = COL;
@@ -4613,6 +4630,11 @@ GROUP BY FAR.FABudgetMasterId
 
                 worksheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["ADBaseAmount"].ToString());
                 worksheet.Range[ROW, colADBaseAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                worksheet[ROW, colProcessDepreciationAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["ProcessDepreciationAmount"].ToString());
+                worksheet.Range[ROW, colProcessDepreciationAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                worksheet[ROW, colAdjustmentDepreciationAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["AdjustmentDepreciationAmount"].ToString());
+                worksheet.Range[ROW, colAdjustmentDepreciationAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
                 worksheet[ROW, colNetFixedAssetsBaseAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["NetFixedAssetsBaseAmount"].ToString());
                 worksheet.Range[ROW, colNetFixedAssetsBaseAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
 
@@ -4680,6 +4702,7 @@ GROUP BY FAR.FABudgetMasterId
                     detailId++;
                   var fixedAssetReg=  _fixedAssetRegisterRepository.Find(item.Id);
 
+                    fixedAssetReg.AdjustmentDepreciationAmount = item.AdjustmentDepreciationAmount;
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
                     fixedAssetReg.Status = fixedAssetDisposed.Status;
                     fixedAssetReg.Remarks = fixedAssetDisposed.Remarks;
@@ -4747,6 +4770,7 @@ GROUP BY FAR.FABudgetMasterId
                     detailId++;
                     var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.FixedAssetRegisterId);
 
+                    fixedAssetReg.AdjustmentDepreciationAmount = item.AdjustmentDepreciationAmount;
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
                     fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
                     fixedAssetReg.Status = fixedAssetDisposed.Status;
@@ -4826,6 +4850,7 @@ GROUP BY FAR.FABudgetMasterId
                     detailId++;
                     var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.Id);
 
+                    fixedAssetReg.AdjustmentDepreciationAmount = item.AdjustmentDepreciationAmount;
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
                     fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
                     fixedAssetReg.Status = fixedAssetDisposed.Status;
@@ -4900,6 +4925,7 @@ GROUP BY FAR.FABudgetMasterId
                     detailId++;
                     var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.FixedAssetRegisterId);
 
+                    fixedAssetReg.AdjustmentDepreciationAmount = item.AdjustmentDepreciationAmount;
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
                     fixedAssetReg.BaseNagotiationValue = item.BaseNagotiationValue;
                     fixedAssetReg.Status = status;
@@ -4974,6 +5000,7 @@ GROUP BY FAR.FABudgetMasterId
                     detailId++;
                     var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.Id);
 
+                    fixedAssetReg.AdjustmentDepreciationAmount = item.AdjustmentDepreciationAmount;
                     fixedAssetReg.NegotiationValue = 0;
                     fixedAssetReg.BaseNagotiationValue = 0;
                     fixedAssetReg.Status = fixedAssetDisposed.Status;
@@ -5038,6 +5065,7 @@ GROUP BY FAR.FABudgetMasterId
                     detailId++;
                     var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.FixedAssetRegisterId);
 
+                    fixedAssetReg.AdjustmentDepreciationAmount = item.AdjustmentDepreciationAmount;
                     fixedAssetReg.NegotiationValue = 0;
                     fixedAssetReg.BaseNagotiationValue = 0;
                     fixedAssetReg.Status = fixedAssetDisposed.Status;
