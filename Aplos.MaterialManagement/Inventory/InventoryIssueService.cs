@@ -875,6 +875,7 @@ namespace Library.MaterialManagement.Inventory
                                         Id = MakePK(issueDetail.Id, historyId, 2),
                                         InventoryIssueDetailId = issueDetail.Id,
                                         InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+                                        MaterialStorageId=string.IsNullOrEmpty(item.MaterialStorageId)? inventoryIssue.MaterialStorageId: item.MaterialStorageId,
                                         Qty = Math.Round(totalReqQty, 4), //item.RequisitionQty,
                                                                           //Rate = Convert.ToDecimal(item.BaseRate),
                                         Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
@@ -7119,78 +7120,10 @@ namespace Library.MaterialManagement.Inventory
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                //       var sql = @"select x.Id ,x.PreparedBy,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty,Orderspecific=CASE WHEN Orderspecific='Yes' Then 'Yes' else 'No' End from
-                //                   (
-                //                       SELECT IRM.Id
-                //                       ,CC.UserName AS CostCenterName
-                //                    ,B.UserName ActivityName      
-                //                    ,IR.RequisitionId
-                //                       ,IR.RequisitionDetailId                           
-                //                    ,EI.EmployeeName  PreparedBy	                          
-                //                       ,IRM.AddedBy
-                //                       ,IRM.AddedDate
-                //                       ,IRM.AddedFromIP
-                //                       ,IRM.UpdatedBy
-                //                       ,IRM.UpdatedDate
-                //                       ,IRM.UpdatedFromIP	  
-                //                      -- ,IRM.Preparedby
-                //                       ,IRM.CheckedBy
-                //                       ,IRM.CheckedByStatus
-                //                       ,IRM.AuthorizedBy
-                //                       ,IRM.AuthorizedByStatus
-                //                    ,RequestedQty
-                //                   ,RejectedQty,IRM.Orderspecific
-                //                   FROM TRN.IssueRequestMaster IRM
-                //                   Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-                //                   Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                //                   Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                //                   LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-
-                //                  Where IRM.CheckedBy IS NOT NULL 
-                //AND IRM.CheckedByStatus='Checked' 
-                //AND IRM.AuthorizedByStatus='Approved' 
-                //AND IRM.AuthorizedBy IS NOT null  
-                //AND IRM.IssueSlipType='InventorySlip'
-                //AND IRM.PlantId='" + identity.PlantId + @"'
-                //                  --Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='Checked' OR IRM.CheckedByStatus='Approval'AND IRM.AuthorizedByStatus IS Not NULL  AND IRM.AuthorizedBy IS null OR IRM.AuthorizedBy IS NOT null And IRM.PreparedBy='" + identity.EmployeeId + @"'
-                //                  --Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='ForChecked' AND IRM.AuthorizedByStatus IS NULL AND IRM.IssueSlipType='AssetSlip' AND IRM.AuthorizedBy IS null --And IRM.PreparedBy='" + identity.EmployeeId + @"'
-                //                  UNION ALL
-                //SELECT IRM.Id
-                //                       ,CC.UserName AS CostCenterName
-                //                    ,B.UserName ActivityName      
-                //                    ,IR.RequisitionId
-                //                       ,IR.RequisitionDetailId                           
-                //                    ,EI.EmployeeName  PreparedBy	                          
-                //                       ,IRM.AddedBy
-                //                       ,IRM.AddedDate
-                //                       ,IRM.AddedFromIP
-                //                       ,IRM.UpdatedBy
-                //                       ,IRM.UpdatedDate
-                //                       ,IRM.UpdatedFromIP	  
-                //                      -- ,IRM.Preparedby
-                //                       ,IRM.CheckedBy
-                //                       ,IRM.CheckedByStatus
-                //                       ,IRM.AuthorizedBy
-                //                       ,IRM.AuthorizedByStatus
-                //                    ,RequestedQty
-                //                   ,RejectedQty,IRM.Orderspecific
-                //                   FROM TRN.IssueRequestMaster IRM
-                //                   Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-                //                   Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                //                   Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                //                   LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-
-                //                  Where IRM.CheckedBy IS  NULL 
-                //AND IRM.CheckedByStatus IS NULL
-                //AND IRM.AuthorizedByStatus='Approved' 
-                //AND IRM.AuthorizedBy IS NOT null  
-                //AND IRM.IssueSlipType='InventorySlip'
-                //AND IRM.PlantId='" + identity.PlantId + @"'
-                //                  )x 
-                //                   Group by Id ,x.PreparedBy,x.AddedDate ,Orderspecific                             
-                //                 ";
-                var sql = @"select x.Id,x.ProcessName,x.SalesOrderId,x.ProductionOrderId,x.PreparedBy,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty,Orderspecific=CASE WHEN Orderspecific='Yes' Then 'Yes' else 'No' End from
-                            (
+                var sql = @"SELECT * FROM (
+                                select x.Id,x.ProcessName,x.SalesOrderId,x.ProductionOrderId,x.PreparedBy,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate
+                                ,Sum(x.RequestedQty) RequestedQty ,sum(isnull(x.IssueQty,0)) IssueQty,Balance=Sum(isnull(x.RequestedQty,0))-sum(isnull(x.IssueQty,0)),Sum(x.RejectedQty) RejectedQty
+                                ,Orderspecific=CASE WHEN Orderspecific='Yes' Then 'Yes' else 'No' End from(
                                 SELECT IRM.Id
                                 ,CC.UserName AS CostCenterName
 	                            ,B.UserName ActivityName      
@@ -7208,7 +7141,7 @@ namespace Library.MaterialManagement.Inventory
                                 ,IRM.CheckedByStatus
                                 ,IRM.AuthorizedBy
                                 ,IRM.AuthorizedByStatus
-	                            ,RequestedQty
+	                            ,RequestedQty,IIH.IssueQty
                             ,RejectedQty,IRM.Orderspecific
 							,p.UserName ProcessName
 							,IRMSO.SalesOrderId
@@ -7228,7 +7161,8 @@ namespace Library.MaterialManagement.Inventory
 							left JOIN HKP.Process p ON p.Id=IRMPM.ProcessId
 							left join [TRN].[IssueRequestMasterSalesOrderMap] IRMSO ON IRMSO.IssueRequestMasterId=IRM.Id
 							left join [TRN].[ProductionOrderDetail] POD ON POD.SalesOrderId=IRMSO.SalesOrderId 
-
+							LEFT JOIN  (select IssueRequestDetailId,SUM(Qty) IssueQty from TRN.InventoryIssueHistory	group by IssueRequestDetailId)	IIH ON IIH.IssueRequestDetailId=IR.Id
+							
 							LEFT JOIN(
 							SELECT distinct PDAMAP.IssueRequestMasterId
 								,SalesOrderId=STUFF((select distinct ','+xpo.SalesOrderId from
@@ -7236,7 +7170,6 @@ namespace Library.MaterialManagement.Inventory
 								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on xpo.SalesOrderId=xPDAMAP.SalesOrderId
 								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-								
 
 							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
 							  LEFT JOIN [TRN].[ProductionOrderDetail] IR ON IR.SalesOrderId = PDAMAP.SalesOrderId
@@ -7289,7 +7222,6 @@ namespace Library.MaterialManagement.Inventory
 								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
 								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-
 							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
 							  LEFT JOIN trn.SalesOrder IR ON IR.Id = PDAMAP.SalesOrderId
 							  --LEFT JOIN [TRN].[MasterOrderItem] C ON C.Id=IR.MasterOrderItemId
@@ -7323,7 +7255,7 @@ namespace Library.MaterialManagement.Inventory
                                 ,IRM.CheckedByStatus
                                 ,IRM.AuthorizedBy
                                 ,IRM.AuthorizedByStatus
-	                            ,RequestedQty
+	                            ,RequestedQty,IIH.IssueQty
                                 ,RejectedQty
 								,IRM.Orderspecific
 								,p.UserName ProcessName
@@ -7344,7 +7276,7 @@ namespace Library.MaterialManagement.Inventory
 							left JOIN HKP.Process p ON p.Id=IRMPM.ProcessId
                             left join [TRN].[IssueRequestMasterSalesOrderMap] IRMSO ON IRMSO.IssueRequestMasterId=IRM.Id
 							left join [TRN].[ProductionOrderDetail] POD ON POD.SalesOrderId=IRMSO.SalesOrderId 
-
+							LEFT JOIN  (select IssueRequestDetailId,SUM(Qty) IssueQty from TRN.InventoryIssueHistory	group by IssueRequestDetailId)	IIH ON IIH.IssueRequestDetailId=IR.Id					
 
 							LEFT JOIN(
 							SELECT distinct PDAMAP.IssueRequestMasterId
@@ -7353,8 +7285,6 @@ namespace Library.MaterialManagement.Inventory
 								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on xpo.SalesOrderId=xPDAMAP.SalesOrderId
 
 								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								
 
 							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
 							  LEFT JOIN [TRN].[ProductionOrderDetail] IR ON IR.SalesOrderId = PDAMAP.SalesOrderId
@@ -7406,16 +7336,12 @@ namespace Library.MaterialManagement.Inventory
 								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
 								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-
-
-
 							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
 							  LEFT JOIN trn.SalesOrder IR ON IR.Id = PDAMAP.SalesOrderId
 							  --LEFT JOIN [TRN].[MasterOrderItem] C ON C.Id=IR.MasterOrderItemId
 							  --left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 							  group by  PDAMAP.IssueRequestMasterId
 							)concatData1 ON concatData1.IssueRequestMasterId = IRM.Id
-
 
                            Where IRM.CheckedBy IS  NULL 
 						   AND IRM.CheckedByStatus IS NULL
@@ -7424,9 +7350,10 @@ namespace Library.MaterialManagement.Inventory
 						   AND IRM.IssueSlipType='InventorySlip'
 						   AND IRM.PlantId='" + identity.PlantId + @"'
                            )x 
-                            Group by Id ,x.PreparedBy,x.AddedDate ,Orderspecific,x.ProcessName ,x.SalesOrderId,x.ProductionOrderId,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName
-
-";
+                            Group by Id ,x.PreparedBy,x.AddedDate ,Orderspecific,x.ProcessName 
+							,x.SalesOrderId,x.ProductionOrderId,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName
+							) y
+							where y.Balance>0";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -7684,7 +7611,7 @@ namespace Library.MaterialManagement.Inventory
                                 	,IRM.Id IssueRequestMasterId
                                 	,IR.Id IssueRequest
                                 	--,RequestedQty=Isnull(IR.RequestedQty,0)-ISNULL(ABC.Qty,0)							
-                                	,PostingQty.MaterialStorageId
+                                	--,PostingQty.MaterialStorageId
                                 	,Convert(BIT, 0) 'check'
                                 	,IR.RequestedQty RequestedQty
                                 	,sum(IDRM.Qty) IssuedQty
@@ -7729,7 +7656,7 @@ namespace Library.MaterialManagement.Inventory
                                 		,IM.FirstCharacteristicsValueId
                                 		,IM.SecondCharacteristicsValueId
                                 		,IM.ThirdCharacteristicsValueId
-                                		,IRD.MaterialStorageId
+                                		--,IRD.MaterialStorageId
                                 		,IM.PlantId
                                 	FROM [TRN].[InventoryReceiveDetail] AS IRD
                                 	JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId = IM.Id
@@ -7741,7 +7668,7 @@ namespace Library.MaterialManagement.Inventory
                                 	LEFT JOIN (
                                 		SELECT IID.InventoryMaterialId
                                 			,IH.InventoryReceiveDetailId
-                                			,II.MaterialStorageId
+                                			--,II.MaterialStorageId
                                 			,Sum(ISNULL(IH.Qty, 0)) IssueQty
                                 			,Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount, 0)) IssueAmount
                                 			,IID.IsAsset
@@ -7752,13 +7679,13 @@ namespace Library.MaterialManagement.Inventory
                                 		GROUP BY IID.InventoryMaterialId
                                 			,IID.IsAsset
                                 			,IH.InventoryReceiveDetailId
-                                			,II.MaterialStorageId
+                                			--,II.MaterialStorageId
                                 		) II ON II.InventoryReceiveDetailId = IRD.Id
-                                		AND II.MaterialStorageId = IRD.MaterialStorageId
+                                		--AND II.MaterialStorageId = IRD.MaterialStorageId
                                 	WHERE IM.CompanyGroupId = '" + identity.CompanyGroupId + @"'
                                 		AND IM.CompanyId = '" + identity.CompanyId + @"'
                                 		AND IM.PlantId = '" + identity.PlantId + @"'
-                                		AND IRD.MaterialStorageId = '" + StorageLocationId + @"'
+                                		--AND IRD.MaterialStorageId = '" + StorageLocationId + @"'
                                 		AND IR.[Status] = 'Posting'
                                 	GROUP BY IRD.InventoryMaterialId
                                 		,IM.MaterialMasterId
@@ -7766,7 +7693,7 @@ namespace Library.MaterialManagement.Inventory
                                 		,IM.FirstCharacteristicsValueId
                                 		,IM.SecondCharacteristicsValueId
                                 		,IM.ThirdCharacteristicsValueId
-                                		,IRD.MaterialStorageId
+                                		--,IRD.MaterialStorageId
                                 		,TUoM.Id
                                 		,IM.PlantId
                                 	) PostingQty ON PostingQty.InventoryMaterialId = IR.InventoryMaterialId
@@ -7827,7 +7754,7 @@ namespace Library.MaterialManagement.Inventory
                                 	,IA1.UserName
                                 	,IRM.Id
                                 	,IR.Id
-                                	,PostingQty.MaterialStorageId
+                                	--,PostingQty.MaterialStorageId
                                 	,AlternativeUOM.BaseUOMFactor";
                 }
                 return _sqlRepository.GetDataCollection(sql);

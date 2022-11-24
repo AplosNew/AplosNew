@@ -490,6 +490,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	,TC.UserName AS ThirdCharacteristics
                             	,IRD.ThirdCharacteristicsValueId
                             	,TCV.UserName AS ThirdCharacteristicsValue
+                                ,IRD.TransactionQty AS TotalPOQty
                             	,poboq.TransactionQty AS POQty
                             	,ISNULL(aa.TransactionQty, 0) AS GRNRcvQty
                             	,'' AS TransactionQty
@@ -534,9 +535,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	,'' QualityStatus
                             	,IRD.TransactionUoMId POUoMId
                             	,IRD.Tolerance
-                            	,IRD.RefferenceNo
+                            	,IRD.RefferenceNo,boq.RMDescription
                             FROM TRN.POBOQMAP AS poboq
 							LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.Id=poboq.PODetailId
+                            LEFT JOIN BOQ boq ON boq.Id=poboq.BOQDetailId
                             --LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.InventoryMaterialId=PM.Id
                             LEFT JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId = MM.Id
                             LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id

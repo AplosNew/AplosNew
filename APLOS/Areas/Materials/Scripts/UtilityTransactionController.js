@@ -21,6 +21,9 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         UoMId: null,
         UoM: null,
         Reading: 0,
+        LastReading: 0,
+        LastReadingDate: null,
+        LastReadingTime:null,
         Remarks: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -57,43 +60,44 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     }
     $scope.GetUtilityMasterList();
 
-    $scope.LastReading = null;
     $scope.UoMName = null;
-    $scope.IsReadingApp = false;
     $scope.GetUoMAndReadingApplicable = function () {
         for (var i = 0; i < $scope.utilityMasterList.length; i++) {
             if ($scope.utilityMasterList[i].Value == $scope.ModelNew.UtilityMasterId) {
                 $scope.UoMName = $scope.utilityMasterList[i].UoM;
-                $scope.IsReadingApp = $scope.utilityMasterList[i].IsReadingApplicable;
-                $scope.LastReading = $scope.utilityMasterList[i].LastReading;
             }
         }
     }
 
-    $scope.GetLastReadingList = function () {
-        $http({
-            method: 'GET',
-            url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
-        }).then(function successCallback(response) {
-            $scope.LastReading = response.data[0].LastReading;
-            $scope.LastReadingDate = response.data[0].LastReadingDate;
-            $scope.LastReadingTime = response.data[0].LastReadingTime;
-        });
-    }
+    //$scope.GetLastReadingList = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
+    //    }).then(function successCallback(response) {
+    //        $scope.LastReading = response.data[0].LastReading;
+    //        $scope.LastReadingDate = response.data[0].LastReadingDate;
+    //        $scope.LastReadingTime = response.data[0].LastReadingTime;
+    //    });
+    //}
 
     $scope.GetEditReadingList = function () {
-        $http({
-            method: 'GET',
-            url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId + '&utilityTransactionId=' + $scope.ModelNew.Id
-        }).then(function successCallback(response) {
-            $scope.LastReading = response.data[0].LastReading;
-            $scope.LastReadingDate = response.data[0].LastReadingDate;
-            $scope.LastReadingTime = response.data[0].LastReadingTime;
-        });
+        $scope.ModelNew.LastReading = 0;
+        $scope.ModelNew.LastReadingDate = null;
+        $scope.ModelNew.LastReadingTime = null;
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.UtilityMasterId)) {
+            $http({
+                method: 'GET',
+                url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId + '&utilityTransactionId=' + $scope.ModelNew.Id
+            }).then(function successCallback(response) {
+                $scope.ModelNew.LastReading = response.data[0].LastReading;
+                $scope.ModelNew.LastReadingDate = response.data[0].LastReadingDate;
+                $scope.ModelNew.LastReadingTime = response.data[0].LastReadingTime;
+            });
+        }
     }
 
 
-    $scope.LastReading = 0;
+    $scope.ModelNew.LastReading = 0;
     $scope.GetQuantity = function () {
         if ($scope.LastReading > 0) {
             $scope.ModelNew.Quantity = $scope.ModelNew.Reading - $scope.LastReading;
@@ -106,7 +110,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetUoMAndReadingApplicable();
-        $scope.GetEditReadingList();
+        //$scope.GetEditReadingList();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -186,9 +190,6 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.Clear = function () {
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.UoMName = null;
-        $scope.LastReadingDate = null;
-        $scope.LastReadingTime = null;
-        $scope.LastReading = 0;
         $scope.IsReadingApp = false;
         $scope.Action = 'Save';
     }

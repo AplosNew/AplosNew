@@ -15,6 +15,7 @@ using Library.Service.Enums;
 using Library.Service.FixedAssets;
 using Library.Service.Helpers;
 using Library.Service.Invoices;
+using Library.ViewModel.Accounts;
 using Library.ViewModel.Materials;
 using Library.ViewModel.Vouchers;
 using OTSBD;
@@ -1003,6 +1004,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetDispose/FixedAssetDisposePost.cshtml");
         }
+        public ActionResult FixedAssetDepreciationPost()
+        {
+            return View("~/Areas/FixedAssets/Views/FixedAssetDepreciationPost.cshtml");
+        }
         [HttpPost, Authorize]
         public ActionResult GetFixedAssetRegisterPopUpList(string column, string value, string companyId)
         {
@@ -1148,7 +1153,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-            return Json(_fixedAssetQueryService.GetFixedAssetTheftSingleJVList(fixedAssetDisposeId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+            return Json(_fixedAssetQueryService.GetFixedAssetTheftSingleJVList(fixedAssetDisposeId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetFixedAssetDepreciationSingleJVList(string fixedAssetMasterId, DateTime depreciationProcessDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetFixedAssetDepreciationSingleJVList(fixedAssetMasterId, depreciationProcessDate, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -1454,6 +1466,36 @@ namespace Aplos.Areas.FixedAssets.Controllers
             }
             FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             fixedAssetQueryService.FixedAssetDepreciationProcess(selectedAssetMastersLists, fiscalYearId, toDate);
+
+            return Json(new { Message = AplosMessage.Insert });
+        }
+        #endregion
+        #region Fixed Asset Depreciation Process
+        [HttpPost, Authorize]
+        public ActionResult GetFixedAssetDepreciationListForPosting(string column, string value)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+           
+            return Json(_fixedAssetQueryService.GetFixedAssetDepreciationListForPosting(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public ActionResult GetFixedAssetDepreciationPostedList(string column, string value)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+           
+            return Json(_fixedAssetQueryService.GetFixedAssetDepreciationPostedList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult CreateFixedAssetDepreciationPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<FixedAssetDepreciationProcessVM> fixedAssetDepreciationList)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            _fixedAssetDisposeService.InsertFixedAssetDepreciationPosting(voucherVM, voucherDetailVMList, fixedAssetDepreciationList);
 
             return Json(new { Message = AplosMessage.Insert });
         }

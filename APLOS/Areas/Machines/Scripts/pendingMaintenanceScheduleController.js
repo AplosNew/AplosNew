@@ -7,90 +7,112 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
     $scope.savePlannedUrl = $scope.path + 'createPlanned';
     $scope.saveResponsibleUrl = $scope.path + 'createResponsible';
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
-    var firstDay = new Date(y, m, 1);
+    date.setDate(date.getDate() + 7);
+    /*var firstDay = new Date(y, m, 1);*/
     $scope.status = {
         Id: null,
-        FromDate: $filter('dateFiltering')(firstDay),
-        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
+        FromDate: null,
+        ToDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
         Responsible: null,
         WorkCenter: null,
+        ActResponsiblePerson:null,
         Status:'Pending',
         Asset: null
     };
     $scope.statusNew = Object.assign({}, $scope.status);
 
-    $scope.filters = [];
-    $scope.getFiltersData = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.statusNew.ToDate)) {
-                throw "To Date is required.";
-            }
-          
-            $http({
-                method: 'GET',
-                url: 'Machines/PendingMaintenanceSchedule/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&Status=' + $scope.statusNew.Status,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.filters = response.data;
-                var columnList = [
-                    { field: 'AssetName', width: 20, headerText: "Asset/Machine", type: "string" },
-                    { field: 'WorkCenter', width: 20, headerText: "Work Center", type: "string" },
-                    { field: 'ResponsiblePersonBudgetCode', width: 20, headerText: "Responsible Person Budget Code", type: "string" },
-                    { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                    { field: 'ActionableResponsiblePerson', width: 20, headerText: "Actionable Responsible Person", type: "string" }
-                ];
-                $("#filters").ejGrid({
-                    dataSource: $scope.filters,
-                    minWidth: 450, minHeight: 400,
-                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                    filterSettings: { filterType: "excel" },
-                    columns: columnList
-                });
-
-                var gridObj = $("#filters").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-                $("#filters").children('.e-pager.e-js.e-pager').hide();
-                $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-                $("#filters").children('.e-gridcontent').hide();
-            });
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
+    $scope.GetFromDateList = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/MaintenanceStatusDetails/GetFromDateList'
+        }).then(function successCallback(response) {
+            $scope.statusNew.FromDate = response.data[0];
+        });
     }
-    $scope.parameters = [];
-    $scope.filterComplete = function () {
+    $scope.GetFromDateList();
 
-        var g = $("#filters").data("ejGrid");
-        var fl = g.getFilteredRecords();
-        if (fl.length == 0) {
-            fl = $scope.filters;
-        }
+    $scope.ActionablePersonList=[];
+    $scope.GetActionablePersonList = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/MaintenanceStatusDetails/GetActionablePersonList'
+        }).then(function successCallback(response) {
+            $scope.ActionablePersonList = response.data;
+        });
+    }
+    $scope.GetActionablePersonList();
+    //$scope.filters = [];
+    //$scope.getFiltersData = function () {
+    //    try {
+    //        if (baseService.isUndefinedOrNull($scope.statusNew.ToDate)) {
+    //            throw "To Date is required.";
+    //        }
+          
+    //        $http({
+    //            method: 'GET',
+    //            url: 'Machines/PendingMaintenanceSchedule/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&Status=' + $scope.statusNew.Status,
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            $scope.filters = response.data;
+    //            var columnList = [
+    //                { field: 'AssetName', width: 20, headerText: "Asset/Machine", type: "string" },
+    //                { field: 'WorkCenter', width: 20, headerText: "Work Center", type: "string" },
+    //                { field: 'ResponsiblePersonBudgetCode', width: 20, headerText: "Responsible Person Budget Code", type: "string" },
+    //                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+    //                { field: 'ActionableResponsiblePerson', width: 20, headerText: "Actionable Responsible Person", type: "string" }
+    //            ];
+    //            $("#filters").ejGrid({
+    //                dataSource: $scope.filters,
+    //                minWidth: 450, minHeight: 400,
+    //                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+    //                filterSettings: { filterType: "excel" },
+    //                columns: columnList
+    //            });
+
+    //            var gridObj = $("#filters").data("ejGrid");
+    //            gridObj.refreshContent(true);
+    //            gridObj.refreshTemplate();
+    //            $("#filters").children('.e-pager.e-js.e-pager').hide();
+    //            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+    //            $("#filters").children('.e-gridcontent').hide();
+    //        });
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
+    //$scope.parameters = [];
+    //$scope.filterComplete = function () {
+
+    //    var g = $("#filters").data("ejGrid");
+    //    var fl = g.getFilteredRecords();
+    //    if (fl.length == 0) {
+    //        fl = $scope.filters;
+    //    }
 
 
-        var parameters = [];
-        parameters.push({ "Key": "AssetId", "Value": getString(fl, "AssetId") });
-        parameters.push({ "Key": "WorkCenterMasterId", "Value": getString(fl, "WorkCenterMasterId") });
-        parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
-        parameters.push({ "Key": "ResponsiblePersoneBgtCodeId", "Value": getString(fl, "ResponsiblePersoneBgtCodeId") });
-        parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
+    //    var parameters = [];
+    //    parameters.push({ "Key": "AssetId", "Value": getString(fl, "AssetId") });
+    //    parameters.push({ "Key": "WorkCenterMasterId", "Value": getString(fl, "WorkCenterMasterId") });
+    //    parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+    //    parameters.push({ "Key": "ResponsiblePersoneBgtCodeId", "Value": getString(fl, "ResponsiblePersoneBgtCodeId") });
+    //    parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
        
 
-        $scope.parameters = parameters;
-    }
+    //    $scope.parameters = parameters;
+    //}
 
-    var getString = function (data, column) {
-        var string = "''";
-        var collection = [];
+    //var getString = function (data, column) {
+    //    var string = "''";
+    //    var collection = [];
 
-        for (var i = 0; i < data.length; i++) {
-            if (collection.includes(data[i][column]) == false) {
-                string += ",'" + data[i][column] + "'";
-                collection.push(data[i][column]);
-            }
-        }
-        return string;
-    }
+    //    for (var i = 0; i < data.length; i++) {
+    //        if (collection.includes(data[i][column]) == false) {
+    //            string += ",'" + data[i][column] + "'";
+    //            collection.push(data[i][column]);
+    //        }
+    //    }
+    //    return string;
+    //}
 
     $scope.PendingMaintenanceScheduleList = [];
     $scope.View = function () {
@@ -100,12 +122,12 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
             }
 
            $scope.PendingMaintenanceScheduleList = [];
-            $scope.filterComplete();
+            //$scope.filterComplete();
 
             $http({
                 method: 'POST',
                 url: $scope.path + "LoadPendingMaintenanceSchedule",
-                data: { 'parameters': $scope.parameters, 'todate': $scope.statusNew.ToDate, 'fromDate': $scope.statusNew.FromDate, 'Status' : $scope.statusNew.Status},
+                data: { 'ActResponsiblePerson': $scope.statusNew.ActResponsiblePerson, 'todate': $scope.statusNew.ToDate, 'fromDate': $scope.statusNew.FromDate, 'Status' : $scope.statusNew.Status},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -174,7 +196,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         $http({
 
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId
+            url: 'Machines/MaintenanceStatusDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId + '&MaintenanceId='+ data.data.Id
         }).then(function successCallback(response) {
             $scope.ReponsiblePersonList = response.data;
             var gridObj = $("#GridResponsiblePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -193,7 +215,9 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
 
             $scope.SaveResponsibleList = [];
             for (var i = 0; i < $scope.ReponsiblePersonList.length; i++) {
-                $scope.SaveResponsibleList.push($scope.ReponsiblePersonList[i]);
+                if ($scope.ReponsiblePersonList[i].IsActive == true) {
+                    $scope.SaveResponsibleList.push($scope.ReponsiblePersonList[i]);
+                }
             }
 
 
@@ -246,10 +270,11 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
-  
+    $scope.Asset = null;
     $scope.MaintenanceStatusPlannedDetailsList = [];
     $scope.GetAssetPopUp = function (data) {
         $scope.PlannedId = data.data.PlannedId;
+        //$scope.Asset = data.data.AssetId;
         $http({
             method: 'Get',
             url: 'Machines/MaintenanceStatusDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + data.data.PlannedId
@@ -260,14 +285,15 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
         }
         )
     }
-    $scope.GetAssetDetails = function (data) {
+    $scope.GetAssetDetails = function () {
 
         $http({
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + data.data.AssetId
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.PlannedId
         }).then(function successCallback(response) {
             $scope.MaintenanceStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#MachineAssetPop')).modal('show');
         }
         )
     }

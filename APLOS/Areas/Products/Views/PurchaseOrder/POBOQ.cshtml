@@ -794,7 +794,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="7" class="text-right"><strong>Total : </strong></td>
+                                <td colspan="6" class="text-right"><strong>Total : </strong></td>
+                                <td class="text-right"><strong>{{poBoqItemListNew | sumByKey : 'TransactionQty'| setDecimal:2| number:2 }}</strong></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>

@@ -63,6 +63,7 @@ function MaterialIssueController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.Get = function (obj) {
         $scope.ModelNew = Object.assign({}, obj.data);
+        $scope.ModelNew.IssueDate = $filter('dateFiltering')($scope.ModelNew.IssueDate, 'dd-M-yyyy');
         $scope.Action = 'Update';
         $scope.GetSavedSODetailData();
         $scope.GetSavedDetailData();

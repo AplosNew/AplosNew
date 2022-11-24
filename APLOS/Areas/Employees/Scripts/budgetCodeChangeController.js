@@ -30,7 +30,7 @@ function budgetCodeChangeController(fileReader, cboService, commonMessage, $scop
 
         }
     };
-    
+
     baseService.init($scope.getListUrl, null, 10, null, 'EmployeeCodeNumeric', 'EmployeeCode');
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
@@ -251,25 +251,41 @@ function budgetCodeChangeController(fileReader, cboService, commonMessage, $scop
         search: null,
         serverPagination: true
     };
+    $scope.popUpTitle ="Budget Info"
+    $scope.searchParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Code',
+        searchBy: "Code",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
     $scope.popUp = function (name) {
         $scope.name = name;
         //if ($scope.name === 'Budget') {
         $scope.popUpDataList = [];
         $scope.popUpList = [];
-        $scope.popUpParameters.sort = 'Code';
-        $scope.popUpParameters.searchBy = 'Code';
+        //$scope.popUpParameters.sort = 'Code';
+        //$scope.popUpParameters.searchBy = 'Code';
+
+        $scope.searchParameters.sort = 'Code';
+        $scope.searchParameters.searchBy = 'Code';
+
         $scope.popUpUrl = 'employees/recruitment/getbudgetcodelist';
         baseService.setCurrentPage('dataList');
         $scope.getPopUpData = function (pageno) {
-            baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
+            baseService.paginationBase($scope.popUpUrl, pageno, $scope.searchParameters)
                 .then(function (result) {
                     $scope.popUpDataList = result.Rows;
                     $scope.popUpParameters.total_count = result.Total;
                     if (baseService.arrayLength($scope.popUpList) === 0) {
                         baseService.getDDLSearchColumn(result.Rows, $scope.popUpList);
                     }
-                    //$scope.popUpParameters.sort = 'Code';
-                    //$scope.popUpParameters.searchBy = 'Code';
+                    $scope.searchParameters.sort = 'Code';
+                    $scope.searchParameters.searchBy = 'Code';
                 }, function () {
                     ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
                 }).finally(function () {
@@ -323,8 +339,7 @@ function budgetCodeChangeController(fileReader, cboService, commonMessage, $scop
                         }
 
                     }
-                    //$scope.popUpParameters.sort = 'Sequence';
-                    //$scope.popUpParameters.searchBy = 'UserName';
+
                 }, function () {
                     ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
                 }).finally(function () {
@@ -347,23 +362,18 @@ function budgetCodeChangeController(fileReader, cboService, commonMessage, $scop
             $scope.NewbudgetCodeChange.DesignationId = data.DesignationId;
             //$scope.name = null;
             angular.element(document.querySelector('#popUpId')).modal('hide');
+            $scope.searchParameters.sort = 'Code';
+            $scope.searchParameters.searchBy = 'Code';
         } else {
             $scope.budgetCodeChangeNew.LegalDesignationId = data.Id;
             $scope.budgetCodeChangeNew.LegalDesignation = data.UserName;
             $scope.GetGivenDesignationByLegalDesignaiton($scope.budgetCodeChangeNew.LegalDesignationId);
             //$scope.name = null;
             angular.element(document.querySelector('#LDPopUp')).modal('hide');
+
+            $scope.popUpParameters.sort = 'Sequence';
+            $scope.popUpParameters.searchBy = 'UserName';
         }
-
-        // $scope.budgetCodeChangeNew.GivenDesignationId = null;
-
-        //cboService.getCboLowerGivenDesignation($scope.budgetCodeChange.DesignationId, function (result) {
-        //    $scope.givenDesignationList = result;
-        //    $scope.budgetCodeChangeNew.GivenDesignationId = $scope.budgetCodeChangeNew.DesignationId;
-        //    //preRecruitmentEmployeeNew.GivenDesignationId
-        //});
-
-        //$scope.closePopUp();
     };
 
 
@@ -530,7 +540,7 @@ function budgetCodeChangeController(fileReader, cboService, commonMessage, $scop
         }
     };
 
-    
+
 
     // #endregion
 
@@ -591,7 +601,7 @@ function budgetCodeChangeController(fileReader, cboService, commonMessage, $scop
 
                 throw ("Please Select A File!!");
             }
-            
+
 
             var fileData = new FormData();
             if (!baseService.isUndefinedOrNull($scope.fileData)) {

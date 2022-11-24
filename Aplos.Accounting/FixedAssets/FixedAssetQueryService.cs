@@ -1069,7 +1069,64 @@ namespace Library.Accounting.FixedAssets
 						ORDER BY 2 DESC";
             return _sqlRepository.GetDataCollection(sql);
         }
-        public GridModel GetFixedAssetAccDepGL(GridParameter parameters, string companyId)
+
+		public List<Dictionary<string, object>> GetFixedAssetDepreciationSingleJVList(string fixedAssetMasterId, DateTime depreciationProcessDate, string companyId, string plantId)
+		{
+
+			var sql = @"DECLARE @fixedAssetMasterId varchar(10)='" + fixedAssetMasterId + "',@depreciationProcessDate DATE='" + depreciationProcessDate + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
+
+						SELECT X.* FROM(
+						SELECT  'Depreciation' AS OtherName, 'Dr' AS TrnType
+							,GLGeneralInfoId =BM.GLGeneralInfoId        
+							,GLGeneralInfoCode =GL.AccountCode 
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId =FAMG.DepreciationBudgetMasterId
+							,BudgetCode = B.Code
+							,BudgetName =B.UserName 
+							,ActivityId = FAMG.DepreciationActivityId
+							,ActivityCode = A.Code
+							,ActivityName =A.UserName
+							, SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Dr
+							, NULL Cr
+							, SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Amount
+					    FROM [TRN].[FixedAssetDepreciationProcess] FDP
+						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FDP.FixedAssetRegisterId
+						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FR.FixedAssetMasterId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.DepreciationBudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.DepreciationGLId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FAMG.DepreciationActivityId= A.Id
+					   WHERE FDP.FixedAssetMasterId=@fixedAssetMasterId AND CAST(FDP.DepreciationProcessDate AS date)=CAST(@depreciationProcessDate AS date)
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.DepreciationBudgetMasterId,FAMG.DepreciationActivityId,FDP.FixedAssetMasterId
+						
+						UNION
+						SELECT  'Asset' AS OtherName, 'Cr' AS TrnType
+							,GLGeneralInfoId =BM.GLGeneralInfoId        
+							,GLGeneralInfoCode =GL.AccountCode 
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId =FR.FABudgetMasterId
+							,BudgetCode = B.Code
+							,BudgetName =B.UserName 
+							,ActivityId = FR.FAActivityId
+							,ActivityCode = A.Code
+							,ActivityName =A.UserName
+							, NULL Dr
+							,  SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Cr
+							,  SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Amount
+						FROM [TRN].[FixedAssetDepreciationProcess] FDP
+						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FDP.FixedAssetRegisterId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FR.FABudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FR.FAActivityId= A.Id
+						WHERE FDP.FixedAssetMasterId=@fixedAssetMasterId AND CAST(FDP.DepreciationProcessDate AS date)=CAST(@depreciationProcessDate AS date)
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.FABudgetMasterId, B.Code, B.UserName, FR.FAActivityId, A.Code, A.UserName
+						) X 
+                        WHERE X.Amount>0
+						ORDER BY 2 DESC";
+			return _sqlRepository.GetDataCollection(sql);
+		}
+		public GridModel GetFixedAssetAccDepGL(GridParameter parameters, string companyId)
         {
             try
             {
@@ -1984,6 +2041,73 @@ namespace Library.Accounting.FixedAssets
 		}
 		#endregion
 
+		#region Fixed Asset Depreciation POST
+		public List<Dictionary<string, object>> GetFixedAssetDepreciationListForPosting(string column, string value, string companyId)
+		{
+			string strkey = "1=1";
+			if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+				strkey = column + " like '%" + value + "%'";
+			var sql = @"select top 100 * from (select FR.FixedAssetMasterId
+									,FAM.UserName 'FixedAssetMaster'
+									,FAC.UserName 'FixedAssetCategory'
+									,FASC.UserName 'FixedAssetSubCategory'
+									,FORMAT(FDP.DepreciationProcessDate, 'dd-MMM-yyyy') DepreciationProcessDate
+                                    ,sum( ISNULL(FDP.CurrentDepreciationAmount,0)) FixedAssetDepreciationAmount
+								    ,BC.Code BaseCurrency,1 CompanyCurrencyRate,1 ToCurrencyRate
+                FROM [TRN].[FixedAssetDepreciationProcess] FDP
+                LEFT JOIN TRN.FixedAssetRegister FR on FR.Id=FDP.FixedAssetRegisterId
+	            LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
+				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FR.FixedAssetMasterId
+                LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+                WHERE FR.CompanyId='" + companyId + @"' AND FDP.DepreciationVoucherId IS NULL
+                   GROUP BY  FR.FixedAssetMasterId,FAM.UserName,FAC.UserName,FDP.DepreciationProcessDate,FASC.UserName,BC.Code	
+                ) AS TEMP WHERE " + strkey + " order by DepreciationProcessDate ASC  ";
+			return _sqlRepository.GetDataCollection(sql);
+		}
+		public List<Dictionary<string, object>> GetFixedAssetDepreciationPostedList(string column, string value, string companyId)
+		{
+			string strkey = "1=1";
+			if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+				strkey = column + " like '%" + value + "%'";
+			var sql = @"select top 100 * from (select frd.Id DisposeNo,cast(substring(frd.Id,3,8) as int)SlNo,V.VoucherNo,V.PostingDate,V.Id,fr.Remarks,fr.[Status],ei.EmployeeName,D.UserName Department,DG.UserName Designation,frd.IsPark
+
+
+			,P.UserName CustomerName
+			,C.Code TrnCurrency
+        ,sum( ISNULL(FR.Price,0)) Price
+									,sum( ISNULL(SAR.subAssetAmount,0) )SubAssetAmount
+									,sum( ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)) PurchasePrice
+									 ,sum( ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0)) NetBookValue 
+								--	, 0 NegotiationValue
+
+								   , BC.Code BaseCurrency
+									,sum( isnull(FR.FABaseAmount,0))FABaseAmount
+									,sum(ISNULL(SAR.subAssetBaseAmount,0) )SubAssetBaseAmount
+									,sum(isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0)) PurchaseBaseAmount
+									,sum(isnull( FR.ADBaseAmount,0))ADBaseAmount
+                                    ,sum( isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) )NetBaseBookValue 
+										,sum(isnull( rdd.NegotiationValue,0))NegotiationValue
+										,sum(isnull( rdd.BaseNagotiationValue,0))BaseNagotiationValue
+
+                from TRN.FixedAssetRegisterDisposed frd 
+				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
+                left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
+                left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
+				left join ORG.Department D on D.Id=ei.DepartmentId
+				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
+					LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
+				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
+				 JOIN TRN.Voucher V ON V.Id=frd.DisposedVoucherId
+                     LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
+                     LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
+                LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount ,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+                    where fr.CompanyId='" + companyId + @"'
+                    group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName 
+					,DG.UserName,V.VoucherNo,V.PostingDate,V.Id,c.Code ,P.UserName , BC.Code ) AS TEMP WHERE " + strkey + " order by SlNo desc ";
+			return _sqlRepository.GetDataCollection(sql);
+		}
+		#endregion
 
 	}
 }

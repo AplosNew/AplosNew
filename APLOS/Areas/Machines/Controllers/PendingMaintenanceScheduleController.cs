@@ -115,21 +115,19 @@ from TRN.Maintenancescheduling MS
         }
 
         [HttpPost, Authorize]
-        public ActionResult LoadPendingMaintenanceSchedule(Dictionary<string, string> parameters, string todate,string fromdate, string Status)
+        public ActionResult LoadPendingMaintenanceSchedule(string ActResponsiblePerson, string todate,string fromdate, string Status)
         {
             string Filter = string.Empty;
-            //if (Status == "All")
-            //{
-            //    Filter = " and Status in (0,1)";
-            //}
-            //else if (Status == "Completed")
-            //{
-            //    Filter = " and Status in (1)";
-            //}
-            //else
-            //{
-            //    Filter = " and Status in (0)";
-            //}
+            string Responsible = string.Empty;
+            if(ActResponsiblePerson==null)
+            {
+                Responsible = "";
+            }
+            else
+            {
+                Responsible = "and (select top 1 ResponsiblePersonId from TRN.ResponsiblePlannedDetails RP where RP.PlannedId=MPD.Id and RP.IsActive=1 and ResponsiblePersonId='" + ActResponsiblePerson + "') = '" + ActResponsiblePerson + "'";
+            }
+            
             if (Status == "All")
             {
                 Filter = " and (MPD.ActualDate is not null or MPD.ActualDate is null) and MPD.PlannedDate is not null";
@@ -145,7 +143,7 @@ from TRN.Maintenancescheduling MS
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select MS.Id,Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,MPD.Id as PlannedId,MMA.EntityId,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
 MM.MachineModel Model,MS.ScheduleCode,MS.ResponsiblePersoneBgtCodeId,MB.Code ResponsiblePersonBudgetCode,MMA.AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
-MMA.WorkCenterMasterId,WC.UserName WorkCenter,MS.ScheduleDays,MMA.Id,
+MMA.WorkCenterMasterId,WC.UserName WorkCenter,MS.ScheduleDays,MMA.Id as MachineAssetId,
  isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
@@ -165,9 +163,9 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end) = 0 and (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
-MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup,MPD.FileName,'Pid' as test
+MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup,MPD.FileName,'Pid' as test,
+  Reverse(stuff(Reverse((select EmployeeName+',' from EmployeeInformation where SystemId in (select ResponsiblePersonId from TRN.ResponsiblePlannedDetails AP where AP.PlannedId=MPD.Id and AP.IsActive=1) for xml path(''))),1,1,'')) ActionableResponsiblePerson
  from TRN.Maintenancescheduling MS
- --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
@@ -176,14 +174,11 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
  left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id
  --left join TRN.ResponsiblePlannedDetails RP ON RP.PlannedId=MPD.Id and RP.IsActive=1
- where MMA.AssetId IN(" + parameters["AssetId"] + @") 
-            --and MMA.WorkCenterMasterId IN(" + parameters["WorkCenterMasterId"] + @") 
-            and MS.ResponsiblePersoneBgtCodeId IN(" + parameters["ResponsiblePersoneBgtCodeId"] + @") 
-            and MMA.EntityId IN(" + parameters["EntityId"] + @") 
-            --and (RP.ResponsiblePersonId IN(" + parameters["ResponsiblePersonId"] + @") or RP.ResponsiblePersonId is null)
- and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ --left Join EmployeeInformation EI ON EI.SystemId=RP.ResponsiblePersonId
+ where 
+ Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)) end between '" + fromdate + "' and '" + todate + "' " + Filter + @" order by MPD.PlannedDate";
+ ORDER BY APD.Id DESC)) end between '" + fromdate + "' and '" + todate + "' " + Filter + @" " + Responsible + @"  order by MPD.PlannedDate";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -257,12 +252,16 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
 
                         if (dv.Count == 0)
                         {
+                            DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                            DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                            TimeSpan t = ToDt.Subtract(FromDt);
+                            int N = t.Days;
                             DateTime date1 = Convert.ToDateTime(item["FromTime"]);
                             DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                            DateTime NextDayDate = date2.AddDays(1);
+                            DateTime NextDayDate = date2.AddDays(N);
                             TimeSpan ts = date2 - date1;
                             TimeSpan Nd = NextDayDate - date1;
-                            int minutes = (int)ts.TotalMinutes;
+                            int minutes = (int)Nd.TotalMinutes;
 
                             if (minutes >= 720 || minutes < 0)
                             {
@@ -290,12 +289,16 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                                 if (ActualDate == DateTime.Today || ActualDate == LastDayDate)
                                 {
                                     DataRow drpb = dv[0].Row;
+                                    DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                    DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                    TimeSpan t = ToDt.Subtract(FromDt);
+                                    int N = t.Days;
                                     DateTime date1 = Convert.ToDateTime(item["FromTime"]);
                                     DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                    DateTime NextDayDate = date2.AddDays(1);
+                                    DateTime NextDayDate = date2.AddDays(N);
                                     TimeSpan ts = date2 - date1;
                                     TimeSpan Nd = NextDayDate - date1;
-                                    int minutes = (int)ts.TotalMinutes;
+                                    int minutes = (int)Nd.TotalMinutes;
 
                                     if (minutes >= 720 || minutes < 0)
                                     {
@@ -323,12 +326,16 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                                 else
                                 {
                                     DataRow drpb = dv[0].Row;
+                                    DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                    DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                    TimeSpan t = ToDt.Subtract(FromDt);
+                                    int N = t.Days;
                                     DateTime date1 = Convert.ToDateTime(item["FromTime"]);
                                     DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                    DateTime NextDayDate = date2.AddDays(1);
+                                    DateTime NextDayDate = date2.AddDays(N);
                                     TimeSpan ts = date2 - date1;
                                     TimeSpan Nd = NextDayDate - date1;
-                                    int minutes = (int)ts.TotalMinutes;
+                                    int minutes = (int)Nd.TotalMinutes;
 
                                     if (minutes >= 720 || minutes < 0)
                                     {

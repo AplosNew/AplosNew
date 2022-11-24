@@ -14,7 +14,7 @@
     }
 
     .modellgModify {
-        width: 1600px;
+        width: 2000px;
     }
 </style>
 <div class="site-tab">
@@ -56,7 +56,7 @@
                             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="100"></div>
                             <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
                             <div e-column e-type="string" e-field="ScheduleName" e-headertext="Schedule Name" e-width="100"></div>
-                            <div e-column e-type="string" e-field="MachineName" e-headertext="Machine Name" e-width="150""></div>
+                            <div e-column e-type="string" e-field="MachineName" e-headertext="Machine Name" e-width="150"></div>
                             <div e-column e-type="string" e-field="Make" e-headertext="Make" e-width="100"></div>
                             <div e-column e-type="string" e-field="Model" e-headertext="Model" e-width="100"></div>
                             <div e-column e-type="string" e-field="ScheduleCode" e-headertext="Schedule Code" e-width="100"></div>
@@ -144,6 +144,7 @@
                             <div e-column e-type="string" e-field="AssetReference" e-headertext="Asset Reference" e-width="100"></div>
                             <div e-column e-type="string" e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
                             <div e-column e-type="string" e-field="ScheduleDays" e-headertext="Schedule Days" e-width="100"></div>
+                            <div e-column e-type="Date" e-field="PlannedDate" e-headertext="Planned Date" e-width="100"></div>
                             <div e-column e-type="Date" e-field="LastMaintenanceDate" e-headertext="Last Maintenance Date" e-width="100"></div>
                             <div e-column e-type="Date" e-field="CurrentMaintanceDate" e-headertext="Current Maintance Date" e-width="100"></div>
                             <div e-column e-type="string" e-field="DueDays" e-headertext="Due Days" e-width="100"></div>
@@ -198,7 +199,7 @@
                                 <div e-column e-type="string" e-field="StandardScheduleMinutes" e-headertext="Standard Schedule Minutes" e-width="100"></div>
                                 <div e-column e-template="#PlannedDate" e-headertext="Planned Date" e-width="150"></div>
                                 <div e-column e-type="string" e-field="Status" e-headertext="Status" e-width="100"></div>
-                                <div e-column e-template="#ActualData" e-headertext="Responsible Person" e-width="100"></div>
+                                <div e-column e-template="#ActualData" e-headertext="Actionable Person" e-width="100"></div>
                                 <div e-column e-template="#Remark" e-headertext="Remarks" e-width="150"></div>
                                 <div e-column e-template="#JobCart" e-headertext="Print" e-width="100"></div>
                             </div>
@@ -223,7 +224,7 @@
                                     <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                                         <div class="common-btn">
                                             <ul class="list-inline text-left">
-                                                <li><button ng-click="$parent.GetReponsiblePersonPopUp(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                                <li><button ng-click="$parent.GetReponsiblePersonPopUp(this);" ng-disabled="data.Id===null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -233,7 +234,7 @@
                                 <div class="form-group">
                                     <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                                         <div class="common-btn">
-                                                <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardReportView?PlannedId={{data.Id}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
+                                                <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardReportView?PlannedId={{data.AssetId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
                                         </div>
                                     </div>
                                 </div>

@@ -1162,7 +1162,7 @@
                                         @*<li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
                                         @*<li><button ng-click="PODetailsUpdatePOPUp(x.PODetailsID,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation to Requisition"><i class="glyphicon glyphicon-zoom-out"></i></button></li>*@
                                         @*<li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
-                                        <li><button ng-click="ViewRequisitionDetail(x.InventoryReceiveDetailId,x.TransactionQty)" class="btn btn-action tooltip-here" ng-disabled="x.TransactionQty==0||x.TransactionQty==''" data-placement="top" id="MEdit" title="View Requisition Detail">View Requisition Detail</button></li>
+                                        <li><button ng-click="ViewRequisitionDetail(x.InventoryReceiveDetailId,x.TransactionQty,x.MaterialMasterId,x.ArticleId)" class="btn btn-action tooltip-here" ng-disabled="x.TransactionQty==0||x.TransactionQty==''" data-placement="top" id="MEdit" title="View Requisition Detail">View Requisition Detail</button></li>
                                     </ul>
                                 </td>
                                 <td></td>
@@ -1402,7 +1402,7 @@
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li><button ng-click="SaveAdditinalTaxInGRNList();" ng-disabled="productId==null" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
+                                <li><button ng-click="SaveAdditinalTaxInGRNList();" ng-disabled="productNew.Id==null" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
 
                             </ul>
                         </div>
