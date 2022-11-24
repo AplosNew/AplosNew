@@ -2,13 +2,13 @@
 <div class="form-elements form-horizontal" ng-form="form0">
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group">
-            <label class="col-sm-4 control-label">Select Fixed Asset Depreciation<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Select Fixed Asset Master Id<sup>*</sup></label>
             <div class="col-sm-6 show-message">
-                <input type="text" class="form-control" readonly name="DisposeNo" ng-model="voucher.DisposeNo">
+                <input type="text" class="form-control" readonly name="AssetMasterId" ng-model="voucher.FixedAssetMasterId">
             </div>
             <div class="col-sm-2 input-group">
                 <span class="input-group-btn">
-                    <button ng-click="getDisposeData();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="getDepreciationData();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                 </span>
             </div>
         </div>
@@ -18,9 +18,9 @@
         <legend class="scheduler-border">General Info</legend>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Disposal Type<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Asset Master<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Disposal Type" ng-model="voucher.Status"  class="form-control" readonly >
+                    <input type="text" name="Disposal Type" ng-model="voucher.FixedAssetMaster"  class="form-control" readonly >
                 </div>
             </div>
             <div class="form-group" show-errors>
@@ -29,47 +29,6 @@
                     <input type="text" name="Entry Date" ng-model="voucher.VoucherDate" datepicker class="form-control" disabled required>
                 </div>
             </div>
-            <div class="form-group" show-errors ng-show="voucher.Status=='Sales'">
-                <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-                <div class="col-sm-5 show-message" style="padding-right:0px;">
-                    <div class="select-style">
-                        <select id="currencyTransactionId" readonly class="form-control" name="CurrencyTransaction" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();" >
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-sm-3 show-message" style="padding-left:0px;">
-                    <input type="text" maxlength="50" id="Rate" readonly name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" autocomplete="off"  ng-disabled="baseCurrencyId==voucher.CurrencyId">
-                </div>
-            </div>
-
-
-            <div class="form-group" show-errors ng-show="voucher.Status=='Sales'">
-                <label class="col-sm-3 control-label">Payment Term<sup>*</sup></label>
-                <div class="col-sm-3 show-message">
-                    <div class="select-style">
-                        <select tabindex="10" id="paymentTermId" class="form-control" name="Payment Term" ng-model="voucher.PaymentTermId" ng-change="changePaymentTerm(voucher.PaymentTermId);">
-                            <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
-                <label class="col-sm-3 control-label">Due Date BaseOn<sup>*</sup></label>
-                <div class="col-sm-3 show-message">
-                    <input type="text" name="BaseOnDueDate" ng-model="voucher.BaseOnDueDate" ng-change="getMatureDate(voucher.BaseOnDueDate,voucher.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11">
-                </div>
-            </div>
-            <div class="form-group" show-errors ng-show="voucher.Status=='Sales'">
-                <label class="col-sm-3 control-label">No Of Days</label>
-                <div class="col-sm-3 show-message">
-                    <input id="baseNoOfday" type="number" name="No Of Days" ng-model="voucher.BaseNoOfDays" ng-change="getMatureDate(voucher.BaseOnDueDate, voucher.BaseNoOfDays)" class="form-control" tabindex="12">
-                </div>
-                <label class="col-sm-3 control-label">Mature Date</label>
-                <div class="col-sm-3 show-message">
-                    <input type="text" name="Mature Date" ng-model="voucher.MatureDate" class="form-control" readonly>
-                </div>
-            </div>
-
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div id="div_PostingDate" class="form-group" show-errors>
@@ -116,99 +75,36 @@
             </div>
         </div>
     </fieldset>
-    <fieldset class="scheduler-border" ng-show="voucher.Status=='CompensateByEmployee'">
-        <legend class="scheduler-border"> Employee Info</legend>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" class="form-control" readonly name="EmployeeName" ng-model="voucher.EmployeeName">
-                </div>
-            </div>
-
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Designation</label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" readonly class="form-control" name="Designation" ng-model="voucher.Designation">
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Department</label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" readonly class="form-control" name="Department" ng-model="voucher.Department">
-                </div>
-            </div>
-        </div>
-    </fieldset>
     <div class="clearfix"></div>
     <fieldset class="scheduler-border">
-        <legend class="scheduler-border"> Register Info</legend>
+        <legend class="scheduler-border"> Depreciation Info</legend>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="table-responsive modal-table ">
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>Asset No</th>
-                            <th>Serial No</th>
-                            <th>Material</th>
-                            <th>Article</th>
-                            <th>Fixed Asset Master</th>
-                            <th>Invoice Date</th>
-                            <th>Capitalization Date</th>
-                            <th class="text-center">FA Base Amount</th>
-                            <th class="text-center">Base Sub Asset</th>
-                            <th style="width:100px">Total Base Amount</th>
-                            <th class="text-center">Depreciation</th>
-                            <th class="text-center">Net Base Amount</th>
-                            <th class="text-center">Adjustment Depreciation Amount</th>
-                            <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Negotiation</th>
-                            <th class="text-center" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'">Base Negotiation</th>
-                            <th>Vendor</th>
-                            <th>Invoice No</th>
-                            @*<th class="text-center">Trn Currency</th>*@
-                            <th class="text-center">OB</th>
+                            <th>Asset Master</th>
+                            <th>Asset Category</th>
+                            <th>Asset Sub Category</th>
+                            <th>Depreciation Process Date</th>
+                            <th>Currency</th>
+                            <th style="width:100px">Depreciation Amount</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in fixedAssetDisposeDetailList">
-                            <td>{{x.AssetNo}}</td>
-                            <td>{{x.SerialNo}}</td>
-                            <td>{{x.MaterialMasterName}}</td>
-                            <td>{{x.Article}}</td>
-                            <td>{{x.FixedAssetMasterName}}</td>
-                            <td>{{x.PurchaseDate}}</td>
-                            <td>{{x.CapitalizationDate}}</td>
-
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="Price" ng-model="x.FABaseAmount " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="SubAssetAmount" ng-model="x.SubAssetBaseAmount " n-decimals="2"></td>
-                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="PurchasePrice" ng-model="x.PurchaseBaseAmount " n-decimals="2"></td>
-                            <td><input type="text" class="form-control text-right" ng-disabled="true" id="ADBaseAmount" ng-model="x.ADBaseAmount " n-decimals="2"></td>
-                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NetBookValue" ng-model="x.NetBaseBookValue " n-decimals="2"></td>
-                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="AdjustmentDepreciationAmount" ng-model="x.AdjustmentDepreciationAmount "  n-decimals="2" autocomplete="off"></td>
-                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="NegotiationValue" ng-disabled="voucher.Status == 'Scrap'" ng-model="x.NegotiationValue " n-decimals="2"></td>
-                            <td ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><input type="text" class="form-control text-right" ng-disabled="true" id="BaseNagotiationValue" ng-model="x.BaseNagotiationValue " n-decimals="2"></td>
-                            <td>{{x.Vendor}}</td>
-                            <td>{{x.InvoiceNo}}</td>
-                            @*<td>{{x.TrnCurrency}}</td>*@
-                            <td>{{x.IsOBBalance}}</td>
-
+                        <tr ng-repeat="x in fixedAssetDepreciationDetailList">
+                            <td>{{x.FixedAssetMaster}}</td>
+                            <td>{{x.FixedAssetCategory}}</td>
+                            <td>{{x.FixedAssetSubCategory}}</td>
+                            <td>{{x.DepreciationProcessDate}}</td>
+                            <td>{{x.BaseCurrency}}</td>
+                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="FixedAssetDepreciationAmount" ng-model="x.FixedAssetDepreciationAmount " n-decimals="2"></td>
                         </tr>
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="7" class="text-right">Total</td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'FABaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'SubAssetBaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'PurchaseBaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'ADBaseAmount' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NetBaseBookValue' }}</b></td>
-                            <td class="text-right"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'AdjustmentDepreciationAmount' }}</b></td>
-                            <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'NegotiationValue' }}</b></td>
-                            <td class="text-right" ng-hide="voucher.Status == 'Scrap' || voucher.Status == 'Theft'"><b>{{ (fixedAssetDisposeDetailList ) | sumByKey:'BaseNagotiationValue' }}</b></td>
+                            <td colspan="5" class="text-right">Total</td>
+                            <td class="text-right"><b>{{ (fixedAssetDepreciationDetailList ) | sumByKey:'FixedAssetDepreciationAmount' }}</b></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -216,7 +112,7 @@
         </div>
     </fieldset>
     <div class="clearfix"></div>
-    <fieldset class="scheduler-border" ng-show="fixedAssetDisposeJVList.length">
+    <fieldset class="scheduler-border" ng-show="fixedAssetDepreciationJVList.length">
         <legend class="scheduler-border">JV</legend>
         <div class="table-responsive modal-table">
             <table class="table table-striped">
@@ -230,7 +126,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="x in fixedAssetDisposeJVList| orderBy:'-TrnType'">
+                    <tr ng-repeat="x in fixedAssetDepreciationJVList| orderBy:'-TrnType'">
                         <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                         <td>{{x.BudgetName}}</td>
                         <td>{{x.ActivityName}}</td>
@@ -239,115 +135,13 @@
                     </tr>
                     <tr>
                         <td colspan="3"></td>
-                        <td class="text-right"><strong>{{fixedAssetDisposeJVList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
-                        <td class="text-right"><strong>{{fixedAssetDisposeJVList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                        <td class="text-right"><strong>{{fixedAssetDepreciationJVList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                        <td class="text-right"><strong>{{fixedAssetDepreciationJVList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </fieldset>
-
-    <fieldset class="scheduler-border" ng-show="fixedAssetDisposeJV2List.length">
-        <legend class="scheduler-border">Sales</legend>
-        <div class="table-responsive modal-table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>GL</th>
-                        <th>Budget</th>
-                        <th>Activity</th>
-                        <th>Dr</th>
-                        <th>Cr</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="x in fixedAssetDisposeJV2List| orderBy:'-TrnType'">
-                        <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
-                        <td>{{x.BudgetName}}</td>
-                        <td>{{x.ActivityName}}</td>
-                        <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
-                        <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="3"></td>
-                        <td class="text-right"><strong>{{fixedAssetDisposeJV2List | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
-                        <td class="text-right"><strong>{{fixedAssetDisposeJV2List | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </fieldset>
-
-
-
-
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        @*<div class="form-group" ng-show="true">*@
-        <fieldset class="scheduler-border" ng-show="voucher.Status=='@Library.Service.Enums.FixedAssetDisposeStatusEnum.CompensateByEmployee.ToString()'">
-            <legend class="scheduler-border">Advance Schedule</legend>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div id="div_DocDate" class="form-group" show-errors>
-                    <label class="col-sm-4 control-label" title="Repayment Start Date" tooltip>First Installment Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Repayment Start Date" ng-model="voucher.RepaymentStartDate" datepicker="checkDocDate(); LoadRepamentDetail()" class="form-control" tabindex="8">
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-
-                    <label class="col-sm-4 control-label">Total Payments </label>
-                    <div class="col-sm-8 show-message">
-                        {{TotalPayments}}
-                    </div>
-                    <input type="text" maxlength="4" ng-show="false" name="Life Of Year" ng-keyup="totalInstallment();LoadRepamentDetail()" ng-model="voucher.LifeOfYear" class="form-control text-right" tabindex="10" autocomplete="off">
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Interest Rate<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" ng-keyup="LoadRepamentDetail()" maxlength="5" name="Interest Rate" ng-model="voucher.ProfitRate" class="form-control" tabindex="12" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-
-                    <label class="col-sm-4 control-label">Total Interest Paid</label>
-                    <div class="col-sm-8 show-message">
-                        {{TotalInterestPaid}}
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label" title="No. Of Installment Per Year" tooltip>Advance Loan Term (monthly)<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" maxlength="4" name="No. Of Installment Per Year" ng-keyup="totalInstallment();LoadRepamentDetail()" ng-model="voucher.NoOfInstallmentPerYear" class="form-control text-right" tabindex="11" autocomplete="off">
-                        <input type="text" maxlength="10" ng-show="false" name="Total No Of Installment" ng-model="voucher.TotalNoOfInstallment" class="form-control text-right" tabindex="9" disabled autocomplete="off">
-                    </div>
-
-                </div>
-            </div>
-
-
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-
-                </div>
-
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-
-                </div>
-
-            </div>
-
-        </fieldset>
-
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-12 modal-table" id="loanDetails">
-    </div>
-
 
     <div class="clearfix"></div>
     <div class="common-btn">
@@ -381,30 +175,18 @@
     </div>
 </div>
 <div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ej-grid e-datasource="voucherList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+    <div id="GridEdit" ej-grid e-datasource="voucherList"  e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="80" e-filter="false"></div>
+            <div e-column e-field="DepreciationNo" e-headertext="Depreciation No" e-width="80" e-filter="false"></div>
             <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="80" e-filter="false"></div>
             <div e-column e-field="Status" e-headertext="Status" e-width="70"></div>
-            @*<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>*@
             <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
             <div e-column e-field="TrnCurrency" e-headertext="Currency" e-width="60"></div>
-            @*<div e-column e-field="BaseCurrency" e-headertext="Base Currency" e-width="60"></div>*@
             <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80"></div>
-            @*<div e-column e-field="NagotiationBooksValue" e-headertext="Base Negotiation" e-width="80"></div>*@
-
-            @*<div e-column e-field="FABaseAmount" e-headertext="FABaseAmount" e-width="80"></div>
-            <div e-column e-field="SubAssetBaseAmount" e-headertext="Sub Base Amount" e-width="80"></div>
-            <div e-column e-field="PurchaseBaseAmount" e-headertext="Total Base Amount" e-width="80"></div>
-            <div e-column e-field="ADBaseAmount" e-headertext="Depreciation" e-width="80"></div>
-            <div e-column e-field="NetBaseBookValue" e-headertext="Net Base Amount" e-width="80"></div>*@
-            @*<div e-column e-field="NetBookValue" e-headertext="Net Amount" e-width="80"></div>*@
-            @*<div e-column e-field="IsPark" e-headertext="Status" e-width="40"></div>*@
             <div e-column e-template="#ShowActionButtonsassigned" e-headertext="PDF&Excel" e-width="70"></div>
-            @*<div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
-        <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>*@
+            
         </div>
     </div>
 
@@ -423,18 +205,6 @@
                 </li>
 
             </ul>
-            @*<ul class="list-inline text-left small">
-                <li>
-                    <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                        <i class="glyphicon glyphicon-minus-sign" style="color:orangered;"></i>
-                    </button>
-                </li>
-                <li>
-                    <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                        <i class="glyphicon glyphicon-play" style="color:{{data.HasBOQ==true?'#00ff00':'orange'}}"></i>
-                    </button> 
-                </li>
-            </ul>*@
         </div>
     </script>
 </div>
@@ -444,10 +214,10 @@
     }
 </style>
 
-<div class="modal fade site-modal in" id="DisposePopUp" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="DepreciationPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
-            <div class="modal-header"> Fixed Asset Lost List <button type="button" class="close" ng-click="closeFixedAssetDisposePopUp();">&times;</button></div>
+            <div class="modal-header"> Fixed Asset Depreciation List <button type="button" class="close" ng-click="closeFixedAssetDepreciationPopUp();">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="row text-right">
                     <div class="col-xs-12 col-sm-12 col-sm-12">
@@ -455,16 +225,16 @@
                             <div class="row">
                                 <div class="col-xs-12 col-sm-3 col-md-3">
                                     <div class="select-style">
-                                        <select ng-model="disposeSearchBy">
-                                            <option ng-repeat="option in disposeSearchByList" value="{{option.value}}">{{option.name}}</option>
+                                        <select ng-model="DepreciationSearchBy">
+                                            <option ng-repeat="option in DepreciationSearchByList" value="{{option.value}}">{{option.name}}</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="disposeSearch" ng-enter="getDisposeData()">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="DepreciationSearch" ng-enter="getDepreciationData()">
                                 </div>
                                 <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getDisposeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <button type="button" ng-click="getDepreciationData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
@@ -472,42 +242,29 @@
                 </div>
                 <div class="col-md-12">
                     <div class="content-container-fluid">
-                        <div id="GridEdit" ej-grid e-datasource="fixedAssetDisposeList" e-recorddoubleclick="getDataByDisposeId" e-load="loadGridEdit"
+                        <div id="GridEdit" ej-grid e-datasource="fixedAssetDepreciationList" e-recorddoubleclick="getDataByDepreciationId" e-load="loadGridEdit"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                             <div e-columns>
-                                <div e-column e-field="DisposeNo" e-headertext="Dispose No" e-width="80" e-filter="false"></div>
-                                <div e-column e-field="Status" e-headertext="Type" e-width="80"></div>
-                                @*<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="120"></div>*@
-                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
-
-                                <div e-column e-field="TrnCurrency" e-headertext="Currency" e-width="40"></div>
-                                @*<div e-column e-field="BaseCurrency" e-headertext="Base Currency" e-width="40"></div>
-                                <div e-column e-field="FABaseAmount" e-headertext="FABaseAmount" e-width="80"></div>
-                                <div e-column e-field="SubAssetBaseAmount" e-headertext="SubAssetBaseAmount" e-width="80"></div>
-                                <div e-column e-field="PurchaseBaseAmount" e-headertext="Total Base Amount" e-width="80"></div>
-                                <div e-column e-field="ADBaseAmount" e-headertext="Depreciation" e-width="80"></div>*@
-                                <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80"></div>
-                                @*<div e-column e-field="NetBaseBookValue" e-headertext="Net Base Amount" e-width="80"></div>*@
-                                @*<div e-column e-field="NetBaseBookValue" e-headertext="NetBaseBookValue" e-width="80"></div>*@
-                                
-                                @*<div e-column e-field="IsPark" e-headertext="Status" e-width="40"></div>*@
+                                <div e-column e-field="FixedAssetMasterId" e-headertext="Asset Master Id" e-width="40" e-filter="false"></div>
+                                <div e-column e-field="FixedAssetMaster" e-headertext="Asset Master" e-width="100"></div>
+                                <div e-column e-field="FixedAssetCategory" e-headertext="Asset Category" e-width="100"></div>
+                                <div e-column e-field="FixedAssetSubCategory" e-headertext="Asset SubCategory" e-width="100"></div>
+                                <div e-column e-field="DepreciationProcessDate" e-headertext="Depreciation Process Date" e-width="40"></div>
+                                <div e-column e-field="BaseCurrency" e-headertext="Currency" e-width="40"></div>
+                                <div e-column e-field="FixedAssetDepreciationAmount" e-headertext="Depreciation Amount" e-width="80"></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <ul class="common-btn list-inline text-right">
-                    <li><button ng-click="closeFixedAssetDisposePopUp();" class="btn"> Close</button></li>
+                    <li><button ng-click="closeFixedAssetDepreciationPopUp();" class="btn"> Close</button></li>
                 </ul>
-                <i>**Showing top 100  order by Dispose No</i>
+                <i>**Showing top 100  order by Depreciation Process Date</i>
             </div>
         </div>
     </div>
 </div>
 
-
-
-@Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetRegisterPopUp.cshtml")
-@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>

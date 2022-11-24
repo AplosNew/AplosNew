@@ -336,7 +336,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
     $scope.MaintenanceStatusDetailsReport = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'XlsMaintenanceStatusDetails?todate=' + $scope.statusNew.ToDateMD + '&fromDate=' + $scope.statusNew.FromDate,
+            url: $scope.path + 'XlsMaintenanceStatusDetails?todate=' + $scope.statusNew.ToDateMD + '&fromDate=' + $scope.statusNew.FromDateMD,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
