@@ -753,6 +753,7 @@
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
     <Compile Include="Areas\Machines\Controllers\IncedentCategoryController.cs" />
     <Compile Include="Areas\Machines\Controllers\IncedentUpdateController.cs" />
+    <Compile Include="Areas\Machines\Controllers\MaintenancePlanningReportController.cs" />
     <Compile Include="Areas\Machines\Controllers\TeamPlanReportController.cs" />
     <Compile Include="Areas\Machines\Controllers\TeamDefinitionController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSummaryReportController.cs" />
@@ -2204,6 +2205,7 @@
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
     <Content Include="Areas\Machines\Scripts\incedentCategoryController.js" />
     <Content Include="Areas\Machines\Scripts\incedentUpdateController.js" />
+    <Content Include="Areas\Machines\Scripts\maintenancePlanningReportController.js" />
     <Content Include="Areas\Machines\Scripts\teamPlanReportController.js" />
     <Content Include="Areas\Machines\Scripts\teamDefinitionController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSummaryReport.js" />
@@ -4422,6 +4424,7 @@
     <Content Include="Areas\Administration\Views\GeneralContractItemMaster\Aplos.cshtml" />
     <Content Include="Areas\Administration\Views\GeneralContract\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\TeamPlanReport\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\MaintenancePlanningReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
