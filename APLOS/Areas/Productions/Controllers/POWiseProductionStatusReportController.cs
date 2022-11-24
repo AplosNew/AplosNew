@@ -671,22 +671,15 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     partyId = "AND XMO.PartyId in(" + parameters["CustomerId"] + @")";
                 }
-                string sql = @"SELECT distinct PP.Id PSId,'' Id,trke.UserName AS Entity,PP.ProductionOrderID PONo,pp.WorkCenterMasterId,POPS.[Sequence] POProcessSequence 
-,wcm.UserName AS WorkCenter ,CPL.UserName AS ProductionShift,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,
-isnull(p.UserName,FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,ISNULL(pp.StandardName,ord.Article ) Article                  
+                string sql = @"Select A.* from (SELECT distinct PP.Id PSId,trke.UserName AS Entity,isnull(p.UserName,FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,PP.ProductionOrderID PONo,POPS.[Sequence] POProcessSequence,PSEQ.ProcessIndex 
+,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty,0) PreProUDProd,WIP=ISNULL(PSEQ.Qty-PSEQ.PreQty,0)
+
+,wcm.UserName AS WorkCenter ,CPL.UserName AS ProductionShift,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty
+,ISNULL(pp.StandardName,ord.Article ) Article                  
 ,ord.Product,BaseProcess= CASE WHEN P.IsProductionProcess=1 THEN 'Yes' ELSE '' END,PS.UserName POStatus,
-FLB.FirstBookDate,FLB.LastBookDate,ORD.FirstShipmentDate,ORD.LastShipmentDate,
-PlannedQty=CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END
+FLB.FirstBookDate,FLB.LastBookDate--,ORD.FirstShipmentDate,ORD.LastShipmentDate,
+,PlannedQty=CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END
 ,UptoDateProPercentage=(pp.Quantity/(CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END))/100,PP.LotNumber
-,sum(CASE WHEN POPS.[Sequence] = POPS.[Sequence] THEN (pp.Quantity) ELSE 0 END) 
-over (partition by POPS.[Sequence], PP.ProductionOrderID) as UpToDateProduction
-
-,sum(CASE WHEN POPS.[Sequence] = POPS.[Sequence]-1 THEN (pp.Quantity) ELSE 0 END) 
-over (partition by POPS.[Sequence], PP.ProductionOrderID) as CurrentProduction
-
-,WIP=sum(CASE WHEN POPS.[Sequence] = POPS.[Sequence] THEN (pp.Quantity) ELSE 0 END) 
-over (partition by POPS.[Sequence], PP.ProductionOrderID)-sum(CASE WHEN POPS.[Sequence] = POPS.[Sequence]-1 THEN (pp.Quantity) ELSE 0 END) 
-over (partition by POPS.[Sequence], PP.ProductionOrderID) 
 --additional info
 		,Customer= REPLACE(REPLACE(
 										              STUFF((select distinct ','+XP.UserName from 
@@ -757,12 +750,12 @@ LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
 LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
 LEFT JOIN trn.ProductionOrderProcessSet POPS ON POPS.ProductionOrderId=PO.Id AND POPS.ProcessId=pp.ProcessId
 left outer join (
-select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory,FLSD.FirstShipmentDate,FLSD.LastShipmentDate,
-SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
+select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory--,FLSD.FirstShipmentDate,FLSD.LastShipmentDate,
+,SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
 SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
 from trn.ProductionOrderDetail POD 
 left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
-LEFT JOIN(Select FORMAT(MIN(DeliveryDate),'dd-MMM-yyyy') FirstShipmentDate,  FORMAT(MAX(DeliveryDate),'dd-MMM-yyyy') LastShipmentDate,Id from trn.SalesOrder Group BY Id) AS FLSD ON FLSD.Id=pod.SalesOrderId
+--LEFT JOIN(Select FORMAT(MIN(DeliveryDate),'dd-MMM-yyyy') FirstShipmentDate,  FORMAT(MAX(DeliveryDate),'dd-MMM-yyyy') LastShipmentDate,Id from trn.SalesOrder Group BY Id) AS FLSD ON FLSD.Id=pod.SalesOrderId
 left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
 left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
 left join MasterOrderExchangeRates RT ON RT.TransactionId=MO.Id
@@ -775,12 +768,33 @@ LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
 left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
 left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
 left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId,FLSD.FirstShipmentDate,FLSD.LastShipmentDate
+group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId--,FLSD.FirstShipmentDate,FLSD.LastShipmentDate
 ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
 LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
-                                            Where TRKE.Id in(" + parameters["EntityId"] + @")
+LEFT JOIN(
+SELECT T1.*,T2.Qty PreQty FROM
+(Select A.*,ROW_NUMBER() OVER(partition by A.ProductionOrderId ORDER BY A.Sequence) ProcessIndex
+from (select PS.ProductionOrderId,PSQ.Sequence, sum(PS.Quantity)Qty from TRN.ProductionSummary PS
+LEFT JOIN TRN.ProductionOrder P ON P.Id=PS.ProductionOrderId
+LEFT JOIN TRN.ProductionOrderProcessSet PSQ ON PSQ.ProductionOrderId=P.Id AND PSQ.ProcessId=PS.ProcessId
+LEFT JOIN HKP.ProductionStatus PRS ON PRS.Id=P.ProductionStatusId
+LEFT JOIN HKP.Process PRO ON PRO.Id=PS.ProcessId
+Where PRS.Id in(" + parameters["ProductionStatusId"] + @") AND ISNULL(PSQ.Sequence,0)<>0
+GROUP BY PS.ProductionOrderId,PSQ.Sequence
+) A )T1
+LEFT JOIN (Select A.*,ROW_NUMBER() OVER(partition by A.ProductionOrderId ORDER BY A.Sequence)+1 ProcessIndex
+from (select PS.ProductionOrderId,PSQ.Sequence, sum(PS.Quantity)Qty from TRN.ProductionSummary PS
+LEFT JOIN TRN.ProductionOrder P ON P.Id=PS.ProductionOrderId
+LEFT JOIN TRN.ProductionOrderProcessSet PSQ ON PSQ.ProductionOrderId=P.Id AND PSQ.ProcessId=PS.ProcessId
+LEFT JOIN HKP.ProductionStatus PRS ON PRS.Id=P.ProductionStatusId
+LEFT JOIN HKP.Process PRO ON PRO.Id=PS.ProcessId
+Where PRS.Id in(" + parameters["ProductionStatusId"] + @") AND ISNULL(PSQ.Sequence,0)<>0
+GROUP BY PS.ProductionOrderId,PSQ.Sequence
+) A )T2 ON T1.ProcessIndex=T2.ProcessIndex AND  T1.ProductionOrderId=T2.ProductionOrderId
+) PSEQ ON PSEQ.ProductionOrderId=PP.ProductionOrderID AND POPS.[Sequence]=PSEQ.Sequence
+Where TRKE.Id in(" + parameters["EntityId"] + @")
 AND ISNULL(PP.ResponsiblePersonId,'') in(" + parameters["ResponsiblePersonId"] + @")
-AND ps.Id in(" + parameters["ProductionStatusId"] + @") order by ActualDate ";
+AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.PONo,A.POProcessSequence ";
 
 
                 data = _sqlRepository.GetDataTable(sql);
