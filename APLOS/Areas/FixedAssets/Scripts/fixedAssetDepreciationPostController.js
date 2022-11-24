@@ -239,7 +239,7 @@ function fixedAssetDepreciationPostController(accountService, cboService, common
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.fixedAssetDepreciationJVList,
-                        "farDepreciationDetailList": $scope.fixedAssetDepreciationDetailList
+                        "fixedAssetDepreciationList": $scope.fixedAssetDepreciationDetailList
                     },
                     dataType: "JSON"
                     , contentType: "application/json charset=utf-8"

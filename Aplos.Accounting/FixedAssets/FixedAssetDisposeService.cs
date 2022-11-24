@@ -26,6 +26,7 @@ using Library.Model.Currencies;
 using Library.Model.Invoices;
 using Library.Model.Parties;
 using Library.Service.Core;
+using Library.ViewModel.Accounts;
 
 namespace Library.Accounting.FixedAssets
 {
@@ -576,7 +577,7 @@ namespace Library.Accounting.FixedAssets
         }
 
         public void InsertFixedAssetDepreciationPosting(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-           , IEnumerable<FixedAssetRegisterDisposedDetail> farDisposeDetailList)
+           , IEnumerable<FixedAssetDepreciationProcessVM> fixedAssetDepreciationList)
         {
             try
             {
@@ -615,7 +616,7 @@ namespace Library.Accounting.FixedAssets
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
 
                 var currentVoucherDetaiRecord = 0;
-                var currentInvoiceDetail = 0;
+               
 
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
@@ -679,36 +680,9 @@ namespace Library.Accounting.FixedAssets
                         }, ref _crvDetailCurrencyData);
                     }
                 }
-                if (farDisposeDetailList != null)
+                if (fixedAssetDepreciationList != null)
                 {
-                    foreach (var item in farDisposeDetailList)
-                    {
-
-                        var faRegisterDispose = new FixedAssetRegisterDisposed
-                        {
-                            DisposedVoucherId = voucher.Id,
-                            Id = item.FixedAssetRegisterDisposedId,
-                            Status = voucherVM.Status,
-                            Remarks = voucherVM.Remarks,
-                            EmployeeId = voucherVM.EmployeeId,
-                            PartyId = voucherVM.PartyId,
-                            PartyPlantId = voucherVM.PartyPlantId,
-                            DocDate = voucherVM.DocDate,
-                            AddedBy = item.AddedBy,
-                            AddedDate = item.AddedDate,
-                            AddedFromIP = item.AddedFromIP
-                        };
-                        UpdateFixedAssetRegisterDispose(faRegisterDispose, ref _frDisposeData);
-
-                        var faRegister = new FixedAssetRegister
-                        {
-                            DisposedVoucherId = voucher.Id,
-                            DisposedDate = voucher.PostingDate,
-                            Id = item.FixedAssetRegisterId
-                        };
-                        UpdateFixedAssetRegister(faRegister, ref _fixedAssetRegisterData);
-
-                    }
+                   //
                 }
                
                 clsStaticInfo objApp = new clsStaticInfo();
