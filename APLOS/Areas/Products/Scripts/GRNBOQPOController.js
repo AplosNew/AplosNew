@@ -1875,7 +1875,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         for (var j = 0; j < $scope.POMaterialTaxList.length; j++) {
                             if (nRow.InventoryReceiveDetailId == $scope.POMaterialTaxList[j].InventoryReceiveDetailId) {
                                 $scope.POMaterialTaxList[j].TaxAmount = Math.round(($scope.MasterListNew[n].Qty * $scope.MasterListNew[n].TransactionRate) * ($scope.POMaterialTaxList[j].Percentage / 100) * 100 + Number.EPSILON) / 100;
-                                var taxAmount = + Math.round(($scope.MasterListNew[n].Qty * $scope.MasterListNew[n].TransactionRate) * ($scope.POMaterialTaxList[j].Percentage / 100) * 100 + Number.EPSILON) / 100;
+                                taxAmount +=  Math.round(($scope.MasterListNew[n].Qty * $scope.MasterListNew[n].TransactionRate) * ($scope.POMaterialTaxList[j].Percentage / 100) * 100 + Number.EPSILON) / 100;
                                 $scope.NewPOMaterialTaxList.push($scope.POMaterialTaxList[j]);
                             }
                         }
@@ -1889,20 +1889,19 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 }
                 else {
                     for (var x = 0; x < $scope.MasterList.length; x++) {
-                        var taxAmount = 0;
+                        var taxAmountUpdate = 0;
                         if ($scope.POMaterialTaxList.length > 0) {
                             for (var k = 0; k < $scope.POMaterialTaxList.length; k++) {
                                 if ($scope.MasterListNew[n].InventoryReceiveDetailId == $scope.POMaterialTaxList[k].InventoryReceiveDetailId) {
                                     $scope.POMaterialTaxList[k].TaxAmount = Math.round(($scope.MasterListNew[n].Qty * $scope.MasterListNew[n].TransactionRate) * ($scope.POMaterialTaxList[k].Percentage / 100) * 100 + Number.EPSILON) / 100;
-                                    var taxAmount = + Math.round(($scope.MasterListNew[n].Qty * $scope.MasterListNew[n].TransactionRate) * ($scope.POMaterialTaxList[k].Percentage / 100) * 100 + Number.EPSILON) / 100;
+                                    taxAmountUpdate +=  Math.round(($scope.MasterListNew[n].Qty * $scope.MasterListNew[n].TransactionRate) * ($scope.POMaterialTaxList[k].Percentage / 100) * 100 + Number.EPSILON) / 100;
                                     $scope.NewPOMaterialTaxList.push($scope.POMaterialTaxList[k]);
                                 }
                             }
                         }
-                        
                         if ($scope.MasterList[x].InventoryReceiveDetailId == nRow.InventoryReceiveDetailId  && nRow.check) {
                             var Qty = nRow.TransactionQty;
-                            $scope.MasterList[x].BaseTaxAmount += taxAmount;
+                            $scope.MasterList[x].BaseTaxAmount += taxAmountUpdate;
                             $scope.MasterList[x].TransactionQty = $scope.MasterList[x].TransactionQty + parseFloat(Qty);
                             $scope.MasterList[x].POQty += $scope.MasterList[x].POQty;
                             $scope.MasterList[x].Balance += $scope.MasterList[x].Balance;
