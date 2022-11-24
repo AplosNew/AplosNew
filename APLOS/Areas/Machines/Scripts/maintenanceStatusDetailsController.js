@@ -147,6 +147,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
     $scope.Test = null;
     $scope.MachineId = null;
     $scope.MaintenanceId = null;
+    $scope.EntityId = null;
     $scope.MaintenanceStatusPlannedDetailsList = [];
     $scope.GetAssetPopUp = function (data, sample) {
         $scope.Test = sample;
@@ -155,9 +156,10 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
         }
         $scope.MachineId = data.data.MachineId;
         $scope.MaintenanceId = data.data.Id;
+        $scope.EntityId = data.data.EntityId;
         $http({
             method: 'Get',
-            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&Value=' + $scope.Test
+            url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&EntityId=' + $scope.EntityId + '&Value=' + $scope.Test
         }).then(function successCallback(response) {
             $scope.MaintenanceStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
