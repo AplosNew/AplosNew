@@ -1114,7 +1114,7 @@ upanelApp.controller("ParameterMasterController", ParameterMasterController)
 upanelApp.controller("ParameterController", ParameterController)
 upanelApp.controller("GeneralContractItemMasterController", GeneralContractItemMasterController)
 upanelApp.controller("GeneralContractController", GeneralContractController)
-
+upanelApp.controller("maintenancePlanningReportController", maintenancePlanningReportController)
 upanelApp.controller("teamPlanReportController", teamPlanReportController)
 
 

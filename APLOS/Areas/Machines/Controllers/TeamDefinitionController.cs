@@ -409,7 +409,7 @@ left join ORG.Position P on P.Id = MB.PositionId
 left join MST.DesignationMaster DM on DM.DesignationId = P.DesignationId
 left join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
 left Join [TRN].[TeamDefinitionEmployee] TDE ON TDE.EmployeeId=EI.SystemId and TDE.TeamDefinitionId='" + TeamId + @"'
-where EI.BudgetCode in (select BudgetCodeId from [TRN].[TeamBudgetCode] where TeamDefinitionId='" + TeamId + "')";
+where EI.EmployeeStatus='Active' and EI.BudgetCode in (select BudgetCodeId from [TRN].[TeamBudgetCode] where TeamDefinitionId='" + TeamId + "')";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
