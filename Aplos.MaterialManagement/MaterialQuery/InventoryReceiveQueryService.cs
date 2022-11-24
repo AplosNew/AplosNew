@@ -3553,7 +3553,7 @@ namespace Aplos.MaterialManagement
 			try
 			{
 				var sql = @" SELECT DISTINCT mm.UserName MaterialName,boq.MaterialMasterId,mma.StandardName ArticleName
-							,boq.ArticleId,boq.RMCustomerSpec CustomerRefNo,boq.RMVendorSpec VendorRefNo,boq.OwnReferenceNo ,0 Active
+							,boq.ArticleId,ISNULL(boq.RMCustomerSpec,'') CustomerRefNo,ISNULL(boq.RMVendorSpec,'') VendorRefNo,ISNULL(boq.OwnReferenceNo,'') OwnReferenceNo ,0 Active
 							FROM  TRN.POBOQMAP poboq
 							LEFT JOIN BOQ  boq ON poboq.BOQDetailId=boq.Id
 						    JOIN TRN.PurchaseOrderDetail pod ON pod.Id=poboq.PODetailId
@@ -6076,7 +6076,9 @@ namespace Aplos.MaterialManagement
 				{
 
 
-					parameters.CmdText = @"SELECT mrm.Id RequisitionNo,PRD.RequisitionDetailId ReqDetailId,PRD.PODetailId,mm.UserName Material,mma.StandardName Articel,mrd.TransactionQty Qty,0 TransactionQty,uom.UserName UOM,ei.EmployeeName RequisitionBy
+					parameters.CmdText = @"SELECT mrm.Id RequisitionNo,PRD.RequisitionDetailId ReqDetailId,PRD.PODetailId
+						 ,mm.UserName Material,mma.StandardName Articel,mrd.TransactionQty Qty,0 TransactionQty,uom.UserName UOM
+						 ,ei.EmployeeName RequisitionBy,mrd.MaterialMasterId,mrd.ArticleId
 						 FROM trn.MaterialRequsitionDetails mrd 
 						 JOIN trn.MaterialRequsitionMaster mrm on mrm.Id=mrd.MaterialReqqusitionMasterId
 						 JOIN TRN.PoRequisitionDetail PRD ON PRD.RequisitionDetailId=mrd.Id
@@ -6086,7 +6088,7 @@ namespace Aplos.MaterialManagement
 						 LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=mrd.ArticleId
 						 LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=mrm.ReqEmpId
 						 LEFT JOIN SCS.UnitOfMeasurement uom on uom.Id=mrd.TransactionUoMId
-						 WHERE po.id in ("+ poIds + ") ";
+						 WHERE po.id in (" + poIds + ") ";
 				}
 				
 				return _sqlRepository.GetDifferentGridData(parameters);

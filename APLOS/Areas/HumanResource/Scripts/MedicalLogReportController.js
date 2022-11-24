@@ -22,7 +22,7 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
 
     $scope.openEmpPopUp = function () {
         angular.element(document.querySelector('#empPopUpId')).modal('show');
-
+        $scope.GetMedicalLogEmployee();
     }
 
     $scope.closeEmpPopUp = function () {
@@ -75,6 +75,21 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
                 });
     }
     // #endregion Medince Stock 
+
+    // Medical Log Employee
+    $scope.MedicalLogEmp = []
+    $scope.GetMedicalLogEmployee = function () {
+        $http.get('HumanResource/MedicalLogReport/GetMedicalLogEmployee')
+            .then(
+                function successCallback(response) {
+
+                    $scope.MedicalLogEmp = response.data;
+
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
 
     $scope.ModelTemp = {
         FromDate: null,

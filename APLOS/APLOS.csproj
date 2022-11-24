@@ -387,6 +387,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="Areas\Administration\Controllers\GeneralContractController.cs" />
+    <Compile Include="Areas\Administration\Controllers\GeneralContractItemMasterController.cs" />
     <Compile Include="Areas\Administration\Controllers\VisitorListReportController.cs" />
     <Compile Include="Areas\Administration\Controllers\VehicleMovementLocationsController.cs" />
     <Compile Include="Areas\Administration\Controllers\ServicesApprovingAuthorityController.cs" />
@@ -751,6 +753,8 @@
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
     <Compile Include="Areas\Machines\Controllers\IncedentCategoryController.cs" />
     <Compile Include="Areas\Machines\Controllers\IncedentUpdateController.cs" />
+    <Compile Include="Areas\Machines\Controllers\MaintenancePlanningReportController.cs" />
+    <Compile Include="Areas\Machines\Controllers\TeamPlanReportController.cs" />
     <Compile Include="Areas\Machines\Controllers\TeamDefinitionController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSummaryReportController.cs" />
     <Compile Include="Areas\Machines\Controllers\SpecialIssueControlReportController.cs" />
@@ -796,6 +800,7 @@
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ParameterController.cs" />
     <Compile Include="Areas\Productions\Controllers\PlanningTypesNewController.cs" />
     <Compile Include="Areas\Productions\Controllers\PrePackDefinitionController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProcessWisCapacityPlaningController.cs" />
@@ -1111,6 +1116,7 @@
     <Compile Include="Areas\Productions\Controllers\InventoryReportController.cs" />
     <Compile Include="Areas\Products\Controllers\InventoryReceiveAdditionController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionReportWithParameterController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ParameterMasterController.cs" />
     <Compile Include="Areas\Products\Controllers\SalesRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\GatePassRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\InventorySalesReportMarketingController.cs" />
@@ -1802,6 +1808,8 @@
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
+    <Content Include="Areas\Administration\Scripts\GeneralContractController.js" />
+    <Content Include="Areas\Administration\Scripts\GeneralContractItemMasterController.js" />
     <Content Include="Areas\Administration\Scripts\VisitorListReportController.js" />
     <Content Include="Areas\Administration\Scripts\VehicleMovementLocationsController.js" />
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
@@ -2197,6 +2205,8 @@
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
     <Content Include="Areas\Machines\Scripts\incedentCategoryController.js" />
     <Content Include="Areas\Machines\Scripts\incedentUpdateController.js" />
+    <Content Include="Areas\Machines\Scripts\maintenancePlanningReportController.js" />
+    <Content Include="Areas\Machines\Scripts\teamPlanReportController.js" />
     <Content Include="Areas\Machines\Scripts\teamDefinitionController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSummaryReport.js" />
     <Content Include="Areas\Machines\Scripts\specialIssueControlReportController.js" />
@@ -2250,6 +2260,8 @@
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
+    <Content Include="Areas\Productions\Scripts\ParameterController.js" />
+    <Content Include="Areas\Productions\Scripts\ParameterMasterController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionSummaryReportController.js" />
     <Content Include="Areas\Productions\Scripts\planningTypesNewController.js" />
     <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
@@ -4408,6 +4420,11 @@
     <Content Include="Areas\HumanResource\Views\EmployerMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\QualificationMaster\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\FixedAssetDepreciationPost.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\Aplos.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContractItemMaster\Aplos.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContract\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\TeamPlanReport\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\MaintenancePlanningReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4513,6 +4530,7 @@
     <Content Include="POPResources\Templates\JobWorkValAddedGRNReceiptReport20202.docx" />
     <Content Include="Areas\TaskManagement\Views\TaskManagementReport\Aplos.cshtml" />
     <Content Include="Areas\Setups\Views\BusinessProcess\DefineEnum.cshtml" />
+    <Content Include="Areas\Productions\Views\ParameterMaster\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

@@ -1110,7 +1110,12 @@ upanelApp.controller("incedentUpdateController", incedentUpdateController)
 upanelApp.controller("maintenanceSummaryReportController", maintenanceSummaryReportController)
 upanelApp.controller("POWiseProductionStatusReportController", POWiseProductionStatusReportController)
 upanelApp.controller("teamDefinitionController", teamDefinitionController)
-
+upanelApp.controller("ParameterMasterController", ParameterMasterController)
+upanelApp.controller("ParameterController", ParameterController)
+upanelApp.controller("GeneralContractItemMasterController", GeneralContractItemMasterController)
+upanelApp.controller("GeneralContractController", GeneralContractController)
+upanelApp.controller("maintenancePlanningReportController", maintenancePlanningReportController)
+upanelApp.controller("teamPlanReportController", teamPlanReportController)
 
 
 upanelApp.config(AccessControllerConfig);

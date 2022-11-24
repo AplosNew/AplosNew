@@ -14,7 +14,7 @@
     }
 
     .modellgModify {
-        width: 1800px;
+        width: 2000px;
     }
 </style>
 <div class="site-tab">
@@ -144,6 +144,7 @@
                             <div e-column e-type="string" e-field="AssetReference" e-headertext="Asset Reference" e-width="100"></div>
                             <div e-column e-type="string" e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
                             <div e-column e-type="string" e-field="ScheduleDays" e-headertext="Schedule Days" e-width="100"></div>
+                            <div e-column e-type="Date" e-field="PlannedDate" e-headertext="Planned Date" e-width="100"></div>
                             <div e-column e-type="Date" e-field="LastMaintenanceDate" e-headertext="Last Maintenance Date" e-width="100"></div>
                             <div e-column e-type="Date" e-field="CurrentMaintanceDate" e-headertext="Current Maintance Date" e-width="100"></div>
                             <div e-column e-type="string" e-field="DueDays" e-headertext="Due Days" e-width="100"></div>
@@ -233,7 +234,7 @@
                                 <div class="form-group">
                                     <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                                         <div class="common-btn">
-                                                <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardReportView?PlannedId={{data.Id}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
+                                                <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardReportView?PlannedId={{data.AssetId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
                                         </div>
                                     </div>
                                 </div>

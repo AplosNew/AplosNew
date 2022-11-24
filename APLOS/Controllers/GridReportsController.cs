@@ -258,9 +258,10 @@ namespace Aplos.Controllers
                     sheet[ROW, 1, ROW, data.Columns.Count].WrapText = true;
                     sheet[ROW, 1, ROW, data.Columns.Count].BorderAround(ExcelLineStyle.Hair);
                     sheet[ROW, 1, ROW, data.Columns.Count].BorderInside(ExcelLineStyle.Hair);
-                    sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.ColorIndex = ExcelKnownColors.Gold;
+                    sheet.Range[ROW, 1, ROW, data.Columns.Count].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                    sheet.Range[ROW, 1, ROW, data.Columns.Count].CellStyle.Font.Color = ExcelKnownColors.White;
                     sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.Font.Bold = true;
-
+                    sheet.AutoFilters.FilterRange = sheet.Range[ROW , 1, ROW, data.Columns.Count];
                     #region ******************Report Header******************
                     int endXlsCol = data.Columns.Count;
                     int xlsRow = 1, xlsCol = 1;
