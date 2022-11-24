@@ -1704,18 +1704,18 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
 					LEFT JOIN (
-									    select IID.InventoryMaterialId,IH.InventoryReceiveDetailId, II.MaterialStorageId
+									    select IID.InventoryMaterialId,IH.InventoryReceiveDetailId, IH.MaterialStorageId
                                         , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,IID.IsAsset
 									    FROM TRN.InventoryIssueDetail IID  
 									    LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
 									    WHERE --convert(Date,II.IssueDate) <= CAST('" + issueDate + @"' AS DATE)  AND 
                                         II.PlantId='" + entity.PlantId + @"'   
-									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, II.MaterialStorageId
+									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, IH.MaterialStorageId
 									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
-                    WHERE "+ tempsql + @"
+                    WHERE " + tempsql + @"
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.[Status]='Posting' AND IR.IsFOC=0
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + @"' 
@@ -1772,14 +1772,14 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
 					LEFT JOIN (
-									    select IID.InventoryMaterialId,IH.InventoryReceiveDetailId, II.MaterialStorageId
+									    select IID.InventoryMaterialId,IH.InventoryReceiveDetailId, IH.MaterialStorageId
                                         , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,IID.IsAsset
 									    FROM TRN.InventoryIssueDetail IID  
 									    LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
 									    WHERE --convert(Date,II.IssueDate) <= CAST('" + issueDate + @"' AS DATE)  AND 
                                         II.PlantId='" + entity.PlantId + @"'   
-									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, II.MaterialStorageId
+									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, IH.MaterialStorageId
 									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
