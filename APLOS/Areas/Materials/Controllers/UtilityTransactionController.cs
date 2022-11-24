@@ -57,7 +57,7 @@ namespace Aplos.Areas.Materials.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select distinct UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
 							            ,UT.Reading,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Reading
-                                        ,UT.LastReading,UT.LastReadingDate,UT.LastReadingTime
+                                        ,UT.LastReading,FORMAT(UT.LastReadingDate,'dd-MMM-yyyy')LastReadingDate,CONVERT(varchar(5),UT.LastReadingTime,108) LastReadingTime
                                         ,UT.Remarks
 							            from dbo.UtilityTransaction UT
 										left join UtilityMaster UM on UM.Id=UT.UtilityMasterId

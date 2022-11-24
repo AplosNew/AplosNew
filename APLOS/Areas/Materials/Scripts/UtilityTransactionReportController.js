@@ -4,7 +4,8 @@ function UtilityTransactionReportController(cboService, commonMessage, $scope, $
     $rootScope.title = 'Utility Transaction Report';
     $scope.UtilityTransactionList = [];
     $scope.path = 'Materials/UtilityTransactionReport/';
-    $scope.downloadgriddataUrlPath = 'Materials/UtilityTransactionReport/DownloadUsingFullPath';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+  
     baseService.init($scope.getListUrl);
 
 
@@ -114,8 +115,7 @@ function UtilityTransactionReportController(cboService, commonMessage, $scope, $
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');

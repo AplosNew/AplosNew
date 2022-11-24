@@ -14,7 +14,7 @@
                     <label class="col-sm-4 control-label">Utility Master<sup>*</sup> </label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select id="CategoryId" class="form-control" ng-model="ModelNew.UtilityMasterId" ng-change="GetEditReadingList();" name="Category" tabindex="1">
+                            <select id="CategoryId" class="form-control" ng-model="ModelNew.UtilityMasterId" ng-change="GetEditReadingList();GetUoMAndReadingApplicable();" name="Category" tabindex="1">
                                 <option value="">--Select--</option>
                                 <option ng-repeat="option in utilityMasterList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
