@@ -2485,10 +2485,10 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
 				var sql = @"SELECT IIH.Id, IIH.InventoryIssueDetailId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
                             , IRD.TransactionQty, StockQty=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN (IRD.BaseQty-ISNULL(IRD.IssueQty, 0))/BaseUoMFactor ELSE IRD.TransactionQty-ISNULL(IRD.IssueQty, 0) END
                             , TUoM.UserName AS TUoM, IRD.TransactionUoMId, IRD.BaseQty, IRD.BaseUOMId, IRD.BaseUoMFactor, IR.Id AS GRNNo, IRD.POId AS PONo
-                            , IRD.MaterialTranRate, IRD.BooksCurrencyBaseRate, TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.BooksCurrencyBaseAmount
+                            , IRD.MaterialTranRate, IRD.TrnCurrencyBaseRate BooksCurrencyBaseRate, TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.TotalMaterialBooksCurrencyAmount BooksCurrencyBaseAmount
                             , IssueQty=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId  THEN ISNULL(IRD.IssueQty, 0)/BaseUoMFactor
 				                            WHEN IRD.IssueQty IS NULL THEN 0 ELSE IRD.IssueQty END
-                            , BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.BooksCurrencyBaseAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END
+                            , BaseRate=IRD.BooksCurrencyBaseRate
                             , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS ReceiveDate, IIH.Qty AS RequisitionQty
                         FROM [TRN].[InventoryIssueHistory] AS IIH 
                         JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IIH.InventoryReceiveDetailId=IRD.Id
