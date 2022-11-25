@@ -97,7 +97,7 @@ function maintenancePlanningReportController(cboService, commonMessage, $scope, 
             dataList = $scope.MaintenancePlanningReportList;
         }
 
-        $scope.fileName = "Maintenance Planning Report";
+        $scope.fileName = "Maintenance Planning";
 
         $http({
             method: 'POST',
