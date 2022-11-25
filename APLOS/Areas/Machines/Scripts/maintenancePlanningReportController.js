@@ -5,6 +5,7 @@ function maintenancePlanningReportController(cboService, commonMessage, $scope, 
     $scope.Action = 'Save';
     $scope.path = 'Machines/MaintenancePlanningReport/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
 
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
     date.setDate(date.getDate() + 7);
@@ -68,23 +69,51 @@ function maintenancePlanningReportController(cboService, commonMessage, $scope, 
         }
     }
 
+    //$scope.MaintenancePlanningReport = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + 'XlsMaintenancePlanningReport?todate=' + $scope.statusNew.ToDateMD + '&fromDate=' + $scope.statusNew.FromDateMD,
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error === true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+
+    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
+
+    //};
+
     $scope.MaintenancePlanningReport = function () {
+        var dataList = [];
+        var g = $("#GridMaintenancePlanningReport").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.MaintenancePlanningReportList;
+        }
+
+        $scope.fileName = "Maintenance Planning Report";
+
         $http({
             method: 'POST',
-            url: $scope.path + 'XlsMaintenancePlanningReport?todate=' + $scope.statusNew.ToDateMD + '&fromDate=' + $scope.statusNew.FromDateMD,
+            url: $scope.exportgriddataUrlUpd,
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+            if (response.data.Error == true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-
                 $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
         });
-
-    };
+    }
 }
 
