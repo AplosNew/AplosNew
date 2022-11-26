@@ -964,6 +964,7 @@ namespace Library.MaterialManagement.Inventory
                                 Id = MakePK(issueDetail.Id, historyId, 2),
                                 InventoryIssueDetailId = issueDetail.Id,
                                 InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+                                MaterialStorageId= inventoryIssue.MaterialStorageId,
                                 Qty = item.RequisitionQty,
                                 // Rate = Convert.ToDecimal(item.BaseRate),
                                 Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty),4),
