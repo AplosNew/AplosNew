@@ -335,13 +335,13 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $scope.RowLength = $filter("filter")($scope.requisitionListByPo, { PODetailId: podetail.PODetailsID });
 
         for (var j = 0; j < $scope.requisitionListByPo.length; j++) {
-            if ($scope.requisitionListByPo[j].PODetailId == podetail.PODetailsID) {
+            if ($scope.requisitionListByPo[j].PODetailId == podetail.PODetailsID && $scope.requisitionListByPo[j].MaterialMasterId == podetail.MaterialMasterId) {
                 if ($scope.RowLength.length == 1) {
                     $scope.requisitionListByPo[j].TransactionQty = podetail.TransactionQty;
                     $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[j]);
                 }
                 else {
-                    var tempreqQty = Math.round($filter("sumByKey")($filter("filter")($scope.requisitionListByPo, { PODetailId: podetail.PODetailsID }), "TransactionQty") * 1000 + Number.EPSILON) / 1000;
+                    var tempreqQty = Math.round($filter("sumByKey")($filter("filter")($scope.requisitionListByPo, { PODetailId: podetail.PODetailsID, MaterialMasterId: podetail.MaterialMasterId }), "TransactionQty") * 1000 + Number.EPSILON) / 1000;
 
                     if (podetail.TransactionQty!= tempreqQty) {
                         ShowResult("Please input Requsition Qty of Row Id : " + podetail.PODetailsID + " Material "  + podetail.UserName , 'failure');
@@ -1769,13 +1769,14 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $scope.requisitionDetailList = $filter("filter")($scope.requisitionListByPo, { 'PODetailId': poDatailId, 'MaterialMasterId': materialmasterIdId, 'ArticleId': articleId});
         $scope.tempPoDetailId = poDatailId;
         $scope.tempPoqty = poqty;
+        $scope.tempMaterialId = materialmasterIdId;
         angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('show');
 
     }
     $scope.CloseRequisitionPopUP = function () {
 
 
-        var qty = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.requisitionListByPo, { 'PODetailId': $scope.tempPoDetailId })), "TransactionQty") * 1000 + Number.EPSILON) / 1000;
+        var qty = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.requisitionListByPo, { 'PODetailId': $scope.tempPoDetailId, 'MaterialMasterId': $scope.tempMaterialId})), "TransactionQty") * 1000 + Number.EPSILON) / 1000;
 
         if ($scope.tempPoqty != qty) {
             ShowResult('Requisition Allocation Qty is not equal with GRN Qty?', 'failure', 'ListOfRequisitionPopUP');
@@ -1783,6 +1784,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('hide');
             $scope.tempPoDetailId = null;
             $scope.tempPoqty = null;
+            $scope.tempMaterialId = null;
         }
      
     }
