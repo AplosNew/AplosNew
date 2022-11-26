@@ -967,6 +967,7 @@
                             <tr ng-show="inventoryMaterialListPO.length">
                                 <th>
                                 </th>
+                                <th class="col-sm-1" >Action</th>
                                 <th>QualityStatus</th>
                                 <th ng-show="x.POID !='null' && x.POID!='null'">PO Id</th>
                                 <th ng-show="x.InventoryReceiveDetailId !='null' && x.InventoryReceiveDetailId!='null'">PORowId</th> @*ng-show="x.InventoryReceiveDetailId !='null' && x.PurchaseDocAcceptanceDetailId==='null'"*@
@@ -977,7 +978,7 @@
                                 <th>Article</th>
                                 <th>Sku1</th>
                                 <th>Sku2</th>
-                                <th>Sku3</th>
+                                @*<th>Sku3</th>*@
                                 <th colspan="2" ng-show="GriddataSelected.length===0">POQty</th>
                                 <th colspan="2" ng-show="GriddataSelected.length>0">POQty</th>
                                 <th colspan="2" ng-show="GriddataSelected.length===0">AcceptanceQty</th>
@@ -1012,7 +1013,7 @@
                                 <th>MaterialLotNumber </th>
                                 <th>MaterialDiameter</th>
                                 <th>MaterialType</th>
-                                <th class="col-sm-1" colspan="2"></th>
+
                             </tr>
                             <tr ng-show="inventoryMaterialList.length">
                                 <th>
@@ -1023,6 +1024,7 @@
                                         </label>
                                     </div>
                                 </th>
+                                <th class="col-sm-1" colspan="2">Action</th>
                                 <th>QualityStatus</th>
                                 <th>PO Id</th>
                                 <th>RowId</th>
@@ -1031,7 +1033,7 @@
                                 <th>Article</th>
                                 <th>Sku1</th>
                                 <th>Sku2</th>
-                                <th>Sku3</th>
+                                @*<th>Sku3</th>*@
                                 <th>Material Storage Name</th>
                                 <th colspan="2" ng-show="GriddataSelected.length===0">POQty</th>
 
@@ -1065,7 +1067,7 @@
                                 <th>MaterialDiameter</th>
                                 <th>MaterialType</th>
 
-                                <th class="col-sm-1" colspan="2"></th>
+
                             </tr>
 
                         </thead>
@@ -1079,6 +1081,17 @@
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
+                                </td>
+                                <td class="text-right">
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                        <li><button ng-click="GetbinAllocationPopUp(x,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="Bin Allocation"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                        @*<li><button ng-click="GRNAllowcationForSOInSavingTime(x, MaterialMasterId,x.InventoryReceiveDetailId,x.PODetailsID)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation For SO" ng-hide="x.PurchaseDocumentAcceptanceId===null">Allocation For SO</button></li>*@
+                                        @*<li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
+                                        @*<li><button ng-click="PODetailsUpdatePOPUp(x.PODetailsID,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation to Requisition"><i class="glyphicon glyphicon-zoom-out"></i></button></li>*@
+                                        @*<li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
+                                        <li><button ng-click="ViewRequisitionDetail(x.InventoryReceiveDetailId,x.TransactionQty,x.MaterialMasterId,x.ArticleId)" class="btn btn-action tooltip-here" ng-disabled="x.TransactionQty==0||x.TransactionQty==''" data-placement="top" id="MEdit" title="View Requisition Detail">View Requisition Detail</button></li>
+                                    </ul>
                                 </td>
                                 <td>
                                     <div class="select-style">
@@ -1099,7 +1112,7 @@
                                 <td>{{x.StandardName}}</td>
                                 <td>{{x.FirstCharacteristicsValue}}</td>
                                 <td>{{x.SecondCharacteristicsValue}}</td>
-                                <td>{{x.ThirdCharacteristicsValue}}</td>
+                                @*<td>{{x.ThirdCharacteristicsValue}}</td>*@
                                 <td ng-show="GriddataSelected.length===0" style="width:100px;">{{x.OriginalPOQty}}</td>
                                 <td class="text-right" ng-show="GriddataSelected.length===0">{{x.TransactionUoM}}</td>
 
@@ -1154,22 +1167,12 @@
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
-                                <td class="text-right">
-                                    <ul class="list-inline action-list">
-                                        <li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                        <li><button ng-click="GetbinAllocationPopUp(x,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="Bin Allocation"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                        @*<li><button ng-click="GRNAllowcationForSOInSavingTime(x, MaterialMasterId,x.InventoryReceiveDetailId,x.PODetailsID)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation For SO" ng-hide="x.PurchaseDocumentAcceptanceId===null">Allocation For SO</button></li>*@
-                                        @*<li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
-                                        @*<li><button ng-click="PODetailsUpdatePOPUp(x.PODetailsID,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation to Requisition"><i class="glyphicon glyphicon-zoom-out"></i></button></li>*@
-                                        @*<li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
-                                        <li><button ng-click="ViewRequisitionDetail(x.InventoryReceiveDetailId,x.TransactionQty,x.MaterialMasterId,x.ArticleId)" class="btn btn-action tooltip-here" ng-disabled="x.TransactionQty==0||x.TransactionQty==''" data-placement="top" id="MEdit" title="View Requisition Detail">View Requisition Detail</button></li>
-                                    </ul>
-                                </td>
+
                                 <td></td>
                             </tr>
                             <tr ng-show="inventoryMaterialListPO.length">
                                 <td></td>
-                                <td colspan="8" class="text-right"><strong>Total : </strong></td>
+                                <td colspan="9" class="text-right"><strong>Total : </strong></td>
 
                                 <td class="text-right" ng-show="GriddataSelected.length===0"><strong>{{inventoryMaterialListPO | sumByKey : 'OriginalPOQty' }}</strong></td>
                                 <td ng-show="GriddataSelected.length===0"></td>
@@ -1285,7 +1288,7 @@
                                 <td></td>
                             </tr>
                             <tr ng-show="inventoryMaterialList.length">
-                                <td colspan="10" class="text-right"><strong>Total : </strong></td>
+                                <td colspan="9" class="text-right"><strong>Total : </strong></td>
 
                                 <td class="text-right" ng-show="GriddataSelected.length===0"><strong>{{inventoryMaterialList | sumByKey : 'OriginalPOQty' }}</strong></td>
                                 <td ng-show="GriddataSelected.length===0"></td>
