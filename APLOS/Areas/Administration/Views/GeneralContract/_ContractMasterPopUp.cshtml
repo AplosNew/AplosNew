@@ -1,0 +1,63 @@
+﻿<div class="modal fade site-modal in" id="contractmasterPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> General Contract Item Master <button type="button" class="close" ng-click="closeGeneralContractMaster();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByGeneralContractItem">
+                                            <option ng-repeat="option in GeneralContractItemSearchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchGeneralContractItem" ng-enter="getData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        
+                        <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="Apply" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
+                                <div e-column e-field="ContractMasterId" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                <div e-column e-field="Sequence" e-headertext="Seq" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                                @*<div e-column e-field="ShortName" e-headertext="Short Name" e-width="100"></div>
+        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="150"></div>*@
+                                <div e-column e-field="ContractMaster" e-headertext="Contract" e-width="130"></div>
+                                <div e-column e-field="Category" e-headertext="Category" e-width="130"></div>
+                                <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="130"></div>
+                                <div e-column e-field="Purpose" e-headertext="Purpose" e-width="130"></div>
+                                <div e-column e-field="Detail" e-headertext="Detail" e-width="130"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="130"></div>
+
+                                
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplate">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
+                        </script>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                   <li><button type="button" ng-click="AddItems()" class="btn"><i class="glyphicon glyphicon-plus"></i> Add</button></li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</div>
+

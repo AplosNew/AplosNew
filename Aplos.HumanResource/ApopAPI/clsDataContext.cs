@@ -305,6 +305,52 @@ namespace HRService
             }
         }
 
+
+        #region MyAppIcon Default
+        public void getmyappicon(out List<DefaultMyAppIconList> DataList, string Iconid)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<DefaultMyAppIconList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"SELECT p.RoleId AS RoleId, p.ModuleId As ModuleId, p.IconId As IconID, c.name AS RoleName ,  mp.ModuleName As ModuleName, 
+mi.IconName As IconName, c.Active 
+FROM SEC.AppRoleDetail AS p
+LEFT JOIN SEC.AppRole AS c ON p.RoleId = c.id
+LEFT JOIN dbo.MobileAppModule AS mp ON p.ModuleId = mp.id
+LEFT JOIN dbo.MobileAppIcon AS mi ON p.IconId = mi.id    where RoleId = '7' AND IconId = '" + Iconid + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new DefaultMyAppIconList
+                    {
+                        RoleId = dsRef.Tables[0].Rows[i]["RoleId"].ToString(),
+                        ModuleId = dsRef.Tables[0].Rows[i]["ModuleId"].ToString(),
+                        IconID = dsRef.Tables[0].Rows[i]["IconID"].ToString(),
+                        RoleName = dsRef.Tables[0].Rows[i]["RoleName"].ToString(),
+                        ModuleName = dsRef.Tables[0].Rows[i]["ModuleName"].ToString(),
+                        IconName = dsRef.Tables[0].Rows[i]["IconName"].ToString(),
+                        Active = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["Active"]),
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion MyAppIcon Default
+
         public void getDetentionType(out List<DetentionTypeList> DataList)
         {
             clsConnectionManager objCon = null;
@@ -448,6 +494,44 @@ namespace HRService
                     DataList.Add(new DetentionIssueByNo
                     {
                         IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        // for myapp default list
+        public void GetMyAppDefault(out List<MyAppDefaultlist> DataList, string IconName)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<MyAppDefaultlist>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                strSQL = @"select * from dbo.MyAppDefalt where IconName = '" + IconName + "'";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new MyAppDefaultlist
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        MenuName = dsRef.Tables[0].Rows[i]["MenuName"].ToString(),
+                        IconName = dsRef.Tables[0].Rows[i]["IconName"].ToString(),
 
                     });
                 }
@@ -1661,6 +1745,12 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string DayStatus { get; set; } = "";
     }
 
+    public class MyAppDefaultlist
+    {
+        public string Id { get; set; } 
+        public string MenuName { get; set; } 
+        public string IconName { get; set; } 
+    }
     #region Written by Nitesh
 
 
@@ -1692,6 +1782,17 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Section { get; set; }
         public string SubSection { get; set; }
         public string LegalDesignation { get; set; }
+    }
+
+    public class DefaultMyAppIconList
+    {
+        public string RoleId { get; set; }
+        public string ModuleId { get; set; }
+        public string IconID { get; set; }
+        public string RoleName { get; set; }
+        public string ModuleName { get; set; }
+        public string IconName { get; set; }
+        public bool Active { get; set; }
     }
 
     public class DetentionIssueByNo
