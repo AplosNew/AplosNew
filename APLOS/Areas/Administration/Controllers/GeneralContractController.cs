@@ -32,6 +32,35 @@ namespace Aplos.Areas.Administration.Controllers
         #region GetFunction
 
         [HttpGet, Authorize]
+        public ActionResult GetHeaderList()
+        {
+            return Json(ci.GetHeaderList(), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetContractItemDetail(string gcId)
+        {
+            return Json(ci.GetContractItemDetail(gcId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetCheckByList(string gcId)
+        {
+            return Json(ci.GetCheckByList(gcId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetApproveByList(string gcId)
+        {
+            return Json(ci.GetApproveByList(gcId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSaveEntityList(string gcId)
+        {
+            return Json(ci.GetSaveEntityList(gcId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetContractMaster()
         {
             return Json(gc.GetContractMaster(), JsonRequestBehavior.AllowGet);
