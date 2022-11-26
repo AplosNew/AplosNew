@@ -512,9 +512,12 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("UtilityGroupController", UtilityGroupController)
     
     
-.controller("ExperienceMasterController", ExperienceMasterController)
-.controller("EmployerMasterController", EmployerMasterController)
-.controller("QualificationMasterController", QualificationMasterController)
+    .controller("ExperienceMasterController", ExperienceMasterController)
+    .controller("EmployerMasterController", EmployerMasterController)
+    .controller("QualificationMasterController", QualificationMasterController)
+    .controller("UserAppAuthenticationController", UserAppAuthenticationController)
+    .controller("AppRoleController", AppRoleController)
+    .controller("UserAccessAppRoleController", UserAccessAppRoleController)
     
 
     .config(accountConfig)

@@ -153,5 +153,17 @@ function SecurityConfig($routeProvider, $locationProvider) {
             templateUrl: 'Securities/LIC/Aplos',
             controller: 'LICController'
         })
+        .when('/user-app-authentication', {
+            templateUrl: 'Securities/UserAppAuthentication/Aplos',
+            controller: 'UserAppAuthenticationController'
+        })
+        .when('/app-role', {
+            templateUrl: 'Securities/AppRole/Aplos',
+            controller: 'AppRoleController'
+        })
+        .when('/user-app-role', {
+            templateUrl: 'Securities/UserAccessAppRole/Aplos',
+            controller: 'UserAccessAppRoleController'
+        })
         ;
 }

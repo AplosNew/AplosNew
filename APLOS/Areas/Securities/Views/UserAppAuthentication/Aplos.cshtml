@@ -1,0 +1,70 @@
+﻿<h3 class="site-heading" style="cursor:default"><span class="glyphicon glyphicon-info-sign"></span>App Role Privileges</h3>
+<div class="form-horizontal form-elements" ng-form>
+    <input type="hidden" ng-model="roleDetail.UserId">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6" style="margin-top: 8px;">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Role<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Role" ng-model="userAccessApp.RoleId" id="roleId"
+                                required tabindex="1">
+                            <option value=""></option>
+                            <option ng-repeat="option in roleList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Icon<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Role" ng-model="userAccessApp.IconId" id="roleId"
+                                required tabindex="1">
+                            <option value=""></option>
+                            <option ng-repeat="option in IconList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6" style="padding-top: 11px;">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Module<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Module" ng-change="geticon();" ng-model="userAccessApp.ModuleId"
+                                required tabindex="1">
+                            <option value=""></option>
+                            <option ng-repeat="option in ModuleList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn" tabindex="5"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+
+        </ul>
+    </div>
+</div>
+
+<div class="table-responsive aplos-grid-toggle" style="margin-top: 10px ">
+    <div id="GridEdit" ej-grid e-datasource="RoleList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="RoleName" e-headertext="Role Name" e-width="80"></div>
+
+            <div e-column e-field="ModuleName" e-headertext="Module Name" e-width="100"></div>
+            <div e-column e-field="IconName" e-headertext="Icon Name" e-width="50"></div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+

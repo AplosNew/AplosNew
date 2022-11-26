@@ -122,9 +122,19 @@ function MachineConfig($routeProvider, $locationProvider) {
             controller: 'maintenanceSummaryReportController'
         })
 
+        .when('/maintenance-planning-report', {
+            templateUrl: 'Machines/MaintenancePlanningReport/Aplos',
+            controller: 'maintenancePlanningReportController'
+        })
+
         .when('/team-definition', {
             templateUrl: 'Machines/TeamDefinition/Aplos',
             controller: 'teamDefinitionController'
+        })
+
+        .when('/team-plan-report', {
+            templateUrl: 'Machines/TeamPlanReport/Aplos',
+            controller: 'teamPlanReportController'
         })
 
         .when('/machine-masters', {
