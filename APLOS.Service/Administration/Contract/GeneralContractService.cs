@@ -607,6 +607,120 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
             dr.EndEdit();
         }
         #endregion CREATE AND EDIT DEFAULT COLUMN
+
+        public IEnumerable<object> GetHeaderList() 
+        {
+            try
+            {
+                var sql = @"select GC.Id, GC.ShortName, GC.StandardName, GC.UserName, GC.FileName, GC.PartyId, P.UserName PartyName, P.Code PartyCode from MST.GeneralContract GC
+                            left join HKP.Party P on P.Id = GC.PartyId
+                            order by Id ASC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetContractItemDetail(string gcId)
+        {
+            try
+            {
+                var sql = @"select CI.Id, CI.ContractMasterId, GCIM.UserName ContractMaster, CI.GeneralContractId, GC.UserName GeneralContract, 
+                            CI.MinQty, CI.MaxQty, CI.AvgQty, CI.Rate, CI.EffectiveDate
+                            from MST.ContractItemDetail CI
+                            left join MST.GeneralContract GC on GC.Id = CI.GeneralContractId
+                            left join HKP.GeneralContractItemMaster GCIM on GCIM.Id = CI.ContractMasterId
+                            where GC.Id = '"+gcId+"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetCheckByList(string gcId)
+        {
+            try
+            {
+                var sql = @"select CB.Id, CB.isCheck, EI.SystemId, EI.EmployeeCode, EI.EmployeeName, FORMAT(EI.DOJ, 'dd-MMM-yyyy')DOJ,
+DP.UserName as Department, LDSG.StandardName as Designation, SC.UserName as Section, GDSG.UserName LegalDesignation,                           
+ SBC.UserName as SubSection, CB.GeneralContractId, GC.UserName GeneralContract
+from MST.GeneralContractCheckBy CB
+left join MST.GeneralContract GC on GC.Id = CB.GeneralContractId 
+left join EmployeeInformation EI on EI.SystemId = CB.SystemId
+ LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = ei.BudgetCode
+                            LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                            left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                            left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                            left join ORG.Department DP on DP.ID = POS.DepartmentId
+                            left join ORG.Section SC on SC.Id = POS.SectionId
+                            left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                            LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=ei.DesignationGroupId
+                            LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                            LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=ei.LegalDesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                            left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+							where GC.Id = '" + gcId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetApproveByList(string gcId)
+        {
+            try
+            {
+                var sql = @"select AB.Id, AB.isApprove, EI.SystemId, EI.EmployeeCode, EI.EmployeeName, FORMAT(EI.DOJ, 'dd-MMM-yyyy')DOJ,
+DP.UserName as Department, LDSG.StandardName as Designation, SC.UserName as Section, GDSG.UserName LegalDesignation,                           
+ SBC.UserName as SubSection, AB.GeneralContractId, GC.UserName GeneralContract
+from MST.GeneralContractApproveBy AB
+left join MST.GeneralContract GC on GC.Id = AB.GeneralContractId 
+left join EmployeeInformation EI on EI.SystemId = AB.SystemId
+ LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = ei.BudgetCode
+                            LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                            left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                            left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                            left join ORG.Department DP on DP.ID = POS.DepartmentId
+                            left join ORG.Section SC on SC.Id = POS.SectionId
+                            left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                            LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=ei.DesignationGroupId
+                            LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                            LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=ei.LegalDesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                            left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+							where GC.Id = '" + gcId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSaveEntityList(string gcId)
+        {
+            try 
+            {
+                var str = @"select GE.Id, GE.EntityId, E.EntityType, E.UserName, E.Code, G.Id from MST.GeneralContractEntity GE
+left join org.Entity E on E.Id = GE.EntityId
+left join MST.GeneralContract G on G.Id = GE.GeneralContractId
+where G.Id = '"+gcId+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
+        }
     }
     #endregion GeneralContract
 }

@@ -12,6 +12,59 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
     $scope.partyType = 'Vendor';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
 
+    $scope.HeaderList = [];
+    $scope.GetHeaderList = function () {
+        $http.get('Administration/GeneralContract/GetHeaderList')
+            .then(function successCallback(response) {
+                $scope.HeaderList = response.data;
+            })
+    }
+    $scope.GetHeaderList();
+
+    $scope.contractItemDetail = []
+    $scope.GetContractItemDetail = function () {
+        $http.get('Administration/GeneralContract/GetContractItemDetail?gcId=' + $scope.ModelNew.Id)
+            .then(function successCallback(response) {
+                $scope.SelectedItemList = response.data;
+            })
+    }
+    $scope.GetCheckByList = function () {
+        $http.get('Administration/GeneralContract/GetCheckByList?gcId=' + $scope.ModelNew.Id)
+            .then(function successCallback(response) {
+                $scope.SelectedCheckedByList = response.data;
+            })
+    }
+    $scope.GetApproveByList = function () {
+        $http.get('Administration/GeneralContract/GetApproveByList?gcId=' + $scope.ModelNew.Id)
+            .then(function successCallback(response) {
+                $scope.SelectedApprovedByList = response.data;
+            })
+    }
+
+    $scope.GetSaveEntityList = function () {
+        $http.get('Administration/GeneralContract/GetSaveEntityList?gcId=' + $scope.ModelNew.Id)
+            .then(function successCallback(response) {
+                $scope.SelectedEntityList = response.data;
+            })
+    }
+
+    // #region Double Tap open grid
+    $scope.Get = function (args) {
+        $scope.ModelNew.PartyId = args.data.PartyId;
+        $scope.ModelNew.PartyName = args.data.PartyName;
+        $scope.ModelNew.PartyCode = args.data.PartyCode;
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.GetContractItemDetail();
+        $scope.GetCheckByList();
+        $scope.GetApproveByList();
+        $scope.GetSaveEntityList();
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+
+        }
+    };
+    // #endregion Double Tap open grid
 
     $scope.partyParameters = {
         limit: 10
@@ -164,10 +217,10 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#contractmasterPopup')).modal('hide');
         
     }
-    $scope.Get = function (args) {
-        $scope.ModelNew = Object.assign({}, args.data);
-        angular.element(document.querySelector('#contractmasterPopup')).modal('show');
-    };
+    //$scope.Get = function (args) {
+    //    $scope.ModelNew = Object.assign({}, args.data);
+    //    angular.element(document.querySelector('#contractmasterPopup')).modal('show');
+    //};
 
     $scope.GetContractMaster = function () {
         $http.get('Administration/GeneralContract/GetContractMaster')
@@ -178,10 +231,10 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
     // #endregion General Contract Item Master
 
     // #region Double Tap open grid
-    $scope.Get = function (args) {
-        $scope.ModelNew = Object.assign({}, args.data);
-        angular.element(document.querySelector('#contractmasterPopup')).modal('hide');
-        }
+    //$scope.Get = function (args) {
+    //    $scope.ModelNew = Object.assign({}, args.data);
+    //    angular.element(document.querySelector('#contractmasterPopup')).modal('hide');
+    //    }
     
     // #endregion Double Tap open grid
 
