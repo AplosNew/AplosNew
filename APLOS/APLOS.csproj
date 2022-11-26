@@ -4429,6 +4429,11 @@
     <Content Include="Areas\Productions\Views\Parameter\Aplos.cshtml" />
     <Content Include="Areas\Administration\Views\GeneralContractItemMaster\Aplos.cshtml" />
     <Content Include="Areas\Administration\Views\GeneralContract\Aplos.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContract\_ContractMasterPopUp.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContract\_EmployeePopUp.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContract\_ApprovedByPopUp.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContract\_EntityPopUp.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContract\_VendorEmployeePopUp.cshtml" />
     <Content Include="Areas\Machines\Views\TeamPlanReport\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\MaintenancePlanningReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
