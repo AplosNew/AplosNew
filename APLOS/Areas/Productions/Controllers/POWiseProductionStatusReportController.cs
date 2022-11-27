@@ -254,12 +254,37 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult ProductionDataXls(Dictionary<string, string> parameters)
+        public ActionResult ProductionDataXls(List<Dictionary<string, object>> data, string reportFileName)
         {
             try
             {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+                //string filename = GridToExcelReportUpd(dt, "", reportFileName);
+
                 string fileName = "";
-                fileName = ProductionDataReport(parameters, "Production Report");
+                fileName = ProductionDataReport(dt, "", reportFileName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -267,6 +292,321 @@ namespace Aplos.Areas.Productions.Controllers
                 throw ex;
             }
 
+        }
+
+        public string ProductionDataReport(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[0].Name = "ProductionData";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEntity = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Process";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProcess = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "POProcessSequence";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOProcessSeq = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "StandardProcessSequence";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardProcessSeq = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "ProcessIndex";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProcessIndex = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "BaseProcessApplicable";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colBaseProcessApplicable = COL;
+
+
+                COL++;
+                sheet[ROW, COL].Text = "POProcessStatus";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOProcessStatus = COL;
+
+                COL++;
+                int colstart = COL;
+                sheet[ROW, COL].Text = "PONo";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProductionOrderID = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "POStatus";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOStatus = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "WorkCenter";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colWorkCenter = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Shift";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colShift = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPlanDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Buyer";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colbuyer = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colCustomer = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "LotNumber";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colLotNumber = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "OwnOrderNo";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colOwnOrderNo = COL;
+
+                //COL++;
+                //sheet[ROW, COL].Text = "OwnItemNo";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int colOwnStyleNo = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "SalesOrderIds";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSalesOrderIds = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Product";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProduct = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int colArticle = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "WorkStation";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colWorkStation = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "WorkingHours";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colActualWorkHours = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "PlannedQty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPlannedQty = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "ProductionQty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colActualQty = COL;
+
+
+                COL++;
+                sheet[ROW, COL].Text = "UpToDateProduction";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colUpToDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "PreProUDProd";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPreProUDProd = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "WIP";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colWIP = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "UptoDateProPercentage";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colUptoDateProduction = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "FirstBookDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colFirstProBookDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "LastBookDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLastProBookDate = COL;
+
+                //COL++;
+                //sheet[ROW, COL].Text = "FirstShipmentDate";
+                //sheet[ROW, COL].ColumnWidth = 12;
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colFirstshipmentDate = COL;
+
+                //COL++;
+                //sheet[ROW, COL].Text = "LastShipmentDate";
+                //sheet[ROW, COL].ColumnWidth = 12;
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colLastshipmentDate = COL;
+
+               
+
+                //COL++;
+                //sheet[ROW, COL].Text = "RelayProcess";
+                //sheet[ROW, COL].ColumnWidth = 12;
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colRelayProcess = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int LastRow = ROW + (data.Rows.Count - 1);
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, colEntity].Text = data.Rows[i]["Entity"].ToString();
+                    sheet[ROW, colProcess].Text = data.Rows[i]["Process"].ToString();
+                    sheet[ROW, colPOProcessSeq].Number = clsStaticInfo.dbl(data.Rows[i]["POProcessSequence"].ToString());
+                    sheet[ROW, colStandardProcessSeq].Number = clsStaticInfo.dbl(data.Rows[i]["StandardProcessSequence"].ToString());
+                    sheet[ROW, colProcessIndex].Number = clsStaticInfo.dbl(data.Rows[i]["ProcessIndex"].ToString());
+                    sheet[ROW, colBaseProcessApplicable].Text = data.Rows[i]["BaseProcess"].ToString();
+                    sheet[ROW, colPOProcessStatus].Text = data.Rows[i]["POProcessStatus"].ToString();
+                    sheet[ROW, colProductionOrderID].Number = clsStaticInfo.dbl(data.Rows[i]["PONo"].ToString());
+                    sheet[ROW, colPOStatus].Text = data.Rows[i]["POStatus"].ToString();
+                    sheet[ROW, colWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
+                    sheet[ROW, colShift].Text = data.Rows[i]["ProductionShift"].ToString();
+                    sheet[ROW, colPlanDate].Text = GetDate(data.Rows[i]["ActualDate"].ToString());
+                    //sheet[ROW, colPlanDate].Text = data.Rows[i]["ActualDate"].ToString();
+                    sheet[ROW, colbuyer].Text = data.Rows[i]["Buyer"].ToString();
+                    sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
+                    sheet[ROW, colLotNumber].Text = data.Rows[i]["LotNumber"].ToString();
+                    sheet[ROW, colOwnOrderNo].Text = data.Rows[i]["OwnOrderNo"].ToString();
+                    sheet[ROW, colSalesOrderIds].Text = data.Rows[i]["SONos"].ToString();
+                    sheet[ROW, colProduct].Text = data.Rows[i]["Product"].ToString();
+                    sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
+                    sheet[ROW, colWorkStation].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfWorkStation"].ToString());
+                    sheet[ROW, colActualWorkHours].Number = clsStaticInfo.dbl(data.Rows[i]["ProductionHours"].ToString());
+                    sheet[ROW, colPlannedQty].Number = clsStaticInfo.dbl(data.Rows[i]["PlannedQty"].ToString());
+                    sheet[ROW, colActualQty].Number = clsStaticInfo.dbl(data.Rows[i]["ActualQty"].ToString());
+                    sheet.Range[ROW, colUpToDate].Number = clsStaticInfo.dbl(data.Rows[i]["UpToDateProduction"].ToString());
+                    sheet.Range[ROW, colPreProUDProd].Number = clsStaticInfo.dbl(data.Rows[i]["PreProUDProd"].ToString());
+                    sheet.Range[ROW, colWIP].Number = clsStaticInfo.dbl(data.Rows[i]["WIP"].ToString());
+                    sheet[ROW, colUptoDateProduction].Number = clsStaticInfo.dbl(data.Rows[i]["UptoDateProPercentage"].ToString());
+                    sheet[ROW, colFirstProBookDate].Text = data.Rows[i]["FirstBookDate"].ToString();
+                    sheet[ROW, colLastProBookDate].Text = data.Rows[i]["LastBookDate"].ToString();
+
+                   // sheet[ROW, colOwnStyleNo].Text = data.Rows[i]["OwnStyleNo"].ToString();
+
+                    //sheet[ROW, colFirstshipmentDate].Text = data.Rows[i]["FirstShipmentDate"].ToString();
+                    //sheet[ROW, colLastshipmentDate].Text = data.Rows[i]["LastShipmentDate"].ToString();
+
+                    //sheet.Range[ROW, colWIP].Formula = "IF(MAX($" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + LastRow.ToString() + "<>" + clsStaticInfo.GetxlsCol(colPlanDate) + ROW.ToString() + "),0,IF(" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "=1,0,SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "-1,$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")-SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")))";
+
+                    //sheet.Range[ROW, colWIP].Formula =  "SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "-1,$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + "))";
+
+                    //sheet[ROW, colCurrent].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")";
+
+                    //var formuolac = "SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")";
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "PO Wise Production Status Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
 
@@ -359,308 +699,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }//End of function
 
-        public string ProductionDataReport(Dictionary<string, string> parameters, string SheetName)
-        {
-            ExcelEngine excelEngine = null;
-            IApplication application = null;
-            IWorkbook workbook = null;
-            IWorksheet sheet = null;
-            var filePath = "";
-            try
-            {
-
-
-                excelEngine = new ExcelEngine();
-                application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(2);
-                workbook.Worksheets[0].Name = "ProductionData";
-                sheet = workbook.Worksheets[0];
-                DataTable data;
-                ReportSQL(parameters, out data);
-
-                int ROW = 6; int COL = 1;
-
-                #region columns
-
-                sheet[ROW, COL].Text = "Entity";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colEntity = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "Process";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colProcess = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "POProcessSequence";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colPOProcessSeq = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "StandardProcessSequence";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colStandardProcessSeq = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "BaseProcessApplicable";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colBaseProcessApplicable = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "WorkCenter";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colWorkCenter = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "Shift";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colShift = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "Date";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colPlanDate = COL;
-
-                COL++;
-                int colstart = COL;
-                sheet[ROW, COL].Text = "PONo";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colProductionOrderID = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "POStatus";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colPOStatus = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "Buyer";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colbuyer = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "Customer";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colCustomer = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "LotNumber";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colLotNumber = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "OwnOrderNo";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colOwnOrderNo = COL;
-                COL++;
-                sheet[ROW, COL].Text = "BuyerItemNo";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colStyleNo = COL;
-                COL++;
-                sheet[ROW, COL].Text = "OwnItemNo";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colOwnStyleNo = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "SalesOrderIds";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colSalesOrderIds = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "Product";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colProduct = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "Article";
-                sheet[ROW, COL].ColumnWidth = 28;
-                int colArticle = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "WorkStation";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colWorkStation = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "WorkingHours";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colActualWorkHours = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "ProductionQty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colActualQty = COL;
-
-               
-                COL++;
-                sheet[ROW, COL].Text = "UpToDateProduction";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colUpToDate = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "CurrentProduction";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colCurrent = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "WIP";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colWIP = COL;
-
-
-                COL++;
-                sheet[ROW, COL].Text = "FirstBookDate";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colFirstProBookDate = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "LastBookDate";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colLastProBookDate = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "FirstShipmentDate";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colFirstshipmentDate = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "LastShipmentDate";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colLastshipmentDate = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "UptoDateProductionPerecent";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colUptoDateProduction = COL;
-
-                //COL++;
-                //sheet[ROW, COL].Text = "RelayProcess";
-                //sheet[ROW, COL].ColumnWidth = 12;
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colRelayProcess = COL;
-
-                #endregion columns
-
-                int endCol = COL;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
-                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-
-                ROW++;
-
-                int startRow = ROW;
-                int LastRow = ROW + (data.Rows.Count - 1);
-                for (int i = 0; i < data.Rows.Count; i++)
-                {
-                    sheet[ROW, colPlanDate].Text = GetDate(data.Rows[i]["ActualDate"].ToString());
-                    //sheet[ROW, colPlanDate].Text = data.Rows[i]["ActualDate"].ToString();
-                    sheet[ROW, colEntity].Text = data.Rows[i]["Entity"].ToString();
-                    sheet[ROW, colProcess].Text = data.Rows[i]["Process"].ToString();
-                    sheet[ROW, colPOProcessSeq].Number = clsStaticInfo.dbl(data.Rows[i]["POProcessSequence"].ToString());
-                    sheet[ROW, colStandardProcessSeq].Number = clsStaticInfo.dbl(data.Rows[i]["StandardProcessSequence"].ToString());
-                    sheet[ROW, colBaseProcessApplicable].Text = data.Rows[i]["BaseProcess"].ToString();
-                    sheet[ROW, colWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
-
-                    sheet[ROW, colProductionOrderID].Number = clsStaticInfo.dbl(data.Rows[i]["PONo"].ToString());
-                    sheet[ROW, colProduct].Text = data.Rows[i]["Product"].ToString();
-                    sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
-                    sheet[ROW, colbuyer].Text = data.Rows[i]["buyer"].ToString();
-                    sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
-                    sheet[ROW, colLotNumber].Text = data.Rows[i]["LotNumber"].ToString();
-                    sheet[ROW, colOwnOrderNo].Text = data.Rows[i]["OwnOrderNo"].ToString();
-                    sheet[ROW, colStyleNo].Text = data.Rows[i]["StyleNo"].ToString();
-                    sheet[ROW, colOwnStyleNo].Text = data.Rows[i]["OwnStyleNo"].ToString();
-                    sheet[ROW, colSalesOrderIds].Text = data.Rows[i]["SalesOrderIds"].ToString();
-
-                    sheet[ROW, colShift].Text = data.Rows[i]["ProductionShift"].ToString();
-                    sheet[ROW, colWorkStation].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfWorkStation"].ToString());
-                    sheet[ROW, colActualWorkHours].Number = clsStaticInfo.dbl(data.Rows[i]["ProductionHours"].ToString());
-                    sheet[ROW, colActualQty].Number = clsStaticInfo.dbl(data.Rows[i]["ActualQty"].ToString());
-                    sheet[ROW, colPOStatus].Text = data.Rows[i]["POStatus"].ToString();
-                    sheet[ROW, colFirstProBookDate].Text = data.Rows[i]["FirstBookDate"].ToString();
-                    sheet[ROW, colLastProBookDate].Text = data.Rows[i]["LastBookDate"].ToString();
-                    sheet[ROW, colFirstshipmentDate].Text = data.Rows[i]["FirstShipmentDate"].ToString();
-                    sheet[ROW, colLastshipmentDate].Text = data.Rows[i]["LastShipmentDate"].ToString();
-                    sheet[ROW, colUptoDateProduction].Number = clsStaticInfo.dbl(data.Rows[i]["UptoDateProPercentage"].ToString());
-
-
-                    //sheet.Range[ROW, colWIP].Formula = "IF(MAX($" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + LastRow.ToString() + "<>" + clsStaticInfo.GetxlsCol(colPlanDate) + ROW.ToString() + "),0,IF(" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "=1,0,SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "-1,$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")-SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")))";
-
-                    //sheet.Range[ROW, colWIP].Formula =  "SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "-1,$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + "))";
-
-                    //sheet[ROW, colCurrent].Formula = "SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")";
-
-                    //var formuolac = "SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")";
-                    sheet.Range[ROW, colWIP].Number = clsStaticInfo.dbl(data.Rows[i]["WIP"].ToString());
-                    sheet.Range[ROW, colUpToDate].Number = clsStaticInfo.dbl(data.Rows[i]["UpToDateProduction"].ToString());
-                    sheet.Range[ROW, colCurrent].Number = clsStaticInfo.dbl(data.Rows[i]["CurrentProduction"].ToString());
-
-                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-                    ROW++;
-
-                }
-                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
-                sheet.UsedRange.WrapText = true;
-                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-                sheet["A" + startRow.ToString()].FreezePanes();
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "PO Wise Production Status Report", identity.PlantId);
-                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                sheet.UsedRange.WrapText = true;
-                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.IsGridLinesVisible = false;
-
-                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-
-
-                //#endregion ******************Report Header******************
-
-                sheet.PageSetup.TopMargin = 0.2;
-                sheet.PageSetup.BottomMargin = 0.8;
-                //sheet.PageSetup.PrintTitleRows = "$1:$6";
-                sheet.PageSetup.LeftMargin = 0.2;
-                sheet.PageSetup.RightMargin = 0.2;
-                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
-                sheet.PageSetup.FitToPagesTall = 0;
-                sheet.PageSetup.FitToPagesWide = 1;
-                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
-                sheet.PageSetup.CenterHorizontally = true;
-
-
-
-
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
-                workbook.SaveAs(filePath);
-                workbook.Close();
-                excelEngine.Dispose();
-                return filePath;
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+      
 
         public void ReportSQL(Dictionary<string, string> parameters, out DataTable data)
         {
@@ -671,15 +710,11 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     partyId = "AND XMO.PartyId in(" + parameters["CustomerId"] + @")";
                 }
-                string sql = @"Select A.* from (SELECT distinct PP.Id PSId,trke.UserName AS Entity,isnull(p.UserName,FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,PP.ProductionOrderID PONo,POPS.[Sequence] POProcessSequence,PSEQ.ProcessIndex 
-,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty,0) PreProUDProd,WIP=ISNULL(PSEQ.Qty-PSEQ.PreQty,0)
-
-,wcm.UserName AS WorkCenter ,CPL.UserName AS ProductionShift,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty
-,ISNULL(pp.StandardName,ord.Article ) Article                  
-,ord.Product,BaseProcess= CASE WHEN P.IsProductionProcess=1 THEN 'Yes' ELSE '' END,PS.UserName POStatus,
-FLB.FirstBookDate,FLB.LastBookDate--,ORD.FirstShipmentDate,ORD.LastShipmentDate,
-,PlannedQty=CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END
-,UptoDateProPercentage=(pp.Quantity/(CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END))/100,PP.LotNumber
+                string sql = @"Select A.* from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
+		,PSEQ.ProcessIndex,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.PlannedQty,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty, 0) PreProUDProd
+		,WIP = ISNULL(PSEQ.Qty - PSEQ.PreQty, 0),UptoDateProPercentage = (pp.Quantity / ORD.PlannedQty) / 100,wcm.UserName AS WorkCenter,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
+		,ord.Product,PS.UserName POStatus,FLB.FirstBookDate,FLB.LastBookDate --,ORD.FirstShipmentDate,ORD.LastShipmentDate,
+		,PP.LotNumber,POProcessStatus=CASE WHEN POPS.IsCompleted=1 THEN 'Completed' ELSE 'No Completed' END
 --additional info
 		,Customer= REPLACE(REPLACE(
 										              STUFF((select distinct ','+XP.UserName from 
@@ -689,14 +724,14 @@ FLB.FirstBookDate,FLB.LastBookDate--,ORD.FirstShipmentDate,ORD.LastShipmentDate,
 		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 			                                                    where pp.ProductionOrderId=Xpod.ProductionOrderId " + partyId + @" for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')	
-,buyer=STUFF((select distinct ','+XB.UserName from 
+,Buyer=STUFF((select distinct ','+XB.UserName from 
 trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
 where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-SalesOrderIds=STUFF((select distinct ','+XSO.Id from 
+SONos=STUFF((select distinct ','+XSO.Id from 
 trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
@@ -712,12 +747,6 @@ trn.SalesOrder XSO
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-			
-StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
-trn.SalesOrder XSO 
-JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
 where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
        
 OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
@@ -753,6 +782,7 @@ left outer join (
 select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory--,FLSD.FirstShipmentDate,FLSD.LastShipmentDate,
 ,SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
 SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
+,SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
 from trn.ProductionOrderDetail POD 
 left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
 --LEFT JOIN(Select FORMAT(MIN(DeliveryDate),'dd-MMM-yyyy') FirstShipmentDate,  FORMAT(MAX(DeliveryDate),'dd-MMM-yyyy') LastShipmentDate,Id from trn.SalesOrder Group BY Id) AS FLSD ON FLSD.Id=pod.SalesOrderId
