@@ -308,8 +308,8 @@ namespace Aplos.Areas.Productions.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(2);
-                workbook.Worksheets[0].Name = "ProductionData";
-                sheet = workbook.Worksheets[0];
+                workbook.Worksheets[1].Name = "POData";
+                sheet = workbook.Worksheets[1];
 
                 int ROW = 6; int COL = 1;
 
@@ -510,6 +510,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                 int startRow = ROW;
                 int LastRow = ROW + (data.Rows.Count - 1);
+
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
                     sheet[ROW, colEntity].Text = data.Rows[i]["Entity"].ToString();
@@ -519,12 +520,11 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colProcessIndex].Number = clsStaticInfo.dbl(data.Rows[i]["ProcessIndex"].ToString());
                     sheet[ROW, colBaseProcessApplicable].Text = data.Rows[i]["BaseProcess"].ToString();
                     sheet[ROW, colPOProcessStatus].Text = data.Rows[i]["POProcessStatus"].ToString();
-                    sheet[ROW, colProductionOrderID].Number = clsStaticInfo.dbl(data.Rows[i]["PONo"].ToString());
+                    sheet[ROW, colProductionOrderID].Text = data.Rows[i]["PONo"].ToString();
                     sheet[ROW, colPOStatus].Text = data.Rows[i]["POStatus"].ToString();
                     sheet[ROW, colWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
                     sheet[ROW, colShift].Text = data.Rows[i]["ProductionShift"].ToString();
                     sheet[ROW, colPlanDate].Text = GetDate(data.Rows[i]["ActualDate"].ToString());
-                    //sheet[ROW, colPlanDate].Text = data.Rows[i]["ActualDate"].ToString();
                     sheet[ROW, colbuyer].Text = data.Rows[i]["Buyer"].ToString();
                     sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
                     sheet[ROW, colLotNumber].Text = data.Rows[i]["LotNumber"].ToString();
@@ -563,6 +563,7 @@ namespace Aplos.Areas.Productions.Controllers
                     ROW++;
 
                 }
+
                 sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -595,6 +596,70 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet.PageSetup.FitToPagesWide = 1;
                 sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 sheet.PageSetup.CenterHorizontally = true;
+
+                #region Pivot
+
+                string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "PO Wise Production Status Report" + identity.UserId + ".xlsx";
+
+                workbook.SaveAs(fPath);
+                workbook = application.Workbooks.Open(fPath);
+                try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+                workbook.Worksheets[0].Name = "POReport";
+
+                IWorksheet pivotSheet = workbook.Worksheets[0];
+                IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
+                pivotTable.Fields[colCustomer - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProduct - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colArticle - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductionOrderID - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProcessIndex - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPOProcessSeq - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colUpToDate - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPreProUDProd - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colWIP - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colOwnOrderNo - 1].Axis = PivotAxisTypes.Row;
+
+
+                pivotTable.Fields[colPlanDate - 1].Axis = PivotAxisTypes.Column;
+                pivotTable.Fields[colActualQty - 1].Axis = PivotAxisTypes.Data;
+
+
+
+                IPivotField field = pivotTable.Fields[colActualQty - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.DataFields.Add(field, "ActualQty", PivotSubtotalTypes.Sum);
+
+                for (int i = 0; i < pivotTable.Fields.Count; i++)
+                {
+                    if (i == colProcess - 1 || i == colEntity - 1 || i == colWorkCenter - 1)
+                        continue;
+                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                }
+
+                pivotTable.ShowDrillIndicators = false;
+                pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                pivotTable.Options.NullString = "";
+                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+                sheet = workbook.Worksheets[0];
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Perametre Wise Report", identity.CompanyId, identity.CompanyName, "");
+
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+                workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+
+
+                #endregion Buyer Summary
 
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
                 workbook.SaveAs(filePath);
