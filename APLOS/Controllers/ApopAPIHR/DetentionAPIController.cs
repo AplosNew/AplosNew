@@ -105,6 +105,12 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.getmyappicon(out List<DefaultMyAppIconList> myappiconlis, userid, Iconid);
             return myappiconlis;
         }
+        public List<DefaultMyAppIconList> getModuleaccess(string userid, string Moduleid)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.getModuleaccess(out List<DefaultMyAppIconList> myappiconlis, userid, Moduleid);
+            return myappiconlis;
+        }
         #endregion MyAppDefault
         public List<GetDetentionclose> GetDetentionLogDetail(string from, string to, string departmentId, string detentionTypeId)
         {
