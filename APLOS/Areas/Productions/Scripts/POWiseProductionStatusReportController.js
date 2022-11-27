@@ -205,4 +205,77 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     //        ShowResult(response.data.Message, 'failure');
     //    });
     //}
+
+    $scope.sumparameters = [];
+    $scope.SumfilterComplete = function () {
+
+        var g = $("#summaryfilters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.sumfilters;
+        }
+
+
+        var sumparameters = [];
+        sumparameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        sumparameters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
+        sumparameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
+        sumparameters.push({ "Key": "ProductionStatusId", "Value": getString(fl, "ProductionStatusId") });
+        sumparameters.push({ "Key": "ProductLibraryId", "Value": getString(fl, "ProductLibraryId") });
+        sumparameters.push({ "Key": "LotNumber", "Value": getString(fl, "LotNumber") });
+
+        $scope.sumparameters = sumparameters;
+
+    }
+
+
+    $scope.SummeryViewData = function () {
+        $scope.SumfilterComplete();
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetSummaryViewData",
+            data: { 'parameters': $scope.sumparameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.ProductionDataSumReportList = response.data;
+                console.log($scope.ProductionDataSumReportList);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    $scope.ProSumDataReport = function () {
+        var dataLists = [];
+         var g = $("#GridSum").data("ejGrid");
+        dataLists = g.getFilteredRecords();
+
+        if (dataLists.length == 0) {
+            dataLists = $scope.ProductionDataSumReportList;
+        }
+
+        $scope.fileName = "Production Data Summary Report";
+
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpd,
+            data: {'reportFileName': $scope.fileName,'data': dataLists},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
 }
