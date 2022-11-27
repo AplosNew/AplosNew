@@ -259,7 +259,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             dataLists = $scope.ProductionDataSumReportList;
         }
 
-        $scope.fileName = "Production Data Summary Report";
+        $scope.fileName = "ProductionDataSummaryReport";
 
         $http({
             method: 'POST',
