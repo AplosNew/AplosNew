@@ -175,6 +175,20 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+
+		// Written By Nitesh
+		public static string GetGeneralContractPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/GeneralContractDocument/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
 		public static string GetInvoiceDocumentPath()
 		{
 			try

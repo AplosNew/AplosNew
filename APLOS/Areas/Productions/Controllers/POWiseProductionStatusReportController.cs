@@ -451,10 +451,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].Text = "OwnOrderNo";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colOwnOrderNo = COL;
-                COL++;
-                sheet[ROW, COL].Text = "BuyerItemNo";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colStyleNo = COL;
+               
                 COL++;
                 sheet[ROW, COL].Text = "OwnItemNo";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -576,11 +573,10 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colProductionOrderID].Number = clsStaticInfo.dbl(data.Rows[i]["PONo"].ToString());
                     sheet[ROW, colProduct].Text = data.Rows[i]["Product"].ToString();
                     sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
-                    sheet[ROW, colbuyer].Text = data.Rows[i]["buyer"].ToString();
+                    sheet[ROW, colbuyer].Text = data.Rows[i]["Buyer"].ToString();
                     sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
                     sheet[ROW, colLotNumber].Text = data.Rows[i]["LotNumber"].ToString();
                     sheet[ROW, colOwnOrderNo].Text = data.Rows[i]["OwnOrderNo"].ToString();
-                    sheet[ROW, colStyleNo].Text = data.Rows[i]["StyleNo"].ToString();
                     sheet[ROW, colOwnStyleNo].Text = data.Rows[i]["OwnStyleNo"].ToString();
                     sheet[ROW, colSalesOrderIds].Text = data.Rows[i]["SalesOrderIds"].ToString();
 
@@ -671,15 +667,11 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     partyId = "AND XMO.PartyId in(" + parameters["CustomerId"] + @")";
                 }
-                string sql = @"Select A.* from (SELECT distinct PP.Id PSId,trke.UserName AS Entity,isnull(p.UserName,FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,PP.ProductionOrderID PONo,POPS.[Sequence] POProcessSequence,PSEQ.ProcessIndex 
-,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty,0) PreProUDProd,WIP=ISNULL(PSEQ.Qty-PSEQ.PreQty,0)
-
-,wcm.UserName AS WorkCenter ,CPL.UserName AS ProductionShift,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty
-,ISNULL(pp.StandardName,ord.Article ) Article                  
-,ord.Product,BaseProcess= CASE WHEN P.IsProductionProcess=1 THEN 'Yes' ELSE '' END,PS.UserName POStatus,
-FLB.FirstBookDate,FLB.LastBookDate--,ORD.FirstShipmentDate,ORD.LastShipmentDate,
-,PlannedQty=CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END
-,UptoDateProPercentage=(pp.Quantity/(CASE WHEN POPS.Qty=0 THEN (CASE WHEN PT1.Qty=0 THEN PO.PlannedQty ELSE PT1.Qty END) ELSE POPS.Qty END))/100,PP.LotNumber
+                string sql = @"Select A.* from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
+		,PSEQ.ProcessIndex,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.PlannedQty,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty, 0) PreProUDProd
+		,WIP = ISNULL(PSEQ.Qty - PSEQ.PreQty, 0),UptoDateProPercentage = (pp.Quantity / ORD.PlannedQty) / 100,wcm.UserName AS WorkCenter,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
+		,ord.Product,PS.UserName POStatus,FLB.FirstBookDate,FLB.LastBookDate --,ORD.FirstShipmentDate,ORD.LastShipmentDate,
+		,PP.LotNumber
 --additional info
 		,Customer= REPLACE(REPLACE(
 										              STUFF((select distinct ','+XP.UserName from 
@@ -689,7 +681,7 @@ FLB.FirstBookDate,FLB.LastBookDate--,ORD.FirstShipmentDate,ORD.LastShipmentDate,
 		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 			                                                    where pp.ProductionOrderId=Xpod.ProductionOrderId " + partyId + @" for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')	
-,buyer=STUFF((select distinct ','+XB.UserName from 
+,Buyer=STUFF((select distinct ','+XB.UserName from 
 trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
@@ -712,12 +704,6 @@ trn.SalesOrder XSO
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-			
-StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
-trn.SalesOrder XSO 
-JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
 where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
        
 OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
@@ -753,6 +739,7 @@ left outer join (
 select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory--,FLSD.FirstShipmentDate,FLSD.LastShipmentDate,
 ,SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
 SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
+,SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
 from trn.ProductionOrderDetail POD 
 left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
 --LEFT JOIN(Select FORMAT(MIN(DeliveryDate),'dd-MMM-yyyy') FirstShipmentDate,  FORMAT(MAX(DeliveryDate),'dd-MMM-yyyy') LastShipmentDate,Id from trn.SalesOrder Group BY Id) AS FLSD ON FLSD.Id=pod.SalesOrderId

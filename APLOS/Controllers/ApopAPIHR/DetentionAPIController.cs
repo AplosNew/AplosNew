@@ -54,6 +54,14 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.getAllDepartment(out List<AllDepartmentList> DepartmentList);
             return DepartmentList;
         }
+        // myappdefault
+        public List<MyAppDefaultlist> GetMyAppDefault(string IconName  )
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetMyAppDefault(out List<MyAppDefaultlist> myappdefaultlist, IconName);
+            return myappdefaultlist;
+        }
+
         public List<QualificationList> GetQualification()
         {
             clsDataContext clsData = new clsDataContext();
@@ -89,6 +97,15 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetDetentionLogGrid(out List<DetentionLogGridList> detentionLoggridlist);
             return detentionLoggridlist;
         }
+
+        #region MyAppDefault
+        public List<DefaultMyAppIconList> getmyappicon(string userid ,string Iconid )
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.getmyappicon(out List<DefaultMyAppIconList> myappiconlis, userid, Iconid);
+            return myappiconlis;
+        }
+        #endregion MyAppDefault
         public List<GetDetentionclose> GetDetentionLogDetail(string from, string to, string departmentId, string detentionTypeId)
         {
             clsDataContext clsData = new clsDataContext();
