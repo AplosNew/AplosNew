@@ -46,10 +46,10 @@
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                 <div e-columns>
                                     <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ProcessIndex" e-headertext="ProcessIndex" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="180"></div>
                                     <div e-column e-type="string" e-field="POProcessSequence" e-headertext="POProcessSequence" e-width="100"></div>
                                     <div e-column e-type="string" e-field="StandardProcessSequence" e-headertext="StandardProcessSequence" e-width="100"></div>
-                                    <div e-column e-type="string" e-field="ProcessIndex" e-headertext="ProcessIndex" e-width="100"></div>
                                     <div e-column e-type="string" e-field="BaseProcess" e-headertext="BaseProcessApplicable" e-width="100"></div>
                                     <div e-column e-type="string" e-field="POProcessStatus" e-headertext="POProcessStatus" e-width="100"></div>
                                     <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="100"></div>
@@ -67,6 +67,7 @@
                                     <div e-column e-type="string" e-field="NoOfWorkStation" e-textalign="right" e-headertext="WorkStation" e-width="100"></div>
                                     <div e-column e-type="string" e-field="ProductionHours" e-textalign="right" e-headertext="WorkingHours" e-width="100"></div>
                                     <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="PlannedQty" e-textalign="right" e-width="100"></div>
+                                    <div e-column e-type="number" e-format="{0:0.00}" e-field="ProcessWisePlanQty" e-headertext="ProcessWisePlanQty" e-textalign="right" e-width="100"></div>
                                     <div e-column e-type="number" e-field="ActualQty" e-headertext="ProductionQty" e-textalign="right" e-width="100"></div>
                                     <div e-column e-type="number" e-format="{0:0.00}" e-field="UpToDateProduction" e-textalign="right" e-headertext="UpToDateProduction" e-width="100"></div>
                                     <div e-column e-type="number" e-format="{0:0.00}" e-field="PreProUDProd" e-textalign="right" e-headertext="PreProUDProd" e-width="100"></div>
@@ -75,7 +76,7 @@
                                     <div e-column e-type="date" e-field="FirstBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="FirstBookDate" e-width="100"></div>
                                     <div e-column e-type="date" e-field="LastBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LastBookDate" e-width="100"></div>
                                     @*<div e-column e-field="FirstShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstShipmentDate" e-width="100"></div>
-                    <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
+        <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
                                 </div>
                             </div>
                         </div>
@@ -100,6 +101,7 @@
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                 <div e-columns>
                                     <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ProcessIndex" e-headertext="ProcessIndex" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="180"></div>
                                     <div e-column e-type="string" e-field="POProcessSequence" e-headertext="POProcessSequence" e-width="100"></div>
                                     <div e-column e-type="string" e-field="StandardProcessSequence" e-headertext="StandardProcessSequence" e-width="100"></div>
@@ -119,6 +121,7 @@
                                     <div e-column e-type="string" e-field="NoOfWorkStation" e-textalign="right" e-headertext="WorkStation" e-width="100"></div>
                                     <div e-column e-type="string" e-field="ProductionHours" e-textalign="right" e-headertext="WorkingHours" e-width="100"></div>
                                     <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="PlannedQty" e-textalign="right" e-width="100"></div>
+                                    <div e-column e-type="number" e-format="{0:0.00}" e-field="ProcessWisePlanQty" e-headertext="ProcessWisePlanQty" e-textalign="right" e-width="100"></div>
                                     <div e-column e-type="number" e-field="ActualQty" e-headertext="ProductionQty" e-textalign="right" e-width="100"></div>
                                     <div e-column e-type="number" e-format="{0:0.00}" e-field="UpToDateProduction" e-textalign="right" e-headertext="UpToDateProduction" e-width="100"></div>
                                     <div e-column e-type="number" e-format="{0:0.00}" e-field="PreProUDProd" e-textalign="right" e-headertext="PreProUDProd" e-width="100"></div>
@@ -127,7 +130,7 @@
                                     <div e-column e-type="date" e-field="FirstBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="FirstBookDate" e-width="100"></div>
                                     <div e-column e-type="date" e-field="LastBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LastBookDate" e-width="100"></div>
                                     @*<div e-column e-field="FirstShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstShipmentDate" e-width="100"></div>
-                    <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
+        <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
                                 </div>
                             </div>
                         </div>
