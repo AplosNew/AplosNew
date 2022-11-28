@@ -22306,7 +22306,7 @@ UNION ALL
 									LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
 								Where DATEDIFF(day,IRM.AddedDate,getdate()) Between '" + fromDate + @"' ANd '" + toDate + @"'  
 							    AND IRM.CompanyId='" + companyId + @"' AND IRM.PlantId='" + PlantId + @"' 
-								AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus='Approved'
+								AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
 								AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
 								GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName,IRM.AddedDate";
 
