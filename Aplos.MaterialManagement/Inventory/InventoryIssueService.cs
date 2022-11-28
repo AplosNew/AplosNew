@@ -7401,7 +7401,7 @@ namespace Library.MaterialManagement.Inventory
                              
                            Where IRM.CheckedBy IS NOT NULL 
 						   AND IRM.CheckedByStatus='Checked' 
-						   AND IRM.AuthorizedByStatus='Approval' 
+						   AND IRM.AuthorizedByStatus='Approved' 
 						   AND IRM.AuthorizedBy IS NOT null  
 						   AND IRM.IssueSlipType='AssetSlip'
 						   AND IRM.PlantId='" + identity.PlantId + @"'
@@ -7609,7 +7609,7 @@ namespace Library.MaterialManagement.Inventory
                                 	,IR.ExpenseActivityId
                                 	,IA1.UserName ActivityName
                                 	,IRM.Id IssueRequestMasterId
-                                	,IR.Id IssueRequest
+                                	,IR.Id IssueRequest,MM.IsAsset
                                 	--,RequestedQty=Isnull(IR.RequestedQty,0)-ISNULL(ABC.Qty,0)							
                                 	--,PostingQty.MaterialStorageId
                                 	,Convert(BIT, 0) 'check'
@@ -7753,7 +7753,7 @@ namespace Library.MaterialManagement.Inventory
                                 	,IR.ExpenseActivityId
                                 	,IA1.UserName
                                 	,IRM.Id
-                                	,IR.Id
+                                	,IR.Id,MM.IsAsset
                                 	--,PostingQty.MaterialStorageId
                                 	,AlternativeUOM.BaseUOMFactor";
                 }

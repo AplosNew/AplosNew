@@ -2608,6 +2608,8 @@
     <Content Include="Areas\Productions\Scripts\recipeMaterialController.js" />
     <Content Include="Areas\Products\Scripts\assetInventoryIssueController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionReportWithParameterController.js" />
+    <Content Include="Areas\Products\Scripts\AssetIssueSlipBaseController.js" />
+    <Content Include="Areas\Products\Scripts\MaterialIssueSlipController.js" />
     <Content Include="Areas\Products\Scripts\inventoryIssueSlipBaseController.js" />
     <Content Include="Areas\Products\Scripts\salesRegisterController.js" />
     <Content Include="Areas\Products\Scripts\GatePassPotalController.js" />
@@ -2660,7 +2662,7 @@
     <Content Include="Areas\Products\Scripts\PurchaseDocumentAcceptanceController.js" />
     <Content Include="Areas\Products\Scripts\inventoryIssueDeleteController.js" />
     <Content Include="Areas\Products\Scripts\plantWiseGateController.js" />
-    <Content Include="Areas\Products\Scripts\MaterialIssueSlipController.js" />
+    <Content Include="Areas\Products\Scripts\AssetIssueSlipController.js" />
     <Content Include="Areas\Products\Scripts\EntitySFGInventoryController.js" />
     <Content Include="Areas\Products\Scripts\GRNByPOController.js" />
     <Content Include="Areas\Products\Scripts\goodsReceiveNoteController.js" />

@@ -67,10 +67,10 @@ function materialAgeingDashboardController(cboService, commonMessage, $scope, $r
     var bWEChart;
     var bWEChart2;
     var chartType = 'bar';
-    $scope.report = {
-        IsAsset: false
-    };
-
+    //$scope.report = {
+    //    IsAsset: false
+    //};
+    $scope.report.IsAsset = false;
     var now = new Date();
     $scope.dateRange = {};
 
@@ -1127,11 +1127,16 @@ function materialAgeingDashboardController(cboService, commonMessage, $scope, $r
         $scope.data;
     }
 
+    $scope.AssetStatus = 'Regular';
     $scope.Isregulardata = true;
-    $scope.Isregular = function (data) {
+    $scope.Isregular = function () {
         //debugger;
-
-        $scope.Isregulardata = data;
+        if ($scope.Isregulardata) {
+            $scope.AssetStatus = 'Regular';
+        }
+        else
+            $scope.AssetStatus = 'Non-Regular';
+        $scope.report.IsAsset = false;
     }
     
 

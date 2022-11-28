@@ -150,7 +150,7 @@ function ProductConfig($routeProvider, $locationProvider) {
 
         .when('/asset-issue-slip', {
             templateUrl: 'Products/GoodsReceiveNote/AssetIssueSlip',
-            controller: 'MaterialIssueSlipController'
+            controller: 'AssetIssueSlipController'
         })
 	
         .when('/issue-ui', {
@@ -249,9 +249,12 @@ function ProductConfig($routeProvider, $locationProvider) {
         })
         .when('/slip-asset-Issue', {
             templateUrl: 'Products/inventoryIssue/SlipAssetIssue',
-            controller: 'inventoryIssueController'
+            controller: 'AssetIssueSlipBaseController'
         })
-
+        .when('/Material-Wise-issue-slip', {
+            templateUrl: 'Products/GoodsReceiveNote/MaterialIssueSlip',
+            controller: 'MaterialIssueSlipController'
+        })
        
         .when('/inventory-issue-delete', {
             templateUrl: 'Products/inventoryIssue/IssueDelete',

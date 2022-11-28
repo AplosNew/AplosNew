@@ -298,16 +298,16 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select * from (
                         SELECT 'INCLUDE' AS WCPreferenceType,1 AS RunningOrderBlockSize, PO.Id, PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, 
-EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,isnull(PO.Qty,0) AS POQuantity,ISNULL(PO.PlannedQty,0) AS SOQuantity,SO.*
+EN.UserName AS EntityName, S.UserName AS ProductionStatusName,isnull(PO.Qty,0) AS POQuantity,ISNULL(PO.PlannedQty,0) AS SOQuantity,SO.*
                                 FROM [TRN].[ProductionOrder] AS PO
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
-                            LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
                             LEFT OUTER  JOIN (select
                                                     pod.ProductionOrderId,
                                                     mm.userName AS Material,PM.UserName AS Product,pc.UserName AS ProductCategory,PM.Id ProductMasterId,
                                                      FORMAT(Min(LSD),'dd-MMM-yyyy') AS LSD,FORMAT(max(SO.PlanExFactoryDate),'dd-MMM-yyyy') AS PlanExFactoryDate ,
-                                                    sum(so.Qty) AS TotalSOQuantity, Format(Min(so.DeliveryDate),'dd-MMM-yyyy') DeliveryDate,
-                                                    MasterOrderId=STUFF((select distinct ','+XMOI.MasterOrderId from 
+                                                    sum(so.Qty) AS TotalSOQuantity, Format(Min(so.DeliveryDate),'dd-MMM-yyyy') DeliveryDate
+                                                    ,SUM((isnull(SO.qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+                                                    ,MasterOrderId=STUFF((select distinct ','+XMOI.MasterOrderId from 
 								                            trn.MasterOrderItem XMOI 	 
 								                            INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
 								                            INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
@@ -384,7 +384,7 @@ from
                         WHERE po.Id NOT IN (SELECT ProductionOrderSchedulingParametersType1.ProductionOrderID
                       FROM ProductionOrderSchedulingParametersType1)
                             AND 
-isnull(PS.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entityid='" + entityid + @"' and PO.Id IN (SELECT DISTINCT pops.ProductionOrderId
+isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entityid='" + entityid + @"' and PO.Id IN (SELECT DISTINCT pops.ProductionOrderId
                             FROM trn.ProductionOrderProcessSet AS pops WHERE pops.ProcessId = '" + baseprocessid + @"')) AS TEMP where " + strKey;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
