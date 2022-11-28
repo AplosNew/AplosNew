@@ -888,7 +888,7 @@ function InventoryDashboardController(cboService, commonMessage, $window, $scope
             data.Total32Value = 0;
            
         }
-        if (data.Category === 'Pending Inventory Issue') {
+        if (data.Category === 'Pending Inventory Issue For Approval') {
             data.Total3Value = 0;
             data.Total5Value = 0;
             data.Total10Value = 0;
@@ -1851,7 +1851,7 @@ function InventoryDashboardController(cboService, commonMessage, $window, $scope
                 $scope.Points10Y30 = $scope.ExpenseList[i].ThirtyDaysCount;
                 $scope.Points10Y31 = $scope.ExpenseList[i].GraterThirtyDaysCount;
             }
-            else if ($scope.ExpenseList[i].Category === 'Pending Inventory Issue') {
+            else if ($scope.ExpenseList[i].Category === 'Pending Inventory Issue For Approval') {
                 $scope.Points11Y3 = $scope.ExpenseList[i].ThreeDaysCount;
                 $scope.Points11Y5 = $scope.ExpenseList[i].FiveDaysCount;
                 $scope.Points11Y10 = $scope.ExpenseList[i].TenDaysCount;
