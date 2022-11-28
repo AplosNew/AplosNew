@@ -620,9 +620,11 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'failure');
         }
     };
+
+    $scope.btndisable = false;
     $scope.Save = function () {
         try {
-
+            $scope.btndisable = true;
 
             if (baseService.isUndefinedOrNull($scope.recipeMaterialListSelected) || $scope.recipeMaterialListSelected.length <= 0)
                 throw 'Please select at least one material';
@@ -665,13 +667,15 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
+                        $scope.btndisable = false;
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
                         $scope.model.Id = response.data.DATA;
                         $scope.getData();
                         getProductionProcessSetList();
-
+                        $scope.btndisable = false;
+                        $scope.Action = "Update"
                         //var uploadObj = $("#UploadDefault").data("ejUploadbox");
                         //uploadObj.element.find('.e-uploadinput').click();
 
@@ -729,6 +733,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     function ClearFields() {
         $scope.DisableActionButtons = false;
+        $scope.btndisable = false;
         $scope.Action = "Save";
         $scope.model = { PlantId: $window.plantid };
         $scope.processList = [];
