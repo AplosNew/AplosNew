@@ -1882,6 +1882,7 @@ namespace Library.Service.Advances
                 var totalCurrencyAmountDr = 0.0M;
                 var totalAmountCr = 0.0M;
                 var totalCurrencyAmountCr = 0.0M;
+                var voucherDetailDrId = "";
 
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
@@ -1915,7 +1916,7 @@ namespace Library.Service.Advances
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetail.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                         DrAmount = voucherVM.CompanyCurrencyRate * voucherDetail.DrAmount,
                     });
-
+                    voucherDetailDrId = voucherDetail.Id;
                     var EmployeeSubsequentAdvance = new EmployeeSubsequentTransaction
                     {
                         CompanyGroupId = voucherVM.CompanyGroupId,
@@ -2100,6 +2101,7 @@ namespace Library.Service.Advances
                         IsPark = voucherVM.IsPark,
                         Id = GetEmployeeSalaryAdvancePK(),
                         VoucherId = voucher.Id,
+                        VoucherDetailId = voucherDetailDrId,
                     };
                     AuditService.AddedLog(employeeSalaryAdvance);
                     _employeeSalaryAdvanceRepository.Insert(employeeSalaryAdvance);
