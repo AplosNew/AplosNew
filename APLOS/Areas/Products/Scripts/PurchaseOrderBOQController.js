@@ -1550,5 +1550,8 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         });
         //angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
     };
+    $scope.closeReceiveTaxPopUpwindow = function () {
+        angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
+    }
 }//End Of main
 
