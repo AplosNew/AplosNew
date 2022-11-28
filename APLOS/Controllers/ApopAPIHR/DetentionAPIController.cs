@@ -55,7 +55,7 @@ namespace Aplos.Controllers.ApopAPIHR
             return DepartmentList;
         }
         // myappdefault
-        public List<MyAppDefaultlist> GetMyAppDefault(string IconName)
+        public List<MyAppDefaultlist> GetMyAppDefault(string IconName  )
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetMyAppDefault(out List<MyAppDefaultlist> myappdefaultlist, IconName);
@@ -99,10 +99,16 @@ namespace Aplos.Controllers.ApopAPIHR
         }
 
         #region MyAppDefault
-        public List<DefaultMyAppIconList> getmyappicon(string Iconid)
+        public List<DefaultMyAppIconList> getmyappicon(string userid ,string Iconid )
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.getmyappicon(out List<DefaultMyAppIconList> myappiconlis, Iconid);
+            clsData.getmyappicon(out List<DefaultMyAppIconList> myappiconlis, userid, Iconid);
+            return myappiconlis;
+        }
+        public List<DefaultMyAppIconList> getModuleaccess(string userid, string Moduleid)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.getModuleaccess(out List<DefaultMyAppIconList> myappiconlis, userid, Moduleid);
             return myappiconlis;
         }
         #endregion MyAppDefault

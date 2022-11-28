@@ -78,19 +78,21 @@ namespace Aplos.Areas.Machines.Controllers
         public ActionResult LoadMaintenancePlanningReportList(string ToDate,string FromDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select  P.UserName as Process,WC.UserName WorkCenter,WC.Code WCCode,MA.AssetName,MA.AssetCode,MM.MachineMake Make,
-MM.MachineModel Model,MS.UserName ScheduleName,MS.ScheduleCode,Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,
+            string sql = @"Select E.UserName as Entity,D.UserName Department,P.UserName as Process,WC.UserName WorkCenter,WC.Code WCCode,MA.AssetName,MA.AssetCode,MM.MachineMake Make,
+MM.MachineModel Model,MS.UserName ScheduleName,MS.ScheduleCode,
 isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'') as LMD,
 Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end CMD,MPD.Remarks
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end CMD,Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,MPD.Remarks
 from HKP.Process P
 left join SCS.WorkCenterMaster WC ON WC.ProcessId=P.Id
+left join ORG.Entity E ON E.Id=WC.EntityId
 left join MachineMasterAsset MA ON MA.WorkCenterMasterId=WC.Id
 left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
 left join TRN.MaintenanceMachineAsset MMA ON MA.Id=MMA.AssetId
 left Join TRN.MaintenanceScheduling MS ON MMA.MaintenanceSchedulingId=MS.Id
+left Join ORG.Department D ON D.Id=MS.DepartmentId
 left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id
 where P.Active=1 and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id

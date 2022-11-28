@@ -220,6 +220,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboVoucherTypePuechaseLCOpeningChargesList: getCboVoucherTypePuechaseLCOpeningChargesList
         , getCboVoucherTypeIssueJournalList: getCboVoucherTypeIssueJournalList
         , getCboVoucherTypeFixedAssetCapitalizeJournalList: getCboVoucherTypeFixedAssetCapitalizeJournalList
+        , getCboVoucherTypeFixedAssetDepreciationJournalList: getCboVoucherTypeFixedAssetDepreciationJournalList
         , getCboVoucherTypeFixedAssetDisposeJournalList: getCboVoucherTypeFixedAssetDisposeJournalList
         , getCboVoucherTypePaymentList: getCboVoucherTypePaymentList
         , getCboVoucherTypePartyReconcilliationList: getCboVoucherTypePartyReconcilliationList
@@ -1495,6 +1496,9 @@ function cboService($http, $window, $rootScope, baseService) {
 
     function getCboVoucherTypeFixedAssetCapitalizeJournalList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypeFixedAssetCapitalizeJournalList', callback);
+    }
+    function getCboVoucherTypeFixedAssetDepreciationJournalList(callback) {
+        base('accounts/VoucherTypeMatrix/GetCboVoucherTypeFixedAssetDepreciationJournalList', callback);
     }
     function getCboVoucherTypeFixedAssetDisposeJournalList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypeFixedAssetDisposeJournalList', callback);

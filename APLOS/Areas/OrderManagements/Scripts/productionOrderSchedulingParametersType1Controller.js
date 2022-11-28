@@ -447,6 +447,9 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
             try {
                 if (!$scope.model.ID) {
                     $scope.model = response.data[0];
+                    if (baseService.isUndefinedOrNull($scope.model.Qty) || $scope.model.Qty=='NaN') {
+                        $scope.model.Qty = $scope.PlannedQty;
+                    }
                     $scope.model.LSD = $filter('dateFiltering')($scope.model.LSD, 'dd-MM-yyyy');
                     $scope.model.CommitmentDate = $filter('dateFiltering')($scope.model.CommitmentDate, 'dd-MM-yyyy');
 
@@ -974,9 +977,11 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
     $scope.model = { WCPreferenceType: 'INCLUDE' };
     $scope.displayModel = {};
 
+    $scope.PlannedQty = 0;
     $scope.Get = function (Row) {
         $scope.Clear();
         $scope.productionOrderModel = Object.assign({}, Row.data);
+        $scope.PlannedQty = Row.data.PlannedQty;
         $scope.getProductionOrderParameters();
         getProductionRecipeMaterialList();
 
