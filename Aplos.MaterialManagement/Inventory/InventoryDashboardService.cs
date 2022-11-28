@@ -3163,7 +3163,7 @@ namespace Library.Service.Expenses
 						where CMPGR.Active = 1 --AND cmp.Id='C20171'	
 
 						UNION ALL
-						----------------------------------------Pending Inventory Issue--------------------------
+						----------------------------------------Pending Inventory Issue For Approval--------------------------
 						SELECT
 						--	CMPGR.Id AS CompanyGroupId
 						--, CMPGR.UserName AS GroupName
@@ -3171,7 +3171,7 @@ namespace Library.Service.Expenses
 						--, CMP.UserName AS ColumnName
 						--,P.Id PlantId
 						--,P.UserName PlantName
-						'Pending Inventory Issue' Category, 12 SI
+						'Pending Inventory Issue For Approval' Category, 12 SI
 						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
 						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
 						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
@@ -3188,7 +3188,7 @@ namespace Library.Service.Expenses
 						LEFT JOIN
 						( 
 			
-						SELECT 'Pending Inventory Issue' Category		
+						SELECT 'Pending Inventory Issue For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,Count(IRM.Id) ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3208,11 +3208,11 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 0 and 3  
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject'
+						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 						)Res3 ON Res3.CompanyGroupId=cmpGR.Id --ANd Res3.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue' Category		
+						SELECT 'Pending Inventory Issue For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,Count(IRM.Id) AS FiveDaysCount
@@ -3232,11 +3232,11 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 4 and 5
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject'
+						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --ANd Res5.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue' Category		
+						SELECT 'Pending Inventory Issue For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3256,11 +3256,11 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 6 and 10
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject'
+						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res10 ON Res10.CompanyGroupId=cmpGR.Id --ANd Res10.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue' Category		
+						SELECT 'Pending Inventory Issue  For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3280,11 +3280,11 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 11 and 15
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject'
+						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --ANd Res15.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue' Category		
+						SELECT 'Pending Inventory Issue For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3304,11 +3304,11 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 16 and 20
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject'
+						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --ANd Res20.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue' Category		
+						SELECT 'Pending Inventory Issue For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3328,11 +3328,11 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 21 and 25
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject'
+						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
 						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 						)Res25 ON Res25.CompanyGroupId=cmpGR.Id -- ANd Res25.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue' Category		
+						SELECT 'Pending Inventory Issue For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3352,11 +3352,11 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 26 and 30
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject'
+						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
 						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --ANd Res30.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue' Category		
+						SELECT 'Pending Inventory Issue For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3376,11 +3376,11 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 31 and 900000
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject'
+						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --ANd Res31.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue' Category		
+						SELECT 'Pending Inventory Issue For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3400,7 +3400,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate())  Between 0 and 900000
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject'
+						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
 						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --ANd res32.PlantId=P.Id
 						where CMPGR.Active = 1 --AND cmp.Id='C20171'	
@@ -21496,9 +21496,9 @@ UNION ALL
 
                     }
 
-                    #endregion
-                    #region Pending Inventory Issue
-                    if (Category == "Pending Inventory Issue" && days == RequestDay)
+					#endregion
+					#region Pending Inventory Issue For Approval
+					if (Category == "Pending Inventory Issue For Approval" && days == RequestDay)
                     {
                         sql = @"SELECT 'Pending Inventory Issue' Category		
 								,IRM.CompanyId
@@ -22284,10 +22284,10 @@ UNION ALL
                     }
 
                     #endregion
-                    #region Pending Inventory Issue
-                    if (Category == "Pending Inventory Issue" && days == RequestDay)
+                    #region Pending Inventory Issue For Approval
+                    if (Category == "Pending Inventory Issue For Approval" && days == RequestDay)
                     {
-                        sql = @"SELECT 'Pending Inventory Issue' Category		
+                        sql = @"SELECT 'Pending Inventory Issue For Approval' Category		
 								,IRM.CompanyId
 									,CG.UserName CompanyGroup
 									,C.UserName Company
@@ -22306,7 +22306,7 @@ UNION ALL
 									LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
 								Where DATEDIFF(day,IRM.AddedDate,getdate()) Between '" + fromDate + @"' ANd '" + toDate + @"'  
 							    AND IRM.CompanyId='" + companyId + @"' AND IRM.PlantId='" + PlantId + @"' 
-  AND IRM.CheckedByStatus !='Reject'
+								AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus='Approved'
 								AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
 								GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName,IRM.AddedDate";
 
