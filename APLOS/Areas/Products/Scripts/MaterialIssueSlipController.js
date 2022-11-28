@@ -2117,24 +2117,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     $scope.GetAssetIssueSlipFilterData();
 
 
-    $scope.getDataAssetIssuelWise = function () {
-        $scope.IssueSlipType = 'AssetSlip';
-        //debugger;
-        var obj1 = $("#GridAssetFilterData").ejGrid("instance");
-        var sd1 = obj1.getFilteredRecords();
-        if (sd1.length == 0) {
-            sd1 = obj1.model.dataSource;
-            //alert('1' +1);
-        }
-        for (var i = 0; i < sd1.length; i++) {
-            $scope.FilterList123.push(sd1[i]);
-
-        }
-
-    }
-
-
-    $scope.AssetIssueSlipList = [];
+    
 
     $scope.IssueStatus = 'ForChecked';
     $scope.GriddataAssetIssueSlip = function () {
@@ -2145,11 +2128,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         if ($scope.IssueStatus === 'ForChecked') {
             $scope.IssueStatus = 'ForChecked';
         }
-
-        else {
-
-        }
-
         $http({
             method: 'GET',
             url: 'Products/GoodsReceiveNote/AssetIssueListData?IssueStatus=' + $scope.IssueStatus + '&IssueSlipType=' + $scope.Status1
