@@ -37,7 +37,7 @@ namespace Aplos.Areas.Securities.Controllers
         [HttpGet, Authorize]
         public ActionResult getUser()
         {
-            string strSql = @"select EmployeeId, UserId, FullName, AuthToken , Active from SEC.[User] where Active = 1";
+            string strSql = @"select Id AS UserId, EmployeeId, UserId AS [User], FullName, AuthToken , Active from SEC.[User] where Active = 1";
 
             return Json(_sqlRepository.GetDataCollection(strSql), JsonRequestBehavior.AllowGet);
         }

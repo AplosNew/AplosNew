@@ -307,7 +307,7 @@ namespace HRService
 
 
         #region MyAppIcon Default
-        public void getmyappicon(out List<DefaultMyAppIconList> DataList, string Iconid)
+        public void getmyappicon(out List<DefaultMyAppIconList> DataList, string userid, string Iconid)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -316,12 +316,16 @@ namespace HRService
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"SELECT p.RoleId AS RoleId, p.ModuleId As ModuleId, p.IconId As IconID, c.name AS RoleName ,  mp.ModuleName As ModuleName, 
-mi.IconName As IconName, c.Active 
-FROM SEC.AppRoleDetail AS p
-LEFT JOIN SEC.AppRole AS c ON p.RoleId = c.id
-LEFT JOIN dbo.MobileAppModule AS mp ON p.ModuleId = mp.id
-LEFT JOIN dbo.MobileAppIcon AS mi ON p.IconId = mi.id    where RoleId = '7' AND IconId = '" + Iconid + "'";
+                strSQL = @"select AR.Id RoleId, AR.Name Role, ARD.IconId, ARD.ModuleId,  ARM.EmployeeId, U.FullName,
+ U.UserId , AR.Active
+from 
+SEC.AppRole AR
+left join SEC.AppRoleDetail ARD on ARD.RoleId = AR.Id
+left join SEC.AppRoleMapping ARM on ARM.RoleId = AR.Id
+left join SEC.[User] U on U.Id = ARM.UserId
+left join dbo.MobileAppIcon MA on MA.Id = ARD.ModuleId
+left join dbo.MobileAppModule MAM on MAM.Id = MA.ModuleId
+where FullName != 'null'  and U.UserId = '" + userid + "' and IconId = '" + Iconid + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -333,9 +337,58 @@ LEFT JOIN dbo.MobileAppIcon AS mi ON p.IconId = mi.id    where RoleId = '7' AND 
                         RoleId = dsRef.Tables[0].Rows[i]["RoleId"].ToString(),
                         ModuleId = dsRef.Tables[0].Rows[i]["ModuleId"].ToString(),
                         IconID = dsRef.Tables[0].Rows[i]["IconID"].ToString(),
-                        RoleName = dsRef.Tables[0].Rows[i]["RoleName"].ToString(),
-                        ModuleName = dsRef.Tables[0].Rows[i]["ModuleName"].ToString(),
-                        IconName = dsRef.Tables[0].Rows[i]["IconName"].ToString(),
+                        Role = dsRef.Tables[0].Rows[i]["Role"].ToString(),
+                        EmployeeId = dsRef.Tables[0].Rows[i]["EmployeeId"].ToString(),
+                        FullName = dsRef.Tables[0].Rows[i]["FullName"].ToString(),
+                        UserID = dsRef.Tables[0].Rows[i]["UserID"].ToString(),
+                        Active = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["Active"]),
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void getModuleaccess(out List<DefaultMyAppIconList> DataList, string userid, string Moduleid)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<DefaultMyAppIconList>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select AR.Id RoleId, AR.Name Role, ARD.IconId, ARD.ModuleId,  ARM.EmployeeId, U.FullName,
+ U.UserId , AR.Active
+from 
+SEC.AppRole AR
+left join SEC.AppRoleDetail ARD on ARD.RoleId = AR.Id
+left join SEC.AppRoleMapping ARM on ARM.RoleId = AR.Id
+left join SEC.[User] U on U.Id = ARM.UserId
+left join dbo.MobileAppIcon MA on MA.Id = ARD.ModuleId
+left join dbo.MobileAppModule MAM on MAM.Id = MA.ModuleId
+where FullName != 'null'  and U.UserId = '" + userid + "' and ARD.ModuleId = '" + Moduleid + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new DefaultMyAppIconList
+                    {
+                        RoleId = dsRef.Tables[0].Rows[i]["RoleId"].ToString(),
+                        ModuleId = dsRef.Tables[0].Rows[i]["ModuleId"].ToString(),
+                        IconID = dsRef.Tables[0].Rows[i]["IconID"].ToString(),
+                        Role = dsRef.Tables[0].Rows[i]["Role"].ToString(),
+                        EmployeeId = dsRef.Tables[0].Rows[i]["EmployeeId"].ToString(),
+                        FullName = dsRef.Tables[0].Rows[i]["FullName"].ToString(),
+                        UserID = dsRef.Tables[0].Rows[i]["UserID"].ToString(),
                         Active = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["Active"]),
                     });
                 }
@@ -1789,9 +1842,10 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string RoleId { get; set; }
         public string ModuleId { get; set; }
         public string IconID { get; set; }
-        public string RoleName { get; set; }
-        public string ModuleName { get; set; }
-        public string IconName { get; set; }
+        public string Role { get; set; }
+        public string EmployeeId { get; set; }
+        public string FullName { get; set; }
+        public string UserID { get; set; }
         public bool Active { get; set; }
     }
 
