@@ -1882,8 +1882,6 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             for (var i = 0; i < $scope.taxCategoryList.length; i++) {
                 $scope.receiveTaxList.push($scope.taxCategoryList[i]);
             }
-
-
         }
 
         for (var i = 0; i < $scope.receiveTaxList.length; i++) {
@@ -1906,11 +1904,8 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
                 return false;
             }
         }
-
-        //if ($scope.TAction === "OK") {
         $http({
             method: 'POST',
-            //url: $scope.saveUrl,
             url: 'Products/PurchaseOrder/InsertExtraTax',
             //data: $scope.receiveTaxList,
             data: {
@@ -1930,6 +1925,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
             ShowResult(response.data.Message, 'failure', 'receiveTaxPopUp');
         };
     }
+
     $scope.closeServiceChargeTaxPopUp = function () { //hossain
         //
         $scope.detailModel = {};

@@ -1799,8 +1799,6 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                     ShowResult('allocated qty can not grater than Rejection Qty', 'failure', 'ListOfSoBoq');
                     return false;
                 }
-
-
             }
             if ($scope.soListNew.length === 0) {
                 ShowResult('Please select atlest one item', 'failure', 'ListOfSoBoq');
@@ -1869,7 +1867,6 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 nRow.BaseQty = $scope.MasterListNew[n].BaseQty;
                 nRow.BaseIssueQty = $scope.MasterListNew[n].BaseIssueQty;
                 if (!baseService.valueCheckInList($scope.MasterList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.check) {
-                    
                     var taxAmount = 0;
                     if ($scope.POMaterialTaxList.length > 0) {
                         for (var j = 0; j < $scope.POMaterialTaxList.length; j++) {

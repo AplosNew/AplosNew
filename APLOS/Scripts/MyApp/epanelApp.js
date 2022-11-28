@@ -30,6 +30,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("PurchaseOrderApproveController", PurchaseOrderApproveController)
     .controller("grnApprovalController", grnApprovalController)
     .controller("IssueSlipController", IssueSlipController)
+    .controller("AssetIssueSlipController", AssetIssueSlipController)
     .controller("MaterialIssueSlipController", MaterialIssueSlipController)
     .controller("TNAReportsController", TNAReportsController)
     .controller("ServiceRequisitionController", ServiceRequisitionController)
@@ -201,7 +202,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
             })
             .when('/asset-issue-slip', {
                 templateUrl: 'Products/GoodsReceiveNote/AssetIssueSlip',
-                controller: 'MaterialIssueSlipController'
+                controller: 'AssetIssueSlipController'
             })
             //#endregion
 
