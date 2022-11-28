@@ -191,7 +191,12 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.FixedAssetDisposeJournal), JsonRequestBehavior.AllowGet);
         }
 
-
+        [Authorize, HttpGet]
+        public JsonResult GetCboVoucherTypeFixedAssetDepreciationJournalList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.DepreciationJournal), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetCboVoucherTypePaymentList()
