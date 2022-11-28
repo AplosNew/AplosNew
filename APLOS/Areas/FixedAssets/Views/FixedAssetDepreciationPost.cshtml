@@ -20,13 +20,19 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Asset Master<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Disposal Type" ng-model="voucher.FixedAssetMaster"  class="form-control" readonly >
+                    <input type="text" name="Disposal Type" ng-model="voucher.FixedAssetMaster" class="form-control" readonly>
                 </div>
             </div>
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <input type="text" name="Entry Date" ng-model="voucher.VoucherDate" datepicker class="form-control" disabled required>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Narration<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <textarea rows="2" type="text" name="Narration" tabindex="8" class="form-control" ng-model="voucher.Narration" required capitalize></textarea>
                 </div>
             </div>
         </div>
@@ -40,7 +46,7 @@
             <div id="div_DocDate" class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input required  id="docDate" type="text" name="Doc Date" ng-model="voucher.DocDate" class="form-control" tabindex="1" readonly>
+                    <input required datepicker="checkPostingDate();checkDocDate();"  id="docDate" type="text" name="Doc Date" ng-model="voucher.DocDate" class="form-control" tabindex="1">
                 </div>
             </div>
             <div class="form-group" show-errors>
@@ -179,14 +185,17 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="DepreciationNo" e-headertext="Depreciation No" e-width="80" e-filter="false"></div>
-            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="80" e-filter="false"></div>
-            <div e-column e-field="Status" e-headertext="Status" e-width="70"></div>
-            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
-            <div e-column e-field="TrnCurrency" e-headertext="Currency" e-width="60"></div>
-            <div e-column e-field="NegotiationValue" e-headertext="Negotiation Amount" e-width="80"></div>
-            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="PDF&Excel" e-width="70"></div>
-            
+            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="70" e-filter="false"></div>
+            <div e-column e-field="PostingDate" e-headertext="Posting Date" e-width="60"></div>
+            <div e-column e-field="FixedAssetMasterId" e-headertext="Asset Master Id" e-width="40" e-filter="false"></div>
+            <div e-column e-field="FixedAssetMaster" e-headertext="Asset Master" e-width="100"></div>
+            <div e-column e-field="FixedAssetCategory" e-headertext="Asset Category" e-width="100"></div>
+            <div e-column e-field="FixedAssetSubCategory" e-headertext="Asset SubCategory" e-width="100"></div>
+            <div e-column e-field="DepreciationProcessDate" e-headertext="Depreciation Process Date" e-width="60"></div>
+            <div e-column e-field="BaseCurrency" e-headertext="Currency" e-width="40"></div>
+            <div e-column e-field="FixedAssetDepreciationAmount" e-headertext="Amount" e-width="60"></div>
+            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="PDF&Excel" e-width="80"></div>
+
         </div>
     </div>
 

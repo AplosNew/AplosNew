@@ -10,6 +10,7 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
     $scope.ModelTemp = {
         Id: null,
         EmployeeId: null,
+        User:null,
         UserId: null,
         RoleId: null,
         CompanyGroupId: null
@@ -65,8 +66,9 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
     }
 
     $scope.DoubleClickedGetData = function (e) {
-        $scope.ModelNew.EmployeeId = e.data.EmployeeId
-        $scope.ModelNew.UserId = e.data.UserId
+        $scope.ModelNew.EmployeeId = e.data.EmployeeId;
+        $scope.ModelNew.User = e.data.FullName;
+        $scope.ModelNew.UserId = e.data.UserId;
         $scope.CloseContractorPopUp();
     }
 
@@ -78,6 +80,7 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
             url: $scope.saveUrl,
             data: {
                 'data': $scope.ModelNew,
+                'userId': $scope.ModelNew.UserId,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

@@ -19,7 +19,7 @@ function fixedAssetDepreciationPostController(accountService, cboService, common
 
     $scope.voucherDetailList = [];
     $scope.searchBy = "FixedAssetMasterId"; $scope.search = "";
-    $scope.searchByList = [{ value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }, { value: 'DepreciationProcessDate', name: "Depreciation Process Date" }];
+    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" },{ value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }, { value: 'DepreciationProcessDate', name: "Depreciation Process Date" }];
 
     $scope.voucherList = [];
     $scope.getData = function () {
@@ -174,32 +174,32 @@ function fixedAssetDepreciationPostController(accountService, cboService, common
         $scope.GetCurrencyExchangeRateList();
     });
 
-    //$scope.getCboVoucherTypeFixedAssetDepreciationJournalList = function () {
-    //    cboService.getCboVoucherTypeFixedAssetDepreciationJournalList(function (result) {
-    //        $scope.voucherTypeList = result;
-    //        if ($scope.voucherTypeList.length === 1) {
-    //            $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
-    //            $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
-    //            $scope.voucher.DocDate = $scope.voucher.PostingDate;
-    //            $scope.GetCurrencyExchangeRateList();
-    //        }
-    //    });
-    //};
-    //$scope.getCboVoucherTypeFixedAssetDepreciationJournalList();
-    //$scope.GetCurrencyExchangeRateList = function () {
-    //    if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
-    //        $http({
-    //            method: "GET",
-    //            url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.voucher.PostingDate + "&currencyId=" + $scope.voucher.CurrencyId
-    //        }).then(function successCallback(response) {
-    //            $scope.currencyExchangeRate = response.data;
-    //            $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
-    //        });
-    //    }
-    //    else {
-    //        $scope.currencyExchangeRate = null;
-    //    }
-    //};
+    $scope.getCboVoucherTypeFixedAssetDepreciationJournalList = function () {
+        cboService.getCboVoucherTypeFixedAssetDepreciationJournalList(function (result) {
+            $scope.voucherTypeList = result;
+            if ($scope.voucherTypeList.length === 1) {
+                $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+                $scope.voucher.DocDate = $scope.voucher.PostingDate;
+                $scope.GetCurrencyExchangeRateList();
+            }
+        });
+    };
+    $scope.getCboVoucherTypeFixedAssetDepreciationJournalList();
+    $scope.GetCurrencyExchangeRateList = function () {
+        if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.voucher.PostingDate + "&currencyId=" + $scope.voucher.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = null;
+        }
+    };
     $scope.invalidPostingDate = false;
     $scope.checkPostingDate = function () {
         var msg = "";
@@ -271,7 +271,7 @@ function fixedAssetDepreciationPostController(accountService, cboService, common
     $scope.onClickReportDownloadExcel = function (args) {
         var reportFormat = "Excel";
         try {
-            var file_src = $scope.path + 'FixedAssetsDepreciationPost?reportFormat=' + reportFormat + '&DepreciationdVoucherId=' + args.Id
+            var file_src = $scope.path + 'FixedAssetsDepreciationPostReport?reportFormat=' + reportFormat + '&depreciationVoucherId=' + args.Id
             $rootScope.report(file_src);
         } catch (e) {
 
@@ -282,7 +282,7 @@ function fixedAssetDepreciationPostController(accountService, cboService, common
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(args.Id)) return ShowResult('No Id found', 'failure');
         try {
-            var file_src = $scope.path + 'FixedAssetsDepreciationPost?reportFormat=' + reportFormat + '&DepreciationdVoucherId=' + args.Id
+            var file_src = $scope.path + 'FixedAssetsDepreciationPostReport?reportFormat=' + reportFormat + '&depreciationVoucherId=' + args.Id
             $rootScope.report(file_src);
         } catch (e) {
 

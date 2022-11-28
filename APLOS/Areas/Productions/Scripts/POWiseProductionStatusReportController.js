@@ -6,10 +6,19 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
     $scope.downloadgriddataUrl = 'GridReports/Download';
-
+    $scope.ProductionDataSumReportList = [];
+    $scope.ProductionDataReportList = [];
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
     //The Filters 
     $scope.filters = [];
+    $scope.sumfilters = [];
     $scope.loadfilters = function () {
         $http({
             method: 'GET',
@@ -17,6 +26,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.filters = response.data;
+            $scope.sumfilters = response.data;
             var columnList = [
                 { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
                 { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
@@ -41,6 +51,21 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             $("#filters").children('.e-pager.e-js.e-pager').hide();
             $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
             $("#filters").children('.e-gridcontent').hide();
+
+            $("#summaryfilters").ejGrid({
+                dataSource: $scope.sumfilters,
+                minWidth: 450, minHeight: 400,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                filterSettings: { filterType: "excel" },
+                columns: columnList
+            });
+
+            var gridSumObj = $("#summaryfilters").data("ejGrid");
+            gridSumObj.refreshContent(true);
+            gridSumObj.refreshTemplate();
+            $("#summaryfilters").children('.e-pager.e-js.e-pager').hide();
+            $("#summaryfilters").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#summaryfilters").children('.e-gridcontent').hide();
         });
     }
     $scope.loadfilters();
@@ -123,13 +148,21 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     }
 
     $scope.ProductionData = function () {
-        $scope.filterComplete();
+        var dataList = [];
+        var g = $("#GridEmp").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.ProductionDataReportList;
+        }
+        console.log('dataList',dataList);
         $scope.fileName = "ProductionDataReport.xlsx";
 
         $http({
             method: 'POST',
             url: $scope.path + "ProductionDataXls",
-            data: { 'parameters': $scope.parameters },
+            //data: { 'parameters': $scope.parameters },
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -138,27 +171,100 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             else {
                 //$scope.ProductionDataReportList = response.data;
                 $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
         });
     }
 
-    $scope.ProductionDataReport = function () {
-        var dataList = [];
-        var g = $("#GridEmp").data("ejGrid");
-        dataList = g.getFilteredRecords();
+    //$scope.ProductionDataReport = function () {
+    //    var dataList = [];
+    //    var g = $("#GridEmp").data("ejGrid");
+    //    dataList = g.getFilteredRecords();
 
-        if (dataList.length == 0) {
-            dataList = $scope.ProductionDataReportList;
+    //    if (dataList.length == 0) {
+    //        dataList = $scope.ProductionDataReportList;
+    //    }
+
+    //    $scope.fileName = "Production Data Report";
+
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.exportgriddataUrlUpd,
+    //        data: {'reportFileName': $scope.fileName,'data': dataList},
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error == true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
+    //}
+
+    $scope.sumparameters = [];
+    $scope.SumfilterComplete = function () {
+
+        var g = $("#summaryfilters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.sumfilters;
         }
 
-        $scope.fileName = "Production Data Report";
+
+        var sumparameters = [];
+        sumparameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        sumparameters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
+        sumparameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
+        sumparameters.push({ "Key": "ProductionStatusId", "Value": getString(fl, "ProductionStatusId") });
+        sumparameters.push({ "Key": "ProductLibraryId", "Value": getString(fl, "ProductLibraryId") });
+        sumparameters.push({ "Key": "LotNumber", "Value": getString(fl, "LotNumber") });
+
+        $scope.sumparameters = sumparameters;
+
+    }
+
+
+    $scope.SummeryViewData = function () {
+        $scope.SumfilterComplete();
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetSummaryViewData",
+            data: { 'parameters': $scope.sumparameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.ProductionDataSumReportList = response.data;
+                console.log($scope.ProductionDataSumReportList);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    $scope.ProSumDataReport = function () {
+        var dataLists = [];
+         var g = $("#GridSum").data("ejGrid");
+        dataLists = g.getFilteredRecords();
+
+        if (dataLists.length == 0) {
+            dataLists = $scope.ProductionDataSumReportList;
+        }
+
+        $scope.fileName = "ProductionDataSummaryReport";
 
         $http({
             method: 'POST',
             url: $scope.exportgriddataUrlUpd,
-            data: {'reportFileName': $scope.fileName,'data': dataList},
+            data: {'reportFileName': $scope.fileName,'data': dataLists},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -171,4 +277,5 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             ShowResult(response.data.Message, 'failure');
         });
     }
+
 }
