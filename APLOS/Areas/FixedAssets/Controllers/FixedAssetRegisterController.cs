@@ -1236,6 +1236,25 @@ namespace Aplos.Areas.FixedAssets.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+        [HttpGet, Authorize]
+        public ActionResult FixedAssetsDepreciationPostReport(ReportFormat reportFormat, string depreciationVoucherId)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var workbook = _fixedAssetDisposeService.FixedAssetsDepreciationPostReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, depreciationVoucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName, false);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
 
 
         //[HttpGet, Authorize]
