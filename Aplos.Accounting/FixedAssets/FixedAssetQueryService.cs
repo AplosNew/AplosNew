@@ -2070,41 +2070,23 @@ namespace Library.Accounting.FixedAssets
 			string strkey = "1=1";
 			if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
 				strkey = column + " like '%" + value + "%'";
-			var sql = @"select top 100 * from (select frd.Id DisposeNo,cast(substring(frd.Id,3,8) as int)SlNo,V.VoucherNo,V.PostingDate,V.Id,fr.Remarks,fr.[Status],ei.EmployeeName,D.UserName Department,DG.UserName Designation,frd.IsPark
-
-
-			,P.UserName CustomerName
-			,C.Code TrnCurrency
-        ,sum( ISNULL(FR.Price,0)) Price
-									,sum( ISNULL(SAR.subAssetAmount,0) )SubAssetAmount
-									,sum( ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)) PurchasePrice
-									 ,sum( ISNULL(FR.Price,0)+ISNULL(SAR.subAssetAmount,0)-ISNULL(FR.ADBaseAmount,0)) NetBookValue 
-								--	, 0 NegotiationValue
-
-								   , BC.Code BaseCurrency
-									,sum( isnull(FR.FABaseAmount,0))FABaseAmount
-									,sum(ISNULL(SAR.subAssetBaseAmount,0) )SubAssetBaseAmount
-									,sum(isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0)) PurchaseBaseAmount
-									,sum(isnull( FR.ADBaseAmount,0))ADBaseAmount
-                                    ,sum( isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) )NetBaseBookValue 
-										,sum(isnull( rdd.NegotiationValue,0))NegotiationValue
-										,sum(isnull( rdd.BaseNagotiationValue,0))BaseNagotiationValue
-
-                from TRN.FixedAssetRegisterDisposed frd 
-				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
-                left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
-                left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
-				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
-					LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
-				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
-				 JOIN TRN.Voucher V ON V.Id=frd.DisposedVoucherId
-                     LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
-                     LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
-                LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount ,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
-                    where fr.CompanyId='" + companyId + @"'
-                    group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName 
-					,DG.UserName,V.VoucherNo,V.PostingDate,V.Id,c.Code ,P.UserName , BC.Code ) AS TEMP WHERE " + strkey + " order by SlNo desc ";
+			var sql = @"select top 100 * from (select V.Id,FR.FixedAssetMasterId
+									,FAM.UserName 'FixedAssetMaster'
+									,FAC.UserName 'FixedAssetCategory'
+									,FASC.UserName 'FixedAssetSubCategory'
+									,FORMAT(FDP.DepreciationProcessDate, 'dd-MMM-yyyy') DepreciationProcessDate
+                                    ,sum( ISNULL(FDP.CurrentDepreciationAmount,0)) FixedAssetDepreciationAmount
+								    ,BC.Code BaseCurrency,1 CompanyCurrencyRate,1 ToCurrencyRate
+									,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
+                FROM [TRN].[FixedAssetDepreciationProcess] FDP
+                LEFT JOIN TRN.FixedAssetRegister FR on FR.Id=FDP.FixedAssetRegisterId
+				INNER JOIN TRN.Voucher V ON V.Id=FDP.DepreciationVoucherId
+	            LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
+				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FR.FixedAssetMasterId
+                LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+                WHERE FR.CompanyId='" + companyId + @"' AND FDP.DepreciationVoucherId IS NOT NULL
+                GROUP BY  V.Id,FR.FixedAssetMasterId,FAM.UserName,FAC.UserName,FDP.DepreciationProcessDate,FASC.UserName,BC.Code,V.VoucherNo,V.PostingDate ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
 			return _sqlRepository.GetDataCollection(sql);
 		}
 		#endregion
