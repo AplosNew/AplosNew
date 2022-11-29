@@ -286,7 +286,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         var filtered = $("#GridMachine").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
             for (var i = 0; i < $scope.ScheduleMachineList.length; i++) {
-                $scope.ScheduleMachineList[i].Flag = ChkOrUnchk;
+                $scope.ScheduleMachineList[i].IsActive = ChkOrUnchk;
             }
         }
         else {
@@ -402,10 +402,10 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
 
             $scope.SaveList = [];
             for (var i = 0; i < $scope.ScheduleMachineList.length; i++) {
-                if ($scope.ScheduleMachineList[i].Flag == true) {
+                /*if ($scope.ScheduleMachineList[i].IsActive == true) {*/
                     $scope.ScheduleMachineList[i].MaintenanceSchedulingId = $scope.scheduleNew.Id;
                     $scope.SaveList.push($scope.ScheduleMachineList[i]);
-                }
+                /*}*/
             }
 
 
