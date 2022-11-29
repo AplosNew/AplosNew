@@ -1117,6 +1117,7 @@ upanelApp.controller("GeneralContractItemMasterController", GeneralContractItemM
 upanelApp.controller("GeneralContractController", GeneralContractController)
 upanelApp.controller("maintenancePlanningReportController", maintenancePlanningReportController)
 upanelApp.controller("teamPlanReportController", teamPlanReportController)
+upanelApp.controller("GeneralContractEntryController", GeneralContractEntryController)
 
 
 upanelApp.config(AccessControllerConfig);

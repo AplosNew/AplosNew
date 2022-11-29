@@ -251,7 +251,8 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         $scope.ModalNew.Id = args.data.Id;
         $scope.GetChildValue();
         $scope.ModalNew = Object.assign({}, args.data);
-
+        document.getElementById("updatebtn").style.display = "block";
+        document.getElementById("savebtn").style.display = "none";
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
