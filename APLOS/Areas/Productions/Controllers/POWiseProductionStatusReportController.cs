@@ -318,6 +318,11 @@ namespace Aplos.Areas.Productions.Controllers
                 int colEntity = COL;
 
                 COL++;
+                sheet[ROW, COL].Text = "ProcessIndex";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProcessIndex = COL;
+
+                COL++;
                 sheet[ROW, COL].Text = "Process";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProcess = COL;
@@ -333,15 +338,9 @@ namespace Aplos.Areas.Productions.Controllers
                 int colStandardProcessSeq = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "ProcessIndex";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colProcessIndex = COL;
-
-                COL++;
                 sheet[ROW, COL].Text = "BaseProcessApplicable";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colBaseProcessApplicable = COL;
-
 
                 COL++;
                 sheet[ROW, COL].Text = "POProcessStatus";
@@ -430,6 +429,12 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPlannedQty = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "ProcessWisePlanQty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProcessWisePlanQty = COL;
 
                 COL++;
                 sheet[ROW, COL].Text = "ProductionQty";
@@ -533,6 +538,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colWorkStation].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfWorkStation"].ToString());
                     sheet[ROW, colActualWorkHours].Number = clsStaticInfo.dbl(data.Rows[i]["ProductionHours"].ToString());
                     sheet[ROW, colPlannedQty].Number = clsStaticInfo.dbl(data.Rows[i]["PlannedQty"].ToString());
+                    sheet[ROW, colProcessWisePlanQty].Number = clsStaticInfo.dbl(data.Rows[i]["ProcessWisePlanQty"].ToString());
                     sheet[ROW, colActualQty].Number = clsStaticInfo.dbl(data.Rows[i]["ActualQty"].ToString());
                     sheet.Range[ROW, colUpToDate].Number = clsStaticInfo.dbl(data.Rows[i]["UpToDateProduction"].ToString());
                     sheet.Range[ROW, colPreProUDProd].Number = clsStaticInfo.dbl(data.Rows[i]["PreProUDProd"].ToString());
@@ -770,9 +776,9 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     partyId = "AND XMO.PartyId in(" + parameters["CustomerId"] + @")";
                 }
-                string sql = @"Select A.* from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
-		,PSEQ.ProcessIndex,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.PlannedQty,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty, 0) PreProUDProd
-		,WIP = ISNULL(PSEQ.Qty - PSEQ.PreQty, 0),UptoDateProPercentage = (pp.Quantity / ORD.PlannedQty) / 100,wcm.UserName AS WorkCenter,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
+                string sql = @"Select A.* from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,PSEQ.ProcessIndex,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
+		,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.PlannedQty,ProcessWisePlanQty=ORD.PlannedQty*POPS.Qty,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty, 0) PreProUDProd
+		,WIP = ISNULL(PSEQ.PreQty-PSEQ.Qty, 0),UptoDateProPercentage = (pp.Quantity / ORD.PlannedQty) / 100,wcm.UserName AS WorkCenter,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
 		,ord.Product,PS.UserName POStatus,FLB.FirstBookDate,FLB.LastBookDate --,ORD.FirstShipmentDate,ORD.LastShipmentDate,
 		,PP.LotNumber,POProcessStatus=CASE WHEN POPS.IsCompleted=1 THEN 'Completed' ELSE 'Not Completed' END
 --additional info
@@ -814,8 +820,7 @@ trn.SalesOrder XSO
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
 where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-pt1.NoOfWorkStation,sn.ProductionHours  AS PlanHours,
-ISNULL(ppt.ProductionHours,0) ProductionHours
+wcm.NoOfWorkStation,ProductionHours=(select top(1) Hour from scs.WorkCenterMasterEffectiveDate Where WorkCenterMasterId=wcm.Id Order BY StartDate Desc)
                             
 FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity,PS.ResponsiblePersonId,PS.LotNumber
 
@@ -824,7 +829,7 @@ left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
 LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
 GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,PS.ResponsiblePersonId,PS.LotNumber
 ) AS pp
-LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId from TRN.ProductionSummary GROUP BY ProcessId) FLB ON FLB.ProcessId=PP.ProcessId
+LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId,ProductionOrderId from TRN.ProductionSummary GROUP BY ProcessId,ProductionOrderId) FLB ON FLB.ProcessId=PP.ProcessId AND FLB.ProductionOrderId=PP.ProductionOrderId
 LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
 --LEFT JOIN(Select FORMAT(MIN(DeliveryDate),'dd-MMM-yyyy') FirstShipmentDate,  FORMAT(MAX(DeliveryDate),'dd-MMM-yyyy') LastShipmentDate,Id from trn.SalesOrder Group BY Id) AS so ON so.Id=pp.SalesOrderId
 LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID=pp.ProductionOrderID
@@ -884,7 +889,7 @@ GROUP BY PS.ProductionOrderId,PSQ.Sequence
 ) PSEQ ON PSEQ.ProductionOrderId=PP.ProductionOrderID AND POPS.[Sequence]=PSEQ.Sequence
 Where TRKE.Id in(" + parameters["EntityId"] + @")
 AND ISNULL(PP.ResponsiblePersonId,'') in(" + parameters["ResponsiblePersonId"] + @")
-AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.PONo,A.POProcessSequence ";
+AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.PONo,A.ProcessIndex ";
 
 
                 data = _sqlRepository.GetDataTable(sql);
@@ -1061,9 +1066,9 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.PONo,A.POPr
                 string sql = @"Select A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.PONo,A.POStatus
 ,A.WorkCenter,A.ProductionShift,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article,A.NoOfWorkStation,A.ProductionHours
 ,A.PlannedQty,SUM(A.ActualQty) ActualQty,A.PreProUDProd,A.FirstBookDate,A.LastBookDate 
-from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
-		,PSEQ.ProcessIndex,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.PlannedQty,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty, 0) PreProUDProd
-		,WIP = ISNULL(PSEQ.Qty - PSEQ.PreQty, 0),UptoDateProPercentage = (pp.Quantity / ORD.PlannedQty) / 100,wcm.UserName AS WorkCenter,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
+from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,PSEQ.ProcessIndex,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
+		,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.PlannedQty,ProcessWisePlanQty=ORD.PlannedQty*POPS.Qty,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty, 0) PreProUDProd
+		,WIP = ISNULL(PSEQ.PreQty-PSEQ.Qty, 0),UptoDateProPercentage = (pp.Quantity / ORD.PlannedQty) / 100,wcm.UserName AS WorkCenter,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
 		,ord.Product,PS.UserName POStatus,FLB.FirstBookDate,FLB.LastBookDate --,ORD.FirstShipmentDate,ORD.LastShipmentDate,
 		,PP.LotNumber,POProcessStatus=CASE WHEN POPS.IsCompleted=1 THEN 'Completed' ELSE 'Not Completed' END
 --additional info
@@ -1105,8 +1110,7 @@ trn.SalesOrder XSO
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
 where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-pt1.NoOfWorkStation,sn.ProductionHours  AS PlanHours,
-ISNULL(ppt.ProductionHours,0) ProductionHours
+wcm.NoOfWorkStation,ProductionHours=(select top(1) Hour from scs.WorkCenterMasterEffectiveDate Where WorkCenterMasterId=wcm.Id Order BY StartDate Desc)
                             
 FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity,PS.ResponsiblePersonId,PS.LotNumber
 
@@ -1115,7 +1119,7 @@ left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
 LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
 GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,PS.ResponsiblePersonId,PS.LotNumber
 ) AS pp
-LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId from TRN.ProductionSummary GROUP BY ProcessId) FLB ON FLB.ProcessId=PP.ProcessId
+LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId,ProductionOrderId from TRN.ProductionSummary GROUP BY ProcessId,ProductionOrderId) FLB ON FLB.ProcessId=PP.ProcessId AND FLB.ProductionOrderId=PP.ProductionOrderId
 LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
 --LEFT JOIN(Select FORMAT(MIN(DeliveryDate),'dd-MMM-yyyy') FirstShipmentDate,  FORMAT(MAX(DeliveryDate),'dd-MMM-yyyy') LastShipmentDate,Id from trn.SalesOrder Group BY Id) AS so ON so.Id=pp.SalesOrderId
 LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID=pp.ProductionOrderID
@@ -1179,7 +1183,7 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A
 GROUP BY A.PONo,A.Process,A.UpToDateProduction,A.PreProUDProd,A.POProcessSequence
 ,A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.PONo,A.POStatus
 ,A.WorkCenter,A.ProductionShift,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article,A.NoOfWorkStation,A.ProductionHours,A.PlannedQty,A.FirstBookDate,A.LastBookDate
-Order BY A.PONo,A.POProcessSequence";
+Order BY A.PONo,A.ProcessIndex";
 
 
                 data = _sqlRepository.GetDataTable(sql);
