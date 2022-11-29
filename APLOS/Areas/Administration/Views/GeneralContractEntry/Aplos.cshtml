@@ -135,19 +135,19 @@
 </div>
 
 <div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ej-grid e-datasource="HeaderList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
             @*<div e-column e-field="Sequence" e-headertext="Seq" e-width="80"></div>
                 <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>*@
-            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="100"></div>
-            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="150"></div>
-            <div e-column e-field="UserName" e-headertext="User Name" e-width="130"></div>
+           
+            <div e-column e-field="GeneralContract" e-headertext="General Contract" e-width="130"></div>
             <div e-column e-field="Date" e-headertext="Date" e-width="130"></div>
-            <div e-column e-field="CheckBy" e-headertext="CheckBy" e-width="130"></div>
-
+            <div e-column e-field="EmployeeName" e-headertext="Check By" e-width="130"></div>
+            <div e-column e-field="Entity" e-headertext="Entity" e-width="130"></div>
+            
         </div>
     </div>
 </div>
