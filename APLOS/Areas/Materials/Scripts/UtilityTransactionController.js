@@ -97,9 +97,9 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     }
 
 
-    $scope.ModelNew.LastReading = 0;
+    
     $scope.GetQuantity = function () {
-            $scope.ModelNew.Quantity = $scope.ModelNew.Reading - $scope.LastReading;
+        $scope.ModelNew.Quantity = $scope.ModelNew.Reading - $scope.ModelNew.LastReading;
     }
 
 
@@ -115,7 +115,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
 
 
     $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
+        //$scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             if ($scope.Action == 'Save') {
                 $http({
