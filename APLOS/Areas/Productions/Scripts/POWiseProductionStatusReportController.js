@@ -16,17 +16,74 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         return $scope.tab === tabNum;
     };
 
+
+    $scope.StatusList = [];
+    $scope.GetStatus = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/WeighingScaleReport/GetStatus',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+
+            }
+            else {
+                $scope.StatusList = response.data;
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    }
+    $scope.GetStatus();
+
+    $scope.flag = null;
+    $scope.ProductionOrderList = [];
+    $scope.getProductionOrderPopUp = function (name) {
+        $scope.flag = name;
+        $scope.ProductionOrderList = [];
+        $http.get('Productions/POWiseProductionStatusReport/GetProductionOrderDataList?productionStatusId=' + $scope.selectedValues.StatusId)
+            .then(
+                function successCallback(response) {
+                    $scope.ProductionOrderList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+        angular.element(document.querySelector('#POItemPopup')).modal('show');
+
+    };
+
+    $scope.SetPrOData = function ($event) {
+        if ($scope.flag == 'detail') {
+            $scope.selectedValues.ProductionOrderId = $event.data.POId;
+            $scope.loadfilters();
+        }
+        else if ($scope.flag == 'wc') {
+            $scope.withwc.ProductionOrderId = $event.data.POId;
+            $scope.loadwcfilters();
+        }
+        else {
+            $scope.summary.ProductionOrderId = $event.data.POId;
+            $scope.loadsummaryfilters();
+        }
+        $scope.flag = null;
+        angular.element(document.querySelector('#POItemPopup')).modal('hide');
+    }
+
+
     //The Filters 
     $scope.filters = [];
-    $scope.sumfilters = [];
+    $scope.summaryfilters = [];
+    $scope.wcfilters = [];
     $scope.loadfilters = function () {
         $http({
             method: 'GET',
-            url: $scope.path + 'getFilters',
+            url: $scope.path + 'getFilters?productionStatusId=' + $scope.selectedValues.StatusId + '&poId=' + $scope.selectedValues.ProductionOrderId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
+            $scope.filters = [];
             $scope.filters = response.data;
-            $scope.sumfilters = response.data;
             var columnList = [
                 { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
                 { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
@@ -51,9 +108,68 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             $("#filters").children('.e-pager.e-js.e-pager').hide();
             $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
             $("#filters").children('.e-gridcontent').hide();
+        });
+    }
+
+    $scope.loadwcfilters = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getFilters?productionStatusId=' + $scope.withwc.StatusId + '&poId=' + $scope.withwc.ProductionOrderId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.wcfilters = [];
+            $scope.wcfilters = response.data;
+            var columnList = [
+                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
+                { field: 'ProductionOrderId', width: 20, headerText: "PONo", type: "string" },
+                { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
+                { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
+                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
+
+            ];
+          
+
+            $("#wcfilters").ejGrid({
+                dataSource: $scope.wcfilters,
+                minWidth: 450, minHeight: 400,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                filterSettings: { filterType: "excel" },
+                columns: columnList
+            });
+
+            var gridSumObj = $("#wcfilters").data("ejGrid");
+            gridSumObj.refreshContent(true);
+            gridSumObj.refreshTemplate();
+            $("#wcfilters").children('.e-pager.e-js.e-pager').hide();
+            $("#wcfilters").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#wcfilters").children('.e-gridcontent').hide();
+        });
+    }
+
+    $scope.loadsumfilters = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getFilters?productionStatusId=' + $scope.summary.StatusId + '&poId=' + $scope.summary.ProductionOrderId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.summaryfilters = [];
+            $scope.summaryfilters = response.data;
+            var columnList = [
+                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
+                { field: 'ProductionOrderId', width: 20, headerText: "PONo", type: "string" },
+                { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
+                { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
+                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
+
+            ];
+
 
             $("#summaryfilters").ejGrid({
-                dataSource: $scope.sumfilters,
+                dataSource: $scope.summaryfilters,
                 minWidth: 450, minHeight: 400,
                 allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
                 filterSettings: { filterType: "excel" },
@@ -68,7 +184,6 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             $("#summaryfilters").children('.e-gridcontent').hide();
         });
     }
-    $scope.loadfilters();
 
     // THe Generate Filters
     $scope.parameters = [];
@@ -126,7 +241,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.ProductionDataReportList = [];
     $scope.ViewData = function () {
         $scope.filterComplete();
-      //  $scope.fileName = "ProductionDataReport.xlsx";
+        //  $scope.fileName = "ProductionDataReport.xlsx";
 
         $http({
             method: 'POST',
@@ -155,7 +270,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         if (dataList.length == 0) {
             dataList = $scope.ProductionDataReportList;
         }
-        console.log('dataList',dataList);
+        console.log('dataList', dataList);
         $scope.fileName = "ProductionDataReport.xlsx";
 
         $http({
@@ -206,13 +321,84 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     //    });
     //}
 
+    $scope.wcparameters = [];
+    $scope.WCfilterComplete = function () {
+
+        var g = $("#wcfilters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.wcfilters;
+        }
+
+
+        var wcparameters = [];
+        wcparameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        wcparameters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
+        wcparameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
+        wcparameters.push({ "Key": "ProductionStatusId", "Value": getString(fl, "ProductionStatusId") });
+        wcparameters.push({ "Key": "ProductLibraryId", "Value": getString(fl, "ProductLibraryId") });
+        wcparameters.push({ "Key": "LotNumber", "Value": getString(fl, "LotNumber") });
+
+        $scope.wcparameters = wcparameters;
+
+    }
+
+    $scope.ProductionDataWCReportList = [];
+    $scope.WCViewData = function () {
+        $scope.WCfilterComplete();
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetWCViewData",
+            data: { 'parameters': $scope.wcparameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.ProductionDataWCReportList = response.data;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    $scope.ProWCDataReport = function () {
+        var wcdataLists = [];
+        var g = $("#GridWC").data("ejGrid");
+        wcdataLists = g.getFilteredRecords();
+
+        if (wcdataLists.length == 0) {
+            wcdataLists = $scope.ProductionDataWCReportList;
+        }
+
+        $scope.fileName = "ProductionDataWithWC";
+
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpd,
+            data: { 'reportFileName': $scope.fileName, 'data': wcdataLists },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
     $scope.sumparameters = [];
     $scope.SumfilterComplete = function () {
 
         var g = $("#summaryfilters").data("ejGrid");
         var fl = g.getFilteredRecords();
         if (fl.length == 0) {
-            fl = $scope.sumfilters;
+            fl = $scope.summaryfilters;
         }
 
 
@@ -227,7 +413,6 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         $scope.sumparameters = sumparameters;
 
     }
-
 
     $scope.SummeryViewData = function () {
         $scope.SumfilterComplete();
@@ -252,19 +437,19 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
 
     $scope.ProSumDataReport = function () {
         var dataLists = [];
-         var g = $("#GridSum").data("ejGrid");
+        var g = $("#GridSum").data("ejGrid");
         dataLists = g.getFilteredRecords();
 
         if (dataLists.length == 0) {
             dataLists = $scope.ProductionDataSumReportList;
         }
 
-        $scope.fileName = "ProductionDataSummaryReport";
+        $scope.fileName = "ProductionDataSummary";
 
         $http({
             method: 'POST',
             url: $scope.exportgriddataUrlUpd,
-            data: {'reportFileName': $scope.fileName,'data': dataLists},
+            data: { 'reportFileName': $scope.fileName, 'data': dataLists },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
