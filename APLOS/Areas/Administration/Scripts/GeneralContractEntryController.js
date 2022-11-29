@@ -68,6 +68,22 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
             })
     }
 
+    $scope.GetList = function () {
+        $http.get('Administration/GeneralContractEntry/GetList')
+            .then(function successCallback(response) {
+                $scope.ModelList = response.data;
+              
+            })
+    }
+    $scope.GetList();
+
+    $scope.GetChildList = function () {
+        $http.get('Administration/GeneralContractEntry/GetChildList?headerId=' + $scope.ModelNew.Id)
+            .then(function successCallback(response) {
+                $scope.ContractItemList = response.data;
+            })
+    }
+
     // FETCH VALUE FROM Transaction QANTITY, RATE AND CALCULATE
     $scope.ob = {};
     $scope.calcAmount = function (data1, index) {
@@ -85,16 +101,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
 
     }
 
-    // #region Double Tap open grid
-    $scope.Get = function (args) {
-        $scope.ModelNew = Object.assign({}, args.data);
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-
-        }
-    };
-    // #endregion Double Tap open grid
+    
 
     //  #region Save
    
@@ -124,7 +131,22 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
     };
 
     //  #endregion Save
+    // #region Double Tap open grid
+    $scope.Get = function (args) {
+        document.getElementById("updatebtn").style.display = "block"
+        document.getElementById("savebtn").style.display = "none"
+        //$scope.GetAllContractItem();
+       
+        $scope.ModelNew = Object.assign({}, args.data);
+        //$scope.Action = 'Update';
+        $scope.GetAllCheckById();
+        $scope.GetChildList();
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
 
+        }
+    };
+    // #endregion Double Tap open grid
     // #region Update
     $scope.Update = function () {
         $scope.$broadcast('show-errors-check-validity');

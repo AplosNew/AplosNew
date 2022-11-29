@@ -108,9 +108,11 @@ where GC.Id = '" + headerId + "'";
         {
             try
             {
-                var sql = @"select GCE.*, GC.UserName GeneralContract, E.UserName Entity from TRN.GeneralContractEntry GCE
-                            left join ORG.Entity E on E.Id = GCE.EntityId
-                            left join MST.GeneralContract GC on GC.Id = GCE.GeneralContractId";
+                var sql = @"select GCE.*, GC.UserName GeneralContract, E.UserName Entity, EI.EmployeeName from TRN.GeneralContractEntry GCE
+left join ORG.Entity E on E.Id = GCE.EntityId
+left join MST.GeneralContract GC on GC.Id = GCE.GeneralContractId
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId 
+order by GCE.Date DESC";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch(Exception ex)
@@ -118,6 +120,24 @@ where GC.Id = '" + headerId + "'";
                 throw ex;
             }
         }
+
+        [Authorize, HttpGet]
+        public ActionResult GetChildList(string headerId)
+        {
+            try
+            {
+                var sql = @"select CIE.*, GCI.UserName from TRN.ContractItemEntry CIE
+left join TRN.GeneralContractEntry GCE on GCE.Id = CIE.GeneralContractEntryId
+left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+where CIE.GeneralContractEntryId = '" + headerId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         #region SAVE
         [HttpPost]
