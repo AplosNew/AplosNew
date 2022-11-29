@@ -129,7 +129,10 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.ModelNew.Id = response.data.Data.Id;
-                
+                $scope.GetContractItemDetail();
+                $scope.GetCheckByList();
+                $scope.GetApproveByList();
+                $scope.GetSaveEntityList();
                // ClearFields(response.data.Sequence);
                 //$scope.getData();
 
