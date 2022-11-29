@@ -111,7 +111,8 @@ where GC.Id = '" + headerId + "'";
                 var sql = @"select GCE.*, GC.UserName GeneralContract, E.UserName Entity, EI.EmployeeName from TRN.GeneralContractEntry GCE
 left join ORG.Entity E on E.Id = GCE.EntityId
 left join MST.GeneralContract GC on GC.Id = GCE.GeneralContractId
-left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId";
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId 
+order by GCE.Date DESC";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch(Exception ex)

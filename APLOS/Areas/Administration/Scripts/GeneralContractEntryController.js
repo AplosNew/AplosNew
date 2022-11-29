@@ -72,7 +72,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
         $http.get('Administration/GeneralContractEntry/GetList')
             .then(function successCallback(response) {
                 $scope.ModelList = response.data;
-                $scope.GetChildList();
+              
             })
     }
     $scope.GetList();
@@ -133,11 +133,14 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
     //  #endregion Save
     // #region Double Tap open grid
     $scope.Get = function (args) {
-        $scope.GetAllContractItem();
+        document.getElementById("updatebtn").style.display = "block"
+        document.getElementById("savebtn").style.display = "none"
+        //$scope.GetAllContractItem();
+       
+        $scope.ModelNew = Object.assign({}, args.data);
+        //$scope.Action = 'Update';
         $scope.GetAllCheckById();
         $scope.GetChildList();
-        $scope.ModelNew = Object.assign({}, args.data);
-        $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
 
