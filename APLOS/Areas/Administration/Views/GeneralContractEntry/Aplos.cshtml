@@ -74,7 +74,6 @@
                         <thead>
                             <tr>
                                 <th>Item</th>
-
                                 <th>Avg Qty</th>
                                 <th>Transaction Qty</th>
                                 <th>Rate</th>
@@ -94,7 +93,7 @@
 
                                 </td>
                                 <td>
-                                    <input type="number" name="Transaction Qty" ng-model="x.TransactionQuantity" class="form-control" maxlength="15" ng-keyup="calcAmount(x, $index)" required tabindex="3">
+                                    <input type="number" name="Transaction Qty" ng-model="x.TransactionQuantity" class="form-control" maxlength="15" ng-keyup="calcAmount(x, $index)" required tabindex="3" style="width:100px">
                                 </td>
                                 <td>
                                     {{x.Rate}}
@@ -107,7 +106,7 @@
 
                             </tr>
                         </tbody>
-                        <tfoot ng-show="userMedicineList.length">
+                        @*<tfoot ng-show="userMedicineList.length">
                             <tr>
                                 <td>Total</td>
                                 <td></td>
@@ -116,7 +115,7 @@
 
                             </tr>
 
-                        </tfoot>
+                        </tfoot>*@
                     </table>
 
                 </div>
