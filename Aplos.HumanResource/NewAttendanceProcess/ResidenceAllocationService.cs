@@ -1395,7 +1395,7 @@ DATEDIFF(Day,'" + fromdate + @"','" + todate + @"')/MS.ScheduleDays NoOfSchedule
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
- left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
@@ -1442,7 +1442,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
 ,Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate
  from TRN.Maintenancescheduling MS
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
- left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
@@ -1476,8 +1476,8 @@ from HKP.Process P
 left join SCS.WorkCenterMaster WC ON WC.ProcessId=P.Id
 left join MachineMasterAsset MA ON MA.WorkCenterMasterId=WC.Id
 left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
-left join TRN.MaintenanceMachineAsset MMA ON MA.Id=MMA.AssetId
-left Join TRN.MaintenanceScheduling MS ON MMA.MaintenanceSchedulingId=MS.Id
+left join TRN.MaintenanceMachineAsset MMA ON MA.Id=MMA.AssetId and MMA.IsActive=1
+left Join TRN.MaintenanceScheduling MS ON MMA.MaintenanceSchedulingId=MS.Id 
 left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id
 where P.Active=1 and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id

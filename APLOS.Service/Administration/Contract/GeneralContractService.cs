@@ -856,5 +856,15 @@ where G.Id = '"+gcId+"'";
 
     }
     #endregion COntract Entry
+
+    #region ContractReport
+    public class ContractReportService
+    {
+        SqlRepository _sqlRepository;
+        public ContractReportService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+    }
+    #endregion  ContractReport
 }
- 
