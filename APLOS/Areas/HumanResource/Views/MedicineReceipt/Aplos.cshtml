@@ -118,7 +118,7 @@
                     <td class="text-right">{{x.Rate | number:2 }}</td>
                     <td><ul class="list-inline action-list">
     <li>
-        <button ng-click="removeDetentionLResPerson(x.EmployeeName, $index, 'userMedicineList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Remove" ng-disabled="true"><i class="glyphicon glyphicon-remove"></i></button>
+        <button ng-click="deleteSingleRow(x.EmployeeName, $index, 'userMedicineList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
     </li>
 </ul></td>
 
