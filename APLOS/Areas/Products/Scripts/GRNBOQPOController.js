@@ -1924,7 +1924,13 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        location.href = " GoodsReceiveNote/GRNBOQPOReport?grnBOQPOId=" + data.Id;
+        if (data.TransactionQty == null || data.TransactionQty < 0) {
+            ShowResult('Receive Quantity is 0 in this PO', 'failure');
+        }
+        else {
+
+        location.href = "GoodsReceiveNote/GRNBOQPOReport?grnBOQPOId=" + data.Id;
+        }
     };
 
     $scope.taxCodCboListWithhold = [];
