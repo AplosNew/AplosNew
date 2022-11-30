@@ -13,6 +13,8 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
     date.setDate(date.getDate() + 7);
     /*var firstDay = new Date(y, m, 1);*/
    
+    
+   
     $scope.status = {
         Id: null,
         FromDate: null,
@@ -27,8 +29,8 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
             method: 'GET',
             url: 'Machines/MaintenanceStatusDetails/GetFromDateList'
         }).then(function successCallback(response) {
-            $scope.statusNew.FromDate = response.data[0];
-            $scope.statusNew.FromDateMD = response.data[0];
+            $scope.statusNew.FromDate = response.data[0].FromDate;
+            $scope.statusNew.FromDateMD = response.data[0].FromDate;
         });
     }
     $scope.GetFromDateList();
