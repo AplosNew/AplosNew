@@ -77,112 +77,142 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.summaryfilters = [];
     $scope.wcfilters = [];
     $scope.loadfilters = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'getFilters?productionStatusId=' + $scope.selectedValues.StatusId + '&poId=' + $scope.selectedValues.ProductionOrderId,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
+        try {
             $scope.filters = [];
-            $scope.filters = response.data;
-            var columnList = [
-                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
-                { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
-                { field: 'ProductionOrderId', width: 20, headerText: "PONo", type: "string" },
-                { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
-                { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
-                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
+            $http({
+                method: 'GET',
+                url: $scope.path + 'getFilters?productionStatusId=' + $scope.selectedValues.StatusId + '&poId=' + $scope.selectedValues.ProductionOrderId,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.filters = response.data;
+                    var columnList = [
+                        { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                        { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
+                        { field: 'ProductionOrderId', width: 20, headerText: "PONo", type: "string" },
+                        { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
+                        { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
+                        { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                        { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
 
-            ];
-            $("#filters").ejGrid({
-                dataSource: $scope.filters,
-                minWidth: 450, minHeight: 400,
-                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                filterSettings: { filterType: "excel" },
-                columns: columnList
+                    ];
+                    $("#filters").ejGrid({
+                        dataSource: $scope.filters,
+                        minWidth: 450, minHeight: 400,
+                        allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                        filterSettings: { filterType: "excel" },
+                        columns: columnList
+                    });
+
+                    var gridObj = $("#filters").data("ejGrid");
+                    gridObj.refreshContent(true);
+                    gridObj.refreshTemplate();
+                    $("#filters").children('.e-pager.e-js.e-pager').hide();
+                    $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+                    $("#filters").children('.e-gridcontent').hide();
+                }
             });
-
-            var gridObj = $("#filters").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-            $("#filters").children('.e-pager.e-js.e-pager').hide();
-            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#filters").children('.e-gridcontent').hide();
-        });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.loadwcfilters = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'getFilters?productionStatusId=' + $scope.withwc.StatusId + '&poId=' + $scope.withwc.ProductionOrderId,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
+        try {
             $scope.wcfilters = [];
-            $scope.wcfilters = response.data;
-            var columnList = [
-                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
-                { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
-                { field: 'ProductionOrderId', width: 20, headerText: "PONo", type: "string" },
-                { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
-                { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
-                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
+            $http({
+                method: 'GET',
+                url: $scope.path + 'getFilters?productionStatusId=' + $scope.withwc.StatusId + '&poId=' + $scope.withwc.ProductionOrderId,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+               
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                } else {
+                    $scope.wcfilters = response.data;
+                    var columnList = [
+                        { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                        { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
+                        { field: 'ProductionOrderId', width: 20, headerText: "PONo", type: "string" },
+                        { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
+                        { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
+                        { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                        { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
 
-            ];
-          
+                    ];
 
-            $("#wcfilters").ejGrid({
-                dataSource: $scope.wcfilters,
-                minWidth: 450, minHeight: 400,
-                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                filterSettings: { filterType: "excel" },
-                columns: columnList
+
+                    $("#wcfilters").ejGrid({
+                        dataSource: $scope.wcfilters,
+                        minWidth: 450, minHeight: 400,
+                        allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                        filterSettings: { filterType: "excel" },
+                        columns: columnList
+                    });
+
+                    var gridSumObj = $("#wcfilters").data("ejGrid");
+                    gridSumObj.refreshContent(true);
+                    gridSumObj.refreshTemplate();
+                    $("#wcfilters").children('.e-pager.e-js.e-pager').hide();
+                    $("#wcfilters").children('.e-gridcontent.e-droppable.e-js').hide();
+                    $("#wcfilters").children('.e-gridcontent').hide();
+                }
+               
             });
-
-            var gridSumObj = $("#wcfilters").data("ejGrid");
-            gridSumObj.refreshContent(true);
-            gridSumObj.refreshTemplate();
-            $("#wcfilters").children('.e-pager.e-js.e-pager').hide();
-            $("#wcfilters").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#wcfilters").children('.e-gridcontent').hide();
-        });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.loadsumfilters = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'getFilters?productionStatusId=' + $scope.summary.StatusId + '&poId=' + $scope.summary.ProductionOrderId,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
+        try {
             $scope.summaryfilters = [];
-            $scope.summaryfilters = response.data;
-            var columnList = [
-                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
-                { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
-                { field: 'ProductionOrderId', width: 20, headerText: "PONo", type: "string" },
-                { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
-                { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
-                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
+            $http({
+                method: 'GET',
+                url: $scope.path + 'getFilters?productionStatusId=' + $scope.summary.StatusId + '&poId=' + $scope.summary.ProductionOrderId,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+              
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message,'failure');
+                } else {
+                    $scope.summaryfilters = response.data;
+                    var columnList = [
+                        { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                        { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
+                        { field: 'ProductionOrderId', width: 20, headerText: "PONo", type: "string" },
+                        { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
+                        { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
+                        { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                        { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
 
-            ];
+                    ];
 
 
-            $("#summaryfilters").ejGrid({
-                dataSource: $scope.summaryfilters,
-                minWidth: 450, minHeight: 400,
-                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                filterSettings: { filterType: "excel" },
-                columns: columnList
+                    $("#summaryfilters").ejGrid({
+                        dataSource: $scope.summaryfilters,
+                        minWidth: 450, minHeight: 400,
+                        allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                        filterSettings: { filterType: "excel" },
+                        columns: columnList
+                    });
+
+                    var gridSumObj = $("#summaryfilters").data("ejGrid");
+                    gridSumObj.refreshContent(true);
+                    gridSumObj.refreshTemplate();
+                    $("#summaryfilters").children('.e-pager.e-js.e-pager').hide();
+                    $("#summaryfilters").children('.e-gridcontent.e-droppable.e-js').hide();
+                    $("#summaryfilters").children('.e-gridcontent').hide();
+                }
+                
             });
-
-            var gridSumObj = $("#summaryfilters").data("ejGrid");
-            gridSumObj.refreshContent(true);
-            gridSumObj.refreshTemplate();
-            $("#summaryfilters").children('.e-pager.e-js.e-pager').hide();
-            $("#summaryfilters").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#summaryfilters").children('.e-gridcontent').hide();
-        });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     // THe Generate Filters
@@ -207,7 +237,6 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         $scope.parameters = parameters;
 
     }
-
 
     var getString = function (data, column) {
         var string = "''";

@@ -3293,6 +3293,19 @@ Where C.Sequence=2";
         {
             try
             {
+                string pssql = "SELECT UserName FROM HKP.ProductionStatus WHERE Id='" + productionStatusId + "'";
+                DataTable dsPS = _sqlRepository.GetDataTable(pssql);
+                if (dsPS.Rows.Count > 0)
+                {
+                    if (dsPS.Rows[0]["UserName"].ToString() == "Closed")
+                    {
+                        if (string.IsNullOrEmpty(poId) || poId == "undefined")
+                        {
+                            throw new Exception("Production Order is required.");
+                        }
+                    }
+                }
+
                 string wcpoid = string.Empty;
                 if (!string.IsNullOrEmpty(poId) && poId != "undefined")
                 {
