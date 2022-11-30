@@ -205,6 +205,7 @@ upanelApp.controller("interTransactionGivenOpeningBalanceController", interTrans
 upanelApp.controller("intSalesOrderInvoiceController", intSalesOrderInvoiceController);
 upanelApp.controller("intSalesOrderInvoiceEditController", intSalesOrderInvoiceEditController);
 upanelApp.controller("intSalesOrderInvoicePostController", intSalesOrderInvoicePostController);
+upanelApp.controller("AssetIssueSlipBaseController", AssetIssueSlipBaseController);
 upanelApp.controller("inventoryIssueController", inventoryIssueController);
 upanelApp.controller("inventoryIssueSlipBaseController", inventoryIssueSlipBaseController);
 upanelApp.controller("inventoryIssueJournalController", inventoryIssueJournalController);
@@ -1116,6 +1117,8 @@ upanelApp.controller("GeneralContractItemMasterController", GeneralContractItemM
 upanelApp.controller("GeneralContractController", GeneralContractController)
 upanelApp.controller("maintenancePlanningReportController", maintenancePlanningReportController)
 upanelApp.controller("teamPlanReportController", teamPlanReportController)
+upanelApp.controller("GeneralContractEntryController", GeneralContractEntryController)
+upanelApp.controller("GeneralContractReportController", GeneralContractReportController)
 
 
 upanelApp.config(AccessControllerConfig);

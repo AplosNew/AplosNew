@@ -118,7 +118,7 @@
                     <td class="text-right">{{x.Rate | number:2 }}</td>
                     <td><ul class="list-inline action-list">
     <li>
-        <button ng-click="removeDetentionLResPerson(x.EmployeeName, $index, 'userMedicineList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Remove" ng-disabled="true"><i class="glyphicon glyphicon-remove"></i></button>
+        <button ng-click="deleteSingleRow(x.EmployeeName, $index, 'userMedicineList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
     </li>
 </ul></td>
 
@@ -137,8 +137,8 @@
         </table>
         <div class="common-btn" style="margin-top:10px">
             <ul class="list-inline text-right">
-                <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-                <li> <button ng-click="Update();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>
+                <li> <button ng-click="SaveHeader();" id="savebtn" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                <li> <button ng-click="Update();" id="updatebtn" class="btn" tabindex="9" style="display:none"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>
                 <li> <button ng-click="XlsMedicineReceipt();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
                
             </ul>

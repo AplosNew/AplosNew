@@ -9,6 +9,7 @@ using Library.Data.Sql;
 using Library.General.TaskScheduler;
 using Library.Model.Enums;
 using Library.Model.Setups;
+using Library.OrderManagement.Production;
 using Library.Service.Enums;
 using Library.Service.Helpers;
 using Library.Service.Logs;
@@ -37,6 +38,8 @@ namespace Aplos.Areas.Productions.Controllers
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
         TasksService tasksService = new TasksService();
+        ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
+
         public POWiseProductionStatusReportController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -50,169 +53,25 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult getFilters()
+        public ActionResult GetProductionOrderDataList(string productionStatusId)
         {
-            //return Json(filters(), JsonRequestBehavior.AllowGet);
-            JsonResult json = Json(filters(), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetProductionOrderDataList(productionStatusId), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult getFilters(string productionStatusId, string poId)
+        {
+            JsonResult json = Json(_productionSummaryData.Productionfilters(productionStatusId,poId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
 
-        public IEnumerable<object> filters()
-        {
-            try
-            {
-                var sql = @"SELECT * FROM ( SELECT  
-                                        isnull(e.Id,'') AS EntityId,isnull(e.UserName,'') Entity,
-                                        isnull(ps.Id,'') AS ProductionStatusId, isnull(ps.UserName,'') AS ProductionStatus
-										,PO.Id ProductionOrderId,PRS.LotNumber
-                                      , PRS.ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,PRS.ProductLibraryId, PL.Code ProductCode
-                                                   , Buyer=STUFF((select distinct ','+XB.UserName from 
-	                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),																												
-		
-													 BuyerId=STUFF((select distinct ','+XB.Id from 
-	                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-
-																
-                                                    CustomerId=STUFF((select distinct ','+XP.Id from 
-		                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
-			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),   
-                                                    Customer=STUFF((select distinct ','+XP.UserName from 
-		                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
-			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')                                                 
-
-                                        from TRN.ProductionSummary PRS
-												left join trn.ProductionOrder PO ON PO.Id=PRS.ProductionOrderId
-												left join dbo.EmployeeInformation EI ON EI.SystemId=PRS.ResponsiblePersonId
-				                                left outer join org.Entity E on e.Id=PO.EntityID
-				                                LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
-												LEFT OUTER JOIN dbo.ProductLibrary PL ON PL.Id=PRS.ProductLibraryId
-                              WHERE  PS.UserName<>'Closed'
-                                ) AS KK	";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
+       
         [HttpPost, Authorize]
         public ActionResult GetPOWiseProductionStatusData()
         {
-            string strSql = "";
-
-            strSql = @"SELECT distinct PP.Id,trke.UserName AS Entity,PP.ProductionOrderID PONo--,POPS.[Sequence] POProcessSequence 
-                            ,wcm.UserName AS WorkCenter ,CPL.UserName AS ProductionShift,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,
-                            isnull(p.UserName,FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,ISNULL(pp.StandardName,ord.Article ) Article                  
-                            ,ord.Product,
-                            --additional info
-			                     buyer=STUFF((select distinct ','+XB.UserName from 
-			                            trn.SalesOrder XSO 
-			                            JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-			                            left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-			                            left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-			                            left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-			                            where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-                            SalesOrderIds=STUFF((select distinct ','+XSO.Id from 
-			                        trn.SalesOrder XSO 
-			                        JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-			                        where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-
-                                        BuyerOrderNo=STUFF((select distinct ','+XMO.BuyerReferenceNo from 
-			                                trn.SalesOrder XSO 
-			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-			                                left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-                                     OwnOrderNo=STUFF((select distinct ','+XMO.OwnReferenceNo from 
-			                                trn.SalesOrder XSO 
-			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-			                                left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-
-			
-		                                StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
-			                                trn.SalesOrder XSO 
-			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
-			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-       
-                                        OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
-			                                trn.SalesOrder XSO 
-			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
-			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-                            pt1.NoOfWorkStation,sn.ProductionHours  AS PlanHours,
-                            ISNULL(ppt.ProductionHours,0) ProductionHours
-                            
-                            FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
-                                    FROM trn.ProductionSummary AS ps 
-                                  left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
-                                  LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
-      		                            --WHERE ps.ProductionDate BETWEEN '01-Nov-2022' AND '30-Nov-2022' AND ps.EntityID in ('','14','15') 
-      		                            --AND ps.ProcessId=(select XX.ProcessId from trn.ProductionOrderProcessSet AS XX where XX.IsBaseProcess=1 and XX.ProductionOrderID=ps.ProductionOrderId)
-                                  GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId
-                            ) AS pp
-                            LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
-                            LEFT JOIN trn.SalesOrder AS so ON so.Id=pp.SalesOrderId
-                            LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID=pp.ProductionOrderID
-                            LEFT OUTER JOIN ProductionPlanningSnapshot2Type1 AS SN ON sn.ProductionOrderID=pp.ProductionOrderId AND sn.ProductionDate=pp.ProductionDate AND sn.WorkCenterMasterId=pp.WorkCenterMasterId AND sn.EntityID=pp.EntityId
-                            LEFT OUTER JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=pp.WorkCenterMasterId
-                            LEFT OUTER JOIN hkp.SFGInventory AS FSFG ON FSFG.Id=pp.FromSFGInventoryId
-                           
-                            LEFT OUTER JOIN scs.WorkCenterMaster AS Twcm ON Twcm.Id=pp.ToWorkCenterMasterId
-                            LEFT OUTER JOIN hkp.SFGInventory AS TSFG ON TSFG.Id=pp.ToSFGInventoryId
-                        
-                            left outer join ProductionPlanningType1 AS ppt on ppt.ProductionOrderID=pp.ProductionOrderId AND ppt.WorkCenterMasterId=PP.WorkCenterMasterId AND  ppt.ProcessId=PP.ProcessId AND ppt.EntityId=pp.EntityId and ppt.ProductionDate=PP.ProductionDate
-                            --left outer join ProductionPlanningCalendar AS ppc on ppc.ProcessId=PP.ProcessId AND ppc.EntityId=pp.EntityId and PPC.WorkingDate=PP.ProductionDate
-                            left outer join TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
-							LEFT OUTER JOIN hkp.Process AS p ON p.Id=pp.ProcessId
-                            LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
-                            LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
-							--LEFT JOIN trn.ProductionOrderProcessSet POPS ON POPS.ProductionOrderId=PO.Id
-                             left outer join (
-                                                        select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory,
-                                                          SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
-                                                          SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
-                                                        from trn.ProductionOrderDetail POD 
-                                                        left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
-                                                        left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
-                                                        left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
-                                                        left join MasterOrderExchangeRates RT ON RT.TransactionId=MO.Id
-                                                        left JOIN org.Company AS com ON com.Id=mo.CompanyId
-                                                        LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN ('','14','15'))
-                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN ('','14','15'))
-                                                        LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
-                                                        left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
-                                                        LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
-                                                        left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
-                                                        left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
-                                                        left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-                                                        group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
-                                              ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId";
-
-
-
-            var jsondata = Json(_sqlRepository.GetDataCollection(strSql), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_productionSummaryData.GetPOWiseProductionStatusData(), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
 
@@ -318,6 +177,11 @@ namespace Aplos.Areas.Productions.Controllers
                 int colEntity = COL;
 
                 COL++;
+                sheet[ROW, COL].Text = "ProcessIndex";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProcessIndex = COL;
+
+                COL++;
                 sheet[ROW, COL].Text = "Process";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProcess = COL;
@@ -333,15 +197,9 @@ namespace Aplos.Areas.Productions.Controllers
                 int colStandardProcessSeq = COL;
 
                 COL++;
-                sheet[ROW, COL].Text = "ProcessIndex";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colProcessIndex = COL;
-
-                COL++;
                 sheet[ROW, COL].Text = "BaseProcessApplicable";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colBaseProcessApplicable = COL;
-
 
                 COL++;
                 sheet[ROW, COL].Text = "POProcessStatus";
@@ -430,6 +288,12 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPlannedQty = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "ProcessWisePlanQty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProcessWisePlanQty = COL;
 
                 COL++;
                 sheet[ROW, COL].Text = "ProductionQty";
@@ -533,6 +397,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colWorkStation].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfWorkStation"].ToString());
                     sheet[ROW, colActualWorkHours].Number = clsStaticInfo.dbl(data.Rows[i]["ProductionHours"].ToString());
                     sheet[ROW, colPlannedQty].Number = clsStaticInfo.dbl(data.Rows[i]["PlannedQty"].ToString());
+                    sheet[ROW, colProcessWisePlanQty].Number = clsStaticInfo.dbl(data.Rows[i]["ProcessWisePlanQty"].ToString());
                     sheet[ROW, colActualQty].Number = clsStaticInfo.dbl(data.Rows[i]["ActualQty"].ToString());
                     sheet.Range[ROW, colUpToDate].Number = clsStaticInfo.dbl(data.Rows[i]["UpToDateProduction"].ToString());
                     sheet.Range[ROW, colPreProUDProd].Number = clsStaticInfo.dbl(data.Rows[i]["PreProUDProd"].ToString());
@@ -770,9 +635,9 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     partyId = "AND XMO.PartyId in(" + parameters["CustomerId"] + @")";
                 }
-                string sql = @"Select A.* from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
-		,PSEQ.ProcessIndex,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.PlannedQty,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty, 0) PreProUDProd
-		,WIP = ISNULL(PSEQ.Qty - PSEQ.PreQty, 0),UptoDateProPercentage = (pp.Quantity / ORD.PlannedQty) / 100,wcm.UserName AS WorkCenter,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
+                string sql = @"Select A.* from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,PSEQ.ProcessIndex,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
+		,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.PlannedQty,ProcessWisePlanQty=ORD.PlannedQty*POPS.Qty,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty, 0) PreProUDProd
+		,WIP = ISNULL(PSEQ.PreQty-PSEQ.Qty, 0),UptoDateProPercentage = (pp.Quantity / ORD.PlannedQty) / 100,wcm.UserName AS WorkCenter,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
 		,ord.Product,PS.UserName POStatus,FLB.FirstBookDate,FLB.LastBookDate --,ORD.FirstShipmentDate,ORD.LastShipmentDate,
 		,PP.LotNumber,POProcessStatus=CASE WHEN POPS.IsCompleted=1 THEN 'Completed' ELSE 'Not Completed' END
 --additional info
@@ -814,8 +679,7 @@ trn.SalesOrder XSO
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
 where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-pt1.NoOfWorkStation,sn.ProductionHours  AS PlanHours,
-ISNULL(ppt.ProductionHours,0) ProductionHours
+wcm.NoOfWorkStation,ProductionHours=(select top(1) Hour from scs.WorkCenterMasterEffectiveDate Where WorkCenterMasterId=wcm.Id Order BY StartDate Desc)
                             
 FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity,PS.ResponsiblePersonId,PS.LotNumber
 
@@ -824,7 +688,7 @@ left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
 LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
 GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,PS.ResponsiblePersonId,PS.LotNumber
 ) AS pp
-LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId from TRN.ProductionSummary GROUP BY ProcessId) FLB ON FLB.ProcessId=PP.ProcessId
+LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId,ProductionOrderId from TRN.ProductionSummary GROUP BY ProcessId,ProductionOrderId) FLB ON FLB.ProcessId=PP.ProcessId AND FLB.ProductionOrderId=PP.ProductionOrderId
 LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
 --LEFT JOIN(Select FORMAT(MIN(DeliveryDate),'dd-MMM-yyyy') FirstShipmentDate,  FORMAT(MAX(DeliveryDate),'dd-MMM-yyyy') LastShipmentDate,Id from trn.SalesOrder Group BY Id) AS so ON so.Id=pp.SalesOrderId
 LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID=pp.ProductionOrderID
@@ -884,7 +748,7 @@ GROUP BY PS.ProductionOrderId,PSQ.Sequence
 ) PSEQ ON PSEQ.ProductionOrderId=PP.ProductionOrderID AND POPS.[Sequence]=PSEQ.Sequence
 Where TRKE.Id in(" + parameters["EntityId"] + @")
 AND ISNULL(PP.ResponsiblePersonId,'') in(" + parameters["ResponsiblePersonId"] + @")
-AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.PONo,A.POProcessSequence ";
+AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.ProcessIndex,A.PONo ";
 
 
                 data = _sqlRepository.GetDataTable(sql);
@@ -1049,7 +913,28 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.PONo,A.POPr
 
         }
 
-        public void GetSummaryReportSQL(Dictionary<string, string> parameters, out DataTable data)
+
+        [HttpPost, Authorize]
+        public ActionResult GetWCViewData(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                DataTable dtdata;
+                GetWCReportSQL(parameters, out dtdata);
+
+                List<Dictionary<string, object>> data = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtdata);
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public void GetWCReportSQL(Dictionary<string, string> parameters, out DataTable data)
         {
             try
             {
@@ -1061,9 +946,9 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.PONo,A.POPr
                 string sql = @"Select A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.PONo,A.POStatus
 ,A.WorkCenter,A.ProductionShift,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article,A.NoOfWorkStation,A.ProductionHours
 ,A.PlannedQty,SUM(A.ActualQty) ActualQty,A.PreProUDProd,A.FirstBookDate,A.LastBookDate 
-from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
-		,PSEQ.ProcessIndex,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.PlannedQty,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty, 0) PreProUDProd
-		,WIP = ISNULL(PSEQ.Qty - PSEQ.PreQty, 0),UptoDateProPercentage = (pp.Quantity / ORD.PlannedQty) / 100,wcm.UserName AS WorkCenter,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
+from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,PSEQ.ProcessIndex,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
+		,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.PlannedQty,ProcessWisePlanQty=ORD.PlannedQty*POPS.Qty,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty, 0) PreProUDProd
+		,WIP = ISNULL(PSEQ.PreQty-PSEQ.Qty, 0),UptoDateProPercentage = (pp.Quantity / ORD.PlannedQty) / 100,wcm.UserName AS WorkCenter,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
 		,ord.Product,PS.UserName POStatus,FLB.FirstBookDate,FLB.LastBookDate --,ORD.FirstShipmentDate,ORD.LastShipmentDate,
 		,PP.LotNumber,POProcessStatus=CASE WHEN POPS.IsCompleted=1 THEN 'Completed' ELSE 'Not Completed' END
 --additional info
@@ -1105,8 +990,7 @@ trn.SalesOrder XSO
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
 where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-pt1.NoOfWorkStation,sn.ProductionHours  AS PlanHours,
-ISNULL(ppt.ProductionHours,0) ProductionHours
+wcm.NoOfWorkStation,ProductionHours=(select top(1) Hour from scs.WorkCenterMasterEffectiveDate Where WorkCenterMasterId=wcm.Id Order BY StartDate Desc)
                             
 FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity,PS.ResponsiblePersonId,PS.LotNumber
 
@@ -1115,7 +999,7 @@ left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
 LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
 GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,PS.ResponsiblePersonId,PS.LotNumber
 ) AS pp
-LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId from TRN.ProductionSummary GROUP BY ProcessId) FLB ON FLB.ProcessId=PP.ProcessId
+LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId,ProductionOrderId from TRN.ProductionSummary GROUP BY ProcessId,ProductionOrderId) FLB ON FLB.ProcessId=PP.ProcessId AND FLB.ProductionOrderId=PP.ProductionOrderId
 LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
 --LEFT JOIN(Select FORMAT(MIN(DeliveryDate),'dd-MMM-yyyy') FirstShipmentDate,  FORMAT(MAX(DeliveryDate),'dd-MMM-yyyy') LastShipmentDate,Id from trn.SalesOrder Group BY Id) AS so ON so.Id=pp.SalesOrderId
 LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID=pp.ProductionOrderID
@@ -1179,7 +1063,146 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A
 GROUP BY A.PONo,A.Process,A.UpToDateProduction,A.PreProUDProd,A.POProcessSequence
 ,A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.PONo,A.POStatus
 ,A.WorkCenter,A.ProductionShift,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article,A.NoOfWorkStation,A.ProductionHours,A.PlannedQty,A.FirstBookDate,A.LastBookDate
-Order BY A.PONo,A.POProcessSequence";
+Order BY A.ProcessIndex,A.PONo";
+
+
+                data = _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        public void GetSummaryReportSQL(Dictionary<string, string> parameters, out DataTable data)
+        {
+            try
+            {
+                string partyId = "AND 1=1";
+                if (!string.IsNullOrEmpty(parameters["CustomerId"].ToString()))
+                {
+                    partyId = "AND XMO.PartyId in(" + parameters["CustomerId"] + @")";
+                }
+                string sql = @"Select A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.PONo,A.POStatus
+,A.ProductionShift,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article
+,A.PlannedQty,SUM(A.ActualQty) ActualQty,A.PreProUDProd,A.FirstBookDate,A.LastBookDate 
+from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,PSEQ.ProcessIndex,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
+		,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.PlannedQty,ProcessWisePlanQty=ORD.PlannedQty*POPS.Qty,PSEQ.Qty UpToDateProduction,ISNULL(PSEQ.PreQty, 0) PreProUDProd
+		,WIP = ISNULL(PSEQ.PreQty-PSEQ.Qty, 0),UptoDateProPercentage = (pp.Quantity / ORD.PlannedQty) / 100,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
+		,ord.Product,PS.UserName POStatus,FLB.FirstBookDate,FLB.LastBookDate --,ORD.FirstShipmentDate,ORD.LastShipmentDate,
+		,PP.LotNumber,POProcessStatus=CASE WHEN POPS.IsCompleted=1 THEN 'Completed' ELSE 'Not Completed' END
+--additional info
+		,Customer= REPLACE(REPLACE(
+										              STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pp.ProductionOrderId=Xpod.ProductionOrderId " + partyId + @" for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')	
+,Buyer=STUFF((select distinct ','+XB.UserName from 
+trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+SONos=STUFF((select distinct ','+XSO.Id from 
+trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+BuyerOrderNo=STUFF((select distinct ','+XMO.BuyerReferenceNo from 
+trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+OwnOrderNo=STUFF((select distinct ','+XMO.OwnReferenceNo from 
+trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+       
+OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
+where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            
+FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity,PS.ResponsiblePersonId,PS.LotNumber
+
+FROM trn.ProductionSummary AS ps 
+left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
+LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
+GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,PS.ResponsiblePersonId,PS.LotNumber
+) AS pp
+LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId,ProductionOrderId from TRN.ProductionSummary GROUP BY ProcessId,ProductionOrderId) FLB ON FLB.ProcessId=PP.ProcessId AND FLB.ProductionOrderId=PP.ProductionOrderId
+LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
+--LEFT JOIN(Select FORMAT(MIN(DeliveryDate),'dd-MMM-yyyy') FirstShipmentDate,  FORMAT(MAX(DeliveryDate),'dd-MMM-yyyy') LastShipmentDate,Id from trn.SalesOrder Group BY Id) AS so ON so.Id=pp.SalesOrderId
+LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID=pp.ProductionOrderID
+LEFT OUTER JOIN ProductionPlanningSnapshot2Type1 AS SN ON sn.ProductionOrderID=pp.ProductionOrderId AND sn.ProductionDate=pp.ProductionDate  AND sn.EntityID=pp.EntityId
+LEFT OUTER JOIN hkp.SFGInventory AS FSFG ON FSFG.Id=pp.FromSFGInventoryId
+                        
+left outer join ProductionPlanningType1 AS ppt on ppt.ProductionOrderID=pp.ProductionOrderId  AND  ppt.ProcessId=PP.ProcessId AND ppt.EntityId=pp.EntityId and ppt.ProductionDate=PP.ProductionDate
+left outer join TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
+LEFT OUTER JOIN hkp.Process AS p ON p.Id=pp.ProcessId
+LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
+LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
+LEFT JOIN trn.ProductionOrderProcessSet POPS ON POPS.ProductionOrderId=PO.Id AND POPS.ProcessId=pp.ProcessId
+left outer join (
+select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory--,FLSD.FirstShipmentDate,FLSD.LastShipmentDate,
+,SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
+SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
+,SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+from trn.ProductionOrderDetail POD 
+left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
+--LEFT JOIN(Select FORMAT(MIN(DeliveryDate),'dd-MMM-yyyy') FirstShipmentDate,  FORMAT(MAX(DeliveryDate),'dd-MMM-yyyy') LastShipmentDate,Id from trn.SalesOrder Group BY Id) AS FLSD ON FLSD.Id=pod.SalesOrderId
+left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
+left join MasterOrderExchangeRates RT ON RT.TransactionId=MO.Id
+left JOIN org.Company AS com ON com.Id=mo.CompanyId
+LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + parameters["EntityId"] + @"))
+LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + parameters["EntityId"] + @"))
+LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
+left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
+LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId--,FLSD.FirstShipmentDate,FLSD.LastShipmentDate
+) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
+LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
+LEFT JOIN(
+SELECT T1.*,T2.Qty PreQty FROM
+(Select A.*,ROW_NUMBER() OVER(partition by A.ProductionOrderId ORDER BY A.Sequence) ProcessIndex
+from (select PS.ProductionOrderId,PSQ.Sequence, sum(PS.Quantity)Qty from TRN.ProductionSummary PS
+LEFT JOIN TRN.ProductionOrder P ON P.Id=PS.ProductionOrderId
+LEFT JOIN TRN.ProductionOrderProcessSet PSQ ON PSQ.ProductionOrderId=P.Id AND PSQ.ProcessId=PS.ProcessId
+LEFT JOIN HKP.ProductionStatus PRS ON PRS.Id=P.ProductionStatusId
+LEFT JOIN HKP.Process PRO ON PRO.Id=PS.ProcessId
+Where PRS.Id in(" + parameters["ProductionStatusId"] + @") AND ISNULL(PSQ.Sequence,0)<>0
+GROUP BY PS.ProductionOrderId,PSQ.Sequence
+) A )T1
+LEFT JOIN (Select A.*,ROW_NUMBER() OVER(partition by A.ProductionOrderId ORDER BY A.Sequence)+1 ProcessIndex
+from (select PS.ProductionOrderId,PSQ.Sequence, sum(PS.Quantity)Qty from TRN.ProductionSummary PS
+LEFT JOIN TRN.ProductionOrder P ON P.Id=PS.ProductionOrderId
+LEFT JOIN TRN.ProductionOrderProcessSet PSQ ON PSQ.ProductionOrderId=P.Id AND PSQ.ProcessId=PS.ProcessId
+LEFT JOIN HKP.ProductionStatus PRS ON PRS.Id=P.ProductionStatusId
+LEFT JOIN HKP.Process PRO ON PRO.Id=PS.ProcessId
+Where PRS.Id in(" + parameters["ProductionStatusId"] + @") AND ISNULL(PSQ.Sequence,0)<>0
+GROUP BY PS.ProductionOrderId,PSQ.Sequence
+) A )T2 ON T1.ProcessIndex=T2.ProcessIndex AND  T1.ProductionOrderId=T2.ProductionOrderId
+) PSEQ ON PSEQ.ProductionOrderId=PP.ProductionOrderID AND POPS.[Sequence]=PSEQ.Sequence
+Where TRKE.Id in(" + parameters["EntityId"] + @")
+AND ISNULL(PP.ResponsiblePersonId,'') in(" + parameters["ResponsiblePersonId"] + @")
+AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A 
+GROUP BY A.PONo,A.Process,A.UpToDateProduction,A.PreProUDProd,A.POProcessSequence
+,A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.PONo,A.POStatus
+,A.ProductionShift,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article,A.PlannedQty,A.FirstBookDate,A.LastBookDate
+Order BY A.ProcessIndex,A.PONo";
 
 
                 data = _sqlRepository.GetDataTable(sql);

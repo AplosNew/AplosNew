@@ -2478,6 +2478,11 @@ namespace Library.MaterialManagement.Inventory
 
 
                 dtOrderMaster = loadGRNBOQPOMaterialMaster(grnBOQPOId);
+                
+                if (dtOrderMaster.Rows.Count==0)
+                {
+                    throw new CustomException("There is no Material in this GRN.");
+                }
 
 
                 var invoicePartyAddress = ru.GetAddress(dtOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dtOrderMaster.Rows[0]["InvoicingByAddress"].ToString());

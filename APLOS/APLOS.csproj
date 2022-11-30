@@ -388,7 +388,9 @@
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="Areas\Administration\Controllers\GeneralContractController.cs" />
+    <Compile Include="Areas\Administration\Controllers\GeneralContractEntryController.cs" />
     <Compile Include="Areas\Administration\Controllers\GeneralContractItemMasterController.cs" />
+    <Compile Include="Areas\Administration\Controllers\GeneralContractReportController.cs" />
     <Compile Include="Areas\Administration\Controllers\VisitorListReportController.cs" />
     <Compile Include="Areas\Administration\Controllers\VehicleMovementLocationsController.cs" />
     <Compile Include="Areas\Administration\Controllers\ServicesApprovingAuthorityController.cs" />
@@ -1812,7 +1814,9 @@
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractController.js" />
+    <Content Include="Areas\Administration\Scripts\GeneralContractEntryController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractItemMasterController.js" />
+    <Content Include="Areas\Administration\Scripts\GeneralContractReportController.js" />
     <Content Include="Areas\Administration\Scripts\VisitorListReportController.js" />
     <Content Include="Areas\Administration\Scripts\VehicleMovementLocationsController.js" />
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
@@ -2606,6 +2610,8 @@
     <Content Include="Areas\Productions\Scripts\recipeMaterialController.js" />
     <Content Include="Areas\Products\Scripts\assetInventoryIssueController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionReportWithParameterController.js" />
+    <Content Include="Areas\Products\Scripts\AssetIssueSlipBaseController.js" />
+    <Content Include="Areas\Products\Scripts\MaterialIssueSlipController.js" />
     <Content Include="Areas\Products\Scripts\inventoryIssueSlipBaseController.js" />
     <Content Include="Areas\Products\Scripts\salesRegisterController.js" />
     <Content Include="Areas\Products\Scripts\GatePassPotalController.js" />
@@ -2658,7 +2664,7 @@
     <Content Include="Areas\Products\Scripts\PurchaseDocumentAcceptanceController.js" />
     <Content Include="Areas\Products\Scripts\inventoryIssueDeleteController.js" />
     <Content Include="Areas\Products\Scripts\plantWiseGateController.js" />
-    <Content Include="Areas\Products\Scripts\MaterialIssueSlipController.js" />
+    <Content Include="Areas\Products\Scripts\AssetIssueSlipController.js" />
     <Content Include="Areas\Products\Scripts\EntitySFGInventoryController.js" />
     <Content Include="Areas\Products\Scripts\GRNByPOController.js" />
     <Content Include="Areas\Products\Scripts\goodsReceiveNoteController.js" />
@@ -4436,6 +4442,8 @@
     <Content Include="Areas\Administration\Views\GeneralContract\_VendorEmployeePopUp.cshtml" />
     <Content Include="Areas\Machines\Views\TeamPlanReport\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\MaintenancePlanningReport\Aplos.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContractEntry\Aplos.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContractReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

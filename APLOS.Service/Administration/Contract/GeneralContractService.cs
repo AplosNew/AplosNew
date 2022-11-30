@@ -723,4 +723,148 @@ where G.Id = '"+gcId+"'";
         }
     }
     #endregion GeneralContract
+
+    #region COntract Entry
+    public class ContractEntryService
+    {
+        private readonly SqlRepository _sqlRepository;
+        public ContractEntryService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        #region SAVE
+        public Dictionary<string, object> Save(Dictionary<string, object> data, List<Dictionary<string, object>> contractItemDetail)
+        {
+            try
+            {
+                string TableNameHead = "TRN.GeneralContractEntry";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+                string __Id = "";
+
+                #region FURNITURE POLICY HEAD
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    data["Id"] = _Id;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion FURNITURE POLICY HEAD
+
+                #region Child
+                
+                DataSet dsChild;
+                ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                conn.OpenDataSetThroughAdapter("select * from TRN.ContractItemEntry where GeneralContractEntryId ='" + data["Id"].ToString() + "'", out dsChild, false, "1");
+
+
+                foreach (var item in contractItemDetail)
+                {
+
+                    DataView dv = new DataView(dsChild.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TRN.ContractItemEntry", out __Id);
+                        item["Id"] = __Id;
+                        item["GeneralContractEntryId"] = data["Id"].ToString();
+
+                        AddNewRow(dsChild.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["GeneralContractEntryId"] = data["Id"].ToString();
+
+                        EditRow(drmo, item);
+                    }
+                }
+                
+                #endregion Child
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsChild);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SAVE
+        #region CREATE AND EDIT DEFAULT COLUMN
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        #endregion CREATE AND EDIT DEFAULT COLUMN
+
+    }
+    #endregion COntract Entry
+
+    #region ContractReport
+    public class ContractReportService
+    {
+        SqlRepository _sqlRepository;
+        public ContractReportService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+    }
+    #endregion  ContractReport
 }

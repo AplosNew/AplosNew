@@ -1649,8 +1649,11 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
 			{
 				var sql = "";
                 var tempsql = "";
-                if (!string.IsNullOrEmpty(entity.MaterialStorageId))
-                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' ";
+                if (!string.IsNullOrEmpty(entity.MaterialStorageId) && entity.IsAsset==false)
+                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' AND IRD.IsAsset=0 ";
+                if (string.IsNullOrEmpty(entity.MaterialStorageId) && entity.IsAsset == true)
+                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'  AND IRD.IsAsset=1 ";
+
                 else
                     tempsql = " IM.CompanyGroupId = '" + entity.CompanyGroupId + "' AND IM.CompanyId = '" + entity.CompanyId + "' AND IM.PlantId = '" + entity.PlantId + @"' ";
 

@@ -789,7 +789,7 @@
                                     <ul class="list-inline action-list">
                                         <li ng-hide="productNew.OrderSpecific==='No' || productNew.Id==null"><button ng-click="getPOBOQItemList(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
                                         <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                        <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                        <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                     </ul>
                                 </td>
                             </tr>
@@ -1438,3 +1438,98 @@
         </div>
     </div>
 </div>
+@*End Extra tax Add*@
+<div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Tax Information</div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <p>Taxable amount : <b>{{taxAbleAmnt| number:2}}</b>&nbsp;<b>{{Currency}}</b></p>
+                    <p>HSNCode : <b>{{HSNCode}}</b></p>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">If Percentage Applicable-1</label>
+                        <div class="col-sm-6">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="TaxOption" ng-model="productNew.TaxOption" value="Yes" ng-click="TaxOption('Yes');"> @*ng-hide="HSNCode !=null"*@
+                                    <span class="cr"><i class="cr-icon"></i></span>Yes
+                                </label>
+                                <label>
+                                    <input type="radio" name="TaxOption" ng-model="productNew.TaxOption" value="No" ng-click="TaxOption('No');">@*ng-hide="HSNCode !=null"*@
+                                    <span class="cr"><i class="cr-icon"></i></span>No
+                                </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div>
+                    <p class="col-md-11"></p>
+                    <button type="button" class="btn btn-action" ng-click="addTax();">Add Tax</button>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped" border="1" id="AddTax">
+                        <thead>
+                            <tr>
+                                <th ng-hide="true">id</th>
+                                <th>Tax Category</th>
+                                <th ng-hide="true">HSN Code</th>
+                                <th>Percentage</th>
+                                <th>Tax Amount</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in taxCategoryList">
+                                <td ng-hide="true">
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Id" readonly>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="x.TaxCategoryId" ng-options="item.Value as item.Text for item in taxCategoryListcbo" ng-change="onchangeFunction1(x.TaxCategoryId)"></select>
+                                    </div>
+                                </td>
+                                <td ng-hide="true">
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.HSNCode">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.Percentage" ng-keyup="calculateTaxAmount(x);" ng-disabled="productNew.TaxOption ==='No'"> @*|| HSNCode !=null"*@
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.TaxAmount" ng-keyup="checkRowValidation(x, $index)" ng-disabled="productNew.TaxOption ==='Yes'">
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="Del(x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-right"><strong>{{taxCategoryList | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="closeReceiveTaxPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Update</button></li>
+                        <li><button ng-click="closeReceiveTaxPopUpwindow();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="rowDeletePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
