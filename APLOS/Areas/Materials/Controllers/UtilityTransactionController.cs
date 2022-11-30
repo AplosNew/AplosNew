@@ -117,6 +117,14 @@ select LastReading=(select top(1) Reading from UtilityTransaction  order by Id d
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetCalculatedValue(string utilityMasterId)
+        {
+            string sql = @"select * from UtilityMaster where Id='"+ utilityMasterId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
         {

@@ -167,6 +167,11 @@ namespace Aplos.Areas.Materials.Controllers
                 int ColQuantity = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Final Quantity";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColFinalQuantity = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Reading";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColReading = COL;
@@ -205,6 +210,7 @@ namespace Aplos.Areas.Materials.Controllers
                     sheet[ROW, ColGroup].Text = data.Rows[i]["Group"].ToString();
                     sheet[ROW, ColSubGroup].Text = data.Rows[i]["SubGroup"].ToString();
                     sheet[ROW, ColQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
+                    sheet[ROW, ColFinalQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["FinalQuantity"].ToString());
                     sheet[ROW, ColQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet[ROW, ColReading].Number = clsStaticInfo.dbl(data.Rows[i]["Reading"].ToString());
                     sheet[ROW, ColReading].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
@@ -287,6 +293,7 @@ namespace Aplos.Areas.Materials.Controllers
 							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
 							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks,UM.MultiplyingFactor
 							,Amount=UT.Quantity*(SELECT TOP(1) Rate FROM dbo.UtilityDetail WHERE EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"' AND UtilityMasterId=UT.UtilityMasterId ORDER BY EffectiveDate)
+                            ,FinalQuantity=UM.MultiplyingFactor*UT.Quantity
 							from UtilityTransaction UT
 							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
                             left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
