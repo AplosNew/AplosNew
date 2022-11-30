@@ -28,4 +28,8 @@ function AdministrationConfig($routeProvider, $locationProvider) {
             templateUrl: 'Administration/GeneralContractEntry',
             controller: 'GeneralContractEntryController'
         })
+        .when('/contract-report', {
+            templateUrl: 'Administration/GeneralContractReport',
+            controller: 'GeneralContractReportController'
+        })
 };
