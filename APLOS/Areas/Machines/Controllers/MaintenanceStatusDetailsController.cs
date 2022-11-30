@@ -62,14 +62,11 @@ namespace Aplos.Areas.Machines.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"select Top 1
- (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id ASC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id ASC)),'dd-MMM-yyyy')end) FromDate
- from TRN.Maintenancescheduling MS
- left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
- left Join  [TRN].[MachineAssetPlannedDetails] MPD ON MPD.AssetId=MMA.Id
- Order By MPD.Id ASC";
+            var sql = @"select top 1 format(MPD.ActualDate+MS.ScheduleDays,'dd-MMM-yyyy') FromDate from  [TRN].[MachineAssetPlannedDetails] MPD
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.Id=MPD.AssetId
+ left join TRN.Maintenancescheduling MS ON MMA.MaintenanceSchedulingId=MS.Id
+where MPD.ActualDate is not null  
+order by MPD.ActualDate asc";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

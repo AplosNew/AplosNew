@@ -2874,9 +2874,6 @@ namespace Library.MaterialManagement.Inventory
                                 AcceptanceRcvStatusQty = false,
                                 RefferenceNo = itemDetail.RefferenceNo,
                                 Tolerance = itemDetail.Tolerance
-
-
-
                             };
                             NewId1 = receiveDetail.Id;
 
@@ -2895,6 +2892,34 @@ namespace Library.MaterialManagement.Inventory
                             _inventoryMaterialMasterService.InsertOrUpdateFromReceive(itemDetail);
                             receiveDetail.InventoryMaterialId = itemDetail.MaterialMasterId;
                             InsertGraph(receiveDetail);
+                            // insert in receive tax
+                            //var list =
+                            BOQQueryService purchaseOrderBOQQueryService = new BOQQueryService(_sqlRepository);
+                            var list = purchaseOrderBOQQueryService.GetPOBOQTaxCategoryList(entity.CompanyGroupId, entity.InvoicingPartyPlantId, entity.PlantId, itemDetail.HSNCodeId);
+
+                            if (list.IsNotNull())
+                            {
+                                var currentIdTax = _receiveTaxRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveDetailId='{itemDetail.InventoryReceiveDetailId}'").First();
+                                foreach (var item in list)
+                                {
+
+                                    //new Di
+                                    //var v = new System.Collections.Generic.Dictionary<string, object>(item).Items[""].
+                                    var potax = new PurchaseOrderTax();
+                                    currentIdTax++;
+                                    potax.Id = MakePK(itemDetail.InventoryReceiveDetailId, currentIdTax, 2);
+                                    potax.InventoryReceiveId = entity.Id;
+                                    potax.InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId;
+                                    potax.InventoryServiceId = null;
+                                    potax.HSNCodeId = itemDetail.HSNCodeId;
+                                    potax.TaxCategoryId = item.TaxCategoryId;
+                                    potax.Percentage = item.Percentage;
+                                    potax.TaxAmount = receiveDetail.TransactionAmount * (item.Percentage / 100);
+                                    potax.ModelState = ModelState.Added;
+                                    AuditService.AddedLog(potax);
+                                    _receiveTaxRepository.Insert(potax);
+                                }
+                            }
 
                         }
 

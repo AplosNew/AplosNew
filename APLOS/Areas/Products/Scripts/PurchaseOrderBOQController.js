@@ -1418,7 +1418,10 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                     }
                     else {
                         var Done = 0;
-                        var getRow3 = $filter("filter")($scope.updatePOBOQListS, { "BOQDetailId": $scope.UpdatepoBoqItemList[i].BOQId });
+                        var getRow3 = $filter("filter")($scope.updatePOBOQListS, {
+                            "BOQDetailId": $scope.UpdatepoBoqItemList[i].BOQId, "MaterialMasterId": $scope.UpdatepoBoqItemList[i].MaterialMasterId
+                            , "ArticleId": $scope.UpdatepoBoqItemList[i].ArticleId, "FirstCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValueId
+                        });
                         if (getRow3.length > 0) {
                             throw "Already taken";
                         }
@@ -1553,5 +1556,65 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.closeReceiveTaxPopUpwindow = function () {
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
     }
+
+    $scope.valuePassInDelModal = function (id, index) {
+        $scope.id = id;
+        $scope.deleteindexId = index;
+        if (baseService.isUndefinedOrNull(id)) {
+            var indexData = $scope.poBoqItemListNew[index];
+            $scope.poBoqItemListNew.splice(index, 1);
+            var i = $scope.updatePOBOQListS.length;
+            while (i--) {
+                if ($scope.updatePOBOQListS[i]["MaterialMasterId"] === indexData.MaterialMasterId
+                    && $scope.updatePOBOQListS[i]["ArticleId"] === indexData.ArticleId
+                    && $scope.updatePOBOQListS[i]["FirstCharacteristicsValueId"] === indexData.FirstCharacteristicsValueId
+                    && $scope.updatePOBOQListS[i]["SecondCharacteristicsValueId"] === indexData.SecondCharacteristicsValueId
+                    && $scope.updatePOBOQListS[i]["ThitrdCharacteristicsValueId"] === indexData.ThitrdCharacteristicsValueId
+                    && $scope.updatePOBOQListS[i]["GroupId"] === indexData.GroupId) {
+                    $scope.updatePOBOQListS.splice(i, 1);
+                }
+            }
+        }
+        else {
+            $scope.message = 'Are you sure want to permanently delete this?';
+            angular.element(document.querySelector('#rowDeletePopUp')).modal('show');
+        }
+
+    };
+    $scope.detailDelete = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.detailDeleteUrl + $scope.id + '&OrderSpecific=' + $scope.productNew.OrderSpecific
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    {
+                        var indexData = $scope.poBoqItemListNew[$scope.deleteindexId];
+                        $scope.poBoqItemListNew.splice($scope.deleteindexId, 1);
+                        var i = $scope.updatePOBOQListS.length;
+                        while (i--) {
+                            if ($scope.updatePOBOQListS[i]["MaterialMasterId"] === indexData.MaterialMasterId
+                                && $scope.updatePOBOQListS[i]["ArticleId"] === indexData.ArticleId
+                                && $scope.updatePOBOQListS[i]["FirstCharacteristicsValueId"] === indexData.FirstCharacteristicsValueId
+                                && $scope.updatePOBOQListS[i]["SecondCharacteristicsValueId"] === indexData.SecondCharacteristicsValueId
+                                && $scope.updatePOBOQListS[i]["ThitrdCharacteristicsValueId"] === indexData.ThitrdCharacteristicsValueId
+                                && $scope.updatePOBOQListS[i]["GroupId"] === indexData.GroupId) {
+                                $scope.updatePOBOQListS.splice(i, 1);
+                            }
+                        }
+                        $scope.deleteindexId = null;
+
+                    }
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
 }//End Of main
 
