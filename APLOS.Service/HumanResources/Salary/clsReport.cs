@@ -1707,7 +1707,7 @@ ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((M
 MA.AssetReference,Y.Closing as StockQty
 from TRN.Maintenancescheduling MS
 --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
-left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
 left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
 left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
 left join ORG.Entity E ON E.Id=MMA.EntityId
@@ -1868,7 +1868,7 @@ ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,EAC.UserName ItemTyp
 from TRN.MaintenanceItem MI
 left join HKP.EmployeeActivityCategory EAC ON EAC.Id=MI.ItemType
 left join TRN.Maintenancescheduling MS ON MS.Id=MI.MaintenanceSchedulingId
-left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
 left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
 where MMA.Id='" + PlannedId + @"' order by MI.SNO";
 

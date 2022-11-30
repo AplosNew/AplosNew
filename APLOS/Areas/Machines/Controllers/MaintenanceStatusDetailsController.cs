@@ -62,14 +62,11 @@ namespace Aplos.Areas.Machines.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"select Top 1
- (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id ASC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id ASC)),'dd-MMM-yyyy')end) FromDate
- from TRN.Maintenancescheduling MS
- left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
- left Join  [TRN].[MachineAssetPlannedDetails] MPD ON MPD.AssetId=MMA.Id
- Order By MPD.Id ASC";
+            var sql = @"select top 1 format(MPD.ActualDate+MS.ScheduleDays,'dd-MMM-yyyy') FromDate from  [TRN].[MachineAssetPlannedDetails] MPD
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.Id=MPD.AssetId
+ left join TRN.Maintenancescheduling MS ON MMA.MaintenanceSchedulingId=MS.Id
+where MPD.ActualDate is not null  
+order by MPD.ActualDate asc";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -116,7 +113,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
  ,Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate
 from TRN.Maintenancescheduling MS
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
- left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
@@ -161,7 +158,7 @@ MS.Remarks,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD whe
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
- left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
@@ -199,7 +196,7 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
 MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,(CASE WHEN APD.ActualDate IS NULL THEN 0 ELSE 1 END) as [Status],Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,APD.Remarks
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
- left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
  left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
@@ -236,7 +233,7 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
 MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,(CASE WHEN APD.ActualDate IS NULL THEN 0 ELSE 1 END) as [Status],Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,APD.Remarks
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
- left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
  left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
@@ -273,7 +270,7 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
 MS.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,(CASE WHEN APD.ActualDate IS NULL THEN 0 ELSE 1 END) as [Status],Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,APD.Remarks
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
- left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
  left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
@@ -312,7 +309,7 @@ Format(APD.FromDate,'dd-MMM-yyyy') as FromDate,Format(APD.ActualDate,'dd-MMM-yyy
 APD.FileName,'id' as test
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
- left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
  left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId

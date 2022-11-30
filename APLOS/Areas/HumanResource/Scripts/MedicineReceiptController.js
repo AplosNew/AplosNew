@@ -334,5 +334,36 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             });
 
     };
-   
+
+    $scope.deleteSingleRow = function (name, index, listName, tempId, listId) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.listName = listName;
+            $scope.tempDeptId = tempId;
+            $scope.listId = listId;
+            $scope.message_confirmation = "Are you sure you want to update [" + name + "]  ?";
+            angular.element(document.querySelector('#confirmRemoveDetentionLRPersonPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeDetentiontRow = function (e) {
+        $http({
+            method: 'POST',
+            url: 'Materials/DetentionLogout/DetentionLogRespPerDelete?Id=' + $scope.tempDeptId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getDetentionLogResponsiblePerson();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
 }
