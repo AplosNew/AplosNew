@@ -314,7 +314,14 @@ namespace Library.Accounting.Accounts
 						, T.Amount ,T.IsAsset
                            
 					FROM (
-						SELECT IR.Id, 'Customer' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
+						SELECT 'Customer' AS OtherName,'Dr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
+						, MAT.GLGeneralInfoId, MAT.GLGeneralInfoCode, MAT.GLGeneralInfoName
+							, MAT.BudgetMasterId, MAT.BudgetCode, MAT.BudgetName
+							, MAT.ActivityId, MAT.ActivityCode, MAT.ActivityName,SUM(MAT.Dr)  AS Dr
+						,NULL Cr,
+						SUM(MAT.Dr)  AS Amount ,MAT.IsAsset
+						FROM (
+							SELECT IR.Id, 'Customer' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, NULL AS TaxCategoryId
                             ,CPGL.GLGeneralInfoId GLGeneralInfoId
 							,GL.AccountCode GLGeneralInfoCode
 							,GL.UserName GLGeneralInfoName 
@@ -325,8 +332,8 @@ namespace Library.Accounting.Accounts
 							,A.Code ActivityCode
 							,A.UserName ActivityName
 							
-							, SUM(IRD.TransactionAmount+IRD.TaxAmount)+ISNULL(TCS.TCSAmount,0)+ISNULL(SS.ServiceTotalAmount,0) AS Dr, 0 Cr
-							, SUM(IRD.TransactionAmount+IRD.TaxAmount)+ISNULL(TCS.TCSAmount,0)+ISNULL(SS.ServiceTotalAmount,0) AS Amount
+							, SUM(IRD.TransactionAmount)+ISNULL(SS.ServiceTotalAmount,0) AS Dr, 0 Cr
+							, SUM(IRD.TransactionAmount)+ISNULL(SS.ServiceTotalAmount,0) AS Amount
                              ,MM.IsAsset
 						FROM [TRN].[SalesMaterial] AS IRD
 						LEFT JOIN [TRN].[Sales] AS IR ON IRD.SalesId=IR.Id
@@ -338,17 +345,12 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON CPGL.BudgetMasterId= BM2.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON CPGL.ActivityId= A.Id
-						LEFT JOIN (SELECT SalesId,ISNULL(SUM(Amount+TaxAmount),0) ServiceTotalAmount FROM [TRN].[SalesService] GROUP BY SalesId) SS ON SS.SalesId=IR.Id
-						LEFT OUTER JOIN (
-						SELECT INS.SalesId, sum(INS.TaxAmount) AS TCSAmount
-						from  [TRN].[SalesAdditionalTax] AS INS
-						LEFT JOIN TRN.InventoryReceive AS IR ON IR.Id=INS.SalesId 
-                        where SalesId=@salesId group by INS.SalesId
-						) AS TCS on TCS.SalesId=@salesId
-						WHERE IRD.SalesId=@salesId
+						LEFT JOIN (SELECT SalesId,ISNULL(SUM(Amount),0) ServiceTotalAmount FROM [TRN].[SalesService] GROUP BY SalesId) SS ON SS.SalesId=IR.Id
 
+
+						WHERE IRD.SalesId=@salesId
 						GROUP BY  IR.Id, CPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, CPGL.BudgetMasterId, B.Code, B.UserName, CPGL.ActivityId, A.Code, A.UserName
-						,MM.IsAsset,SS.ServiceTotalAmount,TCS.TCSAmount
+						,MM.IsAsset,SS.ServiceTotalAmount
 						) AS MAT
 						
 						GROUP BY  MAT.Id,MAT.GLGeneralInfoId, MAT.GLGeneralInfoCode, MAT.GLGeneralInfoName , MAT.BudgetMasterId, MAT.BudgetCode, MAT.BudgetName
