@@ -176,6 +176,13 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colEntity = COL;
 
+
+                COL++;
+                int colstart = COL;
+                sheet[ROW, COL].Text = "PONo";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProductionOrderID = COL;
+
                 COL++;
                 sheet[ROW, COL].Text = "ProcessIndex";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -206,11 +213,6 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colPOProcessStatus = COL;
 
-                COL++;
-                int colstart = COL;
-                sheet[ROW, COL].Text = "PONo";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colProductionOrderID = COL;
 
                 COL++;
                 sheet[ROW, COL].Text = "POStatus";
@@ -510,7 +512,7 @@ namespace Aplos.Areas.Productions.Controllers
                 pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
 
                 sheet = workbook.Worksheets[0];
-                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Perametre Wise Report", identity.CompanyId, identity.CompanyName, "");
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "PO Wise Production Status Report", identity.CompanyId, identity.CompanyName, "");
 
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -748,7 +750,7 @@ GROUP BY PS.ProductionOrderId,PSQ.Sequence
 ) PSEQ ON PSEQ.ProductionOrderId=PP.ProductionOrderID AND POPS.[Sequence]=PSEQ.Sequence
 Where TRKE.Id in(" + parameters["EntityId"] + @")
 AND ISNULL(PP.ResponsiblePersonId,'') in(" + parameters["ResponsiblePersonId"] + @")
-AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.ProcessIndex,A.PONo ";
+AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.PONo,A.ProcessIndex ";
 
 
                 data = _sqlRepository.GetDataTable(sql);
@@ -943,7 +945,7 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.ProcessInde
                 {
                     partyId = "AND XMO.PartyId in(" + parameters["CustomerId"] + @")";
                 }
-                string sql = @"Select A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.PONo,A.POStatus
+                string sql = @"Select A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.PONo,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.POStatus
 ,A.WorkCenter,A.ProductionShift,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article,A.NoOfWorkStation,A.ProductionHours
 ,A.PlannedQty,SUM(A.ActualQty) ActualQty,A.PreProUDProd,A.FirstBookDate,A.LastBookDate 
 from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,PSEQ.ProcessIndex,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
@@ -1060,10 +1062,10 @@ GROUP BY PS.ProductionOrderId,PSQ.Sequence
 Where TRKE.Id in(" + parameters["EntityId"] + @")
 AND ISNULL(PP.ResponsiblePersonId,'') in(" + parameters["ResponsiblePersonId"] + @")
 AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A 
-GROUP BY A.PONo,A.Process,A.UpToDateProduction,A.PreProUDProd,A.POProcessSequence
-,A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.PONo,A.POStatus
+GROUP BY A.PONo,A.ProcessIndex,A.Process,A.UpToDateProduction,A.PreProUDProd,A.POProcessSequence
+,A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.BaseProcess,A.POProcessStatus,A.POStatus
 ,A.WorkCenter,A.ProductionShift,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article,A.NoOfWorkStation,A.ProductionHours,A.PlannedQty,A.FirstBookDate,A.LastBookDate
-Order BY A.ProcessIndex,A.PONo";
+Order BY A.PONo,A.ProcessIndex";
 
 
                 data = _sqlRepository.GetDataTable(sql);
@@ -1084,7 +1086,7 @@ Order BY A.ProcessIndex,A.PONo";
                 {
                     partyId = "AND XMO.PartyId in(" + parameters["CustomerId"] + @")";
                 }
-                string sql = @"Select A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.PONo,A.POStatus
+                string sql = @"Select A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.PONo,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.POStatus
 ,A.ProductionShift,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article
 ,A.PlannedQty,SUM(A.ActualQty) ActualQty,A.PreProUDProd,A.FirstBookDate,A.LastBookDate 
 from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,PSEQ.ProcessIndex,isnull(p.UserName, FSFG.UserName) AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
@@ -1199,10 +1201,10 @@ GROUP BY PS.ProductionOrderId,PSQ.Sequence
 Where TRKE.Id in(" + parameters["EntityId"] + @")
 AND ISNULL(PP.ResponsiblePersonId,'') in(" + parameters["ResponsiblePersonId"] + @")
 AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A 
-GROUP BY A.PONo,A.Process,A.UpToDateProduction,A.PreProUDProd,A.POProcessSequence
-,A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.PONo,A.POStatus
+GROUP BY A.PONo,A.ProcessIndex,A.Process,A.UpToDateProduction,A.PreProUDProd,A.POProcessSequence
+,A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.BaseProcess,A.POProcessStatus,A.POStatus
 ,A.ProductionShift,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article,A.PlannedQty,A.FirstBookDate,A.LastBookDate
-Order BY A.ProcessIndex,A.PONo";
+Order BY A.PONo,A.ProcessIndex";
 
 
                 data = _sqlRepository.GetDataTable(sql);
