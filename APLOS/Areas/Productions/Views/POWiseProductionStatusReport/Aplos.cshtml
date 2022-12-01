@@ -25,6 +25,7 @@
                     <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="detail" role="tab" data-toggle="tab">Detail</a></li>
                     <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="WithWC" role="tab" data-toggle="tab">WithWC</a></li>
                     <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="summary" role="tab" data-toggle="tab">Summary</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="prosummaryallprocess" role="tab" data-toggle="tab">PrO Summary All Process</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -76,13 +77,13 @@
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                 <div e-columns>
                                     <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="100"></div>
                                     <div e-column e-type="string" e-field="ProcessIndex" e-headertext="ProcessIndex" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="180"></div>
                                     <div e-column e-type="string" e-field="POProcessSequence" e-headertext="POProcessSequence" e-width="100"></div>
                                     <div e-column e-type="string" e-field="StandardProcessSequence" e-headertext="StandardProcessSequence" e-width="100"></div>
                                     <div e-column e-type="string" e-field="BaseProcess" e-headertext="BaseProcessApplicable" e-width="100"></div>
                                     <div e-column e-type="string" e-field="POProcessStatus" e-headertext="POProcessStatus" e-width="100"></div>
-                                    <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="100"></div>
                                     <div e-column e-type="string" e-field="POStatus" e-headertext="POStatus" e-width="100"></div>
                                     <div e-column e-type="string" e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
                                     <div e-column e-type="string" e-field="ProductionShift" e-headertext="Shift" e-width="180"></div>
@@ -159,6 +160,7 @@
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                 <div e-columns>
                                     <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="100"></div>
                                     <div e-column e-type="string" e-field="ProcessIndex" e-headertext="ProcessIndex" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="180"></div>
                                     <div e-column e-type="string" e-field="POProcessSequence" e-headertext="POProcessSequence" e-width="100"></div>
@@ -167,7 +169,6 @@
                                     <div e-column e-type="string" e-field="POProcessStatus" e-headertext="POProcessStatus" e-width="100"></div>
                                     <div e-column e-type="string" e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
                                     <div e-column e-type="string" e-field="ProductionShift" e-headertext="Shift" e-width="180"></div>
-                                    <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="100"></div>
                                     <div e-column e-type="string" e-field="POStatus" e-headertext="POStatus" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
@@ -194,7 +195,7 @@
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                     <div class="row">
                         <div class="col-xs-12">
                             <div class="col-xs-6">
@@ -202,7 +203,7 @@
                                     <label class="col-sm-4 control-label">Production Order Status<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <div class="select-style">
-                                            <select class="form-control" ng-model="summary.StatusId" name="OrderStatus" ng-change="loadsumfilters();"
+                                            <select class="form-control" ng-model="allsummary.StatusId" name="OrderStatus" ng-change="loadallsumfilters();"
                                                     ng-options="item.Value as item.Text for item in StatusList" required tabindex="1">
                                                 <option value="">--Select--</option>
                                             </select>
@@ -215,9 +216,9 @@
                                     <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
                                     <div class="col-sm-8">
                                         <div class="input-group">
-                                            <input type="text" name="ProductionOrder" ng-model="summary.ProductionOrderId" class="form-control" readonly>
+                                            <input type="text" name="ProductionOrder" ng-model="allsummary.ProductionOrderId" class="form-control" readonly>
                                             <span class="input-group-btn">
-                                                <button ng-click="getProductionOrderPopUp('summary');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="getProductionOrderPopUp('allsummary');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                             </span>
                                         </div>
                                     </div>
@@ -225,30 +226,31 @@
                             </div>
                         </div>
                         <div class="col-xs-12">
-                            <div id="summaryfilters">
+                            <div id="allsummaryfilters">
                             </div>
-                            <div class="common-btn" ng-show="summaryfilters.length>0">
+                            <div class="common-btn" ng-show="allsummaryfilters.length>0">
                                 <ul class="list-inline text-right">
-                                    <li> <button ng-click="SummeryViewData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
-                                    <li> <button ng-click="ProSumDataReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
+                                    <li> <button ng-click="AllSummeryViewData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                                    <li> <button ng-click="ProSumAllDataReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
                                 </ul>
                             </div>
                         </div>
-                        <div class="col-xs-12" ng-show="ProductionDataSumReportList.length>0">
-                            <div id="GridSum" ej-grid e-datasource="ProductionDataSumReportList"
+                        <div class="col-xs-12" ng-show="ProductionDataAllSumReportList.length>0">
+                            <div id="GridAllSum" ej-grid e-datasource="ProductionDataAllSumReportList"
                                  e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                 <div e-columns>
                                     <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="100"></div>
                                     <div e-column e-type="string" e-field="ProcessIndex" e-headertext="ProcessIndex" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="180"></div>
                                     <div e-column e-type="string" e-field="POProcessSequence" e-headertext="POProcessSequence" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="ProductionProcess" e-headertext="ProductionProcess" e-width="100"></div>
                                     <div e-column e-type="string" e-field="StandardProcessSequence" e-headertext="StandardProcessSequence" e-width="100"></div>
                                     <div e-column e-type="string" e-field="BaseProcess" e-headertext="BaseProcessApplicable" e-width="100"></div>
                                     <div e-column e-type="string" e-field="POProcessStatus" e-headertext="POProcessStatus" e-width="100"></div>
                                     <div e-column e-type="string" e-field="ProductionShift" e-headertext="Shift" e-width="180"></div>
-                                    <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="100"></div>
                                     <div e-column e-type="string" e-field="POStatus" e-headertext="POStatus" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
@@ -267,7 +269,7 @@
                                     <div e-column e-type="date" e-field="FirstBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="FirstBookDate" e-width="100"></div>
                                     <div e-column e-type="date" e-field="LastBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LastBookDate" e-width="100"></div>
                                     @*<div e-column e-field="FirstShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstShipmentDate" e-width="100"></div>
-                            <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
+                                    <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
                                 </div>
                             </div>
                         </div>
@@ -275,11 +277,8 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
-
-
 <div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

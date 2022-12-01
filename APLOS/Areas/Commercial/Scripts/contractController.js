@@ -118,6 +118,18 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     }
 
+    $scope.GetshipmentMode = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/shipmode/GetCbo/'
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.shipmentModeList = response.data;
+            }
+        });
+    }
+    $scope.GetshipmentMode();
+
     $scope.contractList = [];
     $scope.getSavedData = function () {
         $scope.contractList = [];

@@ -63,9 +63,13 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             $scope.withwc.ProductionOrderId = $event.data.POId;
             $scope.loadwcfilters();
         }
-        else {
+        else if ($scope.flag == 'summary') {
             $scope.summary.ProductionOrderId = $event.data.POId;
             $scope.loadsummaryfilters();
+        }
+         else {
+            $scope.allsummary.ProductionOrderId = $event.data.POId;
+            $scope.loadallsumfilters();
         }
         $scope.flag = null;
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
@@ -176,9 +180,9 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
                 url: $scope.path + 'getFilters?productionStatusId=' + $scope.summary.StatusId + '&poId=' + $scope.summary.ProductionOrderId,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-              
+
                 if (response.data.Error === true) {
-                    ShowResult(response.data.Message,'failure');
+                    ShowResult(response.data.Message, 'failure');
                 } else {
                     $scope.summaryfilters = response.data;
                     var columnList = [
@@ -208,12 +212,13 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
                     $("#summaryfilters").children('.e-gridcontent.e-droppable.e-js').hide();
                     $("#summaryfilters").children('.e-gridcontent').hide();
                 }
-                
+
             });
         } catch (e) {
             ShowResult(e, 'failure');
         }
     }
+
 
     // THe Generate Filters
     $scope.parameters = [];
@@ -321,34 +326,6 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             ShowResult(response.data.Message, 'failure');
         });
     }
-
-    //$scope.ProductionDataReport = function () {
-    //    var dataList = [];
-    //    var g = $("#GridEmp").data("ejGrid");
-    //    dataList = g.getFilteredRecords();
-
-    //    if (dataList.length == 0) {
-    //        dataList = $scope.ProductionDataReportList;
-    //    }
-
-    //    $scope.fileName = "Production Data Report";
-
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.exportgriddataUrlUpd,
-    //        data: {'reportFileName': $scope.fileName,'data': dataList},
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error == true) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //        else {
-    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-    //        }
-    //    }, function errorCallback(response) {
-    //        ShowResult(response.data.Message, 'failure');
-    //    });
-    //}
 
     $scope.wcparameters = [];
     $scope.WCfilterComplete = function () {
@@ -492,4 +469,122 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         });
     }
 
+    $scope.loadallsumfilters = function () {
+        try {
+            $scope.allsummaryfilters = [];
+            $http({
+                method: 'GET',
+                url: $scope.path + 'getFilters?productionStatusId=' + $scope.allsummary.StatusId + '&poId=' + $scope.allsummary.ProductionOrderId,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                } else {
+                    $scope.allsummaryfilters = response.data;
+                    var columnList = [
+                        { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                        { field: 'ProductCode', width: 20, headerText: "ProductCode", type: "string" },
+                        { field: 'ProductionOrderId', width: 20, headerText: "PONo", type: "string" },
+                        { field: 'LotNumber', width: 20, headerText: "LotNumber", type: "string" },
+                        { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
+                        { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                        { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
+
+                    ];
+
+
+                    $("#allsummaryfilters").ejGrid({
+                        dataSource: $scope.allsummaryfilters,
+                        minWidth: 450, minHeight: 400,
+                        allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                        filterSettings: { filterType: "excel" },
+                        columns: columnList
+                    });
+
+                    var gridSumObj = $("#allsummaryfilters").data("ejGrid");
+                    gridSumObj.refreshContent(true);
+                    gridSumObj.refreshTemplate();
+                    $("#allsummaryfilters").children('.e-pager.e-js.e-pager').hide();
+                    $("#allsummaryfilters").children('.e-gridcontent.e-droppable.e-js').hide();
+                    $("#allsummaryfilters").children('.e-gridcontent').hide();
+                }
+
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.allsumparameters = [];
+    $scope.AllSumfilterComplete = function () {
+
+        var g = $("#allsummaryfilters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.allsummaryfilters;
+        }
+
+
+        var allsumparameters = [];
+        allsumparameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        allsumparameters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
+        allsumparameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
+        allsumparameters.push({ "Key": "ProductionStatusId", "Value": getString(fl, "ProductionStatusId") });
+        allsumparameters.push({ "Key": "ProductLibraryId", "Value": getString(fl, "ProductLibraryId") });
+        allsumparameters.push({ "Key": "LotNumber", "Value": getString(fl, "LotNumber") });
+
+        $scope.allsumparameters = allsumparameters;
+
+    }
+
+    $scope.ProductionDataAllSumReportList = [];
+    $scope.AllSummeryViewData = function () {
+        $scope.AllSumfilterComplete();
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetAllSummaryViewData",
+            data: { 'parameters': $scope.allsumparameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.ProductionDataAllSumReportList = response.data;
+                console.log($scope.ProductionDataAllSumReportList);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    $scope.ProSumAllDataReport = function () {
+        var alldataLists = [];
+        var g = $("#GridAllSum").data("ejGrid");
+        alldataLists = g.getFilteredRecords();
+
+        if (alldataLists.length == 0) {
+            alldataLists = $scope.ProductionDataAllSumReportList;
+        }
+
+        $scope.fileName = "ProductionDataAllSummary";
+
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpd,
+            data: { 'reportFileName': $scope.fileName, 'data': alldataLists },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 }
