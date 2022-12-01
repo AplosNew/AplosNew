@@ -420,21 +420,19 @@
                             <table class="table table-striped">
                                 <thead>
                                     <tr ng-show="MasterList.length">
-                                        <th>
-                                        </th>
+                                        <th></th>
+                                        <th>Action</th>
                                         <th>QualityStatus</th>
                                         <th ng-show="x.POID !='null' && x.POID!='null'">PO Id</th>
                                         <th ng-show="x.InventoryReceiveDetailId !='null' && x.InventoryReceiveDetailId!='null'">PORowId</th>
-                                        <th ng-hide="GriddataSelected.length===0 || GriddataSelected.length>0">AcceptanceId</th>
-                                        <th ng-hide="GriddataSelected.length===0 || GriddataSelected.length>0">AcceptanceDetailId</th>
                                         <th>Material Group</th>
                                         <th>Material Master</th>
                                         <th>Article</th>
                                         <th>Sku1</th>
                                         <th>Sku2</th>
-                                        <th>Sku3</th>
+                                        <th colspan="2">Orginal POQty</th>
                                         <th >Total POQty</th>
-                                        <th colspan="2" >PO RowQty</th>
+                                        <th colspan="2">PO RowQty</th>
                                         <th ng-show="GriddataSelected.length>0">Other GRN Received</th>
                                         <th ng-show="GriddataSelected.length===0">Other Acceptance Received</th>
                                         <th ng-hide="false">Balance</th>
@@ -460,8 +458,6 @@
                                         <th>MaterialLotNumber </th>
                                         <th>MaterialDiameter</th>
                                         <th>MaterialType</th>
-
-                                        <th class="col-sm-1" colspan="2"></th>
                                     </tr>
 
 
@@ -476,6 +472,11 @@
                                                 </label>
                                             </div>
                                         </td>
+                                        <td class="text-right">
+                                            <ul class="list-inline action-list">
+                                                <li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                            </ul>
+                                        </td>
                                         <td>
                                             <div class="select-style">
                                                 <select name="Quality Status" style="height:30px;" ng-model="x.QualityStatus" class="form-control">
@@ -488,23 +489,20 @@
                                         </td>
                                         <td ng-show="x.POID !='null' && x.POID!='null'">{{x.POID}}</td>
                                         <td ng-show="x.InventoryReceiveDetailId !='null' && x.InventoryReceiveDetailId!='null'">{{x.InventoryReceiveDetailId}}</td> @*ng-show="x.InventoryReceiveDetailId !='null' && x.PurchaseDocAcceptanceDetailId ==='null'"*@
-                                        <td ng-hide="GriddataSelected.length===0 || GriddataSelected.length>0">{{x.PurchaseDocumentAcceptanceId}}</td> @*ng-show="x.InventoryReceiveDetailId !='null' && x.PurchaseDocAcceptanceDetailId !='null'"*@
-                                        <td ng-hide="GriddataSelected.length===0 || GriddataSelected.length>0">{{x.PurchaseDocumentAcceptanceDetailId}}</td> @*ng-show="x.InventoryReceiveDetailId !='null' && x.PurchaseDocAcceptanceDetailId !='null'"*@
                                         <td>{{x.MaterialGroupMasterName}}</td>
                                         <td>{{x.UserName}}</td>
                                         <td>{{x.StandardName}}</td>
                                         <td>{{x.FirstCharacteristicsValue}}</td>
                                         <td>{{x.SecondCharacteristicsValue}}</td>
-                                        <td>{{x.ThirdCharacteristicsValue}}</td>
-                                        <td ng-show="GriddataSelected.length===0" style="width:100px;">{{x.OriginalPOQty}}</td>
-                                        <td class="text-right" ng-show="GriddataSelected.length===0">{{x.TransactionUoM}}</td>
+                                        <td >{{x.OriginalPOQty}}</td>
+                                        <td class="text-right" >{{x.TransactionUoM}}</td>
                                         <td><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" style="width:100px;" ng-model="x.TotalPOQty" ng-disabled="true"></td>
                                         <td><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" style="width:100px;" ng-model="x.POQty" ng-disabled="true"></td>
                                         <td class="text-right">{{x.TransactionUoM}}</td>
 
                                         <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.GRNRcvQty" ng-disabled="true"></td>
                                         <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.Balance" ng-disabled="true"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" @*ng-disabled="AcceptanceId!=null || x.Balance===0"*@></td>  @* x.enableid && ng-keyup="calculateAmount(x);"*@
+                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" ng-disabled="x.Id"></td>  @* x.enableid && ng-keyup="calculateAmount(x);"*@
                                         <td>
                                             <div class="checkbox-site">
                                                 <label>
@@ -536,14 +534,6 @@
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
-
-
-                                        <td class="text-right">
-                                            <ul class="list-inline action-list">
-                                                <li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                            </ul>
-                                        </td>
-                                        <td></td>
                                     </tr>
                                     <tr ng-show="MasterList.length">
                                         <td></td>
@@ -572,9 +562,6 @@
                                         <td></td>
                                         <td class="text-right">
                                         </td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>

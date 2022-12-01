@@ -1360,6 +1360,110 @@ group by EC.UserName,  RM.[Location], RM.Block, RM.ResidentType";
             }
         }
 
+        public DataTable TeamPlanReport(string todate, string fromdate, string teamName, string employeeId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = "";
+                if (teamName == "null")
+                {
+                    sql = @"select TD.UserName TeamName,E.UserName Entity,
+DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,EC.UserName EmployeeCategory,DEG.UserName as Designation,
+LD.UserName as LegalDesignation,SD.UserName as Shift,TDE.ResponsibilityLevel,EI.SystemId as EmpId,EI.EmployeeName,format(EI.DOJ,'dd-MMM-yyyy') as DOJ,
+EI.EmployeeStatus,EI.EmployeeCurrentStatus,'' WeekOff,format(APD.WorkDate,'dd-MMM-yyyy') as Date,APD.DayStatus,TDE.PlanHours,isnull(FLOOR(APD.Duration/60),0) AvailableHours,
+isnull((select  sum(PlanMinutes)/60 from TRN.ResponsiblePlannedDetails where ResponsiblePersonId in (select EmployeeId from TRN.TeamDefinitionEmployee where TeamDefinitionId=TD.Id) and PlannedId in (select ID from TRN.MachineAssetPlannedDetails where ActualDate is null or PlannedDate=APD.WorkDate)),0) as AllotedHours,
+isnull((select  sum(ActualMinutes)/60 from TRN.ResponsiblePlannedDetails where ResponsiblePersonId in (select EmployeeId from TRN.TeamDefinitionEmployee where TeamDefinitionId=TD.Id) and PlannedId in (select  Id from TRN.MachineAssetPlannedDetails where ActualDate is not null and PlannedDate=APD.WorkDate)),0) as ActualHours,TDE.Remarks,
+TC.UserName as TeamCategory
+from TRN.TeamDefinition TD
+left join TRN.TeamEntity TE ON TE.TeamDefinitionId=TD.Id 
+left join ORG.Entity E ON E.Id=TE.EntityId
+left join TRN.TeamDefinitionEmployee TDE ON TDE.TeamDefinitionId=TD.Id
+left join EmployeeInformation EI ON EI.SystemId=TDE.EmployeeId  
+left join ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+left join HKP.Designation DEG ON DEG.Id=EI.DesignationSystemID
+left join ORG.Section S ON S.Id=EI.SectionId
+left join ORG.SubSection SS ON SS.Id=EI.SubSectionId
+left join TRN.TeamDefinitionCategory TDC ON TDC.TeamDefinitionId=TD.Id
+left join hkp.TeamCategory TC ON TC.Id=TDC.TeamCategoryId
+left join HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
+left join [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
+left join ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
+left join ORG.Position P on P.Id = MB.PositionId
+left join MST.DesignationMaster DM on DM.DesignationId = P.DesignationId
+left join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+left join AttdnProcessData APD ON APD.EmpSystemID=TDE.EmployeeId
+where EI.EmployeeStatus='Active' and APD.WorkDate between '" + fromdate + "' and '" + todate + "'";
+                }
+                else
+                {
+                    if (employeeId == "null")
+                    {
+                        sql = @"select TD.UserName TeamName,E.UserName Entity,
+DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,EC.UserName EmployeeCategory,DEG.UserName as Designation,
+LD.UserName as LegalDesignation,SD.UserName as Shift,TDE.ResponsibilityLevel,EI.SystemId as EmpId,EI.EmployeeName,format(EI.DOJ,'dd-MMM-yyyy') as DOJ,
+EI.EmployeeStatus,EI.EmployeeCurrentStatus,'' WeekOff,format(APD.WorkDate,'dd-MMM-yyyy') as Date,APD.DayStatus,TDE.PlanHours,isnull(FLOOR(APD.Duration/60),0) AvailableHours,
+isnull((select  sum(PlanMinutes)/60 from TRN.ResponsiblePlannedDetails where ResponsiblePersonId in (select EmployeeId from TRN.TeamDefinitionEmployee where TeamDefinitionId=TD.Id) and PlannedId in (select ID from TRN.MachineAssetPlannedDetails where ActualDate is null or PlannedDate=APD.WorkDate)),0) as AllotedHours,
+isnull((select  sum(ActualMinutes)/60 from TRN.ResponsiblePlannedDetails where ResponsiblePersonId in (select EmployeeId from TRN.TeamDefinitionEmployee where TeamDefinitionId=TD.Id) and PlannedId in (select  Id from TRN.MachineAssetPlannedDetails where ActualDate is not null and PlannedDate=APD.WorkDate)),0) as ActualHours,TDE.Remarks,
+TC.UserName as TeamCategory
+from TRN.TeamDefinition TD
+left join TRN.TeamEntity TE ON TE.TeamDefinitionId=TD.Id 
+left join ORG.Entity E ON E.Id=TE.EntityId
+left join TRN.TeamDefinitionEmployee TDE ON TDE.TeamDefinitionId=TD.Id
+left join EmployeeInformation EI ON EI.SystemId=TDE.EmployeeId  
+left join ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+left join HKP.Designation DEG ON DEG.Id=EI.DesignationSystemID
+left join ORG.Section S ON S.Id=EI.SectionId
+left join ORG.SubSection SS ON SS.Id=EI.SubSectionId
+left join TRN.TeamDefinitionCategory TDC ON TDC.TeamDefinitionId=TD.Id
+left join hkp.TeamCategory TC ON TC.Id=TDC.TeamCategoryId
+left join HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
+left join [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
+left join ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
+left join ORG.Position P on P.Id = MB.PositionId
+left join MST.DesignationMaster DM on DM.DesignationId = P.DesignationId
+left join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+left join AttdnProcessData APD ON APD.EmpSystemID=TDE.EmployeeId
+where EI.EmployeeStatus='Active' and APD.WorkDate between '" + fromdate + "' and '" + todate + "' and TD.Id='" + teamName + "'";
+                    }
+                    else
+                    {
+                        sql = @"select TD.UserName TeamName,E.UserName Entity,
+DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,EC.UserName EmployeeCategory,DEG.UserName as Designation,
+LD.UserName as LegalDesignation,SD.UserName as Shift,TDE.ResponsibilityLevel,EI.SystemId as EmpId,EI.EmployeeName,format(EI.DOJ,'dd-MMM-yyyy') as DOJ,
+EI.EmployeeStatus,EI.EmployeeCurrentStatus,'' WeekOff,format(APD.WorkDate,'dd-MMM-yyyy') as Date,APD.DayStatus,TDE.PlanHours,isnull(FLOOR(APD.Duration/60),0) AvailableHours,
+isnull((select  sum(PlanMinutes)/60 from TRN.ResponsiblePlannedDetails where ResponsiblePersonId='" + employeeId + @"' and PlannedId in (select ID from TRN.MachineAssetPlannedDetails where ActualDate is null or PlannedDate=APD.WorkDate)),0) as AllotedHours,
+isnull((select  sum(ActualMinutes)/60 from TRN.ResponsiblePlannedDetails where ResponsiblePersonId= '" + employeeId + @"' and PlannedId in (select  Id from TRN.MachineAssetPlannedDetails where ActualDate is not null and PlannedDate=APD.WorkDate)),0) as ActualHours,TDE.Remarks,
+TC.UserName as TeamCategory
+from TRN.TeamDefinition TD
+left join TRN.TeamEntity TE ON TE.TeamDefinitionId=TD.Id 
+left join ORG.Entity E ON E.Id=TE.EntityId
+left join TRN.TeamDefinitionEmployee TDE ON TDE.TeamDefinitionId=TD.Id
+left join EmployeeInformation EI ON EI.SystemId=TDE.EmployeeId  
+left join ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+left join HKP.Designation DEG ON DEG.Id=EI.DesignationSystemID
+left join ORG.Section S ON S.Id=EI.SectionId
+left join ORG.SubSection SS ON SS.Id=EI.SubSectionId
+left join TRN.TeamDefinitionCategory TDC ON TDC.TeamDefinitionId=TD.Id
+left join hkp.TeamCategory TC ON TC.Id=TDC.TeamCategoryId
+left join HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
+left join [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
+left join ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
+left join ORG.Position P on P.Id = MB.PositionId
+left join MST.DesignationMaster DM on DM.DesignationId = P.DesignationId
+left join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+left join AttdnProcessData APD ON APD.EmpSystemID=TDE.EmployeeId
+where EI.EmployeeStatus='Active' and APD.WorkDate between '" + fromdate + "' and '" + todate + "' and TDE.EmployeeId='" + employeeId + "' and TD.Id='" + teamName + "'";
+                    }
+                }
+
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public DataTable MaintenanceStatusSummaryReport(string todate,string fromdate)
         {
             try
