@@ -48,18 +48,7 @@ namespace Aplos.Areas.Machines.Controllers
         public ActionResult LoadMaintenanceStatusDetailsList(string ToDate,string FromDate,string Status)
         {
             string Filter = string.Empty;
-            //if (Status == "All")
-            //{
-            //    Filter = " and Status in (0,1)";
-            //}
-            //else if (Status == "Completed")
-            //{
-            //    Filter = " and Status in (1)";
-            //}
-            //else
-            //{
-            //    Filter = " and Status in (0)";
-            //}
+           
             if (Status == "All")
             {
                 Filter = " and (MPD.ActualDate is not null or MPD.ActualDate is null) and MPD.PlannedDate is not null";
@@ -84,17 +73,15 @@ Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[Mach
 DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end) DueDays,
- case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end OverDue,
- case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))<0 then 1 else 0 end OverDue,
+  case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end DueToday,
- case when (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))=0 then 1 else 0 end DueToday,
+ case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end) = 0 and (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))>0 then 1 else 0 end FutureDue,
 MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup
 ,EI.EmployeeName as ActionableResponsiblePerson,RP.ResponsiblePersonId
 from TRN.Maintenancescheduling MS
@@ -152,17 +139,15 @@ Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[Mach
 DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end) DueDays,
- case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end OverDue,
- case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))<0 then 1 else 0 end OverDue,
+  case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end DueToday,
- case when (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))=0 then 1 else 0 end DueToday,
+ case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)<GETDATE() then 1 else 0 end) = 0 and (case when (Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end)=GETDATE() then 1 else 0 end)=0 then 1 else 0 end FutureDue,
+ ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))>0 then 1 else 0 end FutureDue,
 MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup,MPD.FileName,'Pid' as test,
   Reverse(stuff(Reverse((select EmployeeName+',' from EmployeeInformation where SystemId in (select ResponsiblePersonId from TRN.ResponsiblePlannedDetails AP where AP.PlannedId=MPD.Id and AP.IsActive=1) for xml path(''))),1,1,'')) ActionableResponsiblePerson
  from TRN.Maintenancescheduling MS
@@ -282,75 +267,82 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                         }
                         else
                         {
-                            DateTime ActualDate = Convert.ToDateTime(item["ActualDate"]);
-                            DateTime LastDayDate = DateTime.Today.AddDays(-1);
-                            if (dsMachineAssetPlannedDetailsValidation.Tables[0].Rows.Count > 0)
+                            if (item["FileName"]!=null)
                             {
-                                if (ActualDate == DateTime.Today || ActualDate == LastDayDate)
+                                DateTime ActualDate = Convert.ToDateTime(item["ActualDate"]);
+                                DateTime LastDayDate = DateTime.Today.AddDays(-1);
+                                if (dsMachineAssetPlannedDetailsValidation.Tables[0].Rows.Count > 0)
                                 {
-                                    DataRow drpb = dv[0].Row;
-                                    DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
-                                    DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
-                                    TimeSpan t = ToDt.Subtract(FromDt);
-                                    int N = t.Days;
-                                    DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                    DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                    DateTime NextDayDate = date2.AddDays(N);
-                                    TimeSpan ts = date2 - date1;
-                                    TimeSpan Nd = NextDayDate - date1;
-                                    int minutes = (int)Nd.TotalMinutes;
-
-                                    if (minutes >= 720 || minutes < 0)
+                                    if (ActualDate == DateTime.Today || ActualDate == LastDayDate)
                                     {
-                                        item["ToTime"] = NextDayDate;
-                                        item["Minute"] = Nd.TotalMinutes;
+                                        DataRow drpb = dv[0].Row;
+                                        DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                        DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                        TimeSpan t = ToDt.Subtract(FromDt);
+                                        int N = t.Days;
+                                        DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                        DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                        DateTime NextDayDate = date2.AddDays(N);
+                                        TimeSpan ts = date2 - date1;
+                                        TimeSpan Nd = NextDayDate - date1;
+                                        int minutes = (int)Nd.TotalMinutes;
+
+                                        if (minutes >= 720 || minutes < 0)
+                                        {
+                                            item["ToTime"] = NextDayDate;
+                                            item["Minute"] = Nd.TotalMinutes;
+                                        }
+                                        else
+                                        {
+                                            item["ToTime"] = date2;
+                                            item["Minute"] = ts.TotalMinutes;
+                                        }
+                                        EditRow(drpb, item);
                                     }
                                     else
                                     {
-                                        item["ToTime"] = date2;
-                                        item["Minute"] = ts.TotalMinutes;
+                                        throw new CustomException("Actual date should be today's date or yesterday's date only!");
                                     }
-                                    EditRow(drpb, item);
                                 }
                                 else
                                 {
-                                    throw new CustomException("Actual date should be today's date or yesterday's date only!");
+                                    if (ActualDate > DateTime.Today)
+                                    {
+                                        throw new Exception("Actual date cannot be greater than today's date!");
+                                    }
+                                    else
+                                    {
+                                        DataRow drpb = dv[0].Row;
+                                        DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                        DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                        TimeSpan t = ToDt.Subtract(FromDt);
+                                        int N = t.Days;
+                                        DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                        DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                        DateTime NextDayDate = date2.AddDays(N);
+                                        TimeSpan ts = date2 - date1;
+                                        TimeSpan Nd = NextDayDate - date1;
+                                        int minutes = (int)Nd.TotalMinutes;
+
+                                        if (minutes >= 720 || minutes < 0)
+                                        {
+                                            item["ToTime"] = NextDayDate;
+                                            item["Minute"] = Nd.TotalMinutes;
+                                        }
+                                        else
+                                        {
+                                            item["ToTime"] = date2;
+                                            item["Minute"] = ts.TotalMinutes;
+                                        }
+                                        EditRow(drpb, item);
+                                    }
                                 }
                             }
                             else
                             {
-                                if(ActualDate > DateTime.Today)
-                                { 
-                                throw new Exception("Actual date cannot be greater than today's date!");
-                                }
-                                else
-                                {
-                                    DataRow drpb = dv[0].Row;
-                                    DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
-                                    DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
-                                    TimeSpan t = ToDt.Subtract(FromDt);
-                                    int N = t.Days;
-                                    DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                    DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                    DateTime NextDayDate = date2.AddDays(N);
-                                    TimeSpan ts = date2 - date1;
-                                    TimeSpan Nd = NextDayDate - date1;
-                                    int minutes = (int)Nd.TotalMinutes;
-
-                                    if (minutes >= 720 || minutes < 0)
-                                    {
-                                        item["ToTime"] = NextDayDate;
-                                        item["Minute"] = Nd.TotalMinutes;
-                                    }
-                                    else
-                                    {
-                                        item["ToTime"] = date2;
-                                        item["Minute"] = ts.TotalMinutes;
-                                    }
-                                    EditRow(drpb, item);
-                                }
+                                throw new CustomException("Please Add Attachment and Proceed!");
                             }
-                            
+
                         }
                         clsStaticInfo obj = new clsStaticInfo();
                         obj.SaveDataSets(dsProdBooked);

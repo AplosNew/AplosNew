@@ -401,6 +401,7 @@
 
                         <div e-column e-type="string" e-field="CostingItemId" e-headertext="Costing Item Id" e-width="80px"></div>
                         <div e-column e-field="CostingItemName" e-headertext="Costing Item" e-width="100"></div>
+                        <div e-column e-field="BOMId" e-headertext="BOMId" e-width="100"></div>
                         <div e-column e-field="BOQItemRefNo" e-headertext="Item Ref." e-width="100"></div>
                         <div e-column e-type="string" e-field="BOQCriteria" e-headertext="BOQ Criteria" e-width="80px"></div>
                         <div e-column e-type="string" e-field="CriteriaDetail" e-headertext="Criteria Detail" e-width="120px"></div>
@@ -412,6 +413,7 @@
                         <div e-column e-field="BalanceTrnUOMQty" e-headertext="Balance TRN UOM Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
                         <div e-column e-template="#BOQQRate" e-field="TransactionRate" e-textalign="right" e-decimalplaces="4" e-headertext="Rate" e-width="100"></div>
+                        <div e-column  e-field="UnitPrice" e-textalign="right" e-decimalplaces="4" e-headertext="UnitPrice" e-width="100"></div>
                         <div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" e-textalign="right"></div>
                         <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
                         <div e-column e-field="RMDescription" e-headertext="Item Desc" e-width="100"></div>
@@ -789,7 +791,7 @@
                                     <ul class="list-inline action-list">
                                         <li ng-hide="productNew.OrderSpecific==='No' || productNew.Id==null"><button ng-click="getPOBOQItemList(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
                                         <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                        <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                        <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                     </ul>
                                 </td>
                             </tr>
@@ -1532,3 +1534,4 @@
         </div>
     </div>
 </div>
+<confirm-archive-generic modalid="rowDeletePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>

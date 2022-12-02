@@ -6,6 +6,7 @@ function teamPlanReportController(cboService, commonMessage, $scope, $rootScope,
     $scope.path = 'Machines/TeamPlanReport/';
     $scope.savePlannedUrl = $scope.path + 'createPlanned';
     $scope.saveResponsibleUrl = $scope.path + 'createResponsible';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
    /* date.setDate(date.getDate() + 7);*/
     var firstDay = new Date(y, m, 1);
@@ -81,6 +82,25 @@ function teamPlanReportController(cboService, commonMessage, $scope, $rootScope,
             $scope.ActivityCategoryList = response.data;
         });
     }
+
+    $scope.TeamPlanReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'XlsTeamPlanReport?todate=' + $scope.statusNew.ToDate + '&fromDate=' + $scope.statusNew.FromDate + '&teamName=' + $scope.statusNew.TeamName + '&employeeId=' + $scope.statusNew.Employee,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
    
     //#endregion
 }
