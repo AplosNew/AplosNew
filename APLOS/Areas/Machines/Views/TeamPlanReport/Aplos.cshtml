@@ -26,7 +26,7 @@
                     <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="statusNew.FromDate" datepicker class="form-control">
                 </div>
             </div>
-            <div class="form-group">
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label">Team Name</label>
                 <div class="col-sm-8">
                     <div class="select-style">
@@ -47,19 +47,19 @@
                         </select>
                     </div>
                 </div>
-            </div>
+            </div>*@
             @*<div class="form-group">
-                    <label class="col-sm-4 control-label">Budget Code</label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="statusNew.BudgetCode" name="Budget Code" ng-change=""
-                                    ng-options="item.Value as item.Text for item in BudgetCodeList">
-                                <option value=""></option>
-                            </select>
-                        </div>
+                <label class="col-sm-4 control-label">Budget Code</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="statusNew.BudgetCode" name="Budget Code" ng-change=""
+                                ng-options="item.Value as item.Text for item in BudgetCodeList">
+                            <option value=""></option>
+                        </select>
                     </div>
-                </div>*@
-            <div class="form-group">
+                </div>
+            </div>*@
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label">Employee Activity Category</label>
                 <div class="col-sm-8">
                     <div class="select-style">
@@ -69,7 +69,7 @@
                         </select>
                     </div>
                 </div>
-            </div>
+            </div>*@
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group">
@@ -78,7 +78,7 @@
                     <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="statusNew.ToDate" datepicker class="form-control">
                 </div>
             </div>
-            <div class="form-group">
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label">Entity</label>
                 <div class="col-sm-8">
                     <div class="select-style">
@@ -99,15 +99,54 @@
                         </select>
                     </div>
                 </div>
+            </div>*@
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="common-btn">
+                <button ng-click="View();" class="btn"> View </button>
             </div>
         </div>
-        <div class="col-xs-12">
-            <div class="common-btn">
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="common-btn" ng-show="TeamPlanReportList.length>0">
                 <ul class="list-inline text-right">
                     <li><button ng-click="TeamPlanReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
                 </ul>
             </div>
         </div>
+        <div class="col-xs-12">
+            <div id="GridTeamPlanReport" ej-grid e-datasource="TeamPlanReportList" e-recorddoubleclick="GetDetails"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBoundDetails"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="TeamName" e-headertext="Team Name" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="150"></div>
+                    <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                    <div e-column e-type="string" e-field="EmployeeCategory" e-headertext="Employee Category" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Designation" e-headertext="Designation Code" e-width="100"></div>
+                    <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Legal Designation" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Shift" e-headertext="Shift" e-width="100"></div>
+                    <div e-column e-type="string" e-field="ResponsibilityLevel" e-headertext="Responsibility Level" e-width="100"></div>
+                    <div e-column e-type="string" e-field="EmpId" e-headertext="Employee Id" e-width="100"></div>
+                    <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                    <div e-column e-type="Date" e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                    <div e-column e-type="string" e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-width="100"></div>
+                    <div e-column e-type="string" e-field="EmployeeCurrentStatus" e-headertext="Emp.Current Status" e-width="100"></div>
+                    <div e-column e-type="string" e-field="WeekOff" e-headertext="WeekOff" e-width="100"></div>
+                    <div e-column e-type="Date" e-field="Date" e-headertext="Date" e-width="100"></div>
+                    <div e-column e-type="string" e-field="DayStatus" e-headertext="Day Status" e-width="100"></div>
+                    <div e-column e-type="number" e-field="PlanHours" e-headertext="Plan Hours" e-width="100"></div>
+                    <div e-column e-type="number" e-field="AvailableHours" e-headertext="Available Hours" e-width="100"></div>
+                    <div e-column e-type="number" e-field="AllotedHours" e-headertext="Alloted Hours" e-width="100"></div>
+                    <div e-column e-type="number" e-field="ActualHours" e-headertext="Actual Hours" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                    <div e-column e-type="string" e-field="TeamCategory" e-headertext="Team Category" e-width="100"></div>
+                    <div e-column e-type="string" e-field="EACategory" e-headertext="EA.Category" e-width="100"></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
