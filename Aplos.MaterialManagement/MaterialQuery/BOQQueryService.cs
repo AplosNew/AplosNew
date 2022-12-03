@@ -556,12 +556,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             LEFT JOIN [trn].MaterialRequsitionDetails MRD ON MRD.Id = IRD.RequisitionDetailId
                             LEFT JOIN scs.country C ON C.Id = IRD.CountryId
                             LEFT JOIN (
-                            	SELECT PODetailsId
-                            		,Sum(TransactionQty) TransactionQty
-                            	FROM trn.InventoryReceiveDetail
+                            	SELECT ird.PODetailsId ,boqd.BOQDetailId
+								,sum(sum(boqd.TransactionQty)) over (partition by boqd.BOQDetailId,ird.PODetailsId) as TransactionQty
+                            	FROM trn.InventoryReceiveDetail ird left join trn.GRNPORequisitionAllocation boqd on boqd.InventoryReceiveDetailId=ird.Id
                             	WHERE isnull(POId,'null') IN (" + POId + @")
-                            	GROUP BY PODetailsId
-                            	) aa ON aa.PODetailsId = IRD.Id
+                            	GROUP BY PODetailsId,boqd.BOQDetailId
+                            	) aa ON aa.PODetailsId = IRD.Id and aa.BOQDetailId=poboq.BOQDetailId
                             WHERE IRD.QtyStatus = 0
                             	AND IRD.InventoryMaterialId IS NOT NULL
                             	AND ISNULL(IRD.InventoryReceiveId,'null') IN (" + POId + @")

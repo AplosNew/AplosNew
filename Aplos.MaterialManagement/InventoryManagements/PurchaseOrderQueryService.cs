@@ -55,7 +55,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                     AND (isnull(b.VendorId,'')='" + VendorId + @"'))";
             }
             var sql = "";
-            sql = @"SELECT DISTINCT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria
+            sql = @"SELECT DISTINCT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria,b.CostingBOQMasterId BOMId
                         ,GroupId=CASE WHEN isnull(b.POCriteria,'CostingItem')='CostingItem' THEN b.CostingItemId ELSE b.Id END
                         ,b.Sequence Sequence1
 						,b.MasterOrderItemId
@@ -98,6 +98,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						--,ISNULL(DE.UserName,'') Destination
 						,mm.BaseUOMId,Isnull(OPC.Rate,0) TransactionRate
 						,Isnull(OPC.Rate,0) TransactionRateBOQ
+                        ,isnull(b.UpDownCharge,0) UpDownCharge
+						,UnitPrice=Isnull(OPC.Rate,0)+isnull(b.UpDownCharge,0)
                         ,ISNULL(POBoqMap.MapQty,0) OtherMapQty
                         , TransactionQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
                         , BalanceQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)

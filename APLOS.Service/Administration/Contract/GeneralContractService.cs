@@ -865,6 +865,124 @@ where G.Id = '"+gcId+"'";
         {
             _sqlRepository = new SqlRepository();
         }
+
+        public void GetContractTransactionExcelReport(string from, string to, string contractid, string entityid, out DataTable data)
+        {
+            var sql = "";
+            try
+            {
+                
+                if (entityid == null || entityid == "null") 
+                {
+                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+CIE.TransactionQuantity Quantity
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
+GCE.CheckedByStatus
+from TRN.GeneralContractEntry GCE
+LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
+                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "'";
+                }
+                else
+                {
+                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+CIE.TransactionQuantity Quantity
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
+GCE.CheckedByStatus
+from TRN.GeneralContractEntry GCE
+LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
+                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and E.Id = '" + entityid + "'";
+                }
+                
+                data = _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void ContractTransactionSummaryExlReport(string from, string to, string contractid, string entityid, out DataTable data)
+        {
+            var sql = "";
+            try
+            {
+                               
+                if (entityid == null || entityid == "null")
+                {
+                    sql = @"select  GCI.UserName Item, CIE.TransactionQuantity Quantity
+                            , CIE.Amount
+                            from TRN.GeneralContractEntry GCE
+                            LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+                            LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+                            left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "'";
+                }
+                else
+                {
+                    sql = @"select  GCI.UserName Item, CIE.TransactionQuantity Quantity
+                            , CIE.Amount
+                            from TRN.GeneralContractEntry GCE
+                            LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+                            LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+                            left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and E.Id = '" + entityid + "'";
+                }
+
+                data = _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
     #endregion  ContractReport
+
+    #region GeneralContractCheckService
+    public class GeneralContractCheckService
+    {
+        SqlRepository _sqlRepository;
+        public GeneralContractCheckService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        #region SAVE
+        public void GeneralContractChecked(string headerId, string CheckedStataus, string AuthorizedById, string CheckedReason)
+        {
+            try
+            {
+                string _sql = "Update TRN.GeneralContractEntry set CheckedByStatus='" + CheckedStataus + "', ApprovedById='" + AuthorizedById + "', CheckedReason='" + CheckedReason + "' where Id='" + headerId + "'";
+                _sqlRepository.ExecuteSqlCommand(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void GeneralContractAuth(string headerId, string ApprovedStataus, string AuthorizedById, string ApprovedReason)
+        {
+            try
+            {
+                string _sql = "Update TRN.GeneralContractEntry set ApprovedStatus='" + ApprovedStataus + "', ApprovedReason='" + ApprovedReason + "' where Id='" + headerId + "'";
+                _sqlRepository.ExecuteSqlCommand(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion SAVE
+
+    }
+    #endregion GeneralContractCheckService
 }
