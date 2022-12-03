@@ -179,24 +179,26 @@ left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
                 int ColAmount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Checked Status";
+                sheet[ROW, COL].Text = "Check By";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColTBC = COL;
+                COL++;
+                
+
+                sheet[ROW, COL].Text = "Check Status";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColCheckedSts = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Approved Status";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColApprovedSts = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "To Be Check";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColTBC = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "To Be Approve";
+                sheet[ROW, COL].Text = "Approve By";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColTBA = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Approve Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColApprovedSts = COL;
+                //COL++;
 
                 //COL++;
                 #endregion Columns
