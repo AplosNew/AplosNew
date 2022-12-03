@@ -2695,7 +2695,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
             }
 
-            public IEnumerable<object> QueryGetListGRNMasterData(string plantId, string GRNbyPOCheckStatus)
+            public IEnumerable<object> QueryGetListGRNMasterData(string plantId, string GRNbyPOCheckStatus,string grntype)
 
             {
                 try
@@ -2704,24 +2704,24 @@ namespace Library.MaterialManagement.InventoryManagements
                     if (GRNbyPOCheckStatus == "ForChecked")
                     {
                         tempsql = @"AND ((IR.CheckedByStatus='ForChecked' And IR.IsApproved = 0 ) OR (IR.CheckedByStatus IS NULL and IR.AuthorizedByStatus='For Approval' And IR.IsApproved = 0 )
-						 OR(IR.CheckedByStatus IS NULL and IR.AuthorizedByStatus Is null And IR.IsApproved = 1) ) AND ISNULL(IR.[Status],'')<>'Posting'";
+						 OR(IR.CheckedByStatus IS NULL and IR.AuthorizedByStatus Is null And IR.IsApproved = 1) ) AND ISNULL(IR.[Status],'')<>'Posting' ";
 
                     }
                     else if (GRNbyPOCheckStatus == "Checked")
                     {
-                        tempsql = @"AND IR.CheckedByStatus='Checked' And IR.IsApproved = 0 AND ISNULL(IR.[Status],'')<>'Posting'";
+                        tempsql = @"AND IR.CheckedByStatus='Checked' And IR.IsApproved = 0 AND ISNULL(IR.[Status],'')<>'Posting' ";
                     }
                     else if (GRNbyPOCheckStatus == "Approved")
                     {
-                        tempsql = @"AND IR.AuthorizedByStatus='Approved' And IR.IsApproved = 1 AND ISNULL(IR.[Status],'')<>'Posting'";
+                        tempsql = @"AND IR.AuthorizedByStatus='Approved' And IR.IsApproved = 1 AND ISNULL(IR.[Status],'')<>'Posting' ";
                     }
                     else if (GRNbyPOCheckStatus == "Posted")
                     {
-                        tempsql = @"AND IR.AuthorizedByStatus='Approved' And IR.IsApproved = 1 AND ISNULL(IR.[Status],'')='Posting'";
+                        tempsql = @"AND IR.AuthorizedByStatus='Approved' And IR.IsApproved = 1 AND ISNULL(IR.[Status],'')='Posting' ";
                     }
                     else if (GRNbyPOCheckStatus == "CheckedHoldReject")
                     {
-                        tempsql = @"AND (IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' And IR.IsApproved = 0 AND ISNULL(IR.[Status],'')<>'Posting')";
+                        tempsql = @"AND (IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' And IR.IsApproved = 0 AND ISNULL(IR.[Status],'')<>'Posting') ";
 
                     }
                     var sql = "";
@@ -2856,7 +2856,7 @@ namespace Library.MaterialManagement.InventoryManagements
                          
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
-                        AND (IR.GRNType='GRNBYPO' OR IR.GRNType='GRNBYREQPO') " + tempsql + @"
+                        AND (IR.GRNType='"+ grntype + @"') " + tempsql + @"
 						
                         )x
                         ORDER BY 3,2 DESC";

@@ -126,8 +126,30 @@
                 <fieldset class="scheduler-border">
                     <legend class="scheduler-border">Requisition Status</legend>
 
+                    @*<label class="col-sm-1 control-label">@Library.Model.Parties.PartyType.Employee.ToString()<sup>*</sup></label>
+        <div class="col-sm-3 show-message">
+            <div class="input-group">
+                <input tabindex="1" type="text" name="@Library.Model.Parties.PartyType.Employee.ToString()" ng-model="EmployeeName" class="form-control" readonly required>
+                <span class="input-group-btn">
+                    <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+            </div>
+        </div>*@
+
+                    <div class="col-sm-2 radio">
+                        <label>
+                            <input ng-click="clearAllEmployee()" type="radio" name="source" ng-model="Employee" value="AllEmployee">
+                            <span class="cr" tabindex="17"><i class="cr-icon"></i></span>All
+                        </label>
+                        <label>
+                            <input ng-click="clearSingleEmployee()" type="radio" name="source" ng-model="Employee" value="@Library.Model.Parties.PartyType.Employee.ToString()">
+                            <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Parties.PartyType.Employee.ToString()
+                        </label>
+
+                    </div>
+                        <div ng-hide="Employee=='AllEmployee'">
                             <label class="col-sm-1 control-label">@Library.Model.Parties.PartyType.Employee.ToString()<sup>*</sup></label>
-                            <div class="col-sm-3 show-message">
+                            <div class="col-sm-2 show-message">
                                 <div class="input-group">
                                     <input tabindex="1" type="text" name="@Library.Model.Parties.PartyType.Employee.ToString()" ng-model="EmployeeName" class="form-control" readonly required>
                                     <span class="input-group-btn">
@@ -135,22 +157,23 @@
                                     </span>
                                 </div>
                             </div>
+                        </div>
+                    <label class="col-sm-2 control-label">Before Date<sup>*</sup></label>
+                    <div class="col-sm-2 show-message">
+                        <input type="text" name="Form Date" ng-model="RequisitionBeforeDate" datepicker tabindex="3" class="form-control">
+                    </div>
 
-                            <label class="col-sm-2 control-label">Requisition Before Date<sup>*</sup></label>
-                            <div class="col-sm-2 show-message">
-                                <input type="text" name="Form Date" ng-model="RequisitionBeforeDate" datepicker tabindex="3" class="form-control">
-                            </div>
+                    <label class="col-sm-1 control-label">Status<sup>*</sup></label>
+                    <div class="col-sm-2  show-message">
+                        <div class="select-style">
+                            <select class="form-control" id="Type" ng-model="RequisitionStatus" required name="Type" tabindex="2">
+                                <option value="Regular">Regular</option>
+                                <option value="Irregular">Irregular</option>
+                            </select>
+                        </div>
+                    </div>
 
-                            <label class="col-sm-2 control-label">Requisition Status<sup>*</sup></label>
-                            <div class="col-sm-2  show-message">
-                                <div class="select-style">
-                                    <select class="form-control" id="Type" ng-model="RequisitionStatus" required name="Type" tabindex="2">
-                                        <option value="Regular">Regular</option>
-                                        <option value="Irregular">Irregular</option>
-                                    </select>
-                                </div>
-                            </div>
-                   
+
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li><button ng-click="GetRequisitionStatus();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>

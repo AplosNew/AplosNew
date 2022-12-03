@@ -874,24 +874,30 @@ where G.Id = '"+gcId+"'";
                 
                 if (entityid == null || entityid == "null") 
                 {
-                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, CIE.TransactionQuantity Quantity
-                        , CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check'
-                        from TRN.GeneralContractEntry GCE
-                        LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
-                        LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
-                        left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
-                        left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+CIE.TransactionQuantity Quantity
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
+GCE.CheckedByStatus
+from TRN.GeneralContractEntry GCE
+LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
                         where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "'";
                 }
                 else
                 {
-                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, CIE.TransactionQuantity Quantity
-                        , CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check'
-                        from TRN.GeneralContractEntry GCE
-                        LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
-                        LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
-                        left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
-                        left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+CIE.TransactionQuantity Quantity
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
+GCE.CheckedByStatus
+from TRN.GeneralContractEntry GCE
+LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
                         where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and E.Id = '" + entityid + "'";
                 }
                 
@@ -940,6 +946,7 @@ where G.Id = '"+gcId+"'";
     }
     #endregion  ContractReport
 
+    #region GeneralContractCheckService
     public class GeneralContractCheckService
     {
         SqlRepository _sqlRepository;
@@ -961,50 +968,21 @@ where G.Id = '"+gcId+"'";
                 throw ex;
             }
         }
+
+        public void GeneralContractAuth(string headerId, string ApprovedStataus, string AuthorizedById, string ApprovedReason)
+        {
+            try
+            {
+                string _sql = "Update TRN.GeneralContractEntry set ApprovedStatus='" + ApprovedStataus + "', ApprovedReason='" + ApprovedReason + "' where Id='" + headerId + "'";
+                _sqlRepository.ExecuteSqlCommand(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion SAVE
-        #region CREATE AND EDIT DEFAULT COLUMN
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-
-            dt.Rows.Add(dr);
-        }
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-            dr.EndEdit();
-        }
-        #endregion CREATE AND EDIT DEFAULT COLUMN
     }
+    #endregion GeneralContractCheckService
 }

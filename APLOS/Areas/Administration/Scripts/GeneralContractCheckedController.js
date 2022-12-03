@@ -1,7 +1,7 @@
 ﻿'use strict';
 GeneralContractCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window','$controller'];
 function GeneralContractCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller) {
-    $rootScope.title = 'Contract Report';
+    $rootScope.title = 'General Contract Checked';
     $scope.ModelList = [];
     $scope.path = 'Administration/GeneralContractChecked/';
     $scope.getListUrl = $scope.path + 'getlist';

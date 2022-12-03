@@ -16,6 +16,15 @@ function RequisitionStatusController(fileReader, commonMessage, $scope, $rootSco
 	$controller("employeeBaseController", { $scope: $scope, $http: $http });
 
 
+	$scope.Employee = "AllEmployee";
+	//$scope.IsEmployee = function () {
+	//	if ($scope.EmployeeName) {
+	//		$scope.EmployeeName = 'Employee';
+	//	}
+	//	else
+	//		$scope.EmployeeAll = 'All';
+	//}
+
 	$scope.showEmployeeListPopUp = function () {
 		
 		baseService.setCurrentPage('employeeList');
@@ -115,6 +124,17 @@ function RequisitionStatusController(fileReader, commonMessage, $scope, $rootSco
 			ShowResult(response.data.Message, 'failure');
 		});
 	}
+
+	$scope.clearAllEmployee = function () {
+		$scope.RequisitionStatusList = [];
+		$scope.EmployeeId = null;
+		$scope.RequisitionBeforeDate = null;
+		$scope.RequisitionStatus = null;
+	};
+
+	$scope.clearSingleEmployee = function () {
+		$scope.RequisitionStatusList = [];
+	};
 }
    
 
