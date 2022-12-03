@@ -370,6 +370,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         });
     }
 
+
     $scope.ProWCDataReport = function () {
         var wcdataLists = [];
         var g = $("#GridWC").data("ejGrid");
@@ -434,6 +435,34 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             }
             else {
                 $scope.ProductionDataSumReportList = response.data;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+
+    $scope.ProductionSummaryData = function () {
+        var dataList = [];
+        var g = $("#GridSum").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.ProductionDataSumReportList;
+        }
+        $scope.fileName = "ProductionSummaryDataReport.xlsx";
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "ProductionSummaryDataXls",
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
