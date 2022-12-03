@@ -2160,6 +2160,7 @@ namespace Library.OrderManagement.Costing
                         dsMaster.Tables[0].DefaultView[0]["SKUDesc"] = clsStaticInfo.nullrecorder(QuantityData[i]["SKUDescConcat"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["OwnReferenceNo"] = clsStaticInfo.nullrecorder(QuantityData[i]["OwnReferenceNo"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["Remark"] = QuantityData[i]["Remark"];
+                        dsMaster.Tables[0].DefaultView[0]["UpDownCharge"] = QuantityData[i]["UpDownCharge"];
 
 
                         string BaseUOM = conversion.GetMaterialUOMByCategory(dsMaster.Tables[0].DefaultView[0]["MaterialMasterId"].ToString(), General.Conversions.UOMConversion.UOMCategory.BaseUOMId);
