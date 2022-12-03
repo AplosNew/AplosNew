@@ -3114,7 +3114,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/GoodsReceiveNote/GetListForGRNBYPO?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus,
+            url: 'Products/GoodsReceiveNote/GetListForGRNBYPO?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus + '&grnType=' + 'GRNBYPO',
         }).then(function successCallback(response) {
             $scope.GriddataMaster = response.data;
         });
