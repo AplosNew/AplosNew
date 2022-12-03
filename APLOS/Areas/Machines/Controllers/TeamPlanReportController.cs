@@ -263,8 +263,10 @@ where EmployeeId='" + EmpId + "'";
 
             report.SetHeaderText(ref sheet, ROW, COL, "Team Category", 12, ExcelHAlign.HAlignCenter);
             int ColTeamCategory = COL;
-           
+            COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "EA Category", 12, ExcelHAlign.HAlignCenter);
+            int ColEACategory = COL;
 
             ROW++;
             endCol = COL;
@@ -300,7 +302,8 @@ where EmployeeId='" + EmpId + "'";
                 sheet[ROW, ColAllotedHours].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedHours"].ToString());
                 sheet[ROW, ColActualHours].Number = clsStaticInfo.dbl(data.Rows[i]["ActualHours"].ToString());
                 sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
-                
+                sheet[ROW, ColEACategory].Text = data.Rows[i]["EACategory"].ToString();
+
                 ROW++;
 
             }
@@ -321,6 +324,53 @@ where EmployeeId='" + EmpId + "'";
             ReportUtility reportUtility = new ReportUtility();
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadTeamPlanReportList(string ToDate, string FromDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select TD.UserName TeamName,E.UserName Entity,
+DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,EC.UserName EmployeeCategory,DEG.UserName as Designation,
+LD.UserName as LegalDesignation,SD.UserName as Shift,TDE.ResponsibilityLevel,EI.SystemId as EmpId,EI.EmployeeName,format(EI.DOJ,'dd-MMM-yyyy') as DOJ,
+EI.EmployeeStatus,EI.EmployeeCurrentStatus, 
+(select top 1 DATENAME(WEEKDAY, AD.WorkDate) from AttdnProcessData AD where AD.EmpSystemID=TDE.EmployeeId and AD.DayStatus='W') as  WeekOff,
+format(APD.WorkDate,'dd-MMM-yyyy') as Date,APD.DayStatus,TDE.PlanHours,isnull(FLOOR(APD.Duration/60),0) AvailableHours,
+isnull(Alloted.AllotedHours,0) as AllotedHours,
+isnull(Actual.ActualHours,0) as ActualHours,
+TDE.Remarks,
+TC.UserName as TeamCategory,
+EAC.UserName EACategory
+from TRN.TeamDefinition TD
+left join TRN.TeamEntity TE ON TE.TeamDefinitionId=TD.Id 
+left join ORG.Entity E ON E.Id=TE.EntityId
+left join TRN.TeamDefinitionEmployee TDE ON TDE.TeamDefinitionId=TD.Id
+left join hkp.EmployeeActivityCategory EAC ON EAC.Id=TDE.EmployeeActiviyCategory
+left join EmployeeInformation EI ON EI.SystemId=TDE.EmployeeId  
+left join ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+left join HKP.Designation DEG ON DEG.Id=EI.DesignationSystemID
+left join ORG.Section S ON S.Id=EI.SectionId
+left join ORG.SubSection SS ON SS.Id=EI.SubSectionId
+left join TRN.TeamDefinitionCategory TDC ON TDC.TeamDefinitionId=TD.Id
+left join hkp.TeamCategory TC ON TC.Id=TDC.TeamCategoryId
+left join HKP.LegalDesignation LD ON LD.Id=EI.LegalDesignationId
+left join [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
+left join ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
+left join ORG.Position P on P.Id = MB.PositionId
+left join MST.DesignationMaster DM on DM.DesignationId = P.DesignationId
+left join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+left join AttdnProcessData APD ON APD.EmpSystemID=TDE.EmployeeId
+left join (select  (sum(isnull(PlanMinutes,0))/60) AllotedHours,ResponsiblePersonId,mapd.PlannedDate from TRN.ResponsiblePlannedDetails rpd 
+left join (select Id,PlannedDate,ActualDate from TRN.MachineAssetPlannedDetails )mapd on mapd.Id=rpd.PlannedId
+group by rpd.ResponsiblePersonId,mapd.PlannedDate) Alloted ON Alloted.ResponsiblePersonId=TDE.EmployeeId and Alloted.PlannedDate=APD.WorkDate
+left join (select  (sum(isnull(ActualMinutes,0))/60) ActualHours,ResponsiblePersonId,mapd.PlannedDate from TRN.ResponsiblePlannedDetails rpd 
+left join (select Id,PlannedDate,ActualDate from TRN.MachineAssetPlannedDetails )mapd on mapd.Id=rpd.PlannedId  
+group by rpd.ResponsiblePersonId,mapd.PlannedDate) Actual ON Actual.ResponsiblePersonId=TDE.EmployeeId and Actual.PlannedDate=APD.WorkDate 
+where EI.EmployeeStatus='Active' and APD.WorkDate between '" + FromDate + "' and '" + ToDate + "'";
+            //return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         #endregion -- Operations
