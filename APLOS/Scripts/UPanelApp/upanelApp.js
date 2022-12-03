@@ -1119,7 +1119,8 @@ upanelApp.controller("maintenancePlanningReportController", maintenancePlanningR
 upanelApp.controller("teamPlanReportController", teamPlanReportController)
 upanelApp.controller("GeneralContractEntryController", GeneralContractEntryController)
 upanelApp.controller("GeneralContractReportController", GeneralContractReportController)
-upanelApp.controller("GeneralContractCheckedController", GeneralContractCheckedController)
+//upanelApp.controller("GeneralContractCheckedController", GeneralContractCheckedController)
+upanelApp.controller("GeneralContractApprovedController", GeneralContractApprovedController)
 
 
 upanelApp.config(AccessControllerConfig);

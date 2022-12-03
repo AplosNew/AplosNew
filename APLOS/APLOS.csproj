@@ -387,6 +387,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="Areas\Administration\Controllers\GeneralContractApprovedController.cs" />
     <Compile Include="Areas\Administration\Controllers\GeneralContractCheckedController.cs" />
     <Compile Include="Areas\Administration\Controllers\GeneralContractController.cs" />
     <Compile Include="Areas\Administration\Controllers\GeneralContractEntryController.cs" />
@@ -1814,6 +1815,7 @@
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
+    <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractCheckedController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractEntryController.js" />
@@ -4447,6 +4449,8 @@
     <Content Include="Areas\Administration\Views\GeneralContractEntry\Aplos.cshtml" />
     <Content Include="Areas\Administration\Views\GeneralContractReport\Aplos.cshtml" />
     <Content Include="Areas\Administration\Views\GeneralContractChecked\Aplos.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContractChecked\GeneralContractAuthorized.cshtml" />
+    <Content Include="Areas\Administration\Views\GeneralContractApproved\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
