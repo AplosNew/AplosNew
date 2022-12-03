@@ -38,24 +38,30 @@ namespace Aplos.Areas.Administration.Controllers
             {
                 if (entityid == null || entityid == "null")
                 {
-                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, CIE.TransactionQuantity Quantity
-                        , CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check'
-                        from TRN.GeneralContractEntry GCE
-                        LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
-                        LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
-                        left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
-                        left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+CIE.TransactionQuantity Quantity
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
+GCE.CheckedByStatus
+from TRN.GeneralContractEntry GCE
+LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
                         where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "'";
                 }
                 else
                 {
-                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, CIE.TransactionQuantity Quantity
-                        , CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check'
-                        from TRN.GeneralContractEntry GCE
-                        LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
-                        LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
-                        left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
-                        left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+CIE.TransactionQuantity Quantity
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
+GCE.CheckedByStatus
+from TRN.GeneralContractEntry GCE
+LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
                         where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and E.Id = '" + entityid + "'";
                 }
 
@@ -172,14 +178,28 @@ namespace Aplos.Areas.Administration.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColAmount = COL;
                 COL++;
-                
-                sheet[ROW, COL].Text = "To Be Check";
+
+                sheet[ROW, COL].Text = "Check By";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColTBC = COL;
+                COL++;
+                
+
+                sheet[ROW, COL].Text = "Check Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColCheckedSts = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Approve By";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColTBA = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Approve Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColApprovedSts = COL;
                 //COL++;
 
-                
-                
                 //COL++;
                 #endregion Columns
 
@@ -204,6 +224,9 @@ namespace Aplos.Areas.Administration.Controllers
                     sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
                     sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
                     sheet[ROW, ColTBC].Text = data.Rows[i]["To Be Check"].ToString();
+                    sheet[ROW, ColTBA].Text = data.Rows[i]["To Be Approved"].ToString();
+                    sheet[ROW, ColCheckedSts].Text = data.Rows[i]["CheckedByStatus"].ToString();
+                    sheet[ROW, ColApprovedSts].Text = data.Rows[i]["ApprovedStatus"].ToString();
 
                     arr[0] += clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
                     arr[1] += clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
