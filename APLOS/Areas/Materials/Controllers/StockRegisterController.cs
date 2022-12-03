@@ -238,6 +238,15 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
+                var EmpAll = "";
+                if (employeeId!=null)
+                {
+                    EmpAll = "AND RM.ReqEmpId = '" + employeeId + @"' AND RM.RequisitionDate < '" + requisitionBeforeDate + "'";
+                }
+                else
+                {
+                    EmpAll = "AND RM.RequisitionDate < '" + requisitionBeforeDate + "'";
+                }
 				var str = @"SELECT * FROM (select RM.ReqEmpId,ReqStatus=case when MM.IsRegular=1 then 'Regular' else 'Irregular' end,format(RM.RequisitionDate,'dd-MMM-yyy')RequisitionDate,MM.IsRegular,RM.Id,RMD.Id ROWId,MM.UserName Material,ART.StandardName Article,TUoM.UserName UOM,ISNULL(RMD.TransactionQty,0) ReqQty
                                             ,ISNULL(POD.POQty,0)POQty,ISNULL(GRM.GRNQty,0)GRNQty,ISNULL(GRM.IssueQty,0) IssueQty
                                             ,0 SalesQty
@@ -265,8 +274,7 @@ namespace Aplos.Areas.Materials.Controllers
                                             LEFT JOIN MST.MaterialMasterArticle AS ART ON RMD.ArticleId=ART.Id
                                             LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON RMD.TransactionUoMId=TUoM.Id	
                 
-                                            where RMD.Id is not null AND RM.ReqEmpId= '" + employeeId + @"' 
-                                            AND RM.RequisitionDate < '" + requisitionBeforeDate + "') x where x.ReqStatus='" + requisitionStatus + @"'";
+                                            where RMD.Id is not null "+ EmpAll + ") x where x.ReqStatus='" + requisitionStatus + @"'";
                 return _sqlRepository.GetDataTable(str);
 
             }
