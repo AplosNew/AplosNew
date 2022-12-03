@@ -1,6 +1,6 @@
 ﻿'use strict';
-GeneralContractApprovedByController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window','$controller'];
-function GeneralContractApprovedByController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller) {
+GeneralContractCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window','$controller'];
+function GeneralContractCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller) {
     $rootScope.title = 'General Contract Checked';
     $scope.ModelList = [];
     $scope.path = 'Administration/GeneralContractChecked/';
