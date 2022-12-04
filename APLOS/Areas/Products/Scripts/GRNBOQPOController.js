@@ -1323,7 +1323,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/GoodsReceiveNote/GetListForGRNBYPO?GRNbyPOCheckStatus=' + grnbypostatus,
+            url: 'Products/GoodsReceiveNote/GetListForGRNBYPO?GRNbyPOCheckStatus=' + grnbypostatus + '&grnType=' + 'GRNBYBOQ',
         }).then(function successCallback(response) {
             $scope.GriddataMaster = response.data;
         });

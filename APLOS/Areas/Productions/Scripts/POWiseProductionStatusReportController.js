@@ -83,6 +83,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.loadfilters = function () {
         try {
             $scope.filters = [];
+            $scope.ProductionDataReportList = [];
             $http({
                 method: 'GET',
                 url: $scope.path + 'getFilters?productionStatusId=' + $scope.selectedValues.StatusId + '&poId=' + $scope.selectedValues.ProductionOrderId,
@@ -128,6 +129,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.loadwcfilters = function () {
         try {
             $scope.wcfilters = [];
+            $scope.ProductionDataWCReportList = [];
             $http({
                 method: 'GET',
                 url: $scope.path + 'getFilters?productionStatusId=' + $scope.withwc.StatusId + '&poId=' + $scope.withwc.ProductionOrderId,
@@ -175,6 +177,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.loadsumfilters = function () {
         try {
             $scope.summaryfilters = [];
+            $scope.ProductionDataSumReportList = [];
             $http({
                 method: 'GET',
                 url: $scope.path + 'getFilters?productionStatusId=' + $scope.summary.StatusId + '&poId=' + $scope.summary.ProductionOrderId,
@@ -288,8 +291,6 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             }
             else {
                 $scope.ProductionDataReportList = response.data;
-                console.log($scope.ProductionDataReportList);
-                //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
@@ -304,7 +305,6 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         if (dataList.length == 0) {
             dataList = $scope.ProductionDataReportList;
         }
-        console.log('dataList', dataList);
         $scope.fileName = "ProductionDataReport.xlsx";
 
         $http({
@@ -370,6 +370,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         });
     }
 
+
     $scope.ProWCDataReport = function () {
         var wcdataLists = [];
         var g = $("#GridWC").data("ejGrid");
@@ -434,7 +435,34 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             }
             else {
                 $scope.ProductionDataSumReportList = response.data;
-                console.log($scope.ProductionDataSumReportList);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+
+    $scope.ProductionSummaryData = function () {
+        var dataList = [];
+        var g = $("#GridSum").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.ProductionDataSumReportList;
+        }
+        $scope.fileName = "ProductionSummaryDataReport.xlsx";
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "ProductionSummaryDataXls",
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
@@ -472,6 +500,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.loadallsumfilters = function () {
         try {
             $scope.allsummaryfilters = [];
+            $scope.ProductionDataAllSumReportList = [];
             $http({
                 method: 'GET',
                 url: $scope.path + 'getFilters?productionStatusId=' + $scope.allsummary.StatusId + '&poId=' + $scope.allsummary.ProductionOrderId,
@@ -553,7 +582,6 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             }
             else {
                 $scope.ProductionDataAllSumReportList = response.data;
-                console.log($scope.ProductionDataAllSumReportList);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
