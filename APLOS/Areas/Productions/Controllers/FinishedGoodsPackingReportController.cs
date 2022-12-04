@@ -255,8 +255,8 @@ namespace Aplos.Areas.Productions.Controllers
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    if (i == colPlant - 1 || i == colWorkDate - 1 || i == colId - 1)
-                        continue;
+                    //if (i == colPlant - 1 || i == colWorkDate - 1 || i == colId - 1)
+                    //    continue;
                     pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
 
