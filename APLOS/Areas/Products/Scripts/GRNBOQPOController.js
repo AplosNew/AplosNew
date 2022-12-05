@@ -1316,9 +1316,12 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
         }
     };
-    //$scope.calculateAmounts = function(data) {
-
-    //}
+    $scope.calculateAmounts = function(data) {
+        if (data.Balance < data.TransactionQty) {
+            data.TransactionQty = '';
+            ShowResult("Receive Qty can not greater than Balance Qty", 'failure', 'GRnBOQPoo');
+        }
+    }
     $scope.GriddataMaster = [];
     $scope.GetListForGRNBYPO = function (grnbypostatus) {
         $scope.GriddataMaster = [];
