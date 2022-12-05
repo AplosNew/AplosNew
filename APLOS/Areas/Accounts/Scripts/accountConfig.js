@@ -905,7 +905,10 @@ function accountConfig($routeProvider) {
             controller: "GSTReceivableReportController"
         })
 
-
+        .when("/debitNote-creditNote-status", {
+            templateUrl: "Accounts/TaxReport/DebitNoteCreditNoteTaxReport",
+            controller: "debitNoteCreditNoteTaxReportController"
+        })
     
         .when("/gst-payable-sales", {
             templateUrl: "Accounts/TaxReport/GSTPayableSalesReport",
