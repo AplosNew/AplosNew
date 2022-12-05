@@ -1316,7 +1316,9 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
         }
     };
+    //$scope.calculateAmounts = function(data) {
 
+    //}
     $scope.GriddataMaster = [];
     $scope.GetListForGRNBYPO = function (grnbypostatus) {
         $scope.GriddataMaster = [];
@@ -1923,8 +1925,6 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                             if ($scope.POMaterialTaxList.length > 0) {
                                 for (var k = 0; k < $scope.POMaterialTaxList.length; k++) {
                                     if ($scope.MasterListNewBOQ[n].InventoryReceiveDetailId == $scope.POMaterialTaxList[k].InventoryReceiveDetailId && $scope.MasterListNewBOQ[n].check) {
-                                        //$scope.POMaterialTaxList[k].TaxAmount = Math.round(($scope.MasterListNewBOQ[n].Qty * $scope.MasterListNewBOQ[n].TransactionRate) * ($scope.POMaterialTaxList[k].Percentage / 100) * 100 + Number.EPSILON) / 100;
-                                        //taxAmountUpdate += Math.round(($scope.MasterListNewBOQ[n].Qty * $scope.MasterListNewBOQ[n].TransactionRate) * ($scope.POMaterialTaxList[k].Percentage / 100) * 100 + Number.EPSILON) / 100;
                                         for (var l = 0; l < $scope.NewPOMaterialTaxList.length; l++) {
                                             if ($scope.NewPOMaterialTaxList[l].InventoryReceiveDetailId == $scope.POMaterialTaxList[k].InventoryReceiveDetailId
                                                 && $scope.NewPOMaterialTaxList[l].TaxCategoryId == $scope.POMaterialTaxList[k].TaxCategoryId) {

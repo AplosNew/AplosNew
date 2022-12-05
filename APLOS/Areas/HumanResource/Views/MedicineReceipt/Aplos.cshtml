@@ -151,61 +151,64 @@
 
 
 </div>
-
-<confirm-modal></confirm-modal>
-
-@Html.Partial("~/Areas/HumanResource/Views/MedicineReceipt/_MedicinePopUp.cshtml")
-@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
-
-
-   
-    
 <div class="aplos-grid-toggle">
-    <div class="row" style="margin-top:10px">
-        @*<div class="form-elements form-horizontal">*@
-            <div class="col-md-6">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">From<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="data.FromDate" name="FromDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">To<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="data.ToDate" name="ToDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
-                    </div>
-                </div>
-            </div>
-        @*</div>*@
-    </div>
-    <div class="clearfix"></div>
-    <div class="col-xs-12 table-responsive model-table">
-    <div style="color:black;" id="Grid" ej-grid e-datasource="MedicineReceiptList"
-         e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-         e-detailsdatabound="detailgrid">
-        <div e-columns>
-            @*<div e-column e-headertext="Actions" e-width="60">
-                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
-                </div>*@
-            @*<div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>*@
-            <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
-            <div e-column e-field="InvoiceNumber" e-headertext="Invoice Number" e-width="130"></div>
-            <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="130"></div>
-            <div e-column e-field="Amount" e-headertext="Sum Of Amount" e-width="130"></div>
+    <div class="row">
 
+        <div class="table-responsive modal-table">
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="form-element-ctrl">
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <label class="col-sm-4 control-label">From<sup>*</sup></label>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <input type="text" ng-model="data.FromDate" name="FromDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <label class="col-sm-4 control-label">To<sup>*</sup></label>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <input type="text" ng-model="data.ToDate" name="ToDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div style="color:black;" id="Grid" ej-grid e-datasource="MedicineReceiptList"
+                 e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                 e-detailsdatabound="detailgrid">
+                <div e-columns>
+                    <div e-column e-headertext="Actions" e-width="60">
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+                    </div>
+                    <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>
+                    <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
+                    <div e-column e-field="InvoiceNumber" e-headertext="Invoice Number" e-width="130"></div>
+                    <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="130"></div>
+                    <div e-column e-field="Amount" e-headertext="Sum Of Amount" e-width="130"></div>
+
+                </div>
+            </div>
         </div>
+        <div class="clearfix"></div>
     </div>
-</div>
     <div class="common-btn" style="margin-top:10px">
         <ul class="list-inline text-right">
             <li> <button ng-click="XlsDownloadMedicineInvoiceReport();" id="savebtn" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i>Export in Excel</button></li>
 
         </ul>
     </div>
-
 </div>
+<confirm-modal></confirm-modal>
+
+@Html.Partial("~/Areas/HumanResource/Views/MedicineReceipt/_MedicinePopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+
+
+

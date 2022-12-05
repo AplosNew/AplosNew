@@ -1616,5 +1616,11 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             ShowResult(e, 'success');
         }
     };
+
+    $scope.toleranceCalculate = function () {
+        for (var t = 0; t < $scope.poBoqItemListNew.length; t++) {
+            $scope.poBoqItemListNew[t].Tolerance = $scope.productNew.Tolerance;
+        }
+    }
 }//End Of main
 
