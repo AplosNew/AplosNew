@@ -1347,9 +1347,9 @@ where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Sickness,
 
 STUFF((Select ',' + MP.UserName
-from TRN.EmployeeSickness ES
-left join TRN.MedicalLog ML on ML.Id = ES.MedicalLogId
-left join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
+from HKP.MedicineCategory MC
+left join HKP.MedicinePurpose MP on MP.MedicineCategoryId = MC.Id
+left join TRN.EmployeeSickness ES on ES.MedicinePurposeId = MP.Id
 where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Purpose,
 
