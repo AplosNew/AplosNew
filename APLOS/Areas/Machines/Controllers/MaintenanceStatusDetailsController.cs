@@ -170,7 +170,7 @@ MS.Remarks,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD whe
         public ActionResult LoadMaintenanceStatusPlannedList(string ToDate, string FromDate, string MaintenanceId, string MachineId, string EntityId, string Value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,'' Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
+            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,'' Id,(select top 1 Id from TRN.MachineAssetPlannedDetails where AssetId=MMA.Id order by PlannedDate desc) as PlannedId,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
 WC.UserName WorkCenter,MS.ScheduleDays,MS.AdvancePlanningDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
  ORDER BY MPD.Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
@@ -210,7 +210,7 @@ APD.Remarks
         public ActionResult LoadMaintenanceStatusPlannedListDetails(string ToDate, string FromDate, string MaintenanceId, string MachineId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,'' Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
+            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,'' Id,(select top 1 Id from TRN.MachineAssetPlannedDetails where AssetId=MMA.Id order by PlannedDate desc) as PlannedId,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
 WC.UserName WorkCenter,MS.ScheduleDays,MS.AdvancePlanningDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
  ORDER BY MPD.Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
@@ -249,7 +249,7 @@ APD.Remarks
         public ActionResult LoadMaintenanceStatusPlannedListGetDetails(string ToDate, string FromDate, string MaintenanceId, string MachineId, string PlannedId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,'' Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
+            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,'' Id,(select top 1 Id from TRN.MachineAssetPlannedDetails where AssetId=MMA.Id order by PlannedDate desc) as PlannedId,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
 WC.UserName WorkCenter,MS.ScheduleDays,MS.AdvancePlanningDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
  ORDER BY MPD.Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
