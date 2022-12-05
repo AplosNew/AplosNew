@@ -844,7 +844,7 @@ from TRN.MedicineReceiptChild MRC
 left join TRN.MedicineReceipt MR on MR.Id = MRC.MedicineReceiptId
 left join HKP.Party P on P.Id = MR.PartyId
 left join ORG.Plant PL on PL.Id = MR.PlantId
-Group By MR.PartyId, P.UserName, P.Code, MR.InvoiceNumber, MR.InvoiceDate, MR.Id, MR.PlantId, PL.StandardName  ";
+Group By MR.PartyId, P.UserName, P.Code, MR.InvoiceNumber, MR.InvoiceDate, MR.Id, MR.PlantId, PL.StandardName";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -1142,9 +1142,27 @@ order by MRC.ExpiryDate";
             {
                 throw (ex);
             }
-            finally
+            
+        }
+
+        public void GetAllInvoiceDataPrint(string from, string to, out DataTable data)
+        {
+            try
+            {
+                var sql = @"select isnull(sum(MRC.Amount),0)Amount, MR.PartyId, P.UserName PartyName, P.Code PartyCode, MR.InvoiceNumber
+                            , FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, MR.Id, MR.PlantId, PL.StandardName PlantName 
+                            from TRN.MedicineReceiptChild MRC
+                            left join TRN.MedicineReceipt MR on MR.Id = MRC.MedicineReceiptId
+                            left join HKP.Party P on P.Id = MR.PartyId
+                            left join ORG.Plant PL on PL.Id = MR.PlantId
+                            Group By MR.PartyId, P.UserName, P.Code, MR.InvoiceNumber, MR.InvoiceDate, 
+                            MR.Id, MR.PlantId, PL.StandardName";
+                data = _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
             {
 
+                throw;
             }
         }
 

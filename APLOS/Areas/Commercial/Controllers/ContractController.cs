@@ -892,6 +892,9 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
                     dr["FinalDestinationId"] = data.FinalDestinationId;
                     dr["PortOfLandingId"] = data.PortOfLandingId;
                     dr["CurrencyId"] = data.CurrencyId;
+                    dr["LCShipmentDate"] = data.LCShipmentDate;
+                    dr["ShipmentModeId"] = data.ShipmentModeId;
+                    dr["PortOfLoadingId"] = data.PortOfLoadingId;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -922,6 +925,9 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
                     dr["FinalDestinationId"] = data.FinalDestinationId;
                     dr["PortOfLandingId"] = data.PortOfLandingId;
                     dr["CurrencyId"] = data.CurrencyId;
+                    dr["LCShipmentDate"] = data.LCShipmentDate;
+                    dr["ShipmentModeId"] = data.ShipmentModeId;
+                    dr["PortOfLoadingId"] = data.PortOfLoadingId;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
@@ -3572,7 +3578,9 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
         public string FinalDestinationId { get; set; }
         public string PortOfLandingId { get; set; }
         public string CurrencyId { get; set; }
-
+        public DateTime? LCShipmentDate { get; set; }
+        public string ShipmentModeId { get; set; }
+        public string PortOfLoadingId { get; set; }
 
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }

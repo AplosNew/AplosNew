@@ -247,16 +247,19 @@ namespace Aplos.Areas.Productions.Controllers
                 pivotTable.Fields[colNetWeight - 1].Axis = PivotAxisTypes.Row;
 
 
-                IPivotField field = pivotTable.Fields[colNetWeight - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                IPivotField field = pivotTable.Fields[colRefNo - 1];
+                IPivotField fieldNW = pivotTable.Fields[colNetWeight - 1];
+                IPivotField fieldGW = pivotTable.Fields[colGWeight - 1];
+                fieldNW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                fieldGW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 pivotTable.DataFields.Add(field, "RefNo", PivotSubtotalTypes.Count);
-                pivotTable.DataFields.Add(field, "NetWeight", PivotSubtotalTypes.Sum);
-                pivotTable.DataFields.Add(field, "GWeight", PivotSubtotalTypes.Sum);
+                pivotTable.DataFields.Add(fieldNW, "NetWeight", PivotSubtotalTypes.Sum);
+                pivotTable.DataFields.Add(fieldGW, "GWeight", PivotSubtotalTypes.Sum);
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    if (i == colPlant - 1 || i == colWorkDate - 1 || i == colId - 1)
-                        continue;
+                    //if (i == colPlant - 1 || i == colWorkDate - 1 || i == colId - 1)
+                    //    continue;
                     pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
 
