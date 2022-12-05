@@ -44,7 +44,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
     var CurrentDate = new Date();
     $scope.ModelTemp = {
         Id: null,
-        Date: CurrentDate,
+        Date: null,
         GeneralContractId: null,
         EntityId: null,
         CheckBySystemId:null

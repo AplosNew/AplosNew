@@ -15,6 +15,7 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     $scope.partyType = 'Vendor';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
     $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     // GET CURRENT DATE
     var curDate = new Date()
@@ -365,5 +366,27 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
                 ShowResult(response.data.Message, 'failure');
             }
         });
+    };
+
+    $scope.fileName = "MedicineInvoiceReport.xlsx";
+    $scope.XlsDownloadMedicineInvoiceReport = function () {
+
+      $http({
+            method: 'POST',
+          url: 'HumanResource/MedicineReceipt/XlsDownloadMedicineInvoiceReport?from=' + $scope.ModelNew.FromDate + '&to=' + $scope.ModelNew.ToDate ,
+            dataType: 'JSON',
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
     };
 }

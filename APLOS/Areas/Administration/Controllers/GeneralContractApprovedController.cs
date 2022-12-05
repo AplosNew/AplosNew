@@ -57,7 +57,7 @@ where GCE.CheckedByStatus = 'Checked' and GCE.ApprovedStatus = 'Approved'";
             try
             {
                 gc.GeneralContractAuth(headerId, ApprovedStataus, AuthorizedById, ApprovedReason);
-                return Json(new { Message = "General Contract  Checked " + AplosMessage.Success });
+                return Json(new { Message = "General Contract  Approved " + AplosMessage.Success });
             }
             catch (Exception ex)
             {
