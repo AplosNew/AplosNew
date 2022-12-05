@@ -1371,15 +1371,18 @@ Order BY A.PONo,A.ProcessIndex";
 
 
                 IPivotField field = pivotTable.Fields[colPreProUDProd - 1];
+                IPivotField fielda = pivotTable.Fields[colActualQty - 1];
+                IPivotField fieldw = pivotTable.Fields[colWIP - 1];
                 field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                pivotTable.DataFields.Add(field, "PreProUDProd", PivotSubtotalTypes.None);
-                pivotTable.DataFields.Add(field, "ActualQty", PivotSubtotalTypes.None);
-                pivotTable.DataFields.Add(field, "WIP", PivotSubtotalTypes.None);
+                fielda.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                fieldw.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.DataFields.Add(field, "PreProUDProd", PivotSubtotalTypes.Sum);
+                pivotTable.DataFields.Add(fielda, "ActualQty", PivotSubtotalTypes.Sum);
+                pivotTable.DataFields.Add(fieldw, "WIP", PivotSubtotalTypes.Sum);
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    //if (i == colProcess - 1 || i == colCustomer - 1 || i == colProductionOrderID - 1 || i == colProcessIndex - 1 || i == colStandardProcessSeq - 1
-                    //    || i == colPreProUDProd - 1 || i == colActualQty - 1 || i == colWIP - 1)
+                    //if (i == colProcess - 1 || i == colCustomer - 1 || i == colProductionOrderID - 1)
                     //    continue;
                     pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
@@ -2011,15 +2014,18 @@ Order BY A.PONo,A.ProcessIndex";
 
 
                 IPivotField field = pivotTable.Fields[colPreProUDProd - 1];
+                IPivotField fielda = pivotTable.Fields[colActualQty - 1];
+                IPivotField fieldw = pivotTable.Fields[colWIP - 1];
                 field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                pivotTable.DataFields.Add(field, "PreProUDProd", PivotSubtotalTypes.None);
-                pivotTable.DataFields.Add(field, "ActualQty", PivotSubtotalTypes.None);
-                pivotTable.DataFields.Add(field, "WIP", PivotSubtotalTypes.None);
+                fielda.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                fieldw.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.DataFields.Add(field, "PreProUDProd", PivotSubtotalTypes.Sum);
+                pivotTable.DataFields.Add(fielda, "ActualQty", PivotSubtotalTypes.Sum);
+                pivotTable.DataFields.Add(fieldw, "WIP", PivotSubtotalTypes.Sum);
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    //if (i == colProcess - 1 || i == colCustomer - 1 || i == colProductionOrderID - 1 || i == colProcessIndex - 1 || i == colStandardProcessSeq - 1
-                    //    || i == colPreProUDProd - 1 || i == colActualQty - 1 || i == colWIP - 1)
+                    //if (i == colProcess - 1 || i == colCustomer - 1 || i == colProductionOrderID - 1)
                     //    continue;
                     pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
