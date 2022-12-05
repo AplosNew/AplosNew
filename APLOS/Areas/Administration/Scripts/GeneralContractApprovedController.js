@@ -21,13 +21,19 @@ function GeneralContractApprovedController(cboService, commonMessage, $scope, $r
     };
     // #endregion TAB CHANGE
 
-    $scope.LoadapprovalStatus = function () {
-        cboService.getEnumCbo("enum/GetCheckedStatusCbo", function (result) {
-            $scope.approvalStatusList = result;
-        });
+    $scope.approvalStatusList = [
+        {
+            'Text': 'Approved',
+            'Value': 'Approved'
+        }
+    ];
+    //$scope.LoadapprovalStatus = function () {
+    //    cboService.getEnumCbo("enum/GetCheckedStatusCbo", function (result) {
+    //        $scope.approvalStatusList = result;
+    //    });
 
-    }
-    $scope.LoadapprovalStatus();
+    //}
+    //$scope.LoadapprovalStatus();
 
     $scope.UnapprovedList = [];
     $scope.GetcheckedData = function () {

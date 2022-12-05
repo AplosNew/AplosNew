@@ -266,7 +266,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 var workbook = medicineStockExcelView(medicineId, to);
 
-                var strFileName = DateTime.Now.ToString("yy-MMM-dd") + " " + "MedicalLogReport.xlsx";
+                var strFileName = DateTime.Now.ToString("yy-MMM-dd") + " " + "MedicineStockReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
                 workbook.SaveAs(fullPath);
 
@@ -296,7 +296,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
             #region sheet1
-            sheet.Name = "Medical Log Report";
+            sheet.Name = "Medicine Stock Report";
 
             int ROW = 6;
             int endCol = 1;
@@ -305,69 +305,29 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             #region Grid Headers
 
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Id", 6, ExcelHAlign.HAlignCenter);
-            int ColId = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Medicine Name", 6, ExcelHAlign.HAlignCenter);
+            int ColMedicineName = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Date", 12, ExcelHAlign.HAlignCenter);
-            int ColDate = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Expiry Date", 12, ExcelHAlign.HAlignCenter);
+            int ColExpDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 12, ExcelHAlign.HAlignCenter);
-            int ColEmployeeCode = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Opening Stock", 12, ExcelHAlign.HAlignCenter);
+            int ColOpeningStock = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 12, ExcelHAlign.HAlignCenter);
-            int ColEmployeeName = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Stock Received", 12, ExcelHAlign.HAlignCenter);
+            int ColStockReceived = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Sickness Name", 50, ExcelHAlign.HAlignCenter);
-            int ColSicknessName = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Stock Issue", 50, ExcelHAlign.HAlignCenter);
+            int ColStockIssue = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Medicines", 50, ExcelHAlign.HAlignCenter);
-            int ColMedicines = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Days", 5, ExcelHAlign.HAlignCenter);
-            int ColSDays = COL;
-            COL++;
-
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 30, ExcelHAlign.HAlignCenter);
-            int ColRemarks = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Department", 20, ExcelHAlign.HAlignCenter);
-            int ColDepartment = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Section", 20, ExcelHAlign.HAlignCenter);
-            int ColSection = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 20, ExcelHAlign.HAlignCenter);
-            int ColSubSection = COL;
-            COL++;
-
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 20, ExcelHAlign.HAlignCenter);
-            int ColDesignation = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Given Designation", 20, ExcelHAlign.HAlignCenter);
-            int ColGivenDesignation = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Skill", 20, ExcelHAlign.HAlignCenter);
-            int ColSkill = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 20, ExcelHAlign.HAlignCenter);
-            int ColEntity = COL;
-            COL++;
-
+            report.SetHeaderText(ref sheet, ROW, COL, "Closed Stock", 50, ExcelHAlign.HAlignCenter);
+            int ColClosedStock = COL;
+            
 
             ROW++;
             endCol = COL;
@@ -388,21 +348,14 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                sheet[ROW, ColId].Text = data.Rows[i]["Id"].ToString();
-                sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
-                sheet[ROW, ColEmployeeCode].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
-                sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
-                sheet[ROW, ColSicknessName].Text = data.Rows[i]["Sickness"].ToString();
-                sheet[ROW, ColMedicines].Text = data.Rows[i]["Medicines"].ToString();
-                sheet[ROW, ColSDays].Number = clsStaticInfo.dbl(data.Rows[i]["Days"].ToString());
-                sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
-                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-                sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
-                sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
-                sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
-                sheet[ROW, ColGivenDesignation].Text = data.Rows[i]["GivenDesignation"].ToString();
-                //sheet[ROW, ColSkill].Text = data.Rows[i]["Skill"].ToString();
-                sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                sheet[ROW, ColMedicineName].Text = data.Rows[i]["Id"].ToString();
+                sheet[ROW, ColExpDate].Text = data.Rows[i]["Date"].ToString();
+                sheet[ROW, ColOpeningStock].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
+                sheet[ROW, ColStockReceived].Text = data.Rows[i]["EmployeeName"].ToString();
+                sheet[ROW, ColStockReceived].Text = data.Rows[i]["Sickness"].ToString();
+                sheet[ROW, ColStockIssue].Text = data.Rows[i]["Medicines"].ToString();
+                sheet[ROW, ColClosedStock].Text = data.Rows[i]["Medicines"].ToString();
+               
 
                 ROW++;
 
