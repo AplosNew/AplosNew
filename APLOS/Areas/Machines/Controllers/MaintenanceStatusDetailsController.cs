@@ -197,7 +197,7 @@ APD.Remarks
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
- left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
+ left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id and APD.Id=(select top 1 Id from [TRN].[MachineAssetPlannedDetails] MAPD where MAPD.AssetId=MMA.Id order by MAPD.ActualDate desc)
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
@@ -236,7 +236,7 @@ APD.Remarks
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
- left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
+ left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id and APD.Id=(select top 1 Id from [TRN].[MachineAssetPlannedDetails] MAPD where MAPD.AssetId=MMA.Id order by MAPD.ActualDate desc)
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
@@ -275,7 +275,7 @@ APD.Remarks
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
- left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
+ left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id and APD.Id=(select top 1 Id from [TRN].[MachineAssetPlannedDetails] MAPD where MAPD.AssetId=MMA.Id order by MAPD.ActualDate desc)
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
