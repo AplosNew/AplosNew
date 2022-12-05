@@ -1,7 +1,7 @@
 ﻿"use strict";
 debitNoteCreditNoteTaxReportController.$inject = ["addressService", "cboService", "$scope", "$rootScope", "$filter", "bankService", "$window", "baseService"];
 function debitNoteCreditNoteTaxReportController(addressService, cboService, $scope, $rootScope, $filter, bankService, $window, baseService) {
-    $rootScope.title = "GST Receivable";
+    $rootScope.title = "Debit Note and Credit Note Status Report";
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
     var firstDay = new Date(y, m, 1);
 

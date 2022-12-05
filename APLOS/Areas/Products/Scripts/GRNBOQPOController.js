@@ -1316,9 +1316,12 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
         }
     };
-    //$scope.calculateAmounts = function(data) {
-
-    //}
+    $scope.calculateAmounts = function(data) {
+        if (data.Balance < data.TransactionQty) {
+            data.TransactionQty = '';
+            ShowResult("Receive Qty can not greater than Balance Qty", 'failure', 'GRnBOQPoo');
+        }
+    }
     $scope.GriddataMaster = [];
     $scope.GetListForGRNBYPO = function (grnbypostatus) {
         $scope.GriddataMaster = [];
@@ -2030,11 +2033,11 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.TotalSumAfterTCS = function () {
 
         if ($scope.Action === 'Save') {
-            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
 
         }
         else {
-            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
 
         }
 

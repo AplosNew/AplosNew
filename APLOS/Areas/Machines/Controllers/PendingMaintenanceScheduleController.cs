@@ -231,118 +231,125 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                 {
                     foreach (var item in DataList)
                     {
+                        objCon.OpenDataSetThroughAdapter("select * from [TRN].[ResponsiblePlannedDetails] where PlannedId='" + item["Id"] + "'", out DataSet dsResponsibleValidation, false, "1");
                         objCon.OpenDataSetThroughAdapter("select * from [TRN].[MachineAssetPlannedDetails] where ActualDate is not null and Id='" + item["Id"] + "'", out DataSet dsMachineAssetPlannedDetailsValidation, false, "1");
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
-
-                        if (dv.Count == 0)
+                        if (dsResponsibleValidation.Tables[0].Rows.Count > 0)
                         {
-                            DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
-                            DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
-                            TimeSpan t = ToDt.Subtract(FromDt);
-                            int N = t.Days;
-                            DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                            DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                            DateTime NextDayDate = date2.AddDays(N);
-                            TimeSpan ts = date2 - date1;
-                            TimeSpan Nd = NextDayDate - date1;
-                            int minutes = (int)Nd.TotalMinutes;
-
-                            if (minutes >= 720 || minutes < 0)
+                            if (dv.Count == 0)
                             {
-                                item["ToTime"] = NextDayDate;
-                                item["Minute"] = Nd.TotalMinutes;
+                                DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                TimeSpan t = ToDt.Subtract(FromDt);
+                                int N = t.Days;
+                                DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                DateTime NextDayDate = date2.AddDays(N);
+                                TimeSpan ts = date2 - date1;
+                                TimeSpan Nd = NextDayDate - date1;
+                                int minutes = (int)Nd.TotalMinutes;
+
+                                if (minutes >= 720 || minutes < 0)
+                                {
+                                    item["ToTime"] = NextDayDate;
+                                    item["Minute"] = Nd.TotalMinutes;
+                                }
+                                else
+                                {
+                                    item["ToTime"] = date2;
+                                    item["Minute"] = ts.TotalMinutes;
+                                }
+
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID(TableName, out _Id);
+                                item["Id"] = "APD" + _Id;
+                                AddNewRow(dsProdBooked.Tables[0], item);
+
                             }
                             else
                             {
-                                item["ToTime"] = date2;
-                                item["Minute"] = ts.TotalMinutes;
-                            }
-
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "APD" + _Id;
-                            AddNewRow(dsProdBooked.Tables[0], item);
-                           
-                        }
-                        else
-                        {
-                            if (item["FileName"]!=null)
-                            {
-                                DateTime ActualDate = Convert.ToDateTime(item["ActualDate"]);
-                                DateTime LastDayDate = DateTime.Today.AddDays(-1);
-                                if (dsMachineAssetPlannedDetailsValidation.Tables[0].Rows.Count > 0)
+                                if (item["FileName"] != null)
                                 {
-                                    if (ActualDate == DateTime.Today || ActualDate == LastDayDate)
+                                    DateTime ActualDate = Convert.ToDateTime(item["ActualDate"]);
+                                    DateTime LastDayDate = DateTime.Today.AddDays(-1);
+                                    if (dsMachineAssetPlannedDetailsValidation.Tables[0].Rows.Count > 0)
                                     {
-                                        DataRow drpb = dv[0].Row;
-                                        DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
-                                        DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
-                                        TimeSpan t = ToDt.Subtract(FromDt);
-                                        int N = t.Days;
-                                        DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                        DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                        DateTime NextDayDate = date2.AddDays(N);
-                                        TimeSpan ts = date2 - date1;
-                                        TimeSpan Nd = NextDayDate - date1;
-                                        int minutes = (int)Nd.TotalMinutes;
-
-                                        if (minutes >= 720 || minutes < 0)
+                                        if (ActualDate == DateTime.Today || ActualDate == LastDayDate)
                                         {
-                                            item["ToTime"] = NextDayDate;
-                                            item["Minute"] = Nd.TotalMinutes;
+                                            DataRow drpb = dv[0].Row;
+                                            DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                            DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                            TimeSpan t = ToDt.Subtract(FromDt);
+                                            int N = t.Days;
+                                            DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                            DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                            DateTime NextDayDate = date2.AddDays(N);
+                                            TimeSpan ts = date2 - date1;
+                                            TimeSpan Nd = NextDayDate - date1;
+                                            int minutes = (int)Nd.TotalMinutes;
+
+                                            if (minutes >= 720 || minutes < 0)
+                                            {
+                                                item["ToTime"] = NextDayDate;
+                                                item["Minute"] = Nd.TotalMinutes;
+                                            }
+                                            else
+                                            {
+                                                item["ToTime"] = date2;
+                                                item["Minute"] = ts.TotalMinutes;
+                                            }
+                                            EditRow(drpb, item);
                                         }
                                         else
                                         {
-                                            item["ToTime"] = date2;
-                                            item["Minute"] = ts.TotalMinutes;
+                                            throw new CustomException("Actual date should be today's date or yesterday's date only!");
                                         }
-                                        EditRow(drpb, item);
                                     }
                                     else
                                     {
-                                        throw new CustomException("Actual date should be today's date or yesterday's date only!");
+                                        if (ActualDate > DateTime.Today)
+                                        {
+                                            throw new Exception("Actual date cannot be greater than today's date!");
+                                        }
+                                        else
+                                        {
+                                            DataRow drpb = dv[0].Row;
+                                            DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                            DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                            TimeSpan t = ToDt.Subtract(FromDt);
+                                            int N = t.Days;
+                                            DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                            DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                            DateTime NextDayDate = date2.AddDays(N);
+                                            TimeSpan ts = date2 - date1;
+                                            TimeSpan Nd = NextDayDate - date1;
+                                            int minutes = (int)Nd.TotalMinutes;
+
+                                            if (minutes >= 720 || minutes < 0)
+                                            {
+                                                item["ToTime"] = NextDayDate;
+                                                item["Minute"] = Nd.TotalMinutes;
+                                            }
+                                            else
+                                            {
+                                                item["ToTime"] = date2;
+                                                item["Minute"] = ts.TotalMinutes;
+                                            }
+                                            EditRow(drpb, item);
+                                        }
                                     }
                                 }
                                 else
                                 {
-                                    if (ActualDate > DateTime.Today)
-                                    {
-                                        throw new Exception("Actual date cannot be greater than today's date!");
-                                    }
-                                    else
-                                    {
-                                        DataRow drpb = dv[0].Row;
-                                        DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
-                                        DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
-                                        TimeSpan t = ToDt.Subtract(FromDt);
-                                        int N = t.Days;
-                                        DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                        DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                        DateTime NextDayDate = date2.AddDays(N);
-                                        TimeSpan ts = date2 - date1;
-                                        TimeSpan Nd = NextDayDate - date1;
-                                        int minutes = (int)Nd.TotalMinutes;
-
-                                        if (minutes >= 720 || minutes < 0)
-                                        {
-                                            item["ToTime"] = NextDayDate;
-                                            item["Minute"] = Nd.TotalMinutes;
-                                        }
-                                        else
-                                        {
-                                            item["ToTime"] = date2;
-                                            item["Minute"] = ts.TotalMinutes;
-                                        }
-                                        EditRow(drpb, item);
-                                    }
+                                    throw new CustomException("Please Add Attachment and Proceed!");
                                 }
-                            }
-                            else
-                            {
-                                throw new CustomException("Please Add Attachment and Proceed!");
-                            }
 
+                            }
+                        }
+                        else
+                        {
+                            throw new CustomException("Please Add Actionable Person and Proceed!");
                         }
                         clsStaticInfo obj = new clsStaticInfo();
                         obj.SaveDataSets(dsProdBooked);
