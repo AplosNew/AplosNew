@@ -44,7 +44,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
     var CurrentDate = new Date();
     $scope.ModelTemp = {
         Id: null,
-        Date: CurrentDate,
+        Date: null,
         GeneralContractId: null,
         EntityId: null,
         CheckBySystemId:null
@@ -121,9 +121,9 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
+                //ClearFields(response.data.Sequence);
                 $scope.getData();
-
+                $scope.GetChildList();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');

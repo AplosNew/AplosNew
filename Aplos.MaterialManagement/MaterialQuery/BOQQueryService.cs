@@ -490,11 +490,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	,TC.UserName AS ThirdCharacteristics
                             	,IRD.ThirdCharacteristicsValueId
                             	,TCV.UserName AS ThirdCharacteristicsValue
-                                ,IRD.TransactionQty AS TotalPOQty
-                            	,poboq.TransactionQty AS POQty
+                                ,poboq.TransactionQty AS POQty
+                            	,poboq.TransactionQty*(IRD.Tolerance/100) AS ToleranceQty
+								 ,poboq.TransactionQty+poboq.TransactionQty*(IRD.Tolerance/100) AS TotalPOQty
                             	,ISNULL(aa.TransactionQty, 0) AS GRNRcvQty
                             	,'' AS TransactionQty
-                            	,(poboq.TransactionQty - ISNULL(aa.TransactionQty, 0)) AS Balance
+                            	,((poboq.TransactionQty+poboq.TransactionQty*(IRD.Tolerance/100)) - ISNULL(aa.TransactionQty, 0)) AS Balance
                             	,ISNULL(IRD.QtyStatus, 0) QtyStatus
 								,IRD.BaseUOMId
 								,IRD.BaseUoMFactor
@@ -556,12 +557,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             LEFT JOIN [trn].MaterialRequsitionDetails MRD ON MRD.Id = IRD.RequisitionDetailId
                             LEFT JOIN scs.country C ON C.Id = IRD.CountryId
                             LEFT JOIN (
-                            	SELECT PODetailsId
-                            		,Sum(TransactionQty) TransactionQty
-                            	FROM trn.InventoryReceiveDetail
+                            	SELECT ird.PODetailsId ,boqd.BOQDetailId
+								,sum(sum(boqd.TransactionQty)) over (partition by boqd.BOQDetailId,ird.PODetailsId) as TransactionQty
+                            	FROM trn.InventoryReceiveDetail ird left join trn.GRNPORequisitionAllocation boqd on boqd.InventoryReceiveDetailId=ird.Id
                             	WHERE isnull(POId,'null') IN (" + POId + @")
-                            	GROUP BY PODetailsId
-                            	) aa ON aa.PODetailsId = IRD.Id
+                            	GROUP BY PODetailsId,boqd.BOQDetailId
+                            	) aa ON aa.PODetailsId = IRD.Id and aa.BOQDetailId=poboq.BOQDetailId
                             WHERE IRD.QtyStatus = 0
                             	AND IRD.InventoryMaterialId IS NOT NULL
                             	AND ISNULL(IRD.InventoryReceiveId,'null') IN (" + POId + @")

@@ -1,0 +1,157 @@
+﻿
+
+
+<script>
+
+
+
+    function chkChange(Id, UserName) {
+        debugger;
+        $("#message").text(Id);
+        $("#PartyCode").text(Id);
+        $("#Vendor").val(UserName);
+        $('#partyPopUp').modal('hide');
+        //alert('Session==' + UserName);
+        PartyId = $("#PartyCode").text();
+        //$scope.getPartyPlantList(Id);
+    }
+    function getMasterId(Id) {
+        debugger;
+        $("#masterId").text(Id);
+
+    }
+</script>
+<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+<style>
+    .modellgModify {
+        width: 1100px;
+    }
+</style>
+<togglable name="Requisition Approval"></togglable>
+<div id="test">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Un Approved</a></li>
+
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Approved</a></li>
+
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                    <div id="Unapproved">
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="GridPOAPp" ej-grid e-datasource="UnapprovedList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="true" e-recorddoubleclick="recorddoubleclick"
+                                 e-detailstemplate="detailTemp"
+                                 e-detailsdatabound="detailgrid">
+                                <div e-columns>
+                                    <div e-column e-headertext="Actions" e-width="80">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved/H/R" ng-click="$parent.onClickPOA('GridPOAPp');" style="margin: -6px;"></i></button>
+                                       @* <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAPp');" style="margin: -6px;"></i></button>*@
+                                    </div>
+                                    <div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="300" style="height: 20px;"></div>
+                                    <div e-column e-template="#ApprovedStatus" e-headertext="Approved Status" e-width="180"></div>
+                                   
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                    <div e-column e-field="Date" e-headertext="Date" e-width="100"></div>
+                                    <div e-column e-field="Contract" e-headertext="Contract" e-width="100"></div>
+                                    <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                                    <div e-column e-field="EmployeeName" e-headertext="To Be Approved By" e-width="80"></div>
+                                    <div e-column e-field="CheckedByStatus" e-headertext="Check Status" e-width="80"></div>
+                                    <div e-column e-field="CheckedReason" e-headertext="Checked Reason" e-width="80"></div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <script id="tabGridContents" type="text/x-jsrender">
+                            <div class="tabcontrol" id="Test">
+                                <ul>
+                                    <li><a href="#gridTab{{:Id}}">Requisition Details</a></li>
+                                </ul>
+                                <div id="gridTab{{:Id}}">
+                                    <div id="detailGrid" style="font-size:larger"></div>
+                                </div>
+                            </div>
+                        </script>
+                    </div>
+                </fieldset>
+            </div>
+
+            <script type="text/template" id="ApprovedStatus">
+                <div class="">
+                    <div id="control1">
+                        <input id="combo-default12" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.CheckedStatus" e-width="100%" />
+                    </div>
+                </div>
+            </script>
+            <script type="text/template" id="UpdatedQty">
+                <div class="form-group">
+                    <input type="text" class="input ejinputtext form-control" ng-disabled="false" style="background-color:white;font-weight:bold;color:black;text-align:right;" ng-model="data.UpdatedQty" width="150" />
+                </div>
+            </script>
+
+            <script type="text/template" id="RejectApprovedReason">
+
+                <input type="text" maxlength="300" ng-model="data.RejectApprovedReason" style="color:black;" class="form-control" />
+
+            </script>
+
+            <div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                    <div id="approved">
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="GridPO12" ej-grid e-datasource="ApprovedList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="true" e-recorddoubleclick="recorddoubleclick1"
+                                 e-detailstemplate="detailTemp"
+                                 e-detailsdatabound="detailgrid">
+                                <div e-columns>
+
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                    <div e-column e-field="Date" e-headertext="Date" e-width="100"></div>
+                                    <div e-column e-field="Contract" e-headertext="Contract" e-width="100"></div>
+                                    <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                                    @*<div e-column e-field="EmployeeName" e-headertext="To Be Approved By" e-width="80"></div>*@
+                                    @*<div e-column e-field="CheckedByStatus" e-headertext="Check Status" e-width="80"></div>*@
+                                    @*<div e-column e-field="ApprovedStatus" e-headertext="Approve Status" e-width="80"></div>*@
+                                    @*<div e-column e-field="CheckedReason" e-headertext="Checked Reason" e-width="80"></div>*@
+                                    @*<div e-column e-field="ApprovedReason" e-headertext="Approved Reason" e-width="80"></div>*@
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="poapprovealert" title="Confirmation" message={{message}} data-ng-click-right-button="poAppAuth();"></confirm-archive-generic>
+<confirm-archive-generic modalid="poapprovalalert1" title="Confirmation" message={{message}} data-ng-click-right-button="poApp1();"></confirm-archive-generic>
+
+
+
+
+

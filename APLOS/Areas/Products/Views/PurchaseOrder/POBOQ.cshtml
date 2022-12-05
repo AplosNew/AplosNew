@@ -401,6 +401,7 @@
 
                         <div e-column e-type="string" e-field="CostingItemId" e-headertext="Costing Item Id" e-width="80px"></div>
                         <div e-column e-field="CostingItemName" e-headertext="Costing Item" e-width="100"></div>
+                        <div e-column e-field="BOMId" e-headertext="BOMId" e-width="100"></div>
                         <div e-column e-field="BOQItemRefNo" e-headertext="Item Ref." e-width="100"></div>
                         <div e-column e-type="string" e-field="BOQCriteria" e-headertext="BOQ Criteria" e-width="80px"></div>
                         <div e-column e-type="string" e-field="CriteriaDetail" e-headertext="Criteria Detail" e-width="120px"></div>
@@ -412,6 +413,7 @@
                         <div e-column e-field="BalanceTrnUOMQty" e-headertext="Balance TRN UOM Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
                         <div e-column e-template="#BOQQRate" e-field="TransactionRate" e-textalign="right" e-decimalplaces="4" e-headertext="Rate" e-width="100"></div>
+                        <div e-column  e-field="UnitPrice" e-textalign="right" e-decimalplaces="4" e-headertext="UnitPrice" e-width="100"></div>
                         <div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" e-textalign="right"></div>
                         <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
                         <div e-column e-field="RMDescription" e-headertext="Item Desc" e-width="100"></div>
@@ -654,7 +656,7 @@
                     <div class="form-group" id="div_docNonos">
                         <label class="col-sm-4 control-label">Tolerance(%)<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="number" name="Tolerance" ng-model="productNew.Tolerance" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
+                            <input type="number" name="Tolerance" ng-model="productNew.Tolerance" ng-keyup="toleranceCalculate()" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
                         </div>
                     </div>
                 </div>
@@ -781,7 +783,7 @@
                                 <td>
                                     <div class="form-group">
                                         <div class="col-sm-12 show-message">
-                                            <input type="text" name="Tolerance" ng-model="x.Tolerance" class="form-control">
+                                            <input type="text" name="Tolerance" ng-model="x.Tolerance" class="form-control text-right">
                                         </div>
                                     </div>
                                 </td>

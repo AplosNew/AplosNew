@@ -68,10 +68,10 @@
                             <div e-column e-type="string" e-field="Model" e-headertext="Model" e-width="100"></div>
                             <div e-column e-type="string" e-field="ScheduleCode" e-headertext="Schedule Code" e-width="100"></div>
                             <div e-column e-type="string" e-field="ResponsiblePersonBudgetCode" e-headertext="Responsible Person Bgt Code" e-width="100"></div>
-                            <div e-column e-type="string" e-template="#NoOfAssetCounts" e-headertext="No Of Asset" e-width="100"></div>
-                            <div e-column e-type="string" e-template="#OverDueCounts" e-headertext="Over Due" e-width="100"></div>
-                            <div e-column e-type="string" e-template="#DueTodayCounts" e-headertext="Due Today" e-width="100"></div>
-                            <div e-column e-type="string" e-template="#FutureDueCounts" e-headertext="Future Due" e-width="100"></div>
+                            <div e-column e-type="Number" e-template="#NoOfAssetCounts" e-headertext="No Of Asset" e-width="100"></div>
+                            <div e-column e-type="Number" e-template="#OverDueCounts" e-headertext="Over Due" e-width="100"></div>
+                            <div e-column e-type="Number" e-template="#DueTodayCounts" e-headertext="Due Today" e-width="100"></div>
+                            <div e-column e-type="Number" e-template="#FutureDueCounts" e-headertext="Future Due" e-width="100"></div>
                             <div e-column e-type="Number" e-field="PlanStatus" e-headertext="Plan Pending" e-width="100"></div>
                             <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                             <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="100"></div>
@@ -237,7 +237,7 @@
                                 <div class="form-group">
                                     <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                                         <div class="common-btn">
-                                            <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardReportView?PlannedId={{data.AssetId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
+                                            <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardReportView?PlannedId={{data.PlannedId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
                                         </div>
                                     </div>
                                 </div>

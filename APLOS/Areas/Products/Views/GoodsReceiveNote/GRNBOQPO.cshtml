@@ -1917,7 +1917,7 @@
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-lg-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GRnBOQPoo" ej-grid e-datasource="MasterListNew"
+                        <div style="color:black;" id="GRnBOQPoo" ej-grid e-datasource="MasterListNewBOQ"
                              e-templaterefresh="refreshTemplateMasterOrderOperation"
                              e-recorddoubleclick=""
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -1933,6 +1933,8 @@
                                 <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
                                 <div e-column e-field="RMDescription" e-headertext="Description" e-width="80"></div>
                                 <div e-column e-field="POQty" e-headertext="PO Qty" e-width="80"></div>
+                                <div e-column e-field="ToleranceQty" e-headertext="Tolerance Qty" e-width="80"></div>
+                                <div e-column e-field="TotalPOQty" e-headertext="Total Qty" e-width="80"></div>
                                 <div e-column e-field="TransactionUoM" e-headertext="UOM" e-width="80"></div>
                                 @*<div e-column e-template="#CurrentTextPOQtyBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>*@
                                 <div e-column e-template="#CurrentTextGRNRecvQty" e-field="GRNRcvQty" e-textalign="right" e-headertext="GRNRcvQty" e-width="100"></div>

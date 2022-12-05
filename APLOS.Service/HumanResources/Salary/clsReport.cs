@@ -1835,7 +1835,7 @@ Left join[TRN].[InventoryScrap] ISC on ISC.Id = ISCD.InventoryScrapId
  GROUP BY IRD.InventoryMaterialId
      )InventoryTransferData ON InventoryTransferData.InventoryMaterialId = IM.Id
 where IM.PlantId = '" + plantId+ @"' AND MM.UserName is not null ) X )  Y ON Y.ArticleId = MSC.ArticleId
-where MMA.Id = '" + PlannedId + @"' order by MSC.SNO";
+where APD.Id='" + PlannedId + @"' order by MSC.SNO";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1870,7 +1870,7 @@ left join HKP.EmployeeActivityCategory EAC ON EAC.Id=MI.ItemType
 left join TRN.Maintenancescheduling MS ON MS.Id=MI.MaintenanceSchedulingId
 left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
 left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id
-where MMA.Id='" + PlannedId + @"' order by MI.SNO";
+where APD.Id='" + PlannedId + @"'";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
