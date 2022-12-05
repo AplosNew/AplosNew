@@ -459,18 +459,22 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-xs-12 col-sm-6 col-md-6">
-						<div class="form-group" id="div_country">
-							<label class="col-sm-4 col-md-4 control-label">Country<sup ng-show="detailModel.IsOriginApplicable">*</sup></label>
-							<div class="col-sm-8 show-message">
-								<div class="select-style">
-									<select id="CountryName" name="Country" ng-disabled="!detailModel.IsOriginApplicable" ng-model="detailModel.CountryId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in countryList" ng-change="getMaterialStockCountryWise();">
-										<option value=""></option>
-									</select>
-								</div>
-							</div>
-						</div>
-					</div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" id="div_country">
+                            <label class="col-sm-4 col-md-4 control-label">Country<sup ng-show="detailModel.IsOriginApplicable">*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select id="CountryName" name="Country" ng-disabled="!detailModel.IsOriginApplicable" ng-model="detailModel.CountryId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in countryList" ng-change="getMaterialStockCountryWise();">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" >
+                            <label class="col-sm-4 col-md-4 control-label">Replacement<sup ng-show="detailModel.IsReplacement"></sup></label>
+                            <label class="col-sm-8 control-label">{{detailModel.Replacement}}</label>
+                        </div>
+                    </div>
 					<div class="clearfix"></div>
 					<div class="col-xs-12 col-sm-6 col-md-6">
 						<div class="form-group">

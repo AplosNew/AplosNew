@@ -503,6 +503,8 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.detailModel.ProductMasterName = ob.ProductMasterName;
 		$scope.detailModel.IsOurStyleRequired = ob.IsOurStyleRequired;
 		$scope.detailModel.IsProductMstRequired = ob.IsProductMstRequired;
+		$scope.detailModel.IsReplacement = ob.IsReplacement;
+		$scope.detailModel.Replacement = ob.Replacement;
 		$scope.detailModel.TransactionUoMId = ob.BaseUOMId;
 		$scope.detailModel.ArticleId = null;;
 		$scope.detailModel.ArticleName = null;
