@@ -656,7 +656,7 @@
                     <div class="form-group" id="div_docNonos">
                         <label class="col-sm-4 control-label">Tolerance(%)<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="number" name="Tolerance" ng-model="productNew.Tolerance" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
+                            <input type="number" name="Tolerance" ng-model="productNew.Tolerance" ng-keyup="toleranceCalculate()" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
                         </div>
                     </div>
                 </div>
@@ -783,7 +783,7 @@
                                 <td>
                                     <div class="form-group">
                                         <div class="col-sm-12 show-message">
-                                            <input type="text" name="Tolerance" ng-model="x.Tolerance" class="form-control">
+                                            <input type="text" name="Tolerance" ng-model="x.Tolerance" class="form-control text-right">
                                         </div>
                                     </div>
                                 </td>
