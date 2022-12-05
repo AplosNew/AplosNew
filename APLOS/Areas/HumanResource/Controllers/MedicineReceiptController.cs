@@ -235,7 +235,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
                 sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
 
-                arr[0] += clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
+                arr[0] += clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
+                arr[1] += clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
 
                 ROW++;
 
@@ -243,8 +244,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             ROW++;
 
-            sheet[ROW, ColInvoiceNumber].Text = "Sum Of Amount";
-            sheet[ROW, ColAmount].Number = arr[0];
+            sheet[ROW, ColInvoiceNumber].Text = "Grand Total";
+            sheet[ROW, ColQuantity].Number = arr[0];
+            sheet[ROW, ColAmount].Number = arr[1];
 
             sheet.Range[ROW, ColInvoiceNumber, ROW, endCol].CellStyle.Font.Bold = true;
 
@@ -344,7 +346,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                     sheet[ROW, ColVendor].Text = data.Rows[i]["PartyName"].ToString();
                     sheet[ROW, ColInvoiceNum].Number = clsStaticInfo.dbl(data.Rows[i]["InvoiceNumber"].ToString());
-                    sheet[ROW, ColInvoiceDate].Number = clsStaticInfo.dbl(data.Rows[i]["InvoiceDate"].ToString());
+                    sheet[ROW, ColInvoiceDate].Text = data.Rows[i]["InvoiceDate"].ToString().ToString();
                     sheet[ROW, ColTotalAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
 
                    
@@ -359,7 +361,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Contract Transaction Summary Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Medicine Invoice Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;

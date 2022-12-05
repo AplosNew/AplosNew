@@ -373,7 +373,7 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
 
       $http({
             method: 'POST',
-          url: 'HumanResource/MedicineReceipt/XlsDownloadMedicineInvoiceReport?from=' + $scope.ModelNew.FromDate + '&to=' + $scope.ModelNew.ToDate ,
+          url: 'HumanResource/MedicineReceipt/XlsDownloadMedicineInvoiceReport' ,
             dataType: 'JSON',
         })
             .then(function successCallback(response) {

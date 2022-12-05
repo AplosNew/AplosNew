@@ -1149,7 +1149,7 @@ order by MRC.ExpiryDate";
         {
             try
             {
-                var sql = @"elect isnull(sum(MRC.Amount),0)Amount, MR.PartyId, P.UserName PartyName, P.Code PartyCode, MR.InvoiceNumber
+                var sql = @"select isnull(sum(MRC.Amount),0)Amount, MR.PartyId, P.UserName PartyName, P.Code PartyCode, MR.InvoiceNumber
                             , FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, MR.Id, MR.PlantId, PL.StandardName PlantName 
                             from TRN.MedicineReceiptChild MRC
                             left join TRN.MedicineReceipt MR on MR.Id = MRC.MedicineReceiptId
@@ -1347,9 +1347,9 @@ where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Sickness,
 
 STUFF((Select ',' + MP.UserName
-from TRN.EmployeeSickness ES
-left join TRN.MedicalLog ML on ML.Id = ES.MedicalLogId
-left join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
+from HKP.MedicineCategory MC
+left join HKP.MedicinePurpose MP on MP.MedicineCategoryId = MC.Id
+left join TRN.EmployeeSickness ES on ES.MedicinePurposeId = MP.Id
 where ES.MedicalLogId = ML.Id
 FOR XML PATH('')),1,1,'') Purpose,
 
