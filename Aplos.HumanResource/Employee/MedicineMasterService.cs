@@ -1149,7 +1149,7 @@ order by MRC.ExpiryDate";
         {
             try
             {
-                var sql = @"elect isnull(sum(MRC.Amount),0)Amount, MR.PartyId, P.UserName PartyName, P.Code PartyCode, MR.InvoiceNumber
+                var sql = @"select isnull(sum(MRC.Amount),0)Amount, MR.PartyId, P.UserName PartyName, P.Code PartyCode, MR.InvoiceNumber
                             , FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, MR.Id, MR.PlantId, PL.StandardName PlantName 
                             from TRN.MedicineReceiptChild MRC
                             left join TRN.MedicineReceipt MR on MR.Id = MRC.MedicineReceiptId
