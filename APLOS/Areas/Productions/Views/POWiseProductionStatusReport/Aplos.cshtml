@@ -87,7 +87,7 @@
                                     <div e-column e-type="string" e-field="POStatus" e-headertext="POStatus" e-width="100"></div>
                                     <div e-column e-type="string" e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
                                     <div e-column e-type="string" e-field="ProductionShift" e-headertext="Shift" e-width="180"></div>
-                                    <div e-column e-type="string" e-field="ActualDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Date" e-width="100"></div>
+                                    <div e-column e-type="date" e-field="ActualDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Date" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
                                     <div e-column e-type="string" e-field="LotNumber" e-headertext="LotNumber" e-width="150"></div>
@@ -308,7 +308,7 @@
                             <div class="common-btn" ng-show="allsummaryfilters.length>0">
                                 <ul class="list-inline text-right">
                                     <li> <button ng-click="AllSummeryViewData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
-                                    <li> <button ng-click="ProSumAllDataReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
+                                    <li> <button ng-click="GetProductionAllSummaryData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
                                 </ul>
                             </div>
                         </div>
