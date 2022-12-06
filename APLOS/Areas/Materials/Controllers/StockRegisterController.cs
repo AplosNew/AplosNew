@@ -247,10 +247,12 @@ namespace Aplos.Areas.Materials.Controllers
                 {
                     EmpAll = "AND RM.RequisitionDate < '" + requisitionBeforeDate + "'";
                 }
-				var str = @"SELECT * FROM (select RM.ReqEmpId,ReqStatus=case when MM.IsRegular=1 then 'Regular' else 'Irregular' end,format(RM.RequisitionDate,'dd-MMM-yyy')RequisitionDate,MM.IsRegular,RM.Id,RMD.Id ROWId,MM.UserName Material,ART.StandardName Article,TUoM.UserName UOM,ISNULL(RMD.TransactionQty,0) ReqQty
-                                            ,ISNULL(POD.POQty,0)POQty,ISNULL(GRM.GRNQty,0)GRNQty,ISNULL(GRM.IssueQty,0) IssueQty
+				var str = @"SELECT * FROM (select EI.EmployeeCode,EI.EmployeeName EN,D.UserName Department,RM.ReqEmpId,ReqStatus=case when MM.IsRegular=1 then 'Regular' else 'Irregular' end,format(RM.RequisitionDate,'dd-MMM-yyy')RequisitionDate,MM.IsRegular,RM.Id,RMD.Id ROWId,MM.UserName Material,ART.StandardName Article,TUoM.UserName UOM,ISNULL(RMD.TransactionQty,0) ReqQty
+                                            ,ISNULL(POD.POQty,0)POQty,BalancePOQty=RMD.TransactionQty-POD.POQty,ISNULL(GRM.GRNQty,0)GRNQty,ISNULL(GRM.IssueQty,0) IssueQty
                                             ,0 SalesQty
-											,BalancePOQty=RMD.TransactionQty-POD.POQty,RM.Remarks
+											,BalanceToReceive=ISNULL(RMD.TransactionQty,0)-ISNULL(GRM.GRNQty,0)
+											,RM.Remarks
+											
 
                                             from  TRN.MaterialRequsitionMaster RM 
                                             LEFT JOIN TRN.MaterialRequsitionDetails RMD ON RMD.MaterialReqqusitionMasterId=RM.Id
@@ -273,8 +275,10 @@ namespace Aplos.Areas.Materials.Controllers
                                             LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                                             LEFT JOIN MST.MaterialMasterArticle AS ART ON RMD.ArticleId=ART.Id
                                             LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON RMD.TransactionUoMId=TUoM.Id	
-                
-                                            where RMD.Id is not null "+ EmpAll + ") x where x.ReqStatus='" + requisitionStatus + @"'";
+											left join EmployeeInformation EI on EI.SystemId=RM.ReqEmpId
+											left join ORG.Department D on EI.DepartmentId=D.Id
+
+                                            where RMD.Id is not null " + EmpAll + ") x where x.ReqStatus='" + requisitionStatus + @"'";
                 return _sqlRepository.GetDataTable(str);
 
             }
