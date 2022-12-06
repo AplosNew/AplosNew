@@ -235,7 +235,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
                 sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
 
-                arr[0] += clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
+                arr[0] += clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
+                arr[1] += clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
 
                 ROW++;
 
@@ -243,8 +244,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             ROW++;
 
-            sheet[ROW, ColInvoiceNumber].Text = "Sum Of Amount";
-            sheet[ROW, ColAmount].Number = arr[0];
+            sheet[ROW, ColInvoiceNumber].Text = "Grand Total";
+            sheet[ROW, ColQuantity].Number = arr[0];
+            sheet[ROW, ColAmount].Number = arr[1];
 
             sheet.Range[ROW, ColInvoiceNumber, ROW, endCol].CellStyle.Font.Bold = true;
 
@@ -263,6 +265,136 @@ namespace Aplos.Areas.HumanResource.Controllers
             
             return workbook;
         }
+
+        [Authorize, HttpPost]
+        public ActionResult XlsDownloadMedicineInvoiceReport(string from, string to)
+        {
+            try
+            {
+
+                string fileName = "";
+                fileName = ContractTransactionSummaryExcelView(from, to, "Medicine Invoice Report");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string ContractTransactionSummaryExcelView(string from, string to, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+
+            try
+            {
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Medicine Invoice Report";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                mr.GetAllInvoiceDataPrint(from, to, out data);
+
+                int ROW = 6; int COL = 1;
+
+                #region Columns
+
+
+                sheet[ROW, COL].Text = "Vendor";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColVendor = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Number";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColInvoiceNum = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColInvoiceDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Amount";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColTotalAmount = COL;
+
+                #endregion Columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+                int startRow = ROW;
+                double[] arr = new double[3];
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+
+                    sheet[ROW, ColVendor].Text = data.Rows[i]["PartyName"].ToString();
+                    sheet[ROW, ColInvoiceNum].Number = clsStaticInfo.dbl(data.Rows[i]["InvoiceNumber"].ToString());
+                    sheet[ROW, ColInvoiceDate].Text = data.Rows[i]["InvoiceDate"].ToString().ToString();
+                    sheet[ROW, ColTotalAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
+
+                   
+                    ROW++;
+                }
+
+              
+                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Medicine Invoice Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = true;
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
         #endregion Excel Report
     }
 }

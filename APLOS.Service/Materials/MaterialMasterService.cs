@@ -1225,6 +1225,7 @@ namespace Library.Service.Materials
 							, MM.BaseUOMId, UOMB.UserName AS BaseUoM, PM.UserName AS ProductMasterName
 							, OS.UserName AS OurStyleName, MM.WithSKU, ISNULL(ART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
 							, hasInventory=CASE WHEN IM.Id<>'' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MM.IsOriginApplicable,MM.IsAsset
+                            ,MM.IsReplacement,Replacement=case when MM.IsReplacement=1 then 'Yes' else 'No' end
 					FROM [MST].[MaterialMaster] AS MM
 					LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId= MM.Id
 					LEFT JOIN [MST].[MaterialGroupMaster] AS MGP ON MM.MaterialGroupMasterId = MGP.Id

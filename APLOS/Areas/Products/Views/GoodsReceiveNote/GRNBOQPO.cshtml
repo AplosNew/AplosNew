@@ -1924,15 +1924,17 @@
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>
                                 <div e-column e-template="#checkBOQboxList" e-textalign="center" e-width="30"></div>
-                                <div e-column e-field="BOQDetailId" e-headertext="BOQDetailId" e-width="80"></div>
-                                <div e-column e-field="RefferenceNo" e-headertext="Style" e-width="100"></div>
-                                <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="120"></div>
+                                <div e-column e-field="BOQDetailId" e-headertext="BOQDetailId" e-width="60"></div>
+                                <div e-column e-field="RefferenceNo" e-headertext="Style" e-width="80"></div>
+
                                 <div e-column e-field="UserName" e-headertext="Material" e-width="150"></div>
                                 <div e-column e-field="StandardName" e-headertext="Article" e-width="100"></div>
-                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
-                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
-                                <div e-column e-field="RMDescription" e-headertext="Description" e-width="80"></div>
+                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="120"></div>
+                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="60"></div>
+                                <div e-column e-field="RMDescription" e-headertext="Description" e-width="120"></div>
                                 <div e-column e-field="POQty" e-headertext="PO Qty" e-width="80"></div>
+                                <div e-column e-field="ToleranceQty" e-headertext="Tolerance Qty" e-width="80"></div>
+                                <div e-column e-field="TotalPOQty" e-headertext="Total Qty" e-width="80"></div>
                                 <div e-column e-field="TransactionUoM" e-headertext="UOM" e-width="80"></div>
                                 @*<div e-column e-template="#CurrentTextPOQtyBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>*@
                                 <div e-column e-template="#CurrentTextGRNRecvQty" e-field="GRNRcvQty" e-textalign="right" e-headertext="GRNRcvQty" e-width="100"></div>
@@ -1955,6 +1957,7 @@
                                 <div e-column e-field="ShortageValue" e-headertext="ShortageValue" e-width="80"></div>
                                 <div e-column e-field="RejectionRate" e-headertext="RejectionRate" e-width="80"></div>
                                 <div e-column e-field="RejectionClamRate" e-headertext="RejectionClamRate" e-width="80"></div>
+                                <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="120"></div>
                                 <div e-column e-field="MaterialDetail" e-headertext="MaterialDetail" e-width="80"></div>
                             </div>
 

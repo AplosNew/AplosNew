@@ -72,13 +72,18 @@ function GeneralContractCheckedController(cboService, commonMessage, $scope, $ro
     };
 
     //-----------------------------------------------------------------------------------
-   
-    $scope.poApproved = function () {
-        cboService.getEnumCbo("enum/GetPOApprovalStatusCbo", function (result) {
-            $scope.POApprovalList = result;
-        });
-    }
-    $scope.poApproved();
+    $scope.POApprovalList = [
+        {
+            'Text': 'Checked',
+            'Value':'Checked'
+        }
+    ];
+    //$scope.poApproved = function () {
+    //    cboService.getEnumCbo("enum/GetPOApprovalStatusCbo", function (result) {
+    //        $scope.POApprovalList = result[3];
+    //    });
+    //}
+    //$scope.poApproved();
 
     $scope.ContractItemList = []
     $scope.GetChildList = function () {

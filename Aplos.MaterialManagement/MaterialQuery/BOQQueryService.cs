@@ -490,11 +490,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	,TC.UserName AS ThirdCharacteristics
                             	,IRD.ThirdCharacteristicsValueId
                             	,TCV.UserName AS ThirdCharacteristicsValue
-                                ,IRD.TransactionQty AS TotalPOQty
-                            	,poboq.TransactionQty AS POQty
+                                ,poboq.TransactionQty AS POQty
+                            	,poboq.TransactionQty*(IRD.Tolerance/100) AS ToleranceQty
+								 ,poboq.TransactionQty+poboq.TransactionQty*(IRD.Tolerance/100) AS TotalPOQty
                             	,ISNULL(aa.TransactionQty, 0) AS GRNRcvQty
                             	,'' AS TransactionQty
-                            	,(poboq.TransactionQty - ISNULL(aa.TransactionQty, 0)) AS Balance
+                            	,((poboq.TransactionQty+poboq.TransactionQty*(IRD.Tolerance/100)) - ISNULL(aa.TransactionQty, 0)) AS Balance
                             	,ISNULL(IRD.QtyStatus, 0) QtyStatus
 								,IRD.BaseUOMId
 								,IRD.BaseUoMFactor

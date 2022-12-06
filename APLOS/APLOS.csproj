@@ -1742,6 +1742,7 @@
     <Content Include="Areas\Accounts\Scripts\AssetWIPStatusController.js" />
     <Content Include="Areas\Accounts\Scripts\generalLedgerGSTReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GroupBalanceReportController.js" />
+    <Content Include="Areas\Accounts\Scripts\debitNoteCreditNoteTaxReportController.js" />
     <Content Include="Areas\Accounts\Scripts\inventorySalesReturnPost.js" />
     <Content Include="Areas\Accounts\Scripts\IncentiveController.js" />
     <Content Include="Areas\Accounts\Scripts\PostInvoiceController.js" />
@@ -4451,6 +4452,7 @@
     <Content Include="Areas\Administration\Views\GeneralContractChecked\Aplos.cshtml" />
     <Content Include="Areas\Administration\Views\GeneralContractChecked\GeneralContractAuthorized.cshtml" />
     <Content Include="Areas\Administration\Views\GeneralContractApproved\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\TaxReport\DebitNoteCreditNoteTaxReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

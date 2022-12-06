@@ -87,7 +87,7 @@
                                     <div e-column e-type="string" e-field="POStatus" e-headertext="POStatus" e-width="100"></div>
                                     <div e-column e-type="string" e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
                                     <div e-column e-type="string" e-field="ProductionShift" e-headertext="Shift" e-width="180"></div>
-                                    <div e-column e-type="string" e-field="ActualDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Date" e-width="100"></div>
+                                    <div e-column e-type="date" e-field="ActualDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Date" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="100"></div>
                                     <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
                                     <div e-column e-type="string" e-field="LotNumber" e-headertext="LotNumber" e-width="150"></div>
@@ -106,8 +106,10 @@
                                     <div e-column e-type="number" e-format="{0:0.00}" e-field="UptoDateProPercentage" e-textalign="right" e-headertext="UptoDateProPercentage" e-width="100"></div>
                                     <div e-column e-type="date" e-field="FirstBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="FirstBookDate" e-width="100"></div>
                                     <div e-column e-type="date" e-field="LastBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LastBookDate" e-width="100"></div>
-                                    @*<div e-column e-field="FirstShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstShipmentDate" e-width="100"></div>
-                            <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
+                                    <div e-column e-type="date" e-field="POFirstBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="POFirstBookDate" e-width="100"></div>
+                                    <div e-column e-type="date" e-field="POLastBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="POLastBookDate" e-width="100"></div>
+                                    <div e-column e-field="FirstShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstShipmentDate" e-width="100"></div>
+                                    <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>
                                 </div>
                             </div>
                         </div>
@@ -188,7 +190,7 @@
                                     <div e-column e-type="date" e-field="FirstBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="FirstBookDate" e-width="100"></div>
                                     <div e-column e-type="date" e-field="LastBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LastBookDate" e-width="100"></div>
                                     @*<div e-column e-field="FirstShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstShipmentDate" e-width="100"></div>
-                            <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
+                                        <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
                                 </div>
                             </div>
                         </div>
@@ -266,7 +268,7 @@
                                     <div e-column e-type="date" e-field="FirstBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="FirstBookDate" e-width="100"></div>
                                     <div e-column e-type="date" e-field="LastBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LastBookDate" e-width="100"></div>
                                     @*<div e-column e-field="FirstShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstShipmentDate" e-width="100"></div>
-        <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
+                                        <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
                                 </div>
                             </div>
                         </div>
@@ -308,7 +310,7 @@
                             <div class="common-btn" ng-show="allsummaryfilters.length>0">
                                 <ul class="list-inline text-right">
                                     <li> <button ng-click="AllSummeryViewData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
-                                    <li> <button ng-click="ProSumAllDataReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
+                                    <li> <button ng-click="GetProductionAllSummaryData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
                                 </ul>
                             </div>
                         </div>
@@ -345,7 +347,7 @@
                                     <div e-column e-type="date" e-field="FirstBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="FirstBookDate" e-width="100"></div>
                                     <div e-column e-type="date" e-field="LastBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LastBookDate" e-width="100"></div>
                                     @*<div e-column e-field="FirstShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstShipmentDate" e-width="100"></div>
-        <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
+                                        <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>*@
                                 </div>
                             </div>
                         </div>
@@ -383,7 +385,7 @@
                             <div e-column e-type="string" e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
