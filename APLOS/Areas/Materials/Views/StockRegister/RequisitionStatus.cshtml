@@ -196,19 +196,23 @@
                          e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
                         
                         <div e-columns>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                            <div e-column e-field="EN" e-headertext="Employee Name" e-width="120"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="150"></div>
                             <div e-column e-field="Id" e-headertext="Id" e-width="80" textAlign='Left'></div>
                             <div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             <div e-column e-field="ROWId" e-headertext="Row Id" e-width="90"></div>
-                            <div e-column e-field="Material" e-headertext="Material" e-width="120"></div>
-                            <div e-column e-field="Article" e-headertext="Article" e-width="120"></div>
+                            <div e-column e-field="Material" e-headertext="Material" e-width="150"></div>
+                            <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
                             <div e-column e-field="UOM" e-headertext="UOM" e-width="80"></div>
                             <div e-column e-field="ReqQty" e-headertext="Req Qty" e-width="90" textAlign='Right'></div>
                             <div e-column e-field="POQty" e-headertext="PO Qty" e-width="90" textAlign='Right'></div>
+                            <div e-column e-field="BalancePOQty" e-headertext="Balance Stock" e-width="90" textAlign='Right'></div>
                             <div e-column e-field="GRNQty" e-headertext="GRN Qty" e-width="90" textAlign='Right'></div>
                             <div e-column e-field="IssueQty" e-headertext="Issue Qty" e-width="90" textAlign='Right'></div>
                             <div e-column e-field="SalesQty" e-headertext="Sales Qty" e-width="90" textAlign='Right'></div>
-                            <div e-column e-field="BalancePOQty" e-headertext="Balance Stock" e-width="90" textAlign='Right'></div>
-                            <div e-column e-field="ReqStatus" e-headertext="Requisition Status" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="BalanceToReceive" e-headertext="Balance To Receive" e-width="90" textAlign='Right'></div>
+                            <div e-column e-field="ReqStatus" e-headertext="Requisition Status" e-width="120" textAlign='Right'></div>
                             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="110" textAlign='Right'></div>
                         </div>
 
