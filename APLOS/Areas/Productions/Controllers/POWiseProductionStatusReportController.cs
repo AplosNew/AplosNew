@@ -340,19 +340,30 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colLastProBookDate = COL;
 
-                //COL++;
-                //sheet[ROW, COL].Text = "FirstShipmentDate";
-                //sheet[ROW, COL].ColumnWidth = 12;
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colFirstshipmentDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "POFirstBookDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPOFirstProBookDate = COL;
 
-                //COL++;
-                //sheet[ROW, COL].Text = "LastShipmentDate";
-                //sheet[ROW, COL].ColumnWidth = 12;
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colLastshipmentDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "POLastBookDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPOLastProBookDate = COL;
 
-               
+                COL++;
+                sheet[ROW, COL].Text = "FirstShipmentDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colFirstShipmentDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "LastShipmentDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLastShipmentDate = COL;
+
 
                 //COL++;
                 //sheet[ROW, COL].Text = "RelayProcess";
@@ -407,11 +418,13 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colUptoDateProduction].Number = clsStaticInfo.dbl(data.Rows[i]["UptoDateProPercentage"].ToString());
                     sheet[ROW, colFirstProBookDate].Text = data.Rows[i]["FirstBookDate"].ToString();
                     sheet[ROW, colLastProBookDate].Text = data.Rows[i]["LastBookDate"].ToString();
+                    sheet[ROW, colPOFirstProBookDate].Text = data.Rows[i]["POFirstBookDate"].ToString();
+                    sheet[ROW, colPOLastProBookDate].Text = data.Rows[i]["POLastBookDate"].ToString();
+                    sheet[ROW, colFirstShipmentDate].Text = data.Rows[i]["FirstShipmentDate"].ToString();
+                    sheet[ROW, colLastShipmentDate].Text = data.Rows[i]["LastShipmentDate"].ToString();
 
-                   // sheet[ROW, colOwnStyleNo].Text = data.Rows[i]["OwnStyleNo"].ToString();
+                    // sheet[ROW, colOwnStyleNo].Text = data.Rows[i]["OwnStyleNo"].ToString();
 
-                    //sheet[ROW, colFirstshipmentDate].Text = data.Rows[i]["FirstShipmentDate"].ToString();
-                    //sheet[ROW, colLastshipmentDate].Text = data.Rows[i]["LastShipmentDate"].ToString();
 
                     //sheet.Range[ROW, colWIP].Formula = "IF(MAX($" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPlanDate) + "$" + LastRow.ToString() + "<>" + clsStaticInfo.GetxlsCol(colPlanDate) + ROW.ToString() + "),0,IF(" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "=1,0,SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + "-1,$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")-SUMIFS($" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colActualQty) + "$" + LastRow.ToString() + ",$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colPOProcessSeq) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colPOProcessSeq) + ROW.ToString() + ",$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + startRow.ToString() + ":$" + clsStaticInfo.GetxlsCol(colProductionOrderID) + "$" + LastRow.ToString() + "," + clsStaticInfo.GetxlsCol(colProductionOrderID) + startRow.ToString() + ")))";
 
@@ -649,7 +662,7 @@ trn.SalesOrder XSO
 join TRN.MasterOrderItem moi on moi.id=xso.MasterOrderItemId
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 where pp.ProductionOrderID=Xpod.ProductionOrderId)) / 100,wcm.UserName AS WorkCenter,CPL.UserName AS ProductionShift,ISNULL(pp.StandardName, ord.Article) Article
-		,ord.Product,PS.UserName POStatus,FLB.FirstBookDate,FLB.LastBookDate
+		,ord.Product,PS.UserName POStatus,FLB.FirstBookDate,FLB.LastBookDate,PFLB.POFirstBookDate,PFLB.POLastBookDate
 		,PP.LotNumber,POProcessStatus=CASE WHEN POPS.IsCompleted=1 THEN 'Completed' ELSE 'Not Completed' END
 --additional info
 		,Customer= REPLACE(REPLACE(
@@ -675,8 +688,11 @@ PlannedQty=(select SUM((isnull(XSO.qty, 0) * (1 + (isnull(moi.ExtraOrderPercenta
 trn.SalesOrder XSO 
 join TRN.MasterOrderItem moi on moi.id=xso.MasterOrderItemId
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-where pp.ProductionOrderID=Xpod.ProductionOrderId),
-BuyerOrderNo=STUFF((select distinct ','+XMO.BuyerReferenceNo from 
+where pp.ProductionOrderID=Xpod.ProductionOrderId)
+,FirstShipmentDate=(Select FORMAT(MIN(SO.DeliveryDate),'dd-MMM-yyyy') from TRN.SalesOrder SO JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=so.Id where pp.ProductionOrderID=Xpod.ProductionOrderId)
+,LastShipmentDate=(Select FORMAT(MAX(SO.DeliveryDate),'dd-MMM-yyyy') from TRN.SalesOrder SO JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=so.Id where pp.ProductionOrderID=Xpod.ProductionOrderId)
+
+,BuyerOrderNo=STUFF((select distinct ','+XMO.BuyerReferenceNo from 
 trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
@@ -704,6 +720,7 @@ LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
 GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,PS.ResponsiblePersonId,PS.LotNumber
 ) AS pp
 LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId,ProductionOrderId from TRN.ProductionSummary GROUP BY ProcessId,ProductionOrderId) FLB ON FLB.ProcessId=PP.ProcessId AND FLB.ProductionOrderId=PP.ProductionOrderId
+LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS POFirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS POLastBookDate,ProductionOrderId from TRN.ProductionSummary GROUP BY ProductionOrderId) PFLB ON PFLB.ProductionOrderId=PP.ProductionOrderId
 LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
 LEFT OUTER JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=pp.WorkCenterMasterId
 left outer join TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
