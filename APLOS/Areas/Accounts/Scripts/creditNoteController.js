@@ -1007,7 +1007,7 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
         if ($scope.voucher.NoteType =='VendorCreditNote') {
             $scope.tdsUrl = "accounts/TaxCode/GetTDSCbo?postingDate=" + $filter("dateFiltering")(date);
         } else {
-            $scope.tdsUrl = "accounts/TaxCode/GetAdditionalTaxOutputCbo?postingDate=" + $filter("dateFiltering")(date);
+            $scope.tdsUrl = "accounts/TaxCode/GetTDSOutPutCbo?postingDate=" + $filter("dateFiltering")(date);
         }
         $http({
             method: "get",

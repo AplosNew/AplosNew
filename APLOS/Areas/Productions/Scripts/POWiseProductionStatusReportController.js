@@ -371,33 +371,61 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     }
 
 
+    //$scope.ProWCDataReport = function () {
+    //    var wcdataLists = [];
+    //    var g = $("#GridWC").data("ejGrid");
+    //    wcdataLists = g.getFilteredRecords();
+
+    //    if (wcdataLists.length == 0) {
+    //        wcdataLists = $scope.ProductionDataWCReportList;
+    //    }
+
+    //    $scope.fileName = "ProductionDataWithWC";
+
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.exportgriddataUrlUpd,
+    //        data: { 'reportFileName': $scope.fileName, 'data': wcdataLists },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error == true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
+    //}
+
     $scope.ProWCDataReport = function () {
-        var wcdataLists = [];
+        var dataList = [];
         var g = $("#GridWC").data("ejGrid");
-        wcdataLists = g.getFilteredRecords();
+        dataList = g.getFilteredRecords();
 
-        if (wcdataLists.length == 0) {
-            wcdataLists = $scope.ProductionDataWCReportList;
+        if (dataList.length == 0) {
+            dataList = $scope.ProductionDataWCReportList;
         }
-
-        $scope.fileName = "ProductionDataWithWC";
+        $scope.fileName = "ProductionDataWithWCReport.xlsx";
 
         $http({
             method: 'POST',
-            url: $scope.exportgriddataUrlUpd,
-            data: { 'reportFileName': $scope.fileName, 'data': wcdataLists },
+            url: $scope.path + "ProductionDataWCXls",
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
         });
     }
+
 
     $scope.sumparameters = [];
     $scope.SumfilterComplete = function () {
