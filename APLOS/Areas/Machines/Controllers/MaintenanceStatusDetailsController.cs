@@ -197,12 +197,12 @@ APD.Remarks
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
- left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id and APD.Id=(select top 1 Id from [TRN].[MachineAssetPlannedDetails] MAPD where MAPD.AssetId=MMA.Id order by MAPD.ActualDate desc)
+ left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id 
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and MA.MachineMasterId='" + MachineId + "' and MA.EntityId='" + EntityId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and 1='" + Value + "'  and (select count(Id) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id and APD.PlannedDate is not null and APD.ActualDate is null) = 0";
+ where MMA.Id is not null and MA.MachineMasterId='" + MachineId + "' and MA.EntityId='" + EntityId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and 1='" + Value + "'  and (select count(Id) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id and APD.PlannedDate is not null and APD.ActualDate is null) = 0";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -236,7 +236,7 @@ APD.Remarks
  from TRN.Maintenancescheduling MS
  --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
  left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
- left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id and APD.Id=(select top 1 Id from [TRN].[MachineAssetPlannedDetails] MAPD where MAPD.AssetId=MMA.Id order by MAPD.ActualDate desc)
+ left Join [TRN].[MachineAssetPlannedDetails] APD ON APD.AssetId=MMA.Id and APD.ActualDate is null
  left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
