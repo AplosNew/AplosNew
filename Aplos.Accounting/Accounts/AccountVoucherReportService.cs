@@ -7008,20 +7008,13 @@ namespace Library.Accounting.Accounts
             DataTable dtDayBookData = GetVoucherParkedData(companyGroupId, companyId, plantId, fromDate, toDate);
 
             worksheet.Name = "Voucher Parked Report";
-            //var header = GetDailyTransactionHeader(companyGroupId, companyId, plantId, toDate);
             reportFileName = "Voucher Parked Report " + toDate.ToString("dd-MMM-yyyy");
-
-
-            //if (dtDayBookData.Rows.Count == 0)
-            //    throw new Exception("No data found");
 
             int COL = 1; int ROW = 5;
             int startCol = COL;
 
             worksheet.Range[ROW - 1, 3].Text = "Posting Date:  From " + Convert.ToDateTime(fromDate).ToString("dd-MMM-yyyy") + " To " + Convert.ToDateTime(toDate).ToString("dd-MMM-yyyy");
             
-
-
             worksheet[ROW, COL].Text = "SL. No";
             int colSLNO = COL;
             worksheet[ROW, COL].ColumnWidth = 5;
