@@ -365,12 +365,6 @@ namespace Aplos.Areas.Productions.Controllers
                 int colLastShipmentDate = COL;
 
 
-                //COL++;
-                //sheet[ROW, COL].Text = "RelayProcess";
-                //sheet[ROW, COL].ColumnWidth = 12;
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colRelayProcess = COL;
-
                 #endregion columns
 
                 int endCol = COL;

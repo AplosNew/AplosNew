@@ -499,7 +499,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 left join [dbo].[EmpServiceType] est on est.Id= esc.EmpServiceTypeId
 								left join CurrencyRuleChild c on c.SalaryHeadID=est.SalaryHeadId 
 								inner join CurrencyRuleMaster cm on cm.SystemID=c.MstSystemID 
-								inner join SalaryRuleMaster sm on sm.CurrencyRuleSystemID=cm.SystemID and sm.SystemID=ei.SalaryRuleMasterSystemID
+								inner join SalaryRuleMaster sm on sm.CurrencyRuleSystemID=cm.SystemID --and sm.SystemID=ei.SalaryRuleMasterSystemID
 								left join SCS.Currency cu on cu.Id = c.AmtDefinitionCurrency
                                 left join scs.UnitOfMeasurement uom on uom.Id =  est.UOMId
                                 left join [dbo].[EmployeeServicesRate] esr on esr.EmployeeServiceCategoryId = esd.EmployeeServiceCategoryId

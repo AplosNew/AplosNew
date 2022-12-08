@@ -189,17 +189,31 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
 
                         if (dv.Count == 0)
                         {
+                            if (item["ActualMinutes"].IsNotNull())
+                            {
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID(TableName, out _Id);
                             item["Id"] = "RPD" + _Id;
                             item["PlannedId"] = PId;
                             AddNewRow(dsProdBooked.Tables[0], item);
+                            }
+                            else
+                            {
+                                throw new CustomException("Please Enter Actual Minutes and Proceed!");
+                            }
                         }
                         else
                         {
-                            item["PlannedId"] = PId;
-                            DataRow drpb = dv[0].Row;
-                            EditRow(drpb, item);
+                            if (item["ActualMinutes"].IsNotNull())
+                            {
+                                item["PlannedId"] = PId;
+                                DataRow drpb = dv[0].Row;
+                                EditRow(drpb, item);
+                            }
+                            else
+                            {
+                                throw new CustomException("Please Enter Actual Minutes and Proceed!");
+                            }
                         }
                         clsStaticInfo obj = new clsStaticInfo();
                         obj.SaveDataSets(dsProdBooked);
