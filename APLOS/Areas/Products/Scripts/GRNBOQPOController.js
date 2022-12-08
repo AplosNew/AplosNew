@@ -603,6 +603,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.Clear = function () {
         ClearFields();
         return true;
+        $scope.PostButton = false;
     };
 
     function ClearFields() {
@@ -634,11 +635,14 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.ApprovedByStatusForNoti = null;
         $scope.CheckedByStatusForNoti = null;
         $scope.AcceptanceId = null;
-
+        $scope.PostButton = false;
     }
     $scope.chargesListPOnew
+
+    $scope.PostButton = false;
     $scope.Save = function () {
         if ($scope.Action === 'Save') {
+           
             //if (!$scope.checkValidation()) {
 
             try {
@@ -671,7 +675,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         return false;
                     }
                 }
-
+                
                 $scope.$broadcast('show-errors-check-validity');
                 if ($scope.productNewForm.$valid) {
                     if ($scope.Action === "Save") {
@@ -708,6 +712,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                     CheckNewBOQList.push($scope.MasterListNewBOQ[i]);
                                 }
                             }
+                            $scope.PostButton = true;
                             //debugger;
                             $http({
                                 method: 'POST',
@@ -739,6 +744,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                     $scope.productNew.Id = response.data.entity.Id;
                                     $scope.productId = response.data.Id;
                                     $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
+                                    //$scope.SaveButton = true;
                                 }
                             }), function (response) {
                                 ShowResult(response.data.Message, 'failure');
@@ -755,6 +761,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             //}
         }
         else if ($scope.Action === "Update") {
+            
+
             if (!baseService.isUndefinedOrNull($scope.AcceptanceId) && ($scope.productNew.AcceptanceDate > $scope.productNew.GRNDate)) {
                 ShowResult("Acceptance Date  can not grather than GRN Date", 'failure');
                 return false;
@@ -819,6 +827,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
                     }
                 }
+                $scope.SaveButton = true;
+
                 $http({
                     method: 'POST',
                     url: $scope.updateUrl1,
@@ -847,7 +857,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         $scope.productId = response.data.entity.Id;
                         $scope.productNew.Id = response.data.entity.Id;
                         $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
-
+                        //$scope.SaveButton = true;
                     }
                 }, function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');

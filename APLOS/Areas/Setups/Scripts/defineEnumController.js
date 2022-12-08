@@ -8,7 +8,7 @@ function defineEnumController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.path = 'Setups/BusinessProcess/';
     $scope.saveUrl = $scope.path + 'SaveDefineEnum';
     $scope.updateUrl = $scope.path + 'edit';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.deleteUrl = $scope.path + 'DeleteDefineEnum/';
     $scope.getListUrl = $scope.path + 'GetDefineEnumlist';
     baseService.init($scope.getListUrl);
     $scope.getData = function (pageno) {
@@ -64,8 +64,7 @@ function defineEnumController(commonMessage, $scope, $rootScope, baseService, $r
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.defineEnums.push(response.data.defineEnum);
-                        baseService.paginationAdd();
+                        $scope.getData();
                         ClearFields();
                     }
                 }), function errorCallback(response) {
@@ -84,9 +83,7 @@ function defineEnumController(commonMessage, $scope, $rootScope, baseService, $r
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        if ($scope.index > -1) {
-                            $scope.defineEnums[$scope.index] = $scope.defineEnum;
-                        }
+                        $scope.getData();
                         ClearFields();
                     }
                 }, function errorCallback(response) {
@@ -107,8 +104,7 @@ function defineEnumController(commonMessage, $scope, $rootScope, baseService, $r
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.brands.splice($scope.index, 1);
-                    baseService.paginationRemove();
+                    $scope.getData();
                     ClearFields();
                 } function errorCallback(response) {
                     ShowResult(response.data.Message, 'failure');
