@@ -609,6 +609,11 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(9), active: isSet(9) }">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="GetPlanCapacityReport();" class="btn"><i class="glyphicon glyphicon-download" tabindex="3"></i>Expoert to Excel</button></li>
+                    </ul>
+                </div>
                 <div id="GridCapacity" ej-grid e-datasource="PlanCapacityList"
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
                      e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
