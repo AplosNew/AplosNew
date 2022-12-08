@@ -7004,8 +7004,7 @@ namespace Library.Accounting.Accounts
 
             //Get the first worksheet in the workbook into IWorksheet
             IWorksheet worksheet = workbook.Worksheets[0];
-            // DataTable dtIssueReportList = GetOperationReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
-            //var dsLocal = GetDayBooksData(companyGroupId, companyId, plantId, fromDate, toDate);
+            
             DataTable dtDayBookData = GetVoucherParkedData(companyGroupId, companyId, plantId, fromDate, toDate);
 
             worksheet.Name = "Voucher Parked Report";
@@ -7065,209 +7064,19 @@ namespace Library.Accounting.Accounts
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
-
-            //worksheet[ROW, COL].Text = "GL Code";
-            //int colGLCode = COL;
-            //worksheet[ROW, COL].ColumnWidth = 10;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "GL";
-            //int colUserName = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Budget";
-            //int colBudget = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Budget Group";
-            //int colBudgetGroup = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Budget Category";
-            //int colBudgetCategory = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Budget Sub Category";
-            //int colBudgetSubCategory = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Budget RefNo";
-            //int colBudgetRefNo = COL;
-            //worksheet[ROW, COL].ColumnWidth = 12;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Activity Id";
-            //int colActivityId = COL;
-            //worksheet[ROW, COL].ColumnWidth = 12;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Activity";
-            //int colActivity = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Particular";
-            //int colParticular = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-
+            
             worksheet[ROW, COL].Text = "Tran. Currency";
             int colTrnCurrency = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-
-            //worksheet[ROW, COL].Text = "Tran. Dr.";
-            //int colDrAmount = COL;
-            //worksheet[ROW, COL].ColumnWidth = 15;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            //COL++;
-
             worksheet[ROW, COL].Text = "Amount";
             int colCrAmount = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Dr/Cr";
-            //int colBooksDrCr = COL;
-            //worksheet[ROW, COL].ColumnWidth = 5;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Books Dr.";
-            //int colBooksDrAmount = COL;
-            //worksheet[ROW, COL].ColumnWidth = 15;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Books Cr.";
-            //int colBooksCrAmount = COL;
-            //worksheet[ROW, COL].ColumnWidth = 15;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Park";
-            //int colIsPark = COL;
-            //worksheet[ROW, COL].ColumnWidth = 8;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "GRNNo.";
-            //int colGRNNo = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "AcceptanceNo.";
-            //int colAcceptanceNo = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Issue";
-            //int colIssue = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Cost Center";
-            //int colCostCenterName = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Narration";
-            //int colNarration = COL;
-            //worksheet[ROW, COL].ColumnWidth = 40;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Type";
-            //int colType = COL;
-            //worksheet[ROW, COL].ColumnWidth = 15;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Level1";
-            //int colLevel1 = COL;
-            //worksheet[ROW, COL].ColumnWidth = 15;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Level2";
-            //int colLevel2 = COL;
-            //worksheet[ROW, COL].ColumnWidth = 15;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Level3";
-            //int colLevel3 = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Level4";
-            //int colLevel4 = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Reconcile";
-            //int colReconcile = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Reconcile Date";
-            //int colReconcileDate = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "GL Update";
-            //int colGLUpdate = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Party Category";
-            //int colCategory = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Party Sub Category";
-            //int colSubCategory = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
-            //worksheet[ROW, COL].Text = "Voucher Category";
-            //int colVoucherCategory = COL;
-            //worksheet[ROW, COL].ColumnWidth = 20;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            
 
             int endCol = COL;
             worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -7281,15 +7090,6 @@ namespace Library.Accounting.Accounts
             for (int i = 0; i < dtDayBookData.Rows.Count; i++)
             {
                 worksheet[ROW, colSLNO].Number = (i + 1);
-                //worksheet[ROW, colDrAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["DrAmount"].ToString());
-                //worksheet[ROW, colDrAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                // worksheet[ROW, colBooksDrCr].Text = dtDayBookData.Rows[i]["Dr/Cr"].ToString();
-                //worksheet[ROW, colBooksDrAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["CompanyCurrencyDrAmount"].ToString());
-                //worksheet[ROW, colBooksDrAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //worksheet[ROW, colBooksCrAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["CompanyCurrencyCrAmount"].ToString());
-                //worksheet[ROW, colBooksCrAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-
                 worksheet[ROW, colSourceType].Text = dtDayBookData.Rows[i]["VoucherType"].ToString();
                 worksheet[ROW, colVoucherNo].Text = dtDayBookData.Rows[i]["VoucherNo"].ToString();
                 worksheet[ROW, colPostingDate].Text = dtDayBookData.Rows[i]["PostingDate"].ToString();
@@ -7297,46 +7097,8 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colDocDate].Text = dtDayBookData.Rows[i]["DocDate"].ToString();
                 worksheet[ROW, colDocRefNo].Text = dtDayBookData.Rows[i]["DocRefNo"].ToString();
                 worksheet[ROW, colTrnCurrency].Text = dtDayBookData.Rows[i]["TrnCurrency"].ToString();
-
                 worksheet[ROW, colCrAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["CrAmount"].ToString());
                 worksheet[ROW, colCrAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                //worksheet[ROW, colGLCode].Text = dtDayBookData.Rows[i]["GLCode"].ToString();
-                //worksheet[ROW, colUserName].Text = dtDayBookData.Rows[i]["GL"].ToString();
-                //worksheet[ROW, colBudget].Text = dtDayBookData.Rows[i]["Budget"].ToString();
-                //worksheet[ROW, colBudgetGroup].Text = dtDayBookData.Rows[i]["BudgetGroup"].ToString();
-                //worksheet[ROW, colBudgetCategory].Text = dtDayBookData.Rows[i]["BudgetCategory"].ToString();
-                //worksheet[ROW, colBudgetSubCategory].Text = dtDayBookData.Rows[i]["BudgetSubCategory"].ToString();
-                //worksheet[ROW, colActivity].Text = dtDayBookData.Rows[i]["Activity"].ToString();
-                //worksheet[ROW, colActivityId].Text = dtDayBookData.Rows[i]["ActivityCode"].ToString();
-                //worksheet[ROW, colBudgetRefNo].Text = dtDayBookData.Rows[i]["BudgetRefNo"].ToString();
-
-                //worksheet[ROW, colParticular].Text = dtDayBookData.Rows[i]["Particular"].ToString();
-                //worksheet[ROW, colIsPark].Text = dtDayBookData.Rows[i]["IsPark"].ToString();
-                //worksheet[ROW, colGRNNo].Text = dtDayBookData.Rows[i]["GRNNo"].ToString();
-                //worksheet[ROW, colAcceptanceNo].Text = dtDayBookData.Rows[i]["AcceptanceNo"].ToString();
-                //worksheet[ROW, colIssue].Text = dtDayBookData.Rows[i]["Issue"].ToString();
-                //worksheet[ROW, colCostCenterName].Text = dtDayBookData.Rows[i]["CostCenterName"].ToString();
-
-                //worksheet[ROW, colTrnCurrency].Text = dtDayBookData.Rows[i]["TrnCurrency"].ToString();
-                //worksheet[ROW, colType].Text = dtDayBookData.Rows[i]["Type"].ToString();
-                //worksheet[ROW, colLevel1].Text = dtDayBookData.Rows[i]["Level1"].ToString();
-                //worksheet[ROW, colLevel2].Text = dtDayBookData.Rows[i]["Level2"].ToString();
-                //worksheet[ROW, colLevel3].Text = dtDayBookData.Rows[i]["Level3"].ToString();
-                //worksheet[ROW, colLevel4].Text = dtDayBookData.Rows[i]["Level4"].ToString();
-                //worksheet[ROW, colNarration].Text = dtDayBookData.Rows[i]["Narration"].ToString();
-
-                //worksheet[ROW, colReconcileDate].Text = dtDayBookData.Rows[i]["ReconcileDate"].ToString();
-                //worksheet[ROW, colReconcile].Text = dtDayBookData.Rows[i]["Reconcile"].ToString();
-                //worksheet[ROW, colGLUpdate].Text = dtDayBookData.Rows[i]["GLUpdate"].ToString();
-                //worksheet[ROW, colCategory].Text = dtDayBookData.Rows[i]["UserCategory"].ToString();
-                //worksheet[ROW, colSubCategory].Text = dtDayBookData.Rows[i]["UserSubCategory"].ToString();
-                //worksheet[ROW, colVoucherCategory].Text = dtDayBookData.Rows[i]["VoucherCategory"].ToString();
-
-                //if (checkbox == true)
-                //{
-                //    worksheet[ROW, colTaskDetail].Text = dtIssueReportList.Rows[i]["TaskDetail"].ToString();
-                //}
 
                 worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -7351,33 +7113,6 @@ namespace Library.Accounting.Accounts
             var report = new ReportUtility();
             // var workbook = report.GetWorkbook(ref excelEngine, 1);
             ReportUtility reportUtility = new ReportUtility();
-
-            //worksheet[ROW, colTrnCurrency].Text = "Total :";
-
-            //worksheet[ROW, colTrnCurrency].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            //worksheet[ROW, colTrnCurrency].CellStyle.Font.Bold = true;
-
-            //worksheet.Range[ROW, colDrAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colDrAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colDrAmount) + (ROW-1) + ")";
-            //worksheet.Range[ROW, colDrAmount].NumberFormat = report.NumberFormatDecimalTwo();
-            //worksheet.Range[ROW, colDrAmount].CellStyle.Font.Bold = true;
-            //worksheet.Range[ROW, colDrAmount].BorderAround(ExcelLineStyle.Hair);
-
-            //worksheet.Range[ROW, colCrAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colCrAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colCrAmount) + (ROW - 1) + ")";
-            //worksheet.Range[ROW, colCrAmount].NumberFormat = report.NumberFormatDecimalTwo();
-            //worksheet.Range[ROW, colCrAmount].CellStyle.Font.Bold = true;
-            //worksheet.Range[ROW, colCrAmount].BorderAround(ExcelLineStyle.Hair);
-
-            //worksheet.Range[ROW, colBooksDrAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colBooksDrAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colBooksDrAmount) + (ROW - 1) + ")";
-            //worksheet.Range[ROW, colBooksDrAmount].NumberFormat = report.NumberFormatDecimalTwo();
-            //worksheet.Range[ROW, colBooksDrAmount].CellStyle.Font.Bold = true;
-            //worksheet.Range[ROW, colBooksDrAmount].BorderAround(ExcelLineStyle.Hair);
-
-            //worksheet.Range[ROW, colBooksCrAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colBooksCrAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colBooksCrAmount) + (ROW - 1) + ")";
-            //worksheet.Range[ROW, colBooksCrAmount].NumberFormat = report.NumberFormatDecimalTwo();
-            //worksheet.Range[ROW, colBooksCrAmount].CellStyle.Font.Bold = true;
-            //worksheet.Range[ROW, colBooksCrAmount].BorderAround(ExcelLineStyle.Hair);
-            //sheet1.Range[xlsRow, 3].Text = "GST Recievable Report From " + fromDate + " To " + toDate;
-
             reportUtility.PlantHeader(ref worksheet, endCol, " Voucher Parked Report", identity.PlantId);
             reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -7395,8 +7130,6 @@ namespace Library.Accounting.Accounts
             worksheet.FirstVisibleRow = 6;
 
             #endregion Freeze Panes
-
-
 
             return workbook;
         }
