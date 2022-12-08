@@ -397,6 +397,26 @@ namespace Library.Accounting.Accounts
 
         }
 
+        public DataTable GetVoucherParkedData(string companyGroupId, string companyId, string plantId, DateTime fromDate, DateTime toDate)
+        {
+            var cmdText = @"SELECT CO.UserName CompanyName, PT.UserName PlantName,EN.UserName AS EntityName
+                        , VoucherType=v.SourceType , V.VoucherNo
+                        ,Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') PostingDate
+                        , Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') DocDate
+                        ,V.DocRefNo ,C.Code TrnCurrency
+                       ,ISNULL((select sum(CrAmount) from trn.VoucherDetail where VoucherId=V.Id and CrAmount>0),0) CrAmount
+                        ,V.AddedBy , Replace(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') EntryDate ,v.Narration
+                       ,IsPark = case when V.IsPark=1 then 'Yes' else 'No' end
+                        FROM  TRN.Voucher AS V 
+                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+                        LEFT JOIN [ORG].[Company] AS CO ON CO.Id=V.CompanyId
+                        LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=V.PlantId
+                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=V.EntityId
+                        WHERE V.IsPark=1 and V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId +  "' AND CONVERT(DATE, V.PostingDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'  ";
+            return _sqlRepository.GetDataTable(cmdText);
+
+
+        }
 
 
 
@@ -6946,6 +6966,419 @@ namespace Library.Accounting.Accounts
             //sheet1.Range[xlsRow, 3].Text = "GST Recievable Report From " + fromDate + " To " + toDate;
 
             reportUtility.PlantHeader(ref worksheet, endCol, " Day Books Report", identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.IsGridLinesVisible = false;
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            worksheet.FirstVisibleColumn = 1;
+            worksheet.FirstVisibleRow = 6;
+
+            #endregion Freeze Panes
+
+
+
+            return workbook;
+        }
+        public IWorkbook GetVoucherParkedReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, DateTime fromDate, DateTime toDate)  
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+            // DataTable dtIssueReportList = GetOperationReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+            //var dsLocal = GetDayBooksData(companyGroupId, companyId, plantId, fromDate, toDate);
+            DataTable dtDayBookData = GetVoucherParkedData(companyGroupId, companyId, plantId, fromDate, toDate);
+
+            worksheet.Name = "Voucher Parked Report";
+            //var header = GetDailyTransactionHeader(companyGroupId, companyId, plantId, toDate);
+            reportFileName = "Voucher Parked Report " + toDate.ToString("dd-MMM-yyyy");
+
+
+            //if (dtDayBookData.Rows.Count == 0)
+            //    throw new Exception("No data found");
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            worksheet.Range[ROW - 1, 3].Text = "Posting Date:  From " + Convert.ToDateTime(fromDate).ToString("dd-MMM-yyyy") + " To " + Convert.ToDateTime(toDate).ToString("dd-MMM-yyyy");
+            
+
+
+            worksheet[ROW, COL].Text = "SL. No";
+            int colSLNO = COL;
+            worksheet[ROW, COL].ColumnWidth = 5;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Voucher Type";
+            int colSourceType = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Voucher No";
+            int colVoucherNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Posting Date";
+            int colPostingDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Entry Date";
+            int colEntryDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Doc Date";
+            int colDocDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "DocRef No";
+            int colDocRefNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            //worksheet[ROW, COL].Text = "GL Code";
+            //int colGLCode = COL;
+            //worksheet[ROW, COL].ColumnWidth = 10;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "GL";
+            //int colUserName = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Budget";
+            //int colBudget = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Budget Group";
+            //int colBudgetGroup = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Budget Category";
+            //int colBudgetCategory = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Budget Sub Category";
+            //int colBudgetSubCategory = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Budget RefNo";
+            //int colBudgetRefNo = COL;
+            //worksheet[ROW, COL].ColumnWidth = 12;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Activity Id";
+            //int colActivityId = COL;
+            //worksheet[ROW, COL].ColumnWidth = 12;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Activity";
+            //int colActivity = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Particular";
+            //int colParticular = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+
+            worksheet[ROW, COL].Text = "Tran. Currency";
+            int colTrnCurrency = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+
+            //worksheet[ROW, COL].Text = "Tran. Dr.";
+            //int colDrAmount = COL;
+            //worksheet[ROW, COL].ColumnWidth = 15;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //COL++;
+
+            worksheet[ROW, COL].Text = "Amount";
+            int colCrAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Dr/Cr";
+            //int colBooksDrCr = COL;
+            //worksheet[ROW, COL].ColumnWidth = 5;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Books Dr.";
+            //int colBooksDrAmount = COL;
+            //worksheet[ROW, COL].ColumnWidth = 15;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Books Cr.";
+            //int colBooksCrAmount = COL;
+            //worksheet[ROW, COL].ColumnWidth = 15;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Park";
+            //int colIsPark = COL;
+            //worksheet[ROW, COL].ColumnWidth = 8;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "GRNNo.";
+            //int colGRNNo = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "AcceptanceNo.";
+            //int colAcceptanceNo = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Issue";
+            //int colIssue = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Cost Center";
+            //int colCostCenterName = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Narration";
+            //int colNarration = COL;
+            //worksheet[ROW, COL].ColumnWidth = 40;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Type";
+            //int colType = COL;
+            //worksheet[ROW, COL].ColumnWidth = 15;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Level1";
+            //int colLevel1 = COL;
+            //worksheet[ROW, COL].ColumnWidth = 15;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Level2";
+            //int colLevel2 = COL;
+            //worksheet[ROW, COL].ColumnWidth = 15;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Level3";
+            //int colLevel3 = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Level4";
+            //int colLevel4 = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Reconcile";
+            //int colReconcile = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Reconcile Date";
+            //int colReconcileDate = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "GL Update";
+            //int colGLUpdate = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Party Category";
+            //int colCategory = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Party Sub Category";
+            //int colSubCategory = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "Voucher Category";
+            //int colVoucherCategory = COL;
+            //worksheet[ROW, COL].ColumnWidth = 20;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            ///worksheet.Range[ROW, 1, ROW, endCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
+            //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Black;
+            //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+            ROW++;
+            int Row_Total_Start = ROW;
+            for (int i = 0; i < dtDayBookData.Rows.Count; i++)
+            {
+                worksheet[ROW, colSLNO].Number = (i + 1);
+                //worksheet[ROW, colDrAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["DrAmount"].ToString());
+                //worksheet[ROW, colDrAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                // worksheet[ROW, colBooksDrCr].Text = dtDayBookData.Rows[i]["Dr/Cr"].ToString();
+                //worksheet[ROW, colBooksDrAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["CompanyCurrencyDrAmount"].ToString());
+                //worksheet[ROW, colBooksDrAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //worksheet[ROW, colBooksCrAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["CompanyCurrencyCrAmount"].ToString());
+                //worksheet[ROW, colBooksCrAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                worksheet[ROW, colSourceType].Text = dtDayBookData.Rows[i]["VoucherType"].ToString();
+                worksheet[ROW, colVoucherNo].Text = dtDayBookData.Rows[i]["VoucherNo"].ToString();
+                worksheet[ROW, colPostingDate].Text = dtDayBookData.Rows[i]["PostingDate"].ToString();
+                worksheet[ROW, colEntryDate].Text = dtDayBookData.Rows[i]["EntryDate"].ToString();
+                worksheet[ROW, colDocDate].Text = dtDayBookData.Rows[i]["DocDate"].ToString();
+                worksheet[ROW, colDocRefNo].Text = dtDayBookData.Rows[i]["DocRefNo"].ToString();
+                worksheet[ROW, colTrnCurrency].Text = dtDayBookData.Rows[i]["TrnCurrency"].ToString();
+
+                worksheet[ROW, colCrAmount].Number = clsStaticInfo.dbl(dtDayBookData.Rows[i]["CrAmount"].ToString());
+                worksheet[ROW, colCrAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                //worksheet[ROW, colGLCode].Text = dtDayBookData.Rows[i]["GLCode"].ToString();
+                //worksheet[ROW, colUserName].Text = dtDayBookData.Rows[i]["GL"].ToString();
+                //worksheet[ROW, colBudget].Text = dtDayBookData.Rows[i]["Budget"].ToString();
+                //worksheet[ROW, colBudgetGroup].Text = dtDayBookData.Rows[i]["BudgetGroup"].ToString();
+                //worksheet[ROW, colBudgetCategory].Text = dtDayBookData.Rows[i]["BudgetCategory"].ToString();
+                //worksheet[ROW, colBudgetSubCategory].Text = dtDayBookData.Rows[i]["BudgetSubCategory"].ToString();
+                //worksheet[ROW, colActivity].Text = dtDayBookData.Rows[i]["Activity"].ToString();
+                //worksheet[ROW, colActivityId].Text = dtDayBookData.Rows[i]["ActivityCode"].ToString();
+                //worksheet[ROW, colBudgetRefNo].Text = dtDayBookData.Rows[i]["BudgetRefNo"].ToString();
+
+                //worksheet[ROW, colParticular].Text = dtDayBookData.Rows[i]["Particular"].ToString();
+                //worksheet[ROW, colIsPark].Text = dtDayBookData.Rows[i]["IsPark"].ToString();
+                //worksheet[ROW, colGRNNo].Text = dtDayBookData.Rows[i]["GRNNo"].ToString();
+                //worksheet[ROW, colAcceptanceNo].Text = dtDayBookData.Rows[i]["AcceptanceNo"].ToString();
+                //worksheet[ROW, colIssue].Text = dtDayBookData.Rows[i]["Issue"].ToString();
+                //worksheet[ROW, colCostCenterName].Text = dtDayBookData.Rows[i]["CostCenterName"].ToString();
+
+                //worksheet[ROW, colTrnCurrency].Text = dtDayBookData.Rows[i]["TrnCurrency"].ToString();
+                //worksheet[ROW, colType].Text = dtDayBookData.Rows[i]["Type"].ToString();
+                //worksheet[ROW, colLevel1].Text = dtDayBookData.Rows[i]["Level1"].ToString();
+                //worksheet[ROW, colLevel2].Text = dtDayBookData.Rows[i]["Level2"].ToString();
+                //worksheet[ROW, colLevel3].Text = dtDayBookData.Rows[i]["Level3"].ToString();
+                //worksheet[ROW, colLevel4].Text = dtDayBookData.Rows[i]["Level4"].ToString();
+                //worksheet[ROW, colNarration].Text = dtDayBookData.Rows[i]["Narration"].ToString();
+
+                //worksheet[ROW, colReconcileDate].Text = dtDayBookData.Rows[i]["ReconcileDate"].ToString();
+                //worksheet[ROW, colReconcile].Text = dtDayBookData.Rows[i]["Reconcile"].ToString();
+                //worksheet[ROW, colGLUpdate].Text = dtDayBookData.Rows[i]["GLUpdate"].ToString();
+                //worksheet[ROW, colCategory].Text = dtDayBookData.Rows[i]["UserCategory"].ToString();
+                //worksheet[ROW, colSubCategory].Text = dtDayBookData.Rows[i]["UserSubCategory"].ToString();
+                //worksheet[ROW, colVoucherCategory].Text = dtDayBookData.Rows[i]["VoucherCategory"].ToString();
+
+                //if (checkbox == true)
+                //{
+                //    worksheet[ROW, colTaskDetail].Text = dtIssueReportList.Rows[i]["TaskDetail"].ToString();
+                //}
+
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+            var report = new ReportUtility();
+            // var workbook = report.GetWorkbook(ref excelEngine, 1);
+            ReportUtility reportUtility = new ReportUtility();
+
+            //worksheet[ROW, colTrnCurrency].Text = "Total :";
+
+            //worksheet[ROW, colTrnCurrency].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //worksheet[ROW, colTrnCurrency].CellStyle.Font.Bold = true;
+
+            //worksheet.Range[ROW, colDrAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colDrAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colDrAmount) + (ROW-1) + ")";
+            //worksheet.Range[ROW, colDrAmount].NumberFormat = report.NumberFormatDecimalTwo();
+            //worksheet.Range[ROW, colDrAmount].CellStyle.Font.Bold = true;
+            //worksheet.Range[ROW, colDrAmount].BorderAround(ExcelLineStyle.Hair);
+
+            //worksheet.Range[ROW, colCrAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colCrAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colCrAmount) + (ROW - 1) + ")";
+            //worksheet.Range[ROW, colCrAmount].NumberFormat = report.NumberFormatDecimalTwo();
+            //worksheet.Range[ROW, colCrAmount].CellStyle.Font.Bold = true;
+            //worksheet.Range[ROW, colCrAmount].BorderAround(ExcelLineStyle.Hair);
+
+            //worksheet.Range[ROW, colBooksDrAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colBooksDrAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colBooksDrAmount) + (ROW - 1) + ")";
+            //worksheet.Range[ROW, colBooksDrAmount].NumberFormat = report.NumberFormatDecimalTwo();
+            //worksheet.Range[ROW, colBooksDrAmount].CellStyle.Font.Bold = true;
+            //worksheet.Range[ROW, colBooksDrAmount].BorderAround(ExcelLineStyle.Hair);
+
+            //worksheet.Range[ROW, colBooksCrAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colBooksCrAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colBooksCrAmount) + (ROW - 1) + ")";
+            //worksheet.Range[ROW, colBooksCrAmount].NumberFormat = report.NumberFormatDecimalTwo();
+            //worksheet.Range[ROW, colBooksCrAmount].CellStyle.Font.Bold = true;
+            //worksheet.Range[ROW, colBooksCrAmount].BorderAround(ExcelLineStyle.Hair);
+            //sheet1.Range[xlsRow, 3].Text = "GST Recievable Report From " + fromDate + " To " + toDate;
+
+            reportUtility.PlantHeader(ref worksheet, endCol, " Voucher Parked Report", identity.PlantId);
             reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
