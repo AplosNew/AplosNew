@@ -368,7 +368,7 @@ namespace Library.OrderManagement.Sales
 							--Select SUM(BookQty) Qty, SUM(PlanQty) PlanQty,PackingLineItemId from trn.POLotReference 
 							--GROUP BY PackingLineItemId
 							Select ISNULL(SUM(sc.NetWeight),0) Qty, ISNULL(SUM(PlanQty),0) PlanQty,PackingLineItemId from trn.POLotReference po
-							left join dbo.ItemScanChild sc on sc.PackingId = po.Id
+							left join dbo.ItemScanChild sc on sc.PackingId = po.Id AND Booked = 1 
 							 GROUP BY PackingLineItemId
 							)POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
 							LEFT JOIN(

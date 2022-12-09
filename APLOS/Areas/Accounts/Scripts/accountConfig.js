@@ -918,6 +918,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/VoucherReport/DayBookReport",
             controller: "dayBooksReportController"
         })
+        .when("/parked-pendingPosting", {
+            templateUrl: "Accounts/VoucherReport/ParkedReport",
+            controller: "parkedReportController"
+        })
         .when("/gst-r2", {
             templateUrl: "Accounts/TaxReport/GSTR2",
             controller: "gstR2ReportController"

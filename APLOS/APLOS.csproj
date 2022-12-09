@@ -1736,6 +1736,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
+    <Content Include="Areas\Accounts\Scripts\parkedReportController.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
     <Content Include="Areas\Accounts\Scripts\employeeTotalAdvanceWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\entityWiseExpenseAndEarningController.js" />
@@ -4453,6 +4454,7 @@
     <Content Include="Areas\Administration\Views\GeneralContractChecked\GeneralContractAuthorized.cshtml" />
     <Content Include="Areas\Administration\Views\GeneralContractApproved\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\TaxReport\DebitNoteCreditNoteTaxReport.cshtml" />
+    <Content Include="Areas\Accounts\Views\ParkedReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
