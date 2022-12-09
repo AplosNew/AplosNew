@@ -953,7 +953,7 @@ AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A Order BY A.PONo,A.Proc
                 }
                 string sql = @"Select A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.PONo,A.ProcessIndex,A.BaseProcess,A.POProcessStatus,A.POStatus
 ,A.WorkCenter,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article,A.NoOfWorkStation,A.ProductionHours
-,A.PlannedQty,SUM(A.ActualQty) ActualQty,A.UpToDateProduction,A.PreProUDProd,A.WIP,A.FirstBookDate,A.LastBookDate 
+,A.PlannedQty,SUM(A.ActualQty) ActualQty,A.UpToDateProduction,A.PreProUDProd,A.WIP,A.FirstBookDate,A.LastBookDate,A.POFirstBookDate,A.POLastBookDate,A.FirstShipmentDate,A.LastShipmentDate  
 from (SELECT DISTINCT PP.Id PSId,trke.UserName AS Entity,PP.ProductionOrderID PONo,PSEQ.ProcessIndex,isnull(p.UserName, '') AS Process,p.Sequence StandardProcessSequence,POPS.[Sequence] POProcessSequence
 		,BaseProcess = CASE WHEN P.IsProductionProcess = 1 THEN 'Yes' ELSE 'No' END,pp.Quantity AS ActualQty,ProcessWisePlanQty=(select SUM((isnull(XSO.qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) from 
 trn.SalesOrder XSO 
@@ -965,7 +965,7 @@ trn.SalesOrder XSO
 join TRN.MasterOrderItem moi on moi.id=xso.MasterOrderItemId
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 where pp.ProductionOrderID=Xpod.ProductionOrderId)) / 100,wcm.UserName AS WorkCenter,ISNULL(pp.StandardName, ord.Article) Article
-		,ord.Product,PS.UserName POStatus,FLB.FirstBookDate,FLB.LastBookDate --,ORD.FirstShipmentDate,ORD.LastShipmentDate,
+		,ord.Product,PS.UserName POStatus,FLB.FirstBookDate,FLB.LastBookDate,PFLB.POFirstBookDate,PFLB.POLastBookDate
 		,PP.LotNumber,POProcessStatus=CASE WHEN POPS.IsCompleted=1 THEN 'Completed' ELSE 'Not Completed' END
 --additional info
 		,Customer= REPLACE(REPLACE(
@@ -987,7 +987,9 @@ SONos=STUFF((select distinct ','+XSO.Id from
 trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-PlannedQty=(select SUM((isnull(XSO.qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) from 
+FirstShipmentDate=(Select FORMAT(MIN(SO.DeliveryDate),'dd-MMM-yyyy') from TRN.SalesOrder SO JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=so.Id where pp.ProductionOrderID=Xpod.ProductionOrderId)
+,LastShipmentDate=(Select FORMAT(MAX(SO.DeliveryDate),'dd-MMM-yyyy') from TRN.SalesOrder SO JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=so.Id where pp.ProductionOrderID=Xpod.ProductionOrderId)
+,PlannedQty=(select SUM((isnull(XSO.qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) from 
 trn.SalesOrder XSO 
 join TRN.MasterOrderItem moi on moi.id=xso.MasterOrderItemId
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -1018,6 +1020,7 @@ LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
 GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionOrderId,ps.WorkCenterMasterId,PS.ResponsiblePersonId,PS.LotNumber
 ) AS pp
 LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId,ProductionOrderId from TRN.ProductionSummary GROUP BY ProcessId,ProductionOrderId) FLB ON FLB.ProcessId=PP.ProcessId AND FLB.ProductionOrderId=PP.ProductionOrderId
+LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS POFirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS POLastBookDate,ProductionOrderId from TRN.ProductionSummary GROUP BY ProductionOrderId) PFLB ON PFLB.ProductionOrderId=PP.ProductionOrderId
 LEFT OUTER JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=pp.WorkCenterMasterId
 left outer join TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
 LEFT OUTER JOIN hkp.Process AS p ON p.Id=pp.ProcessId
@@ -1062,7 +1065,7 @@ AND ISNULL(PP.ResponsiblePersonId,'') in(" + parameters["ResponsiblePersonId"] +
 AND ps.Id in(" + parameters["ProductionStatusId"] + @"))A 
 GROUP BY A.PONo,A.ProcessIndex,A.Process,A.UpToDateProduction,A.PreProUDProd,A.WIP,A.POProcessSequence
 ,A.Entity,A.Process,A.POProcessSequence,A.StandardProcessSequence,A.BaseProcess,A.POProcessStatus,A.POStatus
-,A.WorkCenter,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article,A.NoOfWorkStation,A.ProductionHours,A.PlannedQty,A.FirstBookDate,A.LastBookDate
+,A.WorkCenter,A.Buyer,A.Customer,A.LotNumber,A.OwnOrderNo,A.SONos,A.Product,A.Article,A.NoOfWorkStation,A.ProductionHours,A.PlannedQty,A.FirstBookDate,A.LastBookDate,A.POFirstBookDate,A.POLastBookDate,A.FirstShipmentDate,A.LastShipmentDate 
 Order BY A.PONo,A.ProcessIndex";
 
 
@@ -1284,6 +1287,29 @@ Order BY A.PONo,A.ProcessIndex";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colLastProBookDate = COL;
 
+                COL++;
+                sheet[ROW, COL].Text = "POFirstBookDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPOFirstProBookDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "POLastBookDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPOLastProBookDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "FirstShipmentDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colFirstShipmentDate = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "LastShipmentDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLastShipmentDate = COL;
 
                 #endregion columns
 
@@ -1329,7 +1355,10 @@ Order BY A.PONo,A.ProcessIndex";
                     sheet.Range[ROW, colWIP].Number = clsStaticInfo.dbl(data.Rows[i]["WIP"].ToString());
                     sheet[ROW, colFirstProBookDate].Text = data.Rows[i]["FirstBookDate"].ToString();
                     sheet[ROW, colLastProBookDate].Text = data.Rows[i]["LastBookDate"].ToString();
-
+                    sheet[ROW, colPOFirstProBookDate].Text = data.Rows[i]["POFirstBookDate"].ToString();
+                    sheet[ROW, colPOLastProBookDate].Text = data.Rows[i]["POLastBookDate"].ToString();
+                    sheet[ROW, colFirstShipmentDate].Text = data.Rows[i]["FirstShipmentDate"].ToString();
+                    sheet[ROW, colLastShipmentDate].Text = data.Rows[i]["LastShipmentDate"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
