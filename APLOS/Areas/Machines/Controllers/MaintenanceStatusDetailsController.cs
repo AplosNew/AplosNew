@@ -117,7 +117,7 @@ from TRN.Maintenancescheduling MS
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
  left join TRN.MachineAssetPlannedDetails MPD ON MPD.Id=(select top 1 Id from [TRN].[MachineAssetPlannedDetails] MAPD where MAPD.AssetId=MMA.Id order by MAPD.ActualDate desc)
- where MMA.Id is not null 
+ where MS.IsActive=1 and MMA.Id is not null 
  and  Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and (select count(Id) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id and APD.PlannedDate is not null and APD.ActualDate is null) = 0 order by Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id ORDER BY APD.Id DESC)) end";
@@ -160,7 +160,7 @@ MS.Remarks,(select count(MPD.Id) from [TRN].[MachineAssetPlannedDetails] MPD whe
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
  left join TRN.MachineAssetPlannedDetails MPD ON MPD.Id=(select top 1 Id from [TRN].[MachineAssetPlannedDetails] MAPD where MAPD.AssetId=MMA.Id order by MAPD.ActualDate desc)
- where MMA.Id is not null and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
+ where MS.IsActive=1 and MMA.Id is not null and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and (select count(Id) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id and APD.PlannedDate is not null and APD.ActualDate is null) = 0 group by MS.Id,MM.Id,MMA.Id,MPD.Id,E.Id,E.UserName,MS.UserName,MM.UserName,MM.MachineMake,MM.MachineModel,MS.ScheduleCode,MB.Code,MS.LastMaintenanceDate,MS.ScheduleDays,MS.Remarks,MS.DepartmentId,MS.MaintenanceGroup) X group by NoOfAsset,Id,MachineId,EntityId,Entity,ScheduleName,MachineName,Make,Model,ScheduleCode,ResponsiblePersonBudgetCode,Remarks,PlanStatus,Department,MaintenanceGroup";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -202,7 +202,7 @@ APD.Remarks
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and MA.MachineMasterId='" + MachineId + "' and MA.EntityId='" + EntityId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and 1='" + Value + "'  and (select count(Id) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id and APD.PlannedDate is not null and APD.ActualDate is null) = 0";
+ where MS.IsActive=1 and MMA.Id is not null and MA.MachineMasterId='" + MachineId + "' and MA.EntityId='" + EntityId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and 1='" + Value + "'  and (select count(Id) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id and APD.PlannedDate is not null and APD.ActualDate is null) = 0";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -241,7 +241,7 @@ APD.Remarks
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and MA.MachineMasterId='" + MachineId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "'";
+ where MS.IsActive=1 and MMA.Id is not null and MA.MachineMasterId='" + MachineId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -280,7 +280,7 @@ APD.Remarks
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and MA.MachineMasterId='" + MachineId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and MMA.Id='" + AssetId + "' and (select count(Id) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id and APD.PlannedDate is not null and APD.ActualDate is null) = 0";
+ where MS.IsActive=1 and MMA.Id is not null and MA.MachineMasterId='" + MachineId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and MMA.Id='" + AssetId + "' and (select count(Id) from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id and APD.PlannedDate is not null and APD.ActualDate is null) = 0";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -319,7 +319,7 @@ APD.Remarks
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and MA.MachineMasterId='" + MachineId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and APD.Id=(select top 1 Id from [TRN].[MachineAssetPlannedDetails] PD where PD.AssetId='" + AssetId + "' order by PD.PlannedDate desc)";
+ where MS.IsActive=1 and MMA.Id is not null and MA.MachineMasterId='" + MachineId + "' and MS.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and APD.Id=(select top 1 Id from [TRN].[MachineAssetPlannedDetails] PD where PD.AssetId='" + AssetId + "' order by PD.PlannedDate desc)";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -357,7 +357,7 @@ APD.FileName,'id' as test
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MMA.Id is not null and APD.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "'";
+ where MS.IsActive=1 and MMA.Id is not null and APD.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -371,9 +371,9 @@ EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS Pos
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
                                     , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection  
 from TRN.Maintenancescheduling MS
-left join TRN.MaintenancePersonBudgetCode PBC ON PBC.MaintenanceSchedulingId=MS.Id
-left Join [MST].[ManpowerBudget] AS MB ON MB.Id=PBC.PersonBudgetCodeId
-left join dbo.EmployeeInformation AS EI ON EI.BudgetCode=PBC.PersonBudgetCodeId
+LEFT JOIN TRN.MaintenancePersonBudgetCode PBC ON PBC.MaintenanceSchedulingId=MS.Id
+LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=PBC.PersonBudgetCodeId
+LEFT JOIN dbo.EmployeeInformation AS EI ON EI.BudgetCode=PBC.PersonBudgetCodeId
 LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId=EI.SystemId and RPD.IsActive=1 and RPD.PlannedId='" + Id + @"'
 LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
 LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
@@ -381,7 +381,23 @@ LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
 LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
 LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
 LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-WHERE EI.EmployeeStatus='Active' and MS.Id='" + MaintenanceId + "'";
+WHERE EI.EmployeeStatus='Active' and MS.Id='" + MaintenanceId + @"' 
+union 
+select RPD.IsActive,RPD.Id,RPD.PlanMinutes,RPD.ActualMinutes,
+EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS[LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode, P.Code PCode, S.UserName as Section,SS.UserName as SubSection 
+from TRN.TeamDefinitionEmployee TDE
+LEFT JOIN TRN.MaintenanceTeamDefinition MTD ON MTD.TeamDefinitionId = TDE.TeamDefinitionId
+LEFT JOIN dbo.EmployeeInformation AS EI ON EI.SystemId = TDE.EmployeeId
+LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId = EI.SystemId and RPD.IsActive = 1 and RPD.PlannedId = 'APD413'
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id = EI.LegalDesignationId
+LEFT JOIN ORG.Department AS DEP ON DEP.Id = EI.DepartmentId
+LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = EI.BudgetCode
+LEFT JOIN ORG.Entity AS EN ON EN.Id = MB.EntityId
+LEFT OUTER JOIN org.Position P ON P.Id = EI.PositionID
+LEFT OUTER JOIN ORG.Section S ON S.Id = EI.SectionId
+LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeStatus='Active' and MTD.MaintenanceSchedulingId='" + MaintenanceId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -553,15 +569,42 @@ WHERE EI.EmployeeStatus='Active' and MS.Id='" + MaintenanceId + "'";
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetMaintenanceJobCardReportView(string PlannedId)
+        public ActionResult GetMaintenanceJobCardPlanReportView(string PlannedId)
         {
             try
             {
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    IWorkbook workbook = _AttendanceManagementService.GetMaintenanceJobCardReports(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, PlannedId);
+                    var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                    return RenderReportAsPdf(workbook, reportFileName);
+               
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+                //throw new Exception(ex.Message);
+            }
+        }
 
+        [HttpGet, Authorize]
+        public ActionResult GetMaintenanceJobCardReportView(string PlannedId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("select * from [TRN].[ResponsiblePlannedDetails] where PlannedId='" + PlannedId + "'", out DataSet dsResponsibleValidation, false, "1");
+                if (dsResponsibleValidation.Tables[0].Rows.Count > 0)
+                {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = _AttendanceManagementService.GetMaintenanceJobCardReports(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, PlannedId);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
                 return RenderReportAsPdf(workbook, reportFileName);
+                }
+                else
+                {
+                    throw new CustomException("Please Add Actionable Person and Proceed!");
+                }
 
             }
             catch (Exception ex)
