@@ -69,13 +69,155 @@ namespace Aplos.Areas.Costings.Controllers
                              where BOM.CustomerId <>''  
 							  and moi.OrderCostingMasterTemplateId<>''";
 
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+                //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
                 throw e;
             }
         }
+
+        [HttpPost, Authorize]
+        public ActionResult getMasterGrid(Dictionary<string, object> filters, string ProcessId)
+        {
+            try
+            {
+
+                string pc = "";
+                if (filters["PSLibId"].ToString() == "'','null'")
+                {
+                    pc = "";
+                }
+                else
+                {
+                    pc = "and ps.ProductLibraryId in (" + filters["PSLibId"] + ")";
+                }
+
+
+                var str = @"Select dd.Customer ,dd.PRStatus,dd.ProductionOrderId , dd.BuyerRef , dd.OwnRef, dd.LineItem,isnull(dd.ProductCode,'') as ProductCode, Sum(dd.OrderQty) as OrderQty , Sum(dd.PlanQty) as PlanQty , Sum(dd.ProducedQty) as ProdQty , abs(Sum(Case when dd.ShortExcess<0 then dd.ShortExcess else 0 end)) as ToProduce ,Sum(Case when dd.ShortExcess>0 then dd.ShortExcess else 0 end) as ExcessProduce 
+                        from 
+                        (
+                        Select pps.Customer , pps.LineItem,pl.Code as ProductCode,ps.SalesOrderId , pps.BuyerRef , pps.OwnRef , ps.ProductionOrderId, prs.UserName as PRStatus  , ps.ProcessId , ps.PlantId , c.UserName as Charac, cv.Id as CharVId ,cv.UserName as CharV , cs.UserName as Char2c , cvs.Id as Char2VId ,cvs.UserName as Char2V , pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty , Sum(psd.Qty) as ProducedQty , (Sum(psd.Qty) -  pps.PlanQty  ) as ShortExcess 
+                        --, c.Id as cc , fc.CharacteristicsId , cs.Id , sc.CharacteristicsId
+                        from trn.ProductionSummary ps
+                        right join trn.ProductionSummaryDetail psd on psd.ProductionSummaryId = ps.Id
+                        left join hkp.Characteristics c on c.Id = psd.Characteristics1Id
+                        left join hkp.CharacteristicsValue cv on cv.Id = psd.Characteristics1ValueId
+                        left join hkp.Characteristics cs on cs.Id = psd.Characteristics2Id
+                        left join hkp.CharacteristicsValue cvs on cvs.Id = psd.Characteristics2ValueId
+                        --From SO SKU Level
+                        --left join trn.SalesOrder so on so.Id = ps.SalesOrderId
+                        --left join trn.FirstCharacteristics fc on fc.SalesOrderId = so.Id and psd.Characteristics1Id = fc.CharacteristicsId
+                        --left join trn.SecondCharacteristics sc on sc.FirstCharacteristicsId = fc.Id and psd.Characteristics2Id = sc.CharacteristicsId
+                        left join 
+                        (
+                        Select p.Id as CusId,p.UserName as Customer,moi.Id as LineItem,So.Id , mo.BuyerReferenceNo as BuyerRef, mo.OwnReferenceNo as OwnRef,cv.Id as FirstId ,cv.UserName as CharValF , cvs.Id as SecId ,cvs.UserName as CharValS , sc.Qty as OrderQty 
+                        ,Ceiling( sc.Qty/(1-(mo.ExtraOrderPercentage+mo.OrderWastagePercentage)/100)) as PlanQty 
+                        from trn.SalesOrder so
+                        left join trn.FirstCharacteristics fc on fc.SalesOrderId = so.Id
+                        left join trn.SecondCharacteristics sc on sc.FirstCharacteristicsId = fc.Id
+                        left join hkp.Characteristics c on c.Id = fc.CharacteristicsId
+                        left join hkp.CharacteristicsValue cv on cv.Id = fc.CharacteristicsValueId
+                        left join hkp.Characteristics cs on cs.Id = sc.CharacteristicsId
+                        left join hkp.CharacteristicsValue cvs on cvs.Id = sc.CharacteristicsValueId
+                        left join trn.MasterOrderItem moi on moi.Id = So.MasterOrderItemId
+                        left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
+                        left join hkp.Party p on p.Id = mo.PartyId
+						where  p.Id in (" + filters["CustomerId"] + @")  and  mo.BuyerReferenceNo in (" + filters["BuyerRef"] + @") and mo.OwnReferenceNo in (" + filters["OwnRef"] + @") and mo.MasterOrderNo in (" + filters["MOId"] + @") and moi.Id in (" + filters["LineItem"] + @") and so.Id in (" + filters["SO"] + @") and so.OrderStatusId in (" + filters["SOOrderId"] + @")
+                        )
+                        as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
+                        left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
+                        left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
+                        left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
+                        where  cv.Id is not null and cvs.Id is not null and ps.ProcessId  = '" + ProcessId + @"'
+						and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
+						 " + pc + @"
+                        group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId ,
+                        c.UserName , cv.UserName , cs.UserName , cvs.UserName ,cv.Id,cvs.Id, pps.CharValF , pps.CharValS , 
+                        pps.OrderQty , pps.PlanQty ,  prs.UserName ,pps.Customer , pps.LineItem , pl.Code, pps.BuyerRef , pps.OwnRef 
+
+                        ) as dd
+                        group by dd.ProductionOrderId , dd.LineItem , dd.Customer , dd.PRStatus,dd.ProductCode, dd.BuyerRef , dd.OwnRef
+                             ";
+                //return _sqlRepository.GetDataCollection(str);
+                return Json(new { Error = false, Data = _sqlRepository.GetDataCollection(str) }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+      //  public IEnumerable<object> getMasterGrid(Dictionary<string, object> filters, string ProcessId)
+      //  {
+      //      try
+      //      {
+
+      //          string pc = "";
+      //          if (filters["PSLibId"].ToString() == "'','null'")
+      //          {
+      //              pc = "";
+      //          }
+      //          else
+      //          {
+      //              pc = "and ps.ProductLibraryId in (" + filters["PSLibId"] + ")";
+      //          }
+
+
+      //          var str = @"Select dd.Customer ,dd.PRStatus,dd.ProductionOrderId , dd.BuyerRef , dd.OwnRef, dd.LineItem,isnull(dd.ProductCode,'') as ProductCode, Sum(dd.OrderQty) as OrderQty , Sum(dd.PlanQty) as PlanQty , Sum(dd.ProducedQty) as ProdQty , abs(Sum(Case when dd.ShortExcess<0 then dd.ShortExcess else 0 end)) as ToProduce ,Sum(Case when dd.ShortExcess>0 then dd.ShortExcess else 0 end) as ExcessProduce 
+      //                  from 
+      //                  (
+      //                  Select pps.Customer , pps.LineItem,pl.Code as ProductCode,ps.SalesOrderId , pps.BuyerRef , pps.OwnRef , ps.ProductionOrderId, prs.UserName as PRStatus  , ps.ProcessId , ps.PlantId , c.UserName as Charac, cv.Id as CharVId ,cv.UserName as CharV , cs.UserName as Char2c , cvs.Id as Char2VId ,cvs.UserName as Char2V , pps.CharValF , pps.CharValS , pps.OrderQty , pps.PlanQty , Sum(psd.Qty) as ProducedQty , (Sum(psd.Qty) -  pps.PlanQty  ) as ShortExcess 
+      //                  --, c.Id as cc , fc.CharacteristicsId , cs.Id , sc.CharacteristicsId
+      //                  from trn.ProductionSummary ps
+      //                  right join trn.ProductionSummaryDetail psd on psd.ProductionSummaryId = ps.Id
+      //                  left join hkp.Characteristics c on c.Id = psd.Characteristics1Id
+      //                  left join hkp.CharacteristicsValue cv on cv.Id = psd.Characteristics1ValueId
+      //                  left join hkp.Characteristics cs on cs.Id = psd.Characteristics2Id
+      //                  left join hkp.CharacteristicsValue cvs on cvs.Id = psd.Characteristics2ValueId
+      //                  --From SO SKU Level
+      //                  --left join trn.SalesOrder so on so.Id = ps.SalesOrderId
+      //                  --left join trn.FirstCharacteristics fc on fc.SalesOrderId = so.Id and psd.Characteristics1Id = fc.CharacteristicsId
+      //                  --left join trn.SecondCharacteristics sc on sc.FirstCharacteristicsId = fc.Id and psd.Characteristics2Id = sc.CharacteristicsId
+      //                  left join 
+      //                  (
+      //                  Select p.Id as CusId,p.UserName as Customer,moi.Id as LineItem,So.Id , mo.BuyerReferenceNo as BuyerRef, mo.OwnReferenceNo as OwnRef,cv.Id as FirstId ,cv.UserName as CharValF , cvs.Id as SecId ,cvs.UserName as CharValS , sc.Qty as OrderQty 
+      //                  ,Ceiling( sc.Qty/(1-(mo.ExtraOrderPercentage+mo.OrderWastagePercentage)/100)) as PlanQty 
+      //                  from trn.SalesOrder so
+      //                  left join trn.FirstCharacteristics fc on fc.SalesOrderId = so.Id
+      //                  left join trn.SecondCharacteristics sc on sc.FirstCharacteristicsId = fc.Id
+      //                  left join hkp.Characteristics c on c.Id = fc.CharacteristicsId
+      //                  left join hkp.CharacteristicsValue cv on cv.Id = fc.CharacteristicsValueId
+      //                  left join hkp.Characteristics cs on cs.Id = sc.CharacteristicsId
+      //                  left join hkp.CharacteristicsValue cvs on cvs.Id = sc.CharacteristicsValueId
+      //                  left join trn.MasterOrderItem moi on moi.Id = So.MasterOrderItemId
+      //                  left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
+      //                  left join hkp.Party p on p.Id = mo.PartyId
+						//where  p.Id in (" + filters["CustomerId"] + @")  and  mo.BuyerReferenceNo in (" + filters["BuyerRef"] + @") and mo.OwnReferenceNo in (" + filters["OwnRef"] + @") and mo.MasterOrderNo in (" + filters["MOId"] + @") and moi.Id in (" + filters["LineItem"] + @") and so.Id in (" + filters["SO"] + @") and so.OrderStatusId in (" + filters["SOOrderId"] + @")
+      //                  )
+      //                  as pps on pps.Id  = ps.SalesOrderId and pps.FirstId = cv.Id and pps.SecId = cvs.Id
+      //                  left join trn.ProductionOrder po on po.Id = ps.ProductionOrderId
+      //                  left join hkp.ProductionStatus prs on prs.Id = po.ProductionStatusId
+      //                  left join dbo.ProductLibrary pl on pl.Id = ps.ProductLibraryId
+      //                  where  cv.Id is not null and cvs.Id is not null and ps.ProcessId  = '" + ProcessId + @"'
+						//and ps.SalesOrderId in (" + filters["SO"] + @") and po.ProductionStatusId in (" + filters["PRStatId"] + @")
+						// " + pc + @"
+      //                  group by ps.SalesOrderId , ps.ProductionOrderId , ps.ProcessId , ps.PlantId ,
+      //                  c.UserName , cv.UserName , cs.UserName , cvs.UserName ,cv.Id,cvs.Id, pps.CharValF , pps.CharValS , 
+      //                  pps.OrderQty , pps.PlanQty ,  prs.UserName ,pps.Customer , pps.LineItem , pl.Code, pps.BuyerRef , pps.OwnRef 
+
+      //                  ) as dd
+      //                  group by dd.ProductionOrderId , dd.LineItem , dd.Customer , dd.PRStatus,dd.ProductCode, dd.BuyerRef , dd.OwnRef
+      //                       ";
+      //          return _sqlRepository.GetDataCollection(str);
+      //      }
+      //      catch (Exception ex)
+      //      {
+      //          throw ex;
+      //      }
+      //  }
 
 
         [HttpPost, Authorize]

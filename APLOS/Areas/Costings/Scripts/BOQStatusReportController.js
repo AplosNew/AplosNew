@@ -22,6 +22,42 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
     };
 
 
+    $scope.parameters = [];
+    $scope.filterComplete = function () {
+
+        var g = $("#filters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.filters;
+        }
+
+
+        var parameters = [];
+        parameters.push({ "Key": "PartyId", "Value": getString(fl, "PartyId") });
+        parameters.push({ "Key": "Customer", "Value": getString(fl, "Customer") });
+        parameters.push({ "Key": "BuyerReferenceNo", "Value": getString(fl, "BuyerReferenceNo") });
+        parameters.push({ "Key": "OwnReferenceNo", "Value": getString(fl, "OwnReferenceNo") });
+        parameters.push({ "Key": "MasterOrderId", "Value": getString(fl, "MasterOrderId") });
+        parameters.push({ "Key": "LineItemId", "Value": getString(fl, "LineItemId") });
+        parameters.push({ "Key": "SOId", "Value": getString(fl, "SOId") });
+        parameters.push({ "Key": "PONo", "Value": getString(fl, "PONo") });
+
+        $scope.parameters = parameters;
+        $scope.getBOQStatus(parameters);
+    }
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
     //#region The Filters 
 
     $scope.filters = [];
@@ -60,40 +96,57 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getBOQStatusFilters();
 
-    $scope.parameters = [];
-    $scope.filterComplete = function () {
+    //new
 
-        var g = $("#filters").data("ejGrid");
-        var fl = g.getFilteredRecords();
-        if (fl.length == 0) {
-            fl = $scope.filters;
+    $scope.AllFilters = [];
+
+    $scope.ViewAll = function () {
+        var gridObj = $("#BOQStatusGrid").data("ejGrid");
+        if (!angular.isUndefinedOrNull(gridObj)) {
+            gridObj.destroy();
         }
-
-
-        var parameters = [];
-        parameters.push({ "Key": "PartyId", "Value": getString(fl, "PartyId") });
-        parameters.push({ "Key": "Customer", "Value": getString(fl, "Customer") });
-        parameters.push({ "Key": "BuyerReferenceNo", "Value": getString(fl, "BuyerReferenceNo") });
-        parameters.push({ "Key": "OwnReferenceNo", "Value": getString(fl, "OwnReferenceNo") });
-        parameters.push({ "Key": "MasterOrderId", "Value": getString(fl, "MasterOrderId") });
-        parameters.push({ "Key": "LineItemId", "Value": getString(fl, "LineItemId") });
-        parameters.push({ "Key": "SOId", "Value": getString(fl, "SOId") });
-        parameters.push({ "Key": "PONo", "Value": getString(fl, "PONo") });
-
-        $scope.parameters = parameters;
+        $scope.filterComplete();
     }
+    // Getting the Master Grid
+    $scope.BOQStausData = [];
 
-    var getString = function (data, column) {
-        var string = "''";
-        var collection = [];
-
-        for (var i = 0; i < data.length; i++) {
-            if (collection.includes(data[i][column]) == false) {
-                string += ",'" + data[i][column] + "'";
-                collection.push(data[i][column]);
+    $scope.getBOQStatus = function (parameters) {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getBOQStatusReportSql',
+            data: { 'filters': parameters }
+        }).then(function (resp) {
+            if (resp.data.Error == false) {
+                $scope.BOQStausData = [];
+                $scope.BOQStausData = resp.data.Data;
+                var ColumnList = [
+                    { field: 'PRStatus', width: 80, headerText: "PO Status", type: "string", width: 80 },
+                    { field: 'ProductionOrderId', width: 80, headerText: "PO", type: "string", width: 80 },
+                    { field: 'Customer', width: 80, headerText: "Customer", type: "string", width: 80 },
+                    { field: 'ProductCode', width: 80, headerText: "ProductCode", type: "string", width: 80 },
+                    { field: 'BuyerRef', width: 80, headerText: "Buyer Ref", type: "string", width: 80 },
+                    { field: 'OwnRef', width: 80, headerText: "Own Ref", type: "string", width: 80 },
+                    { field: 'LineItem', width: 80, headerText: "Line Item", type: "string", width: 80 },
+                    { field: 'OrderQty', width: 80, headerText: "Order Qty", type: "number", width: 80 },
+                    { field: 'PlanQty', width: 80, headerText: "Plan Qty", type: "number", width: 80 },
+                    { field: 'ProdQty', width: 80, headerText: "Producted Qty", type: "number", width: 80 },
+                    { field: 'ToProduce', width: 80, headerText: "To Produce", type: "number", width: 80 },
+                    { field: 'ExcessProduce', width: 80, headerText: "Excess Produce", type: "number", width: 80 },
+                ];
+                $("#BOQStatusGrid").ejGrid({
+                    dataSource: $scope.BOQStausData,
+                    minWidth: 450, minHeight: 400,
+                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true, allowResizing: true,
+                    filterSettings: { filterType: "excel" },
+                    recordDoubleClick: $scope.detailClick,
+                    columns: ColumnList
+                });
             }
-        }
-        return string;
+            else {
+                ShowResult(resp.data.Message, 'failure');
+            }
+
+        });
     }
 
     $scope.downloadgriddataUrl = 'GridReports/Download';

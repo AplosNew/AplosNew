@@ -7,8 +7,25 @@
         <div id="filters">
         </div>
         @*<div class="col-md-1 text-right" style="margin-top:20px;">
-                <button type="button" class="btn single-btn" ng-click="getData()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Go</button>
-            </div>*@
+            <button type="button" class="btn single-btn" ng-click="getData()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Go</button>
+        </div>*@
+
+        <div class="row" style="margin-top:10px; padding-right:10px;">
+            <div class="col-md-6 col-lg-12 col-sm-12">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="ViewAll();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+        <div class="row" style="margin-top:10px; padding-right:10px;">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+                <div id="BOQStatusGrid"></div>
+            </div>
+        </div>
+
         <div class="col-md-1 text-right" style="margin-top:20px;">
             <button type="button" class="btn single-btn" ng-click="getBOQStatusReport()" style="margin-top:10px;">
                 <i class="glyphicon glyphicon-arrow-down"></i>Download
