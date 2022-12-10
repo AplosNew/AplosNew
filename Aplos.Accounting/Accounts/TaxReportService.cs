@@ -4491,10 +4491,15 @@ UNION ALL
                 sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
-                //xlsCol++;
-                //int iGRNNo = xlsCol;
-                //sheet1.Range[xlsRow, xlsCol].Text = "GRN No";
-                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+                int iPartyType = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Party Type";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iParkStatus = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Status";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
                 xlsCol++;
                 int iTaxableAmount = xlsCol;
@@ -4533,6 +4538,19 @@ UNION ALL
                 sheet1.Range[xlsRow, xlsCol].Text = "Gross Amount";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18;
                 sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iWrittenOffAmount = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "SetOff Amount";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+                int iBalance = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Balance Amount";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
                 endXlsCol = xlsCol;
                 endXlsCol = xlsCol;
 
@@ -4578,11 +4596,14 @@ UNION ALL
                             sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iDocDate, xlsRow - 1, iDocDate].BorderAround(ExcelLineStyle.Hair);
-                            //sheet1[perStartRow, iGRNNo, xlsRow - 1, iGRNNo].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iPartyType, xlsRow - 1, iPartyType].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iParkStatus, xlsRow - 1, iParkStatus].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iPercentage, xlsRow - 1, iPercentage].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iTotalTax, xlsRow - 1, iTotalTax].BorderAround(ExcelLineStyle.Hair);
                             sheet1[perStartRow, iGrossAmount, xlsRow - 1, iGrossAmount].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iWrittenOffAmount, xlsRow - 1, iWrittenOffAmount].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iBalance, xlsRow - 1, iBalance].BorderAround(ExcelLineStyle.Hair);
 
                             formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaxableAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaxableAmount) + (xlsRow - 1) + ")";
                             formula2 = "";
@@ -4614,7 +4635,8 @@ UNION ALL
                         sheet1.Range[xlsRow, iPostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtGStReceivableF3.Rows[i]["PostingDate"].ToString());
                         sheet1.Range[xlsRow, iDocRefNo].Text = dtGStReceivableF3.Rows[i]["DocRefNo"].ToString();
                         sheet1.Range[xlsRow, iDocDate].Text = dtGStReceivableF3.Rows[i]["DocDate"].ToString();
-                        //sheet1.Range[xlsRow, iGRNNo].Text = dtGStReceivableF3.Rows[i]["GRNNo"].ToString();
+                        sheet1.Range[xlsRow, iPartyType].Text = dtGStReceivableF3.Rows[i]["PartyType"].ToString();
+                        sheet1.Range[xlsRow, iParkStatus].Text = dtGStReceivableF3.Rows[i]["ParkStatus"].ToString();
                         sheet1.Range[xlsRow, iPercentage].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["Percentage"].ToString());
                         sheet1.Range[xlsRow, iPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
                         sheet1.Range[xlsRow, iTotalTax].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -4650,7 +4672,10 @@ UNION ALL
                         }
                         sheet1.Range[xlsRow, iGrossAmount].Formula = clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow + "+" + clsStaticInfo.GetxlsCol(iTotalTax) + xlsRow;
                         sheet1.Range[xlsRow, iGrossAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                        //Percentage = dtGStReceivableF3.Rows[i]["TaxPercentage"].ToString();
+                        sheet1.Range[xlsRow, iWrittenOffAmount].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["WrittenOffAmount"].ToString());
+                        sheet1.Range[xlsRow, iWrittenOffAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                        sheet1.Range[xlsRow, iBalance].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["Balance"].ToString());
+                        sheet1.Range[xlsRow, iBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
                         xlsRow++;
                     }
@@ -4668,11 +4693,14 @@ UNION ALL
                 sheet1[perStartRow, iEntryDate, xlsRow - 1, iEntryDate].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iDocDate, xlsRow - 1, iDocDate].BorderAround(ExcelLineStyle.Hair);
-                //sheet1[perStartRow, iGRNNo, xlsRow - 1, iGRNNo].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iPartyType, xlsRow - 1, iPartyType].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iParkStatus, xlsRow - 1, iParkStatus].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPercentage, xlsRow - 1, iPercentage].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iTotalTax, xlsRow - 1, iTotalTax].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iGrossAmount, xlsRow - 1, iGrossAmount].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iWrittenOffAmount, xlsRow - 1, iWrittenOffAmount].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iBalance, xlsRow - 1, iBalance].BorderAround(ExcelLineStyle.Hair);
 
 
                 if (dtTaxCode.Rows.Count > 0)
@@ -4684,38 +4712,38 @@ UNION ALL
                     }
                 }
 
-                if (dtTaxCode.Rows.Count > 0)
-                {
-                    xlsRow++;
-                    totalTaxformula = "=SUM(";
-                    for (int j = 0; j < dtTaxCode.Rows.Count; j++)
-                    {
-                        sheet1[perStartRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow - 1, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].BorderAround(ExcelLineStyle.Hair);
-                        formula2 = "SUM(" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + perStartRow + ":" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + (xlsRow - 1) + ")";
-                        sheet1[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Formula = formula2;
+                //if (dtTaxCode.Rows.Count > 0)
+                //{
+                //    xlsRow++;
+                //    totalTaxformula = "=SUM(";
+                //    for (int j = 0; j < dtTaxCode.Rows.Count; j++)
+                //    {
+                //        sheet1[perStartRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow - 1, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].BorderAround(ExcelLineStyle.Hair);
+                //        formula2 = "SUM(" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + perStartRow + ":" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + (xlsRow - 1) + ")";
+                //        sheet1[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Formula = formula2;
 
-                        dtTaxCode.Rows[j]["ColumnFormula"] += (clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow).ToString() + " + ";
-                        totalTaxformula += clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow + ":";
+                //        dtTaxCode.Rows[j]["ColumnFormula"] += (clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow).ToString() + " + ";
+                //        totalTaxformula += clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow + ":";
 
-                    }
-                }
-
-
-                sheet1.Range[xlsRow, 1, xlsRow, 1].Text = "Grand Total";
-                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaxableAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaxableAmount) + (xlsRow - 1) + ")";
+                //    }
+                //}
 
 
+                //sheet1.Range[xlsRow, 1, xlsRow, 1].Text = "Grand Total";
+                //formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaxableAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaxableAmount) + (xlsRow - 1) + ")";
 
-                sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].Formula = formula;
-                sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                sheet1[xlsRow, iGrossAmount, xlsRow, iGrossAmount].Formula = clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow + "+" + clsStaticInfo.GetxlsCol(iTotalTax) + xlsRow;
-                sheet1[xlsRow, iGrossAmount, xlsRow, iGrossAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                sheet1[xlsRow, iTotalTax, xlsRow, iTotalTax].Formula = totalTaxformula.Remove(totalTaxformula.Length - 1) + ")";
-                sheet1[xlsRow, iTotalTax, xlsRow, iTotalTax].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
-                totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
+                //sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].Formula = formula;
+                //sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                //sheet1[xlsRow, iGrossAmount, xlsRow, iGrossAmount].Formula = clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow + "+" + clsStaticInfo.GetxlsCol(iTotalTax) + xlsRow;
+                //sheet1[xlsRow, iGrossAmount, xlsRow, iGrossAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                //sheet1[xlsRow, iTotalTax, xlsRow, iTotalTax].Formula = totalTaxformula.Remove(totalTaxformula.Length - 1) + ")";
+                //sheet1[xlsRow, iTotalTax, xlsRow, iTotalTax].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                //totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
 
 
                 #region ******************Report Header******************
@@ -7253,10 +7281,11 @@ UNION ALL
         private DataTable GetDebitNoteCreditNoteTaxSQL(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId)
         {
             string strSql = "";
-            strSql = @"SELECT	x.SourceType,x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyName,x.PartyPlantName,x.GSTIN
-		,x.TaxCategoryType,x.TaxCode--,x.TaxPercentage
+            strSql = @"SELECT * FROM(
+SELECT	x.SourceType,x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyName,x.PartyPlantName,x.GSTIN
+		,x.TaxCategoryType,x.TaxCode
 		,SUM(x.TaxableAmount) TaxableAmount,SUM(x.DrAmount) DrAmount,SUM(x.CrAmount) CrAmount
-		,x.TCSequence,x.EntryDate,x.GRNNo,x.Percentage
+		,x.TCSequence,x.EntryDate,x.GRNNo,x.Percentage,x.PartyType,x.ParkStatus,SUM(x.TotalAmount)TotalAmount,SUM(x.WrittenOffAmount)WrittenOffAmount,(SUM(x.TotalAmount)-SUM(x.WrittenOffAmount))Balance
 		FROM 
 
 (
@@ -7266,19 +7295,26 @@ SELECT
                             ,TaxableAmount=case 
 							when v.SourceType='DebitNote' then (select sum(CrAmount) from trn.VoucherDetail where VoucherId=V.Id and CrAmount>0 and  InvoiceTaxDetailId is null)
 							when v.SourceType='CreditNote' then (select sum(DrAmount) from trn.VoucherDetail where VoucherId=V.Id and DrAmount>0 and  InvoiceTaxDetailId is null)
+                            when v.SourceType='InventoryReturnPayable'  OR v.SourceType='VendorPayment' then (select sum(CrAmount) from trn.VoucherDetail where VoucherId=V.Id and CrAmount>0 and  Id NOT IN(select VoucherDetailId from TRN.InvoiceTax where VoucherId=V.Id))
+							else 0 end
+							  ,TotalAmount=case 
+							when v.SourceType='DebitNote' then (select sum(CrAmount) from trn.VoucherDetail where VoucherId=V.Id and CrAmount>0)
+							when v.SourceType='CreditNote' then (select sum(DrAmount) from trn.VoucherDetail where VoucherId=V.Id and DrAmount>0)
+							when v.SourceType='InventoryReturnPayable' OR v.SourceType='VendorPayment' then (select sum(CrAmount) from trn.VoucherDetail where VoucherId=V.Id and CrAmount>0)
                             else 0 end
                             ,DrAmount=ISNULL(IT.TaxAmount,0) 
 							,0 CrAmount
 	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
                             ,TC.TaxCategoryType,ISNULL(TC.Code,'IGST') TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM
                             ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,0 IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
-                            ,TCD.ValueOfFixed [Percentage],NULL HSNCodeId,NULL Material , Format (V.AddedDate,'dd-MMM-yyyy')EntryDate
-                            FROM  TRN.Voucher V 
-							LEFT JOIN TRN.InvoiceTax IT ON V.Id=IT.VoucherId
+                            ,TCD.ValueOfFixed [Percentage],NULL HSNCodeId,NULL Material , Format (V.AddedDate,'dd-MMM-yyyy')EntryDate,ADT.PartyType
+							,ParkStatus = case when V.IsPark=1 then 'Parked' else 'Posted' end,ADT.WrittenOffAmount
+                            FROM   TRN.AdjustmentNote ADT
+							LEFT JOIN TRN.InvoiceTax IT ON ADT.VoucherId=IT.VoucherId
                             LEFT JOIN TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId
                             LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
-							LEFT JOIN TRN.AdjustmentNote ADT ON ADT.VoucherId=V.Id
+							LEFT JOIN TRN.Voucher V  ON ADT.VoucherId=V.Id
                             LEFT JOIN HKP.Party P ON P.Id=ADT.PartyId
 							LEFT JOIN hkp.PartyPlant PP on PP.Id=ADT.PartyPlantId
                             LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
@@ -7289,18 +7325,14 @@ SELECT
                             LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") ) TAXC ON TAXC.Id=IT.TaxCodeId
                             LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
                             LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
-                            LEFT JOIN (SELECT IW.InvoiceWriteOffId,IW.ActivityId,SUM(I.Amount) Amount FROM TRN.InvoiceWriteOffDetail IW
-                            JOIN TRN.Invoice I ON I.Id=IW.InvoiceId
-                            GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
-                            LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
-                            where  V.IsPark=0 AND V.PlantId='" + plantId + @"'
+                            where V.PlantId='" + plantId + @"'
 							and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType IN ('DebitNote','CreditNote')
+                            AND v.SourceType IN ('DebitNote','CreditNote','InventoryReturnPayable','VendorPayment')
                             ) x
 							group by x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyName
 							,x.TCSequence,x.PartyPlantName,x.GSTIN,x.SourceType
-							,x.TaxCategoryType,x.EntryDate,x.TaxCode,x.GRNNo,x.Percentage 
-							ORDER BY 1,2,4 ";
+							,x.TaxCategoryType,x.EntryDate,x.TaxCode,x.GRNNo,x.Percentage,x.PartyType,x.ParkStatus)T
+						    WHERE T.Balance>0 ";
             return _sqlRepository.GetDataTable(strSql);
 
         }

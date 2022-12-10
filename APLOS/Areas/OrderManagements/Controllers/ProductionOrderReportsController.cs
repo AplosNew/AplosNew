@@ -4997,6 +4997,11 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPlannedQty = COL;
                 COL++;
+                sheet[ROW, COL].Text = "Process Plan Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProcessPlannedQty = COL;
+                COL++;
                 sheet[ROW, COL].Text = "UOM";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colUOM = COL;
@@ -5079,6 +5084,22 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].Text = "Packing Type";
                 sheet[ROW, COL].ColumnWidth = 25;
                 int colPackingType = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Process Sequence";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colProcessSequence = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Process Date";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colProcessDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Process StartDate";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colProcessStartDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Process EndDate";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colProcessEndDate = COL;
 
                 #endregion columns
 
@@ -5125,6 +5146,10 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                     sheet[ROW, colProductionType].Text = dtOrderMaster.Rows[i]["ProductionType"].ToString();
                     sheet[ROW, colShipmentFromStock].Text = dtOrderMaster.Rows[i]["ShipmentFromStock"].ToString();
                     sheet[ROW, colPackingType].Text = dtOrderMaster.Rows[i]["PackingType"].ToString();
+                    sheet[ROW, colProcessSequence].Text = dtOrderMaster.Rows[i]["ProcessSequence"].ToString();
+                    sheet[ROW, colProcessDate].Text = dtOrderMaster.Rows[i]["ProcessDate"].ToString();
+                    sheet[ROW, colProcessStartDate].Text = dtOrderMaster.Rows[i]["ProcessStartDate"].ToString();
+                    sheet[ROW, colProcessEndDate].Text = dtOrderMaster.Rows[i]["ProcessEndDate"].ToString();
 
 
                     sheet[ROW, colArticle].Text = dtOrderMaster.Rows[i]["Article"].ToString();
@@ -5160,6 +5185,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
 
                     sheet[ROW, colPlannedQty].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["PlannedQty"].ToString());
+                    sheet[ROW, colProcessPlannedQty].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ProcessPlanQty"].ToString());
                     sheet[ROW, colFOB].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["FOB"].ToString());
                     sheet[ROW, colCM].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["CM"].ToString());
                     sheet[ROW, colDiff].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["Diff"].ToString());
@@ -5853,7 +5879,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
 
         }
-        private void getOS1(string entityid, out DataTable dtOrderMaster)
+        private void _getOS1(string entityid, out DataTable dtOrderMaster)
         {
 
 
@@ -5899,6 +5925,122 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                             LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS SED ON sed.ProductionOrderID=pod.ProductionOrderId
                             LEFT OUTER JOIN trn.ProductionOrder AS po ON po.Id=pod.ProductionOrderId
                             LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+                            LEFT OUTER JOIN trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
+                            LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
+
+                            LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = mo.PlantId
+                            LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = mo.EntityId
+
+							LEFT JOIN (SELECT ps.ProductionOrderId,SUM(ps.Quantity) AS  PRBookedQuantity
+                                            FROM trn.ProductionSummary AS ps 
+                                            WHERE ISNULL(ps.SalesOrderId,'')='' AND ps.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=ps.ProductionOrderId)
+                                       GROUP BY ps.ProductionOrderId) AS PRPD ON prpd.ProductionOrderId=pod.ProductionOrderId
+                                       
+                                        
+                            LEFT JOIN (SELECT ps.SalesOrderId,SUM(ps.Quantity) AS  SOBookedQuantity
+                                         FROM trn.ProductionSummary AS ps 
+                                       WHERE ISNULL(ps.SalesOrderId,'')<>''  AND ps.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=ps.ProductionOrderId)
+                                       GROUP BY ps.SalesOrderId) AS SOPD ON SOPD.SalesOrderId=so.Id
+
+                         LEFT JOIN (SELECT ps.ProductionOrderID,SUM(ps.Quantity) AS  PRPlanQty
+                                         FROM ProductionPlanningType1 AS ps 
+                                       GROUP BY ps.ProductionOrderID) AS PLN ON PLN.ProductionOrderID=pod.ProductionOrderId
+
+                            left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
+                            LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+                            left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                            left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                            left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+							 --LEFT OUTER JOIN hkp.ProductGroup AS pg ON pg.Id=moi.pro
+                           
+                            left outer join [HKP].[Party] p on P.Id=MO.PartyId
+                            LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer' AND (TRKP.Id=COMP.PlantId OR isnull(COMP.PlantId,'')='')
+                            LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
+
+                            left outer join [HKP].[PartyPlant] PPI on ppi.id=mo.InvoicingPartyPlantId
+                            left outer join [HKP].[PartyPlant] PPD on ppd.id=mo.DeliveryPartyPlantId
+                            left outer join [HKP].[Buyer] B on b.id=mo.BuyerId
+                            left outer join [HKP].[BuyerBrand] BB on bb.id=mo.BuyerBrandId
+                            left outer join [HKP].[BuyerDivision] BD on bd.id=mo.BuyerBrandId
+                            left outer join [HKP].[OrderCategory] OC on oc.id=mo.OrderCategoryId
+                            left outer join [HKP].[OrderStatus] OS on OS.id=mo.OrderStatusId
+                            left outer join [HKP].[OrderCategory] OC1 on oc1.id=so.OrderCategoryId
+                            left outer join [HKP].[OrderStatus] OS1 on OS1.id=so.OrderStatusId
+                            left outer join mst.Destination DEST on dest.Id=so.DestinationId
+                            left outer join [TRN].[CustomerPO] CPO ON CPO.Id=so.CustomerPOId
+                            left outer join [MST].[ShipMode] SMO on SMO.Id=so.ShipmentModeId
+                            left outer join hkp.Season S on s.id=mo.SeasonId
+                            left outer join EmployeeInformation EI on ei.SystemId= MO.ResponsiblePersonId
+							LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=MO.TotalQtyUOMId
+							LEFT OUTER JOIN scs.Currency AS cur ON cur.Id=mo.CurrencyId
+							left outer join (select pbt.Id BulletinId,pbt.productionOrderId,pbtm.MaxNoOfWS NoOfWS,sum( pbtd.TotalSPT ) TotalSPT from trn.ProductionBulletinTemplate pbt
+left outer join trn.ProductionBulletinTemplateMaster pbtm on pbtm.ProductionBulletinTemplateId=pbt.id
+left outer join trn.ProductionBulletinTemplateDetail pbtd on pbtd.ProductionBulletinTemplateMasterId=pbtm.Id
+AND  pbtm.ProcessId=(select top 1 sx.ProcessId from trn.ProductionOrderProcessSet SX where SX.ProductionOrderId=pbt.productionOrderId and isnull(SX.IsBaseProcess,0)=1)
+group by pbt.productionOrderId,pbtm.MaxNoOfWS, pbt.Id ) Btn on Btn.ProductionOrderId=po.Id
+--left outer join BOQ on boq.SalesOrderId=so.Id and boq.SalesOrderId=(select top 1 SalesOrderId from boq where SalesOrderId=so.Id)
+                            WHERE os.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' AND mo.EntityId IN (" + entityid + @")
+            ORDER BY	trkp.UserName,trke.UserName,PAG.UserName DESC, p.UserName, b.UserName,convert(date,so.DeliveryDate),SO.ID";
+
+            dtOrderMaster = _sqlRepository.GetDataTable(sql);
+
+
+        }
+        private void getOS1(string entityid, out DataTable dtOrderMaster)
+        {
+
+
+            string sql = @"	SELECT so.Id AS SalesOrderId,btn.BulletinId,btn.NoOfWS,btn.TotalSPT,
+	con.Id ContractId,PA.UserName ContractName,M.LCRef LCNo,format(XCOM.ExpectedCompletionDate,'dd-MMM-yyyy') AS ExpectedCompletionDate,XCOM.Quantity SODistributedQty,
+					format(mo.AddedDate,'dd-MMM-yyyy') AS MasterOrderCreationDate,PO.Remarks, 
+					b.UserName AS Buyer,ei.EmployeeName AS ResponsiblePerson,mo.MasterOrderNo,mm.UserName AS Material,
+                           OC.UserName AS OrderCategory,os.UserName AS OrderStatus,OC1.UserName AS SOCategory,os1.UserName AS SOStatus,    MA.StandardName AS Article,                   
+                            pc.UserName AS ProductCategory,  pm.UserName AS Product,moi.BuyerReferenceNo,MOI.OwnReferenceNo,mo.BuyerReferenceNo AS BuyerOrderNo,MO.OwnReferenceNo AS OwnOrderNo,
+                            mm.Id AS MaterialRowId,pod.ProductionOrderId,CASE WHEN isnull(sed.ID,0)<>0 THEN 'YES' ELSE 'NO' END AS isProductionScheduled,
+                            so.DeliveryDate,so.CommitmentDate,so.Qty AS SOQty,SO.Reason, cp.PONumber,format(cp.PODate,'dd-MMM-yyyy') AS PODate,ps.UserName AS ProductionStatus
+                            ,CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0)))) AS PlannedQty
+                            ,(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))*PPS.Qty) ProcessPlanQty
+                            ,FORMAT(SO.AddedDate,'dd-MMM-yyyy') AS SOAddedDate,FORMAT(SO.MainRawMaterialInhouseDate,'dd-MMM-yyyy') AS MainRawMaterialInhouseDate ,FORMAT(SO.OtherRawMaterialInhouseDate,'dd-MMM-yyyy') AS OtherRawMaterialInhouseDate
+                            
+,CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate ELSE  so.Rate * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END AS FOB,
+ CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM ELSE  so.CM * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END AS CM,
+ (CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate ELSE  so.Rate * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)*SO.Qty AS OrderAmount,
+ (CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM ELSE  so.CM * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)*SO.Qty AS CMAmount,
+							                           
+                            --,So.Rate*isnull(RT.ExchangeRate,1) AS FOB,
+                            --SO.CM*isnull(RT.ExchangeRate,1) AS CM ,
+                            --SO.Rate*SO.Qty*isnull(RT.ExchangeRate,1) AS OrderAmount,
+                            --SO.CM*isnull(RT.ExchangeRate,1)*SO.Qty AS CMAmount,
+                            FORMAT(SO.LSD,'dd-MMM-yyyy') AS LSD,isnull(DATEDIFF(DAY,so.LSD,so.DeliveryDate),0) AS Diff
+                            ,uom.UserName AS UOM,so.[Description] AS SODesc,cur.Code AS Currency,trkp.UserName AS Plant,trke.UserName AS Entity,MOI.[Type]
+                            ,PRPD.PRBookedQuantity,sopd.SOBookedQuantity,PLN.PRPlanQty,p.UserName AS Customer,PAG.UserName AS CustomerAccountGroup
+                            ,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END,PT.UserName PackingType
+                            ,PPS.[Sequence] ProcessSequence,FLB.ProcessStartDate,FLB.ProcessEndDate,ProcessDate=FORMAT(DATEADD(DAY, PPS.[Days], FLB.ProcessStartDate),'dd-MMM-yyyy')
+                              FROM trn.MasterOrder MO
+                            left outer join MasterOrderExchangeRates RT on RT.TransactionId=MO.Id
+							left JOIN org.Company AS com ON com.Id=mo.CompanyId
+                            LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + entityid + @"))
+                            LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + entityid + @"))
+
+                            left outer join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
+							left outer join dbo.[Contract] con on con.Id=MOI.ContractId
+							left outer join HKP.Party PA on PA.Id=con.CustomerId
+							left outer join MasterLC M on m.Id=con.MasterLCId
+
+                            left join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
+                            left join HKP.PackingType PT ON PT.Id=SO.PackingTypeId
+                            left join [ExpectedSOWiseProductionCompletion] XCOM on XCOM.SalesOrderId=SO.Id
+                            LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+                            LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS SED ON sed.ProductionOrderID=pod.ProductionOrderId
+                            LEFT OUTER JOIN trn.ProductionOrder AS po ON po.Id=pod.ProductionOrderId
+                            LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+
+                            LEFT OUTER JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderId=PO.Id
+							LEFT JOIN (
+							Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS ProcessStartDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS ProcessEndDate,ProductionOrderId,ProcessId 
+							from TRN.ProductionSummary GROUP BY ProductionOrderId,ProcessId
+							) FLB ON FLB.ProductionOrderId=po.Id AND FLB.ProcessId=PPS.ProcessId
+
                             LEFT OUTER JOIN trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
                             LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
 
