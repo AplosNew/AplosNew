@@ -357,6 +357,7 @@ function GateentryTokenController(accountService, addressService, $window, facto
         //$scope.productNew.EmployeeName = x.data.em
         if (!baseService.isUndefinedOrNull($scope.productNew.PartyId)) {
             $scope.productNew.GateEntryType = 'Vendor';
+            getPartyPlantList();
         }
         else {
             $scope.productNew.GateEntryType = 'Employee';
@@ -365,18 +366,17 @@ function GateentryTokenController(accountService, addressService, $window, facto
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
-
+    $scope.plantList = [];
     function getPartyPlantList() {
-
         $scope.plantList = [];
-        $http.get('Products/Requisition/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId + '&Id=' + $scope.Id).then(function (response) {
+        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId).then(function (response) {
             angular.forEach(response.data, function (item) {
                 $scope.plantList.push(item);
                 if (item.IsDefault) {
                     $scope.productNew.InvoicingPartyPlantId = item.Value;
                     $scope.productNew.DeliveryPartyPlantId = item.Value;
                     $scope.productNew.InvoicingByAddress = item.Address1;
-                    $scope.productNew.DeliveryByAddress = item.Address2;
+                    $scope.productNew.DeliveryByAddress = item.Address1;
                     $scope.productNew.InvoicingState = item.StateName;
                     $scope.productNew.InvoicingGSTIN = item.GSTIN;
                     $scope.productNew.DeliveryState = item.StateName;
@@ -384,8 +384,26 @@ function GateentryTokenController(accountService, addressService, $window, facto
                 }
             });
         });
-
     }
+    //function getPartyPlantList() {
+    //    $scope.plantList = [];
+    //    $http.get('Products/Requisition/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId + '&Id=' + $scope.Id).then(function (response) {
+    //        angular.forEach(response.data, function (item) {
+    //            $scope.plantList.push(item);
+    //            if (item.IsDefault) {
+    //                $scope.productNew.InvoicingPartyPlantId = item.Value;
+    //                $scope.productNew.DeliveryPartyPlantId = item.Value;
+    //                $scope.productNew.InvoicingByAddress = item.Address1;
+    //                $scope.productNew.DeliveryByAddress = item.Address2;
+    //                $scope.productNew.InvoicingState = item.StateName;
+    //                $scope.productNew.InvoicingGSTIN = item.GSTIN;
+    //                $scope.productNew.DeliveryState = item.StateName;
+    //                $scope.productNew.DeliveryGSTIN = item.GSTIN;
+    //            }
+    //        });
+    //    });
+
+    //}
 
     //#endregion 
     $scope.invoicingPartyPopUp = function () {
