@@ -412,6 +412,35 @@ function GateentryTokenController(accountService, addressService, $window, facto
     $scope.closeInvoicingPartyPopUp = function () {
         angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
     };
+    $scope.billShippAddress = function (id, flag) {
+        if (!baseService.isUndefinedOrNull(id)) {
+            var address = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].Address1;
+            var state = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].StateName;
+            if (flag === 'billTo') {
+                $scope.productNew.InvoicingState = state;
+                $scope.productNew.InvoicingGSTIN = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].GSTIN;
+                return $scope.productNew.InvoicingByAddress = address;
+            }
+            else if (flag === 'shipTo') {
+                $scope.productNew.DeliveryState = state;
+                $scope.productNew.DeliveryGSTIN = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].GSTIN;
+                return $scope.productNew.DeliveryByAddress = address;
+            }
+        }
+        else {
+            if (flag === 'billTo') {
+                $scope.productNew.InvoicingState = null;
+                $scope.productNew.InvoicingGSTIN = null;
+                return $scope.productNew.InvoicingByAddress = null;
+            }
+            else if (flag === 'shipTo') {
+                $scope.productNew.DeliveryState = null;
+                $scope.productNew.DeliveryGSTIN = null;
+                return $scope.productNew.DeliveryByAddress = null;
+            }
+        }
+    };
+
     $scope.ConModal = function (id) {
         $scope.id = id;
         $scope.message = 'Are you sure want to Save back date data?';

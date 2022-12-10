@@ -416,22 +416,21 @@
 @*End Master & Details Data Entry*@
 
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
-
+@Html.Partial("~/Areas/Parties/Views/Party/_PartyOtherPopUpNew.cshtml")
 
 
 <div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"> Invoicing Party</div>  @*<button type="button" class="close" ng-click="closeInvoicingPartyPopUp();">&times;</button>*@
+            <div class="modal-header"> Invoicing Party<button type="button" class="close" ng-click="closeInvoicingPartyPopUp();">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
-                @*//here some problem*@
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group">
                         <label class="col-sm-4 col-md-4 control-label">Invoicing by</label>
                         <div class="col-sm-8">
                             <div class="select-style">
                                 <select ng-model="productNew.InvoicingPartyPlantId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in plantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(productNew.InvoicingPartyPlantId,'billTo')">
-                                    @*<option value="">ddd</option>*@
+                                    <option value=""></option>
                                 </select>
                             </div>
                             <p ng-hide="productNew.InvoicingPartyPlantId==null">State :{{productNew.InvoicingState}}</p>
@@ -441,7 +440,7 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Invoicing by Address</label>
                         <div class="col-sm-8">
-                            <textarea type="text" rows="3" ng-model="productNew.InvoicingByAddress" class="form-control"></textarea>
+                            <textarea type="text" rows="3" ng-model="productNew.InvoicingByAddress" class="form-control" maxlength="300"></textarea>
                         </div>
                     </div>
                 </div>
@@ -450,7 +449,6 @@
                         <label class="col-sm-4 control-label">Delivery by</label>
                         <div class="col-sm-8">
                             <div class="select-style">
-                                @*<select class="form-control" ng-model="x.TaxCategoryId" ng-options="item.Value as item.Text for item in taxCategoryList" ng-change="onchangeFunction1(x.TaxCategoryId)"></select>*@
                                 <select class="form-control" ng-model="productNew.DeliveryPartyPlantId" ng-options="item.Value as item.Text for item in plantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(productNew.DeliveryPartyPlantId,'shipTo')">
                                     <option value=""></option>
                                 </select>
@@ -462,7 +460,7 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Delivery by Address</label>
                         <div class="col-sm-8">
-                            <textarea type="text" rows="3" ng-model="productNew.DeliveryByAddress" class="form-control"></textarea>
+                            <textarea type="text" rows="3" ng-model="productNew.DeliveryByAddress" class="form-control" maxlength="300"></textarea>
                         </div>
                     </div>
                 </div>
