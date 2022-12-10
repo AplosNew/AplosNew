@@ -310,15 +310,15 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     };
 
     $scope.CalPlanAmount = function (data) {
-        data.data.PlanAmount = (data.data.Rate + data.data.UpDownCharge) * data.data.BOMQty;
-        data.data.BOMAmount = (data.data.Rate + data.data.UpDownCharge) * data.data.RequiredQty;
+        data.data.PlanAmount = parseFloat((data.data.Rate + data.data.UpDownCharge) * data.data.BOMQty).toFixed(2);
+        data.data.BOMAmount = parseFloat((data.data.Rate + data.data.UpDownCharge) * data.data.RequiredQty).toFixed(2);
         var gridObjs = $("#GridMaterialQuantity").data("ejGrid");
         gridObjs.refreshContent();
         gridObjs.refreshTemplate();
     }
 
     $scope.CalRequiredAmount = function (data) {
-        data.data.BOMAmount = (data.data.Rate + data.data.UpDownCharge) * data.data.RequiredQty;
+        data.data.BOMAmount = parseFloat((data.data.Rate + data.data.UpDownCharge) * data.data.RequiredQty).toFixed(2);
         var gridObjs = $("#GridMaterialQuantity").data("ejGrid");
         gridObjs.refreshContent();
         gridObjs.refreshTemplate();

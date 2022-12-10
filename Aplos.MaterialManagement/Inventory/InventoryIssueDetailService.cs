@@ -967,8 +967,9 @@ namespace Library.MaterialManagement.Inventory
                                 MaterialStorageId= inventoryIssue.MaterialStorageId,
                                 Qty = item.RequisitionQty,
                                 // Rate = Convert.ToDecimal(item.BaseRate),
-                                Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty),4),
-                                TotalAmount = Math.Round(SelectedGRN.TotalAmount,2),
+                                Rate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
+                                //TotalAmount = Math.Round(SelectedGRN.TotalAmount,2),
+                                TotalAmount = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate), 2),
                                 BooksCurrencyBaseRate= Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate),4),
                                 TotalMaterialBooksCurrencyAmount= Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate),2)
                             };
