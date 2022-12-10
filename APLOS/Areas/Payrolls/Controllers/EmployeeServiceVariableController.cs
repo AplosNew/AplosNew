@@ -110,7 +110,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             DataTable data = GetData(FromDate, ToDate, Service);
 
             #region Headers
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 13, ExcelHAlign.HAlignLeft);
             int ColEmpId = COL;
             COL++;
 
@@ -144,11 +144,11 @@ namespace Aplos.Areas.Payrolls.Controllers
             int ColUOM = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "From", 15, ExcelHAlign.HAlignRight);
+            report.SetHeaderText(ref sheet, ROW, COL, "From Time", 15, ExcelHAlign.HAlignRight);
             int ColFrom = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "To", 15, ExcelHAlign.HAlignRight);
+            report.SetHeaderText(ref sheet, ROW, COL, "To Time", 15, ExcelHAlign.HAlignRight);
             int ColTo = COL;
             COL++;
 
@@ -202,6 +202,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Bold = true;
 
             endCol = COL;
+            sheet.AutoFilters.FilterRange = sheet.Range[ROW - 1, 1, ROW, endCol];
             #endregion Headers
 
             var startRow = 0;
@@ -479,7 +480,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     svc = "AND est.Id = '"+ Service + "'";
                 }
 
-                string sql = @"select ei.EmployeeCode EmpId,ei.EmployeeName EmpName,e.UserName EmpEntity,d.UserName EmpDepertment,ld.UserName Designation,
+                string sql = @"select A.* from (select ei.EmployeeCode EmpId,ei.EmployeeName EmpName,e.UserName EmpEntity,d.UserName EmpDepertment,ld.UserName Designation,
                                 est.Service ServiceName,esc.Category ServiceCategory,uom.UserName UOM, esd.[From] , esd.[To],
 								esd.Quantity Qty,cu.Code Currency,esr.Rate ,esd.Amount, 
 								 FinalAmount=case when ISNULL( esd.Amount,0) =0 then (isnull(esd.Quantity,0)* isnull(esr.Rate,0)) 
@@ -490,7 +491,6 @@ namespace Aplos.Areas.Payrolls.Controllers
 								CONVERT(varchar(5),esd.[Time],108) Time, FORMAT(esd.Date, 'dd-MMM-yyyy') as Date
                                 from [dbo].[EmpServiceData] esd
                                 left join EmployeeInformation ei on ei.SystemId = esd.EmployeeId
-								--left join 
                                 left join mst.ManpowerBudget mb on mb.Id = ei.BudgetCode
                                 left join org.Entity e on e.Id = mb.EntityId
                                 left join ORG.Department d on d.Id = ei.DepartmentId
@@ -499,11 +499,37 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 left join [dbo].[EmpServiceType] est on est.Id= esc.EmpServiceTypeId
 								left join CurrencyRuleChild c on c.SalaryHeadID=est.SalaryHeadId 
 								inner join CurrencyRuleMaster cm on cm.SystemID=c.MstSystemID 
-								inner join SalaryRuleMaster sm on sm.CurrencyRuleSystemID=cm.SystemID --and sm.SystemID=ei.SalaryRuleMasterSystemID
+								inner join SalaryRuleMaster sm on sm.CurrencyRuleSystemID=cm.SystemID and sm.SystemID=ei.SalaryRuleMasterSystemID
 								left join SCS.Currency cu on cu.Id = c.AmtDefinitionCurrency
                                 left join scs.UnitOfMeasurement uom on uom.Id =  est.UOMId
                                 left join [dbo].[EmployeeServicesRate] esr on esr.EmployeeServiceCategoryId = esd.EmployeeServiceCategoryId
-                                where esd.Date between '" + FromDate + "' and '" + ToDate + "' "+svc+"";
+                                where esd.Date between '" + FromDate + "' and '" + ToDate + "' " + svc + @"
+UNION
+select ei.EmployeeCode EmpId, ei.EmployeeName EmpName, e.UserName EmpEntity, d.UserName EmpDepertment, ld.UserName Designation,
+                                    est.Service ServiceName, esc.Category ServiceCategory, uom.UserName UOM, esd.[From] , esd.[To],
+								esd.Quantity Qty, cu.Code Currency, esr.Rate ,esd.Amount, 
+								 FinalAmount =case when ISNULL(esd.Amount,0) = 0 then(isnull(esd.Quantity, 0) * isnull(esr.Rate, 0))
+
+                                 else ISNULL(esd.Amount, 0) end
+                                , case when esd.Chargeable = '1' then 'Yes' else '' end Chargable
+                                ,case when esd.Chargeable = '0' then 'Yes' else '' end NonChargable, esr.Remarks, esd.AddedBy ,
+								
+								CONVERT(varchar(5), esd.[Time], 108) Time, FORMAT(esd.Date, 'dd-MMM-yyyy') as Date
+                                from[dbo].[EmpServiceData] esd
+                               left join EmployeeInformation ei on ei.SystemId = esd.EmployeeId
+                                left join mst.ManpowerBudget mb on mb.Id = ei.BudgetCode
+                                left join org.Entity e on e.Id = mb.EntityId
+                                left join ORG.Department d on d.Id = ei.DepartmentId
+                                left join HKP.LegalDesignation ld on ld.Id = ei.LegalDesignationId
+                                left join[dbo].[EmpServiceCategory] esc on esc.Id = esd.EmployeeServiceCategoryId
+                                left join[dbo].[EmpServiceType] est on est.Id = esc.EmpServiceTypeId
+                                left join CurrencyRuleChild c on c.SalaryHeadID = est.SalaryHeadId
+                                inner join CurrencyRuleMaster cm on cm.SystemID = c.MstSystemID
+                                inner join SalaryRuleMaster sm on sm.CurrencyRuleSystemID = cm.SystemID
+                                left join SCS.Currency cu on cu.Id = c.AmtDefinitionCurrency
+                                left join scs.UnitOfMeasurement uom on uom.Id = est.UOMId
+                                left join[dbo].[EmployeeServicesRate] esr on esr.EmployeeServiceCategoryId = esd.EmployeeServiceCategoryId
+                                where esd.Date between '" + FromDate + "' and '" + ToDate + "' "+svc+ ")A Order BY A.EmpId,A.Date";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
