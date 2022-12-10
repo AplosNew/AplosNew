@@ -369,7 +369,7 @@ APD.FileName,'id' as test
 RPD.IsActive,RPD.Id,RPD.PlanMinutes,RPD.ActualMinutes,
 EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
-                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection  
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection,'No' EmployeeFlag  
 from TRN.Maintenancescheduling MS
 LEFT JOIN TRN.MaintenancePersonBudgetCode PBC ON PBC.MaintenanceSchedulingId=MS.Id
 LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=PBC.PersonBudgetCodeId
@@ -386,7 +386,7 @@ union
 select RPD.IsActive,RPD.Id,RPD.PlanMinutes,RPD.ActualMinutes,
 EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
                                     , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS[LegalDesignation], MB.EntityId
-                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode, P.Code PCode, S.UserName as Section,SS.UserName as SubSection 
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode, P.Code PCode, S.UserName as Section,SS.UserName as SubSection,'Yes' EmployeeFlag 
 from TRN.TeamDefinitionEmployee TDE
 LEFT JOIN TRN.MaintenanceTeamDefinition MTD ON MTD.TeamDefinitionId = TDE.TeamDefinitionId
 LEFT JOIN dbo.EmployeeInformation AS EI ON EI.SystemId = TDE.EmployeeId
@@ -492,7 +492,7 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeSt
                 {
                     foreach (var item in DataList)
                     {
-                        if (item["PlanMinutes"].IsNotNull())
+                        if (item["PlanMinutes"].IsNotNull() && Convert.ToInt32(item["PlanMinutes"]) != 0)
                         {
                             objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
                             DataView dv = new DataView(dsProdBooked.Tables[0]);
@@ -517,7 +517,7 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeSt
                         }
                         else
                         {
-                            throw new CustomException("Please Enter Plan Minutes and Proceed!");
+                            throw new CustomException("Please enter Plan Minutes greater than 0 and proceed!");
                         }
                     }
                 }
