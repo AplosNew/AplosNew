@@ -390,7 +390,7 @@ EI.SystemId as ResponsiblePersonId,EI.SystemId as SystemId, EI.PositionId AS Pos
 from TRN.TeamDefinitionEmployee TDE
 LEFT JOIN TRN.MaintenanceTeamDefinition MTD ON MTD.TeamDefinitionId = TDE.TeamDefinitionId
 LEFT JOIN dbo.EmployeeInformation AS EI ON EI.SystemId = TDE.EmployeeId
-LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId = EI.SystemId and RPD.IsActive = 1 and RPD.PlannedId = 'APD413'
+LEFT JOIN [TRN].[ResponsiblePlannedDetails] RPD ON RPD.ResponsiblePersonId = EI.SystemId and RPD.IsActive = 1 and RPD.PlannedId='" + Id + @"'
 LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id = EI.LegalDesignationId
 LEFT JOIN ORG.Department AS DEP ON DEP.Id = EI.DepartmentId
 LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id = EI.BudgetCode
@@ -520,9 +520,12 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeSt
                             throw new CustomException("Please enter Plan Minutes greater than 0 and proceed!");
                         }
                     }
+                    return Json(new { Message = AplosMessage.Insert });
                 }
-                return Json(new { Message = AplosMessage.Insert });
-
+                else
+                {
+                    throw new CustomException("Please select atleast one actionable person and proceed!");
+                }
             }
             catch (Exception ex)
             {
