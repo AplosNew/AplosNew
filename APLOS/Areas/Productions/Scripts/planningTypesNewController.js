@@ -935,6 +935,37 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         }
     };
 
+    $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.GetPlanCapacityReport = function () {
+        var dataLists = [];
+        var g = $("#GridCapacity").data("ejGrid");
+        dataLists = g.getFilteredRecords();
+
+        if (dataLists.length == 0) {
+            dataLists = $scope.PlanCapacityList;
+        }
+
+         $scope.fileName = "PlanCapacityData";
+
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpd,
+            data: { 'reportFileName': $scope.fileName, 'data': dataLists },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+
     //#endregion
 
 

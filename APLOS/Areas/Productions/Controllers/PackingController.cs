@@ -621,7 +621,7 @@ namespace Aplos.Areas.Productions.Controllers
                                 FROM dbo.ItemScanChild sc 
 								LEFT JOIN TRN.POLotReference pol on pol.Id = sc.PackingId
 							    LEFT JOIN TRN.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
-							    WHERE pli.PackingId = '" + PackingId + @"' --and sc.IsDespatch = 0
+							    WHERE pli.PackingId = '" + PackingId + @"'  and sc.Booked = 1
                                 GROUP BY  sc.ProductCode ,sc.POId , sc.LotNo,sc.netWeight,sc.GWeight
                                 ) as sc on sc.LotNo = plr.LotNo and sc.ProductCode = plr.ProductCode and sc.POId = plr.PONo
 

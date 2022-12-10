@@ -357,6 +357,7 @@ function GateentryTokenController(accountService, addressService, $window, facto
         //$scope.productNew.EmployeeName = x.data.em
         if (!baseService.isUndefinedOrNull($scope.productNew.PartyId)) {
             $scope.productNew.GateEntryType = 'Vendor';
+            getPartyPlantList();
         }
         else {
             $scope.productNew.GateEntryType = 'Employee';
@@ -365,19 +366,17 @@ function GateentryTokenController(accountService, addressService, $window, facto
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
-
+    $scope.plantList = [];
     function getPartyPlantList() {
-
-
         $scope.plantList = [];
-        $http.get('Products/Requisition/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId + '&Id=' + $scope.Id).then(function (response) {
+        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId).then(function (response) {
             angular.forEach(response.data, function (item) {
                 $scope.plantList.push(item);
                 if (item.IsDefault) {
                     $scope.productNew.InvoicingPartyPlantId = item.Value;
                     $scope.productNew.DeliveryPartyPlantId = item.Value;
                     $scope.productNew.InvoicingByAddress = item.Address1;
-                    $scope.productNew.DeliveryByAddress = item.Address2;
+                    $scope.productNew.DeliveryByAddress = item.Address1;
                     $scope.productNew.InvoicingState = item.StateName;
                     $scope.productNew.InvoicingGSTIN = item.GSTIN;
                     $scope.productNew.DeliveryState = item.StateName;
@@ -385,8 +384,26 @@ function GateentryTokenController(accountService, addressService, $window, facto
                 }
             });
         });
-
     }
+    //function getPartyPlantList() {
+    //    $scope.plantList = [];
+    //    $http.get('Products/Requisition/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId + '&Id=' + $scope.Id).then(function (response) {
+    //        angular.forEach(response.data, function (item) {
+    //            $scope.plantList.push(item);
+    //            if (item.IsDefault) {
+    //                $scope.productNew.InvoicingPartyPlantId = item.Value;
+    //                $scope.productNew.DeliveryPartyPlantId = item.Value;
+    //                $scope.productNew.InvoicingByAddress = item.Address1;
+    //                $scope.productNew.DeliveryByAddress = item.Address2;
+    //                $scope.productNew.InvoicingState = item.StateName;
+    //                $scope.productNew.InvoicingGSTIN = item.GSTIN;
+    //                $scope.productNew.DeliveryState = item.StateName;
+    //                $scope.productNew.DeliveryGSTIN = item.GSTIN;
+    //            }
+    //        });
+    //    });
+
+    //}
 
     //#endregion 
     $scope.invoicingPartyPopUp = function () {
@@ -395,6 +412,35 @@ function GateentryTokenController(accountService, addressService, $window, facto
     $scope.closeInvoicingPartyPopUp = function () {
         angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
     };
+    $scope.billShippAddress = function (id, flag) {
+        if (!baseService.isUndefinedOrNull(id)) {
+            var address = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].Address1;
+            var state = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].StateName;
+            if (flag === 'billTo') {
+                $scope.productNew.InvoicingState = state;
+                $scope.productNew.InvoicingGSTIN = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].GSTIN;
+                return $scope.productNew.InvoicingByAddress = address;
+            }
+            else if (flag === 'shipTo') {
+                $scope.productNew.DeliveryState = state;
+                $scope.productNew.DeliveryGSTIN = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].GSTIN;
+                return $scope.productNew.DeliveryByAddress = address;
+            }
+        }
+        else {
+            if (flag === 'billTo') {
+                $scope.productNew.InvoicingState = null;
+                $scope.productNew.InvoicingGSTIN = null;
+                return $scope.productNew.InvoicingByAddress = null;
+            }
+            else if (flag === 'shipTo') {
+                $scope.productNew.DeliveryState = null;
+                $scope.productNew.DeliveryGSTIN = null;
+                return $scope.productNew.DeliveryByAddress = null;
+            }
+        }
+    };
+
     $scope.ConModal = function (id) {
         $scope.id = id;
         $scope.message = 'Are you sure want to Save back date data?';
