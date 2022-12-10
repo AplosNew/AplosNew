@@ -189,7 +189,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
 
                         if (dv.Count == 0)
                         {
-                            if (item["ActualMinutes"].IsNotNull())
+                            if (item["ActualMinutes"].IsNotNull() && Convert.ToInt32(item["ActualMinutes"])!=0)
                             {
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID(TableName, out _Id);
@@ -199,12 +199,12 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                             }
                             else
                             {
-                                throw new CustomException("Please Enter Actual Minutes and Proceed!");
+                                throw new CustomException("Please enter Actual Minutes greater than 0 and proceed!");
                             }
                         }
                         else
                         {
-                            if (item["ActualMinutes"].IsNotNull())
+                            if (item["ActualMinutes"].IsNotNull() && Convert.ToInt32(item["ActualMinutes"]) != 0)
                             {
                                 item["PlannedId"] = PId;
                                 DataRow drpb = dv[0].Row;
@@ -212,7 +212,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                             }
                             else
                             {
-                                throw new CustomException("Please Enter Actual Minutes and Proceed!");
+                                throw new CustomException("Please enter Actual Minutes greater than 0 and proceed!");
                             }
                         }
                         clsStaticInfo obj = new clsStaticInfo();
