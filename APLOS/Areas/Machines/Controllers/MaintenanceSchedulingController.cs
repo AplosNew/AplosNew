@@ -93,6 +93,23 @@ namespace Aplos.Areas.Machines.Controllers
         }
 
         [Authorize, HttpGet]
+        public decimal GetTeamDefinitionAutoSequence(string scheduleId)
+        {
+            try
+            {
+                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM TRN.MaintenanceTeamDefinition where MaintenanceSchedulingId='" + scheduleId + "'");
+                if (dt.Rows.Count > 0)
+                    return (decimal)clsStaticInfo.dbl(dt.Rows[0]["SNO"].ToString()) + 1;
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                return 1.00M;
+            }
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetEActivityCategoryList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -216,15 +233,16 @@ namespace Aplos.Areas.Machines.Controllers
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                DataSet AssetCount, ItemCount, StoresCount, BudgetCount;
+                DataSet AssetCount, ItemCount, StoresCount, BudgetCount, TeamCount;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceMachineAsset] where MaintenanceSchedulingId='" + id + "'", out AssetCount, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceItem] where MaintenanceSchedulingId ='" + id + "'", out ItemCount, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceStoresConsumable] where MaintenanceSchedulingId ='" + id + "'", out StoresCount, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenancePersonBudgetCode] where MaintenanceSchedulingId ='" + id + "'", out BudgetCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceTeamDefinition] where MaintenanceSchedulingId ='" + id + "'", out TeamCount, false, "1");
 
-                if (AssetCount.Tables[0].Rows.Count == 0 || ItemCount.Tables[0].Rows.Count == 0 || StoresCount.Tables[0].Rows.Count == 0 || BudgetCount.Tables[0].Rows.Count == 0)
+                if (AssetCount.Tables[0].Rows.Count == 0 || ItemCount.Tables[0].Rows.Count == 0 || StoresCount.Tables[0].Rows.Count == 0 || BudgetCount.Tables[0].Rows.Count == 0 || TeamCount.Tables[0].Rows.Count == 0)
                 {
 
                     conC.BeginTransaction();
@@ -298,6 +316,24 @@ namespace Aplos.Areas.Machines.Controllers
         }
 
         [Authorize, HttpPost]
+        public ActionResult TeamDefinitionDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [TRN].[MaintenanceTeamDefinition] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpPost]
         public ActionResult GetMachine()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -338,10 +374,20 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            where MP.Active = 1";
+                            where MP.Active = 1 and EI.EmployeeStatus='Active'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpPost]
+        public ActionResult GetTeamDefinition()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select TD.Id,TD.Code,TD.ShortName,TD.StandardName,TD.UserName,(select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=TD.TeamLeaderId) as TeamLeader
+							from TRN.TeamDefinition TD where Active=1 order by TD.UserName";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpPost]
         public ActionResult GetEmployee()
         {
@@ -374,10 +420,11 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select MA.Id as ArticleId,MA.StandardName as ArticleName,MM.UserName as MaterialName,
-MT.UserName as MaterialType from MST.MaterialMasterArticle MA
+MT.UserName as MaterialType,UM.Id as UOMID,UM.UserName UOM from MST.MaterialMasterArticle MA
 left join MST.MaterialMaster MM on MM.Id=MA.MaterialMasterId
 left join MST.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
-left join HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId";
+left join HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId
+left join scs.UnitOfMeasurement UM ON UM.Active = 1 and UM.Id=MM.BaseUoMId";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -456,6 +503,17 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             where MP.Active = 1 and  MPB.Id ='" + BudgetCodeId + "'";
             return Json(new { PersonBudget = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadTeamDefinitionEditData(string TeamDefinitionId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select MTD.Id, MTD.SNO,TD.UserName TeamDefinition from [TRN].[MaintenanceTeamDefinition] MTD
+left join TRN.TeamDefinition TD ON TD.Id=MTD.TeamDefinitionId
+                            where MTD.Id ='" + TeamDefinitionId + "'";
+            return Json(new { TeamDefinition = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -568,6 +626,17 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                             where MPB.MaintenanceSchedulingId ='" + ScheduleId + "' order by MPB.SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadTeamDefinitionDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select MTD.Id, MTD.SNO,TD.UserName TeamName from [TRN].[MaintenanceTeamDefinition] MTD
+left join TRN.TeamDefinition TD ON TD.Id=MTD.TeamDefinitionId
+where MTD.MaintenanceSchedulingId ='" + ScheduleId + "' order by MTD.SNO";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public ActionResult LoadScheduleMachineList()
         {
@@ -849,6 +918,55 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                 _info.SaveDataSets(dsMaintenancePersonBudgetCode);
 
                 return Json(new { Error = false, Data = BudgetCodeData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult createTeamDefinition(Dictionary<string, object> TeamDefinitionData, string Pid)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceTeamDefinition] where Id<>'" + TeamDefinitionData["Id"] + "'", out DataSet dsMaintenanceTeamDefinitionValidation, false, "1");
+
+                DataSet dsMaintenanceTeamDefinition;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[MaintenanceTeamDefinition] where Id='" + TeamDefinitionData["Id"] + "'", out dsMaintenanceTeamDefinition, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsMaintenanceTeamDefinition.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("MaintenanceTeamDefinition", out _Id);
+                    _Id = "MTD" + _Id;
+                    TeamDefinitionData["Id"] = _Id;
+                    TeamDefinitionData["MaintenanceSchedulingId"] = Pid;
+                    AddNewRow(dsMaintenanceTeamDefinition.Tables[0], TeamDefinitionData);
+                }
+                else
+                {
+                    _Id = TeamDefinitionData["Id"].ToString();
+                    TeamDefinitionData["MaintenanceSchedulingId"] = Pid;
+                    EditRow(dsMaintenanceTeamDefinition.Tables[0].Rows[0], TeamDefinitionData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaintenanceTeamDefinition);
+
+                return Json(new { Error = false, Data = TeamDefinitionData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
