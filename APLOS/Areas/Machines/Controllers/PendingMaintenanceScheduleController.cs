@@ -186,41 +186,43 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
-
-                        if (dv.Count == 0)
-                        {
-                            if (item["ActualMinutes"].IsNotNull() && Convert.ToInt32(item["ActualMinutes"])!=0)
+                            if (dv.Count == 0)
                             {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "RPD" + _Id;
-                            item["PlannedId"] = PId;
-                            AddNewRow(dsProdBooked.Tables[0], item);
+                                if (item["ActualMinutes"].IsNotNull() && Convert.ToInt32(item["ActualMinutes"]) != 0)
+                                {
+                                    bplib.clsGenID genid = new bplib.clsGenID();
+                                    genid.GenID(TableName, out _Id);
+                                    item["Id"] = "RPD" + _Id;
+                                    item["PlannedId"] = PId;
+                                    AddNewRow(dsProdBooked.Tables[0], item);
+                                }
+                                else
+                                {
+                                    throw new CustomException("Please enter Actual Minutes greater than 0 and proceed!");
+                                }
                             }
                             else
                             {
-                                throw new CustomException("Please enter Actual Minutes greater than 0 and proceed!");
+                                if (item["ActualMinutes"].IsNotNull() && Convert.ToInt32(item["ActualMinutes"]) != 0)
+                                {
+                                    item["PlannedId"] = PId;
+                                    DataRow drpb = dv[0].Row;
+                                    EditRow(drpb, item);
+                                }
+                                else
+                                {
+                                    throw new CustomException("Please enter Actual Minutes greater than 0 and proceed!");
+                                }
                             }
-                        }
-                        else
-                        {
-                            if (item["ActualMinutes"].IsNotNull() && Convert.ToInt32(item["ActualMinutes"]) != 0)
-                            {
-                                item["PlannedId"] = PId;
-                                DataRow drpb = dv[0].Row;
-                                EditRow(drpb, item);
-                            }
-                            else
-                            {
-                                throw new CustomException("Please enter Actual Minutes greater than 0 and proceed!");
-                            }
-                        }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsProdBooked);
+                            clsStaticInfo obj = new clsStaticInfo();
+                            obj.SaveDataSets(dsProdBooked);
                     }
+                    return Json(new { Message = AplosMessage.Insert });
                 }
-                return Json(new { Message = AplosMessage.Insert });
-
+                else
+                {
+                    throw new CustomException("Please select atleast one actionable person and proceed!");
+                }
             }
             catch (Exception ex)
             {
