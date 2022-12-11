@@ -20,11 +20,50 @@
             </div>
 
         </div>
-        <div class="row" style="margin-top:10px; padding-right:10px;">
-            <div class="col-sm-12 col-md-12 col-lg-12">
-                <div id="BOQStatusGrid"></div>
+        <div class="col-xs-12" @*ng-show="ProductionDataReportList.length>0"*@>
+            <div id="GridEmp" ej-grid e-datasource="BOQStausData"
+                 e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                    <div e-column e-type="string" e-field="ItemRefNo" e-headertext="Item Ref No" e-width="100"></div>
+                    <div e-column e-type="string" e-field="CostingItem" e-headertext="Costing Item" e-width="100"></div>
+                    <div e-column e-type="string" e-field="BOQCriteria" e-headertext="BOQ Criteria" e-width="180"></div>
+                    <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="100"></div>
+                    <div e-column e-type="string" e-field="BOMId" e-headertext="BOM Id" e-width="100"></div>
+                    <div e-column e-type="string" e-field="SKU1" e-headertext="SKU1" e-width="100"></div>
+                    <div e-column e-type="string" e-field="SKU2" e-headertext="SKU2" e-width="180"></div>
+                    <div e-column e-type="string" e-field="SKUDesc" e-headertext="SKU Desc" e-width="100"></div>
+                    <div e-column e-type="string" e-field="POCriteria" e-headertext="PO Criteria" e-width="180"></div>
+                    <div e-column e-type="string" e-field="Consumption" e-headertext="Consumption" e-width="150"></div>
+                    <div e-column e-type="string" e-field="BOMQty" e-headertext="BOM Qty" e-width="180"></div>
+                    <div e-column e-type="string" e-field="BOMQtyBase" e-headertext="BOM Qty Base" e-width="180"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="RequiredQty" e-headertext="RequiredQty" e-textalign="right" e-width="100"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="POBOQQty" e-headertext="PO BOQ Qty" e-textalign="right" e-width="100"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="POTrnBOQQty" e-textalign="right" e-headertext="PO Trn BOQ Qty" e-width="100"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="POAmount" e-textalign="right" e-headertext="PO Amount" e-width="100"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="BalanceBOQ" e-textalign="right" e-headertext="Balance BOQ" e-width="100"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="GRNBaseQty" e-textalign="right" e-headertext="GRN Base Qty" e-width="100"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="GRNAmount" e-textalign="right" e-headertext="GRN Amount" e-width="100"></div>
+                    <div e-column e-type="string" e-field="GRNUOM" e-headertext="GRN UOM" e-width="180"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="BalancePOQty" e-textalign="right" e-headertext="Balance PO Qty" e-width="100"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="IssueBaseQty" e-textalign="right" e-headertext="Issue Base Qty" e-width="100"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="IssueAmount" e-textalign="right" e-headertext="Issue Amount" e-width="100"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="BalanceGRNQty" e-textalign="right" e-headertext="Balance GRN Qty" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Customer" e-textalign="right" e-headertext="Customer" e-width="100"></div>
+                    <div e-column e-type="string" e-field="MasterOrderId" e-textalign="right" e-headertext="Master Order Id" e-width="100"></div>
+                    <div e-column e-type="string" e-field="BuyerReferenceNo" e-textalign="right" e-headertext="Buyer Reference No" e-width="100"></div>
+                    <div e-column e-type="string" e-field="OwnReferenceNo" e-textalign="right" e-headertext="Own Reference No" e-width="100"></div>
+                    <div e-column e-type="string" e-field="LineItemId" e-textalign="right" e-headertext="Line Item Id" e-width="100"></div>
+                    
+                </div>
             </div>
         </div>
+
 
         <div class="col-md-1 text-right" style="margin-top:20px;">
             <button type="button" class="btn single-btn" ng-click="getBOQStatusReport()" style="margin-top:10px;">
