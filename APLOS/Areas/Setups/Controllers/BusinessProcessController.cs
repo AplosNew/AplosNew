@@ -245,7 +245,7 @@ namespace Aplos.Areas.Setups.Controllers
         }
 
 
-        public JsonResult SaveAlterBPTable(string BusinessProcessId,string BusinessProcess, string columnName, string dataType, string nullable)
+        public JsonResult SaveAlterBPTable(string BusinessProcessId, string BusinessProcess, string columnName, string dataType, string nullable)
         {
             string schema = "BPDT.";
             if (dataType == "varchar30")
@@ -280,7 +280,7 @@ namespace Aplos.Areas.Setups.Controllers
 
         private double GetSequence(string BusinessProcessId)
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM BusinessProcessDataTableColumnCreation Where BusinessProcessId='"+ BusinessProcessId + "'");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM BusinessProcessDataTableColumnCreation Where BusinessProcessId='" + BusinessProcessId + "'");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -337,12 +337,12 @@ namespace Aplos.Areas.Setups.Controllers
             }
         }
 
-        public JsonResult DropAlterBPTable(string businessProcessId,string BusinessProcess, string columnName)
+        public JsonResult DropAlterBPTable(string businessProcessId, string BusinessProcess, string columnName)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon = null;
 
-            strSQL = "DELETE FROM dbo.BusinessProcessDataTableColumnCreation where BusinessProcessId='"+ businessProcessId + "' AND ColumnName='"+ columnName + "'";
+            strSQL = "DELETE FROM dbo.BusinessProcessDataTableColumnCreation where BusinessProcessId='" + businessProcessId + "' AND ColumnName='" + columnName + "'";
             objCon = new ConnectionManager.DAL.ConManager("1");
             objCon.OpenConnection("1");
             objCon.BeginTransaction();
@@ -357,24 +357,24 @@ namespace Aplos.Areas.Setups.Controllers
                 throw new Exception("This " + columnName + " has value, so column can't drop.");
             }
             string sql = @"ALTER TABLE " + schema + "" + BusinessProcess + " DROP COLUMN " + columnName + "";
-           
+
             return Json(new
             {
                 ContentEncoding = Encoding.UTF8,
                 ContentType = "application/json;",
                 Data = _sqlRepository.GetDataCollection(sql),
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                Message = AplosMessage.Deleted 
+                Message = AplosMessage.Deleted
             });
         }
 
         [HttpGet, Authorize]
         public JsonResult GetBusinessProcessDataTable(string businessProcessId)
         {
-           
+
             try
             {
-                string _sql = @"SELECT * FROM dbo.BusinessProcessDataTableColumnCreation Where BusinessProcessId='"+ businessProcessId + "'";
+                string _sql = @"SELECT * FROM dbo.BusinessProcessDataTableColumnCreation Where BusinessProcessId='" + businessProcessId + "'";
                 return Json(_sqlRepository.GetDataCollection(_sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -406,7 +406,7 @@ namespace Aplos.Areas.Setups.Controllers
         }
         public enum DefineEnumName
         {
-              BulkPacking
+            BulkPacking
             , Detention
             , DirectMaterial
             , DirectProcess
@@ -423,6 +423,10 @@ namespace Aplos.Areas.Setups.Controllers
             , SalesExpense
             , ValueLoss
             , WorkCenter
+                , StandardDuration
+                , LoadFactor
+                , PlanEffeciency
+
         }
 
         [HttpGet, Authorize]
@@ -484,6 +488,47 @@ namespace Aplos.Areas.Setups.Controllers
                 throw ex;
             }
         }
+
+        [HttpPost]
+        public JsonResult DeleteDefineEnum(string id)
+        {
+            DeleteDefineEnumData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteDefineEnumData(string Id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [dbo].[DefineEnum] WHERE Id='" + Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+
         #endregion
     }
 }

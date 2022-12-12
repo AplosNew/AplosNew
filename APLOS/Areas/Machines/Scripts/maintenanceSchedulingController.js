@@ -19,6 +19,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     $scope.saveUrlParameter = $scope.path + 'createParameter';
     $scope.saveUrlStores = $scope.path + 'createStores';
     $scope.saveUrlBudgetCode = $scope.path + 'createBudgetCode';
+    $scope.saveUrlTeamDefinition = $scope.path + 'createTeamDefinition';
    
     
 
@@ -237,6 +238,15 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     }
     $scope.PersonBudgetNew = Object.assign({}, $scope.PersonBudget);
 
+    $scope.TeamDefinition = {
+        Id: null
+        , SNO: null
+        , TeamDefinitionId: null
+        , TeamDefinition: null
+        , MaintenanceSchedulingId: null
+    }
+    $scope.TeamDefinitionNew = Object.assign({}, $scope.TeamDefinition);
+
     $scope.Remove = function (index) {
         var removed = $scope.DataList.splice(index, 1);
         $scope.Detail = removed;
@@ -273,6 +283,16 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         });
     }
     $scope.GeneratPersonBudgetSequenceNo();
+
+    $scope.GeneratTeamDefinitionSequenceNo = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/MaintenanceScheduling/GetTeamDefinitionAutoSequence?scheduleId=' + $scope.scheduleNew.Id
+        }).then(function successCallback(response) {
+            $scope.TeamDefinitionNew.SNO = response.data;
+        });
+    }
+    $scope.GeneratTeamDefinitionSequenceNo();
    
     $scope.refreshTemplateMachineAsset = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllAsset });
@@ -471,7 +491,17 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         }
         )
     }
+    $scope.ScheduleTeamDefinitionList = [];
+    $scope.LoadTeamDefinitionDetails = function () {
+        $http({
 
+            method: 'Get',
+            url: 'Machines/MaintenanceScheduling/LoadTeamDefinitionDetails?ScheduleId=' + $scope.scheduleNew.Id
+        }).then(function successCallback(response) {
+            $scope.ScheduleTeamDefinitionList = response.data;
+        }
+        )
+    }
     $scope.selectMachine = function () {
         $scope.getsM();
         angular.element(document.querySelector('#MachinePop')).modal('show');
@@ -599,6 +629,8 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     $scope.doubleArticle = function (e) {
         $scope.StoresNew.ArticleId = e.data.ArticleId;
         $scope.StoresNew.Article = e.data.ArticleName;
+        $scope.StoresNew.UOMId = e.data.UOMID;
+        $scope.StoresNew.UOM = e.data.UOM;
         angular.element(document.querySelector('#ArticlePopUp')).modal('hide');
     }
 
@@ -630,6 +662,32 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
 
     $scope.closePersonBudgetCodePopUp = function () {
         angular.element(document.querySelector('#PersonBudgetCodePopUp')).modal('hide');
+    }
+
+    $scope.selectTeamDefinition = function () {
+        $scope.getTeamDefinition();
+        angular.element(document.querySelector('#TeamDefinitionPopUp')).modal('show');
+    }
+
+    $scope.TeamDefinitionList = [];
+    $scope.getTeamDefinition = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetTeamDefinition',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.TeamDefinitionList = resp.data;
+        });
+    }
+
+    $scope.doubleTeamDefinition = function (e) {
+        $scope.TeamDefinitionNew.TeamDefinitionId = e.data.Id;
+        $scope.TeamDefinitionNew.TeamDefinition = e.data.UserName;
+        angular.element(document.querySelector('#TeamDefinitionPopUp')).modal('hide');
+    }
+
+    $scope.closeTeamDefinitionPopUp = function () {
+        angular.element(document.querySelector('#TeamDefinitionPopUp')).modal('hide');
     }
 
     $scope.selectDepartment = function () {
@@ -763,6 +821,33 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         /*}*/
     };
 
+    $scope.TeamDefinitionSave = function () {
+        //$scope.$broadcast('show-errors-check-validity');
+        //if ($scope.MaintenanceScheduleBudgetForm.$valid) {
+        $http({
+            method: 'POST',
+            url: $scope.saveUrlTeamDefinition,
+            data: {
+                'TeamDefinitionData': $scope.TeamDefinitionNew,
+                'Pid': $scope.scheduleNew.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadTeamDefinitionDetails($scope.scheduleNew.Id);
+                TeamDefinitionClearFields($scope.GeneratTeamDefinitionSequenceNo($scope.scheduleNew.Id));
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+        /*}*/
+    };
+
     $scope.ParameterLists = [];
     $scope.getParameterPopup = function (data) {
         $scope.NewObject = data.data;
@@ -863,9 +948,12 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
             $scope.LoadItemDetails($scope.ScheduleMasterId);
             $scope.LoadStoresDetails($scope.ScheduleMasterId);
             $scope.LoadBudgetCodeDetails($scope.ScheduleMasterId);
+            $scope.LoadTeamDefinitionDetails($scope.ScheduleMasterId);
             $scope.GeneratItemSequenceNo($scope.ScheduleMasterId);
             $scope.GeneratStoresSequenceNo($scope.ScheduleMasterId);
             $scope.GeneratPersonBudgetSequenceNo($scope.ScheduleMasterId);
+            $scope.GeneratTeamDefinitionSequenceNo($scope.ScheduleMasterId);
+
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -909,6 +997,18 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         }
         )
     }
+    $scope.GetTeamDefinitionDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'Machines/MaintenanceScheduling/LoadTeamDefinitionEditData?TeamDefinitionId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.TeamDefinitionNew = response.data.TeamDefinition[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
     $scope.Clear = function () {
         ScheduleClearFields();
     };
@@ -923,6 +1023,10 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     };
     $scope.BudgetCodeClear = function () {
         BudgetCodeClearFields($scope.GeneratPersonBudgetSequenceNo($scope.scheduleNew.Id));
+    };
+
+    $scope.TeamDefinitionClear = function () {
+        TeamDefinitionClearFields($scope.GeneratTeamDefinitionSequenceNo($scope.scheduleNew.Id));
     };
     
     function ScheduleClearFields() {
@@ -947,6 +1051,12 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         $scope.Action = "Save";
         $scope.PersonBudgetNew = Object.assign({}, $scope.PersonBudget);
         $scope.PersonBudgetNew.SNO = seq;
+    }
+
+    function TeamDefinitionClearFields(seq) {
+        $scope.Action = "Save";
+        $scope.TeamDefinitionNew = Object.assign({}, $scope.TeamDefinition);
+        $scope.TeamDefinitionNew.SNO = seq;
     }
 
     function ParameterClearFields() {
@@ -982,6 +1092,17 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
             $scope.tempbudgetId = data;
             $scope.message_confirmation = "Are you sure you want to delete?";
             angular.element(document.querySelector('#confirmRemoveBudgetCode')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeTeamDefinitionModal = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempTeamId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemoveTeamDefinition')).modal('show');
         }
         catch (e) {
             ShowResult(e, 'Error');
@@ -1035,6 +1156,24 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.LoadBudgetCodeDetails($scope.scheduleNew.Id);
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+    $scope.removeTeamDefinitionRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Machines/MaintenanceScheduling/TeamDefinitionDelete?id=' + $scope.tempTeamId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadTeamDefinitionDetails($scope.scheduleNew.Id);
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

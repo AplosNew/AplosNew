@@ -905,7 +905,10 @@ function accountConfig($routeProvider) {
             controller: "GSTReceivableReportController"
         })
 
-
+        .when("/debitNote-creditNote-status", {
+            templateUrl: "Accounts/TaxReport/DebitNoteCreditNoteTaxReport",
+            controller: "debitNoteCreditNoteTaxReportController"
+        })
     
         .when("/gst-payable-sales", {
             templateUrl: "Accounts/TaxReport/GSTPayableSalesReport",
@@ -914,6 +917,10 @@ function accountConfig($routeProvider) {
         .when("/day-books", {
             templateUrl: "Accounts/VoucherReport/DayBookReport",
             controller: "dayBooksReportController"
+        })
+        .when("/parked-pendingPosting", {
+            templateUrl: "Accounts/VoucherReport/ParkedReport",
+            controller: "parkedReportController"
         })
         .when("/gst-r2", {
             templateUrl: "Accounts/TaxReport/GSTR2",

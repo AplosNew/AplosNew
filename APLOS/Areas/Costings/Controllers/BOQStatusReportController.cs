@@ -69,7 +69,10 @@ namespace Aplos.Areas.Costings.Controllers
                              where BOM.CustomerId <>''  
 							  and moi.OrderCostingMasterTemplateId<>''";
 
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+                //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -77,6 +80,88 @@ namespace Aplos.Areas.Costings.Controllers
             }
         }
 
+        [Authorize, HttpPost]
+        public ActionResult getBOQStatusData(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                var sql = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article,BOM.Id BOMId
+                ,cv1.UserName AS SKU1,cv2.UserName AS SKU2,boq.SKUDesc,boq.POCriteria
+				--,boq.Consumption
+				,isnull(OPCD.GrossConsumption,0) Consumption
+                ,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty
+				,boq.Rate*BOQ.BOMQty AS BOMAmount
+				, poboq.POBOQQty,poboq.POUOM,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty
+                , grnboq.GRNBaseQty
+                , grnboq.GRNAmount
+                , grnboq.GRNUOM
+                , BalancePOQty=poboq.POBOQQty-grnboq.GRNBaseQty
+                , issueboq.IssueBaseQty
+                , issueboq.IssueAmount
+                , BalanceGRNQty=grnboq.GRNBaseQty-issueboq.IssueBaseQty
+                ,PC.Id PartyId,PC.UserName Customer
+				,MO.Id MasterOrderId,MO.BuyerReferenceNo,MO.OwnReferenceNo,moi.Id LineItemId
+                FROM BOQ  boq
+                LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=boq.UoMId
+                LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
+                LEFT JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
+                LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
+                LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
+                LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=boq.ArticleId
+                LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
+                LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
+                left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
+                left join TRN.MasterOrderItem AS moi on boq.MasterOrderItemId = moi.Id
+                left join TRN.MasterOrder MO on MO.Id = moi.MasterOrderId
+                left join HKP.Party PC on PC.Id = MO.PartyId
+               left join TRN.SalesOrder SO on SO.CostingBOQMasterId = BOM.Id
+			   left join [TRN].[CustomerPO] CPO on CPO.MasterOrderId = MO.Id and CPO.Id=SO.CustomerPOId
+			   --new add
+			   LEFT JOIN (Select DISTINCT SalesOrderId,CostingBOQMasterId,CostingItemId,OrderProcurementCostingDirectMaterialId from CostingBOQItems )CBI on CBI.CostingBOQMasterId=boq.CostingBOQMasterId AND CBI.CostingItemId=boq.CostingItemId --AND so.Id=CBI.SalesOrderId
+				LEFT JOIN OrderProcurementCostingDirectMaterial OPCD on OPCD.Id=CBI.OrderProcurementCostingDirectMaterialId AND CBI.CostingItemId=OPCD.CostingItemId AND boq.CostingItemId=OPCD.CostingItemId
+
+                left join(SELECT pomap.BOQDetailId,sum(pomap.POBOQQty) POBOQQty,sum(pomap.TransactionQty) POTrnBOQQty,UOM.UserName POUOM,SUM(pod.BaseAmount) POAmount 
+                			FROM  trn.POBOQMAP pomap 
+                			JOIN trn.PurchaseOrderDetail pod on pod.Id=pomap.PODetailId
+                			LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=pod.TransactionUoMId
+                			GROUP BY pomap.BOQDetailId,UOM.UserName
+                			) poboq ON poboq.BOQDetailId=boq.Id
+
+                left join (SELECT gpa.BOQDetailId,sum(gpa.TransactionQty) GRNBaseQty,UOM.UserName GRNUOM,sum(IRD.TotalMaterialTranAmount ) GRNAmount
+                				FROM trn.GRNPORequisitionAllocation gpa 
+                				JOIN trn.InventoryReceiveDetail IRD ON gpa.InventoryReceiveDetailId=IRD.Id
+                				LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=IRD.TransactionUoMId
+                				GROUP BY gpa.BOQDetailId,UOM.UserName
+                			) grnboq ON grnboq.BOQDetailId=poboq.BOQDetailId
+
+                left join (SELECT iihb.BOQDetailId,sum(iihb.Qty) IssueBaseQty ,sum(iihb.Qty*iih.Rate) IssueAmount
+                			FROM trn.InventoryIssueHistoryBOQ iihb 
+                			join TRN.InventoryIssueHistory iih on iihb.InventoryIssueHistoryId=iih.Id
+                			GROUP BY iihb.BOQDetailId
+
+                ) issueboq ON issueboq.BOQDetailId=poboq.BOQDetailId
+
+
+                                              where PC.Id in(" + parameters["PartyId"] + @")
+                                              AND moi.BuyerReferenceNo in(" + parameters["BuyerReferenceNo"] + @")
+                                              AND moi.OwnReferenceNo in(" + parameters["OwnReferenceNo"] + @")
+                                              AND MO.Id in(" + parameters["MasterOrderId"] + @")
+                                              AND moi.Id in(" + parameters["LineItemId"] + @")
+                                              AND SO.Id in(" + parameters["SOId"] + @")                                       
+                                        AND CPO.PONumber in(" + parameters["PONo"] + @")";
+
+                JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+                //return _sqlRepository.GetDataTable(sql);
+                //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetBOQStatusReport(Dictionary<string, string> parameters)

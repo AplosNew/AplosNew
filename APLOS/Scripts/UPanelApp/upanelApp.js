@@ -799,6 +799,8 @@ upanelApp.controller("RCMTaxPayableSalesReportController", RCMTaxPayableSalesRep
 upanelApp.controller("RCMTaxReceivableSalesReportController", RCMTaxReceivableSalesReportController);
 upanelApp.controller("TDSDeductionReportController", TDSDeductionReportController);
 upanelApp.controller("GSTReceivableReportController", GSTReceivableReportController);
+upanelApp.controller("debitNoteCreditNoteTaxReportController", debitNoteCreditNoteTaxReportController);
+upanelApp.controller("parkedReportController", parkedReportController);
 upanelApp.controller("GSTPayableSalesReportController", GSTPayableSalesReportController);
 upanelApp.controller("BonusProcessController", BonusProcessController);
 upanelApp.controller("elementCodeController", ElementCodeController);

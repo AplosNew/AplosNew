@@ -94,7 +94,7 @@ from TRN.Maintenancescheduling MS
  left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id
  left join TRN.ResponsiblePlannedDetails RP ON RP.PlannedId=MPD.Id and RP.IsActive=1
  left Join EmployeeInformation EI ON EI.SystemId=RP.ResponsiblePersonId
- where MMA.Id is not null 
+ where MS.IsActive=1 and MMA.Id is not null 
  and Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' " + Filter + @" order by MPD.PlannedDate";
@@ -160,7 +160,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
  left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id
  --left join TRN.ResponsiblePlannedDetails RP ON RP.PlannedId=MPD.Id and RP.IsActive=1
  --left Join EmployeeInformation EI ON EI.SystemId=RP.ResponsiblePersonId
- where 
+ where MS.IsActive=1 and
  Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC)) end between '" + fromdate + "' and '" + todate + "' " + Filter + @" " + Responsible + @"  order by MPD.PlannedDate";
@@ -186,27 +186,43 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
-
-                        if (dv.Count == 0)
-                        {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "RPD" + _Id;
-                            item["PlannedId"] = PId;
-                            AddNewRow(dsProdBooked.Tables[0], item);
-                        }
-                        else
-                        {
-                            item["PlannedId"] = PId;
-                            DataRow drpb = dv[0].Row;
-                            EditRow(drpb, item);
-                        }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsProdBooked);
+                            if (dv.Count == 0)
+                            {
+                                if (item["ActualMinutes"].IsNotNull() && Convert.ToInt32(item["ActualMinutes"]) != 0)
+                                {
+                                    bplib.clsGenID genid = new bplib.clsGenID();
+                                    genid.GenID(TableName, out _Id);
+                                    item["Id"] = "RPD" + _Id;
+                                    item["PlannedId"] = PId;
+                                    AddNewRow(dsProdBooked.Tables[0], item);
+                                }
+                                else
+                                {
+                                    throw new CustomException("Please enter Actual Minutes greater than 0 and proceed!");
+                                }
+                            }
+                            else
+                            {
+                                if (item["ActualMinutes"].IsNotNull() && Convert.ToInt32(item["ActualMinutes"]) != 0)
+                                {
+                                    item["PlannedId"] = PId;
+                                    DataRow drpb = dv[0].Row;
+                                    EditRow(drpb, item);
+                                }
+                                else
+                                {
+                                    throw new CustomException("Please enter Actual Minutes greater than 0 and proceed!");
+                                }
+                            }
+                            clsStaticInfo obj = new clsStaticInfo();
+                            obj.SaveDataSets(dsProdBooked);
                     }
+                    return Json(new { Message = AplosMessage.Insert });
                 }
-                return Json(new { Message = AplosMessage.Insert });
-
+                else
+                {
+                    throw new CustomException("Please select atleast one actionable person and proceed!");
+                }
             }
             catch (Exception ex)
             {
@@ -231,118 +247,125 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                 {
                     foreach (var item in DataList)
                     {
+                        objCon.OpenDataSetThroughAdapter("select * from [TRN].[ResponsiblePlannedDetails] where PlannedId='" + item["Id"] + "'", out DataSet dsResponsibleValidation, false, "1");
                         objCon.OpenDataSetThroughAdapter("select * from [TRN].[MachineAssetPlannedDetails] where ActualDate is not null and Id='" + item["Id"] + "'", out DataSet dsMachineAssetPlannedDetailsValidation, false, "1");
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
-
-                        if (dv.Count == 0)
+                        if (dsResponsibleValidation.Tables[0].Rows.Count > 0)
                         {
-                            DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
-                            DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
-                            TimeSpan t = ToDt.Subtract(FromDt);
-                            int N = t.Days;
-                            DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                            DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                            DateTime NextDayDate = date2.AddDays(N);
-                            TimeSpan ts = date2 - date1;
-                            TimeSpan Nd = NextDayDate - date1;
-                            int minutes = (int)Nd.TotalMinutes;
-
-                            if (minutes >= 720 || minutes < 0)
+                            if (dv.Count == 0)
                             {
-                                item["ToTime"] = NextDayDate;
-                                item["Minute"] = Nd.TotalMinutes;
+                                DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                TimeSpan t = ToDt.Subtract(FromDt);
+                                int N = t.Days;
+                                DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                DateTime NextDayDate = date2.AddDays(N);
+                                TimeSpan ts = date2 - date1;
+                                TimeSpan Nd = NextDayDate - date1;
+                                int minutes = (int)Nd.TotalMinutes;
+
+                                if (minutes >= 720 || minutes < 0)
+                                {
+                                    item["ToTime"] = NextDayDate;
+                                    item["Minute"] = Nd.TotalMinutes;
+                                }
+                                else
+                                {
+                                    item["ToTime"] = date2;
+                                    item["Minute"] = ts.TotalMinutes;
+                                }
+
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID(TableName, out _Id);
+                                item["Id"] = "APD" + _Id;
+                                AddNewRow(dsProdBooked.Tables[0], item);
+
                             }
                             else
                             {
-                                item["ToTime"] = date2;
-                                item["Minute"] = ts.TotalMinutes;
-                            }
-
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "APD" + _Id;
-                            AddNewRow(dsProdBooked.Tables[0], item);
-                           
-                        }
-                        else
-                        {
-                            if (item["FileName"]!=null)
-                            {
-                                DateTime ActualDate = Convert.ToDateTime(item["ActualDate"]);
-                                DateTime LastDayDate = DateTime.Today.AddDays(-1);
-                                if (dsMachineAssetPlannedDetailsValidation.Tables[0].Rows.Count > 0)
+                                if (item["FileName"] != null)
                                 {
-                                    if (ActualDate == DateTime.Today || ActualDate == LastDayDate)
+                                    DateTime ActualDate = Convert.ToDateTime(item["ActualDate"]);
+                                    DateTime LastDayDate = DateTime.Today.AddDays(-1);
+                                    if (dsMachineAssetPlannedDetailsValidation.Tables[0].Rows.Count > 0)
                                     {
-                                        DataRow drpb = dv[0].Row;
-                                        DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
-                                        DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
-                                        TimeSpan t = ToDt.Subtract(FromDt);
-                                        int N = t.Days;
-                                        DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                        DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                        DateTime NextDayDate = date2.AddDays(N);
-                                        TimeSpan ts = date2 - date1;
-                                        TimeSpan Nd = NextDayDate - date1;
-                                        int minutes = (int)Nd.TotalMinutes;
-
-                                        if (minutes >= 720 || minutes < 0)
+                                        if (ActualDate == DateTime.Today || ActualDate == LastDayDate)
                                         {
-                                            item["ToTime"] = NextDayDate;
-                                            item["Minute"] = Nd.TotalMinutes;
+                                            DataRow drpb = dv[0].Row;
+                                            DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                            DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                            TimeSpan t = ToDt.Subtract(FromDt);
+                                            int N = t.Days;
+                                            DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                            DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                            DateTime NextDayDate = date2.AddDays(N);
+                                            TimeSpan ts = date2 - date1;
+                                            TimeSpan Nd = NextDayDate - date1;
+                                            int minutes = (int)Nd.TotalMinutes;
+
+                                            if (minutes >= 720 || minutes < 0)
+                                            {
+                                                item["ToTime"] = NextDayDate;
+                                                item["Minute"] = Nd.TotalMinutes;
+                                            }
+                                            else
+                                            {
+                                                item["ToTime"] = date2;
+                                                item["Minute"] = ts.TotalMinutes;
+                                            }
+                                            EditRow(drpb, item);
                                         }
                                         else
                                         {
-                                            item["ToTime"] = date2;
-                                            item["Minute"] = ts.TotalMinutes;
+                                            throw new CustomException("Actual date should be today's date or yesterday's date only!");
                                         }
-                                        EditRow(drpb, item);
                                     }
                                     else
                                     {
-                                        throw new CustomException("Actual date should be today's date or yesterday's date only!");
+                                        if (ActualDate > DateTime.Today)
+                                        {
+                                            throw new Exception("Actual date cannot be greater than today's date!");
+                                        }
+                                        else
+                                        {
+                                            DataRow drpb = dv[0].Row;
+                                            DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                            DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                            TimeSpan t = ToDt.Subtract(FromDt);
+                                            int N = t.Days;
+                                            DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                            DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                            DateTime NextDayDate = date2.AddDays(N);
+                                            TimeSpan ts = date2 - date1;
+                                            TimeSpan Nd = NextDayDate - date1;
+                                            int minutes = (int)Nd.TotalMinutes;
+
+                                            if (minutes >= 720 || minutes < 0)
+                                            {
+                                                item["ToTime"] = NextDayDate;
+                                                item["Minute"] = Nd.TotalMinutes;
+                                            }
+                                            else
+                                            {
+                                                item["ToTime"] = date2;
+                                                item["Minute"] = ts.TotalMinutes;
+                                            }
+                                            EditRow(drpb, item);
+                                        }
                                     }
                                 }
                                 else
                                 {
-                                    if (ActualDate > DateTime.Today)
-                                    {
-                                        throw new Exception("Actual date cannot be greater than today's date!");
-                                    }
-                                    else
-                                    {
-                                        DataRow drpb = dv[0].Row;
-                                        DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
-                                        DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
-                                        TimeSpan t = ToDt.Subtract(FromDt);
-                                        int N = t.Days;
-                                        DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                        DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                        DateTime NextDayDate = date2.AddDays(N);
-                                        TimeSpan ts = date2 - date1;
-                                        TimeSpan Nd = NextDayDate - date1;
-                                        int minutes = (int)Nd.TotalMinutes;
-
-                                        if (minutes >= 720 || minutes < 0)
-                                        {
-                                            item["ToTime"] = NextDayDate;
-                                            item["Minute"] = Nd.TotalMinutes;
-                                        }
-                                        else
-                                        {
-                                            item["ToTime"] = date2;
-                                            item["Minute"] = ts.TotalMinutes;
-                                        }
-                                        EditRow(drpb, item);
-                                    }
+                                    throw new CustomException("Please Add Attachment and Proceed!");
                                 }
-                            }
-                            else
-                            {
-                                throw new CustomException("Please Add Attachment and Proceed!");
-                            }
 
+                            }
+                        }
+                        else
+                        {
+                            throw new CustomException("Please Add Actionable Person and Proceed!");
                         }
                         clsStaticInfo obj = new clsStaticInfo();
                         obj.SaveDataSets(dsProdBooked);
