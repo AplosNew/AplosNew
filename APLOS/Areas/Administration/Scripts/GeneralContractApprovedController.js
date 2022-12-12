@@ -113,7 +113,7 @@ function GeneralContractApprovedController(cboService, commonMessage, $scope, $r
         var filteredData = $scope.podata.Id;
         var data = ej.DataManager($scope.ContractItemList).executeLocal(ej.Query().where("GeneralContractEntryId", "equal", parseInt(filteredData), true).take(100));
         if (data.length == 0) {
-            throw "Requisition Details is reuired.";
+            throw "Contract Details is reuired.";
         }
 
 
@@ -139,6 +139,7 @@ function GeneralContractApprovedController(cboService, commonMessage, $scope, $r
                 ShowResult(response.data.Message, 'success');
                 $scope.RequisitionUnapproved();
                 $scope.LoadapprovalStatus();
+                $route.reload();
             }
         }, function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
