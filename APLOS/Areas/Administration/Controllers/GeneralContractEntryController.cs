@@ -108,10 +108,16 @@ where GC.Id = '" + headerId + "'";
         {
             try
             {
-                var sql = @"select GCE.*, GC.UserName GeneralContract, E.UserName Entity, EI.EmployeeName from TRN.GeneralContractEntry GCE
+                var sql = @"select GCE.Id, FORMAT(GCE.Date, 'dd-MMM-yyyy')[Date], GC.UserName GeneralContract, E.UserName Entity, GCE.GeneralContractId,
+EI.EmployeeName CheckBy, EMP.EmployeeName ApproveBy, GCE.EntityId, GCE.CheckBySystemId, GCE.ApprovedById
+, case 
+when GCE.CheckedByStatus is NULL then  'To Be Check' else  GCE.CheckedByStatus end as CheckedByStatus,
+case when GCE.ApprovedStatus is NULL THEN 'To Be Approve' else GCE.ApprovedStatus end as ApprovedStatus
+from TRN.GeneralContractEntry GCE
 left join ORG.Entity E on E.Id = GCE.EntityId
 left join MST.GeneralContract GC on GC.Id = GCE.GeneralContractId
 left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId 
+left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById 
 order by GCE.Date DESC";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }

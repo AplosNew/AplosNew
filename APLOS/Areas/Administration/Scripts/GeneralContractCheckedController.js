@@ -1,6 +1,6 @@
 ﻿'use strict';
-GeneralContractCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window','$controller'];
-function GeneralContractCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller) {
+GeneralContractCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', '$controller', '$route'];
+function GeneralContractCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller, $route) {
     $rootScope.title = 'General Contract Checked';
     $scope.ModelList = [];
     $scope.path = 'Administration/GeneralContractChecked/';
@@ -142,7 +142,7 @@ function GeneralContractCheckedController(cboService, commonMessage, $scope, $ro
             var data = ej.DataManager($scope.ContractItemList).executeLocal(ej.Query().where("GeneralContractEntryId", "equal", parseInt(filteredData), true).take(100));
 
             if (data.length == 0) {
-                throw "Requisition Details is reuired.";
+                throw "Contract Details is reuired.";
             }
 
 
@@ -166,7 +166,8 @@ function GeneralContractCheckedController(cboService, commonMessage, $scope, $ro
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    
+                    //$window.location.reload();
+                    $route.reload();
                 }
             }, function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
