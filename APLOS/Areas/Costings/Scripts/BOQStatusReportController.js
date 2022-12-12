@@ -22,6 +22,41 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
     };
 
 
+    $scope.parameters = [];
+    $scope.filterComplete = function () {
+
+        var g = $("#filters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.filters;
+        }
+
+
+        var parameters = [];
+        parameters.push({ "Key": "PartyId", "Value": getString(fl, "PartyId") });
+        parameters.push({ "Key": "Customer", "Value": getString(fl, "Customer") });
+        parameters.push({ "Key": "BuyerReferenceNo", "Value": getString(fl, "BuyerReferenceNo") });
+        parameters.push({ "Key": "OwnReferenceNo", "Value": getString(fl, "OwnReferenceNo") });
+        parameters.push({ "Key": "MasterOrderId", "Value": getString(fl, "MasterOrderId") });
+        parameters.push({ "Key": "LineItemId", "Value": getString(fl, "LineItemId") });
+        parameters.push({ "Key": "SOId", "Value": getString(fl, "SOId") });
+        parameters.push({ "Key": "PONo", "Value": getString(fl, "PONo") });
+
+        $scope.parameters = parameters;
+    }
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
     //#region The Filters 
 
     $scope.filters = [];
@@ -60,42 +95,28 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getBOQStatusFilters();
 
-    $scope.parameters = [];
-    $scope.filterComplete = function () {
+    //new
+    $scope.BOQStausData = [];
 
-        var g = $("#filters").data("ejGrid");
-        var fl = g.getFilteredRecords();
-        if (fl.length == 0) {
-            fl = $scope.filters;
-        }
-
-
-        var parameters = [];
-        parameters.push({ "Key": "PartyId", "Value": getString(fl, "PartyId") });
-        parameters.push({ "Key": "Customer", "Value": getString(fl, "Customer") });
-        parameters.push({ "Key": "BuyerReferenceNo", "Value": getString(fl, "BuyerReferenceNo") });
-        parameters.push({ "Key": "OwnReferenceNo", "Value": getString(fl, "OwnReferenceNo") });
-        parameters.push({ "Key": "MasterOrderId", "Value": getString(fl, "MasterOrderId") });
-        parameters.push({ "Key": "LineItemId", "Value": getString(fl, "LineItemId") });
-        parameters.push({ "Key": "SOId", "Value": getString(fl, "SOId") });
-        parameters.push({ "Key": "PONo", "Value": getString(fl, "PONo") });
-
-        $scope.parameters = parameters;
-    }
-
-    var getString = function (data, column) {
-        var string = "''";
-        var collection = [];
-
-        for (var i = 0; i < data.length; i++) {
-            if (collection.includes(data[i][column]) == false) {
-                string += ",'" + data[i][column] + "'";
-                collection.push(data[i][column]);
+    $scope.ViewAll = function () {
+        $scope.filterComplete();
+        $http({
+            method: 'POST',
+            url: $scope.path + "getBOQStatusData",
+            data: { 'parameters': $scope.parameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
             }
-        }
-        return string;
+            else {
+                $scope.BOQStausData = response.data;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     }
-
+   
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.getBOQStatusReport = function () {
         $scope.filterComplete();
