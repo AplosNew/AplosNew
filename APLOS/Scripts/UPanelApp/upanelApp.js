@@ -1123,6 +1123,7 @@ upanelApp.controller("GeneralContractEntryController", GeneralContractEntryContr
 upanelApp.controller("GeneralContractReportController", GeneralContractReportController)
 upanelApp.controller("GeneralContractApprovedController", GeneralContractApprovedController)
 upanelApp.controller("GeneralContractCheckedController", GeneralContractCheckedController)
+upanelApp.controller("LandedcostreportController", LandedcostreportController)
 
 
 upanelApp.config(AccessControllerConfig);

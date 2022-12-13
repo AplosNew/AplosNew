@@ -415,5 +415,9 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/inventoryReceiveAddition/PurchaseConfirmation',
             controller: 'PurchaseConfirmationController'
         })
+        .when('/landed-cost-report', {
+            templateUrl: 'Products/Landedcostreport/Report',
+            controller: 'LandedcostreportController'
+        })
         ;
 }
