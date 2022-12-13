@@ -29,7 +29,7 @@ function LandedcostreportController(cboService, $scope, $rootScope, $filter, bas
         }
         else {
             var url = 'Products/Landedcostreport/GetLandedCostReport?reportFormat=' + $scope.report.ReportFormat + '&fromdate=' + $scope.report.FromDate + '&todate=' + $scope.report.ToDate + '&reportType=' + $scope.report.ReportType;
-            $window.open(url, '_blank');
+            $rootScope.report(url);
         }
 
 
