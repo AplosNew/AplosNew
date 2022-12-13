@@ -395,6 +395,8 @@ namespace Library.Service.EmployeeServices
                 drProductionSummary["ProductionDate"] = WorkDate;
                 drProductionSummary["Quantity"] = netWeight;
                 drProductionSummary["ProductionOrderId"] = POId;
+                drProductionSummary["ProductionShiftId"] = ShiftId;
+                drProductionSummary["ProductionGrade"] = Grade;
 
                 drProductionSummary["AddedBy"] = User;
                 drProductionSummary["AddedDate"] = DateTime.Now;
