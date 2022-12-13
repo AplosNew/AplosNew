@@ -2,7 +2,7 @@
 parkedReportController.$inject = ['cboService', '$scope', '$rootScope', '$filter', "baseService", "$http", "$window"];
 function parkedReportController(cboService, $scope, $rootScope, $filter, baseService, $http, $window) {
     $rootScope.title = 'Parked Report';
-    $scope.entityList = {};
+    $scope.entityList =[];
     $scope.report = {
         ReportFormat: 'Pdf',
         FromDate: $filter('dateFiltering')(Date.now()),
@@ -29,11 +29,9 @@ function parkedReportController(cboService, $scope, $rootScope, $filter, baseSer
         }
         else {
             var url = 'Accounts/VoucherReport/GetParkedReport?reportFormat=' + $scope.report.ReportFormat + '&fromdate=' + $scope.report.FromDate + '&todate=' + $scope.report.ToDate + '&reportType=' + $scope.report.ReportType;
-                $window.open(url, '_blank');
+           // $window.open(url);
+            $rootScope.report(url);
              }
-
-
-
     };
    
 }
