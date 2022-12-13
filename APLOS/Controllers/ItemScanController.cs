@@ -9,7 +9,7 @@ using APLOS;
 
 namespace Aplos.Controllers
 {
-    [BasicAuthenticationAttribute]
+   // [BasicAuthenticationAttribute]
     public class ItemScanController : ApiController
     {
         ItemScanService _scan= new ItemScanService();

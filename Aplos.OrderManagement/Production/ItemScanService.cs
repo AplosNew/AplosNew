@@ -195,7 +195,7 @@ namespace Library.Service.EmployeeServices
                 var sqlscan = @"Select WorkDate,ShiftId,Grade,PurposeId,LocMasterId from dbo.ItemScan Where Id='"+MId+"'";
                 DataTable dtScan = _sqlRepository.GetDataTable(sqlscan);
 
-                string WorkDate = dtScan.Rows[0]["WorkDate"].ToString();
+                DateTime WorkDate =Convert.ToDateTime(dtScan.Rows[0]["WorkDate"].ToString());
                 string ShiftId = dtScan.Rows[0]["ShiftId"].ToString();
                 string Grade = dtScan.Rows[0]["Grade"].ToString();
                 string PurposeId = dtScan.Rows[0]["PurposeId"].ToString();
