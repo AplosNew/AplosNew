@@ -1123,7 +1123,9 @@ upanelApp.controller("GeneralContractEntryController", GeneralContractEntryContr
 upanelApp.controller("GeneralContractReportController", GeneralContractReportController)
 upanelApp.controller("GeneralContractApprovedController", GeneralContractApprovedController)
 upanelApp.controller("GeneralContractCheckedController", GeneralContractCheckedController)
-
+upanelApp.controller("skillManagementController", skillManagementController)
+upanelApp.controller("skillManagementDetailsController", skillManagementDetailsController)
+upanelApp.controller("pendingSkillManagementController", pendingSkillManagementController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
