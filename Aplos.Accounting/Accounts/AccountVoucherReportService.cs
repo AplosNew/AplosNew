@@ -7552,7 +7552,7 @@ namespace Library.Accounting.Accounts
 
         public DataTable GetIssueParkedData(string plantId)
         {
-            var cmdText = @"SELECT II.Id,II.Id IssueNo, ,Replace(CONVERT(VARCHAR(11),II.IssueDate, 106), ' ', '-') AS IssueDate,II.Remarks, MS.UserName AS MaterialStorage,II.EntityId,E.UserName  EntityName,II.IssueType
+            var cmdText = @"SELECT II.Id,II.Id IssueNo,Replace(CONVERT(VARCHAR(11),II.IssueDate, 106), ' ', '-') AS IssueDate,II.Remarks, MS.UserName AS MaterialStorage,II.EntityId,E.UserName  EntityName,II.IssueType
                                     ,EI.EmployeeCode+' - '+EI.EmployeeName EmployeeName,SUM(IID.TransactionQty) Qty,SUM(IID.PolicyAmount) Amount
                                     ,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
 									,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName 
