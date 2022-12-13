@@ -10,10 +10,21 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
     $scope.saveUrl = 'Accounts/InvoicePost/ServicePost';
     $scope.AcceptanceId = null;
 
-    $scope.products = [];    $scope.searchByPostedService = "Id"; $scope.searchService = "";    $scope.searchByPostedServiceList = [{ value: 'Id', name: "Acknowledge No" }, { value: 'GRNDate', name: "Acknowledge Date" }, { value: 'Particular', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }
+    $scope.products = [];
+    $scope.searchByPostedService = "Id"; $scope.searchService = "";
+    $scope.searchByPostedServiceList = [{ value: 'Id', name: "Acknowledge No" }, { value: 'GRNDate', name: "Acknowledge Date" }, { value: 'Particular', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }
         , { value: 'PostingDate', name: "PostingDate" }, { value: 'DocRefNo', name: "DocRef No" }, { value: 'TDSVoucherNo', name: "TDS VoucherNo" }
-        , { value: 'DocDate', name: "Doc Date" }];    $scope.getDataList = function () {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetServicePostingList',            data: { column: $scope.searchByPostedService, value: $scope.searchService },
-        }).then(function successCallback(response) {            $scope.products = response.data;        });    };
+        , { value: 'DocDate', name: "Doc Date" }];
+
+    $scope.getDataList = function () {
+        $http({
+            method: 'POST',
+            url: 'Accounts/InventoryPayable/GetServicePostingList',
+            data: { column: $scope.searchByPostedService, value: $scope.searchService },
+        }).then(function successCallback(response) {
+            $scope.products = response.data;
+        });
+    };
     $scope.getDataList();
 
     $scope.model = {
@@ -160,9 +171,18 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
         $scope.employeeTransactionTypeList = result;
     });
 
-    $scope.approvedGRNList = [];    $scope.getPopUpData = function () {        $http({            method: 'GET',            url: 'Accounts/InventoryPayable/GetListForSvcPayable',        }).then(function successCallback(response) {            $scope.approvedGRNList = response.data;            for (var i = 0; i < $scope.approvedGRNList.length; i++) {
+    $scope.approvedGRNList = [];
+    $scope.getPopUpData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/InventoryPayable/GetListForSvcPayable',
+        }).then(function successCallback(response) {
+            $scope.approvedGRNList = response.data;
+            for (var i = 0; i < $scope.approvedGRNList.length; i++) {
                 response.data[i].DocDate = new Date($scope.approvedGRNList[i].DocDate);
-            }        });    };
+            }
+        });
+    };
     $scope.popUp = function () {
         $scope.getPopUpData();
         angular.element(document.querySelector('#GRNpopUp')).modal('show');
@@ -711,12 +731,60 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
 
 
 
-    $scope.onClickReportDownloadWord = function (args) {        debugger;        var gridObj = $("#GridPrint").data("ejGrid");        //getting corresponding record         var data = gridObj.getSelectedRecords()[0];        var reportFormat = "Pdf";        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open($scope.path + 'ServicePabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&voucherId=' + data.VoucherId + '&isReversCharge=' + data.IsTaxApplicable, '_blank');
-    };    $scope.commandPDF = [{        type: "details", buttonOptions: {            text: "PDF",            width: "50",            height: "20",            //contentType: "imageonly",            //prefixIcon: "e-icon e-dataexport",            //prefixIcon: "e-icon e-edit" ,            //prefixIcon: "e-icon e-delete",            //prefixIcon: " e-icon e-save",            //prefixIcon: " e-icon e-cancel",            click: $scope.onClickReportDownloadWord        }    }];
+    $scope.onClickReportDownloadWord = function (args) {
+        debugger;
+        var gridObj = $("#GridPrint").data("ejGrid");
+        //getting corresponding record 
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open($scope.path + 'ServicePabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&voucherId=' + data.VoucherId + '&isReversCharge=' + data.IsTaxApplicable, '_blank');
 
-    $scope.onClickReportDownloadExcel = function (args) {        debugger;        var gridObj = $("#GridPrint").data("ejGrid");        //getting corresponding record         var data = gridObj.getSelectedRecords()[0];        var reportFormat = "Excel";        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open($scope.path + 'ServicePabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&voucherId=' + data.VoucherId + '&isReversCharge=' + data.IsTaxApplicable, '_blank');
-    };
-    $scope.commandExcel = [{        type: "details", buttonOptions: {            text: "Excel",            width: "50",            height: "20",            //contentType: "imageonly",            //prefixIcon: "e-icon e-dataexport",            //prefixIcon: "e-icon e-edit" ,            //prefixIcon: "e-icon e-delete",            //prefixIcon: " e-icon e-save",            //prefixIcon: " e-icon e-cancel",            click: $scope.onClickReportDownloadExcel        }    }];
+    };
+
+    $scope.commandPDF = [{
+        type: "details", buttonOptions: {
+            text: "PDF",
+            width: "50",
+            height: "20",
+            //contentType: "imageonly",
+            //prefixIcon: "e-icon e-dataexport",
+
+            //prefixIcon: "e-icon e-edit" ,
+            //prefixIcon: "e-icon e-delete",
+            //prefixIcon: " e-icon e-save",
+            //prefixIcon: " e-icon e-cancel",
+
+            click: $scope.onClickReportDownloadWord
+        }
+    }];
+
+    $scope.onClickReportDownloadExcel = function (args) {
+        debugger;
+        var gridObj = $("#GridPrint").data("ejGrid");
+        //getting corresponding record 
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open($scope.path + 'ServicePabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&voucherId=' + data.VoucherId + '&isReversCharge=' + data.IsTaxApplicable, '_blank');
+
+    };
+    $scope.commandExcel = [{
+        type: "details", buttonOptions: {
+            text: "Excel",
+            width: "50",
+            height: "20",
+            //contentType: "imageonly",
+            //prefixIcon: "e-icon e-dataexport",
+
+            //prefixIcon: "e-icon e-edit" ,
+            //prefixIcon: "e-icon e-delete",
+            //prefixIcon: " e-icon e-save",
+            //prefixIcon: " e-icon e-cancel",
+
+            click: $scope.onClickReportDownloadExcel
+        }
+    }];
 
 
     $scope.onClickGRNID = function (args) {
@@ -826,19 +894,30 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
     $scope.getPaymentVoucherType();
     $scope.additionalTaxUrl = 'Accounts/InvoicePost/InsertAdditionalTaxPayable';
     $scope.additionalTaxDetailList = [];
-    $scope.onClickadditionalTaxPop = function (x) {        $scope.additionalTaxData = {};        var data = x;        data.VoucherTypeId = null;        data.VoucherTypeId = $scope.additionalTaxVoucherTypeId;        data.VoucherDate = new Date();        $scope.additionalTaxData = data;        $http({
+    $scope.onClickadditionalTaxPop = function (x) {
+        $scope.additionalTaxData = {};
+        var data = x;
+        data.VoucherTypeId = null;
+        data.VoucherTypeId = $scope.additionalTaxVoucherTypeId;
+        data.VoucherDate = new Date();
+        $scope.additionalTaxData = data;
+        $http({
             method: 'POST',
             url: 'Accounts/InventoryPayable/GetAdditionalTaxDetail?additionalTaxId=' + data.AdditionalTaxId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.additionalTaxDetailList = response.data;
-        });        angular.element(document.querySelector('#additionalTaxPopUp')).modal('show');
-    };    $scope.postAdditionalTax = function () {
+        });
+
+        angular.element(document.querySelector('#additionalTaxPopUp')).modal('show');
+    };
+    $scope.postAdditionalTax = function () {
         if ($scope.additionalTaxVoucherTypeId == null)
             ShowResult('Please select VoucherType', 'failure', 'additionalTaxPopUp');
 
         $scope.additionalTaxData.VoucherTypeId = $scope.additionalTaxVoucherTypeId;
-        if ($scope.additionalTaxData != null && $scope.additionalTaxVoucherTypeId != null) {            $http({
+        if ($scope.additionalTaxData != null && $scope.additionalTaxVoucherTypeId != null) {
+            $http({
                 method: 'POST',
                 url: $scope.additionalTaxUrl,
                 data: {
@@ -859,11 +938,20 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
             angular.element(document.querySelector('#additionalTaxPopUp')).modal('hide');
         }
 
-    }    $scope.closeAdditionalTax = function () {
+    }
+    $scope.closeAdditionalTax = function () {
         $scope.additionalTaxData = {};
         angular.element(document.querySelector('#additionalTaxPopUp')).modal('hide');
 
-    }    $scope.additionalTaxPop = [{        type: "details", buttonOptions: {            text: "TDS Post",            width: "80",            height: "20",            click: $scope.onClickadditionalTaxPop        }    }];
+    }
+    $scope.additionalTaxPop = [{
+        type: "details", buttonOptions: {
+            text: "TDS Post",
+            width: "80",
+            height: "20",
+            click: $scope.onClickadditionalTaxPop
+        }
+    }];
 
     $scope.additionalTaxPrint = function () {
         try {
