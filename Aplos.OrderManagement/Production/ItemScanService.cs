@@ -214,7 +214,7 @@ namespace Library.Service.EmployeeServices
                 con.OpenDataSetThroughAdapter(sqlx, out DataSet DsHistory, false, "1");
 
                 // For ProductionSummary
-                string sqlPS = @"select * from dbo.ProductionSummary where 1=2";
+                string sqlPS = @"SELECT * FROM TRN.ProductionSummary where 1=2";
                 con.OpenDataSetThroughAdapter(sqlPS, out DataSet dsProductionSummary, false, "1");
 
                 // Inventory Check
