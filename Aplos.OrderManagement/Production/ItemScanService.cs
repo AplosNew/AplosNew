@@ -247,13 +247,13 @@ namespace Library.Service.EmployeeServices
                 }
 
                 int Index = 0;
-                int netWeight = 0;
+                decimal netWeight = 0;
                 string POId = string.Empty;
                 string lotNo = string.Empty;
                 string _Id = ""; string _Idx = "";
                 foreach (ItemScanChildData item in DataToSave)
                 {
-                    netWeight += Convert.ToInt32(item.NetWeight);
+                    netWeight += Convert.ToDecimal(item.NetWeight);
                     POId = item.POId;
                     lotNo = item.LotNo;
 
