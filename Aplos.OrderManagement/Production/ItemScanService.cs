@@ -195,7 +195,7 @@ namespace Library.Service.EmployeeServices
                 var sqlscan = @"Select WorkDate,ShiftId,Grade,PurposeId,LocMasterId from dbo.ItemScan Where Id='"+MId+"'";
                 DataTable dtScan = _sqlRepository.GetDataTable(sqlscan);
 
-                string WorkDate = dtScan.Rows[0]["WorkDate"].ToString();
+                DateTime WorkDate =Convert.ToDateTime(dtScan.Rows[0]["WorkDate"].ToString());
                 string ShiftId = dtScan.Rows[0]["ShiftId"].ToString();
                 string Grade = dtScan.Rows[0]["Grade"].ToString();
                 string PurposeId = dtScan.Rows[0]["PurposeId"].ToString();
@@ -214,7 +214,7 @@ namespace Library.Service.EmployeeServices
                 con.OpenDataSetThroughAdapter(sqlx, out DataSet DsHistory, false, "1");
 
                 // For ProductionSummary
-                string sqlPS = @"select * from dbo.ProductionSummary where 1=2";
+                string sqlPS = @"SELECT * FROM TRN.ProductionSummary where 1=2";
                 con.OpenDataSetThroughAdapter(sqlPS, out DataSet dsProductionSummary, false, "1");
 
                 // Inventory Check
@@ -247,13 +247,13 @@ namespace Library.Service.EmployeeServices
                 }
 
                 int Index = 0;
-                int netWeight = 0;
+                decimal netWeight = 0;
                 string POId = string.Empty;
                 string lotNo = string.Empty;
                 string _Id = ""; string _Idx = "";
                 foreach (ItemScanChildData item in DataToSave)
                 {
-                    netWeight += Convert.ToInt32(item.NetWeight);
+                    netWeight += Convert.ToDecimal(item.NetWeight);
                     POId = item.POId;
                     lotNo = item.LotNo;
 

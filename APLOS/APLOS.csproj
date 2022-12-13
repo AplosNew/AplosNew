@@ -758,6 +758,9 @@
     <Compile Include="Areas\Machines\Controllers\IncedentCategoryController.cs" />
     <Compile Include="Areas\Machines\Controllers\IncedentUpdateController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenancePlanningReportController.cs" />
+    <Compile Include="Areas\Machines\Controllers\PendingSkillManagementController.cs" />
+    <Compile Include="Areas\Machines\Controllers\SkillManagementDetailsController.cs" />
+    <Compile Include="Areas\Machines\Controllers\SkillManagementController.cs" />
     <Compile Include="Areas\Machines\Controllers\TeamPlanReportController.cs" />
     <Compile Include="Areas\Machines\Controllers\TeamDefinitionController.cs" />
     <Compile Include="Areas\Machines\Controllers\MaintenanceSummaryReportController.cs" />
@@ -2220,6 +2223,9 @@
     <Content Include="Areas\Machines\Scripts\incedentCategoryController.js" />
     <Content Include="Areas\Machines\Scripts\incedentUpdateController.js" />
     <Content Include="Areas\Machines\Scripts\maintenancePlanningReportController.js" />
+    <Content Include="Areas\Machines\Scripts\pendingSkillManagementController.js" />
+    <Content Include="Areas\Machines\Scripts\skillManagementDetailsController.js" />
+    <Content Include="Areas\Machines\Scripts\skillManagementController.js" />
     <Content Include="Areas\Machines\Scripts\teamPlanReportController.js" />
     <Content Include="Areas\Machines\Scripts\teamDefinitionController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSummaryReport.js" />
@@ -4457,6 +4463,9 @@
     <Content Include="Areas\Administration\Views\GeneralContractApproved\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\TaxReport\DebitNoteCreditNoteTaxReport.cshtml" />
     <Content Include="Areas\Accounts\Views\ParkedReport.cshtml" />
+    <Content Include="Areas\Machines\Views\SkillManagement\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\SkillManagementDetails\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\PendingSkillManagement\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
