@@ -46,7 +46,7 @@ namespace Aplos.Areas.Products.Controllers
         {
             return View();
         }
-       
+        [Authorize, HttpGet]
         public ActionResult GetLandedCostReport(ReportFormat reportFormat, DateTime fromdate, DateTime todate, string reportType)
         {
             string reportFileName = "";
