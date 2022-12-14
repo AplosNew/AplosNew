@@ -515,6 +515,31 @@ namespace Library.Accounting.Accounts
         {
             return transactionCurrencyId == companyCurrencyId ? (decimal)1 : 1 / companyCurrencyRate;
         }
+        public void InsertBankJournal(BankJournal bankJournal, ref DataSet dsData)
+        {
+            bankJournal.Id = GetAutoNumber(nameof(BankJournal), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            AuditService.AddedLog(bankJournal);
+            if(dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[BankJournal] where 1=2", out dsData);
+            }
+            AddNewRow<BankJournal>(dsData.Tables[0], bankJournal);
+        }
+        public void InsertBankJournalDetail(BankJournal bankJournal, BankJournalDetail bankJournalDetail, int currentId, ref DataSet dsData)
+        {
+            bankJournalDetail.Id = MakePK(bankJournal.Id, currentId, 1);
+            bankJournalDetail.BankJournalId = bankJournal.Id;
+            bankJournalDetail.AddedBy = bankJournal.AddedBy;
+            bankJournalDetail.AddedDate = bankJournal.AddedDate;
+            bankJournalDetail.AddedFromIP = bankJournal.AddedFromIP;
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[BankJournalDetail] where 1=2", out dsData);
+            }
+            AddNewRow<BankJournalDetail>(dsData.Tables[0], bankJournalDetail);
+        }
 
         #region Invoice
         public Invoice InsertInvoice(Invoice invoice, out DataSet dsData)

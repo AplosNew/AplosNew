@@ -177,9 +177,9 @@
                                      e-allowselection="false"
                                      e-allowsorting="true">
                                     <div e-columns>
-                                        <div e-column e-field="BankReconciliationMapId" e-headertext="Id" e-width="60" e-textalign="center"></div>
+                                        <div e-column e-field="BankReconciliationMapId" e-headertext="Id" e-width="50" e-textalign="center"></div>
                                         <div e-column e-field="VoucherDetailId" e-headertext="VoucherId" e-width="60" e-textalign="center"></div>
-                                        <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="50" e-textalign="center"></div>
+                                        <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="70" e-textalign="center"></div>
                                         <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="40" e-textalign="center"></div>
                                         <div e-column e-field="BankReconciliationUploadedDataId" e-headertext="UploadedId" e-width="60" e-textalign="center"></div>
                                         <div e-column e-field="BankStatementDate" e-headertext="Date" e-width="40" e-textalign="center"></div>
@@ -302,9 +302,9 @@
                                      e-allowselection="false"
                                      e-allowsorting="true">
                                     <div e-columns>
-                                        <div e-column e-field="BankReconciliationMapId" e-headertext="Id" e-width="60" e-textalign="center"></div>
+                                        <div e-column e-field="BankReconciliationMapId" e-headertext="Id" e-width="50" e-textalign="center"></div>
                                         <div e-column e-field="VoucherDetailId" e-headertext="VoucherId" e-width="60" e-textalign="center"></div>
-                                        <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="50" e-textalign="center"></div>
+                                        <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="70" e-textalign="center"></div>
                                         <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="40" e-textalign="center"></div>
                                         <div e-column e-field="BankReconciliationUploadedDataId" e-headertext="UploadedId" e-width="60" e-textalign="center"></div>
                                         <div e-column e-field="BankStatementDate" e-headertext="Date" e-width="40" e-textalign="center"></div>
@@ -337,4 +337,5 @@
 
         <confirm-modal></confirm-modal>
         <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(voucherDetailId)"></confirm-archive-generic>
+        <confirm-archive-generic modalid="confirmSavePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="SaveAdjustmentJournal()"></confirm-archive-generic>
         @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
