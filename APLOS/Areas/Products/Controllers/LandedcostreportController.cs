@@ -60,7 +60,6 @@ namespace Aplos.Areas.Products.Controllers
             {
                 workbook = GetGRNLandedCostReport(out reportFileName, identity.PlantId, fromdate, todate);
             }
-
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:

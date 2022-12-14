@@ -40,6 +40,8 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
         OpeningBlance: null,
         ClosingBalance: null,
         BankStatementNo: null,
+        DrAmount: null,
+        CrAmount: null,
         FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now())
     };
@@ -107,6 +109,32 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
         }
     };
 
+    $scope.SaveAdjustmentJournal = function () {
+        try {
+             $http({
+                    method: "POST",
+                    url: $scope.path + "SaveAdjustmentJournalBankReconciliationMap",
+                    data: {
+                        "bankReconciliation": $scope.bankReconciliation
+                        , "bankReconciliationList": $scope.TempList
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        $scope.getBnkReconList();
+                        ShowResult(response.data.Message, "success");
+                    }
+                });
+            
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
     $scope.Save = function () {
         try {
             //$scope.$broadcast("show-errors-check-validity");
@@ -115,7 +143,12 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
             if ($scope.TempList.length === 0)
                 throw "Please check at least one Reconcile Pending .!";
 
-                angular.copy($scope.bankReconciliationNew, $scope.bankReconciliation);
+            angular.copy($scope.bankReconciliationNew, $scope.bankReconciliation);
+            if (bankDrReconDifferenceAmount > 0 && bankDrReconDifferenceAmount <= 2) {
+                $scope.message_confirmation = "Do you want to adjust? adjust amount is " + bankDrReconDifferenceAmount;
+                angular.element(document.querySelector("#confirmSavePopUp")).modal("show");
+            }
+            else {
                 $http({
                     method: "POST",
                     url: $scope.path + "SaveBankReconciliationMap",
@@ -133,15 +166,35 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
                         ShowResult(response.data.Message, "success");
                     }
                 });
+            }
+                
         } catch (e) {
             ShowResult(e, "failure");
         }
     };
-
+    var bankDrReconDifferenceAmount = 0;
     function checkTotalAmount() {
-        if (parseFloat($scope.bankDrReconAmount) !== parseFloat($scope.bankDrReconUploadedDataAmount))
+        bankDrReconDifferenceAmount = 0;
+        if (parseFloat($scope.bankDrReconAmount) > parseFloat($scope.bankDrReconUploadedDataAmount)) {
+            bankDrReconDifferenceAmount = (parseFloat($scope.bankDrReconAmount) - parseFloat($scope.bankDrReconUploadedDataAmount)).toFixed(2);
+            $scope.bankReconciliationNew.DrAmount = bankDrReconDifferenceAmount;
+        }
+         if (parseFloat($scope.bankDrReconAmount) < parseFloat($scope.bankDrReconUploadedDataAmount)) {
+             bankDrReconDifferenceAmount = (parseFloat($scope.bankDrReconUploadedDataAmount) - parseFloat($scope.bankDrReconAmount)).toFixed(2);
+             $scope.bankReconciliationNew.CrAmount = bankDrReconDifferenceAmount;
+        }
+         if (parseFloat($scope.bankCrReconAmount) < parseFloat($scope.bankCrReconUploadedDataAmount)) {
+             bankDrReconDifferenceAmount = (parseFloat($scope.bankCrReconUploadedDataAmount) - parseFloat($scope.bankCrReconAmount)).toFixed(2);
+             $scope.bankReconciliationNew.DrAmount = bankDrReconDifferenceAmount;
+        }
+         if (parseFloat($scope.bankCrReconAmount) > parseFloat($scope.bankCrReconUploadedDataAmount)) {
+             bankDrReconDifferenceAmount = (parseFloat($scope.bankCrReconAmount) - parseFloat($scope.bankCrReconUploadedDataAmount)).toFixed(2);
+             $scope.bankReconciliationNew.CrAmount = bankDrReconDifferenceAmount;
+        }
+            
+        if ((parseFloat($scope.bankDrReconAmount) !== parseFloat($scope.bankDrReconUploadedDataAmount)) && (bankDrReconDifferenceAmount > 2 || bankDrReconDifferenceAmount<0))
             throw "Bank Dr reconciled total amount must be equal Bank Dr reconciled Uploaded total amount.!";
-        if (parseFloat($scope.bankCrReconAmount) !== parseFloat($scope.bankCrReconUploadedDataAmount))
+        if ((parseFloat($scope.bankCrReconAmount) !== parseFloat($scope.bankCrReconUploadedDataAmount)) && (bankDrReconDifferenceAmount > 2 || bankDrReconDifferenceAmount < 0))
             throw "Bank Cr reconciled total amount must be equal Bank Cr reconciled Uploaded total amount.!";
     }
 
