@@ -6010,8 +6010,10 @@ UNION ALL
 		            ,x.TaxCategoryType,x.TaxCode--,x.TaxPercentage
 		            ,SUM(x.TaxableAmount) TaxableAmount,SUM(x.DrAmount) DrAmount,SUM(x.CrAmount) CrAmount
 		            ,x.TCSequence,x.EntryDate,x.GRNNo
-		            FROM 
+                    ,x.PlaceofSupply,x.ReverseCharge,x.Suppliesundersection7ofIGSTAct,x.InvoiceType,x.ECommerceGSTIN
+					,x.ItemName,x.HSNSAC,x.Rate,x.CessAmount,x.ApplicableofTaxRate
 
+		            FROM 
                       (
 						            SELECT  'Sales' SourceType
                             ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
@@ -6023,7 +6025,7 @@ UNION ALL
                             --WHEN v.SourceType='VendorPayment' THEN AP.UserName
                             --ELSE '' END
                             ,TaxableAmount=case when v.SourceType='CustomerInvoice' then ISNULL(VD.CrAmount,0) else 0 end
-,0 DrAmount
+                            ,0 DrAmount
                             ,CrAmount=case when ITD.AType='Cr' then ISNULL(IT.TaxAmount,0) else 0 end
 							
 	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
@@ -6033,8 +6035,10 @@ UNION ALL
                             ,0 [Percentage],NULL HSNCodeId,NULL Material
 							,TaxPercentage= case when v.SourceType='CustomerInvoice' then taxc.ValueOfFixed
 												  else 0 end
-												 
-												 , Format (IT.AddedDate,'dd-MMM-yyyy')EntryDate
+							, Format (IT.AddedDate,'dd-MMM-yyyy')EntryDate
+                            ,NULL PlaceofSupply,0 ReverseCharge,NULL Suppliesundersection7ofIGSTAct,NULL InvoiceType,NULL ECommerceGSTIN
+                            ,NULL ItemName,NULL HSNSAC,0 Rate,0 CessAmount,0 ApplicableofTaxRate
+
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
@@ -6066,7 +6070,7 @@ UNION ALL
                             
                             ,TaxableAmount=case when v.SourceType='SalesInvoice' then ISNULL(IRD.PolicyAmount,0)
                             else 0 end
-,0 DrAmount
+                            ,0 DrAmount
                             ,CrAmount=case when ITD.AType='Cr' then ISNULL(IRT.TaxAmount,0) else 0 end
 	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
                             ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory
@@ -6076,7 +6080,10 @@ UNION ALL
                             ,IRT.[Percentage],NULL HSNCodeId,null Material
 							,TaxPercentage= case  when v.SourceType='SalesInvoice' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
 												 else 0 end
-												 ,it.AddedDate EntryDate
+							,it.AddedDate EntryDate
+                            ,NULL PlaceofSupply,0 ReverseCharge,NULL Suppliesundersection7ofIGSTAct,NULL InvoiceType,NULL ECommerceGSTIN
+                            ,NULL ItemName,NULL HSNSAC,0 Rate,0 CessAmount,0 ApplicableofTaxRate
+
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
@@ -6118,7 +6125,7 @@ UNION ALL
                             
                             ,TaxableAmount=case when v.SourceType='SalesInvoice' then ISNULL(IRD.TotalSalesAmount,0)
                             else 0 end
-,0 DrAmount
+                            ,0 DrAmount
                             ,CrAmount=case when ITD.AType='Cr' then ISNULL(IRT.TaxAmount,0) else 0 end
 	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
                             ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory
@@ -6128,7 +6135,10 @@ UNION ALL
                             ,IRT.[Percentage],NULL HSNCodeId,null Material
 							,TaxPercentage= case  when v.SourceType='SalesInvoice' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
 												 else 0 end
-												 ,it.AddedDate EntryDate
+							,it.AddedDate EntryDate
+                            ,NULL PlaceofSupply,0 ReverseCharge,NULL Suppliesundersection7ofIGSTAct,NULL InvoiceType,NULL ECommerceGSTIN
+                            ,NULL ItemName,NULL HSNSAC,0 Rate,0 CessAmount,0 ApplicableofTaxRate
+
                             FROM TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
@@ -6164,7 +6174,7 @@ UNION ALL
                             
                             ,TaxableAmount=case when v.SourceType='SalesInvoice' then ISNULL(IRD.Amount,0)
                             else 0 end
-,0 DrAmount
+                            ,0 DrAmount
                             ,CrAmount=case when ITD.AType='Cr' then ISNULL(IRT.TaxAmount,0) else 0 end
 	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
                             ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory
@@ -6174,7 +6184,10 @@ UNION ALL
                             ,IRT.[Percentage],NULL HSNCodeId,null Material
 							,TaxPercentage= case  when v.SourceType='SalesInvoice' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
 												 else 0 end
-												 ,it.AddedDate EntryDate
+							,it.AddedDate EntryDate
+                            ,NULL PlaceofSupply,0 ReverseCharge,NULL Suppliesundersection7ofIGSTAct,NULL InvoiceType,NULL ECommerceGSTIN
+                            ,NULL ItemName,NULL HSNSAC,0 Rate,0 CessAmount,0 ApplicableofTaxRate
+
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
@@ -6225,7 +6238,10 @@ UNION ALL
                             ,IRT.[Percentage],NULL HSNCodeId,null Material
 							,TaxPercentage= case  when v.SourceType='SalesInvoice' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
 												 else 0 end
-												 ,it.AddedDate EntryDate
+							,it.AddedDate EntryDate
+                            ,NULL PlaceofSupply,0 ReverseCharge,NULL Suppliesundersection7ofIGSTAct,NULL InvoiceType,NULL ECommerceGSTIN
+                            ,NULL ItemName,NULL HSNSAC,0 Rate,0 CessAmount,0 ApplicableofTaxRate
+
                             from TRN.InvoiceTax IT
                             left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
@@ -6259,8 +6275,9 @@ UNION ALL
 							group by x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyName
 							,x.TCSequence,x.PartyPlantName,x.GSTIN,x.SourceType
 							,x.TaxCategoryType,x.EntryDate,x.TaxCode,x.GRNNo
+                            ,x.PlaceofSupply,x.ReverseCharge,x.Suppliesundersection7ofIGSTAct,x.InvoiceType,x.ECommerceGSTIN
+					        ,x.ItemName,x.HSNSAC,x.Rate,x.CessAmount,x.ApplicableofTaxRate";
 
-";
             return _sqlRepository.GetDataTable(strSql);
 
         }
@@ -6340,35 +6357,86 @@ UNION ALL
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
                 xlsCol++;
 
-                int iPartyPlantName = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Party Plant";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
-                xlsCol++;
+                //int iPartyPlantName = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Party Plant";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                //xlsCol++;
 
                 int iGSTIN = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "GSTIN(Party Plant)";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
-
-                //xlsCol++;
-                //int iParticulars = xlsCol; // Party
-                //sheet1.Range[xlsRow, xlsCol].Text = "Particulars";
-                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40;
-
                 xlsCol++;
+
+                int iPlaceofSupply = xlsCol; 
+                sheet1.Range[xlsRow, xlsCol].Text = "Place of Supply";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20;
+                xlsCol++;
+
+                int iReverseCharge = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Reverse Charge";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                xlsCol++;
+
+                int iSuppliesundersection7ofIGSTAct = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Supplies under section 7 of IGST Act";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                xlsCol++;
+
+                int iInvoiceType = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Invoice Type";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20;
+                xlsCol++;
+
+                int iECommerceGSTIN = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "E-Commerce GSTIN";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20;
+                xlsCol++;
+
+                int iItemName = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Item Name";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 35;
+                xlsCol++;
+
+                int iHSNSAC = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "HSN/SAC";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                xlsCol++;
+
+                int iTaxableAmount = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Taxable Amount";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iRate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Rate";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iCessAmount = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Cess Amount";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iApplicableofTaxRate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Applicable % of Tax Rate";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
                 int iVoucherNo = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Voucher No";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
                 xlsCol++;
+
                 int iEntryDate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Entry Date";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
                 xlsCol++;
+
                 int iPostingDate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 xlsCol++;
+
                 int iDocRefNo = xlsCol; // Doc Ref
                 sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
@@ -6380,14 +6448,14 @@ UNION ALL
 
                 xlsCol++;
                 int iGRNNo = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "GRN No";
+                sheet1.Range[xlsRow, xlsCol].Text = "Invoice No";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
-                xlsCol++;
-                int iTaxableAmount = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Taxable Amount";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //xlsCol++;
+                //int iTaxableAmount = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Taxable Amount";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 DataTable dtTaxCode = null;
                 dtGStReceivableF3.DefaultView.Sort = "TCSequence";
                 dtTaxCode = dtGStReceivableF3.DefaultView.ToTable(true, "TaxCode");
@@ -6531,8 +6599,25 @@ UNION ALL
 
                         sheet1.Range[xlsRow, iVoucherType].Text = dtGStReceivableF3.Rows[i]["SourceType"].ToString();
                         sheet1.Range[xlsRow, iPartyName].Text = dtGStReceivableF3.Rows[i]["PartyName"].ToString();
-                        sheet1.Range[xlsRow, iPartyPlantName].Text = dtGStReceivableF3.Rows[i]["PartyPlantName"].ToString();
+                        //sheet1.Range[xlsRow, iPartyPlantName].Text = dtGStReceivableF3.Rows[i]["PartyPlantName"].ToString();
                         sheet1.Range[xlsRow, iGSTIN].Text = dtGStReceivableF3.Rows[i]["GSTIN"].ToString();
+                        sheet1.Range[xlsRow, iPlaceofSupply].Text = dtGStReceivableF3.Rows[i]["PlaceofSupply"].ToString();
+                        sheet1.Range[xlsRow, iReverseCharge].Text = dtGStReceivableF3.Rows[i]["ReverseCharge"].ToString();
+                        sheet1.Range[xlsRow, iSuppliesundersection7ofIGSTAct].Text = dtGStReceivableF3.Rows[i]["Suppliesundersection7ofIGSTAct"].ToString();
+                        sheet1.Range[xlsRow, iInvoiceType].Text = dtGStReceivableF3.Rows[i]["InvoiceType"].ToString();
+                        sheet1.Range[xlsRow, iECommerceGSTIN].Text = dtGStReceivableF3.Rows[i]["ECommerceGSTIN"].ToString();
+                        sheet1.Range[xlsRow, iItemName].Text = dtGStReceivableF3.Rows[i]["ItemName"].ToString();
+                        sheet1.Range[xlsRow, iHSNSAC].Text = dtGStReceivableF3.Rows[i]["HSNSAC"].ToString();
+
+                        sheet1.Range[xlsRow, iRate].Text = dtGStReceivableF3.Rows[i]["Rate"].ToString();
+                        sheet1.Range[xlsRow, iRate].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                        sheet1.Range[xlsRow, iCessAmount].Text = dtGStReceivableF3.Rows[i]["CessAmount"].ToString();
+                        sheet1.Range[xlsRow, iCessAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                        sheet1.Range[xlsRow, iApplicableofTaxRate].Text = dtGStReceivableF3.Rows[i]["ApplicableofTaxRate"].ToString();
+                        sheet1.Range[xlsRow, iApplicableofTaxRate].NumberFormat = "#,##0.00;(#,##0.00)";
+
                         sheet1.Range[xlsRow, iVoucherNo].Text = dtGStReceivableF3.Rows[i]["VoucherNo"].ToString();
 
                         sheet1.Range[xlsRow, iEntryDate].Text = dtGStReceivableF3.Rows[i]["EntryDate"].ToString();
@@ -6606,7 +6691,7 @@ UNION ALL
                 //sheet1[perStartRow, iCategory, xlsRow - 1, iCategory].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iVoucherType, xlsRow - 1, iVoucherType].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPartyName, xlsRow - 1, iPartyName].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iPartyPlantName, xlsRow - 1, iPartyPlantName].BorderAround(ExcelLineStyle.Hair);
+                //sheet1[perStartRow, iPartyPlantName, xlsRow - 1, iPartyPlantName].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iGSTIN, xlsRow - 1, iGSTIN].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
