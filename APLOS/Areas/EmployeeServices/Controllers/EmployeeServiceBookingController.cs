@@ -149,14 +149,36 @@ namespace Aplos.Areas.EmployeeServices.Controllers
             //				    WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' and Date between '"+FromDate+@"' and '"+ToDate+@"'
             //                                                        order by Date desc ";
 
-            string sql = @"Select distinct  esd.Date,FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetTime], ShiftId , EmployeeServiceCategoryId , es.Id as  EmployeeServicesId,
-                            es.Service as ServiceName, sd.UserName as ShiftName, ec.Category
+            //string sql = @"Select distinct  esd.Date,FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetTime], ShiftId , EmployeeServiceCategoryId , es.Id as  EmployeeServicesId,
+            //                es.Service as ServiceName, sd.UserName as ShiftName, ec.Category
+            //                from dbo.EmpServiceData esd
+            //                left join dbo.EmpServiceCategory  ec on ec.Id = esd.EmployeeServiceCategoryId
+            //                left join dbo.EmpServiceType es on es.Id = ec.EmpServiceTypeId
+            //                left join dbo.ShiftDefination sd on sd.SystemID = esd.ShiftId
+            //                WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' and "+ddDates+@"
+            //                order by Date desc ";
+
+            string sql = @"Select EMP.EmployeeCode, EMP.EmployeeName, UN.UserName Entity, DP.UserName Department, LDSG.UserName 'Legal Designation', ShiftId
+, EmployeeServiceCategoryId , es.Id as  EmployeeServicesId,  es.Service as ServiceName, ec.Category, esd.Date,FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate
+,CONVERT(varchar(5),esd.[Time],108)[GetTime], esd.Quantity, esd.AddedBy, sd.UserName as ShiftName							
                             from dbo.EmpServiceData esd
                             left join dbo.EmpServiceCategory  ec on ec.Id = esd.EmployeeServiceCategoryId
                             left join dbo.EmpServiceType es on es.Id = ec.EmpServiceTypeId
                             left join dbo.ShiftDefination sd on sd.SystemID = esd.ShiftId
-                            WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' and "+ddDates+@"
-                            order by Date desc ";
+							left join EmployeeInformation EMP ON EMP.SystemId = esd.EmployeeId
+LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+left join ORG.Entity UN on UN.Id = MBGT.EntityId
+left join ORG.Department DP on DP.ID = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+ WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' and " + ddDates + @"
+ order by Date desc";
             var jsondata = Json(_sqlRepository.GetDataCollection(sql, null));
             jsondata.MaxJsonLength = int.MaxValue;
 
