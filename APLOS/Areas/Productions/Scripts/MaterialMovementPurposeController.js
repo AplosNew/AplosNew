@@ -11,7 +11,7 @@ function MaterialMovementPurposeController(cboService, commonMessage, $scope, $r
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.searchByList = [{ value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
 
     $scope.getData = function () {
@@ -37,6 +37,8 @@ function MaterialMovementPurposeController(cboService, commonMessage, $scope, $r
         UserName: null,
         Description: null,
         Remarks: null,
+        ProcessId: null,
+        IsInventoryOut: false,
         Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -48,6 +50,12 @@ function MaterialMovementPurposeController(cboService, commonMessage, $scope, $r
         });
     };
     $scope.GetSequence();
+
+    $scope.processList = [];
+    cboService.getProductionProcessCbo(function (response) {
+        $scope.processList = response;
+    });
+
 
     $scope.Get = function (args) {
 

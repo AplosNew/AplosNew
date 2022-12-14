@@ -28,7 +28,7 @@ using Library.Data;
 
 namespace Aplos.Areas.Machines.Controllers
 {
-    public class MaintenanceStatusDetailsController : Controller
+    public class SkillManagementDetailsController : Controller
     {
         #region Constructor
 
@@ -37,7 +37,7 @@ namespace Aplos.Areas.Machines.Controllers
         ResudeceStatusReportService rsr = new ResudeceStatusReportService();
         private readonly ISqlRepository _sqlRepository;
 
-        public MaintenanceStatusDetailsController(IAttendanceManagementService AttendanceManagementService, ISqlRepository R)
+        public SkillManagementDetailsController(IAttendanceManagementService AttendanceManagementService, ISqlRepository R)
         {
             _AttendanceManagementService = AttendanceManagementService;
             _sqlRepository = R;

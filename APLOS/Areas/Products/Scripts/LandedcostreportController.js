@@ -1,13 +1,13 @@
 ﻿'use strict';
-parkedReportController.$inject = ['cboService', '$scope', '$rootScope', '$filter', "baseService", "$http", "$window"];
-function parkedReportController(cboService, $scope, $rootScope, $filter, baseService, $http, $window) {
-    $rootScope.title = 'Parked Report';
-    $scope.entityList =[];
+LandedcostreportController.$inject = ['cboService', '$scope', '$rootScope', '$filter', "baseService", "$http", "$window"];
+function LandedcostreportController(cboService, $scope, $rootScope, $filter, baseService, $http, $window) {
+    $rootScope.title = 'Landed Cost Report';
+    $scope.entityList = {};
     $scope.report = {
         ReportFormat: 'Pdf',
         FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now()),
-        ReportType: 'Voucher'
+        ReportType: 'GRNLandedCost'
     };
     $scope.entityId = null;
     cboService.getCboEntityPlantWise(null, null, null, function (result) {
@@ -25,13 +25,15 @@ function parkedReportController(cboService, $scope, $rootScope, $filter, baseSer
             manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
         }
         else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
-              manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
+            manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
         }
         else {
-            var url = 'Accounts/VoucherReport/GetParkedReport?reportFormat=' + $scope.report.ReportFormat + '&fromdate=' + $scope.report.FromDate + '&todate=' + $scope.report.ToDate + '&reportType=' + $scope.report.ReportType;
-           // $window.open(url);
+            var url = 'Products/Landedcostreport/GetLandedCostReport?reportFormat=' + $scope.report.ReportFormat + '&fromdate=' + $scope.report.FromDate + '&todate=' + $scope.report.ToDate + '&reportType=' + $scope.report.ReportType;
             $rootScope.report(url);
-             }
+        }
+
+
+
     };
-   
+
 }

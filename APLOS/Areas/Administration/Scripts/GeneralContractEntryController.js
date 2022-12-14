@@ -22,6 +22,18 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
     };
     // #endregion TAB CHANGE
 
+    //#region List object
+
+    $scope.ModelTemp = {
+        Id: null,
+        Date: null,
+        GeneralContractId: null,
+        EntityId: null,
+        CheckBySystemId: null
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    //#endregion List object
+
     $scope.ContractList = [];
     $scope.GetContractName = function () {
         $http.get('Administration/GeneralContractEntry/GetContract')
@@ -40,17 +52,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
     }
     $scope.GetEntity();
 
-    //#region List object
-    var CurrentDate = new Date();
-    $scope.ModelTemp = {
-        Id: null,
-        Date: null,
-        GeneralContractId: null,
-        EntityId: null,
-        CheckBySystemId:null
-    };
-    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-    //#endregion List object
+    
 
     $scope.ContractItemList = [];
     $scope.GetAllContractItem = function () {
@@ -101,8 +103,6 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
 
     }
 
-    
-
     //  #region Save
    
     $scope.Save = function () {
@@ -122,8 +122,9 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
             else {
                 ShowResult(response.data.Message, 'success');
                 //ClearFields(response.data.Sequence);
-                $scope.getData();
-                $scope.GetChildList();
+                $scope.GetList();
+               // $scope.getData();
+               // $scope.GetChildList();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -133,12 +134,10 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
     //  #endregion Save
     // #region Double Tap open grid
     $scope.Get = function (args) {
-        document.getElementById("updatebtn").style.display = "block"
-        document.getElementById("savebtn").style.display = "none"
-        //$scope.GetAllContractItem();
        
         $scope.ModelNew = Object.assign({}, args.data);
-        //$scope.Action = 'Update';
+        document.getElementById("updatebtn").style.display = "block"
+        document.getElementById("savebtn").style.display = "none"
         $scope.GetAllCheckById();
         $scope.GetChildList();
         if (!$rootScope.isCollapsed) {
@@ -165,7 +164,8 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
             else {
                 ShowResult(response.data.Message, 'success');
                 ClearFields(response.data.Sequence);
-                $scope.getData();
+                
+                $scope.GetList();
 
             }
         }), function errorCallBack(response) {
@@ -184,16 +184,37 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
         $scope.Action = 'Save';
         $scope.ModelTemp = {
             Id: null,
-            Date: CurrentDate,
+            Date: null,
             GeneralContractId: null,
             EntityId: null,
             CheckBySystemId: null
         };
         $scope.ContractItemList = [];
-        $scope.CheckedByIdList = [];
-        $scope.ContractList = [];
-        $scope.EntityList = [];
+        //$scope.CheckedByIdList = [];
+        //$scope.ContractList = [];
+        //$scope.EntityList = [];
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
     //  #endregion Clear
+
+   
+
+    $scope.invalidDate = false;
+    $scope.DateValidation = function () {
+        var msg = "";
+        if (new Date($scope.ModelNew.Date) > new Date()) {
+         
+            throw "Date must be equal to current Date!";
+        }
+        else if (new Date($scope.ModelNew.Date) < new Date()) {
+            throw "Doc date must be equal to current Date!";
+            $scope.invalidDate = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.ModelNew.Date)) {
+            msg = "Date is required.";
+            $scope.invalidDate = true;
+        }
+        else $scope.invalidDocDate = false;
+       // return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
+    }
 }

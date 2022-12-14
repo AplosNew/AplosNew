@@ -18,7 +18,7 @@ using System.Web.Script.Serialization;
 
 namespace Aplos.Areas.Machines.Controllers
 {
-    public class PendingMaintenanceScheduleController : Controller
+    public class PendingSkillManagementController : Controller
     {
         #region Constructor
 
@@ -26,7 +26,7 @@ namespace Aplos.Areas.Machines.Controllers
 
         private readonly ISqlRepository _sqlRepository;
 
-        public PendingMaintenanceScheduleController(ISqlRepository R)
+        public PendingSkillManagementController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
