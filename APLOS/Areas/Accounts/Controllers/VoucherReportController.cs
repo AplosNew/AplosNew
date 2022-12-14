@@ -118,6 +118,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     return View();
             }
         }
+        [Authorize, HttpGet]
         public ActionResult GetParkedReport(ReportFormat reportFormat, DateTime fromdate, DateTime todate,string reportType)
         {
             string reportFileName = "";
