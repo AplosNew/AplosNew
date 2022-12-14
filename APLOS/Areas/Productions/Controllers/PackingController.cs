@@ -547,6 +547,8 @@ namespace Aplos.Areas.Productions.Controllers
                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
                 pdfDocument.PageSettings.Width = 1200;
                 pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                //pdfDocument.PageSettings.
+               // sheet.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + userName + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt");
                 //Releases all resources used by DocToPDFConverter
                 converter.Dispose();
 

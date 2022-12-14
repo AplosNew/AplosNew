@@ -113,8 +113,8 @@ namespace Aplos.Areas.Productions.Controllers
             int ColMO = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Master Order Date", 12, ExcelHAlign.HAlignLeft);
-            int ColMOD = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person", 20, ExcelHAlign.HAlignLeft);
+            int ColResponsiblePerson = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Item Id", 12, ExcelHAlign.HAlignLeft);
@@ -194,8 +194,7 @@ namespace Aplos.Areas.Productions.Controllers
             int ColAll = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person", 20, ExcelHAlign.HAlignLeft);
-            int ColResponsiblePerson = COL;
+          
         
 
             endCol = COL;
@@ -227,7 +226,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColCus].Text = data.Rows[i]["Customer"].ToString();
                 sheet[ROW, ColCusG].Text = data.Rows[i]["CustomerGroup"].ToString();
                 sheet[ROW, ColMO].Number = clsStaticInfo.dbl(data.Rows[i]["MasterOrderNo"].ToString());
-                sheet[ROW, ColMOD].DateTime = Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
+                //sheet[ROW, ColMOD].DateTime = Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
                 sheet[ROW, ColCd].DateTime = Convert.ToDateTime(data.Rows[i]["CreatedDate"].ToString());
                 sheet[ROW, ColDel].DateTime = Convert.ToDateTime(data.Rows[i]["DeliveryDate"].ToString());
                 sheet[ROW, ColOwn].Text = data.Rows[i]["OwnReferenceNo"].ToString();
