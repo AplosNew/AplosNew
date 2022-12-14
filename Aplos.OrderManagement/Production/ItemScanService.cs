@@ -203,7 +203,11 @@ namespace Library.Service.EmployeeServices
                 //getProcess&Entity
                 var sqlProcess = @"SELECT ProcessId FROM HKP.MaterialMovementPurpose where Id ='"+ PurposeId + "'";
                 DataTable dtProcess = _sqlRepository.GetDataTable(sqlProcess);
-                string processId = dtProcess.Rows[0]["ProcessId"].ToString();                
+                string processId = dtProcess.Rows[0]["ProcessId"].ToString();
+                if (string.IsNullOrEmpty(processId))
+                {
+                    throw new Exception("Define Process in Material Movement Purpose.");
+                }
 
                 // Check repeat Rows 
                 var sql = @"select * from dbo.ItemScanChild where RefNo IN(" + RefNo + @")";
