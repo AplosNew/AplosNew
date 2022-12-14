@@ -81,39 +81,54 @@ namespace Library.Accounting.Accounts
                 FROM (
                 SELECT IV.PartyId NoOfInvoice,IV.PartyId, IV.PartyPlantId,P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName,c.Code CurrencyCode
                 , ISNULL(Ad.AdvanceAmount,0) Advance
-                , ISNULL(IVD.Amount,0) AS Gross
-				, ISNULL(IVD.WrittenOffAmount ,0) AS SetOff
-				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
+                , ISNULL(IVD.InvoiceBooksAmount,0) AS Gross
+				, ISNULL(IVD.SetOffBooksAmount ,0) AS SetOff
+				, ISNULL(IVD.InvoiceBooksAmount-IVD.SetOffBooksAmount,0) AS Balance
 
-                , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGross
-				, ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksSetOff
-				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+                , ISNULL(IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate,0) AS BooksGross
+				, ISNULL(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate,0) AS BooksSetOff
+				, ISNULL((IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate)-(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate),0) AS BooksBalance
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
+                , ISNULL(OM30.ODueMoreThan30*IV.CompanyCurrencyRate ,0) ODueMoreThan30
+                , ISNULL(OM15.ODueMoreThan15*IV.CompanyCurrencyRate,0) ODueMoreThan15
+                , ISNULL(OV.OverDdueBalance*IV.CompanyCurrencyRate,0) ODueLessThan15
+				, ISNULL(TB.TodayBalance*IV.CompanyCurrencyRate,0) TodayBalance
+				, ISNULL(OTS.OneToSevenBalance*IV.CompanyCurrencyRate,0) OneToSevenBalance
+				, ISNULL(ETT.EightToThirtyBalance*IV.CompanyCurrencyRate,0) EightToThirtyBalance
+				, ISNULL(TTS.ThirtyToSixtyBalance*IV.CompanyCurrencyRate,0) ThirtyToSixtyBalance
+				, ISNULL(O60.Onword60*IV.CompanyCurrencyRate,0) Onword60
 
-                , ISNULL(OM30.ODueMoreThan30*CC.CompanyCurrencyRate ,0) ODueMoreThan30
-                , ISNULL(OM15.ODueMoreThan15*CC.CompanyCurrencyRate,0) ODueMoreThan15
-                , ISNULL(OV.OverDdueBalance*CC.CompanyCurrencyRate,0) ODueLessThan15
-				, ISNULL(TB.TodayBalance*CC.CompanyCurrencyRate,0) TodayBalance
-				, ISNULL(OTS.OneToSevenBalance*CC.CompanyCurrencyRate,0) OneToSevenBalance
-				, ISNULL(ETT.EightToThirtyBalance*CC.CompanyCurrencyRate,0) EightToThirtyBalance
-				, ISNULL(TTS.ThirtyToSixtyBalance*CC.CompanyCurrencyRate,0) ThirtyToSixtyBalance
-				, ISNULL(O60.Onword60*CC.CompanyCurrencyRate,0) Onword60
-
-				, ISNULL(IVD.Amount,0) AS GrossTranAmount
+				, ISNULL(IVD.InvoiceBooksAmount,0) AS GrossTranAmount
 				--,0 DebitNoteTranAmount
 				--,isnull( IWD.TaxAmount,0)as TranTaxAmount
 				--,isnull( DIWD.DiscountAmount,0)as TranDiscountAmount
 
-				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossAmount
+				, ISNULL(IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate,0) AS BooksGrossAmount
 				--,0 BooksDebitNoteAmount
 				--,isnull( IWD.TaxAmount*CC.CompanyCurrencyRate,0)as TaxAmount
 				--,isnull( DIWD.DiscountAmount*CC.CompanyCurrencyRate,0)as BooksDiscountAmount
 
-                FROM [TRN].[InvoiceDetail] AS IVD
-                LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                FROM [TRN].[Invoice] AS IV 
+                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.CrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+						FROM  [TRN].[InvoiceDetail] IDE
+						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,SUM(VDC.DrAmount) SetOffBooksAmount
+							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+							LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+							 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+							WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '"+ toDate + @"' )
+							GROUP BY iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId
+							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+						WHERE VI.IsPark=0 --AND VD.PartyId='202017395'
+						GROUP BY IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,IwV.SetOffBooksAmount
+				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
-                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
-                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
                 --********vendor Advance***********
@@ -166,55 +181,61 @@ namespace Library.Accounting.Accounts
 							I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0 " + searchDateODue + @"
                             group by Id) O60 ON O60.Id=IV.Id
-                LEFT JOIN (
-                SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
-                VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
-                FROM [TRN].[VoucherDetailCurrency] AS VDC
-                JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
-                ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+                WHERE IV.Archive=0  AND V.IsPark=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
-                
+                AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                 UNION ALL
                 SELECT  IV.PartyId NoOfInvoice,IV.PartyId, IV.PartyPlantId,P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName,c.Code CurrencyCode
 				, ISNULL(Ad.AdvanceAmount,0) Advance
-                , ISNULL(IVD.Amount,0) AS Gross,
-                  ISNULL(IVD.WrittenOffAmount ,0) AS SetOff
-				 , ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
+                , ISNULL(IVD.InvoiceBooksAmount,0) AS Gross,
+                  ISNULL(IVD.SetOffBooksAmount ,0) AS SetOff
+				 , ISNULL(IVD.InvoiceBooksAmount-IVD.SetOffBooksAmount,0) AS Balance
 
-                , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGross
-				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksSetOff
-				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+                , ISNULL(IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate,0) AS BooksGross
+				,ISNULL(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate,0) AS BooksSetOff
+				, ISNULL((IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate)-(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate),0) AS BooksBalance
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
+                , ISNULL(OM30.ODueMoreThan30*IV.CompanyCurrencyRate,0) ODueMoreThan30
+                , ISNULL(OM15.ODueMoreThan15*IV.CompanyCurrencyRate,0) ODueMoreThan15
+                , ISNULL(OV.OverDdueBalance*IV.CompanyCurrencyRate,0) ODueLessThan15
+				, ISNULL(TB.TodayBalance*IV.CompanyCurrencyRate,0) TodayBalance
+				, ISNULL(OTS.OneToSevenBalance*IV.CompanyCurrencyRate,0) OneToSevenBalance
+				, ISNULL(ETT.EightToThirtyBalance*IV.CompanyCurrencyRate,0) EightToThirtyBalance
+				, ISNULL(TTS.ThirtyToSixtyBalance*IV.CompanyCurrencyRate,0) ThirtyToSixtyBalance
+				, ISNULL(O60.Onword60*IV.CompanyCurrencyRate,0) Onword60
 
-                , ISNULL(OM30.ODueMoreThan30*CC.CompanyCurrencyRate,0) ODueMoreThan30
-                , ISNULL(OM15.ODueMoreThan15*CC.CompanyCurrencyRate,0) ODueMoreThan15
-                , ISNULL(OV.OverDdueBalance*CC.CompanyCurrencyRate,0) ODueLessThan15
-				, ISNULL(TB.TodayBalance*CC.CompanyCurrencyRate,0) TodayBalance
-				, ISNULL(OTS.OneToSevenBalance*CC.CompanyCurrencyRate,0) OneToSevenBalance
-				, ISNULL(ETT.EightToThirtyBalance*CC.CompanyCurrencyRate,0) EightToThirtyBalance
-				, ISNULL(TTS.ThirtyToSixtyBalance*CC.CompanyCurrencyRate,0) ThirtyToSixtyBalance
-				, ISNULL(O60.Onword60*CC.CompanyCurrencyRate,0) Onword60
-
-				, ISNULL(IVD.Amount,0) AS GrossTranAmount
+				, ISNULL(IVD.InvoiceBooksAmount,0) AS GrossTranAmount
 				--,0 DebitNoteTranAmount
 				--,isnull( IWD.TaxAmount,0)as TranTaxAmount
 				--,isnull( DIWD.DiscountAmount,0)as TranDiscountAmount
 
-				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossAmount
+				, ISNULL(IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate,0) AS BooksGrossAmount
 				--,0 BooksDebitNoteAmount
 				--,isnull( IWD.TaxAmount*CC.CompanyCurrencyRate,0)as TaxAmount
 				--,isnull( DIWD.DiscountAmount*CC.CompanyCurrencyRate,0)as BooksDiscountAmount
 
-
-
-                FROM [TRN].[InvoiceDetail] AS IVD
-                LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                FROM [TRN].[Invoice] AS IV 
+                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.CrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+						FROM  [TRN].[InvoiceDetail] IDE
+						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,SUM(VDC.DrAmount) SetOffBooksAmount
+							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+							LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+							 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+							WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' )
+							GROUP BY iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId
+							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+						WHERE VI.IsPark=0 --AND VD.PartyId='202017395'
+						GROUP BY IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,IwV.SetOffBooksAmount
+				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
-                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
-                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
                 --********vendor Advance***********
@@ -222,18 +243,17 @@ namespace Library.Accounting.Accounts
                         where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=IV.PartyId
-							LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
-					    LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
-								where w.PaymentSource='Tax'
-								group by wd.InvoiceDetailId
-								) IWD ON IWD.InvoiceDetailId=IVD.Id
-
+							--LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
+					    --LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+								--where w.PaymentSource='Tax'
+								--group by wd.InvoiceDetailId
+								--) IWD ON IWD.InvoiceDetailId=IVD.Id
 								
-						LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DiscountAmount  FROM TRN.InvoiceWriteOffDetail wd 
-					    LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
-								where w.PaymentSource='Discount'
-								group by wd.InvoiceDetailId
-								) DIWD ON DIWD.InvoiceDetailId=IVD.Id
+						--LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DiscountAmount  FROM TRN.InvoiceWriteOffDetail wd 
+					 --  LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+						--		where w.PaymentSource='Discount'
+						--		group by wd.InvoiceDetailId
+						--		) DIWD ON DIWD.InvoiceDetailId=IVD.Id
 
                 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
@@ -270,18 +290,11 @@ namespace Library.Accounting.Accounts
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 AND I.SourceType in ('InventoryPayable','ServicePayable') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0 " + searchDateODue + @"
                             group by Id) O60 ON O60.Id=IV.Id
-                LEFT JOIN (
-                SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
-                VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
-                FROM [TRN].[VoucherDetailCurrency] AS VDC
-                JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
-                ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventoryPayable','ServicePayable')
+                WHERE IV.Archive=0 AND IV.IsWrittenOff=0  AND V.IsPark=0  AND IV.SourceType in ('InventoryPayable','ServicePayable')
                  AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL " + searchDate + @"
-                
+                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                 union all
 
 
@@ -294,7 +307,7 @@ namespace Library.Accounting.Accounts
                 , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGross
 				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksSetOff
 				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
-
+				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(IV.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS ActualBalance
                 , ISNULL(OM30.ODueMoreThan30*CC.CompanyCurrencyRate,0) ODueMoreThan30
                 , ISNULL(OM15.ODueMoreThan15*CC.CompanyCurrencyRate,0) ODueMoreThan15
                 , ISNULL(OV.OverDdueBalance*CC.CompanyCurrencyRate,0) ODueLessThan15
