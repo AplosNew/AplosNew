@@ -4693,16 +4693,16 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 				int ColGatePassType = COL;
 				COL++;
 
-				sheet[ROW, COL].Text = "NoOfPackags";
+				sheet[ROW, COL].Text = "No Of Packags";
 				sheet[ROW, COL].ColumnWidth = 16;
 				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 				int ColNoOfPackags = COL;
 
-				sheet[ROW, COL].Text = "GatePassStatus";
-				sheet[ROW, COL].ColumnWidth = 16;
-				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				int ColGatePassStatus = COL;
-				COL++;
+				//sheet[ROW, COL].Text = "GatePassStatus";
+				//sheet[ROW, COL].ColumnWidth = 16;
+				//sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				//int ColGatePassStatus = COL;
+				//COL++;
 
 				sheet[ROW, COL].Text = "NoOfPackages";
 				sheet[ROW, COL].ColumnWidth = 16;
@@ -4730,14 +4730,17 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 					sheet[ROW, ColCity].Text = data.Rows[i]["City"].ToString();
 					sheet[ROW, ColItemDesc].Text = data.Rows[i]["ItemDescription"].ToString();
 					sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
-					sheet[ROW, ColOutQty].Text = data.Rows[i]["OutQty"].ToString();
-					sheet[ROW, ColRate].Text = data.Rows[i]["Rate"].ToString();
-					sheet[ROW, ColAmount].Text = data.Rows[i]["Amount"].ToString();
-					sheet[ROW, ColInQty].Text = data.Rows[i]["ReceivedQty"].ToString();
-					sheet[ROW, ColBal].Text = data.Rows[i]["balance"].ToString();
+					sheet[ROW, ColOutQty].Number = clsStaticInfo.dbl(data.Rows[i]["OutQty"].ToString());
+					sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
+					sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
+					sheet[ROW, ColInQty].Number = clsStaticInfo.dbl(data.Rows[i]["ReceivedQty"].ToString());
+					sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["balance"].ToString());
 					sheet[ROW, ColReturnDate].Text = data.Rows[i]["ReturnableDate"].ToString();
 					sheet[ROW, ColChallanNo].Text = data.Rows[i]["ChallanNo"].ToString();
-					sheet[ROW, ColChallanNo].Text = data.Rows[i]["ChallanNo"].ToString();
+					sheet[ROW, ColGatePassSts].Text = data.Rows[i]["GatePassStatus"].ToString();
+					sheet[ROW, ColGatePassType].Text = data.Rows[i]["GatePassType"].ToString();
+					sheet[ROW, ColNoOfPackags].Text = data.Rows[i]["NoOfPackages"].ToString();
+					
 					//sheet[ROW, ColQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
 					//sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
 
@@ -4762,7 +4765,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				ReportUtility reportUtility = new ReportUtility();
-				reportUtility.PlantHeader(ref sheet, endCol, "Contract Transaction Summary Report", identity.PlantId);
+				reportUtility.PlantHeader(ref sheet, endCol, "Gate Passout", identity.PlantId);
 				reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
 				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 				sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
