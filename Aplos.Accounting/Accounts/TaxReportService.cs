@@ -7287,10 +7287,8 @@ SELECT	x.SourceType,x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate
 		,SUM(x.TaxableAmount) TaxableAmount,SUM(x.DrAmount) DrAmount,SUM(x.CrAmount) CrAmount
 		,x.TCSequence,x.EntryDate,x.GRNNo,x.Percentage,x.PartyType,x.ParkStatus,SUM(x.TotalAmount)TotalAmount,SUM(x.WrittenOffAmount)WrittenOffAmount,(SUM(x.TotalAmount)-SUM(x.WrittenOffAmount))Balance
 		FROM 
-
-(
-SELECT 
-						V.SourceType ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
+        (
+            SELECT  V.SourceType ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
 							,P.UserName PartyName,PP.GSTIN,NULL GRNNo,pp.UserName PartyPlantName
                             ,TaxableAmount=case 
 							when v.SourceType='DebitNote' then (select sum(CrAmount) from trn.VoucherDetail where VoucherId=V.Id and CrAmount>0 and  InvoiceTaxDetailId is null)
@@ -7326,13 +7324,12 @@ SELECT
                             LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
                             LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
                             where V.PlantId='" + plantId + @"'
-							and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
+							and V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
                             AND v.SourceType IN ('DebitNote','CreditNote','InventoryReturnPayable','VendorPayment')
                             ) x
 							group by x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyName
 							,x.TCSequence,x.PartyPlantName,x.GSTIN,x.SourceType
-							,x.TaxCategoryType,x.EntryDate,x.TaxCode,x.GRNNo,x.Percentage,x.PartyType,x.ParkStatus)T
-						    WHERE T.Balance>0 ";
+							,x.TaxCategoryType,x.EntryDate,x.TaxCode,x.GRNNo,x.Percentage,x.PartyType,x.ParkStatus)T --WHERE T.Balance>0 ";
             return _sqlRepository.GetDataTable(strSql);
 
         }
