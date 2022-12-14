@@ -82,6 +82,21 @@ function MachineConfig($routeProvider, $locationProvider) {
             controller: 'pendingMaintenanceScheduleController'
         })
 
+        .when('/skill-management', {
+            templateUrl: 'Machines/SkillManagement/Aplos',
+            controller: 'skillManagementController'
+        })
+
+        .when('/skill-management-details', {
+            templateUrl: 'Machines/SkillManagementDetails/Aplos',
+            controller: 'skillManagementDetailsController'
+        })
+
+        .when('/pending-skill-management', {
+            templateUrl: 'Machines/PendingSkillManagement/Aplos',
+            controller: 'pendingSkillManagementController'
+        })
+
         .when('/special-issue-control', {
             templateUrl: 'Machines/SpecialIssueControl/Aplos',
             controller: 'specialIssueControlController'

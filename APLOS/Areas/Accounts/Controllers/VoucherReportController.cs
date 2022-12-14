@@ -118,6 +118,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     return View();
             }
         }
+        [Authorize, HttpGet]
         public ActionResult GetParkedReport(ReportFormat reportFormat, DateTime fromdate, DateTime todate,string reportType)
         {
             string reportFileName = "";
@@ -127,11 +128,19 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 workbook = _accountVoucherReportService.GetVoucherParkedReport(out  reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate);
             }
+            else if (reportType == "GRN")
+            {
+                workbook = _accountVoucherReportService.GetGRNParkedReport(out reportFileName, identity.PlantId);
+            }
+            else if (reportType == "Issue")
+            {
+                workbook = _accountVoucherReportService.GetIssueParkedReport(out reportFileName, identity.PlantId);
+            }
             else
             {
-                workbook = _accountVoucherReportService.GetVoucherParkedReport(out  reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate);
+                workbook = _accountVoucherReportService.GetServiceParkedReport(out reportFileName, identity.PlantId);
             }
-            
+
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
