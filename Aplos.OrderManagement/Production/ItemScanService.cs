@@ -388,7 +388,7 @@ namespace Library.Service.EmployeeServices
                 bplib.clsGenID objGenID = new bplib.clsGenID();
                 objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
                 DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
-                drProductionSummary["Id"] = sID;
+                drProductionSummary["Id"] = "PS" + sID;
                 drProductionSummary["PlantId"] = PlantId;
                 drProductionSummary["EntityId"] = entityId;
                 drProductionSummary["ProcessId"] = processId;
