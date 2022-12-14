@@ -604,6 +604,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         ClearFields();
         return true;
         $scope.PostButton = false;
+        
     };
 
     function ClearFields() {
@@ -636,6 +637,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.CheckedByStatusForNoti = null;
         $scope.AcceptanceId = null;
         $scope.PostButton = false;
+        $scope.taxCodCboListWithhold = [];
+        $scope.advanceTaxesList = [];
     }
     $scope.chargesListPOnew
 
@@ -784,7 +787,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 return false;
             }
             else if (baseService.isUndefinedOrNull($scope.productNew.InvoicingPartyPlantId)) {
-                return ShowResult('Invoicing by is required', 'failure');
+                ShowResult('Invoicing by is required', 'failure');
                 return false;
             }
             else if (baseService.isUndefinedOrNull($scope.productNew.DeliveryPartyPlantId)) {
