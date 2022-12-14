@@ -204,10 +204,7 @@ namespace Library.Service.EmployeeServices
                 var sqlProcess = @"SELECT ProcessId FROM HKP.MaterialMovementPurpose where Id ='"+ PurposeId + "'";
                 DataTable dtProcess = _sqlRepository.GetDataTable(sqlProcess);
                 string processId = dtProcess.Rows[0]["ProcessId"].ToString();
-                if (string.IsNullOrEmpty(processId))
-                {
-                    throw new Exception("Define Process in Material Movement Purpose.");
-                }
+                
 
                 // Check repeat Rows 
                 var sql = @"select * from dbo.ItemScanChild where RefNo IN(" + RefNo + @")";
@@ -388,25 +385,30 @@ namespace Library.Service.EmployeeServices
                 }
 
                 #region ProductionSummary
+              
+             
+                if (!string.IsNullOrEmpty(processId))
+                {
 
-                bplib.clsGenID objGenID = new bplib.clsGenID();
-                objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
-                DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
-                drProductionSummary["Id"] = "PS" + sID;
-                drProductionSummary["PlantId"] = PlantId;
-                drProductionSummary["EntityId"] = entityId;
-                drProductionSummary["ProcessId"] = processId;
-                drProductionSummary["ProductionDate"] = WorkDate;
-                drProductionSummary["Quantity"] = netWeight;
-                drProductionSummary["ProductionOrderId"] = POId;
-                drProductionSummary["ProductionShiftId"] = ShiftId;
-                drProductionSummary["ProductionGrade"] = Grade;
+                    bplib.clsGenID objGenID = new bplib.clsGenID();
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
+                    DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
+                    drProductionSummary["Id"] = "PS" + sID;
+                    drProductionSummary["PlantId"] = PlantId;
+                    drProductionSummary["EntityId"] = entityId;
+                    drProductionSummary["ProcessId"] = processId;
+                    drProductionSummary["ProductionDate"] = WorkDate;
+                    drProductionSummary["Quantity"] = netWeight;
+                    drProductionSummary["ProductionOrderId"] = POId;
+                    drProductionSummary["ProductionShiftId"] = ShiftId;
+                    drProductionSummary["ProductionGrade"] = Grade;
 
-                drProductionSummary["AddedBy"] = User;
-                drProductionSummary["AddedDate"] = DateTime.Now;
-                drProductionSummary["AddedFromIP"] = "1";
+                    drProductionSummary["AddedBy"] = User;
+                    drProductionSummary["AddedDate"] = DateTime.Now;
+                    drProductionSummary["AddedFromIP"] = "1";
 
-                dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
+                    dsProductionSummary.Tables[0].Rows.Add(drProductionSummary); 
+                }
                 #endregion
 
 
