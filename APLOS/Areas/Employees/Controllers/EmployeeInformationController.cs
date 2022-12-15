@@ -1395,6 +1395,20 @@ namespace Aplos.Areas.Employees.Controllers
         }//End Function
 
         [HttpGet, Authorize]
+        public JsonResult GetOnRollByBudget(string budgetId)
+        {
+            try
+            {
+                return Json(employeeProfile.GetOnRollByBudget(budgetId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+
+        [HttpGet, Authorize]
         public JsonResult GetEmpCodeGenSetting(string employeeCodeTypeId)
         {
             try

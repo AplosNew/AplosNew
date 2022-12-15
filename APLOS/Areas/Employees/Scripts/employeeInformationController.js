@@ -471,25 +471,29 @@ function employeeInformationController(addressService, fileReader, cboService, c
     };
 
     $scope.selectDoubleClick = function (data) {
-        $scope.employeeNew.BudgetCode = data.Id;
-        $scope.employeeNew.Code = data.Code;
+        try {
+            $scope.employeeNew.BudgetCode = data.Id;
+            $scope.employeeNew.Code = data.Code;
 
-        $scope.employeeNew.DesignationSystemID = data.DesignationId;
-        $scope.employeeNew.Designation = data.Designation;
-        $scope.employeeNew.PositionName = data.PositionName;
-        $scope.employeeNew.DesignationId = data.DesignationId;
-        $scope.employeeNew.UnitId = data.UnitId;
-        $scope.employeeNew.DivisionId = data.DivisionId;
-        $scope.employeeNew.DepartmentId = data.DepartmentId;
-        $scope.employeeNew.SectionId = data.SectionId;
-        $scope.employeeNew.SubSectionId = data.SubSectionId;
-        $scope.employeeNew.SubdivisionID = data.SubdivisionID;
-        $scope.employeeNew.LineId = data.LineId;
-        $scope.employeeNew.EmploymentType = data.EmploymentType;
-        $scope.employeeNew.PositionID = data.PositionId;
-        $scope.employeeNew.IsDirect = data.IsDirect;
-
-        angular.element(document.querySelector('#popUpId')).modal('hide');
+            $scope.employeeNew.DesignationSystemID = data.DesignationId;
+            $scope.employeeNew.Designation = data.Designation;
+            $scope.employeeNew.PositionName = data.PositionName;
+            $scope.employeeNew.DesignationId = data.DesignationId;
+            $scope.employeeNew.UnitId = data.UnitId;
+            $scope.employeeNew.DivisionId = data.DivisionId;
+            $scope.employeeNew.DepartmentId = data.DepartmentId;
+            $scope.employeeNew.SectionId = data.SectionId;
+            $scope.employeeNew.SubSectionId = data.SubSectionId;
+            $scope.employeeNew.SubdivisionID = data.SubdivisionID;
+            $scope.employeeNew.LineId = data.LineId;
+            $scope.employeeNew.EmploymentType = data.EmploymentType;
+            $scope.employeeNew.PositionID = data.PositionId;
+            $scope.employeeNew.IsDirect = data.IsDirect;
+            $scope.GetOnRollByBudget(data.Id);
+           
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     $scope.clearCode = function () {
@@ -511,6 +515,22 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.employeeNew.EmploymentType = null;
         $scope.employeeNew.PositionID = null;
         $scope.employeeNew.IsDirect = false;
+    };
+
+    $scope.GetOnRollByBudget = function (budgetId) {
+        try {
+            $http.get('employees/EmployeeInformation/GetOnRollByBudget?budgetId=' + budgetId)
+                .then(function (response) {
+                    if (response.data[0].TotalNumber < response.data[0].OnRollManPwr || response.data[0].TotalNumber == response.data[0].OnRollManPwr) {
+                        ShowResult("On Roll Manpower is exceeding Budgeted Manpower.", 'failure', 'popUpId'); ;
+                    }
+                    else {
+                        angular.element(document.querySelector('#popUpId')).modal('hide');
+                    }
+                });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     //#endregion BudgetCode
