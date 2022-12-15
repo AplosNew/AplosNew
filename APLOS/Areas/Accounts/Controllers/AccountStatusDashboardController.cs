@@ -1668,6 +1668,18 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #endregion Grn with out invoice
+        #region Party Status
+        [HttpPost, Authorize]
+        public ActionResult GetPartyStatusDataList(string toDate)
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = accountsStatusDashboardService.GetPartyStatusDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        #endregion 
 
         //public ActionResult NonRegisterAssetReport()
         //{

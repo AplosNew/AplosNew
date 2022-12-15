@@ -6,6 +6,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.Action = 'Save';
     $scope.MasterLCList = [];
     $scope.path = 'Accounts/AccountStatusDashboard/';
+    $scope.exportgriddataUrlUpdate2 = 'GridReports/ExcelExportUpdate2';
+    $scope.downloadgriddataUrl2 = 'GridReports/Download';
     var dt = new Date();
     $scope.reportParameters = {
         FromDate: $filter("dateFiltering")(new Date(dt.setDate(dt.getDate() - 10))), //$filter("dateFiltering")(Date.now()) - 10,
@@ -4994,6 +4996,62 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             ShowResult(e, 'failure');
         }
     }
+    $scope.PartyStatusList = [];
+    $scope.GetPartyStatusData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetPartyStatusDataList",
+                data: {ToDate: $scope.report.ToDate },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.PartyStatusList = response.data.DATA;
+
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
+    $scope.PartyStatusReportExcel = function () {
+            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+                ShowResult('Select To Date', 'failure');
+                return false;
+            }
+        
+        var dataList = [];
+        var g = $("#GridPartyStatus").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.PartyStatusList;
+        }
+        $scope.fileName = 'PartyStatusList';
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpdate2,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl2 + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
 
     //**********************#endregion Receive Payment Status **************************
 }
