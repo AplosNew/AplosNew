@@ -53,11 +53,11 @@ namespace Aplos.Areas.Productions.Controllers
         #region -- Operations
 
         [HttpPost, Authorize]
-        public ActionResult XlsSalesOrderStatusReport(List<string> EntityList)
+        public ActionResult XlsSalesOrderStatusReport(string orderStatusId)
         {
             try
             {
-                var workbook = SalesOrderStatusReport(EntityList);
+                var workbook = SalesOrderStatusReport(orderStatusId);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "SOStatusReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -74,14 +74,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook SalesOrderStatusReport(List<string> EntityList)
+        private IWorkbook SalesOrderStatusReport(string orderStatusId)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine,1);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = SalesOrderStatusReportQuery(EntityList);
+            var data = SalesOrderStatusReportQuery(orderStatusId);
 
             var sheet = workbook.Worksheets[0];
 
@@ -272,21 +272,10 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Queries
 
-        private DataTable SalesOrderStatusReportQuery(List<string> EntityList)
+        private DataTable SalesOrderStatusReportQuery(string orderStatusId)
         {
             try
             {
-                string ent = "";
-                if (EntityList.Count > 0 && EntityList[0] != "")
-                {
-                    ent = "AND mo.EntityId IN (''";
-                    foreach (string e in EntityList)
-                    {
-                        ent += ",'" + e + "'";
-                    }
-                    ent += ")";
-                }
-
                 var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,moi.ContractId, moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
                             format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
                             (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
@@ -326,9 +315,8 @@ namespace Aplos.Areas.Productions.Controllers
                              LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
                              left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
                              left join dbo.EmployeeInformation E ON e.SystemId=so.ResponsiblePersonId
-                            where os.Id not in ('Closed' , 'Cancelled') 
-                            order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc
-                            ";
+                            where os.Id ='" + orderStatusId + @"' 
+                            order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc";
 
                 return _sqlRepository.GetDataTable(str);
             }
