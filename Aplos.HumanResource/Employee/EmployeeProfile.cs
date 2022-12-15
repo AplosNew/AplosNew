@@ -32,6 +32,23 @@ namespace Aplos.HumanResource
         }
 
         #region Employee Information
+        public IEnumerable<object> GetOnRollByBudget(string budgetId)
+        {
+            try
+            {
+                string sql = @"SELECT A.TotalNumber,B.OnRoll,TA.TACount,OnRollManPwr=B.OnRoll-ISNULL(TA.TACount,0) FROM MST.ManpowerBudgetDetail A
+LEFT JOIN(SELECT COUNT(SystemId) OnRoll,BudgetCode FROM EmployeeInformation WHERE EmployeeStatus = 'Active' AND BudgetCode='" + budgetId + @"' GROUP BY BudgetCode) B ON B.BudgetCode=A.ManpowerBudgetId
+LEFT JOIN (SELECT COUNT(BudgetCode) TACount,BudgetCode FROM EmployeeInformation WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'') IN ('TBS','LONG ABSENTEEISM')  AND BudgetCode='" + budgetId + @"' GROUP BY BudgetCode) TA ON TA.BudgetCode=A.ManpowerBudgetId
+Where A.ManpowerBudgetId='" + budgetId + @"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> Query(string column, string value, string companyGroupId, string plantId)
         {
             try
@@ -159,7 +176,7 @@ namespace Aplos.HumanResource
                 strSQL = @"SELECT C.IsOTEntitled FROM SCS.DesignationMasterConfiguration C
                             LEFT JOIN MST.DesignationMaster M ON M.Id=C.DesignationMasterId
                             LEFT JOIN HKP.Designation D ON D.Id=M.DesignationId
-                            WHERE D.Id='"+ designationId + "' AND C.PlantId='"+ PlantId + "'";
+                            WHERE D.Id='" + designationId + "' AND C.PlantId='" + PlantId + "'";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -175,7 +192,7 @@ namespace Aplos.HumanResource
                 string strSQL = string.Empty;
                 strSQL = @"Select A.IsEmployeeCodeOpenField,A.EmpCodeGenType,A.EmpCodeStartValue,A.IsAutoEmpCodeWithPrefix,A.Prefix from [dbo].[EmployeeCodeGenGroup] A
                             LEFT JOIN [dbo].[EmployeeCodeGenGroupDetail] B ON B.EmployeeCodeGenGroupId=A.Id
-                            where B.PlantId='"+ PlantId + "' and B.EmployeeCodeTypeId='" + employeeCodeTypeId + "'";
+                            where B.PlantId='" + PlantId + "' and B.EmployeeCodeTypeId='" + employeeCodeTypeId + "'";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -194,7 +211,7 @@ namespace Aplos.HumanResource
             {
                 strSQL = @"DECLARE @employeeId varchar(20)='" + empSystemId + @"';
 									DECLARE @plantId varchar(20)='" + plantid + @"';
-									DECLARE @manpowerBudgetId varchar(20)='"+ budgetId + @"';
+									DECLARE @manpowerBudgetId varchar(20)='" + budgetId + @"';
 									DECLARE @givenDesignationId varchar(20)='" + givenDesignationId + @"';
 									DECLARE @empType varchar(20)='" + empType + @"';
 									DELETE FROM EmployeeDocument WHERE EmpSystemID=@employeeId AND FileName IS NULL;
@@ -324,7 +341,7 @@ namespace Aplos.HumanResource
         }//End Function
 
 
-        public void SaveData(EmployeeInformation data, IdentityParameter para, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef) 
+        public void SaveData(EmployeeInformation data, IdentityParameter para, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef)
         {
             // , Dictionary<string, object> WeekOff, Dictionary<string, object> OT
             #region DataSet Declare
@@ -1113,7 +1130,7 @@ namespace Aplos.HumanResource
                             DateTime ToDate = DateTime.Now;
                             while (FromDate <= ToDate)
                             {
-                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
+                                AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                                 objAttdn.SaveTotal(para.PlantId, FromDate.ToString("dd-MMM-yyyy"), EmpId, false);
                                 FromDate = FromDate.AddDays(1);
                             }
@@ -1286,8 +1303,8 @@ namespace Aplos.HumanResource
                 drLocal["PreviouslyWorkedHere"] = false;
                 drLocal["AnyRelativeWorkedHere"] = false;
                 drLocal["NumberOfKnownPerson"] = 0;
-                
-                    
+
+
 
                 //drLocal["Ref1Name"] = data.Ref1Name;
                 //drLocal["Ref1CellPhnNo"] = data.Ref1CellPhnNo;
@@ -1338,7 +1355,7 @@ namespace Aplos.HumanResource
                 drLocal["EmploymentType"] = data.EmploymentType;
                 drLocal["ExcludeOT"] = false;
                 drLocal["isLeaveOnDOC"] = false;
-                
+
                 if (!string.IsNullOrEmpty(data.RelativeSystemId))
                 {
                     drLocal["AnyRelativeWorkedHere"] = true;
@@ -1701,7 +1718,7 @@ namespace Aplos.HumanResource
             {
                 sql = @"SELECT E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           INNER JOIN dbo.EmployeeInformation E On E.SystemId=A.EmployeeId 
-                          WHERE  A.ActionStatus='EmployeeApprovalAuthority' And A.PlantId='"+ plantId + "'";
+                          WHERE  A.ActionStatus='EmployeeApprovalAuthority' And A.PlantId='" + plantId + "'";
                 return _sqlRepository.GetDataCollection(sql);
 
             }
@@ -2348,8 +2365,8 @@ namespace Aplos.HumanResource
                 string sql = @"SELECT COUNT(E.SystemId) OnRoll,BudgetCode,mbd.TotalNumber,CA= mbd.TotalNumber-COUNT(E.SystemId)+ISNULL(TBS.TBSEmp,0)
 FROM EmployeeInformation E
 LEFT JOIN MST.ManpowerBudgetDetail AS mbd ON mbd.ManpowerBudgetId= E.BudgetCode
-LEFT JOIN (SELECT COUNT(BudgetCode) TBSEmp,SystemId FROM EmployeeInformation WHERE BudgetCode='"+ budgetCode + @"' AND EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'') IN ('TBS') GROUP BY SystemId) TBS ON TBS.SystemId=E.SystemId
-WHERE E.EmployeeStatus = 'Active' AND E.BudgetCode='"+ budgetCode + @"' GROUP BY E.BudgetCode,mbd.TotalNumber,TBS.TBSEmp";
+LEFT JOIN (SELECT COUNT(BudgetCode) TBSEmp,SystemId FROM EmployeeInformation WHERE BudgetCode='" + budgetCode + @"' AND EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'') IN ('TBS') GROUP BY SystemId) TBS ON TBS.SystemId=E.SystemId
+WHERE E.EmployeeStatus = 'Active' AND E.BudgetCode='" + budgetCode + @"' GROUP BY E.BudgetCode,mbd.TotalNumber,TBS.TBSEmp";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

@@ -1121,9 +1121,11 @@
     <Compile Include="Areas\Productions\Controllers\RecipeOperationController.cs" />
     <Compile Include="Areas\Productions\Controllers\RecipeProductionOrderController.cs" />
     <Compile Include="Areas\Productions\Controllers\InventoryReportController.cs" />
+    <Compile Include="Areas\Products\Controllers\OutPassRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\InventoryReceiveAdditionController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionReportWithParameterController.cs" />
     <Compile Include="Areas\Productions\Controllers\ParameterMasterController.cs" />
+    <Compile Include="Areas\Products\Controllers\LandedcostreportController.cs" />
     <Compile Include="Areas\Products\Controllers\SalesRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\GatePassRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\InventorySalesReportMarketingController.cs" />
@@ -2623,8 +2625,10 @@
     <Content Include="Areas\Products\Scripts\assetInventoryIssueController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionReportWithParameterController.js" />
     <Content Include="Areas\Products\Scripts\AssetIssueSlipBaseController.js" />
+    <Content Include="Areas\Products\Scripts\OutPassRegisterController.js" />
     <Content Include="Areas\Products\Scripts\MaterialIssueSlipController.js" />
     <Content Include="Areas\Products\Scripts\inventoryIssueSlipBaseController.js" />
+    <Content Include="Areas\Products\Scripts\LandedcostreportController.js" />
     <Content Include="Areas\Products\Scripts\salesRegisterController.js" />
     <Content Include="Areas\Products\Scripts\GatePassPotalController.js" />
     <Content Include="Areas\Products\Scripts\GatePassRegisterController.js" />
@@ -4464,6 +4468,7 @@
     <Content Include="Areas\Machines\Views\SkillManagement\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\SkillManagementDetails\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\PendingSkillManagement\Aplos.cshtml" />
+    <Content Include="Areas\Products\Views\OutPassRegister\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4575,6 +4580,7 @@
     <Content Include="Areas\Securities\Views\UserAccessAppRole\Aplos.cshtml" />
     <Content Include="Areas\Securities\Views\UserAccessAppRole\_UserDetailPopUp.cshtml" />
     <Content Include="Areas\Productions\Views\ParameterMaster\Aplos.cshtml" />
+    <Content Include="Areas\Products\Views\Landedcostreport\Report.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
