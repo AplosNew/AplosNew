@@ -53,11 +53,11 @@ namespace Aplos.Areas.Productions.Controllers
         #region -- Operations
 
         [HttpPost, Authorize]
-        public ActionResult XlsSalesOrderStatusReport(List<string> EntityList)
+        public ActionResult XlsSalesOrderStatusReport(string orderStatusId)
         {
             try
             {
-                var workbook = SalesOrderStatusReport(EntityList);
+                var workbook = SalesOrderStatusReport(orderStatusId);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "SOStatusReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -74,14 +74,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook SalesOrderStatusReport(List<string> EntityList)
+        private IWorkbook SalesOrderStatusReport(string orderStatusId)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine,1);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = SalesOrderStatusReportQuery(EntityList);
+            var data = SalesOrderStatusReportQuery(orderStatusId);
 
             var sheet = workbook.Worksheets[0];
 
@@ -193,9 +193,9 @@ namespace Aplos.Areas.Productions.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "FG Current Stock", 12, ExcelHAlign.HAlignRight);
             int ColAll = COL;
             COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Order Status", 12, ExcelHAlign.HAlignLeft);
+            int ColOrderStatus = COL;
 
-          
-        
 
             endCol = COL;
             sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
@@ -248,6 +248,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceToDispatch"].ToString());
                 sheet[ROW, ColAll].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedStock"].ToString());
                 sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
+                sheet[ROW, ColOrderStatus].Text = data.Rows[i]["OrderStatus"].ToString();
 
                 ROW++;
 
@@ -272,21 +273,11 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Queries
 
-        private DataTable SalesOrderStatusReportQuery(List<string> EntityList)
+        private DataTable SalesOrderStatusReportQuery(string orderStatusId)
         {
             try
             {
-                string ent = "";
-                if (EntityList.Count > 0 && EntityList[0] != "")
-                {
-                    ent = "AND mo.EntityId IN (''";
-                    foreach (string e in EntityList)
-                    {
-                        ent += ",'" + e + "'";
-                    }
-                    ent += ")";
-                }
-
+                string orderStatusIds = "'" + orderStatusId.Replace(",", "','") + "'";//replaced with ""
                 var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,moi.ContractId, moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
                             format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
                             (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
@@ -306,7 +297,7 @@ namespace Aplos.Areas.Productions.Controllers
                             where pl.Id = moi.ProductLibraryId 
                             and s.WorkDate <= GetDate()
                             and sc.Booked = 0 and  (MMM.PurposeId <> 'MP7' AND MMM.PurposeId <> 'MP8' AND MMM.PurposeId <> 'MP9' AND MMM.PurposeId <> 'MP12')) as AllotedStock
-                            , so.Rate as Rates, mor.ExchangeRate,E.EmployeeName ResponsiblePerson
+                            , so.Rate as Rates, mor.ExchangeRate,E.EmployeeName ResponsiblePerson,OS.UserName OrderStatus
                             from trn.SalesOrder so
                             left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
@@ -326,9 +317,8 @@ namespace Aplos.Areas.Productions.Controllers
                              LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
                              left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
                              left join dbo.EmployeeInformation E ON e.SystemId=so.ResponsiblePersonId
-                            where os.Id not in ('Closed' , 'Cancelled') 
-                            order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc
-                            ";
+                            where os.Id IN(" + orderStatusIds + @")
+                            order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc";
 
                 return _sqlRepository.GetDataTable(str);
             }

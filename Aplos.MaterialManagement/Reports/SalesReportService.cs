@@ -4034,14 +4034,14 @@ namespace Library.MaterialManagement.Reports
 										JOIN TRN.MasterOrder MO ON MO.Id=SOI.MasterOrderId
                                         WHERE IR.Id=SOI.SalesId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										,'&amp;','&'), 'amp;', '')
-                                ,IR.ComercialInvoiceNo,IR.BLNumber,FORMAT(IR.BLDate,'dd-MMM-yyyy')BLDate,IR.EXPFromNo,FORMAT(IR.EXPDate,'dd-MMM-yyyy')EXPDate,IR.ItemDescription
+                                ,IR.ComercialInvoiceNo,IR.BLNumber,FORMAT(IR.BLDate,'dd-MMM-yyyy')BLDate,IR.EXPFromNo,FORMAT(IR.EXPDate,'dd-MMM-yyyy')EXPDate,IR.ItemDescription,IR.AddedBy CreatedBy
                            FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
 
                          LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
-                         LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = IR.CurerncyId
+                         LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = IR.CurrencyId
                          LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
                          LEFT JOIN HKP.PartyPlant  INVPARTYPL ON INVPARTYPL.Id = IR.InvoicingPartyPlantId
                          LEFT JOIN HKP.PartyPlant  DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId 
@@ -4186,7 +4186,7 @@ namespace Library.MaterialManagement.Reports
 								,IRD.BooksCurrencyTransactionAmount
 								,IRD.BooksCurrencyTaxAmount
 								,IRD.BooksCurrencyBaseRate
-								
+								,IR.AddedBy CreatedBy
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -4234,11 +4234,8 @@ namespace Library.MaterialManagement.Reports
 						 LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId=C.Id						
 						 LEFT JOIN  MST.BankMaster OB on OB.Id=PLC.OpeningBankMasterId
 						 LEFT JOIN  HKP.Bank B on B.Id=OB.BankId
-						 LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
-						
+						 LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId						
 						 ) LC on LC.SalesId=IR.Id
-
-
                           WHERE IR.Id ='" + SalesId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -4452,7 +4449,7 @@ namespace Library.MaterialManagement.Reports
 
                 //                    WHERE IR.Id ='" + SalesId + "'";
 
-                strSQL = @" SELECT IR.Id CustomerNo, IRD.Id SalesMaterialId
+                strSQL = @"SELECT IR.Id CustomerNo, IRD.Id SalesMaterialId
                                  , IR.CompanyGroupId
                                 ,IR.CompanyId,CRNC.Code
 								,p.UserName Customer
@@ -4572,36 +4569,25 @@ namespace Library.MaterialManagement.Reports
 						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
-						) , 1, 2, '')) as ProdDetails
+						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
-
-
                          LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
-
                          LEFT JOIN MST.[Port] as PL on PL.Id = PSI.PortOfLoadingId
-
                          LEFT JOIN MST.[Port] as PD on PD.Id = PSI.PortOfDischargeId
-
                          LEFT JOIN MST.[Port] as PoD on PoD.Id = PSI.PortOfDelivaryId
-
                          LEFT JOIN MST.Destination as D on D.Id = PSI.FinalDestinationId
-
-
                          LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
                          LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = cmp.BaseCurrencyId
                          LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
                          LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = IR.InvoicingPartyPlantId
                          LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId
-
                          LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
-
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
-
                          LEFT JOIN[HKP].[HSNCode] AS HSNC ON HSNC.ID = MM.HSNCodeId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
@@ -4612,40 +4598,24 @@ namespace Library.MaterialManagement.Reports
                          LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = SCV.Id
                          LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
                          LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
-
                          LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-
                          LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
-
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
-
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
-
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN(
                          select distinct
-
                          PLC.LCRef as LcNo,PLC.LCDate,PLC.BenificiaryBank,PLC.BenificiaryBankDescription
 						 ,B.UserName OpeningBank, SOI.SalesId
 						 ,OA.Address1 OpeningBankAddress
-
                          from trn.SalesOrderItem as SOI
-
                          LEFT JOIN TRN.MasterOrderItem MOI on MOI.Id = SOI.MasterOrderItemId
-
                          LEFT JOIN dbo.[Contract]  C on c.Id = MOI.ContractId
-
                          LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
-
                          LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
-
                          LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
-
-                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
-						
+                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId						
 						 ) LC on LC.SalesId = IR.Id
-
-
                          WHERE IR.Id ='" + SalesId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -4794,7 +4764,7 @@ namespace Library.MaterialManagement.Reports
 					WHERE pla.ProductLibraryId = MOI.ProductLibraryId
 					FOR XML PATH('')
 					), 1, 2, '')
-		) AS ProdDetails
+		) AS ProdDetails,IR.AddedBy CreatedBy
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -4972,36 +4942,25 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
 						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
-						) , 1, 2, '')) as ProdDetails
+						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
-
-
                          LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
-
                          LEFT JOIN MST.[Port] as PL on PL.Id = PSI.PortOfLoadingId
-
                          LEFT JOIN MST.[Port] as PD on PD.Id = PSI.PortOfDischargeId
-
                          LEFT JOIN MST.[Port] as PoD on PoD.Id = PSI.PortOfDelivaryId
-
                          LEFT JOIN MST.Destination as D on D.Id = PSI.FinalDestinationId
-
-
                          LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
                          LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = cmp.BaseCurrencyId
                          LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
                          LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = IR.InvoicingPartyPlantId
                          LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId
-
                          LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
-
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
-
                          LEFT JOIN[HKP].[HSNCode] AS HSNC ON HSNC.ID = MM.HSNCodeId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
@@ -5012,40 +4971,24 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = SCV.Id
                          LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
                          LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
-
                          LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-
                          LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
-
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
-
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
-
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN(
                          select distinct
-
                          PLC.LCRef as LcNo,PLC.LCDate,PLC.BenificiaryBank,PLC.BenificiaryBankDescription
 						 ,B.UserName OpeningBank, SOI.SalesId
 						 ,OA.Address1 OpeningBankAddress
-
                          from trn.SalesOrderItem as SOI
-
                          LEFT JOIN TRN.MasterOrderItem MOI on MOI.Id = SOI.MasterOrderItemId
-
                          LEFT JOIN dbo.[Contract]  C on c.Id = MOI.ContractId
-
                          LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
-
                          LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
-
                          LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
-
-                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
-						
+                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId						
 						 ) LC on LC.SalesId = IR.Id
-
-
                          WHERE IR.Id ='" + SalesId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);

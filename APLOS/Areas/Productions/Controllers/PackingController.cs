@@ -611,7 +611,7 @@ namespace Aplos.Areas.Productions.Controllers
                                 ,ISNULL(sc.TotalQtyNetWeight,0)TotalQtyNetWeight,ISNULL(sc.GrossWeight,0)GrossWeight,sc.ProductCode, sc.LotNo,FORMAT(p.AddedDate,'dd-MMM-yyyy') PackingDate,
                                 u.UserName as UoM,pbt.UserName as ConsigneeBilltoName,pst.UserName as ConsigneeShiptoName,pst.UserName as AcceptedBy,c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
                                 c.ContractNo,FORMAT(c.AddedDate,'dd-MMM-yyyy') AddedDate,PT.UserName PaymentTerm
-                              ,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate
+                              ,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate,P.AddedBy CreatedBy
                                 from trn.Packing as p 
                                 LEFT JOIN TRN.PackingLineItem pli on pli.PackingId=p.PackingId
                                 LEFT JOIN TRN.POLotReference plr on plr.PackingLineItemId= pli.PackingLineItemId
