@@ -109,7 +109,7 @@ namespace Library.Accounting.Accounts
 				--,isnull( DIWD.DiscountAmount*CC.CompanyCurrencyRate,0)as BooksDiscountAmount
 
                 FROM [TRN].[Invoice] AS IV 
-                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.CrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
 						FROM  [TRN].[InvoiceDetail] IDE
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -216,7 +216,7 @@ namespace Library.Accounting.Accounts
 				--,isnull( DIWD.DiscountAmount*CC.CompanyCurrencyRate,0)as BooksDiscountAmount
 
                 FROM [TRN].[Invoice] AS IV 
-                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.CrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
 						FROM  [TRN].[InvoiceDetail] IDE
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
