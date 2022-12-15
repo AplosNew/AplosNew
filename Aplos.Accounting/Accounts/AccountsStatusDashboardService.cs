@@ -21950,6 +21950,112 @@ group by Id) O60 ON O60.Id=IV.Id
 
         #endregion 
 
+        #region Party Status
+        public IEnumerable<object> GetPartyStatusDataList(string companyGroupId, string companyId, string plantId, string toDate)
+
+        {
+            try
+            {
+                var sql = @"Select x.PartyCode,x.PartyName,x.PartyPlantName,round(sum(x.VendorAdvance),4) VendorAdvance,round(sum(x.Payable),4) Payable
+--,round(sum(x.ActualPayable),4) ActualPayable
+,round(sum(x.CustomerAdvance),4) CustomerAdvance,round(sum(x.Receivable),4) Receivable
+--,round(sum(x.ActualReceivable),4) ActualReceivable
+,ToBePayment=Case when round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.Receivable)+sum(x.CustomerAdvance)),4)>0 then round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.Receivable)+sum(x.CustomerAdvance)),4)
+	else 0 end
+	,ToBeReceived=Case when round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)-sum(x.CustomerAdvance)),4)>0 then round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)-sum(x.CustomerAdvance)),4)
+	else 0 end
+from (
+SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
+                , ISNULL(Ad.AdvanceAmount,0) VendorAdvance
+				, ISNULL((IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate)-(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate),0) AS Payable
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualPayable
+				,0 CustomerAdvance,0 Receivable,0 ActualReceivable
+				 FROM [TRN].[Invoice] AS IV 
+                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.CrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+						FROM  [TRN].[InvoiceDetail] IDE
+						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,SUM(VDC.DrAmount) SetOffBooksAmount
+							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+							LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+							 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+							WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' )
+							GROUP BY iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId
+							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+						WHERE VI.IsPark=0 --AND VD.PartyId='202017395'
+						GROUP BY IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,IwV.SetOffBooksAmount
+				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
+                LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
+                LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+				 --********vendor Advance***********
+                        LEFT JOIN (SELECT A.PartyId,sum((A.Amount-A.WrittenOffAmount)*A.CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        group by A.PartyId
+                        ) Ad ON Ad.PartyId=IV.PartyId
+						WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+               AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"' AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )
+                and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+
+				UNION
+				SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
+                ,0 VendorAdvance
+				,0 Payable
+				,0 ActualPayable
+				, ISNULL(Ad.AdvanceAmount,0) CustomerAdvance
+				,ISNULL((IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate)-(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate),0) AS Receivable
+				,ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS  ActualReceivable
+				 FROM [TRN].[Invoice] AS IV 
+                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.DrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+						FROM  [TRN].[InvoiceDetail] IDE
+						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,SUM(VDC.CrAmount) SetOffBooksAmount
+							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+							LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+							 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+							WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' )
+							GROUP BY iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId
+							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+						WHERE VI.IsPark=0 --AND VD.PartyId='202017395'
+						GROUP BY IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,IwV.SetOffBooksAmount
+				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
+                LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
+                LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+				 --********vendor Advance***********
+                        LEFT JOIN (SELECT A.PartyId,sum((A.Amount-A.WrittenOffAmount)*A.CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
+                        where A.PlantId='" + plantId + @"' and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0
+                        group by A.PartyId
+                        ) Ad ON Ad.PartyId=IV.PartyId
+						WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','SalesInvoice')
+               AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"' AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )
+                and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+				) x
+				group by x.PartyCode,x.PartyName,x.PartyPlantName";
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        #endregion 
+
         #region invoice with out GRN
         public IEnumerable<object> GetGRNWithOutInvoiceDataList(string companyGroupId, string companyId, string plantId, string toDate)
 
