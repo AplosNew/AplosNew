@@ -6787,7 +6787,7 @@ UNION ALL
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
 
-                int xlsRow2 = xlsRow, xlsCol2 = 1;
+                int xlsRow2 = 1, xlsCol2 = 1;
                 int endXlsCol2 = 1;
                 //string FactoryName = "";
                 //string CmpName = "";
@@ -6855,7 +6855,7 @@ UNION ALL
 
                 int iApplicableOfTaxRate = xlsCol2;
                 sheet2.Range[xlsRow2, xlsCol2].Text = "Applicable % Of Tax Rate";
-                sheet2.Range[xlsRow2, xlsCol2].ColumnWidth = 15;
+                sheet2.Range[xlsRow2, xlsCol2].ColumnWidth = 25;
                 xlsCol2++;
 
                 int iIGST = xlsCol2;
@@ -6863,8 +6863,7 @@ UNION ALL
                 sheet2.Range[xlsRow2, xlsCol2].ColumnWidth = 18;
                 sheet2.Range[xlsRow2, xlsCol2].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 endXlsCol2 = xlsCol2;
-                endXlsCol2 = xlsCol2;
-
+               
                 sheet2.Range[xlsRow2, 1, xlsRow2, endXlsCol2].BorderInside(ExcelLineStyle.Hair);
                 sheet2.Range[xlsRow2, 1, xlsRow2, endXlsCol2].BorderAround(ExcelLineStyle.Hair);
                 sheet2.Range[xlsRow2, 1, xlsRow2, endXlsCol2].WrapText = true;
@@ -6897,19 +6896,19 @@ UNION ALL
                     //{
                         if (isSecond == false)
                         {                           
-                            sheet2[perStartRow, iExportType, xlsRow2 - 1, iExportType].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iInvoiceNumber, xlsRow2 - 1, iInvoiceNumber].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iInvoiceDate, xlsRow2 - 1, iInvoiceDate].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iInvoiceValue, xlsRow2 - 1, iInvoiceValue].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iHSNSAC2, xlsRow2 - 1, iHSNSAC2].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iPortCode, xlsRow2 - 1, iPortCode].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iShippingBillNumber, xlsRow2 - 1, iShippingBillNumber].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iShippingBillDate, xlsRow2 - 1, iShippingBillDate].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iRate2, xlsRow2 - 1, iRate2].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iTaxableValue, xlsRow2 - 1, iTaxableValue].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iCessAmount2, xlsRow2 - 1, iCessAmount2].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iApplicableOfTaxRate, xlsRow2 - 1, iApplicableOfTaxRate].BorderAround(ExcelLineStyle.Hair);
-                            sheet2[perStartRow, iIGST, xlsRow2 - 1, iIGST].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iExportType, xlsRow2 - 1, iExportType].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iInvoiceNumber, xlsRow2 - 1, iInvoiceNumber].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iInvoiceDate, xlsRow2 - 1, iInvoiceDate].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iInvoiceValue, xlsRow2 - 1, iInvoiceValue].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iHSNSAC2, xlsRow2 - 1, iHSNSAC2].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iPortCode, xlsRow2 - 1, iPortCode].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iShippingBillNumber, xlsRow2 - 1, iShippingBillNumber].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iShippingBillDate, xlsRow2 - 1, iShippingBillDate].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iRate2, xlsRow2 - 1, iRate2].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iTaxableValue, xlsRow2 - 1, iTaxableValue].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iCessAmount2, xlsRow2 - 1, iCessAmount2].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iApplicableOfTaxRate, xlsRow2 - 1, iApplicableOfTaxRate].BorderAround(ExcelLineStyle.Hair);
+                            sheet2[perStartRow2, iIGST, xlsRow2 - 1, iIGST].BorderAround(ExcelLineStyle.Hair);
                                                 
                         }
                         isSecond = false;
@@ -6949,22 +6948,415 @@ UNION ALL
 
                 }
                
-                sheet2[perStartRow, iExportType, xlsRow2 - 1, iExportType].BorderAround(ExcelLineStyle.Hair);
-                sheet2[perStartRow, iInvoiceNumber, xlsRow2 - 1, iInvoiceNumber].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iExportType, xlsRow2 - 1, iExportType].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iInvoiceNumber, xlsRow2 - 1, iInvoiceNumber].BorderAround(ExcelLineStyle.Hair);
            
-                sheet2[perStartRow, iInvoiceDate, xlsRow2 - 1, iInvoiceDate].BorderAround(ExcelLineStyle.Hair);
-                sheet2[perStartRow, iInvoiceValue, xlsRow2 - 1, iInvoiceValue].BorderAround(ExcelLineStyle.Hair);
-                sheet2[perStartRow, iHSNSAC2, xlsRow2 - 1, iHSNSAC2].BorderAround(ExcelLineStyle.Hair);
-                sheet2[perStartRow, iPortCode, xlsRow2 - 1, iPortCode].BorderAround(ExcelLineStyle.Hair);
-                sheet2[perStartRow, iShippingBillNumber, xlsRow2 - 1, iShippingBillNumber].BorderAround(ExcelLineStyle.Hair);
-                sheet2[perStartRow, iShippingBillDate, xlsRow2 - 1, iShippingBillDate].BorderAround(ExcelLineStyle.Hair);
-                sheet2[perStartRow, iRate2, xlsRow2 - 1, iRate2].BorderAround(ExcelLineStyle.Hair);
-                sheet2[perStartRow, iTaxableValue, xlsRow2 - 1, iTaxableValue].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iInvoiceDate, xlsRow2 - 1, iInvoiceDate].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iInvoiceValue, xlsRow2 - 1, iInvoiceValue].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iHSNSAC2, xlsRow2 - 1, iHSNSAC2].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iPortCode, xlsRow2 - 1, iPortCode].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iShippingBillNumber, xlsRow2 - 1, iShippingBillNumber].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iShippingBillDate, xlsRow2 - 1, iShippingBillDate].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iRate2, xlsRow2 - 1, iRate2].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iTaxableValue, xlsRow2 - 1, iTaxableValue].BorderAround(ExcelLineStyle.Hair);
               
-                sheet2[perStartRow, iCessAmount2, xlsRow2 - 1, iCessAmount2].BorderAround(ExcelLineStyle.Hair);
-                sheet2[perStartRow, iApplicableOfTaxRate, xlsRow2 - 1, iApplicableOfTaxRate].BorderAround(ExcelLineStyle.Hair);
-                sheet2[perStartRow, iIGST, xlsRow2 - 1, iIGST].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iCessAmount2, xlsRow2 - 1, iCessAmount2].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iApplicableOfTaxRate, xlsRow2 - 1, iApplicableOfTaxRate].BorderAround(ExcelLineStyle.Hair);
+                sheet2[perStartRow2, iIGST, xlsRow2 - 1, iIGST].BorderAround(ExcelLineStyle.Hair);
 
+
+                #endregion ******************Export******************
+
+
+                #region ******************CDNR******************
+                var sheet3 = workbook.Worksheets[2];
+                DataTable dtCDNR = null;
+                dtCDNR = GetCDNR();
+
+                //string taxyearId = GetTaxYearId(fromDate, toDate, companyId);
+                //dtRCMPayable = GetGSTPayableSQL(companyGroupId, companyId, plantId, plantName, fromDate, toDate, taxyearId);
+
+                if (dtCDNR.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found....");
+                }
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                int xlsRow3 = 1, xlsCol3 = 1;
+                int endXlsCol3 = 1;
+                
+                int iGSTINUINofRecipient = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "GSTIN/UIN of Recipient";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 22;
+                xlsCol3++;
+
+
+                int iNoteRefundVoucherNumber = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Note Refund Voucher Number";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 30;
+                xlsCol3++;
+
+                int iNoteRefundVoucherDate = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Note Refund Voucher Date";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 25;
+                xlsCol3++;
+
+                int iHSNSAC3 = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "HSN/SAC";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 20;
+                xlsCol3++;
+                                
+                int iNoteType = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Note Type";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 30;
+                xlsCol3++;
+
+                int iPlaceOfSupply = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Place Of Supply";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 20;
+                xlsCol3++;
+
+                int iNoteSupplyType = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Note Supply Type";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 20;
+                xlsCol3++;
+
+                int iReverseCharge3 = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Reverse Charge";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 35;
+                xlsCol3++;
+
+                int iNoteRefundVoucherValue = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Note Refund Voucher Value";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 28;
+                xlsCol3++;
+
+                int iRate3 = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Rate";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 15;
+                xlsCol3++;
+
+                int iTaxableValue3 = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Taxable Value";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 15;
+                xlsCol3++;
+
+                int iCessAmount3 = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Cess Amount";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 18;
+                sheet3.Range[xlsRow3, xlsCol3].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                endXlsCol3 = xlsCol3;
+
+                int iApplicableofTaxRate3 = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Applicable of Tax Rate";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 18;
+                sheet3.Range[xlsRow3, xlsCol3].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                endXlsCol3 = xlsCol3;
+
+                int iIGST3 = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "IGST";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 18;
+                sheet3.Range[xlsRow3, xlsCol3].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                endXlsCol3 = xlsCol3;
+
+                int iCGST = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "CGST";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 18;
+                sheet3.Range[xlsRow3, xlsCol3].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                endXlsCol3 = xlsCol3;
+
+                int iSGST = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "SGST";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 18;
+                sheet3.Range[xlsRow3, xlsCol3].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                endXlsCol3 = xlsCol3;
+
+                int iTotalTax3 = xlsCol3;
+                sheet3.Range[xlsRow3, xlsCol3].Text = "Total Tax";
+                sheet3.Range[xlsRow3, xlsCol3].ColumnWidth = 18;
+                sheet3.Range[xlsRow3, xlsCol3].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                endXlsCol3 = xlsCol3;
+
+                sheet3.Range[xlsRow3, 1, xlsRow3, endXlsCol3].BorderInside(ExcelLineStyle.Hair);
+                sheet3.Range[xlsRow3, 1, xlsRow3, endXlsCol3].BorderAround(ExcelLineStyle.Hair);
+                sheet3.Range[xlsRow3, 1, xlsRow3, endXlsCol3].WrapText = true;
+                sheet3.Range[xlsRow3, 1, xlsRow3, endXlsCol3].CellStyle.Font.Bold = true;
+                sheet3.Range[xlsRow3, 1, xlsRow3, endXlsCol3].RowHeight = 23;
+                sheet3.Range[xlsRow3, 1, xlsRow3, endXlsCol3].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+                int startRow3 = 0;
+                int perStartRow3 = 0;
+               
+                xlsRow3++;
+                startRow3 = xlsRow3;
+                perStartRow3 = xlsRow3;
+                bool isThird = true;
+                
+                for (int i = 0; i < dtCDNR.Rows.Count; i++)
+                {
+                    if (isThird == false)
+                    {
+                        sheet3[perStartRow3, iGSTINUINofRecipient, xlsRow3 - 1, iGSTINUINofRecipient].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iNoteRefundVoucherNumber, xlsRow3 - 1, iNoteRefundVoucherNumber].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iNoteRefundVoucherDate, xlsRow3 - 1, iNoteRefundVoucherDate].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iHSNSAC3, xlsRow3 - 1, iHSNSAC3].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iNoteType, xlsRow3 - 1, iNoteType].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iPlaceOfSupply, xlsRow3 - 1, iPlaceOfSupply].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iNoteSupplyType, xlsRow3 - 1, iNoteSupplyType].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iReverseCharge3, xlsRow3 - 1, iReverseCharge3].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iNoteRefundVoucherValue, xlsRow3 - 1, iNoteRefundVoucherValue].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iRate3, xlsRow3 - 1, iRate3].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iTaxableValue3, xlsRow3 - 1, iTaxableValue3].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iCessAmount3, xlsRow3 - 1, iCessAmount].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iApplicableofTaxRate3, xlsRow3 - 1, iApplicableofTaxRate3].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iIGST3, xlsRow3 - 1, iIGST3].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iCGST, xlsRow3 - 1, iCGST].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iSGST, xlsRow3 - 1, iSGST].BorderAround(ExcelLineStyle.Hair);
+                        sheet3[perStartRow3, iTotalTax3, xlsRow3 - 1, iTotalTax3].BorderAround(ExcelLineStyle.Hair);
+
+                    }
+                    isThird = false;
+
+
+                    sheet3.Range[xlsRow3, iGSTINUINofRecipient].Text = dtCDNR.Rows[i]["GSTINUINofRecipient"].ToString();
+                    sheet3.Range[xlsRow3, iNoteRefundVoucherNumber].Text = dtCDNR.Rows[i]["NoteRefundVoucherNumber"].ToString();
+
+                    sheet3.Range[xlsRow3, iNoteRefundVoucherDate].Text = dtCDNR.Rows[i]["NoteRefundVoucherDate"].ToString();
+                    sheet3.Range[xlsRow3, iHSNSAC3].Text = dtCDNR.Rows[i]["HSNSAC"].ToString();
+                    sheet3.Range[xlsRow3, iNoteType].Text = dtCDNR.Rows[i]["NoteType"].ToString();
+                    sheet3.Range[xlsRow3, iPlaceOfSupply].Text = dtCDNR.Rows[i]["PlaceOfSupply"].ToString();
+                    sheet3.Range[xlsRow3, iNoteSupplyType].Text = dtCDNR.Rows[i]["NoteSupplyType"].ToString();
+
+                    sheet3.Range[xlsRow3, iReverseCharge3].Text = dtCDNR.Rows[i]["ReverseCharge"].ToString();
+                    sheet3.Range[xlsRow3, iReverseCharge3].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet3.Range[xlsRow3, iRate3].Text = dtCDNR.Rows[i]["Rate"].ToString();
+                    sheet3.Range[xlsRow3, iRate3].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet3.Range[xlsRow3, iTaxableValue3].Text = dtCDNR.Rows[i]["TaxableValue"].ToString();
+                    sheet3.Range[xlsRow3, iTaxableValue3].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet3.Range[xlsRow3, iCessAmount3].Text = dtCDNR.Rows[i]["CessAmount"].ToString();
+                    sheet3.Range[xlsRow3, iCessAmount3].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet3.Range[xlsRow3, iApplicableofTaxRate3].Number = clsStaticInfo.dbl(dtCDNR.Rows[i]["ApplicableofTaxRate"].ToString());
+                    sheet3.Range[xlsRow3, iApplicableofTaxRate3].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet3.Range[xlsRow3, iIGST3].Number = clsStaticInfo.dbl(dtCDNR.Rows[i]["IGST"].ToString());
+                    sheet3.Range[xlsRow3, iIGST3].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet3.Range[xlsRow3, iCGST].Number = clsStaticInfo.dbl(dtCDNR.Rows[i]["CGST"].ToString());
+                    sheet3.Range[xlsRow3, iCGST].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet3.Range[xlsRow3, iSGST].Number = clsStaticInfo.dbl(dtCDNR.Rows[i]["SGST"].ToString());
+                    sheet3.Range[xlsRow3, iSGST].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet3.Range[xlsRow3, iTotalTax3].Number = clsStaticInfo.dbl(dtCDNR.Rows[i]["TotalTax"].ToString());
+                    sheet3.Range[xlsRow3, iTotalTax3].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    xlsRow3++;
+                }
+
+                sheet3[perStartRow3, iExportType, xlsRow3 - 1, iExportType].BorderAround(ExcelLineStyle.Hair);
+                sheet3[perStartRow3, iInvoiceNumber, xlsRow3 - 1, iInvoiceNumber].BorderAround(ExcelLineStyle.Hair);
+
+                sheet3[perStartRow3, iInvoiceDate, xlsRow3 - 1, iInvoiceDate].BorderAround(ExcelLineStyle.Hair);
+                sheet3[perStartRow3, iInvoiceValue, xlsRow3 - 1, iInvoiceValue].BorderAround(ExcelLineStyle.Hair);
+                sheet3[perStartRow3, iHSNSAC2, xlsRow3 - 1, iHSNSAC2].BorderAround(ExcelLineStyle.Hair);
+                sheet3[perStartRow3, iPortCode, xlsRow3 - 1, iPortCode].BorderAround(ExcelLineStyle.Hair);
+                sheet3[perStartRow3, iShippingBillNumber, xlsRow3 - 1, iShippingBillNumber].BorderAround(ExcelLineStyle.Hair);
+                sheet3[perStartRow3, iShippingBillDate, xlsRow3 - 1, iShippingBillDate].BorderAround(ExcelLineStyle.Hair);
+                sheet3[perStartRow3, iRate2, xlsRow3 - 1, iRate2].BorderAround(ExcelLineStyle.Hair);
+                sheet3[perStartRow3, iTaxableValue, xlsRow3 - 1, iTaxableValue].BorderAround(ExcelLineStyle.Hair);
+
+                sheet3[perStartRow3, iCessAmount2, xlsRow3 - 1, iCessAmount2].BorderAround(ExcelLineStyle.Hair);
+                sheet3[perStartRow3, iApplicableOfTaxRate, xlsRow3 - 1, iApplicableOfTaxRate].BorderAround(ExcelLineStyle.Hair);
+                sheet3[perStartRow3, iIGST, xlsRow3 - 1, iIGST].BorderAround(ExcelLineStyle.Hair);
+
+
+                #endregion ******************CDNR******************
+
+                #region ******************HSN******************
+
+                var sheet4 = workbook.Worksheets[3];
+                DataTable dtHSN = null;
+                dtHSN = GetHSN();
+
+                //string taxyearId = GetTaxYearId(fromDate, toDate, companyId);
+                //dtRCMPayable = GetGSTPayableSQL(companyGroupId, companyId, plantId, plantName, fromDate, toDate, taxyearId);
+
+                if (dtHSN.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found....");
+                }
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                int xlsRow4 = 1, xlsCol4 = 1;
+                int endXlsCol4 = 1;
+
+
+                int iHSN = xlsCol4;
+                sheet4.Range[xlsRow4, xlsCol4].Text = "HSN";
+                sheet4.Range[xlsRow4, xlsCol4].ColumnWidth = 15;
+                xlsCol4++;
+
+
+                int iDescription = xlsCol4;
+                sheet4.Range[xlsRow4, xlsCol4].Text = "Description";
+                sheet4.Range[xlsRow4, xlsCol4].ColumnWidth = 25;
+                xlsCol4++;
+
+                int iUQC = xlsCol4;
+                sheet4.Range[xlsRow4, xlsCol4].Text = "UQC";
+                sheet4.Range[xlsRow4, xlsCol4].ColumnWidth = 25;
+                xlsCol4++;
+
+                int iTotalQuantity = xlsCol4;
+                sheet4.Range[xlsRow4, xlsCol4].Text = "Total Quantity";
+                sheet4.Range[xlsRow4, xlsCol4].ColumnWidth = 20;
+                xlsCol4++;
+
+                int iTotalValue = xlsCol4;
+                sheet4.Range[xlsRow4, xlsCol4].Text = "Total Value";
+                sheet4.Range[xlsRow4, xlsCol4].ColumnWidth = 25;
+                xlsCol4++;
+
+                int iRate4 = xlsCol4;
+                sheet4.Range[xlsRow4, xlsCol4].Text = "Rate";
+                sheet4.Range[xlsRow4, xlsCol4].ColumnWidth = 30;
+                xlsCol4++;
+
+                int iTaxableValue4 = xlsCol4;
+                sheet4.Range[xlsRow4, xlsCol4].Text = "Taxable Value";
+                sheet4.Range[xlsRow4, xlsCol4].ColumnWidth = 20;
+                xlsCol4++;
+
+                int iIntegratedTaxAmount = xlsCol4;
+                sheet4.Range[xlsRow4, xlsCol4].Text = "Integrated Tax Amount";
+                sheet4.Range[xlsRow4, xlsCol4].ColumnWidth = 25;
+                xlsCol4++;
+
+                int iCentralTaxAmount = xlsCol4;
+                sheet4.Range[xlsRow4, xlsCol4].Text = "Central Tax Amount";
+                sheet4.Range[xlsRow4, xlsCol4].ColumnWidth = 35;
+                xlsCol4++;
+
+                int iStateUTTaxAmount = xlsCol4;
+                sheet4.Range[xlsRow4, xlsCol4].Text = "State UT Tax Amount";
+                sheet4.Range[xlsRow4, xlsCol4].ColumnWidth = 25;
+                xlsCol4++;
+
+                int iCessAmount4 = xlsCol4;
+                sheet4.Range[xlsRow4, xlsCol4].Text = "Cess Amount";
+                sheet4.Range[xlsRow4, xlsCol4].ColumnWidth = 15;
+                endXlsCol4 = xlsCol4;
+
+                sheet2.Range[xlsRow3, 1, xlsRow3, endXlsCol3].BorderInside(ExcelLineStyle.Hair);
+                sheet2.Range[xlsRow3, 1, xlsRow3, endXlsCol3].BorderAround(ExcelLineStyle.Hair);
+                sheet2.Range[xlsRow3, 1, xlsRow3, endXlsCol3].WrapText = true;
+                sheet2.Range[xlsRow3, 1, xlsRow3, endXlsCol3].CellStyle.Font.Bold = true;
+                sheet2.Range[xlsRow3, 1, xlsRow3, endXlsCol3].RowHeight = 23;
+                sheet2.Range[xlsRow3, 1, xlsRow3, endXlsCol3].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+
+                sheet4.Range[xlsRow4, 1, xlsRow4, endXlsCol4].BorderInside(ExcelLineStyle.Hair);
+                sheet4.Range[xlsRow4, 1, xlsRow4, endXlsCol4].BorderAround(ExcelLineStyle.Hair);
+                sheet4.Range[xlsRow4, 1, xlsRow4, endXlsCol4].WrapText = true;
+                sheet4.Range[xlsRow4, 1, xlsRow4, endXlsCol4].CellStyle.Font.Bold = true;
+                sheet4.Range[xlsRow4, 1, xlsRow4, endXlsCol4].RowHeight = 23;
+                sheet4.Range[xlsRow4, 1, xlsRow4, endXlsCol4].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+                //string voucherNo = "";
+                //string Percentage = "";
+                int startRow4 = 0;
+                int perStartRow4 = 0;
+                //string formula = "";
+                //string formula2 = "";
+                //string totalFormula = "";
+
+                //string lineItemPercentageType = "";
+                xlsRow4++;
+                startRow4 = xlsRow4;
+                perStartRow4 = xlsRow4;
+                bool isFourth = true;
+                //string totalTaxformula = "";
+                //string voucherNocomp = "";
+                //string taxFitler = "";
+                for (int i = 0; i < dtHSN.Rows.Count; i++)
+                {
+                    if (isFourth == false)
+                    {
+                        sheet4[perStartRow4, iHSN, xlsRow4 - 1, iHSN].BorderAround(ExcelLineStyle.Hair);
+                        sheet4[perStartRow4, iDescription, xlsRow4 - 1, iDescription].BorderAround(ExcelLineStyle.Hair);
+                        sheet4[perStartRow4, iUQC, xlsRow4 - 1, iUQC].BorderAround(ExcelLineStyle.Hair);
+                        sheet4[perStartRow4, iTotalQuantity, xlsRow4 - 1, iTotalQuantity].BorderAround(ExcelLineStyle.Hair);
+                        sheet4[perStartRow4, iTotalValue, xlsRow4 - 1, iTotalValue].BorderAround(ExcelLineStyle.Hair);
+                        sheet4[perStartRow4, iRate4, xlsRow4 - 1, iRate4].BorderAround(ExcelLineStyle.Hair);
+                        sheet4[perStartRow4, iTaxableValue4, xlsRow4 - 1, iTaxableValue4].BorderAround(ExcelLineStyle.Hair);
+                        sheet4[perStartRow4, iIntegratedTaxAmount, xlsRow4 - 1, iIntegratedTaxAmount].BorderAround(ExcelLineStyle.Hair);
+                        sheet4[perStartRow4, iCentralTaxAmount, xlsRow4 - 1, iCentralTaxAmount].BorderAround(ExcelLineStyle.Hair);
+                        sheet4[perStartRow4, iStateUTTaxAmount, xlsRow4 - 1, iStateUTTaxAmount].BorderAround(ExcelLineStyle.Hair);
+                        sheet4[perStartRow4, iCessAmount4, xlsRow4 - 1, iCessAmount4].BorderAround(ExcelLineStyle.Hair);
+                        
+                    }
+                    isFourth = false;
+
+
+                    sheet4.Range[xlsRow4, iHSN].Text = dtHSN.Rows[i]["HSN"].ToString();
+                    sheet4.Range[xlsRow4, iDescription].Text = dtHSN.Rows[i]["Description"].ToString();
+
+                    sheet4.Range[xlsRow4, iUQC].Text = dtHSN.Rows[i]["UQC"].ToString();
+                    
+                    sheet4.Range[xlsRow4, iTotalQuantity].Text = dtHSN.Rows[i]["TotalQuantity"].ToString();
+                    sheet4.Range[xlsRow4, iTotalQuantity].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet4.Range[xlsRow4, iTotalValue].Text = dtHSN.Rows[i]["TotalValue"].ToString();
+                    sheet4.Range[xlsRow4, iTotalValue].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet4.Range[xlsRow4, iRate4].Text = dtHSN.Rows[i]["Rate"].ToString();
+                    sheet4.Range[xlsRow4, iRate4].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet4.Range[xlsRow4, iTaxableValue].Text = dtHSN.Rows[i]["TaxableValue"].ToString();
+                    sheet4.Range[xlsRow4, iTaxableValue].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet4.Range[xlsRow4, iIntegratedTaxAmount].Text = dtHSN.Rows[i]["IntegratedTaxAmount"].ToString();
+                    sheet4.Range[xlsRow4, iIntegratedTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet4.Range[xlsRow4, iCentralTaxAmount].Text = dtHSN.Rows[i]["CentralTaxAmount"].ToString();
+                    sheet4.Range[xlsRow4, iCentralTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    sheet4.Range[xlsRow4, iStateUTTaxAmount].Number = clsStaticInfo.dbl(dtHSN.Rows[i]["StateUTTaxAmount"].ToString());
+                    sheet4.Range[xlsRow4, iStateUTTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                    sheet4.Range[xlsRow4, iCessAmount4].Text = dtHSN.Rows[i]["CessAmount"].ToString();
+                    sheet4.Range[xlsRow4, iCessAmount4].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    xlsRow4++;
+                    //}
+
+                    //voucherNo = dtHSN.Rows[i]["VoucherNo"].ToString().ToUpper();
+
+
+                }
+
+                sheet4[perStartRow4, iHSN, xlsRow4 - 1, iHSN].BorderAround(ExcelLineStyle.Hair);
+                sheet4[perStartRow4, iDescription, xlsRow4 - 1, iDescription].BorderAround(ExcelLineStyle.Hair);
+
+                sheet4[perStartRow4, iUQC, xlsRow4 - 1, iUQC].BorderAround(ExcelLineStyle.Hair);
+                sheet4[perStartRow4, iTotalValue, xlsRow4 - 1, iTotalValue].BorderAround(ExcelLineStyle.Hair);
+                sheet4[perStartRow4, iRate4, xlsRow4 - 1, iRate4].BorderAround(ExcelLineStyle.Hair);
+                sheet4[perStartRow4, iTaxableValue4, xlsRow4 - 1, iTaxableValue4].BorderAround(ExcelLineStyle.Hair);
+                sheet4[perStartRow4, iIntegratedTaxAmount, xlsRow4 - 1, iIntegratedTaxAmount].BorderAround(ExcelLineStyle.Hair);
+                sheet4[perStartRow4, iCentralTaxAmount, xlsRow4 - 1, iCentralTaxAmount].BorderAround(ExcelLineStyle.Hair);
+                sheet4[perStartRow4, iStateUTTaxAmount, xlsRow4 - 1, iStateUTTaxAmount].BorderAround(ExcelLineStyle.Hair);
+                sheet4[perStartRow4, iCessAmount4, xlsRow4 - 1, iCessAmount4].BorderAround(ExcelLineStyle.Hair);
 
                 #endregion ******************Export******************
 
@@ -7102,6 +7494,8 @@ UNION ALL
 
                 sheet1.Name = "B2B";
                 sheet2.Name = "Export";
+                sheet3.Name = "CDNR";
+                sheet4.Name = "HSN";
                 return workbook;
             }
             catch (System.Exception ex)
@@ -7118,6 +7512,21 @@ UNION ALL
 
             return _sqlRepository.GetDataTable(strSql);
 
+        }
+
+        private DataTable GetCDNR()
+        {
+            string strSql = "";
+            strSql = @"select '07ADZPA5596R1ZC' GSTINUINofRecipient,68 NoteRefundVoucherNumber,'3/31/2022' NoteRefundVoucherDate,NULL HSNSAC,'C' NoteType,'Delhi' PlaceOfSupply,'Regular' NoteSupplyType,'N' ReverseCharge,1338.75 NoteRefundVoucherValue,5 Rate,1275 TaxableValue,0 CessAmount,0 ApplicableofTaxRate,0 IGST,0 CGST,0 SGST,0 TotalTax";
+
+            return _sqlRepository.GetDataTable(strSql);
+        }
+        private DataTable GetHSN()
+        {
+            string strSql = "";
+            strSql = @"select '7404' HSN,'Note- NA in service' Description,'KGS-KILOGRAMS' UQC,420 TotalQuantity,2478 TotalValue,18 Rate,2100 TaxableValue,8826.6 IntegratedTaxAmount,189 CentralTaxAmount,189 StateUTTaxAmount,0 CessAmount";
+
+            return _sqlRepository.GetDataTable(strSql);
         }
 
 
