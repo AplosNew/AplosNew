@@ -6,7 +6,7 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     //$scope.Dates = new Date();
-    $scope.EntityList = null;
+   // $scope.EntityList = null;
 
     //$scope.parameters = [];
     //$scope.filters = [];
@@ -45,24 +45,10 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
     $scope.GetReport = function (reportType) {
         try {
 
-            //The Filters Code
-            //var g = $("#filters").data("ejGrid");
-            //var fl = g.getFilteredRecords();
-            //if (fl.length == 0) {
-            //    fl = $scope.filters;
-            //}
 
-
-            //var parameters = [];
-            //parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
-            //parameters.push({ "Key": "ProcessId", "Value": getString(fl, "ProcessId") });
-            //parameters.push({ "Key": "UserReportGroup", "Value": getString(fl, "UserReportGroup") });
-            //parameters.push({ "Key": "EmpTypeId", "Value": getString(fl, "EmpTypeId") });
-            //$scope.parameters = parameters;
-
-            //var DropDownJobLocationListObjE = $("#selEntity").data("ejDropDownList");
-            //var entityLists = DropDownJobLocationListObjE.getSelectedValue().split(",");
-            if (baseService.isUndefinedOrNull($scope.OrderStatusId)) {
+            var DropDownJobLocationListObjE = $("#selOS").data("ejDropDownList");
+            var osLists = DropDownJobLocationListObjE.getSelectedValue();
+            if (angular.isUndefinedOrNull(osLists)) {
                 throw "Select Order Status.";
             }
 
@@ -71,7 +57,7 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
             $http({
                 method: 'POST',
                 url: $scope.path + '/XlsSalesOrderStatusReport',
-                data: { 'orderStatusId': $scope.OrderStatusId },
+                data: { 'orderStatusId': osLists },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
