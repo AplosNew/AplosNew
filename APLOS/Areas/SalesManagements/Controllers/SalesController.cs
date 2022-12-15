@@ -293,7 +293,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.GetSalesWordReportService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+            _salesReportService.GetSalesWordReportService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, grnId);
 
             return View();
         }
@@ -307,7 +307,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.LocalTaxInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, salesId);
+            _salesReportService.LocalTaxInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, salesId);
 
             return View();
         }
@@ -316,7 +316,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.LocalTaxInvoiceWithProductDetailService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, salesId);
+            _salesReportService.LocalTaxInvoiceWithProductDetailService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, salesId);
 
             return View();
         }
@@ -326,7 +326,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.LocalTaxInvoiceWithoutSKUService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, salesId);
+            _salesReportService.LocalTaxInvoiceWithoutSKUService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, salesId);
 
             return View();
         }
@@ -336,7 +336,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.CommercialInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, salesId);
+            _salesReportService.CommercialInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, salesId);
 
             return View();
         }
@@ -345,7 +345,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.SalesInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, salesId);
+            _salesReportService.SalesInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, salesId);
 
             return View();
         }

@@ -474,6 +474,7 @@ namespace Aplos.Areas.Productions.Controllers
             var fileName = "";
             var strPath = "";
             var File = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             ReportUtility ru = new ReportUtility();
             fileName = "PackingList" + plantId + ".docx";
@@ -527,10 +528,30 @@ namespace Aplos.Areas.Productions.Controllers
                     {
                         //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                         document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+
+                        
+                    }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, identity.Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
                     }
                 }
 
                 document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+
+                //string fn = "Printed By: " + identity.Name + "                                        Date&Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt");
+
+                //IWParagraph paragraph = section.AddParagraph();
+                //WFootnote footnote = (WFootnote)paragraph.AppendFootnote(Syncfusion.DocIO.FootnoteType.Endnote);
+                //footnote.MarkerCharacterFormat.SubSuperScript = SubSuperScript.SuperScript;
+                //document.EndnoteNumberFormat = FootEndNoteNumberFormat.LowerCaseRoman;               
+                //paragraph = footnote.TextBody.AddParagraph();
+                //paragraph.AppendText(fn);
+               
 
                 foreach (var item in ReplaceInfo.Keys)
                 {
@@ -547,8 +568,8 @@ namespace Aplos.Areas.Productions.Controllers
                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
                 pdfDocument.PageSettings.Width = 1200;
                 pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
-                //pdfDocument.PageSettings.
-               // sheet.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + userName + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt");
+                
+               
                 //Releases all resources used by DocToPDFConverter
                 converter.Dispose();
 

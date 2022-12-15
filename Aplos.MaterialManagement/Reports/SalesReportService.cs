@@ -246,7 +246,7 @@ namespace Library.MaterialManagement.Reports
 
         //#region SalesWordReport
 
-        public void GetSalesWordReportService(string companyGroupId, string companyId, string plantId, string UserId, string salesId)
+        public void GetSalesWordReportService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
         {
             var fileName = "";
             var strPath = "";
@@ -302,6 +302,14 @@ namespace Library.MaterialManagement.Reports
                     {
                         //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                         document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
                     }
                 }
 
@@ -697,7 +705,7 @@ namespace Library.MaterialManagement.Reports
             }
         }
 
-        public void LocalTaxInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string salesId)
+        public void LocalTaxInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
         {
             var fileName = "";
             var strPath = "";
@@ -764,6 +772,14 @@ namespace Library.MaterialManagement.Reports
                         //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                         document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                     }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
+                    }
                 }
 
                 document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
@@ -816,7 +832,7 @@ namespace Library.MaterialManagement.Reports
             document.Close();
         }
 
-        public void LocalTaxInvoiceWithoutSKUService(string companyGroupId, string companyId, string plantId, string UserId, string salesId)
+        public void LocalTaxInvoiceWithoutSKUService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
         {
             var fileName = "";
             var strPath = "";
@@ -883,6 +899,14 @@ namespace Library.MaterialManagement.Reports
                         //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                         document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                     }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
+                    }
                 }
 
                 document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
@@ -935,7 +959,7 @@ namespace Library.MaterialManagement.Reports
             document.Close();
         }
 
-        public void LocalTaxInvoiceWithProductDetailService(string companyGroupId, string companyId, string plantId, string UserId, string salesId)
+        public void LocalTaxInvoiceWithProductDetailService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
         {
             var fileName = "";
             var strPath = "";
@@ -1002,6 +1026,14 @@ namespace Library.MaterialManagement.Reports
                         //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                         document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                     }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
+                    }
                 }
 
                 document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
@@ -1054,7 +1086,7 @@ namespace Library.MaterialManagement.Reports
             document.Close();
         }
 
-        public void CommercialInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string salesId)
+        public void CommercialInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
         {
             var fileName = "";
             var strPath = "";
@@ -1109,6 +1141,14 @@ namespace Library.MaterialManagement.Reports
                         //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                         document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                     }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
+                    }
                 }
 
                 document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
@@ -1153,7 +1193,7 @@ namespace Library.MaterialManagement.Reports
 
 
         #region Sales Invoice Report By Aakash007
-        public void SalesInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string salesId)
+        public void SalesInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
         {
             var fileName = "";
             var strPath = "";
@@ -1205,6 +1245,14 @@ namespace Library.MaterialManagement.Reports
                     {
                         //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                         document.Replace(text, dsSalesInvoiceHeader.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
                     }
                 }
 
