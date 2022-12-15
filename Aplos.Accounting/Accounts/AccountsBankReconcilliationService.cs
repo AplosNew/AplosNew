@@ -596,7 +596,7 @@ namespace Library.Accounting.Accounts
 
                 var sql = @"SELECT BRM.Id BankReconciliationMapId,BRM.VoucherDetailId,BRM.BankReconciliationUploadedDataId
 								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, BRUD.CrAmount UploadedAmount
-								,V.VoucherNo,VD.DocRefNo,VD.DrAmount VoucherAmount
+								,V.VoucherNo,VD.DocRefNo,CASE WHEN VD.DrAmount>0  THEN VD.DrAmount ELSE VD.CrAmount END VoucherAmount
                                 FROM TRN.BankReconciliationMap BRM
 								INNER JOIN TRN.BankReconciliationUploadedData  BRUD ON BRUD.Id=BRM.BankReconciliationUploadedDataId
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
@@ -640,7 +640,7 @@ namespace Library.Accounting.Accounts
 
                 var sql = @"SELECT BRM.Id BankReconciliationMapId,BRM.VoucherDetailId,BRM.BankReconciliationUploadedDataId
 								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, BRUD.DrAmount UploadedAmount
-								,V.VoucherNo,VD.DocRefNo,VD.CrAmount VoucherAmount
+								,V.VoucherNo,VD.DocRefNo,CASE WHEN VD.CrAmount>0  THEN VD.CrAmount ELSE VD.DrAmount END VoucherAmount
                                 FROM TRN.BankReconciliationMap BRM
 								INNER JOIN TRN.BankReconciliationUploadedData  BRUD ON BRUD.Id=BRM.BankReconciliationUploadedDataId
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
