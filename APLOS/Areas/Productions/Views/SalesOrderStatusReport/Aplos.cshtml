@@ -1,42 +1,41 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>{{title}}</h3>
-<div class="form-horizontal form-elements">
+<div class="form-horizontal form-elements" ng-form="report">
     <div class="row">
-        <div class="col-sm-12">
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                @*<div class="form-group">
-                    
-                        <label class="col-sm-4 control-label">Evaluation Date<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Evaluation Date" ng-model="Dates" datepicker class="form-control" required tabindex="1">
-                        </div>
-                    
-                </div>*@
-                 <div class="form-group">
+        <div class="col-xs-12">
+            @*<div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group">
                     <label class="col-sm-4 control-label">Entity<sup></sup></label>
                     <div class="col-sm-8">
                         <input id="selEntity" ej-dropdownlist e-multiselectmode="visualmode" e-datasource="EntityList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
                     </div>
                 </div>
-            </div>
+            </div>*@
 
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div id="filters"></div>
-            </div>
-
-            <div class="col-sm-12">
-                <div class="form-group">
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li><button ng-click="GetReport('EXCEL');" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
-                            @*<li><button ng-click="GetReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Monthly LunchOut Report</button></li>*@
-                        </ul>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Order Status<sup>*</sup></label>
+                    <div class="col-sm-8  show-message">
+                        <div class="select-style">
+                            <select name="Order Status" class="form-control" ng-model="OrderStatusId" ng-options="item.Value as item.Text for item in orderStatusList" required>
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
                     </div>
+                </div>
+            </div>
+            @*<div class="col-xs-12 col-sm-4 col-md-4">
+                    <div id="filters"></div>
+                </div>*@
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="GetReport('EXCEL');" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                    </ul>
                 </div>
             </div>
         </div>
 
     </div>
-
 </div>
 <div class="loader" data-loader>
     Please wait

@@ -9,18 +9,24 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
     $scope.EntityList = null;
 
     //$scope.parameters = [];
-    $scope.filters = [];
-    $scope.loadfilters = function () {
-        $http({
-            method: 'POST',
-            url:"Productions/ProductiveAllowanceRateSetup/getEntity",
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.EntityList = response.data;
-        });
-    }
+    //$scope.filters = [];
+    //$scope.loadfilters = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url:"Productions/ProductiveAllowanceRateSetup/getEntity",
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        $scope.EntityList = response.data;
+    //    });
+    //}
+    //$scope.loadfilters();
 
-    $scope.loadfilters();
+    $scope.OrderStatusId = null;
+    $scope.orderStatusList = [];
+    $http.get("OrderManagements/orderstatus/getcbo/")
+        .then(function (response) {
+            $scope.orderStatusList = response.data;
+        });
 
 
     //var getString = function (data, column) {
@@ -54,18 +60,18 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
             //parameters.push({ "Key": "EmpTypeId", "Value": getString(fl, "EmpTypeId") });
             //$scope.parameters = parameters;
 
-            var DropDownJobLocationListObjE = $("#selEntity").data("ejDropDownList");
-            var entityLists = DropDownJobLocationListObjE.getSelectedValue().split(",");
+            //var DropDownJobLocationListObjE = $("#selEntity").data("ejDropDownList");
+            //var entityLists = DropDownJobLocationListObjE.getSelectedValue().split(",");
+            if (baseService.isUndefinedOrNull($scope.OrderStatusId)) {
+                throw "Select Order Status.";
+            }
 
-            
 
             // The Report Code
             $http({
                 method: 'POST',
                 url: $scope.path + '/XlsSalesOrderStatusReport',
-                data: {
-                    'EntityList' : entityLists,
-                },
+                data: { 'orderStatusId': $scope.OrderStatusId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
