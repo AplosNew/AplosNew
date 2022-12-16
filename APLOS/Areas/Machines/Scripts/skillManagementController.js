@@ -2,10 +2,7 @@
 skillManagementController.$inject = ["cboService","commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter"];
 function skillManagementController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "SkillManagement";
-    $scope.CategoryList = [];
-    $scope.SubCategoryList = [];
     $scope.CriticalLevelLists = [];
-    //$scope.ItemTypeList = [];
     $scope.ItemCategoryList = [];
     $scope.CostTypeList = [];
     $scope.EstimationLevelList = [];
@@ -13,37 +10,14 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     $scope.Action = 'Save';
     $scope.path = 'Machines/SkillManagement/';
     $scope.saveUrl = $scope.path + 'create';
-    $scope.saveUrlMachine = $scope.path + 'createMachineGroup';
-    $scope.saveUrlAsset = $scope.path + 'createAsset';
+    $scope.saveUrlPositionCode = $scope.path + 'createPositionCode';
+    $scope.saveUrlLevel = $scope.path + 'createLevel';
     $scope.saveUrlItem = $scope.path + 'createItem';
     $scope.saveUrlParameter = $scope.path + 'createParameter';
     $scope.saveUrlStores = $scope.path + 'createStores';
     $scope.saveUrlBudgetCode = $scope.path + 'createBudgetCode';
     $scope.saveUrlTeamDefinition = $scope.path + 'createTeamDefinition';
-   
     
-
-    $scope.CategoryList = [
-        {
-            'Value': 'Preventive',
-            'Text': 'Preventive'
-        },
-        {
-            'Value': 'Routine',
-            'Text': 'Routine'
-        }
-    ];
-
-    $scope.SubCategoryList = [
-        {
-            'Value': 'Schedule',
-            'Text': 'Schedule'
-        },
-        {
-            'Value': 'Overhauling',
-            'Text': 'Overhauling'
-        }
-    ];
     $scope.CriticalLevelLists = [
         {
             'Value': 'Normal',
@@ -58,38 +32,18 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
             'Text': 'Critical'
         }
     ];
-    //$scope.ItemTypeList = [
-    //    {
-    //        'Value': 'Electrical',
-    //        'Text': 'Electrical'
-    //    },
-    //    {
-    //        'Value': 'Electronics',
-    //        'Text': 'Electronics'
-    //    },
-    //    {
-    //        'Value': 'Mechanical',
-    //        'Text': 'Mechanical'
-    //    },
-    //    {
-    //        'Value': 'Production',
-    //        'Text': 'Production'
-    //    },
-    //    {
-    //        'Value': 'Other',
-    //        'Text': 'Other'
-    //    }
-    //];
-    $scope.ItemTypeList = [];
-    $scope.GetEActivityCategoryList = function () {
+    
+    $scope.PerformanceGroupList = [];
+    $scope.GetPerformanceGroupList = function () {
         $http({
             method: 'GET',
-            url: 'Machines/SkillManagement/GetEActivityCategoryList'
+            url: 'Machines/SkillManagement/GetPerformanceGroupList'
         }).then(function successCallback(response) {
-            $scope.ItemTypeList = response.data;
+            $scope.PerformanceGroupList = response.data;
         });
     }
-    $scope.GetEActivityCategoryList();
+    $scope.GetPerformanceGroupList();
+
     $scope.ItemCategoryList = [
         {
             'Value': 'Consumable',
@@ -149,40 +103,37 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     $scope.schedule = {
         Id: null
         , ScheduleCode: null
-        , Category: null
-        , SubCategory: null
+        , ProcessId: null
+        , SubProcessId: null
         , StandaredName: null
-        , MachineMasterId:null
-        , MachineName: null
         , ScheduleDays: null
         , MinScheduleMinutes: null
         , ResponsiblePersoneBgtCodeId: null
         , ResponsiblePersoneBgtCode: null
         , UserName:null
-        , Make: null
         , MinScheduleDays: null
         , MaxScheduleMinutes: null
-        , Model: null
         , MaxScheduleDays: null
         , StandardScheduleMinutes: null
         , IsActive: true
-        , Particulars: null
         , Department: null
         , DepartmentId: null
-        , MaintenanceGroup: null
+        , TrainingGroup: null
         , AdvancePlanningDays: null
 
     };
     $scope.scheduleNew = Object.assign({}, $scope.schedule);
 
-    $scope.Machine = {
+    $scope.SkillLevel = {
         Id: null
+        , SMID: null
         , SNO: null
-        , MachineRefCode: null
-        , WorkCentre: null
-        , MCGroup: null
+        , PerformanceGroup: null
+        , PerformanceDetails: null
+        , PerformancePoints: null
         , Remarks: null
-    };
+    }
+    $scope.SkillLevelNew = Object.assign({}, $scope.SkillLevel);
 
     $scope.Item = {
         Id: null
@@ -193,11 +144,10 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         , ByWhomId:null
         , ByWhom:null
         , Remarks: null
-        , MaintenanceSchedulingId: null
-        , ItemType:null
+        , SMID: null
+        , PerformanceGroupId:null
         , ItemMinutes: null
         , ExceptionDays: null
-        , ProductionQty: null
         , ReportApplicable: true
     };
     $scope.ItemNew = Object.assign({}, $scope.Item);
@@ -247,13 +197,152 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.TeamDefinitionNew = Object.assign({}, $scope.TeamDefinition);
 
-    $scope.Remove = function (index) {
-        var removed = $scope.DataList.splice(index, 1);
-        $scope.Detail = removed;
-        //$scope.Detail.pop();
+    $scope.ProcessList = [];
+    $scope.GetProcessList = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/SkillManagement/GetProcessList'
+        }).then(function successCallback(response) {
+            $scope.ProcessList = response.data;
+        });
+    }
+    $scope.GetProcessList();
+
+    $scope.SubProcessList = [];
+    $scope.GetSubProcessList = function (id) {
+        $http({
+            method: 'GET',
+            url: 'Machines/SkillManagement/GetSubProcessList?Pid=' + id
+        }).then(function successCallback(response) {
+            $scope.SubProcessList = response.data;
+        });
     }
 
+    $scope.SkillManagementMasterList = [];
+    $scope.LoadSkillManagementMasterList = function () {
+        $http({
+
+            method: 'Get',
+            url: 'Machines/SkillManagement/LoadSkillManagementMasterList'
+        }).then(function successCallback(response) {
+            $scope.SkillManagementMasterList = response.data;
+            var gridObj = $("#GridSkillManagementSchedulingMaster").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        }
+        )
+    }
+    $scope.LoadSkillManagementMasterList();
+
+    $scope.GetDetails = function (args) {
+        $scope.ScheduleMasterId = args.data.Id;
+        $http({
+            method: 'Get',
+            url: 'Machines/SkillManagement/LoadScheduleEditData?ScheduleID=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.scheduleNew = response.data.schedule[0];
+            $scope.scheduleNew.ResponsiblePersoneBgtCode = response.data.schedule[0].ResponsiblePersoneBgtCode;
+            $scope.GetSubProcessList($scope.scheduleNew.ProcessId);
+            $scope.LoadPositionCodeDetails($scope.ScheduleMasterId);
+            $scope.LoadSkillLevelDetails($scope.ScheduleMasterId);
+            $scope.GeneratSkillLevelSequenceNo($scope.ScheduleMasterId);
+            $scope.LoadItemDetails($scope.ScheduleMasterId);
+            $scope.GeneratItemSequenceNo($scope.ScheduleMasterId);
+            $scope.LoadBudgetCodeDetails($scope.ScheduleMasterId);
+            $scope.GeneratPersonBudgetSequenceNo($scope.ScheduleMasterId);
+            $scope.LoadTeamDefinitionDetails($scope.ScheduleMasterId);
+            $scope.GeneratTeamDefinitionSequenceNo($scope.ScheduleMasterId);
+
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.refreshTemplatePositionCode = function (args) {
+        $("#PCheadchk").ejCheckBox({ "change": CheckBoxSelectAllPositionCode });
+    };
+    function CheckBoxSelectAllPositionCode(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridPositionCode").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SchedulePositionCodeList.length; i++) {
+                $scope.SchedulePositionCodeList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridPositionCode").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.SchedulePositionCodeList = [];
+    $scope.LoadPositionCodeDetails = function (pid) {
+        $http({
+
+            method: 'Get',
+            url: 'Machines/SkillManagement/LoadPositionCodeDetails?ScheduleId=' + pid
+        }).then(function successCallback(response) {
+            $scope.SchedulePositionCodeList = response.data;
+        }
+        )
+    }
+
+    $scope.PositionCodeSave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.SchedulePositionCodeList.length; i++) {
+                if ($scope.SchedulePositionCodeList[i].Flag == true) {
+                    $scope.SchedulePositionCodeList[i].SMID = $scope.scheduleNew.Id;
+                    $scope.SaveList.push($scope.SchedulePositionCodeList[i]);
+                }
+            }
+
+
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlPositionCode,
+                data: {
+                    "DataList": $scope.SaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadPositionCodeDetails($scope.scheduleNew.Id);
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+
     // #region For AutoSequenceNo
+    $scope.GeneratSkillLevelSequenceNo = function () {
+        $http({
+            method: 'GET',
+            url: 'Machines/SkillManagement/GetSkillLevelAutoSequence?scheduleId=' + $scope.scheduleNew.Id
+        }).then(function successCallback(response) {
+            $scope.SkillLevelNew.SNO = response.data;
+        });
+    }
+    $scope.GeneratSkillLevelSequenceNo();
+
     $scope.GeneratItemSequenceNo = function () {
         $http({
             method: 'GET',
@@ -263,16 +352,6 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.GeneratItemSequenceNo();
-
-    $scope.GeneratStoresSequenceNo = function () {
-        $http({
-            method: 'GET',
-            url: 'Machines/SkillManagement/GetStoresAutoSequence?scheduleId=' + $scope.scheduleNew.Id
-        }).then(function successCallback(response) {
-            $scope.StoresNew.SNO = response.data;
-        });
-    }
-    $scope.GeneratStoresSequenceNo();
 
     $scope.GeneratPersonBudgetSequenceNo = function () {
         $http({
@@ -317,42 +396,6 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         var gridObj = $("#GridMachine").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
-    $scope.refreshTemplateMachineGroup = function (args) {
-        $("#MGheadchk").ejCheckBox({ "change": CheckBoxSelectAllMachine });
-    };
-    function CheckBoxSelectAllMachine(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-        }
-
-        var filtered = $("#GridMachineGroup").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.ScheduleMachineGroupList.length; i++) {
-                $scope.ScheduleMachineGroupList[i].Flag = ChkOrUnchk;
-            }
-        }
-        else {
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].Flag = ChkOrUnchk;
-            }
-        }
-        var gridObj = $("#GridMachineGroup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-    };
-
-    $scope.MaintenanceMasterList = [];
-    $scope.LoadMaintenanceMasterList = function () {
-        $http({
-
-            method: 'Get',
-            url: 'Machines/SkillManagement/LoadMaintenanceMasterList'
-        }).then(function successCallback(response) {
-            $scope.MaintenanceMasterList = response.data;
-            var gridObj = $("#GridMaintenanceSchedulingMaster").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-        }
-        )
-    }
-    $scope.LoadMaintenanceMasterList();
    
     $scope.ScheduleMachineList = [];
     $scope.LoadMachineDetails = function (pid) {
@@ -366,56 +409,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         )
     }
 
-    $scope.ScheduleMachineGroupList = [];
-    $scope.LoadMachineGroupDetails = function (pid) {
-        $http({
-
-            method: 'Get',
-            url: 'Machines/SkillManagement/LoadMachineGroupDetails?ScheduleId=' + pid
-        }).then(function successCallback(response) {
-            $scope.ScheduleMachineGroupList = response.data;
-        }
-        )
-    }
-
-    $scope.MachineGroupSave = function () {
-        try {
-
-            $scope.SaveList = [];
-            for (var i = 0; i < $scope.ScheduleMachineGroupList.length; i++) {
-                if ($scope.ScheduleMachineGroupList[i].Flag == true) {
-                    $scope.ScheduleMachineGroupList[i].MaintenanceSchedulingId = $scope.scheduleNew.Id;
-                    $scope.SaveList.push($scope.ScheduleMachineGroupList[i]);
-                }
-            }
-
-
-            $http({
-                method: 'POST',
-                url: $scope.saveUrlMachine,
-                data: {
-                    "DataList": $scope.SaveList,
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-
-                    ShowResult(response.data.Message, 'success');
-                    $scope.LoadMachineGroupDetails($scope.scheduleNew.Id);
-                    $scope.LoadMachineDetails($scope.scheduleNew.Id);
-                    $scope.Action = 'Save';
-                }
-
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-        } catch (ex) {
-            ShowResult(ex, 'Info');
-        }
-    };
+    
 
     $scope.MachineSave = function () {
         try {
@@ -456,30 +450,31 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         }
     };
 
+    $scope.ScheduleSkillLevelList = [];
+    $scope.LoadSkillLevelDetails = function () {
+        $http({
+
+            method: 'Get',
+            url: 'Machines/SkillManagement/LoadSkillLevelDetails?ScheduleId='+$scope.scheduleNew.Id
+        }).then(function successCallback(response) {
+            $scope.ScheduleSkillLevelList = response.data;
+        }
+        )
+    }
+
     $scope.ScheduleItemList = [];
     $scope.LoadItemDetails = function () {
         $http({
 
             method: 'Get',
-            url: 'Machines/SkillManagement/LoadItemDetails?ScheduleId='+$scope.scheduleNew.Id
+            url: 'Machines/SkillManagement/LoadItemDetails?ScheduleId=' + $scope.scheduleNew.Id
         }).then(function successCallback(response) {
             $scope.ScheduleItemList = response.data;
         }
         )
     }
 
-    $scope.ScheduleStoresList = [];
-    $scope.LoadStoresDetails = function () {
-        $http({
-
-            method: 'Get',
-            url: 'Machines/SkillManagement/LoadStoresDetails?ScheduleId=' + $scope.scheduleNew.Id
-        }).then(function successCallback(response) {
-            $scope.ScheduleStoresList = response.data;
-        }
-        )
-    }
-
+   
     $scope.ScheduleBudgetCodeList = [];
     $scope.LoadBudgetCodeDetails = function () {
         $http({
@@ -730,7 +725,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.LoadMaintenanceMasterList();
+                    $scope.LoadSkillManagementMasterList();
                     ScheduleClearFields();
                  
                 }
@@ -740,9 +735,36 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         }    
     };
 
+    $scope.SkillLevelSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.SkillManagementLevelForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlLevel,
+                data: {
+                    'LevelData': $scope.SkillLevelNew,
+                    'Pid': $scope.scheduleNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadSkillLevelDetails($scope.scheduleNew.Id);
+                    SkillLevelClearFields($scope.GeneratSkillLevelSequenceNo($scope.scheduleNew.Id));
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
     $scope.ItemSave = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.MaintenanceScheduleItemForm.$valid) {
+        if ($scope.SkillManagementItemForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrlItem,
@@ -767,36 +789,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         }
     };
 
-    $scope.StoresSave = function () {
-        //$scope.$broadcast('show-errors-check-validity');
-        //if ($scope.MaintenanceScheduleStoresForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrlStores,
-                data: {
-                    'StoresData': $scope.StoresNew,
-                    'Pid': $scope.scheduleNew.Id
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.LoadStoresDetails($scope.scheduleNew.Id);
-                    StoresClearFields($scope.GeneratStoresSequenceNo($scope.scheduleNew.Id));
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-       /* }*/
-    };
-
     $scope.BudgetCodeSave = function () {
-        //$scope.$broadcast('show-errors-check-validity');
-        //if ($scope.MaintenanceScheduleBudgetForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrlBudgetCode,
@@ -818,12 +811,9 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-        /*}*/
     };
 
     $scope.TeamDefinitionSave = function () {
-        //$scope.$broadcast('show-errors-check-validity');
-        //if ($scope.MaintenanceScheduleBudgetForm.$valid) {
         $http({
             method: 'POST',
             url: $scope.saveUrlTeamDefinition,
@@ -845,7 +835,6 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
-        /*}*/
     };
 
     $scope.ParameterLists = [];
@@ -924,7 +913,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     };
 
 
-    $scope.tab = 5;
+    $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
 
@@ -933,34 +922,19 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-    $scope.GetDetails = function (args) {
-        $scope.ScheduleMasterId = args.data.Id;
+
+    $scope.GetSkillLevelDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'Machines/SkillManagement/LoadScheduleEditData?ScheduleID=' + args.data.Id
+            url: 'Machines/SkillManagement/LoadSkillLevelEditData?LevelId=' + args.data.Id
         }).then(function successCallback(response) {
-            $scope.scheduleNew = response.data.schedule[0];
-            $scope.scheduleNew.MachineName = response.data.schedule[0].MachineName;
-            $scope.scheduleNew.MachineMasterId = response.data.schedule[0].MachineMasterId;
-            $scope.scheduleNew.ResponsiblePersoneBgtCode = response.data.schedule[0].ResponsiblePersoneBgtCode;
-            $scope.LoadMachineGroupDetails($scope.ScheduleMasterId);
-            $scope.LoadMachineDetails($scope.ScheduleMasterId);
-            $scope.LoadItemDetails($scope.ScheduleMasterId);
-            $scope.LoadStoresDetails($scope.ScheduleMasterId);
-            $scope.LoadBudgetCodeDetails($scope.ScheduleMasterId);
-            $scope.LoadTeamDefinitionDetails($scope.ScheduleMasterId);
-            $scope.GeneratItemSequenceNo($scope.ScheduleMasterId);
-            $scope.GeneratStoresSequenceNo($scope.ScheduleMasterId);
-            $scope.GeneratPersonBudgetSequenceNo($scope.ScheduleMasterId);
-            $scope.GeneratTeamDefinitionSequenceNo($scope.ScheduleMasterId);
-
+            $scope.SkillLevelNew = response.data.skilllevel[0];
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
         }
         )
     }
-
     $scope.GetItemDetails = function (args) {
         $http({
             method: 'Get',
@@ -973,18 +947,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         }
         )
     }
-    $scope.GetStoresDetails = function (args) {
-        $http({
-            method: 'Get',
-            url: 'Machines/SkillManagement/LoadStoresEditData?StoresId=' + args.data.Id
-        }).then(function successCallback(response) {
-            $scope.StoresNew = response.data.Stores[0];
-            if (!$rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
-        }
-        )
-    }
+    
     $scope.GetBudgetCodeDetails = function (args) {
         $http({
             method: 'Get',
@@ -1012,14 +975,14 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     $scope.Clear = function () {
         ScheduleClearFields();
     };
+    $scope.SkillLevelClear = function () {
+        SkillLevelClearFields($scope.GeneratSkillLevelSequenceNo($scope.scheduleNew.Id));
+    };
     $scope.ItemClear = function () {
         ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
     };
     $scope.SaveParameterClear = function () {
         ParameterClearFields();
-    };
-    $scope.StoresClear = function () {
-        StoresClearFields($scope.GeneratStoresSequenceNo($scope.scheduleNew.Id));
     };
     $scope.BudgetCodeClear = function () {
         BudgetCodeClearFields($scope.GeneratPersonBudgetSequenceNo($scope.scheduleNew.Id));
@@ -1035,16 +998,16 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         $scope.ScheduleMachineList = [];
     }
 
+    function SkillLevelClearFields(seq) {
+        $scope.Action = "Save";
+        $scope.SkillLevelNew = Object.assign({}, $scope.SkillLevel);
+        $scope.SkillLevelNew.SNO = seq;
+    }
+
     function ItemClearFields(seq) {
         $scope.Action = "Save";
         $scope.ItemNew = Object.assign({}, $scope.Item);
         $scope.ItemNew.SNO = seq;
-    }
-
-    function StoresClearFields(seq) {
-        $scope.Action = "Save";
-        $scope.StoresNew = Object.assign({}, $scope.Stores);
-        $scope.StoresNew.SNO = seq;
     }
 
     function BudgetCodeClearFields(seq) {
@@ -1064,6 +1027,18 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         $scope.ParameterNew = Object.assign({}, $scope.Parameter);
     }
 
+    $scope.removeLevelModal = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempLevelId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemoveLevel')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
     $scope.removeRowModal = function (index,data) {
         try {
             $scope.popUpIndex = index;
@@ -1075,17 +1050,8 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'Error');
         }
     };
-    $scope.removeStoresModal = function (index, data) {
-        try {
-            $scope.popUpIndex = index;
-            $scope.tempStoresId = data;
-            $scope.message_confirmation = "Are you sure you want to delete?";
-            angular.element(document.querySelector('#confirmRemoveStores')).modal('show');
-        }
-        catch (e) {
-            ShowResult(e, 'Error');
-        }
-    };
+    
+    
     $scope.removeBudgetCodeModal = function (index, data) {
         try {
             $scope.popUpIndex = index;
@@ -1120,16 +1086,18 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.LoadItemDetails($scope.scheduleNew.Id);
+                ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
         });
     };
-    $scope.removeStoresRow = function () {
+
+    $scope.removeLevelRow = function () {
         $http({
             method: 'POST',
-            url: 'Machines/SkillManagement/StoresDelete?id=' + $scope.tempStoresId,
+            url: 'Machines/SkillManagement/LevelDelete?id=' + $scope.tempLevelId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -1137,13 +1105,15 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.LoadStoresDetails($scope.scheduleNew.Id);
+                $scope.LoadSkillLevelDetails($scope.scheduleNew.Id);
+                SkillLevelClearFields($scope.GeneratSkillLevelSequenceNo($scope.scheduleNew.Id));
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
         });
     };
+    
     $scope.removeBudgetCodeRow = function () {
         $http({
             method: 'POST',
@@ -1156,6 +1126,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.LoadBudgetCodeDetails($scope.scheduleNew.Id);
+                BudgetCodeClearFields($scope.GeneratPersonBudgetSequenceNo($scope.scheduleNew.Id));
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1174,6 +1145,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.LoadTeamDefinitionDetails($scope.scheduleNew.Id);
+                TeamDefinitionClearFields($scope.GeneratTeamDefinitionSequenceNo($scope.scheduleNew.Id));
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1191,7 +1163,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.LoadMaintenanceMasterList();
+                $scope.LoadSkillManagementMasterList();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
