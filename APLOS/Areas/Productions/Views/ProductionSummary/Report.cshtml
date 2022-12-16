@@ -46,43 +46,46 @@
                         <div class="row">
                             <div class="col-xs-12 col-sm-6 col-md-6">
                                 <div class="form-group">
-                                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-                                    <div class="col-sm-8">
-                                        <input id="entityList" ng-model="EntityId" e-watermarktext="Entity" class="form-control" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-change="getProcessDataList" e-multiselectmode="visualmode" e-datasource="entityList" e-fields-value="Id" e-fields-text="UserName" required tabindex="1" e-showcheckbox="true" />
-                                    </div>
-                                </div>
-                                <div class="form-group">
                                     <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <input type="text" name="From Date" ng-model="fromDate" datepicker class="form-control" required tabindex="3">
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <input id="entityList" ng-model="EntityId" e-watermarktext="All" class="form-control" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-change="getProcessDataList" e-multiselectmode="visualmode" e-datasource="entityList" e-fields-value="Id" e-fields-text="UserName" required tabindex="1" e-showcheckbox="true" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-12">
+                                        <div class="col-md-2 text-right">
+                                            <ul>
+                                                <li><button type="button" class="btn single-btn" ng-click="ProcessWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Report</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
                                     <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <input type="text" name="To Date" ng-model="toDate" datepicker class="form-control" required tabindex="4">
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                                     <div class="col-sm-8">
-                                        <input id="process" e-watermarktext="Process" ng-model="ProcessId" class="form-control" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="processDataList" e-fields-value="Value" e-fields-text="Text" required tabindex="2" e-showcheckbox="true" />
+                                        <input id="process" e-watermarktext="All" ng-model="ProcessId" class="form-control" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="processDataList" e-fields-value="Value" e-fields-text="Text" required tabindex="2" e-showcheckbox="true" />
                                     </div>
 
                                 </div>
 
-                                
+
                             </div>
-                            <div class="col-lg-12">
-                                <div class="col-md-2 text-right">
-                                    <ul>
-                                        <li><button type="button" class="btn single-btn" ng-click="ProcessWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Report</button></li>
-                                    </ul>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </fieldset>
@@ -94,6 +97,12 @@
                             <div class="row">
                                 <div class="col-xs-12 col-sm-6 col-md-6">
                                     <div class="form-group">
+                                        <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <input type="text" name="From Date" ng-model="fromDate2" datepicker class="form-control" required tabindex="5">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                                         <div class="col-sm-8 show-message">
                                             <div class="select-style">
@@ -103,17 +112,14 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" name="From Date" ng-model="fromDate2" datepicker class="form-control" required tabindex="5">
-                                        </div>
-                                    </div>
-
                                 </div>
                                 <div class="col-xs-12 col-sm-6 col-md-6">
-
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <input type="text" name="To Date" ng-model="toDate2" datepicker class="form-control" required tabindex="6">
+                                        </div>
+                                    </div>
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                                         <div class="col-sm-8 show-message">
@@ -122,13 +128,6 @@
                                                     <option value="--Select--"></option>
                                                 </select>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" name="To Date" ng-model="toDate2" datepicker class="form-control" required tabindex="6">
                                         </div>
                                     </div>
                                 </div>
