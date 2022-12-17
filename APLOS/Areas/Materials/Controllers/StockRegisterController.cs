@@ -218,12 +218,12 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult RequisitionStatusData(string employeeId, string requisitionBeforeDate, string requisitionStatus)
+        public ActionResult RequisitionStatusData(string employeeId, string requisitionFromDate,string requisitionToDate, string requisitionStatus)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetRequisitionStatusData(employeeId, requisitionBeforeDate, requisitionStatus));
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetRequisitionStatusData(employeeId, requisitionFromDate, requisitionToDate, requisitionStatus));
                 var jsondata = Json(new { NewData, Message = AplosMessage.Success });
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
@@ -234,37 +234,61 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        public DataTable GetRequisitionStatusData(string employeeId, string requisitionBeforeDate, string requisitionStatus)
+        public DataTable GetRequisitionStatusData(string employeeId, string requisitionFromDate, string requisitionToDate, string requisitionStatus)
         {
             try
             {
                 var EmpAll = "";
-                if (employeeId!=null)
+                if (employeeId!=null &&  requisitionStatus== "Regular")
                 {
-                    EmpAll = "AND RM.ReqEmpId = '" + employeeId + @"' AND RM.RequisitionDate < '" + requisitionBeforeDate + "'";
+                    EmpAll = "AND RM.ReqEmpId = '" + employeeId + @"' AND RM.RequisitionDate between '" + requisitionFromDate + "' AND '"+ requisitionToDate + "' MM.IsRegular=1";
+                }
+                else if(employeeId != null && requisitionStatus == "Irregular")
+                {
+                    EmpAll = "AND RM.ReqEmpId = '" + employeeId + @"' AND RM.RequisitionDate between '" + requisitionFromDate + "' AND '" + requisitionToDate + "' MM.IsRegular=0";
+                }
+                else if (employeeId != null && requisitionStatus == "All")
+                {
+                    EmpAll = "AND RM.ReqEmpId = '" + employeeId + @"' AND RM.RequisitionDate between '" + requisitionFromDate + "' AND '" + requisitionToDate + "' ";
+                }
+                else if (employeeId == null && requisitionStatus == "Regular")
+                {
+                    EmpAll = "  AND RM.RequisitionDate between '" + requisitionFromDate + "' AND '" + requisitionToDate + "' AND  MM.IsRegular=1";
+                }
+                else if (employeeId == null && requisitionStatus == "Irregular")
+                {
+                    EmpAll = "  AND RM.RequisitionDate between '" + requisitionFromDate + "' AND '" + requisitionToDate + "' AND MM.IsRegular=0";
                 }
                 else
                 {
-                    EmpAll = "AND RM.RequisitionDate < '" + requisitionBeforeDate + "'";
+                    EmpAll = "AND RM.RequisitionDate between '" + requisitionFromDate + "' AND '" + requisitionToDate + "'";
                 }
-				var str = @"SELECT * FROM (select EI.EmployeeCode,EI.EmployeeName EN,D.UserName Department,RM.ReqEmpId,ReqStatus=case when MM.IsRegular=1 then 'Regular' else 'Irregular' end,format(RM.RequisitionDate,'dd-MMM-yyy')RequisitionDate,MM.IsRegular,RM.Id,RMD.Id ROWId,MM.UserName Material,ART.StandardName Article,TUoM.UserName UOM,ISNULL(RMD.TransactionQty,0) ReqQty
-                                            ,ISNULL(POD.POQty,0)POQty,BalancePOQty=RMD.TransactionQty-POD.POQty,ISNULL(GRM.GRNQty,0)GRNQty,ISNULL(GRM.IssueQty,0) IssueQty
+				var str = @"SELECT * FROM (
+		select EI.EmployeeCode,EI.EmployeeName EN,D.UserName Department,RM.ReqEmpId
+		,ReqStatus=case when MM.IsRegular=1 then 'Regular' else 'Irregular' end
+		,format(RM.RequisitionDate,'dd-MMM-yyy')RequisitionDate,RM.Id,RMD.Id ROWId,MM.UserName Material,ART.StandardName Article,TUoM.UserName UOM
+		,ISNULL(RMD.TransactionQty,0) ReqQty,ISNULL(RMD.TotalAmount,0) ReqAmount
+                                            ,ISNULL(POD.POQty,0)POQty
+											,isnull(POD.POAmount,0) POAmount
+											,BalancePOQty=Case WHEN ISNULL(RMD.TransactionQty,0)-ISNULL(POD.POQty,0)>0 THEN ISNULL(RMD.TransactionQty,0)-ISNULL(POD.POQty,0) ELSE 0 END
+											,ISNULL(GRM.GRNQty,0)GRNQty,ISNULL(GRM.GRNAmount,0) GRNAmount
+											,BalanceToReceive=ISNULL(POD.POQty,0)-ISNULL(GRM.GRNQty,0)
+											,ISNULL(GRM.IssueQty,0) IssueQty
                                             ,0 SalesQty
-											,BalanceToReceive=ISNULL(RMD.TransactionQty,0)-ISNULL(GRM.GRNQty,0)
+											--,BalanceToReceive=ISNULL(RMD.TransactionQty,0)-ISNULL(GRM.GRNQty,0)
 											,RM.Remarks
-											
-
                                             from  TRN.MaterialRequsitionMaster RM 
                                             LEFT JOIN TRN.MaterialRequsitionDetails RMD ON RMD.MaterialReqqusitionMasterId=RM.Id
                                             LEFT JOIN (
-	                                            select poRD.RequisitionDetailId ,sum(ISNULL(poRD.TransactionQty,0)) POQty
+	                                            SELECT poRD.RequisitionDetailId ,sum(ISNULL(poRD.TransactionQty,0)) POQty
+												,sum(ISNULL(pd.TransactionAmount,0)) POAmount
 		                                            from TRN.PoRequisitionDetail poRD 
 													JOIN TRN.PurchaseOrderDetail pd ON pd.Id=poRD.PODetailId
 		                                            group by poRD.RequisitionDetailId
-
                                             ) POD ON POD.RequisitionDetailId=RMD.Id
 											LEFT JOIN (
-												SELECT GRM.ReqDetailId,SUM(ISNULL(GRM.TransactionQty,0)) GRNQty ,SUM(ISNULL(II.IssueQty,0)) IssueQty
+												SELECT GRM.ReqDetailId,SUM(ISNULL(GRM.TransactionQty,0)) GRNQty 
+												,SUM(ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0)) GRNAmount,SUM(ISNULL(II.IssueQty,0)) IssueQty
 												FROM TRN.GRNPORequisitionMap GRM 
 												LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=GRM.InventoryReceiveDetailId
 												LEFT JOIN (SELECT IIH.InventoryReceiveDetailId,SUM(ISNULL(IIH.Qty,0)) IssueQty 
@@ -278,7 +302,7 @@ namespace Aplos.Areas.Materials.Controllers
 											left join EmployeeInformation EI on EI.SystemId=RM.ReqEmpId
 											left join ORG.Department D on EI.DepartmentId=D.Id
 
-                                            where RMD.Id is not null " + EmpAll + ") x where x.ReqStatus='" + requisitionStatus + @"'";
+                                            where RMD.Id is not null " + EmpAll + ") x ";
                 return _sqlRepository.GetDataTable(str);
 
             }

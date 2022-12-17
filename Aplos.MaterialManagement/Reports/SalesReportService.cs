@@ -4053,9 +4053,9 @@ namespace Library.MaterialManagement.Reports
 
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
-						 	LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+						 	LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
                          LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
                          LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
@@ -4208,9 +4208,9 @@ namespace Library.MaterialManagement.Reports
 						 LEFT JOIN [MST].[AddressMaster] Addres ON Addres.Id= P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
-						 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+						 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
                          LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
                          LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
@@ -4588,9 +4588,9 @@ namespace Library.MaterialManagement.Reports
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
-                         LEFT JOIN[HKP].[HSNCode] AS HSNC ON HSNC.ID = MM.HSNCodeId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+                         LEFT JOIN[HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
                          LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
                          LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
@@ -4783,11 +4783,11 @@ LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
 LEFT JOIN [MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
 LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
 LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
-JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
-LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MM.HSNCodeId
 LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
 LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
 LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
 LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
 LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id

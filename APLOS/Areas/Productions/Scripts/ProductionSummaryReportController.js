@@ -1,10 +1,10 @@
 ﻿'use strict';
-ProductionSummaryReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+ProductionSummaryReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function ProductionSummaryReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Production Report';
     $scope.path = "Productions/ProductionSummary/";
 
-    
+
     $scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.downloadgriddataPDFUrl = 'GridReports/DownloadPdf';
@@ -44,7 +44,7 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     $scope.getPlant();
 
     $scope.entityListData = [];
-    $scope.getAllEntities = function () {
+    $scope.getAllEntitiesList = function () {
         $http({
             method: 'POST',
             url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
@@ -53,7 +53,7 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
             //$scope.loadProcessList(EntityId);
         });
     }
-    $scope.getAllEntities();
+    $scope.getAllEntitiesList();
 
     $scope.entityList = [];
     $scope.getAllEntities = function () {
@@ -78,9 +78,7 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     }
     $scope.getAllEntities();
 
-    $scope.EntityChange = function () {
-        
-    }
+
 
     $scope.processDataList = [];
     $scope.getProcessDataList = function () {
@@ -101,7 +99,7 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
                 });
         });
     }
-    
+
 
     $scope.fromDate = '';
     $scope.toDate = '';
@@ -110,28 +108,52 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     $scope.ProcessWiseReport = function () {
         try {
             if (angular.isUndefinedOrNull($scope.fromDate)) {
-                throw "Select From Date";
+                throw "Select From Date.";
             }
 
             if (angular.isUndefinedOrNull($scope.toDate)) {
-                throw "Select To Date";
+                throw "Select To Date.";
             }
 
             if (new Date($scope.fromDate) > new Date($scope.toDate)) {
                 throw "From date can not be greater than To date.";
             }
 
-            //var DropDownListObj = $("#PlantList").data("ejDropDownList");
-            //var PlantId = DropDownListObj.getSelectedValue();
-
             var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
             var EntityId = DropDownEntityListObj.getSelectedValue();
 
-            $scope.fileName = "ProductionOrderReport.xlsx";
+            var DropDownProcessListObj = $("#process").data("ejDropDownList");
+            var ProcessId = DropDownProcessListObj.getSelectedValue();
+
+            if (angular.isUndefinedOrNull(EntityId)) {
+                for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                    if (angular.isUndefinedOrNull(EntityId)) {
+                        EntityId =  + DropDownEntityListObj.popupListItems[i].Id;
+                    } else {
+                        EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                    }
+                }
+            }
+
+
+
+            //if (!angular.isUndefinedOrNull(EntityId)) {
+            //    if (angular.isUndefinedOrNull(ProcessId)) {
+            //        for (var i = 0; i < DropDownProcessListObj.popupListItems.length; i++) {
+            //            if (angular.isUndefinedOrNull(ProcessId)) {
+            //                ProcessId = + DropDownProcessListObj.popupListItems[i].Value;
+            //            } else {
+            //                ProcessId += ',' + DropDownProcessListObj.popupListItems[i].Value;
+            //            }
+            //        }
+            //    }
+            //}
+
+            $scope.fileName = "ProductionOrderReportProcessWise.xlsx";
             $http({
                 method: 'POST',
                 url: $scope.path + "GetProcessWiseOrderReport",
-                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'EntityId': $scope.EntityId, 'ProcessId': $scope.ProcessId},
+                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'EntityId': EntityId, 'ProcessId': ProcessId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
@@ -167,17 +189,12 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
                 throw "From date can not be greater than To date.";
             }
 
-            //var DropDownListObj = $("#PlantList").data("ejDropDownList");
-            //var PlantId = DropDownListObj.getSelectedValue();
 
-            //var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
-            //var EntityId = DropDownEntityListObj.getSelectedValue();
-
-            $scope.fileName = "ProductionOrderReport.xlsx";
+            $scope.fileName = "ProductionOrderReportParameterWise.xlsx";
             $http({
                 method: 'POST',
                 url: $scope.path + "GetPerametreWiseOrderReport",
-                data: { 'fromDate': $scope.fromDate2, 'toDate': $scope.toDate2, 'EntityId': $scope.EntityId2, 'ProcessId': $scope.ProcessId2},
+                data: { 'fromDate': $scope.fromDate2, 'toDate': $scope.toDate2, 'EntityId': $scope.EntityId2, 'ProcessId': $scope.ProcessId2 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
@@ -294,4 +311,3 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
 
 
 
-   
