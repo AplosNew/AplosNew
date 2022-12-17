@@ -474,6 +474,29 @@ namespace Library.Service.Employees
             }
         }
 
+        public void UpdateRelativeInfo(EmployeeInformation entity, string name)
+        {
+            try
+            {
+                var dblist = Find(entity.SystemId);
+                dblist.AnyRelativeWorkedHere = entity.AnyRelativeWorkedHere;
+                dblist.RelationShip = entity.RelationShip;
+                dblist.RelativeDesignation = entity.RelativeDesignation;
+                dblist.RelativeCellNo = entity.RelativeCellNo;
+                dblist.RelativeSystemId = entity.RelativeSystemId;
+
+                dblist.UpdatedBy = name;
+                dblist.DateUpdated = DateTime.Now;
+                Update(dblist);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
         public void UpdateAdvanceInfo(EmployeeInformation entity, string name, string IP)
         {
             try
