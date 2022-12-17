@@ -21985,17 +21985,17 @@ group by Id) O60 ON O60.Id=IV.Id
 	else 0 end
 from (
 SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
-                , ISNULL(Ad.AdvanceAmount,0) VendorAdvance
+                , 0 VendorAdvance
 				, ISNULL((IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate)-(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate),0) AS Payable
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualPayable
 				,0 CustomerAdvance,0 Receivable,0 ActualReceivable
 				 FROM [TRN].[Invoice] AS IV 
-                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.CrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
 						FROM  [TRN].[InvoiceDetail] IDE
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
 						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
-						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,SUM(VDC.DrAmount) SetOffBooksAmount
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,ISNULL(SUM(VDC.DrAmount),0) SetOffBooksAmount
 							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
 							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
 							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
@@ -22012,30 +22012,45 @@ SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-				 --********vendor Advance***********
-                        LEFT JOIN (SELECT A.PartyId,sum((A.Amount-A.WrittenOffAmount)*A.CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
-                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
-                        group by A.PartyId
-                        ) Ad ON Ad.PartyId=IV.PartyId
-						WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+				 WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"' AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )
                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                
+                UNION 
+				 SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
+                , ISNULL(A.Amount*A.CompanyCurrencyRate,0)- ISNULL(AWD.AdvanceSetOffAmount,0) VendorAdvance
+				, 0 Payable
+				, 0 ActualPayable
+				,0 CustomerAdvance,0 Receivable,0 ActualReceivable 
+				FROM TRN.Advance A
+				LEFT JOIN (SELECT AdvanceId,Sum(ISNULL(AWD.Amount,0)) AdvanceSetOffAmount 
+				FROM TRN.AdvanceWriteOffDetail AWD 
+				LEFT JOIN TRN.AdvanceWriteOff AW ON AW.Id=AWD.AdvanceWriteOffId
+				WHERE ( convert(Date,AW.PostingDate) <= '" + toDate + @"' )
+					group by AdvanceId ) AWD ON AWD.AdvanceId=A.Id
+				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
+                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+                LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
+                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=A.EntityId
+                where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' 
+				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) and ISNULL(A.Amount*A.CompanyCurrencyRate,0)- ISNULL(AWD.AdvanceSetOffAmount,0)>0
 
 				UNION
 				SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
                 ,0 VendorAdvance
 				,0 Payable
 				,0 ActualPayable
-				, ISNULL(Ad.AdvanceAmount,0) CustomerAdvance
+				, 0 CustomerAdvance
 				,ISNULL((IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate)-(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate),0) AS Receivable
 				,ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS  ActualReceivable
 				 FROM [TRN].[Invoice] AS IV 
-                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.DrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+                 JOIN (select IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,SUM(VDC.DrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
 						FROM  [TRN].[InvoiceDetail] IDE
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
 						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
-						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,SUM(VDC.CrAmount) SetOffBooksAmount
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,ISNULL(SUM(VDC.CrAmount),0) SetOffBooksAmount
 							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
 							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
 							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
@@ -22052,16 +22067,31 @@ SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-				 --********vendor Advance***********
-                        LEFT JOIN (SELECT A.PartyId,sum((A.Amount-A.WrittenOffAmount)*A.CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
-                        where A.PlantId='" + plantId + @"' and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0
-                        group by A.PartyId
-                        ) Ad ON Ad.PartyId=IV.PartyId
-						WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','SalesInvoice')
+				WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','SalesInvoice')
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"' AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )
                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
-				) x
-				group by x.PartyCode,x.PartyName,x.PartyPlantName";
+				UNION
+				 SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
+                , 0 VendorAdvance
+				, 0 Payable
+				, 0 ActualPayable
+				,ISNULL(A.Amount*A.CompanyCurrencyRate,0)- ISNULL(AWD.AdvanceSetOffAmount,0) CustomerAdvance,0 Receivable,0 ActualReceivable 
+				FROM TRN.Advance A
+				LEFT JOIN (SELECT AdvanceId,Sum(ISNULL(AWD.Amount,0)) AdvanceSetOffAmount 
+				FROM TRN.AdvanceWriteOffDetail AWD 
+				LEFT JOIN TRN.AdvanceWriteOff AW ON AW.Id=AWD.AdvanceWriteOffId
+				WHERE ( convert(Date,AW.PostingDate) <= '" + toDate + @"' )
+					group by AdvanceId ) AWD ON AWD.AdvanceId=A.Id
+				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
+                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+                LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
+                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=A.EntityId
+                where A.PlantId='" + plantId + @"' and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0 
+				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) 
+				and ISNULL(A.Amount*A.CompanyCurrencyRate,0)- ISNULL(AWD.AdvanceSetOffAmount,0)>0
+                ) x
+				group by x.PartyCode,x.PartyName,x.PartyPlantName order by x.partyName";
                 return _sqlRepository.GetDataCollection(sql);
 
             }
