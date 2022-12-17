@@ -940,6 +940,15 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpPost, Authorize]
+        public JsonResult CreateRelativeInfo(EmployeeInformation employeeInformation)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _employeeProfileService.UpdateRelativeInfo(employeeInformation, identity.Name);
+            return Json(new { EmployeeInformation = employeeInformation, Message = AplosMessage.Updated });
+        }
+
+
+        [HttpPost, Authorize]
         public JsonResult CreateEmployment(EmployeeInformation employeeInformation)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

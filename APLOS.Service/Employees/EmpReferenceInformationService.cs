@@ -222,7 +222,9 @@ namespace Library.Service.Employees
         {
             try
             {
-                var sql = @"Select * from EmpReferenceInformation where EmpSystemID='" + empSystemID + "'";
+                var sql = @"Select REF.*,REI.EmployeeCode Ref1NameCode from EmpReferenceInformation REF
+                        LEFT JOIN dbo.Employeeinformation REI ON REI.SystemId=REF.RefEmpSystemID
+                        WHERE REF.EmpSystemID='" + empSystemID + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
