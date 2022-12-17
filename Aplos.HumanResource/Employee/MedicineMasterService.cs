@@ -2013,7 +2013,14 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
         {
             try
             {
-                string sql = @"";
+                string sql = @"select MM.UserName Medicine, [Opening Quantity] = case when IsOpeningQty = 1 then MRC.Quantity else 0 end 
+,[Received Quantity] = case when IsOpeningQty = 0 then MRC.Quantity else 0 end
+, ESM.IssueQty, FORMAT(MRC.ExpiryDate,'dd-MMM-yyyy')[Expiry Date], ClosingStock =  case when IsOpeningQty = 1 then MRC.Quantity else 0 end + case when IsOpeningQty = 0 then MRC.Quantity
+else 0 end - ESM.IssueQty
+from TRN.MedicineReceipt MR
+LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+left join (select ISnull(SUM(Quantity),0)IssueQty, MedicineReceiptChildId from TRN.EmployeeSicknessMedicines GROUP BY MedicineReceiptChildId) ESM on ESM.MedicineReceiptChildId = MRC.Id";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch(Exception ex)
