@@ -430,6 +430,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     //#region BudgetCode
 
     $scope.name = null;
+    $scope.popUpTitle = "Manpower Budget Information";
     $scope.popUpList = [];
     $scope.valueData = '';
     $scope.budgetpopUpParameters = {
@@ -471,25 +472,29 @@ function employeeInformationController(addressService, fileReader, cboService, c
     };
 
     $scope.selectDoubleClick = function (data) {
-        $scope.employeeNew.BudgetCode = data.Id;
-        $scope.employeeNew.Code = data.Code;
+        try {
+            $scope.employeeNew.BudgetCode = data.Id;
+            $scope.employeeNew.Code = data.Code;
 
-        $scope.employeeNew.DesignationSystemID = data.DesignationId;
-        $scope.employeeNew.Designation = data.Designation;
-        $scope.employeeNew.PositionName = data.PositionName;
-        $scope.employeeNew.DesignationId = data.DesignationId;
-        $scope.employeeNew.UnitId = data.UnitId;
-        $scope.employeeNew.DivisionId = data.DivisionId;
-        $scope.employeeNew.DepartmentId = data.DepartmentId;
-        $scope.employeeNew.SectionId = data.SectionId;
-        $scope.employeeNew.SubSectionId = data.SubSectionId;
-        $scope.employeeNew.SubdivisionID = data.SubdivisionID;
-        $scope.employeeNew.LineId = data.LineId;
-        $scope.employeeNew.EmploymentType = data.EmploymentType;
-        $scope.employeeNew.PositionID = data.PositionId;
-        $scope.employeeNew.IsDirect = data.IsDirect;
-
-        angular.element(document.querySelector('#popUpId')).modal('hide');
+            $scope.employeeNew.DesignationSystemID = data.DesignationId;
+            $scope.employeeNew.Designation = data.Designation;
+            $scope.employeeNew.PositionName = data.PositionName;
+            $scope.employeeNew.DesignationId = data.DesignationId;
+            $scope.employeeNew.UnitId = data.UnitId;
+            $scope.employeeNew.DivisionId = data.DivisionId;
+            $scope.employeeNew.DepartmentId = data.DepartmentId;
+            $scope.employeeNew.SectionId = data.SectionId;
+            $scope.employeeNew.SubSectionId = data.SubSectionId;
+            $scope.employeeNew.SubdivisionID = data.SubdivisionID;
+            $scope.employeeNew.LineId = data.LineId;
+            $scope.employeeNew.EmploymentType = data.EmploymentType;
+            $scope.employeeNew.PositionID = data.PositionId;
+            $scope.employeeNew.IsDirect = data.IsDirect;
+            $scope.GetOnRollByBudget(data.Id);
+           
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     $scope.clearCode = function () {
@@ -511,6 +516,22 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.employeeNew.EmploymentType = null;
         $scope.employeeNew.PositionID = null;
         $scope.employeeNew.IsDirect = false;
+    };
+
+    $scope.GetOnRollByBudget = function (budgetId) {
+        try {
+            $http.get('employees/EmployeeInformation/GetOnRollByBudget?budgetId=' + budgetId)
+                .then(function (response) {
+                    if (response.data[0].TotalNumber < response.data[0].OnRollManPwr || response.data[0].TotalNumber == response.data[0].OnRollManPwr) {
+                        ShowResult("On Roll Manpower is exceeding Budgeted Manpower.", 'failure', 'popUpId'); ;
+                    }
+                    else {
+                        angular.element(document.querySelector('#popUpId')).modal('hide');
+                    }
+                });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     //#endregion BudgetCode
@@ -3950,8 +3971,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
 
 
-    $scope.RelativeemployeeList = [];
-    $scope.RelpopUp = function () {
+    $scope.RefemployeeList = [];
+    $scope.RefEmppopUp = function () {
         try {
 
             $scope.RelativeemployeeList = [];
@@ -3959,32 +3980,35 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 method: 'GET',
                 url: 'employees/leaveApplication/GetEmployeeList'
             }).then(function successCallback(response) {
-                $scope.RelativeemployeeList = response.data;
+                $scope.RefemployeeList = response.data;
             });
             angular.element(document.querySelector('#employeePopUp')).modal('show');
 
         } catch (e) {
             ShowResult(e, 'failure');
         }
-
     };
 
 
-    $scope.setData = function (obj) {
-
+    $scope.setRefEmpData = function (obj) {
         var data = obj.data;
-        $scope.employeeNew.RelativeEmployeeCode = data.EmployeeCode;
-        $scope.employeeNew.RelativeSystemId = data.SystemID;
-        $scope.employeeNew.RelativeEmployeeName = data.EmployeeName;
+        $scope.empReferenceInformation.Ref1NameCode = data.EmployeeCode;
+        $scope.empReferenceInformation.RefEmpSystemID = data.SystemID;
+        $scope.empReferenceInformation.Ref1Name = data.EmployeeName;
+
+        $scope.empReferenceInformation.Ref1EmployerName = data.Company;
+        $scope.empReferenceInformation.Ref1EmployerAddress = data.Address1;
+        $scope.empReferenceInformation.Ref1Designation = data.LegalDesignation;
+        $scope.empReferenceInformation.Ref1CellPhnNo = data.CellPhnNo;
+        $scope.empReferenceInformation.Ref1Address = data.PresentAddress1;
 
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
-
     };
 
     $scope.clearEmp = function () {
-        $scope.employeeNew.RelativeEmployeeCode = null;
-        $scope.employeeNew.RelativeSystemId = null;
-        $scope.employeeNew.RelativeEmployeeName = null;
+        $scope.empReferenceInformation.Ref1NameCode = null;
+        $scope.empReferenceInformation.RefEmpSystemID = null;
+        $scope.empReferenceInformation.Ref1Name = null;
     }
 
     $scope.closeEmployeePopUp = function () {
@@ -3992,55 +4016,5 @@ function employeeInformationController(addressService, fileReader, cboService, c
     }
 
 
-
-
-    //Line no - 518 : GetGivenDesignationByLegalDesignaiton
-
-    /// The Additions of Week off and the Non Eligible OT
-
-    //var x = document.getElementById("OTCheck");
-    //x.disabled = true;
-
-    //$scope.WeekOffChild = {
-    //    Id: null,
-    //    EmpSystemId: null,
-    //    WOHeaderId: null,
-    //    EffectiveDate: null,
-    //}
-
-    //$scope.NonEligibleOTChild = {
-    //    Id: null,
-    //    EmpSystemId: null,
-    //    EffectiveDate: null,
-    //    Exclude: false,
-    //}
-
-    //$scope.weekOffList = [];
-    //$scope.fillWeekOff = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + 'getWeekOff'
-    //    }).then(function succ(res) {
-    //        $scope.weekOffList = [];
-    //        $scope.weekOffList = res.data;
-    //    })
-    //}
-
-    //$scope.fillNonEligible = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getNonEligibleOT',
-    //        data: { 'DesgId': $scope.employeeNew.GivenDesignationId }
-    //    }).then(function succ(res) {
-    //        $scope.NonEligibleOTChild.Exclude = res.data[0].IsOTEntitled;
-    //        if ($scope.NonEligibleOTChild.Exclude == true) {
-    //            $scope.NonEligibleOTChild.Exclude = false;
-    //            x.disabled = false;
-    //        }
-    //        else {
-    //            x.disabled = true;
-    //        }
-    //    });
-    //}
 
 }

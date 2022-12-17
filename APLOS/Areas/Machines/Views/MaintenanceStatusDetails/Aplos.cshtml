@@ -162,7 +162,7 @@
                         <div e-column e-type="string" e-field="AssetReference" e-headertext="Asset Reference" e-width="100"></div>
                         <div e-column e-type="string" e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
                         <div e-column e-type="string" e-field="ScheduleDays" e-headertext="Schedule Days" e-width="100"></div>
-                        <div e-column e-type="Date" e-field="PlannedDate" e-headertext="Planned Date" e-width="100"></div>
+                        <div e-column e-type="Date" e-field="PlanDate" e-headertext="Planned Date" e-width="100"></div>
                         <div e-column e-type="Date" e-field="LastMaintenanceDate" e-headertext="Last Maintenance Date" e-width="100"></div>
                         <div e-column e-type="Date" e-field="CurrentMaintanceDate" e-headertext="Current Maintance Date" e-width="100"></div>
                         <div e-column e-type="string" e-field="DueDays" e-headertext="Due Days" e-width="100"></div>
@@ -212,7 +212,7 @@
                                 <div e-column e-type="string" e-field="DueToday" e-headertext="Due Today" e-width="100"></div>
                                 <div e-column e-type="string" e-field="FutureDue" e-headertext="Future Due" e-width="100"></div>
                                 <div e-column e-type="string" e-field="StandardScheduleMinutes" e-headertext="Standard Schedule Minutes" e-width="100"></div>
-                                <div e-column e-template="#PlannedDate" e-headertext="Planned Date" e-width="150"></div>
+                                <div e-column e-type="Date" e-template="#DetailsPlannedDate" e-headertext="Planned Date" e-width="150"></div>
                                 <div e-column e-template="#Remark" e-headertext="Remarks" e-width="150"></div>
                                 @*<div e-column e-type="string" e-field="Status" e-headertext="Status" e-width="100"></div>*@
                                 <div e-column e-template="#ActualData" e-headertext="Actionable Person" e-width="100"></div>
@@ -224,9 +224,9 @@
                             <script type="text/x-jsrender" id="headerTemplateMachineAsset">
                                 <input type="checkbox" id="headchk" />
                             </script>
-                            <script type="text/template" id="PlannedDate">
+                            <script type="text/template" id="DetailsPlannedDate">
                                 <div class="col-sm-12" style="padding:0px;">
-                                    <input type="text" id="PlannedDate" ng-disabled="data.Id!==''" ng-model="data.PlannedDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
+                                     <input type="text" id="PlannedDate" ng-disabled="data.Id!==''" ng-model="data.PlanDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
                                 </div>
                             </script>
                             <script type="text/template" id="Remark">
@@ -240,7 +240,7 @@
                                         <div class="common-btn">
                                             <ul class="list-inline text-left">
                                                 <li>
-                                                    <button id="DetailsResponsible"  ng-click="$parent.SavePlannedDetails();$parent.GetReponsiblePersonPopUp(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button>
+                                                    <button id="DetailsResponsible"  ng-click="$parent.SavePlannedDetails();" class="btn"><i class="glyphicon glyphicon-list"></i></button>
                                                 </li>
                                             </ul>
                                         </div>
@@ -251,7 +251,7 @@
                                 <div class="form-group">
                                     <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                                         <div class="common-btn">
-                                            <a class="btn" ng-disabled="data.Id===''" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardPlanReportView?PlannedId={{data.Id}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
+                                            <a class="btn"  style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardPlanReportView?PlannedId={{data.PlannedId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
                                         </div>
                                     </div>
                                 </div>
@@ -303,7 +303,7 @@
                                 <div e-column e-type="string" e-field="DueToday" e-headertext="Due Today" e-width="100"></div>
                                 <div e-column e-type="string" e-field="FutureDue" e-headertext="Future Due" e-width="100"></div>
                                 <div e-column e-type="string" e-field="StandardScheduleMinutes" e-headertext="Standard Schedule Minutes" e-width="100"></div>
-                                <div e-column e-template="#SummaryPlannedDate" e-headertext="Planned Date" e-width="150"></div>
+                                <div e-column e-type="Date" e-template="#SummaryPlannedDate" e-headertext="Planned Date" e-width="150"></div>
                                 <div e-column e-template="#SummaryRemark" e-headertext="Remarks" e-width="150"></div>
                                 @*<div e-column e-type="string" e-field="Status" e-headertext="Status" e-width="100"></div>*@
                                 <div e-column e-template="#SummaryActualData" e-headertext="Actionable Person" e-width="100"></div>
@@ -317,7 +317,7 @@
                             </script>
                             <script type="text/template" id="SummaryPlannedDate">
                                 <div class="col-sm-12" style="padding:0px;">
-                                    <input type="text" id="SummaryPlannedDate" ng-disabled="data.Id!==''" ng-model="data.PlannedDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
+                                    <input type="text" id="SummaryPlanDate" ng-disabled="data.Id!==''" ng-model="data.PlannedDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
                                 </div>
                             </script>
                             <script type="text/template" id="SummaryRemark">
@@ -342,7 +342,7 @@
                                 <div class="form-group">
                                     <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                                         <div class="common-btn">
-                                            <a class="btn" ng-disabled="data.Id===''" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardPlanReportView?PlannedId={{data.Id}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
+                                            <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardPlanReportView?PlannedId={{data.PlannedId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: -6px;"></i></a>
                                         </div>
                                     </div>
                                 </div>

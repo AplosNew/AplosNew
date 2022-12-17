@@ -190,7 +190,7 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))>0 then 1 else 0 end FutureDue,
 MS.StandardScheduleMinutes,
 --Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,
-''  as PlannedDate,
+'' as PlanDate,
 (CASE WHEN APD.ActualDate IS NULL THEN 0 ELSE 1 END) as [Status],
 '' as ActualDate,
 APD.Remarks
@@ -287,7 +287,7 @@ APD.Remarks
         public ActionResult LoadMaintenanceStatusPlannedListGetPlanDetails(string ToDate, string FromDate, string MaintenanceId, string MachineId, string AssetId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
+            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,(select top 1 Id from TRN.MachineAssetPlannedDetails where AssetId=MMA.Id order by PlannedDate desc) as PlannedId,MS.Id as MaintenanceSchedulingId,MMA.Id as AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
 WC.UserName WorkCenter,MS.ScheduleDays,MS.AdvancePlanningDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
  ORDER BY MPD.Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
@@ -357,7 +357,7 @@ APD.FileName,'id' as test
  left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
  left join ORG.Entity E ON E.Id=MMA.EntityId
  left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- where MS.IsActive=1 and MMA.Id is not null and APD.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "'";
+ where MS.IsActive=1 and MMA.Id is not null and APD.Id='" + MaintenanceId + "' and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id and APD.Id='" + MaintenanceId + "' ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -592,22 +592,22 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeSt
         [HttpGet, Authorize]
         public ActionResult GetMaintenanceJobCardReportView(string PlannedId)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
             try
             {
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("select * from [TRN].[ResponsiblePlannedDetails] where PlannedId='" + PlannedId + "'", out DataSet dsResponsibleValidation, false, "1");
-                if (dsResponsibleValidation.Tables[0].Rows.Count > 0)
-                {
+                //    objCon = new ConnectionManager.DAL.ConManager("1");
+                //    objCon.OpenDataSetThroughAdapter("select * from [TRN].[ResponsiblePlannedDetails] where PlannedId='" + PlannedId + "'", out DataSet dsResponsibleValidation, false, "1");
+                //    if (dsResponsibleValidation.Tables[0].Rows.Count > 0)
+                //    {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = _AttendanceManagementService.GetMaintenanceJobCardReports(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, PlannedId);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
                 return RenderReportAsPdf(workbook, reportFileName);
-                }
-                else
-                {
-                    throw new CustomException("Please Add Actionable Person and Proceed!");
-                }
+                //}
+                //else
+                //{
+                //    throw new CustomException("Please Add Actionable Person and Proceed!");
+                //}
 
             }
             catch (Exception ex)
