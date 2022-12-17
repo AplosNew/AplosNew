@@ -1470,6 +1470,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                     drLocal["AddedBy"] = para.AddedBy;
                     drLocal["DateAdded"] = DateTime.Now;
                 }
+                drLocal["RefEmpSystemID"] = data.RefEmpSystemID;
                 drLocal["Ref1Name"] = data.Ref1Name;
                 drLocal["Ref1EmployerName"] = data.Ref1EmployerName;
                 drLocal["Ref1EmployerAddress"] = data.Ref1EmployerAddress;
@@ -1774,7 +1775,10 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
                                         EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
+                                        ,C.UserName Company,AM.Address1,EMP.PresentAddress1,EMP.CellPhnNo
                                         FROM EmployeeInformation EMP
+                                        LEFT JOIN ORG.Company C ON C.Id=EMP.CompanyId
+                                        LEFT JOIN MST.AddressMaster AM ON AM.Id=C.AddressMasterId
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id

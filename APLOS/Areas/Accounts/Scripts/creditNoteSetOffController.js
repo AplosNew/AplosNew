@@ -752,6 +752,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         $scope.advanceTax = {};
         $scope.bankCharge = {};
         $scope.TotalAdvanceAmount = 0;
+        $scope.voucher.NoteType = "CustomerCreditNote";
     };
 
     $scope.clearBankCashTaxPopUp = function () {
@@ -1057,12 +1058,12 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         $scope.changeSearchByParty();
 
     };
+    $scope.searchParty = "";
     $scope.changeSearchByParty = function () {
-        $scope.searchByParty = 'UserName'; $scope.searchParty = "";
+        $scope.searchByParty = 'UserName'; 
         $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 
     }
-
 
     $scope.clearInvoicePopUp = function () {
         $scope.voucher.CompanyCurrencyRate = $scope.voucherDetailList[0].CompanyCurrencyRate;

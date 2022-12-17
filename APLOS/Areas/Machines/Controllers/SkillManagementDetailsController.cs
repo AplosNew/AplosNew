@@ -125,7 +125,7 @@ from TRN.Maintenancescheduling MS
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadMaintenanceStatusSummaryList(string ToDate, string FromDate)
+        public ActionResult LoadSkillManagementStatusSummaryList(string ToDate, string FromDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select X.Id,X.EntityId,X.Entity,X.ScheduleName,X.MachineId,X.MachineName,X.Make,X.Model,X.ScheduleCode,X.ResponsiblePersonBudgetCode,
