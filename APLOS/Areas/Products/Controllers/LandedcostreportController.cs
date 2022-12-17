@@ -107,7 +107,7 @@ namespace Aplos.Areas.Products.Controllers
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "GRN Date";
+            worksheet[ROW, COL].Text = "Invoice Date";
             int colGRNDate = COL;
             worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
