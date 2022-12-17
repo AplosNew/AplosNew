@@ -430,6 +430,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     //#region BudgetCode
 
     $scope.name = null;
+    $scope.popUpTitle = "Manpower Budget Information";
     $scope.popUpList = [];
     $scope.valueData = '';
     $scope.budgetpopUpParameters = {
@@ -3970,8 +3971,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
 
 
-    $scope.RelativeemployeeList = [];
-    $scope.RelpopUp = function () {
+    $scope.RefemployeeList = [];
+    $scope.RefEmppopUp = function () {
         try {
 
             $scope.RelativeemployeeList = [];
@@ -3979,32 +3980,35 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 method: 'GET',
                 url: 'employees/leaveApplication/GetEmployeeList'
             }).then(function successCallback(response) {
-                $scope.RelativeemployeeList = response.data;
+                $scope.RefemployeeList = response.data;
             });
             angular.element(document.querySelector('#employeePopUp')).modal('show');
 
         } catch (e) {
             ShowResult(e, 'failure');
         }
-
     };
 
 
-    $scope.setData = function (obj) {
-
+    $scope.setRefEmpData = function (obj) {
         var data = obj.data;
-        $scope.employeeNew.RelativeEmployeeCode = data.EmployeeCode;
-        $scope.employeeNew.RelativeSystemId = data.SystemID;
-        $scope.employeeNew.RelativeEmployeeName = data.EmployeeName;
+        $scope.empReferenceInformation.Ref1NameCode = data.EmployeeCode;
+        $scope.empReferenceInformation.RefEmpSystemID = data.SystemID;
+        $scope.empReferenceInformation.Ref1Name = data.EmployeeName;
+
+        $scope.empReferenceInformation.Ref1EmployerName = data.Company;
+        $scope.empReferenceInformation.Ref1EmployerAddress = data.Address1;
+        $scope.empReferenceInformation.Ref1Designation = data.LegalDesignation;
+        $scope.empReferenceInformation.Ref1CellPhnNo = data.CellPhnNo;
+        $scope.empReferenceInformation.Ref1Address = data.PresentAddress1;
 
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
-
     };
 
     $scope.clearEmp = function () {
-        $scope.employeeNew.RelativeEmployeeCode = null;
-        $scope.employeeNew.RelativeSystemId = null;
-        $scope.employeeNew.RelativeEmployeeName = null;
+        $scope.empReferenceInformation.Ref1NameCode = null;
+        $scope.empReferenceInformation.RefEmpSystemID = null;
+        $scope.empReferenceInformation.Ref1Name = null;
     }
 
     $scope.closeEmployeePopUp = function () {
@@ -4012,55 +4016,5 @@ function employeeInformationController(addressService, fileReader, cboService, c
     }
 
 
-
-
-    //Line no - 518 : GetGivenDesignationByLegalDesignaiton
-
-    /// The Additions of Week off and the Non Eligible OT
-
-    //var x = document.getElementById("OTCheck");
-    //x.disabled = true;
-
-    //$scope.WeekOffChild = {
-    //    Id: null,
-    //    EmpSystemId: null,
-    //    WOHeaderId: null,
-    //    EffectiveDate: null,
-    //}
-
-    //$scope.NonEligibleOTChild = {
-    //    Id: null,
-    //    EmpSystemId: null,
-    //    EffectiveDate: null,
-    //    Exclude: false,
-    //}
-
-    //$scope.weekOffList = [];
-    //$scope.fillWeekOff = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + 'getWeekOff'
-    //    }).then(function succ(res) {
-    //        $scope.weekOffList = [];
-    //        $scope.weekOffList = res.data;
-    //    })
-    //}
-
-    //$scope.fillNonEligible = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getNonEligibleOT',
-    //        data: { 'DesgId': $scope.employeeNew.GivenDesignationId }
-    //    }).then(function succ(res) {
-    //        $scope.NonEligibleOTChild.Exclude = res.data[0].IsOTEntitled;
-    //        if ($scope.NonEligibleOTChild.Exclude == true) {
-    //            $scope.NonEligibleOTChild.Exclude = false;
-    //            x.disabled = false;
-    //        }
-    //        else {
-    //            x.disabled = true;
-    //        }
-    //    });
-    //}
 
 }
