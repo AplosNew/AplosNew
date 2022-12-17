@@ -69,7 +69,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 							 ,PT.UserName PartyName,ECT.UserName EmployeeCodeType,ECT.IsOutSider
 							 ,ShiftDf.UserName ShiftDefination
 							 ,FORMAT(EI.DOJ,'dd-MMM-yyyy') DateOfJoin 
-                             ,TenureDay=DATEDIFF(day, FORMAT(EI.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy'))
+                             ,TenureDay=DATEDIFF(day, FORMAT(EI.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy')),REI.EmployeeCode RelativeCode,REI.EmployeeName RelativeName
                             FROM dbo.Employeeinformation EI
                             LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id
                             LEFT JOIN scs.PoliceStation PO ON EI.PresThanaID=PO.Id
@@ -116,6 +116,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                             LEFT JOIN EmployeeShiftAssign ESA ON ESA.EmpSystemID=EI.SystemId 
 							 AND ESA.SystemId=(Select top(1) SystemId from dbo.EmployeeShiftAssign ES Where ES.EmpSystemID=EI.SystemId Order by EffectiveDate desc)
 							 LEFT JOIN ShiftDefination ShiftDf on ShiftDf.SystemID=ESA.FixSystemID
+                            LEFT JOIN dbo.Employeeinformation REI ON REI.SystemId=EI.RelativeSystemId
                             WHERE EI.EmployeeStatus ='Active' AND EI.PlantId='" + plantId + "' AND  EI.GroupId='" + companyGroupId + "') AS TEMP WHERE " + strkey + " Order By DateAdded DESC";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -1470,6 +1471,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                     drLocal["AddedBy"] = para.AddedBy;
                     drLocal["DateAdded"] = DateTime.Now;
                 }
+                drLocal["RefEmpSystemID"] = data.RefEmpSystemID;
                 drLocal["Ref1Name"] = data.Ref1Name;
                 drLocal["Ref1EmployerName"] = data.Ref1EmployerName;
                 drLocal["Ref1EmployerAddress"] = data.Ref1EmployerAddress;
@@ -1774,7 +1776,10 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
                                         EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
+                                        ,C.UserName Company,AM.Address1,EMP.PresentAddress1,EMP.CellPhnNo
                                         FROM EmployeeInformation EMP
+                                        LEFT JOIN ORG.Company C ON C.Id=EMP.CompanyId
+                                        LEFT JOIN MST.AddressMaster AM ON AM.Id=C.AddressMasterId
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id

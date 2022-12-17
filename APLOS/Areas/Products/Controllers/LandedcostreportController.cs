@@ -101,114 +101,136 @@ namespace Aplos.Areas.Products.Controllers
 
             //worksheet.Range[ROW - 1, 3].Text = "Posting Date:  From " + Convert.ToDateTime(fromDate).ToString("dd-MMM-yyyy") + " To " + Convert.ToDateTime(toDate).ToString("dd-MMM-yyyy");
 
-            worksheet[ROW, COL].Text = "Inventory Receive No";
-            int colInventoryReceiveNo = COL;
-            worksheet[ROW, COL].ColumnWidth = 13;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Invoice Date";
-            int colGRNDate = COL;
-            worksheet[ROW, COL].ColumnWidth = 10;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Voucher No";
-            int colVoucherNo = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
             worksheet[ROW, COL].Text = "Particular";
             int colParticular = COL;
             worksheet[ROW, COL].ColumnWidth = 35;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Doc Ref No";
-            int colDocRefNo = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
 
-            worksheet[ROW, COL].Text = "Gate Entry No";
-            int colGateEntryNo = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Gate Entry Name";
-            int colGateEntryName = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Entry Date";
-            int colEntryDate = COL;
-            worksheet[ROW, COL].ColumnWidth = 10;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].Text = "Tax Invoice No";
+            int colTaxInvoiceNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 13;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Currency";
-            int colCurrencyCode = COL;
+            worksheet[ROW, COL].Text = "Tax Invoice Date";
+            int colTaxInvoiceDate = COL;
             worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Invoicing By";
-            int colInvoicingBy = COL;
-            worksheet[ROW, COL].ColumnWidth = 35;
+            worksheet[ROW, COL].Text = "Line";
+            int colLine = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "Base Amount";
-            int colBaseAmount = COL;
+            worksheet[ROW, COL].Text = "GRN Date";
+            int colGRNDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Material";
+            int colMaterial = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Article";
+            int colArticle = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "UoM";
+            int colUoM = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "GRN Number";
+            int colGRNNumber = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Qty";
+            int colQty = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Amount";
+            int colAmount = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Expenses Amount";
-            int colExpensesAmount = COL;
+            worksheet[ROW, COL].Text = "IGST";
+            int colIGST = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Landed Cost";
+            worksheet[ROW, COL].Text = "CGST";
+            int colCGST = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "SGST";
+            int colSGST = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "GRN Other Charges";
+            int colGRNOtherCharges = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Distribution Expenses";
+            int colDistributionExpenses = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+            worksheet[ROW, COL].Text = "GST Non";
+            int colGSTNon = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Igst Third Party";
+            int colIgstThirdParty = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Non Rec Taxes Third Party";
+            int colNonRecTaxesThirdParty = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Total GRN Amount";
+            int colTotalGRNAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "LandedCost";
             int colLandedCost = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Invoicing State";
-            int colInvoicingState = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-
-            worksheet[ROW, COL].Text = "Delivery State";
-            int colDeliveryState = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-
-            worksheet[ROW, COL].Text = "Payment Term Name";
-            int colPaymentTermName = COL;
-            worksheet[ROW, COL].ColumnWidth = 30;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Payment Mode";
-            int colPaymentMode = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "GRN Type";
-            int colGRNType = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             
@@ -223,32 +245,39 @@ namespace Aplos.Areas.Products.Controllers
             int Row_Total_Start = ROW;
             for (int i = 0; i < dtGRNLandedCostData.Rows.Count; i++)
             {
-                worksheet[ROW, colInventoryReceiveNo].Text = dtGRNLandedCostData.Rows[i]["Id"].ToString();
-                worksheet[ROW, colGRNDate].Text = dtGRNLandedCostData.Rows[i]["GRNDate"].ToString();
-                worksheet[ROW, colVoucherNo].Text = dtGRNLandedCostData.Rows[i]["VoucherNo"].ToString();
                 worksheet[ROW, colParticular].Text = dtGRNLandedCostData.Rows[i]["Particular"].ToString();
-                worksheet[ROW, colDocRefNo].Text = dtGRNLandedCostData.Rows[i]["DocRefNo"].ToString();
-                worksheet[ROW, colGateEntryNo].Text = dtGRNLandedCostData.Rows[i]["GateEntryNo"].ToString();
+                worksheet[ROW, colTaxInvoiceNo].Text = dtGRNLandedCostData.Rows[i]["TaxInvoiceNo"].ToString();
+                worksheet[ROW, colTaxInvoiceDate].Text = dtGRNLandedCostData.Rows[i]["TaxInvoiceDate"].ToString();
+                worksheet[ROW, colLine].Text = dtGRNLandedCostData.Rows[i]["Line"].ToString();
+                worksheet[ROW, colGRNDate].Text = dtGRNLandedCostData.Rows[i]["GRNDate"].ToString();
+                worksheet[ROW, colMaterial].Text = dtGRNLandedCostData.Rows[i]["Material"].ToString();
 
-                worksheet[ROW, colGateEntryName].Text = dtGRNLandedCostData.Rows[i]["GateEntryName"].ToString();
-                worksheet[ROW, colEntryDate].Text = dtGRNLandedCostData.Rows[i]["EntryDate"].ToString();
-                worksheet[ROW, colCurrencyCode].Text = dtGRNLandedCostData.Rows[i]["CurrencyCode"].ToString();
-                worksheet[ROW, colInvoicingBy].Text = dtGRNLandedCostData.Rows[i]["InvoicingBy"].ToString();
+                worksheet[ROW, colArticle].Text = dtGRNLandedCostData.Rows[i]["Article"].ToString();
+                worksheet[ROW, colUoM].Text = dtGRNLandedCostData.Rows[i]["UoM"].ToString();
+                worksheet[ROW, colGRNNumber].Text = dtGRNLandedCostData.Rows[i]["GRNNumber"].ToString();
 
-                worksheet[ROW, colBaseAmount].Number = clsStaticInfo.dbl(dtGRNLandedCostData.Rows[i]["BaseAmount"].ToString());
-                worksheet[ROW, colBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-                worksheet[ROW, colExpensesAmount].Number = clsStaticInfo.dbl(dtGRNLandedCostData.Rows[i]["ExpensesAmount"].ToString());
-                worksheet[ROW, colExpensesAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colQty].Number = clsStaticInfo.dbl(dtGRNLandedCostData.Rows[i]["Qty"].ToString());
+                worksheet[ROW, colQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtGRNLandedCostData.Rows[i]["Amount"].ToString());
+                worksheet[ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colIGST].Number = clsStaticInfo.dbl(dtGRNLandedCostData.Rows[i]["IGST"].ToString());
+                worksheet[ROW, colIGST].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colCGST].Number = clsStaticInfo.dbl(dtGRNLandedCostData.Rows[i]["CGST"].ToString());
+                worksheet[ROW, colCGST].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colSGST].Number = clsStaticInfo.dbl(dtGRNLandedCostData.Rows[i]["SGST"].ToString());
+                worksheet[ROW, colSGST].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colGRNOtherCharges].Number = clsStaticInfo.dbl(dtGRNLandedCostData.Rows[i]["GRNOtherCharges"].ToString());
+                worksheet[ROW, colGRNOtherCharges].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colDistributionExpenses].Number = clsStaticInfo.dbl(dtGRNLandedCostData.Rows[i]["DistributionExpenses"].ToString());
+                worksheet[ROW, colDistributionExpenses].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colGSTNon].Text = dtGRNLandedCostData.Rows[i]["GSTNon"].ToString();
+                worksheet[ROW, colIgstThirdParty].Text = dtGRNLandedCostData.Rows[i]["IgstThirdParty"].ToString();
+                worksheet[ROW, colNonRecTaxesThirdParty].Text = dtGRNLandedCostData.Rows[i]["NonRecTaxesThirdParty"].ToString();
+                worksheet[ROW, colTotalGRNAmount].Number = clsStaticInfo.dbl(dtGRNLandedCostData.Rows[i]["TotalGRNAmount"].ToString());
+                worksheet[ROW, colTotalGRNAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                 worksheet[ROW, colLandedCost].Number = clsStaticInfo.dbl(dtGRNLandedCostData.Rows[i]["LandedCost"].ToString());
                 worksheet[ROW, colLandedCost].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-                worksheet[ROW, colInvoicingState].Text = dtGRNLandedCostData.Rows[i]["InvoicingState"].ToString();
-                worksheet[ROW, colDeliveryState].Text = dtGRNLandedCostData.Rows[i]["DeliveryState"].ToString();
-                worksheet[ROW, colPaymentTermName].Text = dtGRNLandedCostData.Rows[i]["PaymentTermName"].ToString();
-                worksheet[ROW, colPaymentMode].Text = dtGRNLandedCostData.Rows[i]["PaymentMode"].ToString();
-                worksheet[ROW, colGRNType].Text = dtGRNLandedCostData.Rows[i]["GRNType"].ToString();
-
-
+                
                 worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
@@ -285,43 +314,54 @@ namespace Aplos.Areas.Products.Controllers
 
         public DataTable GetGRNLandedCostData(string plantId, DateTime fromDate, DateTime toDate)
         {
-            var cmdText = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,v.VoucherNo
-                                , Particular=CASE WHEN IR.EmployeeId<>'' THEN EI.EmployeeName WHEN IR.PartyId<>'' THEN P.UserName  ELSE P.UserName END
-	                            , IR.DocRefNo
-	                            , IR.GateEntryNo,PG.UserName GateEntryName, REPLACE(CONVERT(CHAR(11), GE.EntryDate, 106),' ','-') AS EntryDate
-								, CU.Code AS CurrencyCode
-								, IPP.UserName AS InvoicingBy
-	                            , IRD.BaseAmount,isnull(IDC.ExpensesAmount,0) ExpensesAmount,LandedCost=IRD.BaseAmount+isnull(IDC.ExpensesAmount,0)
-                                , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName,PT.PaymentMode
-								,IR.GRNType
-								
-                    FROM [TRN].[InventoryReceive] AS IR 
+            var cmdText = @"SELECT   Particular=CASE WHEN IR.EmployeeId<>'' THEN EI.EmployeeName WHEN IR.PartyId<>'' THEN P.UserName  ELSE P.UserName END
+,ir.DocRefNo TaxInvoiceNo,  REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS TaxInvoiceDate,'' Line,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate
+,MM.UserName Material,MMA.StandardName Article
+,UoM.UserName UoM,IRD.InventoryReceiveId GRNNumber,IRD.TransactionQty Qty, Amount=IRD.TotalMaterialBooksCurrencyAmount
+                                ,ISNULL(IGST.IGSTAmount,0) IGST,ISNULL(CGST.CGSTAmount,0)CGST,ISNULL(SGST.SGSTAmount,0)SGST
+								,GRNOtherCharges=ird.ChargesTranAmount
+	                            ,(isnull(IDC.ExpensesAmount,0)*ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0))/I.Amount DistributionExpenses
+								,ir.IsNonCreditable GSTNon,'' IgstThirdParty,'' NonRecTaxesThirdParty
+								, TotalGRNAmount=IRD.TotalMaterialBooksCurrencyAmount+ISNULL(IGST.IGSTAmount,0)+ISNULL(CGST.CGSTAmount,0)+ISNULL(SGST.SGSTAmount,0)
+								, LandedCost=IRD.TotalMaterialBooksCurrencyAmount+isnull((isnull(IDC.ExpensesAmount,0)*ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0))/I.Amount,0)
+                    FROM TRN.InventoryReceiveDetail IRD 
+					LEFT JOIN [TRN].[InventoryReceive] AS IR ON IR.Id=IRD.InventoryReceiveId
 					LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+					LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON IRD.TransactionUoMId=UoM.Id
                     LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                     LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
+					LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+					LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+					LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
                     LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                    LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
                     LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
                     LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
                     LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
                     LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
                     LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                     LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-                   
-                    LEFT JOIN [TRN].GateEntry GE ON GE.Id=IR.GateEntryNo
-					LEFT JOIN dbo.PlantWiseGate PG ON PG.Id=GE.PlantWiseGateId
-                    LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.TotalMaterialTranAmount,4)) AS TransactionAmount, SUM(ROUND(A.TotalMaterialBooksCurrencyAmount,0)) AS BaseAmount 
-					FROM [TRN].[InventoryReceiveDetail] AS A
-		                        JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                    LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
-		                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                    LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+                    LEFT JOIN (SELECT IT.InventoryReceiveDetailId,SUM(ISNULL(IT.TaxAmount,0)) IGSTAmount FROM [TRN].InventoryReceiveTax IT 
+										LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+										WHERE TC.Code='IGST'
+										group by IT.InventoryReceiveDetailId
+										)IGST ON IGST.InventoryReceiveDetailId=IRD.Id
+					LEFT JOIN (SELECT IT.InventoryReceiveDetailId,SUM(ISNULL(IT.TaxAmount,0)) CGSTAmount FROM [TRN].InventoryReceiveTax IT 
+										LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+										WHERE TC.Code='CGST'
+										group by IT.InventoryReceiveDetailId
+										)CGST ON CGST.InventoryReceiveDetailId=IRD.Id
+					LEFT JOIN (SELECT IT.InventoryReceiveDetailId,SUM(ISNULL(IT.TaxAmount,0)) SGSTAmount FROM [TRN].InventoryReceiveTax IT 
+										LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+										WHERE TC.Code='SGST'
+										group by IT.InventoryReceiveDetailId
+										)SGST ON SGST.InventoryReceiveDetailId=IRD.Id
                     LEFT JOIN TRN.Invoice I ON I.InventoryReceiveId=IR.Id
 					 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IR.VoucherId
 					LEFT JOIN (SELECT InvoiceId,SUM(DistributedAmount) ExpensesAmount FROM trn.InvoiceDetailCharges where InvoiceType='InboundInvoice' GROUP BY InvoiceId) IDC ON IDC.InvoiceId=I.Id
-					WHERE IR.PlantId='" + plantId + @"' AND CONVERT(DATE, IR.GRNDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'
-                    --and P.UserName='JAIN TRADERS' --AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0 AND IR.PlantId='202034' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL";
+
+					WHERE IR.PlantId='" + plantId + @"' AND CONVERT(DATE, IR.GRNDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'";
+                    
             return _sqlRepository.GetDataTable(cmdText);
         }
     }

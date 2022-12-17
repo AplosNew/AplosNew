@@ -60,6 +60,7 @@ namespace Library.Model.Employees
         #region Navigation Properties
 
         public string EmpSystemID { get; set; }
+        public string RefEmpSystemID { get; set; }
         public EmployeeInformation Emp { get; set; }
 
         #endregion Navigation Properties

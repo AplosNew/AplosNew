@@ -992,10 +992,23 @@
                                     <div class="col-xs-12 col-sm-6 col-md-6">
                                         Reference No.: 1
                                         <hr />
-                                        <div class="form-group">
+
+
+                                        @*<div class="form-group">
                                             <label class="col-sm-4 control-label">Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
                                             <div class="col-sm-8">
                                                 <input type="text" name="Name" ng-model="empReferenceInformation.Ref1Name" class="form-control" maxlength="150">
+                                            </div>
+                                        </div>*@
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Name</label>
+                                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                                <span class="input-group-addon">{{empReferenceInformation.Ref1NameCode}}</span>
+                                                <input type="text" ng-model="empReferenceInformation.Ref1Name" class="form-control" readonly>
+                                                <span class="input-group-btn">
+                                                    <button ng-click="RefEmppopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -1033,8 +1046,8 @@
                                             <div class="col-sm-8">
                                                 <input type="email" name="Ref1Email" maxlength="50" ng-model="empReferenceInformation.Ref1Email" class="form-control" placeholder="example@gmail.co">
                                                 @*<span class="msg-error" ng-show="empReferenceInformationForm1.Ref1Email.$error.email">
-                                                        Not valid email!
-                                                    </span>*@
+                    Not valid email!
+                </span>*@
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -1952,7 +1965,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group" ng-show="AnyRelativeWorkedHere">
+                                        <div class="form-group" ng-show="employeeInformation.AnyRelativeWorkedHere==true">
                                             <label class="col-sm-4 control-label" style="color: blue;">Relation</label>
                                             <div class="col-sm-8">
                                                 <div class="select-style">
@@ -1963,31 +1976,34 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group" ng-show="AnyRelativeWorkedHere">
+                                        <div class="form-group" ng-show="employeeInformation.AnyRelativeWorkedHere==true">
                                             <label class="col-sm-4 control-label">Cell No</label>
                                             <div class="col-sm-8">
                                                 <input type="text" name="DOB" ng-model="employeeInformation.RelativeCellNo" class="form-control" maxlength="100" tabindex="2">
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-6" ng-show="AnyRelativeWorkedHere">
-                                        <div class="form-group" show-errors id="div_Employee">
+                                    <div class="col-xs-12 col-sm-6 col-md-6" ng-show="employeeInformation.AnyRelativeWorkedHere==true">
+                                        @*<div class="form-group" show-errors id="div_Employee">
                                             <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
                                             <div class="col-sm-6 show-message">
-                                                <input type="text" class="form-control" ng-model="employeeInformation.SystemId" readonly style="width: 254px;">
+                                                <input type="text" class="form-control" ng-model="employeeInformation.RelativeSystemId" readonly style="width: 254px;">
                                             </div>
                                             <div class="col-sm-2">
-                                                <button class="single-btn tooltip-here" data-placement="top" title="Employee Change" ng-click="showEmployeeListPopUp();"><i class="fa fa-search"></i></button>
+                                                <button class="single-btn tooltip-here" data-placement="top" title="Employee" ng-click="showEmployeeListPopUp();"><i class="fa fa-search"></i></button>
                                             </div>
-                                        </div>
-
+                                        </div>*@
                                         <div class="form-group">
-                                            <label class="col-sm-4 control-label">Relative Name</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="DOB" ng-model="employeeInformation.RelativeSystemId" class="form-control" maxlength="100" tabindex="2">
+                                            <label class="col-sm-4 control-label">Relative Employee</label>
+                                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                                <span class="input-group-addon">{{employeeInformation.RelativeCode}}</span>
+                                                <input type="text" ng-model="employeeInformation.RelativeName" class="form-control" readonly>
+                                                <span class="input-group-btn">
+                                                    <button ng-click="showEmployeeListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="clearRelEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
                                             </div>
                                         </div>
-
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Relative Designation</label>
                                             <div class="col-sm-8">
@@ -1995,9 +2011,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="common-btn">
+                                    <div class="common-btn" ng-show="employeeInformation.AnyRelativeWorkedHere==true">
                                         <ul class="list-inline text-right">
-                                            <li> <button ng-click="SaveRelationInFo();" ng-disabled="employeeInformation.SystemId===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                            <li> <button ng-click="SaveRelativeInfo();" ng-disabled="employeeInformation.SystemId===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                                         </ul>
                                     </div>
 
@@ -2436,21 +2452,6 @@
                                 </div>
                             </div>
                         </div>
-                        @*<div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Job Location<sup>*</sup> </label>
-                                <div class="col-sm-8 input-group show-message">
-                                    <div class="select-style">
-                                        <select id="JobLocation" class="form-control" name="Job Location" ng-model="employeeNew.JobLocationID" tabindex="14" required ng-change="GetShiftCbo();">
-                                            <option value="">--Select--</option>
-                                            <option ng-repeat="option in JobLocationList" value="{{option.SystemID}}">{{option.JobLocation}}</option>
-                                        </select>
-                                    </div>
-                                    <span class="input-group-btn">
-                                        <button ng-show="Flag=='Load All'" ng-click="LoadAllJobLocation();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i>Load All</button>
-                                        <button ng-show="Flag=='Load Less'" ng-click="LoadPlantJobLocation();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i>Load Less</button>
-                                    </span>
-                                </div>
-                            </div>*@
 
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Date Of Join<sup>*</sup></label>
@@ -2638,23 +2639,23 @@
                             </div>
                         </div>
 
-                        @*<div class="form-group">
-                                <label class="col-sm-2 control-label">Reference Employee<sup ng-show="IsReferenceRequired===true">*</sup></label>
-                                <div class="col-sm-9 input-group" style="padding-left: 89px;padding-right: 14px;">
-                                    <span class="input-group-addon">{{employeeNew.RelativeEmployeeCode}}</span>
-                                    <input type="text" ng-model="employeeNew.RelativeEmployeeName" class="form-control" readonly>
-                                    <span class="input-group-btn">
-                                        <button ng-click="RelpopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                    </span>
-                                </div>
-                            </div>*@
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Ref.1 Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
-                            <div class="col-sm-8">
-                                <input type="text" name="Name" ng-model="empReferenceInformation.Ref1Name" class="form-control" maxlength="150">
+                            <label class="col-sm-4 control-label">Reference Employee<sup ng-show="IsReferenceRequired===true">*</sup></label>
+                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                <span class="input-group-addon">{{empReferenceInformation.Ref1NameCode}}</span>
+                                <input type="text" ng-model="empReferenceInformation.Ref1Name" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="RefEmppopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
                             </div>
                         </div>
+                        @*<div class="form-group">
+                                <label class="col-sm-4 control-label">Ref.1 Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Name" ng-model="empReferenceInformation.Ref1Name" class="form-control" maxlength="150">
+                                </div>
+                            </div>*@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Approval Authority</label>
                             <div class="col-sm-8">
@@ -2960,57 +2961,57 @@
 
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteOperation();"></confirm-archive-generic>
 <div class="modal fade site-modal in" id="VpartyPopUp" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content" ng-form="partyForm">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">{{partyType}} List</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row text-right">
-                        <div class="col-xs-12 col-sm-12 col-sm-12">
-                            <div class="search-form">
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-3 col-md-3">
-                                        <div class="select-style">
-                                            <select ng-model="searchByParty">
-                                                <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
-                                            </select>
-                                        </div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form="partyForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">{{partyType}} List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByParty">
+                                            <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
                                     </div>
-                                    <div class="col-xs-12 col-sm-7 col-md-7">
-                                        <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyPopUpNew()">
-                                    </div>
-                                    <div class="col-xs-12 col-sm-2 col-md-2">
-                                        <button type="button" ng-click="showPartyPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyPopUpNew()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="showPartyPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div style="color:black;" id="partyPopUpGrid" ej-grid e-datasource="partyList" e-recorddoubleclick="closePartyPopUp"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-                        <div e-columns>
-                            <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
-                            <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
-                            <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
-                            @*<div  e-column e-field="ReconciliationGLName" e-headertext="GL" e-width="60"></div>
-                <div e-column e-field="ReconciliationBudgetName" e-headertext="Budget" e-width="60"></div>
-                <div e-column e-field="ReconciliationActivityName" e-headertext="Activity" e-width="60"></div>*@
-                            <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
-                            <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
-                            <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
-                        </div>
+                </div>
+                <div style="color:black;" id="partyPopUpGrid" ej-grid e-datasource="partyList" e-recorddoubleclick="closePartyPopUp"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                    <div e-columns>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                        <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
+                        <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
+                        @*<div  e-column e-field="ReconciliationGLName" e-headertext="GL" e-width="60"></div>
+                            <div e-column e-field="ReconciliationBudgetName" e-headertext="Budget" e-width="60"></div>
+                            <div e-column e-field="ReconciliationActivityName" e-headertext="Activity" e-width="60"></div>*@
+                        <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                        <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
+                        <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
                     </div>
                 </div>
-                <div class="modal-footer common-btn">
-                    <button type="button" class="btn btn-default" ng-click="closeVPartyPopUp()">Select</button>
-                </div>
-                <i>**Showing top 100 {{partyType}} order by Code</i>
             </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeVPartyPopUp()">Select</button>
+            </div>
+            <i>**Showing top 100 {{partyType}} order by Code</i>
         </div>
     </div>
+</div>
 <div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -3020,8 +3021,8 @@
             </div>
             <div class="modal-body">
                 <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="Grid" ej-grid e-datasource="RelativeemployeeList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="setData" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="RefemployeeList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setRefEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
                             <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
@@ -3042,7 +3043,37 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="RelemployeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closerelEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="RelemployeeList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setRelEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
 
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeRelEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="loader" data-loader>
     Please wait
