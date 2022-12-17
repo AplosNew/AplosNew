@@ -132,11 +132,11 @@ where P.Id='" + Pid + "'";
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetPerformanceGroupList()
+        public JsonResult GetPerformanceGroupList(string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"select Id as Value,PerformanceGroup as Text from TRN.SkillManagementLevel";
+            var sql = @"select Id as Value,PerformanceGroup as Text from TRN.SkillManagementLevel SML where SML.SMID='" + ScheduleId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -352,17 +352,6 @@ where P.Id='" + Pid + "'";
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetMachine()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select MM.Id MachineMasterId,C.UserName as Category,SC.UserName as Subcategroy,MM.Code,MM.UserName MachineMaster,MM.MachineMake as Make,MM.MachineModel as Model,MM.MachinePerticulars as Particulars
-						                from mst.MachineMaster MM
-										left join HKP.MachineCategory C ON C.Id=MM.MachineCategoryId
-										left join HKP.MachineSubCategory SC ON SC.Id=MM.MachineSubCategoryId";
-
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
-        }
-        [Authorize, HttpPost]
         public ActionResult GetBudgetCode()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -425,27 +414,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
-        [Authorize, HttpPost]
-        public ActionResult GetUOM()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select UM.Id UOMId, UM.Code,UM.StandardName, UM.UserName UOM from scs.UnitOfMeasurement UM where UM.Active = 1";
-
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
-        }
-        [Authorize, HttpPost]
-        public ActionResult GetArticle()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select MA.Id as ArticleId,MA.StandardName as ArticleName,MM.UserName as MaterialName,
-MT.UserName as MaterialType,UM.Id as UOMID,UM.UserName UOM from MST.MaterialMasterArticle MA
-left join MST.MaterialMaster MM on MM.Id=MA.MaterialMasterId
-left join MST.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
-left join HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId
-left join scs.UnitOfMeasurement UM ON UM.Active = 1 and UM.Id=MM.BaseUoMId";
-
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
-        }
+       
         [Authorize, HttpPost]
         public ActionResult GetDepartment()
         {
@@ -464,16 +433,7 @@ left join scs.UnitOfMeasurement UM ON UM.Active = 1 and UM.Id=MM.BaseUoMId";
                             FROM [TRN].[SkillManagement] SM where SM.Id='" + ScheduleID + @"'";
             return Json(new { schedule = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
-        [Authorize, HttpGet]
-        public ActionResult LoadMachineEditData(string ScheduleID)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            string sql = @"select *,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson
-                            FROM DetentionMaster where Id='" + ScheduleID + @"'";
-            return Json(new { detention = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
-        }
-
+        
         [Authorize, HttpGet]
         public ActionResult LoadSkillLevelEditData(string LevelId)
         {
@@ -501,17 +461,7 @@ FROM [TRN].[SkillManagementItem] where Id='" + ItemId + @"'";
             string sql = @"select * from SkillItemParameterDetails where Id='" + ParameterId + @"'";
             return Json(new { Parameter = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
-        [Authorize, HttpGet]
-        public ActionResult LoadStoresEditData(string StoresId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            string sql = @"SELECT *,
-(select UserName from SCS.UnitOfMeasurement where Active=1 and Id=UOMId) as UOM,
-(select StandardName from MST.MaterialMasterArticle where Id=ArticleId) as Article
-FROM [TRN].[MaintenanceStoresConsumable] where Id ='" + StoresId + "'";
-            return Json(new { Stores = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
-        }
+        
         [Authorize, HttpGet]
         public ActionResult LoadBudgetCodeEditData(string BudgetCodeId)
         {
@@ -553,19 +503,15 @@ left join TRN.TeamDefinition TD ON TD.Id=MTD.TeamDefinitionId
                             FROM [TRN].[SkillManagement] SM";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
         [Authorize, HttpGet]
-        public ActionResult LoadMachineDetails(string ScheduleId)
+        public ActionResult LoadEntityDetails(string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select MMA.IsActive,MMA.Id,MMA.SNO,MMA.AssetGroup,MMA.Remarks,MMA.MaintenanceSchedulingId,
-MA.Id as AssetId,MA.AssetName,MA.AssetReference,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA.MachineMasterId,
-MM.UserName as MachineName,MM.MachineMake as Make,MM.MachineModel as Model,MA.AssetCode,E.UserName as Entity,MA.EntityId
- from MachineMasterAsset MA
- left Join SCS.WorkCenterMaster WC On WC.id=MA.WorkCenterMasterId
- left Join MST.MachineMaster MM ON MM.Id=MA.MachineMasterId
- left Join ORG.Entity E on E.Id=MA.EntityId
- left Join [TRN].[MaintenanceMachineAsset] MMA ON MMA.AssetId=MA.Id and MMA.MaintenanceSchedulingId='" + ScheduleId + @"'
- where MA.MachineMasterId in (select MachineMasterId from [TRN].[MaintenanceMachineGroup] where MaintenanceSchedulingId='" + ScheduleId + "')";
+            string sql = @"select CAST (CASE WHEN SME.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,SME.Id,E.Id EntityId,E.EntityType,E.UserName Entity,E.Code 
+                            from ORG.Entity E
+							LEFT JOIN [TRN].[SkillManagementEntity] SME ON SME.EntityId=E.Id and SME.SMID='" + ScheduleId + @"'
+                            where E.Active = 1 order by SME.Id desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -573,9 +519,10 @@ MM.UserName as MachineName,MM.MachineMake as Make,MM.MachineModel as Model,MA.As
         public ActionResult LoadPositionCodeDetails(string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN SPC.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,SPC.Id, P.Id PositionCodeId,P.Code,DIV.UserName Division,DEP.UserName Department,S.UserName Section,SS.UserName SubSection,
-P.Activity,DEG.UserName Designation,PRO.UserName Process
-from ORG.Position P
+            string sql = @"select distinct CAST (CASE WHEN SPC.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,SPC.Id, P.Id PositionCodeId,P.Code,DIV.UserName Division,DEP.UserName Department,S.UserName Section,SS.UserName SubSection,
+P.Activity,DEG.UserName Designation,PRO.UserName Process,E.UserName Entity from MST.ManpowerBudget MB
+left Join Org.Entity E ON E.Id=MB.EntityId
+left Join ORG.Position P ON P.Id=MB.PositionId
 left join [TRN].[SkillManagementPositionCode] SPC ON SPC.PositionCodeId=P.Id and SPC.SMID='" + ScheduleId + @"'
 left join org.Division DIV ON DIV.Id=P.DivisionId
 left join Org.Department DEP ON DEP.Id=P.DepartmentId
@@ -583,7 +530,7 @@ left join Org.Section S ON S.Id=P.SectionId
 left join Org.SubSection SS ON SS.Id=P.SubSectionId
 left join HKP.Designation DEG ON DEG.Id=P.DesignationId
 left join HKP.Process PRO ON PRO.Id=P.ProcessId
-where P.Active=1 order by SPC.PositionCodeId  desc";
+where P.Active=1 and E.Id in (select EntityId from [TRN].[SkillManagementEntity] where SMID='" + ScheduleId + @"') order by SPC.Id  desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
@@ -611,16 +558,7 @@ FROM [TRN].[SkillManagementItem] where SMID ='" + ScheduleId + "' order by SNO";
             string sql = @"SELECT * FROM SkillItemParameterDetails where ItemId ='" + ItemId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
-        [Authorize, HttpGet]
-        public ActionResult LoadStoresDetails(string ScheduleId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,
-(select UserName from SCS.UnitOfMeasurement where Active=1 and Id=UOMId) as UOM,
-(select StandardName from MST.MaterialMasterArticle where Id=ArticleId) as Article
-FROM [TRN].[MaintenanceStoresConsumable] where MaintenanceSchedulingId ='" + ScheduleId + "' order by SNO";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
+      
         [Authorize, HttpGet]
         public ActionResult LoadBudgetCodeDetails(string ScheduleId)
         {
@@ -649,14 +587,49 @@ where MTD.SMID ='" + ScheduleId + "' order by MTD.SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpGet]
-        public ActionResult LoadScheduleMachineList()
+        [Authorize, HttpPost]
+        public ActionResult createEntity(List<Dictionary<string, object>> DataList)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,CASE IsAvoidable WHEN 1 THEN 'Yes' ELSE 'No' END Avoidable,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson,
-                            (select UserName from [HKP].[DetentionType] where Id=DetentionTypeId) as DetentionType
-                            FROM DetentionMaster";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "TRN.SkillManagementEntity";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and SMID='" + item["SMID"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "SME" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
         }
 
         [Authorize, HttpPost]

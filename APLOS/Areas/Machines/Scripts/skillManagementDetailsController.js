@@ -83,17 +83,17 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
         }
     }
 
-    $scope.MaintenanceStatusSummaryList = [];
+    $scope.SkillManagementStatusSummaryList = [];
     $scope.ViewSummary = function () {
         try {
             Validation();
             $http({
 
                 method: 'Get',
-                url: 'Machines/SkillManagementDetails/LoadMaintenanceStatusSummaryList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate
+                url: 'Machines/SkillManagementDetails/LoadSkillManagementStatusSummaryList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate
             }).then(function successCallback(response) {
-                $scope.MaintenanceStatusSummaryList = response.data;
-                var gridObj = $("#GridMaintenanceStatusSummary").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+                $scope.SkillManagementStatusSummaryList = response.data;
+                var gridObj = $("#GridSkillManagementStatusSummary").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
             }
             )
         }

@@ -3,18 +3,15 @@ skillManagementController.$inject = ["cboService","commonMessage", "$scope", "$r
 function skillManagementController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "SkillManagement";
     $scope.CriticalLevelLists = [];
-    $scope.ItemCategoryList = [];
-    $scope.CostTypeList = [];
-    $scope.EstimationLevelList = [];
     $scope.GroupList = [];
     $scope.Action = 'Save';
     $scope.path = 'Machines/SkillManagement/';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrlEntity = $scope.path + 'createEntity';
     $scope.saveUrlPositionCode = $scope.path + 'createPositionCode';
     $scope.saveUrlLevel = $scope.path + 'createLevel';
     $scope.saveUrlItem = $scope.path + 'createItem';
     $scope.saveUrlParameter = $scope.path + 'createParameter';
-    $scope.saveUrlStores = $scope.path + 'createStores';
     $scope.saveUrlBudgetCode = $scope.path + 'createBudgetCode';
     $scope.saveUrlTeamDefinition = $scope.path + 'createTeamDefinition';
     
@@ -34,54 +31,16 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     ];
     
     $scope.PerformanceGroupList = [];
-    $scope.GetPerformanceGroupList = function () {
+    $scope.GetPerformanceGroupList = function (pid) {
         $http({
             method: 'GET',
-            url: 'Machines/SkillManagement/GetPerformanceGroupList'
+            url: 'Machines/SkillManagement/GetPerformanceGroupList?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.PerformanceGroupList = response.data;
         });
     }
     $scope.GetPerformanceGroupList();
 
-    $scope.ItemCategoryList = [
-        {
-            'Value': 'Consumable',
-            'Text': 'Consumable'
-        },
-        {
-            'Value': 'Store & Spares',
-            'Text': 'Store & Spares'
-        }
-    ];
-    $scope.CostTypeList = [
-        {
-            'Value': 'Operation',
-            'Text': 'Operation'
-        },
-        {
-            'Value': 'Asset',
-            'Text': 'Asset'
-        }
-    ];
-    $scope.EstimationLevelList = [
-        {
-            'Value': '100%',
-            'Text': '100%'
-        },
-        {
-            'Value': '70%',
-            'Text': '70%'
-        },
-        {
-            'Value': '50%',
-            'Text': '50%'
-        },
-        {
-            'Value': '0%',
-            'Text': '0%'
-        }
-    ];
     $scope.GroupList = [
         {
             'Value': '1',
@@ -161,23 +120,6 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.ParameterNew = Object.assign({}, $scope.Parameter);
 
-    $scope.Stores = {
-        Id: null
-        , SNO: null
-        , ItemName: null
-        , UOMId:null
-        , UOM: null
-        , EstimatedQty: null
-        , Category: null
-        , ArticleId:null
-        , Article: null
-        , CostType: null
-        , EstimationLevel: null
-        , MaintenanceSchedulingId: null
-        , Remarks: null
-    };
-    $scope.StoresNew = Object.assign({}, $scope.Stores);
-
     $scope.PersonBudget = {
         Id: null
         , SNO: null
@@ -241,6 +183,8 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
             $scope.scheduleNew = response.data.schedule[0];
             $scope.scheduleNew.ResponsiblePersoneBgtCode = response.data.schedule[0].ResponsiblePersoneBgtCode;
             $scope.GetSubProcessList($scope.scheduleNew.ProcessId);
+            $scope.GetPerformanceGroupList($scope.ScheduleMasterId);
+            $scope.LoadEntityDetails($scope.ScheduleMasterId);
             $scope.LoadPositionCodeDetails($scope.ScheduleMasterId);
             $scope.LoadSkillLevelDetails($scope.ScheduleMasterId);
             $scope.GeneratSkillLevelSequenceNo($scope.ScheduleMasterId);
@@ -257,6 +201,78 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         }
         )
     }
+
+    $scope.SkillManagementEntityList = [];
+    $scope.LoadEntityDetails = function (pid) {
+        $http({
+
+            method: 'Get',
+            url: 'Machines/SkillManagement/LoadEntityDetails?ScheduleId=' + pid
+        }).then(function successCallback(response) {
+            $scope.SkillManagementEntityList = response.data;
+        }
+        )
+    }
+
+    $scope.refreshTemplateEntity = function (args) {
+        $("#Eheadchk").ejCheckBox({ "change": CheckBoxSelectAllEntity });
+    };
+    function CheckBoxSelectAllEntity(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEntity").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SkillManagementEntityList.length; i++) {
+                $scope.SkillManagementEntityList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEntity").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.EntitySave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.SkillManagementEntityList.length; i++) {
+                if ($scope.SkillManagementEntityList[i].Flag == true) {
+                    $scope.SkillManagementEntityList[i].SMID = $scope.scheduleNew.Id;
+                    $scope.SaveList.push($scope.SkillManagementEntityList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlEntity,
+                data: {
+                    "DataList": $scope.SaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadEntityDetails($scope.scheduleNew.Id);
+                    $scope.LoadPositionCodeDetails($scope.scheduleNew.Id);
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
 
     $scope.refreshTemplatePositionCode = function (args) {
         $("#PCheadchk").ejCheckBox({ "change": CheckBoxSelectAllPositionCode });
@@ -373,83 +389,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.GeneratTeamDefinitionSequenceNo();
    
-    $scope.refreshTemplateMachineAsset = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllAsset });
-    };
-    function CheckBoxSelectAllAsset(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-        }
-
-        var filtered = $("#GridMachine").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.ScheduleMachineList.length; i++) {
-                $scope.ScheduleMachineList[i].IsActive = ChkOrUnchk;
-            }
-        }
-        else {
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].Flag = ChkOrUnchk;
-            }
-        }
-        var gridObj = $("#GridMachine").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-    };
-
-   
-    $scope.ScheduleMachineList = [];
-    $scope.LoadMachineDetails = function (pid) {
-        $http({
-
-            method: 'Get',
-            url: 'Machines/SkillManagement/LoadMachineDetails?ScheduleId=' + pid
-        }).then(function successCallback(response) {
-            $scope.ScheduleMachineList = response.data;
-        }
-        )
-    }
-
     
-
-    $scope.MachineSave = function () {
-        try {
-
-            $scope.SaveList = [];
-            for (var i = 0; i < $scope.ScheduleMachineList.length; i++) {
-                /*if ($scope.ScheduleMachineList[i].IsActive == true) {*/
-                    $scope.ScheduleMachineList[i].MaintenanceSchedulingId = $scope.scheduleNew.Id;
-                    $scope.SaveList.push($scope.ScheduleMachineList[i]);
-                /*}*/
-            }
-
-
-            $http({
-                method: 'POST',
-                url: $scope.saveUrlAsset,
-                data: {
-                    "DataList": $scope.SaveList,
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-
-                    ShowResult(response.data.Message, 'success');
-                    //$scope.LoadMachineDetails($scope.scheduleNew.MachineMasterId, $scope.scheduleNew.Id);
-                    $scope.LoadMachineDetails($scope.scheduleNew.Id);
-                    $scope.Action = 'Save';
-                }
-
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-        } catch (ex) {
-            ShowResult(ex, 'Info');
-        }
-    };
-
     $scope.ScheduleSkillLevelList = [];
     $scope.LoadSkillLevelDetails = function () {
         $http({
@@ -497,35 +437,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         }
         )
     }
-    $scope.selectMachine = function () {
-        $scope.getsM();
-        angular.element(document.querySelector('#MachinePop')).modal('show');
-    }
-
-    $scope.MachineList = [];
-    $scope.getsM = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'GetMachine',
-            dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.MachineList = resp.data;
-        });
-    }
-
-    $scope.doubleMachine = function (e) {
-        $scope.scheduleNew.MachineMasterId = e.data.MachineMasterId;
-        $scope.scheduleNew.MachineName = e.data.MachineMaster;
-        $scope.scheduleNew.Make = e.data.Make;
-        $scope.scheduleNew.Model = e.data.Model;
-        $scope.scheduleNew.Particulars = e.data.Particulars;
-        angular.element(document.querySelector('#MachinePop')).modal('hide');
-    }
-
-    $scope.closeMachinePopUp = function () {
-        angular.element(document.querySelector('#MachinePop')).modal('hide');
-    }
-
+    
     $scope.selectBudgetCode = function () {
         $scope.getBudgetCode();
         angular.element(document.querySelector('#BudgetCodePopUp')).modal('show');
@@ -576,61 +488,6 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
 
     $scope.closeByWhomPopUp = function () {
         angular.element(document.querySelector('#ByWhomPop')).modal('hide');
-    }
-
-    $scope.selectUOM = function () {
-        $scope.getUOM();
-        angular.element(document.querySelector('#UOMPopUp')).modal('show');
-    }
-
-    $scope.UOMList = [];
-    $scope.getUOM = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'GetUOM',
-            dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.UOMList = resp.data;
-        });
-    }
-
-    $scope.doubleUOM = function (e) {
-        $scope.StoresNew.UOMId = e.data.UOMId;
-        $scope.StoresNew.UOM = e.data.UOM;
-        angular.element(document.querySelector('#UOMPopUp')).modal('hide');
-    }
-
-    $scope.closeUOMPopUp = function () {
-        angular.element(document.querySelector('#UOMPopUp')).modal('hide');
-    }
-
-
-    $scope.selectArticle = function () {
-        $scope.getArticle();
-        angular.element(document.querySelector('#ArticlePopUp')).modal('show');
-    }
-
-    $scope.ArticleList = [];
-    $scope.getArticle = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'GetArticle',
-            dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.ArticleList = resp.data;
-        });
-    }
-
-    $scope.doubleArticle = function (e) {
-        $scope.StoresNew.ArticleId = e.data.ArticleId;
-        $scope.StoresNew.Article = e.data.ArticleName;
-        $scope.StoresNew.UOMId = e.data.UOMID;
-        $scope.StoresNew.UOM = e.data.UOM;
-        angular.element(document.querySelector('#ArticlePopUp')).modal('hide');
-    }
-
-    $scope.closeArticlePopUp = function () {
-        angular.element(document.querySelector('#ArticlePopUp')).modal('hide');
     }
 
     $scope.selectPersonBudgetCode = function () {
@@ -913,7 +770,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     };
 
 
-    $scope.tab = 1;
+    $scope.tab = 0;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
 

@@ -230,7 +230,7 @@ function maintenanceStatusDetailsController(cboService, commonMessage, $scope, $
             url: 'Machines/MaintenanceStatusDetails/LoadMaintenanceStatusPlannedListGetPlanDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&AssetId=' + $scope.MachineAssetId
         }).then(function successCallback(response) {
             $scope.MaintenanceStatusPlannedDetailsList = response.data;
-            $scope.PlannedId = response.data[0].Id;
+            $scope.PlannedId = response.data[0].PlannedId;
             $scope.ResMaintenanceId = response.data[0].MaintenanceSchedulingId;
             var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
             angular.element(document.querySelector('#MachineAssetPop')).modal('show');
