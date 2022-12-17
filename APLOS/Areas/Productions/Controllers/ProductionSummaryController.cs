@@ -1321,6 +1321,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             {
                 
                 string Entity = "'" + EntityId.Replace(",", "','") + "'";//replaced with ""
+                string processId = "'" + ProcessId.Replace(",", "','") + "'";//replaced with ""
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
@@ -1328,7 +1329,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 workbook.Worksheets[1].Name = "Data";
                 sheet = workbook.Worksheets[1];
                 DataTable dtOrder;
-                ProductionOrderReportSQL(fromDate, toDate, Entity, ProcessId, out dtOrder);
+                ProductionOrderReportSQL(fromDate, toDate, Entity, processId, out dtOrder);
 
                 int ROW = 6; int COL = 1;
 
@@ -1537,14 +1538,14 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet[ROW, COL].Text = "ActualEfficiency";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colActualEfficiency = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Parameter";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int colParameter = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Parameter Value";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int colParameterValue = COL;
+                //COL++;
+                //sheet[ROW, COL].Text = "Parameter";
+                //sheet[ROW, COL].ColumnWidth = 12;
+                //int colParameter = COL;
+                //COL++;
+                //sheet[ROW, COL].Text = "Parameter Value";
+                //sheet[ROW, COL].ColumnWidth = 12;
+                //int colParameterValue = COL;
 
 
 
@@ -1612,8 +1613,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     sheet[ROW, colPlanEfficiency].Text = dtOrder.Rows[i]["PlanEfficiency"].ToString();
                     sheet[ROW, colActualMinutes].Text = dtOrder.Rows[i]["ActualMinutes"].ToString();
                     sheet[ROW, colActualEfficiency].Text = dtOrder.Rows[i]["ActualEfficiency"].ToString();
-                    sheet[ROW, colParameter].Text = dtOrder.Rows[i]["Parameter"].ToString();
-                    sheet[ROW, colParameterValue].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ParameterValue"].ToString());
+                    //sheet[ROW, colParameter].Text = dtOrder.Rows[i]["Parameter"].ToString();
+                    //sheet[ROW, colParameterValue].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ParameterValue"].ToString());
 
 
 
@@ -1659,6 +1660,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
 
                 #region Pivot
+              //  DataTable dtDistinctParameter = dtOrder.DefaultView.ToTable(true, "Parameter");
+
                 string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
 
                 workbook.SaveAs(fPath);
@@ -1677,6 +1680,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 //pivotTable.Fields[colId - 1].Axis = PivotAxisTypes.Row;
                 //pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
 
+                //IPivotFilter CurrencyFilterValue = pivotTable.Fields[colParameter - 1].PivotFilters.Add();
+                //CurrencyFilterValue.Value1 = dtDistinctParameter.Rows[0]["Parameter"].ToString();
 
 
                 IPivotField field = pivotTable.Fields[colActualQty - 1];
@@ -1687,7 +1692,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 {
                     if (i == colPlant - 1 || i == colEntity - 1 || i == colBuyerOrderNo - 1)
                         continue;
-                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.Sum;
                 }
 
                 pivotTable.ShowDrillIndicators = false;
@@ -1722,6 +1727,149 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             }
         }
         private void ProductionOrderReportSQL(string fromDate, string toDate, string EntityId, string ProcessId, out DataTable dtOrder)
+        {
+            try
+            {
+                string wp = "";
+                if (string.IsNullOrEmpty(ProcessId)|| ProcessId=="''")
+                {
+                    wp = @"SELECT DISTINCT P.Id AS [Value] FROM HKP.EntityProcessTag AS EP
+                            JOIN HKP.Process AS P ON EP.ProcessId = P.Id
+                            where EP.EntityId in (" + EntityId + @") AND P.Active = 1";
+                }
+                else
+                {
+                    wp = ProcessId;
+                }
+
+                string sql = @"SELECT  PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
+                            pt1.SPT AS SAM,pp.ProcessId,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,ISNULL(pp.UserName,ord.Material) Material,ISNULL(pp.StandardName,ord.Article ) Article              
+                            ,PL.Code ProductCode,ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
+                            sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
+                             ,CPL.UserName AS ProductionShift,so.Id AS SalesOrderIdBooking,CPL.ShiftDuration ShiftWorkingMin,so.[Description] AS SalesOrderDescBooking,
+                             wcm.StandardTimePerDay AS StandardWorkingHours,  wcm.NoOfWorkStation AS StandardWorkStations,wcm.DailyFixedCost,wcm.VariableCost AS VariableCostPerHour,
+                             PP.ProductionHours AS WorkingHours,SN.isBuildUp,
+                             pt1.TargetPerDay AS LineTargetPerDay,PT1.TargetPerHour AS PlanTargetPerHour,PT1.PlanWorkingHoursPerDay,
+                            --additional info
+			                     buyer=STUFF((select distinct ','+XB.UserName from 
+			                            trn.SalesOrder XSO 
+			                            JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                            left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+			                            left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+			                            left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                            where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                            SalesOrderIds=STUFF((select distinct ','+XSO.Id from 
+			                        trn.SalesOrder XSO 
+			                        JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                        where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+	                        SalesOrderDesc=STUFF((select distinct ','+XSO.Description from 
+			                        trn.SalesOrder XSO 
+			                        JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                        where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+			                   
+                                  MasterOrderNo=STUFF((select distinct ','+XMO.Id from 
+			                                trn.SalesOrder XSO 
+			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+			                                left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                        BuyerOrderNo=STUFF((select distinct ','+XMO.BuyerReferenceNo from 
+			                                trn.SalesOrder XSO 
+			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+			                                left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                     OwnOrderNo=STUFF((select distinct ','+XMO.OwnReferenceNo from 
+			                                trn.SalesOrder XSO 
+			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+			                                left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+			
+		                                StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+			                                trn.SalesOrder XSO 
+			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
+			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+       
+                                        OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+			                                trn.SalesOrder XSO 
+			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
+			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                            pt1.NoOfWorkStation,sn.ProductionHours  AS PlanHours,
+                            ISNULL(ppt.ProductionHours,0) ProductionHours,
+                            ISNULL(sn.Quantity,0)*isnull(pt1.SPT,0) AS PlanMinutes,
+                            ISNULL(sn.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*sn.ProductionHours*60) AS PlanEfficiency,
+
+                            ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0) AS ActualMinutes,
+                            ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*pp.ProductionHours*60) AS ActualEfficiency
+							--,PSV.UserName Parameter,psv.[Value] ParameterValue
+							,isnull(MMT.[Minute],0) DetentionInMin,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,UOM.Code UOM,pp.Quantity ProductionQty,pp.Remarks
+
+                            FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,ps.Quantity
+									,PS.AddedBy,ps.Remarks,ps.ProductLibraryId
+                                    FROM trn.ProductionSummary AS ps 
+                                  left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
+                                  LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
+      		                      WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")  and ps.ProcessId in (" + wp + @")
+                                  GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,PS.AddedBy,ps.Remarks,ps.ProductLibraryId,ps.Quantity
+                            ) AS pp
+							left join MachineMasterTransaction MMT on MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate
+                            LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
+							left join ProductLibrary PL on PL.Id=pp.ProductLibraryId
+                            LEFT JOIN trn.SalesOrder AS so ON so.Id=pp.SalesOrderId
+							left join trn.MasterOrderItem MOI on MOI.Id=so.MasterOrderItemId
+							left join SCS.UnitOfMeasurement UOM on UOM.Id=MOI.UOMId
+                            LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID=pp.ProductionOrderID
+                            LEFT OUTER JOIN ProductionPlanningSnapshot2Type1 AS SN ON sn.ProductionOrderID=pp.ProductionOrderId AND sn.ProductionDate=pp.ProductionDate AND sn.WorkCenterMasterId=pp.WorkCenterMasterId AND sn.EntityID=pp.EntityId
+                            LEFT OUTER JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=pp.WorkCenterMasterId
+                            LEFT OUTER JOIN hkp.SFGInventory AS FSFG ON FSFG.Id=pp.FromSFGInventoryId
+                            --LEFT OUTER JOIN dbo.ProductionSummaryParameterValue AS psv ON psv.ProductionSummaryId=pp.Id
+                            LEFT OUTER JOIN scs.WorkCenterMaster AS Twcm ON Twcm.Id=pp.ToWorkCenterMasterId
+                            LEFT OUTER JOIN hkp.SFGInventory AS TSFG ON TSFG.Id=pp.ToSFGInventoryId
+                        
+                            left outer join ProductionPlanningType1 AS ppt on ppt.ProductionOrderID=pp.ProductionOrderId AND ppt.WorkCenterMasterId=PP.WorkCenterMasterId AND  ppt.ProcessId=PP.ProcessId AND ppt.EntityId=pp.EntityId and ppt.ProductionDate=PP.ProductionDate
+                            left outer join TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
+							LEFT OUTER JOIN hkp.Process AS p ON p.Id=pp.ProcessId
+							LEFT OUTER JOIN hkp.Process AS Tp ON Tp.Id=pp.ToProcessId
+                            LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
+                            LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
+                             left outer join (
+                                                        select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory,
+                                                          SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
+                                                          SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
+                                                        from trn.ProductionOrderDetail POD 
+                                                        left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
+                                                        left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                                        left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
+                                                        left join MasterOrderExchangeRates RT ON RT.TransactionId=MO.Id
+                                                        left JOIN org.Company AS com ON com.Id=mo.CompanyId
+                                                       LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
+                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
+                                                        LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
+                                                        left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
+                                                        LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+                                                        left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                        left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                                                        left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+                                                        group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
+                                              ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
+                                            ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID,p.Sequence";
+                dtOrder = _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
+        }
+
+        private void ProductionOrderParameterReportSQL(string fromDate, string toDate, string EntityId, string ProcessId, out DataTable dtOrder)
         {
             try
             {
@@ -1793,13 +1941,13 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 							,PSV.UserName Parameter,psv.[Value] ParameterValue
 							,isnull(MMT.[Minute],0) DetentionInMin,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,UOM.Code UOM,pp.Quantity ProductionQty,pp.Remarks
 
-                            FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
+                            FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,ps.Quantity
 									,PS.AddedBy,ps.Remarks,ps.ProductLibraryId
                                     FROM trn.ProductionSummary AS ps 
                                   left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
                                   LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
       		                      WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")  and ps.ProcessId in (" + ProcessId + @")
-                                  GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,PS.AddedBy,ps.Remarks,ps.ProductLibraryId
+                                  GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,PS.AddedBy,ps.Remarks,ps.ProductLibraryId,ps.Quantity
                             ) AS pp
 							left join MachineMasterTransaction MMT on MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate
                             LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
@@ -1888,7 +2036,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 workbook.Worksheets[1].Name = "Data";
                 sheet = workbook.Worksheets[1];
                 DataTable dtOrder;
-                ProductionOrderReportSQL(fromDate, toDate, Entity, ProcessId, out dtOrder);
+                ProductionOrderParameterReportSQL(fromDate, toDate, Entity, ProcessId, out dtOrder);
 
                 int ROW = 6; int COL = 1;
 
@@ -1950,11 +2098,11 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 int colToWorkCenter = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Material";
-                sheet[ROW, COL].ColumnWidth = 30;
+                sheet[ROW, COL].ColumnWidth = 35;
                 int colMaterial = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Article";
-                sheet[ROW, COL].ColumnWidth = 30;
+                sheet[ROW, COL].ColumnWidth = 40;
                 int colArticle = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Product Code";
@@ -2009,7 +2157,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 int colCM = COL;
                 COL++;
                 sheet[ROW, COL].Text = "ProductionShift";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colProductionShift = COL;
                 COL++;
@@ -2081,7 +2229,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 int colSalesOrderIds = COL;
                 COL++;
                 sheet[ROW, COL].Text = "SalesOrderDesc";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 40;
                 int colSalesOrderDesc = COL;
                 COL++;
                 sheet[ROW, COL].Text = "MasterOrderNo";
