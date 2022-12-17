@@ -4709,13 +4709,18 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColNoOfPackags = COL;
 
-                //sheet[ROW, COL].Text = "GatePassStatus";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int ColGatePassStatus = COL;
-                //COL++;
+				sheet[ROW, COL].Text = "Late By Days";
+				sheet[ROW, COL].ColumnWidth = 10;
+				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int ColLateByDays = COL;
 
-    //            sheet[ROW, COL].Text = "NoOfPackages";
+				//sheet[ROW, COL].Text = "GatePassStatus";
+				//sheet[ROW, COL].ColumnWidth = 16;
+				//sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				//int ColGatePassStatus = COL;
+				//COL++;
+
+				//            sheet[ROW, COL].Text = "NoOfPackages";
 				//sheet[ROW, COL].ColumnWidth = 16;
 				//sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 				//int ColNoOfPackages = COL;
@@ -4753,6 +4758,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 					sheet[ROW, ColNoOfPackags].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfPackages"].ToString());
 					sheet[ROW, ColStatus].Text = data.Rows[i]["Status"].ToString();
 					sheet[ROW, ColArticle].Text = data.Rows[i]["Article"].ToString();
+					sheet[ROW, ColLateByDays].Number = clsStaticInfo.dbl(data.Rows[i]["LateByDays"].ToString());
 					
 					
 					ROW++;
@@ -4812,6 +4818,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 ,  gpm.InvoiceNo,  FORMAT(gpm.ReturnableDate,'dd-MMM-yyyy')ReturnableDate, '' LotDate, gpd2.ChallanNo,
 gpm.GatePassStatus,gpm.GatePassType,gpm.NoOfPackages
 ,[Status]= case when gdp.TransactionQty-gpd2.InQty=0 then 'Received' else 'Pending' end
+, DATEDIFF(DAY, gpm.ReturnableDate,GETDATE())LateByDays
         from trn.GatePassDetails gdp
         left join MST.MaterialMaster MM on MM.Id = gdp.MaterialMasterId
         left join MST.MaterialMasterArticle MMA on MMA.Id = gdp.ArticleId

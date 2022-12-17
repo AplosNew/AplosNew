@@ -305,12 +305,8 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             #region Grid Headers
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Medicine Name", 6, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Medicine Name", 16, ExcelHAlign.HAlignCenter);
             int ColMedicineName = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Expiry Date", 12, ExcelHAlign.HAlignCenter);
-            int ColExpDate = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Opening Stock", 12, ExcelHAlign.HAlignCenter);
@@ -323,6 +319,10 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Stock Issue", 50, ExcelHAlign.HAlignCenter);
             int ColStockIssue = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Expiry Date", 12, ExcelHAlign.HAlignCenter);
+            int ColExpDate = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Closed Stock", 50, ExcelHAlign.HAlignCenter);
@@ -348,15 +348,13 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                sheet[ROW, ColMedicineName].Text = data.Rows[i]["Id"].ToString();
-                sheet[ROW, ColExpDate].Text = data.Rows[i]["Date"].ToString();
-                sheet[ROW, ColOpeningStock].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
-                sheet[ROW, ColStockReceived].Text = data.Rows[i]["EmployeeName"].ToString();
-                sheet[ROW, ColStockReceived].Text = data.Rows[i]["Sickness"].ToString();
-                sheet[ROW, ColStockIssue].Text = data.Rows[i]["Medicines"].ToString();
-                sheet[ROW, ColClosedStock].Text = data.Rows[i]["Medicines"].ToString();
+                sheet[ROW, ColMedicineName].Text = data.Rows[i]["Medicine"].ToString();
+                sheet[ROW, ColOpeningStock].Number = clsStaticInfo.dbl(data.Rows[i]["Opening Quantity"].ToString());
+                sheet[ROW, ColStockReceived].Number = clsStaticInfo.dbl(data.Rows[i]["Received Quantity"].ToString());
+                sheet[ROW, ColStockIssue].Number = clsStaticInfo.dbl(data.Rows[i]["IssueQty"].ToString());
+                sheet[ROW, ColExpDate].Text = data.Rows[i]["Expiry Date"].ToString();
+                sheet[ROW, ColClosedStock].Number = clsStaticInfo.dbl(data.Rows[i]["Closed Stock"].ToString());
                
-
                 ROW++;
 
             }
