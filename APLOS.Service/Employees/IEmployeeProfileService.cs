@@ -36,7 +36,7 @@ namespace Library.Service.Employees
 
         void InsertOrUpdate(EmployeeNomineeInfo entity);
         IEnumerable<ComboModel> GetRelationCbo();
-       
+        void UpdateRelativeInfo(EmployeeInformation entity, string name);
         void UpdateLocalInfo(EmployeeInformation entity, string name);
         object GetLocalLanguageLabel(string plantId);
         IEnumerable<ComboModel> GetTemplateCbo(string plantId, string type);

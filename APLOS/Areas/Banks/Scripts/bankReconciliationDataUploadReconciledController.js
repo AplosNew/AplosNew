@@ -137,11 +137,19 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
 
     $scope.Save = function () {
         try {
-            //$scope.$broadcast("show-errors-check-validity");
                 checkTotalAmount();
             $scope.listMergeTempList();
-            if ($scope.TempList.length === 0)
+            if ($scope.bankDrTempList.length > 1 && $scope.bankDrUploadedDataTempList.length > 1) {
+                throw "Both site multiple not allowed,Please check One site one Dr. Reconcile Pending or other site multiple .!";
+            }
+
+            if ($scope.bankCrTempList.length > 1 && $scope.bankCrUploadedDataTempList.length > 1) {
+                throw "Both site multiple not allowed,Please check One site one Cr. Reconcile Pending or other site multiple .!";
+            }
+            if ($scope.TempList.length === 0) {
                 throw "Please check at least one Reconcile Pending .!";
+            }
+                
 
             angular.copy($scope.bankReconciliationNew, $scope.bankReconciliation);
             if (bankDrReconDifferenceAmount > 0 && bankDrReconDifferenceAmount <= 2) {
@@ -301,10 +309,16 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
     $scope.listMergeTempList = function () {
         try {
             $scope.TempList = [];
-            if ($scope.bankDrTempList.length > 1 && $scope.bankDrUploadedDataTempList.length > 1)
-                throw "Please check One site one Dr. Reconcile Pending or other site multiple .!";
-            if ($scope.bankCrTempList.length > 1 && $scope.bankCrUploadedDataTempList.length > 1)
-                throw "Please check One site one Cr. Reconcile Pending or other site multiple .!";
+            if ($scope.bankDrTempList.length > 1 && $scope.bankDrUploadedDataTempList.length > 1) {
+                ShowResult("Both site multiple not allowed,Please check One site one Dr. Reconcile Pending or other site multiple!", "failure");
+                return;
+            }
+                
+            if ($scope.bankCrTempList.length > 1 && $scope.bankCrUploadedDataTempList.length > 1) {
+                ShowResult("Both site multiple not allowed,Please check One site one Cr. Reconcile Pending or other site multiple!", "failure");
+                return;
+            }
+                
            
             if ($scope.bankDrTempList.length > 1) {
                 for (var i = 0; i < $scope.bankDrTempList.length; i++) {
