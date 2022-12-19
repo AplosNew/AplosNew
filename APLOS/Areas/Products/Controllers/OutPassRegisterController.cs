@@ -119,6 +119,18 @@ namespace Aplos.Areas.Products.Controllers
 				int ColRGPDate = COL;
 				COL++;
 
+				sheet[ROW, COL].Text = "Expected Return Date";
+				sheet[ROW, COL].ColumnWidth = 10;
+				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int ColReturnDate = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Status";
+				sheet[ROW, COL].ColumnWidth = 10;
+				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int ColStatus = COL;
+				COL++;
+
 				sheet[ROW, COL].Text = "Party";
 				sheet[ROW, COL].ColumnWidth = 16;
 				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -129,6 +141,18 @@ namespace Aplos.Areas.Products.Controllers
 				sheet[ROW, COL].ColumnWidth = 16;
 				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 				int ColCity = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Sender";
+				sheet[ROW, COL].ColumnWidth = 16;
+				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int ColSender = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Sender Department";
+				sheet[ROW, COL].ColumnWidth = 16;
+				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int ColSenderDep = COL;
 				COL++;
 
 				sheet[ROW, COL].Text = "Material";
@@ -179,17 +203,7 @@ namespace Aplos.Areas.Products.Controllers
 				int ColBal = COL;
 				COL++;
 
-				sheet[ROW, COL].Text = "Expected Return Date";
-				sheet[ROW, COL].ColumnWidth = 10;
-				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				int ColReturnDate = COL;
-				COL++;
-
-				sheet[ROW, COL].Text = "Status";
-				sheet[ROW, COL].ColumnWidth = 10;
-				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				int ColStatus = COL;
-				COL++;
+				
 
 				//sheet[ROW, COL].Text = "Challan No.";
 				//sheet[ROW, COL].ColumnWidth = 16;
@@ -213,20 +227,21 @@ namespace Aplos.Areas.Products.Controllers
 				sheet[ROW, COL].ColumnWidth = 10;
 				sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 				int ColNoOfPackags = COL;
+				COL++;
 
-				//sheet[ROW, COL].Text = "GatePassStatus";
-				//sheet[ROW, COL].ColumnWidth = 16;
-				//sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//int ColGatePassStatus = COL;
-				//COL++;
+				sheet[ROW, COL].Text = "Late By Days";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColLateByDate = COL;
+                COL++;
 
-				//            sheet[ROW, COL].Text = "NoOfPackages";
-				//sheet[ROW, COL].ColumnWidth = 16;
-				//sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//int ColNoOfPackages = COL;
-				#endregion Columns
+                //            sheet[ROW, COL].Text = "NoOfPackages";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColNoOfPackages = COL;
+                #endregion Columns
 
-				int endCol = COL;
+                int endCol = COL;
 				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
 				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
 				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
@@ -258,6 +273,9 @@ namespace Aplos.Areas.Products.Controllers
 					sheet[ROW, ColNoOfPackags].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfPackages"].ToString());
 					sheet[ROW, ColStatus].Text = data.Rows[i]["Status"].ToString();
 					sheet[ROW, ColArticle].Text = data.Rows[i]["Article"].ToString();
+					sheet[ROW, ColLateByDate].Number = clsStaticInfo.dbl(data.Rows[i]["LateByDays"].ToString());
+					sheet[ROW, ColSender].Text = data.Rows[i]["Sender"].ToString();
+					sheet[ROW, ColSenderDep].Text = data.Rows[i]["Department"].ToString();
 
 
 					ROW++;
@@ -310,7 +328,15 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			try
 			{
-				var sql = @"select gpm.Id,gdp.Id Detail_Row, FORMAT(gpm.GatePassEntryDate,'dd-MMM-yyyy') RGPDate, P.UserName Party, C.UserName City, MM.UserName ItemDescription,MMA.StandardName Article, UOM.UserName UOM,ISNULL(gdp.TransactionQty,0) OutQty,isnull(gdp.Rate,0)Rate,Amount=IsNULL(gdp.TransactionQty*gdp.Rate,0), Isnull(gpd2.InQty,0) ReceivedQty,balance=isnull(gdp.TransactionQty-gpd2.InQty,0),  am.Address1,gpm.InvoiceNo,  FORMAT(gpm.ReturnableDate,'dd-MMM-yyyy')ReturnableDate, '' LotDate, gpd2.ChallanNo,gpm.GatePassStatus,gpm.GatePassType,gpm.NoOfPackages,[Status]= case when gdp.TransactionQty-gpd2.InQty=0 then 'Received' else 'Pending' end
+				var sql = @"select gpm.Id,gdp.Id Detail_Row, FORMAT(gpm.GatePassEntryDate,'dd-MMM-yyyy') RGPDate,
+P.UserName Party, C.UserName City, MM.UserName ItemDescription,MMA.StandardName Article, UOM.UserName UOM
+,ISNULL(gdp.TransactionQty,0) OutQty,isnull(gdp.Rate,0)Rate,Amount=IsNULL(gdp.TransactionQty*gdp.Rate,0)
+, Isnull(gpd2.InQty,0) ReceivedQty,balance=isnull(gdp.TransactionQty-isnull(gpd2.InQty,0),0),  am.Address1,gpm.InvoiceNo
+,  FORMAT(gpm.ReturnableDate,'dd-MMM-yyyy')ReturnableDate, '' LotDate, gpd2.ChallanNo,gpm.GatePassStatus
+,gpm.GatePassType,gpm.NoOfPackages
+,[Status]= case when gdp.TransactionQty<gpd2.InQty then 'Received' when gdp.TransactionQty-gpd2.InQty = 0 then 'Received' else 'Pending' end, 
+LateByDays = case when isnull(gdp.TransactionQty,0) < isnull(gpd2.InQty,0) then '' when isnull(gdp.TransactionQty-isnull(gpd2.InQty,0),0) = 0 then '' else 
+DATEDIFF(Day,FORMAT(gpm.ReturnableDate,'dd-MMM-yyyy'),GETDATE()) end , EI.EmployeeName Sender, D.UserName Department
 
 					from trn.GatePassDetails gdp
 					left join MST.MaterialMaster MM on MM.Id = gdp.MaterialMasterId
@@ -320,19 +346,20 @@ namespace Aplos.Areas.Products.Controllers
 					left join MST.AddressMaster am on am.Id=p.AddressMasterId
 					left join SCS.City C on C.Id = am.CityId
 					left join SCS.UnitOfMeasurement UOM on UOM.Id = gdp.TransactionUoMId
+					left join EmployeeInformation EI on EI.SystemId = gpm.FromEmployeeId
+					 LEFT JOIN org.Department D ON D.id=EI.DepartmentId
 					left join(
 								select sum(isnull(cgpd.TransactionQty,0)) InQty,gpmR.ChallanNo,cgpd.ChallanNoDetailId, cgpd.Rate,cgpd.MaterialMasterId,cgpd.ArticleId
-
- 
 
 								from TRN.GatePassDetails cgpd
 								left join TRN.GatePassMaster gpmR ON gpmR.id=cgpd.GatePassMasterId --and gpmR.GatePassType='Return' and gpmR.GatePassStatus='NonReturnable'
 
- 
-
 								group by gpmR.ChallanNo, cgpd.Rate,cgpd.MaterialMasterId,cgpd.ArticleId,cgpd.ChallanNoDetailId
 							) gpd2 on gpd2.ChallanNo=gpm.Id and gdp.MaterialMasterId=gpd2.MaterialMasterId and gpd2.ChallanNoDetailId=gdp.Id
-				  where gpm.GatePassType='Send' and gpm.GatePassStatus='Returnable'";
+				  where gpm.GatePassType='Send' and gpm.GatePassStatus='Returnable' 
+
+				 
+";
 
 				data = _sqlRepository.GetDataTable(sql);
 			}
