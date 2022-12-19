@@ -219,7 +219,8 @@ namespace Library.Accounting.Accounts
             try
             {
                 var sql = @"SELECT Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, DrAmount, CrAmount, Remarks, OwnRefNo
-                            FROM TRN.BankReconciliationUploadedData 
+                            ,CASE WHEN (select count(BankReconciliationUploadedDataId) from TRN.BankReconciliationMap where BankReconciliationUploadedDataId= BRUD.Id)>0 THEN 'Yes' ELSE 'No' END ReconciliationedStatus
+                            FROM TRN.BankReconciliationUploadedData BRUD
                             where BankReconciliationUploadId='" + bankReconciliationUploadId + @"' ";
                 return _sqlRepository.GetModelCollection<BankReconciliationUploadedData>(sql);
             }
