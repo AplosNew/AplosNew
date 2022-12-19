@@ -1742,7 +1742,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     wp = ProcessId;
                 }
 
-                string sql = @"SELECT  PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
+                string sql = @"SELECT A.* from (SELECT distinct PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
                             pt1.SPT AS SAM,pp.ProcessId,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,ISNULL(pp.UserName,ord.Material) Material,ISNULL(pp.StandardName,ord.Article ) Article              
                             ,PL.Code ProductCode,ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
                             sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
@@ -1858,7 +1858,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                                                         left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
                                                         group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
                                               ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
-                                            ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID,p.Sequence";
+                                          	)A ORDER BY A.ActualDate, A.WorkCenterMasterId, A.ProductionOrderID";
                 dtOrder = _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)

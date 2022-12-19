@@ -2453,6 +2453,33 @@ function employeeInformationController(addressService, fileReader, cboService, c
         }
     };
 
+    $scope.SaveRelativeInfo = function () {
+        try {
+            $scope.savedisable = true;
+            $http({
+                method: 'POST',
+                url: 'employees/employeeinformation/createRelativeinfo',
+                data: $scope.employeeInformation,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    $scope.savedisable = false;
+                    ShowResult(response.data.Message, "success");
+                }
+            }, function errorCallback(response) {
+                $scope.savedisable = false;
+            });
+            return true;
+
+        } catch (e) {
+            $scope.savedisable = false;
+            ShowResult(e, "failure");
+        }
+    };
+
     $scope.employeeNomineeList = [];
     $scope.getEmployeeNomineeInfo = function () {
         $scope.employeeNomineeList = [];
@@ -3975,7 +4002,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.RefEmppopUp = function () {
         try {
 
-            $scope.RelativeemployeeList = [];
+            $scope.RefemployeeList = [];
             $http({
                 method: 'GET',
                 url: 'employees/leaveApplication/GetEmployeeList'
@@ -4009,11 +4036,58 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.empReferenceInformation.Ref1NameCode = null;
         $scope.empReferenceInformation.RefEmpSystemID = null;
         $scope.empReferenceInformation.Ref1Name = null;
+
+        $scope.empReferenceInformation.Ref1EmployerName = null;
+        $scope.empReferenceInformation.Ref1EmployerAddress = null;
+        $scope.empReferenceInformation.Ref1Designation = null;
+        $scope.empReferenceInformation.Ref1CellPhnNo = null;
+        $scope.empReferenceInformation.Ref1Address = null;
+    }
+
+    $scope.RelemployeeList = [];
+    $scope.showEmployeeListPopUp = function () {
+        try {
+
+            $scope.RelemployeeList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/leaveApplication/GetEmployeeList'
+            }).then(function successCallback(response) {
+                $scope.RelemployeeList = response.data;
+            });
+            angular.element(document.querySelector('#RelemployeePopUp')).modal('show');
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.setRelEmpData = function (obj) {
+        var data = obj.data;
+        $scope.employeeInformation.RelativeCode = data.EmployeeCode;
+        $scope.employeeInformation.RelativeSystemId = data.SystemID;
+        $scope.employeeInformation.RelativeName = data.EmployeeName;
+        $scope.employeeInformation.RelativeDesignation = data.LegalDesignation;
+        $scope.employeeInformation.RelativeCellNo = data.CellPhnNo;
+        angular.element(document.querySelector('#RelemployeePopUp')).modal('hide');
+    };
+
+    $scope.clearRelEmp = function () {
+        $scope.employeeInformation.RelativeCode = null;
+        $scope.employeeInformation.RelativeSystemId = null;
+        $scope.employeeInformation.RelativeName = null;
+        $scope.employeeInformation.RelativeDesignation = null;
+        $scope.employeeInformation.RelativeCellNo = null;
     }
 
     $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
     }
+
+    $scope.closeRelEmployeePopUp = function () {
+        angular.element(document.querySelector('#employeePopUp')).modal('hide');
+    }
+
 
 
 
