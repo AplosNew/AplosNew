@@ -32,6 +32,7 @@ namespace Library.Service.OrderManagements
         private readonly IRepositoryAsync<ProductionOrderProcessSet> _processSetRepository;
         private readonly IRepositoryAsync<ProductionOrderEntity> _entityRepository;
         private readonly IRepositoryAsync<ProductionOrderWorkCenter> _workCenterRepository;
+        private readonly IRepositoryAsync<ProductionOrderFirstProcessWorkCenter> _fpworkCenterRepository;
         private readonly ISqlRepository _sqlRepository;
 
         public ProductionOrderService(
@@ -40,6 +41,7 @@ namespace Library.Service.OrderManagements
             , IRepositoryAsync<ProductionOrderProcessSet> processSetRepository
             , IRepositoryAsync<ProductionOrderEntity> entityRepository
             , IRepositoryAsync<ProductionOrderWorkCenter> workCenterRepository
+            , IRepositoryAsync<ProductionOrderFirstProcessWorkCenter> fpworkCenterRepository
 
             , IPKGeneratorService pkGeneratorService
 
@@ -52,6 +54,7 @@ namespace Library.Service.OrderManagements
             _processSetRepository = processSetRepository;
             _entityRepository = entityRepository;
             _workCenterRepository = workCenterRepository;
+            _fpworkCenterRepository = fpworkCenterRepository;
             _sqlRepository = sqlRepository;
         }
 
@@ -123,7 +126,8 @@ namespace Library.Service.OrderManagements
             , IEnumerable<ProductionOrderProcessSet> processSetlist
             , IEnumerable<ProductionOrderEntity> entitylist
             , IEnumerable<ProductionOrderWorkCenter> workcenterlist,
-            DataTable Runningworkcenterlist)
+            DataTable Runningworkcenterlist
+            , IEnumerable<ProductionOrderFirstProcessWorkCenter> fpworkcenterlist)
         {
             var flag = false;
             try
@@ -134,6 +138,7 @@ namespace Library.Service.OrderManagements
                 InsertUpdateOrDeleteGraph(master.Id, processSetlist);
                 InsertUpdateOrDeleteGraph(master.Id, entitylist);
                  InsertUpdateOrDeleteGraph(master.Id, workcenterlist);
+                InsertUpdateOrDeleteGraphPFPWC(master.Id, fpworkcenterlist);
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 _unitOfWork.SaveChanges();
@@ -842,6 +847,61 @@ namespace Library.Service.OrderManagements
             }
         }
 
+        public IEnumerable<object> GetWorkCenterListByEntityandFirstProcess(string entityId, string processId)
+        {
+
+            try
+            {
+
+                var _sql = @"SELECT Selection = Convert(bit,0),WCM.Id AS WorkCenterMasterId, NULL AS ProductionOrderId,e.UserName AS Entity,p.UserName AS Plant
+	                             , WCM.EntityId, WCM.Code, WCM.UserName,NULL Remark
+                            FROM SCS.WorkCenterMaster AS WCM
+                            INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
+                            INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
+                            WHERE WCM.EntityId='" + entityId + "' AND ProcessId='"+ processId + "' order by p.userName, e.UserName,WCM.sequence";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GetSavedWorkCenterListByEntityandFirstProcess(string ProductionOrderId)
+        {
+
+            try
+            {
+
+                var _sql = @"SELECT FP.*,FP.WorkCenterMasterId, e.UserName AS Entity,p.UserName AS Plant
+	                             , WCM.EntityId, WCM.Code, WCM.UserName
+                            FROM dbo.ProductionOrderFirstProcessWorkCenter FP 
+							LEFT JOIN SCS.WorkCenterMaster AS WCM ON WCM.Id=FP.WorkCenterMasterId
+                            INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
+                            INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
+                           Where FP.ProductionOrderId='" + ProductionOrderId + "' order by p.userName, e.UserName,WCM.sequence";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
+
         private void InsertUpdateOrDeleteGraph(string masterId, IEnumerable<ProductionOrderWorkCenter> entities)
         {
             try
@@ -884,6 +944,59 @@ namespace Library.Service.OrderManagements
                             if (!entities.Any(t => t.Id == item.Id))
                             {
                                 _workCenterRepository.Delete(item);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        private void InsertUpdateOrDeleteGraphPFPWC(string masterId, IEnumerable<ProductionOrderFirstProcessWorkCenter> entities)
+        {
+            try
+            {
+                if (entities != null)
+                {
+                    var count = _fpworkCenterRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM dbo.ProductionOrderFirstProcessWorkCenter WHERE ProductionOrderId='{masterId}'").First();
+
+                    foreach (var item in entities)
+                    {
+                        if (string.IsNullOrEmpty(item.Id))
+                        {
+                            count++;
+                            item.Id = MakePK(masterId, count, 2);
+                            item.ProductionOrderId = masterId;
+                            AuditService.AddedLog(item);
+                            _fpworkCenterRepository.Insert(item);
+                        }
+                        else
+                        {
+                            _fpworkCenterRepository.Update(item);
+                        }
+
+                    }
+                }
+                var dbList = _fpworkCenterRepository.Query(t => t.ProductionOrderId == masterId).Select().ToList();
+                if (dbList.IsNotNull() && dbList.Count > 0)
+                {
+                    if (entities == null)
+                    {
+                        foreach (var item in dbList)
+                        {
+                            _fpworkCenterRepository.Delete(item);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var item in dbList)
+                        {
+                            if (!entities.Any(t => t.Id == item.Id))
+                            {
+                                _fpworkCenterRepository.Delete(item);
                             }
                         }
                     }
