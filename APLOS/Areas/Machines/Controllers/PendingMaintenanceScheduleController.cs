@@ -166,7 +166,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult createResponsible(List<Dictionary<string, object>> DataList, string PId)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -417,7 +417,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
             dr.EndEdit();
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult SaveDefault(IEnumerable<System.Web.HttpPostedFileBase> UploadDefault, string UploadDefault_data)
         {
             try
