@@ -604,7 +604,8 @@ namespace Aplos.Areas.Products.Controllers
                             LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
                             LEFT JOIN [TRN].[InventoryIssue] IRM ON  IRM.Id=IID.InventoryIssueId
                             LEFT join[ORG].[CostCenter] CC On CC.Id=IID.CostCenterId
-                            Where CAST(IRM.IssueDate AS DATE) between '" + fromDate + @"' and '" + toDate + "' and CC.Id='" + CostCenterId + "' AND IRM.MaterialStorageId='" + MaterialStorageId + "'";
+                            LEFT JOIN (SELECT DISTINCT InventoryIssueDetailId,MaterialStorageId FROM TRN.InventoryIssueHistory WHERE MaterialStorageId='"+ MaterialStorageId + @"' )IIH ON IIH.InventoryIssueDetailId=IID.Id
+                            Where CAST(IRM.IssueDate AS DATE) between '" + fromDate + @"' and '" + toDate + "' and CC.Id='" + CostCenterId + "' AND IIH.MaterialStorageId='" + MaterialStorageId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -703,7 +704,7 @@ namespace Aplos.Areas.Products.Controllers
                     --where IM.MaterialMasterId='" + MaterialMasterId + @"' ANd IM.ArticleId='" + ArticleId + @"' AND isnull(FirstCharacteristicsValueId,'')='" + FirstCharacteristicsValueId + @"' and isnull(SecondCharacteristicsValueId,'')='" + SecondCharacteristicsValueId + @"' AND isnull(ThirdCharacteristicsValueId,'')='" + ThirdCharacteristicsValueId + @"'
                     Where " + paramter + @"
                     --and a.InventoryReceiveDetailId='19304-1'
-                    AND CC.Id='" + CostCenterId + @"' --AND c.MaterialStorageId='" + MaterialStorageId + @"' AND IssueDate Between '" + fromDate + @"' and '" + toDate + @"'
+                    AND CC.Id='" + CostCenterId + @"' --AND a.MaterialStorageId='" + MaterialStorageId + @"' AND IssueDate Between '" + fromDate + @"' and '" + toDate + @"'
                     --group by a.InventoryReceiveDetailId
                     --, IM.MaterialMasterId, MM.UserName , IM.ArticleId, AR.StandardName 
                     --, IM.FirstCharacteristicsId, CH1.UserName , IM.FirstCharacteristicsValueId, CHV1.UserName 
@@ -752,7 +753,7 @@ namespace Aplos.Areas.Products.Controllers
                      --where IM.MaterialMasterId='" + MaterialMasterId + @"' ANd IM.ArticleId='" + ArticleId + @"' AND isnull(FirstCharacteristicsValueId,'')='" + FirstCharacteristicsValueId + @"' and isnull(SecondCharacteristicsValueId,'')='" + SecondCharacteristicsValueId + @"' AND isnull(ThirdCharacteristicsValueId,'')='" + ThirdCharacteristicsValueId + @"'
                     Where " + paramter + @"
                     --and a.InventoryReceiveDetailId='19304-1'
-                    AND CC.Id='" + CostCenterId + @"' AND c.MaterialStorageId='" + MaterialStorageId + @"' AND IssueDate Between '" + fromDate + @"' and '" + toDate + @"'
+                    AND CC.Id='" + CostCenterId + @"' AND a.MaterialStorageId='" + MaterialStorageId + @"' AND IssueDate Between '" + fromDate + @"' and '" + toDate + @"'
                     --group by a.InventoryReceiveDetailId
                     --, IM.MaterialMasterId, MM.UserName , IM.ArticleId, AR.StandardName 
                     --, IM.FirstCharacteristicsId, CH1.UserName , IM.FirstCharacteristicsValueId, CHV1.UserName 

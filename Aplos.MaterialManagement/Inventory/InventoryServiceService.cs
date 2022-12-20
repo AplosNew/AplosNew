@@ -366,20 +366,10 @@ namespace Library.MaterialManagement.Inventory
                             var ratio = _inventoryReceiveService.GetChargesRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.Amount + service.TotalTaxAmount) : service.Amount, isNonCreditable);
                             
                             if (itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
-                                UpdateInventoryDetail(service, ratio, ratio, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
+                                UpdatePOGRNBYChargesDetail(service, ratio, ratio, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
                             else if (itemDetail.CurrencyId == itemDetail.BaseCurrencyId)
-                                UpdateInventoryDetail(service, ratio, ratio, 1, itemDetail.IsNonCreditable);
+                                UpdatePOGRNBYChargesDetail(service, ratio, ratio, 1, itemDetail.IsNonCreditable);
 
-                            //if (itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
-                            //{
-                            //    service.InventoryReceiveId = id;
-                            //    UpdateInventoryDetail(service, ratio, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
-                            //}
-                            //else if (itemDetail.CurrencyId == itemDetail.BaseCurrencyId)
-                            //{
-                            //    service.InventoryReceiveId = id;
-                            //    UpdateInventoryDetail(service, ratio, 1, itemDetail.IsNonCreditable);
-                            //}
                         }
                         else
                         {
@@ -408,25 +398,7 @@ namespace Library.MaterialManagement.Inventory
                                     //item.ModelState = ModelState.Added;
                                     _receiveTaxRepository.Insert(inventoryReceiveTax);
                                 }
-                            //}
-                            //var isNonCreditable = _inventoryReceiveService.Query(t => t.Id == id).Select(t => t.IsNonCreditable).FirstOrDefault();//service.InventoryReceiveId
-                            //var ratio = _inventoryReceiveService.GetChargesRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.Amount + service.TotalTaxAmount) : service.Amount, isNonCreditable);
-                            //if (itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
-                            //{
-                            //    service.InventoryReceiveId = id;
-                            //    //UpdateInventoryDetail(service, ratio, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
-                            //}
-                            //else if (itemDetail.CurrencyId == itemDetail.BaseCurrencyId)
-                            //{
-                            //    service.InventoryReceiveId = id;
-                            //    //UpdateInventoryDetail(service, ratio, 1, itemDetail.IsNonCreditable);
-                            //}
-
-                        }
-
-
-                        
-                        //}//end
+                                                   }
 
                     }
                 }
@@ -809,7 +781,64 @@ namespace Library.MaterialManagement.Inventory
                 throw;
             }
         }
+        private void UpdatePOGRNBYChargesDetail(InventoryService service, decimal ratioServiceTax, decimal ratio, decimal currencyRate, bool isNonCreditable)
+        {
+            try
+            {
+                var detailList = _invRecDetailRepository.Query(t => t.InventoryReceiveId == service.InventoryReceiveId).Select().ToList();
+                if (detailList.IsNotNull())
+                {
+                    decimal Tax = 0;
+                    decimal serviceCN = 0;
+                    decimal Tax1 = 0;
+                    decimal serviceCN1 = 0;
+                    int i = 0;
+                    foreach (var item in detailList)
+                    {
+                        i++;
+                       
+                        if (i <= detailList.Count - 1)
+                        {
+                            item.ChargesTaxTranAmount = Math.Round(item.MaterialTranAmount * ratioServiceTax, 2);
+                            item.ChargesTranAmount = Math.Round(item.MaterialTranAmount * ratio, 2);
+                            Tax += Convert.ToDecimal(item.ChargesTaxTranAmount);
+                            serviceCN += Convert.ToDecimal(item.ChargesTranAmount);
+                        }
+                        else
+                        {
+                            var serviceex = _inventoryServiceRepository.Query(r => r.InventoryReceiveId == service.InventoryReceiveId).Select().ToList();
+                            if (serviceex != null)
+                            {
+                                Tax1 = serviceex.Sum(r => r.TotalTaxAmount);
+                                serviceCN1 = serviceex.Sum(r => r.Amount);
+                            }
 
+                            item.ChargesTaxTranAmount = Math.Round(Convert.ToDecimal(service.TotalTaxAmount + Tax1) - Tax, 2);
+                            item.ChargesTranAmount = Math.Round(Convert.ToDecimal(service.Amount + serviceCN1) - serviceCN, 2);
+                        }
+                        //item.ChargesTranAmount -= item.ChargesTaxTranAmount;//+ item.ChargesTaxTranAmount + item.ChargesTaxTranAmount
+                        item.TotalMaterialTranAmount = isNonCreditable ? Math.Round(Convert.ToDecimal(item.MaterialTranAmount + item.TotalTaxAmount + item.ChargesTranAmount + item.ChargesTaxTranAmount), 2) :
+                          Math.Round(Convert.ToDecimal(item.MaterialTranAmount + item.ChargesTranAmount), 2);
+                        //item.TotalMaterialBooksCurrencyAmount = item.MaterialTranAmount * currencyRate; 
+
+                        item.TotalMaterialBooksCurrencyAmount = isNonCreditable ? Math.Round(Convert.ToDecimal(item.MaterialTranAmount + item.TotalTaxAmount + item.ChargesTranAmount + item.ChargesTaxTranAmount) * Convert.ToDecimal(currencyRate), 2) :
+                                 Math.Round(Convert.ToDecimal(item.MaterialTranAmount + item.ChargesTranAmount) * Convert.ToDecimal(currencyRate), 2);
+
+
+                        item.TrnCurrencyBaseRate = Math.Round(item.TotalMaterialTranAmount / item.BaseQty, 4);
+                        item.BooksCurrencyBaseRate = Math.Round(item.TotalMaterialBooksCurrencyAmount / item.BaseQty, 4);
+                        item.ModelState = ModelState.Modified;
+                        AuditService.UpdatedLog(item);
+                        _invRecDetailRepository.Update(item);
+                    }
+                }
+                _unitOfWork.SaveChanges();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         private void UpdateOtherVendorChargesInventoryDetail(InventoryService service, decimal ratioServiceTax, decimal ratio, decimal currencyRate, bool isNonCreditable,string trnCurrencyId,string BaseCurrencyId)
         {
             try

@@ -83,13 +83,9 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
         $scope.POPopUpClose();
 
 
-    }    //$scope.loadArticleData = function (data) {    //    $http({
-    //        method: 'GET',
-    //        url: 'Products/InventoryIssue/IssueSlipMaterialAndArticleListForIssued?MaterialMasterId=' + data.MaterialMasterId + '&ArticleId=' + data.ArticleId + '&FirstCharacteristicsValueId=' + data.FirstCharacteristicsValueId + '&SecondCharacteristicsValueId=' + data.SecondCharacteristicsValueId + '&ThirdCharacteristicsValueId=' + data.ThirdCharacteristicsValueId + '&MaterialStorageId=' + $scope.productNew.MaterialStorageId + '&CostCenterId=' + data.CostCenterId + '&fromDate=' + $scope.productNew.FromDate1 + '&toDate=' + $scope.productNew.ToDate
-    //    }).then(function (response) {
-    //        $scope.detailListForArticle = response.data;
-    //    });
-    //}        $scope.staus = true;
+    }    $scope.CloseArticlePopUp = function () {
+        $scope.POPopUpClose();
+    }        $scope.staus = true;
     $scope.enableid = true;
     $scope.Change = function (event, index, x) {
         //debugger;
@@ -120,32 +116,17 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
             }
         }
 
-    }    $scope.detailListForArticle1 = [];    $scope.SaveSlipIssue = function () {
+    }    $scope.detailListForArticleNew = [];    $scope.SaveSlipIssue = function () {
+        $scope.detailListForArticleNew = [];
         //debugger;
         var gridObj = $("#GridTest1").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        //for (var k = 0; k < $scope.detailListForArticle.length; k++) {
 
-        //    if ($scope.detailListForArticle[k].Active === false) {
-        //        ShowResult("Select atleast one line items");
-        //        return false;
-        //    }
-
-        //}
-           
-
-        
-       
         for (var i = 0; i < $scope.detailListForArticle.length; i++) {
 
             if ($scope.detailListForArticle[i].Active === true) {
-                $scope.detailListForArticle1.push($scope.detailListForArticle[i])
+                $scope.detailListForArticleNew.push($scope.detailListForArticle[i])
             }
-            //if ($scope.detailListForArticle1.length === 0) {
-            //    ShowResult("Select Atleast one line items");
-            //    return false;
-            //}
-
         }
         for (var j = 0; j < $scope.detailListForArticle.length; j++) {
             // if ($scope.detailListForArticle[j].Active === true) {
@@ -170,7 +151,7 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
                 , url: $scope.saveUrl
                 , data: {
                     entities: null
-                    , specificStockList: $scope.detailListForArticle1
+                    , specificStockList: $scope.detailListForArticleNew
                     , inventoryIssue: $scope.productNew
                     , IssueTypeStatus: null
 
@@ -197,7 +178,7 @@ function IssueReturnController($window, cboService, commonMessage, $scope, $root
                 , url: $scope.saveUrl
                 , data: {
                     entities: null
-                    , specificStockList: $scope.detailListForArticle1
+                    , specificStockList: $scope.detailListForArticleNew
                     , inventoryIssue: $scope.productNew
                     , IssueTypeStatus: null
 
