@@ -610,6 +610,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                                 "MaterialMasterId": poboqlist[i].MaterialMasterId, "ArticleId": poboqlist[i].ArticleId
                                 , "FirstCharacteristicsValueId": poboqlist[i].FirstCharacteristicsValueId
                                 , "SecondCharacteristicsValueId": poboqlist[i].SecondCharacteristicsValueId
+                                , "SecondCharacteristicsValue": poboqlist[i].SecondCharacteristicsValue
                                 , "ThitrdCharacteristicsValueId": poboqlist[i].ThitrdCharacteristicsValueId
                                 , "GroupId": poboqlist[i].GroupId
                             });
@@ -634,6 +635,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                                         && row.ArticleId == getRow[0].ArticleId
                                         && row.FirstCharacteristicsValueId == getRow[0].FirstCharacteristicsValueId
                                         && row.SecondCharacteristicsValueId == getRow[0].SecondCharacteristicsValueId
+                                        && row.SecondCharacteristicsValue == getRow[0].SecondCharacteristicsValue
                                         && row.ThitrdCharacteristicsValueId == getRow[0].ThitrdCharacteristicsValueId
                                         && row.GroupId == getRow[0].GroupId
                                     ) {
