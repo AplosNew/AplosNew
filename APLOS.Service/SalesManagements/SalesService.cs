@@ -1431,7 +1431,7 @@ namespace Library.Service.SalesManagements
 									, S.InvoiceNo, PPI.UserName AS BillTo, AM.StateId AS InvoicingStateId, ST.UserName AS InvoicingState, PPI.GSTIN AS InvoicingGSTIN
 									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId,S.BLNumber,S.ItemDescription,S.ComercialInvoiceNo,S.EXPFromNo,S.EXPDate,S.BLDate
-                                    , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark,S.AddedDate,s.AddedBy,S.AddedFromIP,FORMAT(S.UpdatedDate,'dd-MMM-yyyy') UpdatedDate,s.UpdatedBy,S.UpdatedFromIP
+                                    , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark,S.AddedDate,s.AddedBy,S.AddedFromIP,FORMAT(S.UpdatedDate,'dd-MMM-yyyy') UpdatedDate,s.UpdatedBy,S.UpdatedFromIP,S.IsAdditionalInfoApplicable
 									FROM [TRN].[Sales] AS S
                                     LEFT JOIN [ORG].[Company] AS CO ON CO.Id=S.CompanyId
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
@@ -1621,6 +1621,7 @@ namespace Library.Service.SalesManagements
                     EXPDate = voucherVM.EXPDate,
                     EXPFromNo = voucherVM.EXPFromNo,
                     ComercialInvoiceNo = voucherVM.ComercialInvoiceNo,
+                    IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable,
                     SourceType = "MasterOrderSales",
                     Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
@@ -1888,6 +1889,7 @@ namespace Library.Service.SalesManagements
                     BLDate = voucherVM.BLDate,
                     EXPDate = voucherVM.EXPDate,
                     EXPFromNo = voucherVM.EXPFromNo,
+                    IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable,
                     AddedBy = voucherVM.AddedBy,
                     AddedDate = voucherVM.AddedDate,
                     AddedFromIP = voucherVM.AddedFromIP,
