@@ -431,7 +431,7 @@
                                         <th>Sku1</th>
                                         <th>Sku2</th>
                                         <th colspan="2">Orginal POQty</th>
-                                        <th >Total POQty</th>
+                                        <th>Total POQty</th>
                                         <th colspan="2">PO RowQty</th>
                                         <th ng-show="GriddataSelected.length>0">Other GRN Received</th>
                                         <th ng-show="GriddataSelected.length===0">Other Acceptance Received</th>
@@ -458,6 +458,7 @@
                                         <th>MaterialLotNumber </th>
                                         <th>MaterialDiameter</th>
                                         <th>MaterialType</th>
+                                        <th>Action</th>
                                     </tr>
 
 
@@ -495,8 +496,8 @@
                                         <td>{{x.StandardName}}</td>
                                         <td>{{x.FirstCharacteristicsValue}}</td>
                                         <td>{{x.SecondCharacteristicsValue}}</td>
-                                        <td >{{x.OriginalPOQty}}</td>
-                                        <td class="text-right" >{{x.TransactionUoM}}</td>
+                                        <td>{{x.OriginalPOQty}}</td>
+                                        <td class="text-right">{{x.TransactionUoM}}</td>
                                         <td><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" style="width:100px;" ng-model="x.TotalPOQty" ng-disabled="true"></td>
                                         <td><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" style="width:100px;" ng-model="x.POQty" ng-disabled="true"></td>
                                         <td class="text-right">{{x.TransactionUoM}}</td>
@@ -535,6 +536,13 @@
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
+
+                                        <td class="text-right">
+                                            <ul class="list-inline action-list">
+                                                <li><button ng-click="DeleteGRNBOQDetailPopUp(x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                            </ul>
+                                        </td>
+
                                     </tr>
                                     <tr ng-show="MasterList.length">
                                         <td></td>
@@ -572,6 +580,8 @@
                                 </tbody>
                             </table>
                         </div>
+                        
+<confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="GRNBOQDetailDelete();"></confirm-archive-generic>
 
 
                         <div class="col-xs-12 col-sm-6 col-md-6">
