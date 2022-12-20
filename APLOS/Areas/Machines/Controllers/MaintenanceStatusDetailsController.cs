@@ -47,7 +47,7 @@ namespace Aplos.Areas.Machines.Controllers
 
         #region -- Pages
 
-        [HttpGet]
+        
         public ActionResult Aplos()
         {
             return View();
@@ -284,6 +284,7 @@ APD.Remarks
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
         public ActionResult LoadMaintenanceStatusPlannedListGetPlanDetails(string ToDate, string FromDate, string MaintenanceId, string MachineId, string AssetId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -402,7 +403,7 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeSt
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult createPlanned(List<Dictionary<string, object>> DataList)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -475,7 +476,7 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeSt
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult createResponsible(List<Dictionary<string, object>> DataList, string PId)
         {
             ConnectionManager.DAL.ConManager objCon;

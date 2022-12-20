@@ -35,7 +35,6 @@ namespace Aplos.Areas.Machines.Controllers
 
         #region -- Pages
 
-        [HttpGet]
         public ActionResult Aplos()
         {
             return View();
@@ -167,7 +166,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult createResponsible(List<Dictionary<string, object>> DataList, string PId)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -230,7 +229,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult createPlanned(List<Dictionary<string, object>> DataList)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -418,7 +417,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
             dr.EndEdit();
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult SaveDefault(IEnumerable<System.Web.HttpPostedFileBase> UploadDefault, string UploadDefault_data)
         {
             try

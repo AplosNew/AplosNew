@@ -64,17 +64,17 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
         }
     }
 
-    $scope.MaintenanceStatusDetailsList = [];
+    $scope.SkillManagementStatusDetailsList = [];
     $scope.View = function () {
         try {
             Validation();
             $http({
 
                 method: 'Get',
-                url: 'Machines/SkillManagementDetails/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDateMD + '&FromDate=' + $scope.statusNew.FromDateMD
+                url: 'Machines/SkillManagementDetails/LoadSkillManagementStatusDetailsList?ToDate=' + $scope.statusNew.ToDateMD + '&FromDate=' + $scope.statusNew.FromDateMD
             }).then(function successCallback(response) {
-                $scope.MaintenanceStatusDetailsList = response.data;
-                var gridObj = $("#GridMaintenanceStatusDetails").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+                $scope.SkillManagementStatusDetailsList = response.data;
+                var gridObj = $("#GridSkillManagementStatusDetails").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
             }
             )
         }
@@ -102,19 +102,19 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
         }
     }
 
-    $scope.refreshTemplateMachineAsset = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllMachineAsset });
+    $scope.refreshTemplateEmployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmployee });
     };
-    function CheckBoxSelectAllMachineAsset(e) {
+    function CheckBoxSelectAllEmployee(e) {
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
         }
 
-        var filtered = $("#GridPlannedMachineAsset").data("ejGrid").getFilteredRecords();
+        var filtered = $("#GridPlannedEmployee").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.MaintenanceStatusPlannedDetailsList.length; i++) {
-                $scope.MaintenanceStatusPlannedDetailsList[i].Flag = ChkOrUnchk;
+            for (var i = 0; i < $scope.SkillManagementStatusPlannedDetailsList.length; i++) {
+                $scope.SkillManagementStatusPlannedDetailsList[i].Flag = ChkOrUnchk;
             }
         }
         else {
@@ -122,7 +122,7 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
                 filtered[j].Flag = ChkOrUnchk;
             }
         }
-        var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        var gridObj = $("#GridPlannedEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
     $scope.refreshTemplateMachineAssetSummary = function (args) {
@@ -174,7 +174,7 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
     $scope.MachineId = null;
     $scope.MaintenanceId = null;
     $scope.EntityId = null;
-    $scope.MaintenanceStatusPlannedDetailsList = [];
+    $scope.SkillManagementStatusPlannedDetailsList = [];
     $scope.GetAssetPopUp = function (data, sample) {
         $scope.Test = sample;
         if ($scope.Test != 0) {
@@ -197,17 +197,18 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
 
     $scope.SD = null;
     $scope.GetDetails = function (args) {
-        $scope.MachineAssetId = args.data.AssetId;
-        $scope.MaintenanceId = args.data.Id;
-        $scope.MachineId = args.data.MachineMasterId;
+        $scope.EmployeeId = args.data.EmployeeId;
+        $scope.SMId = args.data.Id;
+        $scope.EntityId = args.data.EntityId;
+        $scope.PositionCodeId = args.data.PositionId;
         $scope.SD = args.data.SD;
         $http({
             method: 'Get',
-            url: 'Machines/SkillManagementDetails/LoadMaintenanceStatusPlannedListGetDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&AssetId=' + $scope.MachineAssetId
+            url: 'Machines/SkillManagementDetails/LoadSkillManagementStatusPlannedListGetDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&SMId=' + $scope.SMId + '&EntityId=' + $scope.EntityId + '&PositionId=' + $scope.PositionCodeId + '&EmployeeId=' + $scope.EmployeeId
         }).then(function successCallback(response) {
-            $scope.MaintenanceStatusPlannedDetailsList = response.data;
-            var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            angular.element(document.querySelector('#MachineAssetPop')).modal('show');
+            $scope.SkillManagementStatusPlannedDetailsList = response.data;
+            var gridObj = $("#GridPlannedEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#EmployeePopUp')).modal('show');
         }
         )
     }
@@ -223,16 +224,18 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
         }
         )
     }
-    
-    $scope.GetAssetPopUpGetDetails = function () {
+    $scope.ResMaintenanceId = null;
+    $scope.GetEmployeePopUpGetDetails = function () {
         $http({
             method: 'Get',
-            url: 'Machines/SkillManagementDetails/LoadMaintenanceStatusPlannedListGetPlanDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.MaintenanceId + '&MachineId=' + $scope.MachineId + '&AssetId=' + $scope.MachineAssetId
+            url: 'Machines/SkillManagementDetails/LoadSkillManagementStatusPlannedListGetPlanDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&SMId=' + $scope.SMId + '&EntityId=' + $scope.EntityId + '&PositionId=' + $scope.PositionCodeId + '&EmployeeId=' + $scope.EmployeeId
         }).then(function successCallback(response) {
-            $scope.MaintenanceStatusPlannedDetailsList = response.data;
-            $scope.PlannedId = response.data[0].Id;
-            var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            angular.element(document.querySelector('#MachineAssetPop')).modal('show');
+            $scope.SkillManagementStatusPlannedDetailsList = response.data;
+            $scope.PlannedId = response.data[0].PlannedId;
+            $scope.ResMaintenanceId = response.data[0].SMId;
+            var gridObj = $("#GridPlannedEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#EmployeePopUp')).modal('show');
+            $scope.GetReponsiblePersonPopUp($scope.PlannedId, $scope.ResMaintenanceId);
         }
         )
     }
@@ -274,8 +277,8 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
         angular.element(document.querySelector('#MachineAssetSummaryPop')).modal('hide');
     }
 
-    $scope.closeMachinePopUp = function () {
-        angular.element(document.querySelector('#MachineAssetPop')).modal('hide');
+    $scope.closeEmployeePopUp = function () {
+        angular.element(document.querySelector('#EmployeePopUp')).modal('hide');
     }
 
     $scope.closeResponsiblePersonPopUp = function () {
@@ -285,9 +288,9 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
     $scope.SavePlannedDetails = function () {
         try {
             $scope.SaveList = [];
-            for (var i = 0; i < $scope.MaintenanceStatusPlannedDetailsList.length; i++) {
-                if ($scope.MaintenanceStatusPlannedDetailsList[i].Flag == true) {
-                    $scope.SaveList.push($scope.MaintenanceStatusPlannedDetailsList[i]);
+            for (var i = 0; i < $scope.SkillManagementStatusPlannedDetailsList.length; i++) {
+                if ($scope.SkillManagementStatusPlannedDetailsList[i].Flag == true) {
+                    $scope.SaveList.push($scope.SkillManagementStatusPlannedDetailsList[i]);
                 }
             }
 
@@ -306,9 +309,8 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
                 else {
                     if ($scope.SD == 'Status Details')
                     {
-                        $scope.GetAssetPopUpGetDetails();
+                        $scope.GetEmployeePopUpGetDetails();
                         $scope.SD = null;
-                        $scope.GetReponsiblePersonPopUp($scope.PlannedId);
                     }
                     else
                     {
@@ -364,35 +366,16 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
         }
     };
 
-    //$scope.MaintenanceStatusSummaryReport = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'XlsMaintenanceStatusSummary?todate=' + $scope.statusNew.ToDate + '&fromDate=' + $scope.statusNew.FromDate,
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error === true) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //        else {
-
-    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-    //        }
-    //    }, function errorCallback(response) {
-    //        ShowResult(response.data.Message, 'failure');
-    //    });
-
-    //};
-
-    $scope.MaintenanceStatusSummaryReport = function () {
+    $scope.SkillManagementStatusSummaryReport = function () {
         var dataList = [];
-        var g = $("#GridMaintenanceStatusSummary").data("ejGrid");
+        var g = $("#GridSkillManagementStatusSummary").data("ejGrid");
         dataList = g.getFilteredRecords();
 
         if (dataList.length == 0) {
-            dataList = $scope.MaintenanceStatusSummaryList;
+            dataList = $scope.SkillManagementStatusSummaryList;
         }
 
-        $scope.fileName = "Maintenance Status Summary";
+        $scope.fileName = "Skill Management Status Summary";
 
         $http({
             method: 'POST',
@@ -411,35 +394,17 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
         });
     }
 
-    //$scope.MaintenanceStatusDetailsReport = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'XlsMaintenanceStatusDetails?todate=' + $scope.statusNew.ToDateMD + '&fromDate=' + $scope.statusNew.FromDateMD,
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error === true) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //        else {
-
-    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-    //        }
-    //    }, function errorCallback(response) {
-    //        ShowResult(response.data.Message, 'failure');
-    //    });
-
-    //};
-
-    $scope.MaintenanceStatusDetailsReport = function () {
+   
+    $scope.SkillManagementStatusDetailsReport = function () {
         var dataList = [];
-        var g = $("#GridMaintenanceStatusDetails").data("ejGrid");
+        var g = $("#GridSkillManagementStatusDetails").data("ejGrid");
         dataList = g.getFilteredRecords();
 
         if (dataList.length == 0) {
-            dataList = $scope.MaintenanceStatusDetailsList;
+            dataList = $scope.SkillManagementStatusDetailsList;
         }
 
-        $scope.fileName = "Maintenance Status Details";
+        $scope.fileName = "Skill Managemenet Status Details";
 
         $http({
             method: 'POST',
