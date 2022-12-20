@@ -2525,11 +2525,16 @@ namespace Library.MaterialManagement.Inventory
 
                 var DiscountAmount = "";
                 DiscountAmount = dtOrderMasterDetail.Rows[0]["DiscountAmount"].ToString();
-                document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dtOrderMasterDetail.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{GrandTotal}", ((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax).ToString("#,##0.00") + " " + dtOrderMasterDetail.Rows[0]["CurrencyName"].ToString(), true, true);
                 document.Replace("{DiscountAmount}", (DiscountAmount).ToString() + " " + dtOrderMasterDetail.Rows[0]["CurrencyName"].ToString(), true, true);
                 document.Replace("{AfterDiscountTotal}", ((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())).ToString("#,##0.00") + " " + dtOrderMasterDetail.Rows[0]["CurrencyName"].ToString(), true, true);
-                document.Replace("{TotalInWords}", ru.InWord(((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())), dtOrderMasterDetail.Rows[0]["CurrencyId"].ToString()), true, true);
+                document.Replace("{TotalInWords}", ru.InWord(((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString()) + clsStaticInfo.dbl(InventoryReceiveAdditionalTax.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())), dtOrderMasterDetail.Rows[0]["CurrencyId"].ToString()), true, true);
+
+
                 //document.Replace("{TrnAmount}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+
+                //document.Replace("{TCSAmount}",  dtOrderMasterDetail.Rows[0]["CurrencyName"].ToString(), true, true);
+
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 

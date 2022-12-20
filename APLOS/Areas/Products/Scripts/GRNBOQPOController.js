@@ -492,11 +492,15 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             url: $scope.path + 'GetReceiveTaxList?receiveDetailId=' + grnId
         }).then(function (response) {
             $scope.POMaterialTaxList = response.data;
+            $scope.receiveTaxList = response.data;
 
             for (var i = 0; i < $scope.MasterList.length; i++) {
                 var linepk = $scope.MasterList[i].InventoryReceiveDetailId;
                 var list = getPOMaterialtaxlist(linepk);
                 $scope.MasterList[i].POMaterialTaxList = list;
+            }
+            for (var j = 0; j < length; j++) {
+
             }
         });
     };
@@ -600,6 +604,30 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         }
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
     };
+
+    $scope.getReceiveTaxListPOAfterSave = function (data, flag, index, Id) {
+        $scope.receiveTaxindex = index;
+        $scope.taxAbleAmnt = data.TrnAmount;
+        $scope.percentageColumn = flag;
+        $scope.Currency = $("#currency option:selected").text();
+        $scope.currentMaterialRow = index;
+        $scope.currentInventoryReceiveDetailIdRow = Id;
+        $scope.taxAbleAmnt = data.TrnAmount;
+        $scope.percentageColumn = flag;
+        $scope.currentMaterialRow = index;
+        $scope.receiveTaxList = [];
+        if ($scope.POMaterialTaxList.length > 0) {
+            $scope.HSNCode = $scope.POMaterialTaxList[0].HSNCode;
+            $scope.receiveTaxList = $scope.POMaterialTaxList;
+        }
+        $scope.total = 0;
+        for (var j = 0; j < $scope.receiveTaxList.length; j++) {
+            $scope.total = $scope.total + $scope.receiveTaxList[j].TaxAmount;
+        }
+        angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
+    };
+
+
     $scope.Clear = function () {
         ClearFields();
         return true;
@@ -748,7 +776,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                     $scope.productId = response.data.Id;
                                     $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
                                     $scope.Action = 'Update';
-                                    //$scope.$scope.getReceiveTaxListPO(data.PODetailId);
+                                    $scope.GetGRNMaterialTaxData($scope.productNew.Id);
                                 }
                             }), function (response) {
                                 ShowResult(response.data.Message, 'failure');
@@ -843,7 +871,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         'receiveTaxList': $scope.POMaterialTaxList,
                         'chargesListPO': $scope.chargesListPOnew,
                         'POServiceTaxList': $scope.ServiceTaxList,
-                        'GRNType': 'GRNBYPO',
+                        'GRNType': 'GRNBYBOQ',
                         'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
                         'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
                         'BOQAllocation': JSON.stringify($scope.MasterListNewBOQ)
@@ -2188,4 +2216,36 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
         });
     }
+
+
+    $scope.DeleteGRNBOQDetailPopUp = function (data) {
+        $scope.tempData = data;
+        $scope.message = 'Are you sure want to permanently delete this?';
+        angular.element(document.querySelector('#removePopUp')).modal('show');
+    };
+    $scope.DeleteGRNBOQDetail = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Products/GoodsReceiveNote/GRNBOQDetailDelete',
+                data:
+                {
+                    'entity': $scope.tempData,
+                },
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Id = null;
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
+
 }
