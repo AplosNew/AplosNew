@@ -871,7 +871,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         'receiveTaxList': $scope.POMaterialTaxList,
                         'chargesListPO': $scope.chargesListPOnew,
                         'POServiceTaxList': $scope.ServiceTaxList,
-                        'GRNType': 'GRNBYPO',
+                        'GRNType': 'GRNBYBOQ',
                         'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
                         'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
                         'BOQAllocation': JSON.stringify($scope.MasterListNewBOQ)
