@@ -747,7 +747,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                     $scope.productNew.Id = response.data.entity.Id;
                                     $scope.productId = response.data.Id;
                                     $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
-                                    //$scope.SaveButton = true;
+                                    $scope.Action = 'Update';
+                                    //$scope.$scope.getReceiveTaxListPO(data.PODetailId);
                                 }
                             }), function (response) {
                                 ShowResult(response.data.Message, 'failure');

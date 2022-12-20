@@ -8,7 +8,7 @@ function OutPassRegisterController(accountService, addressService, $window, fact
 
 	$scope.fileName = "GatePass.xlsx";
 	$scope.GateAgainstGatePassExl = function () {
-
+		debugger
 		$http({
 			method: 'POST',
 			url: 'Products/OutPassRegister/GateAgainstGatePassExl',

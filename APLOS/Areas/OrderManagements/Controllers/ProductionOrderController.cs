@@ -254,6 +254,18 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetWorkCenterListByEntityandFirstProcess(string entityId, string processId)
+        {
+            return Json(_productionOrderService.GetWorkCenterListByEntityandFirstProcess(entityId, processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetSavedWorkCenterListByEntityandFirstProcess(string productionOrderId)
+        {
+            return Json(_productionOrderService.GetSavedWorkCenterListByEntityandFirstProcess(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetProductionOrderWorkCenterList(string productionOrderId)
         {
             return Json(_productionOrderService.GetProductionOrderWorkCenterList(productionOrderId), JsonRequestBehavior.AllowGet);
@@ -263,7 +275,8 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
         public JsonResult Create(ProductionOrder master, IEnumerable<ProductionOrderDetail> detaillist
             , IEnumerable<ProductionOrderProcessSet> processSetlist
             , IEnumerable<ProductionOrderEntity> entitylist
-            , IEnumerable<ProductionOrderWorkCenter> workcenterlist)
+            , IEnumerable<ProductionOrderWorkCenter> workcenterlist
+             , IEnumerable<ProductionOrderFirstProcessWorkCenter> fpworkcenterlist)
         {
 
             try
@@ -374,7 +387,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
                     master.UpdatedDate = System.DateTime.Now;
                     master.UpdatedFromIP = identity.IPAddress;
 
-                    _productionOrderService.UpdateGraph(master, detaillist, processSetlist, entitylist, workcenterlist, dtRunningOrderPreference);
+                    _productionOrderService.UpdateGraph(master, detaillist, processSetlist, entitylist, workcenterlist, dtRunningOrderPreference, fpworkcenterlist);
 
                     mo.GenerateLogForTnA(master.Id, TaskAppliedOnEnum.ProductionOrder);
                 }

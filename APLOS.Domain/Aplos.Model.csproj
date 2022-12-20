@@ -372,6 +372,7 @@
     <Compile Include="Configurations\Machines\ThirdPartyOperationConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\MasterOrderTNAConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\DispatchUnitArticleConfiguration.cs" />
+    <Compile Include="Configurations\OrderManagements\ProductionOrderFirstProcessWorkCenterConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\RunningOrderParametersConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\SalesOrderTaxConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\PackingListMasterConfiguration.cs" />
@@ -773,6 +774,7 @@
     <Compile Include="OrderManagements\DispatchUnitSKU.cs" />
     <Compile Include="OrderManagements\DispatchUnitMaster.cs" />
     <Compile Include="OrderManagements\DispatchUnitArticle.cs" />
+    <Compile Include="OrderManagements\ProductionOrderFirstProcessWorkCenter.cs" />
     <Compile Include="OrderManagements\RunningOrderParameters.cs" />
     <Compile Include="OrderManagements\SalesOrderTax.cs" />
     <Compile Include="OrderManagements\PackingListMaster.cs" />

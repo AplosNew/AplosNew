@@ -214,14 +214,15 @@ namespace Library.Accounting.Accounts
                 throw;
             }
         }
-        private IEnumerable<BankReconciliationUploadedData> GetBankReconciliationUploadedData(string companyId, string plantId, string bankReconciliationUploadId)
+        private DataTable GetBankReconciliationUploadedData(string companyId, string plantId, string bankReconciliationUploadId)
         {
             try
             {
                 var sql = @"SELECT Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, DrAmount, CrAmount, Remarks, OwnRefNo
-                            FROM TRN.BankReconciliationUploadedData 
+                            ,CASE WHEN (select count(BankReconciliationUploadedDataId) from TRN.BankReconciliationMap where BankReconciliationUploadedDataId= BRUD.Id)>0 THEN 'Yes' ELSE 'No' END ReconciliationedStatus
+                            FROM TRN.BankReconciliationUploadedData BRUD
                             where BankReconciliationUploadId='" + bankReconciliationUploadId + @"' ";
-                return _sqlRepository.GetModelCollection<BankReconciliationUploadedData>(sql);
+                return _sqlRepository.GetDataTable(sql);
             }
             catch (CustomException)
             {
@@ -2484,14 +2485,13 @@ namespace Library.Accounting.Accounts
                 throw ex;
             }
         }
-        private void GetBankReconciliationUploadedDataReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string sheetHeader, string sheetName
-            , string companyId, string plantId, string bankReconciliationUploadId)
+        private void GetBankReconciliationUploadedDataReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string sheetHeader, string sheetName, string companyId, string plantId, string bankReconciliationUploadId)
         {
-            IEnumerable<BankReconciliationUploadedData> dataList;
-            dataList = GetBankReconciliationUploadedData(companyId, plantId, bankReconciliationUploadId);
+            //IEnumerable<BankReconciliationUploadedDataViewModel> dataList;
+            DataTable dataList = GetBankReconciliationUploadedData(companyId, plantId, bankReconciliationUploadId);
                    
 
-            if (dataList.Count() == 0) throw new Exception("No Data Found!");
+            if (dataList.Rows.Count == 0) throw new Exception("No Data Found!");
 
             var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
 
@@ -2577,12 +2577,13 @@ namespace Library.Accounting.Accounts
 
             reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Id", 24); headreColIndex++;
             reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Date", 24); headreColIndex++;
-            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "BankRefNo", 24); headreColIndex++;
-            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "BankParticulars", 24); headreColIndex++;
-            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "DrAmount", 24, ExcelHAlign.HAlignRight); headreColIndex++;
-            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "CrAmount", 24, ExcelHAlign.HAlignRight); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Bank RefNo", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Bank Particulars", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Dr Amount", 24, ExcelHAlign.HAlignRight); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Cr Amount", 24, ExcelHAlign.HAlignRight); headreColIndex++;
             reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Remarks", 24); headreColIndex++;
-            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "OwnRefNo", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Own RefNo", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Reconciliationed Status", 24); headreColIndex++;
 
 
 
@@ -2591,18 +2592,19 @@ namespace Library.Accounting.Accounts
             double trnCurrencyAmount = 0;
             double baseCurrencyAmount = 0;
 
-            foreach (var item in dataList)
+            for (int i = 0; i < dataList.Rows.Count; i++)
             {
                 _rowL++;
-                reportUtility.SetText(ref sheet, _rowL, 1, item.Id);
-                reportUtility.SetText(ref sheet, _rowL, 2, Convert.ToDateTime(item.BankStatementDate).ToString("dd-MMM-yyyy"));
-                reportUtility.SetText(ref sheet, _rowL, 3, item.BankRefNo);
-                reportUtility.SetText(ref sheet, _rowL, 4, item.BankParticulars);
-                reportUtility.SetText(ref sheet, _rowL, 5, Convert.ToDouble(item.DrAmount));
-                reportUtility.SetText(ref sheet, _rowL, 6, Convert.ToDouble(item.CrAmount));
-                reportUtility.SetText(ref sheet, _rowL, 7, item.Remarks);
-                reportUtility.SetText(ref sheet, _rowL, 8, item.OwnRefNo);
-              
+                reportUtility.SetText(ref sheet, _rowL, 1, dataList.Rows[i]["Id"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 2, dataList.Rows[i]["BankStatementDate"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 3, dataList.Rows[i]["BankRefNo"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 4, dataList.Rows[i]["BankParticulars"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 5, Convert.ToDouble(dataList.Rows[i]["DrAmount"].ToString()));
+                reportUtility.SetText(ref sheet, _rowL, 6, Convert.ToDouble(dataList.Rows[i]["CrAmount"].ToString()));
+                reportUtility.SetText(ref sheet, _rowL, 7, dataList.Rows[i]["Remarks"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 8, dataList.Rows[i]["OwnRefNo"].ToString());
+                reportUtility.SetText(ref sheet, _rowL, 9, dataList.Rows[i]["ReconciliationedStatus"].ToString());
+
             }
 
             _rowL++;
