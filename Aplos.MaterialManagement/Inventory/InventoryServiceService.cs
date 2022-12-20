@@ -364,16 +364,22 @@ namespace Library.MaterialManagement.Inventory
                             }
                             var isNonCreditable = _inventoryReceiveService.Query(t => t.Id == id).Select(t => t.IsNonCreditable).FirstOrDefault();//service.InventoryReceiveId
                             var ratio = _inventoryReceiveService.GetChargesRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.Amount + service.TotalTaxAmount) : service.Amount, isNonCreditable);
+                            
                             if (itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
-                            {
-                                service.InventoryReceiveId = id;
-                                //UpdateInventoryDetail(service, ratio, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
-                            }
+                                UpdateInventoryDetail(service, ratio, ratio, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
                             else if (itemDetail.CurrencyId == itemDetail.BaseCurrencyId)
-                            {
-                                service.InventoryReceiveId = id;
-                                //UpdateInventoryDetail(service, ratio, 1, itemDetail.IsNonCreditable);
-                            }
+                                UpdateInventoryDetail(service, ratio, ratio, 1, itemDetail.IsNonCreditable);
+
+                            //if (itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
+                            //{
+                            //    service.InventoryReceiveId = id;
+                            //    UpdateInventoryDetail(service, ratio, Convert.ToDecimal(itemDetail.ToCurrencyRate), itemDetail.IsNonCreditable);
+                            //}
+                            //else if (itemDetail.CurrencyId == itemDetail.BaseCurrencyId)
+                            //{
+                            //    service.InventoryReceiveId = id;
+                            //    UpdateInventoryDetail(service, ratio, 1, itemDetail.IsNonCreditable);
+                            //}
                         }
                         else
                         {
