@@ -440,6 +440,8 @@
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
+                                        <th class="col-sm-1">Action</th>
+                                        <th>Copy SO</th>
                                         <th>Code</th>
                                         <th>Inquiry</th>
                                         <th>Sample No</th>
@@ -459,8 +461,6 @@
                                         <th>Product Library</th>
                                         <th>Order Costing</th>
                                         <th>Product</th>
-                                        <th class="col-sm-1">Action</th>
-                                        <th>Copy SO</th>
                                         <th>Contract No</th>
                                         <th>MasterLC No</th>
                                         <th>Type</th>
@@ -475,112 +475,6 @@
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="x in itemList">
-                                        <td>{{x.Id}}</td>
-                                        <td>{{x.Inquiry}}</td>
-                                        <td>{{x.SampleNo}}</td>
-                                        <td>
-                                            <div class="input-group">
-                                                <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
-                                                <span class="input-group-btn">
-                                                    <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-
-                                            <div class="input-group">
-                                                <input type="text" name="Customer" ng-model="x.ArticleName" class="form-control" readonly style="width: 200px;">
-                                                <span class="input-group-btn">
-                                                    <button ng-click="getArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="clearArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                    <button ng-click="getArticleValue(x.ArticleId, x.MaterialMasterName, x.ArticleName,x.BuyerReferenceNo);" class="btn single-small-btn" ng-disabled="x.ArticleId==null"><i class="glyphicon glyphicon-list-alt"></i></button>
-                                                    <button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn single-small-btn tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null"><i class="glyphicon glyphicon-plus-sign"></i></button>
-                                                </span>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="select-style">
-                                                <select class="form-control" ng-model="x.TestingStandardId"
-                                                        ng-options="item.Value as item.Text for item in itemTestingStandardList" style="width: 80px;">
-                                                    <option value="">--Select--</option>
-                                                </select>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <input type="text" ng-model=" x.ProductionGrouping" class="form-control">
-                                        </td>
-                                        <td>
-                                            <input type="text" ng-model=" x.BuyerReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
-                                        </td>
-                                        <td>
-                                            <input type="text" ng-model=" x.OwnReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
-                                        </td>
-                                        <td>
-                                            <input type="text" n-decimals="2" ng-model=" x.TotalQty" class="form-control text-right" />
-                                        </td>
-                                        <td class="text-right">
-                                            <label ng-class="{'control-label redClr':x.SOQty != x.TotalQty, 'control-label': x.SOQty == x.TotalQty}">
-                                                {{x.SOQty}}
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <div class="select-style">
-                                                @*<select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
-
-                                                         <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
-                                                        <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
-                                                    </select>*@
-                                                <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId"
-                                                        ng-options="item.Value as item.Text for item in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}"
-                                                        ng-selected="x.ByDefault == item.ByDefault"></select>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">
-                                        </td>
-                                        <td>
-                                            <input type="text" n-decimals="2" ng-model=" x.ExtraOrderPercentage" ng-disabled="!fileNew.IsExtraOrderPercentage" class="form-control text-right">
-                                        </td>
-                                        <td>
-                                            <button ng-click="GetMOSORatePopup($index,x);" style="background: yellow;" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
-                                        </td>
-                                        <td>
-                                            <div class="checkbox-site">
-                                                <label class="control-label">
-                                                    <input type="checkbox" ng-model="x.IsRepeat" ng-checked="x.IsRepeat">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </td>
-                                        @*<td>
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="x.ProductLibraryId"
-                                                            ng-options="item.Value as item.Text for item in ProductLibraryList" style="width: 180px;">
-                                                        <option value="">--Select--</option>
-                                                    </select>
-                                                </div>
-                                            </td>*@
-                                        <td>
-                                            <div class="input-group">
-                                                <input type="text" name="ProductLibrary" ng-model="x.ProductLibrary" class="form-control" readonly style="width: 200px;">
-                                                <span class="input-group-btn">
-                                                    <button ng-click="GetProductLibraryList($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="clearProductLibrary($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="input-group">
-                                                <input type="text" name="ProductLibrary" ng-model="x.OrderCostingMasterTemplate" class="form-control" readonly style="width: 200px;">
-                                                <span class="input-group-btn">
-                                                    <button ng-click="ShowOrderCostingMasterTemplatePopUp($index,x.ArticleId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="clearOrderCosting($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>{{x.ProductMaster}}</td>
-
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 @*<li><button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
@@ -610,9 +504,104 @@
                                                 </span>
                                             </div>
                                         </td>
+                                        <td>{{x.Id}}</td>
+                                        <td>{{x.Inquiry}}</td>
+                                        <td>{{x.SampleNo}}</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
+                                                <span class="input-group-btn">
+                                                    <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+
+                                            <div class="input-group">
+                                                <input type="text" name="Customer" ng-model="x.ArticleName" class="form-control" readonly style="width: 200px;">
+                                                <span class="input-group-btn">
+                                                    <button ng-click="getArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="clearArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                    <button ng-click="getArticleValue(x.ArticleId, x.MaterialMasterName, x.ArticleName,x.BuyerReferenceNo);" class="btn single-small-btn" ng-disabled="x.ArticleId==null"><i class="glyphicon glyphicon-list-alt"></i></button>
+                                                    <button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn single-small-btn tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null"><i class="glyphicon glyphicon-plus-sign"></i></button>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="select-style">
+                                                <select class="form-control" ng-model="x.TestingStandardId"
+                                                        ng-options="item.Value as item.Text for item in itemTestingStandardList" style="width: 80px;">
+                                                    <option value="">--Select--</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="text" ng-model=" x.ProductionGrouping" class="form-control">
+                                        </td>
+                                        <td>
+                                            <input type="text" ng-model=" x.BuyerReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
+                                        </td>
+                                        <td>
+                                            <input type="text" ng-model=" x.OwnReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
+                                        </td>
+                                        <td>
+                                            <input type="text" n-decimals="2" ng-model=" x.TotalQty" class="form-control text-right" />
+                                        </td>
+                                        <td class="text-right">
+                                            <label ng-class="{'control-label redClr':x.SOQty != x.TotalQty, 'control-label': x.SOQty == x.TotalQty}">
+                                                {{x.SOQty}}
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <div class="select-style">
+                                                @*<select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
+
+                     <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
+                    <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
+                </select>*@
+                                                <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId"
+                                                        ng-options="item.Value as item.Text for item in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}"
+                                                        ng-selected="x.ByDefault == item.ByDefault"></select>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">
+                                        </td>
+                                        <td>
+                                            <input type="text" n-decimals="2" ng-model=" x.ExtraOrderPercentage" ng-disabled="!fileNew.IsExtraOrderPercentage" class="form-control text-right">
+                                        </td>
+                                        <td>
+                                            <button ng-click="GetMOSORatePopup($index,x);" style="background: yellow;" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox-site">
+                                                <label class="control-label">
+                                                    <input type="checkbox" ng-model="x.IsRepeat" ng-checked="x.IsRepeat">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-group">
+                                                <input type="text" name="ProductLibrary" ng-model="x.ProductLibrary" class="form-control" readonly style="width: 200px;">
+                                                <span class="input-group-btn">
+                                                    <button ng-click="GetProductLibraryList($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="clearProductLibrary($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-group">
+                                                <input type="text" name="ProductLibrary" ng-model="x.OrderCostingMasterTemplate" class="form-control" readonly style="width: 200px;">
+                                                <span class="input-group-btn">
+                                                    <button ng-click="ShowOrderCostingMasterTemplatePopUp($index,x.ArticleId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="clearOrderCosting($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>{{x.ProductMaster}}</td>
                                         <td>{{x.ContractNo}}</td>
                                         <td>{{x.LCRef}}</td>
-
                                         <td>
                                             <div class="select-style">
                                                 <select name="Type" class="form-control" ng-model="x.Type" ng-change="ChangeJobType($index);"

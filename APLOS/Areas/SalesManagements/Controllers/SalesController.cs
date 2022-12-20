@@ -69,6 +69,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             return View("~/Areas/SalesManagements/Views/EInvoice.cshtml");
         }
+        public ActionResult AdditionalInfo()
+        {
+            return View("~/Areas/SalesManagements/Views/AdditionalInfo.cshtml");
+        }
         [HttpGet, Authorize]
         public ActionResult GetMaterialSalesList(GridParameter parameters)
         {
@@ -538,7 +542,19 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
-            return Json(_accountsSalesService.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_accountsSalesService.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+
+        [HttpPost, Authorize]
+        public JsonResult GetPostedMasterOrderSalesList(string column, string value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(clsSales.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [HttpPost]
