@@ -12,6 +12,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     $scope.prdProcessSetList = [];
     $scope.productionEntityList = [];
     $scope.productionWorkCenterList = [];
+    $scope.productionFPWorkCenterList = [];
     $scope.bulletintab = true;
 
     $scope.path = 'OrderManagements/ProductionOrder/';
@@ -181,7 +182,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     };
     $scope.getData();
 
-
     //cboService.getCboProductionEntityByPlant(null, null, $window.plantId, function (result)
     //{
     //    $scope.entityList = result;
@@ -196,9 +196,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.getAllEntities();
-
-
-
 
     cboService.getProductionStatusCboByGroup(function (result) {
         $scope.productionStatusList = result;
@@ -342,7 +339,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
     }
 
-
     $scope.refreshTemplateSOItem = function (args) {
         if (args.rowIndex == 0) {
             //$("#headchk").ejCheckBox({ "change": headCheckChangeSOItem });
@@ -365,7 +361,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
         $($("#GridSOItem .rowCheckbox")[args.rowIndex]).ejCheckBox({ "change": checkChangeSOItem });
     }
-
 
     $scope.searchByList = [
         //{
@@ -507,7 +502,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     }
     //$scope.getMenu();
 
-
     function getProductionProcessSetList() {
         $http({
             method: 'GET',
@@ -515,6 +509,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }).then(function successCallback(response) {
             $scope.prdProcessSetList = response.data;
             for (var i = 0; i < $scope.prdProcessSetList.length; i++) {
+                if ($scope.prdProcessSetList[i].Sequence == 1) {
+                    $scope.processId = $scope.prdProcessSetList[i].ProcessId;
+                }
                 UomCboByFGMaterialMaster($scope.prdProcessSetList[i].MaterialMasterId);
             }
 
@@ -541,6 +538,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }).then(function successCallback(response) {
             $scope.productionWorkCenterList = response.data;
             $scope.getProductionBulletinData($scope.model.Id);
+            $scope.GetSavedWorkCenterListByEntityandFirstProcess();
         });
     }
 
@@ -661,6 +659,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                         , 'processSetlist': $scope.prdProcessSetList
                         , 'entitylist': $scope.productionEntityList
                         , 'workcenterlist': $scope.productionWorkCenterList
+                        , 'fpworkcenterlist': $scope.productionFPWorkCenterList
                         //, 'UploadDefault': push
                     }
                     , dataType: 'JSON'
@@ -779,6 +778,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.MCtotalMP = 0;
         $scope.NonMCtotalMP = 0;
         $scope.PicFileName = virtualPath.ProductionBulletinImage + '';
+        $scope.productionFPWorkCenterList = [];
     }
     $scope.Clear();
 
@@ -1325,9 +1325,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (response) {
             if (baseService.arrayLength(response) > 0) {
                 angular.forEach(response, function (item, i) {
-                   // if (checkExistList($scope.uOMList, item.Value) === false) {
-                        $scope.uOMList.push(item);
-                   // }
+                    // if (checkExistList($scope.uOMList, item.Value) === false) {
+                    $scope.uOMList.push(item);
+                    // }
                     if (!baseService.isUndefinedOrNull($scope.itemIndex)) {
                         $scope.prdProcessSetList[$scope.itemIndex].UOMId = item.Value;
                     }
@@ -1702,6 +1702,98 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.CloseWorkCenterPopUp();
     }
 
+    $scope.processId = null;
+    $scope.workCenterFPList = [];
+    $scope.GetWorkCenterListByEntityandFirstProcess = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetWorkCenterListByEntityandFirstProcess?entityId=' + $scope.model.EntityId + '&processId=' + $scope.processId
+        }).then(function successCallback(res) {
+            $scope.workCenterFPList = res.data;
+
+            for (var j = 0; j < $scope.productionFPWorkCenterList.length; j++) {
+                if ($scope.productionFPWorkCenterList[j].WorkCenterMasterId === $scope.workCenterFPList[i].WorkCenterMasterId) {
+                    $scope.workCenterFPList[i].Selection = true;
+                }
+            }
+        });
+        var eDialog = $("#workCenterbyFPPopUp").data("ejDialog");
+        eDialog.open();
+    }
+
+    $scope.GetSavedWorkCenterListByEntityandFirstProcess = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetSavedWorkCenterListByEntityandFirstProcess?productionOrderId=' + $scope.model.Id
+        }).then(function successCallback(res) {
+            $scope.productionFPWorkCenterList = res.data;
+        });
+    }
+
+
+    $scope.refreshTemplateFPWC = function (args) {
+        $("#headchk").ejCheckBox({ "change": headCheckChangeFPWC });
+    };
+
+    function headCheckChangeFPWC(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridSelectWCFP").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.workCenterFPList.length; i++) {
+                $scope.workCenterFPList[i].Selection = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridSelectWCFP").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.CloseFPWC = function () {
+        try {
+            for (var i = 0; i < $scope.workCenterFPList.length; i++) {
+                if ($scope.workCenterFPList[i].Selection == true) {
+                    if (checkExistsFPWC($scope.productionFPWorkCenterList, $scope.workCenterFPList[i].WorkCenterMasterId) === false) {
+                        var ob = {};
+                        ob.Id = null;
+                        ob.ProcessId = $scope.processId;
+                        ob.WorkCenterMasterId = $scope.workCenterFPList[i].WorkCenterMasterId;
+                        ob.ProductionOrderId = $scope.model.Id;
+                        ob.Plant = $scope.workCenterFPList[i].Plant;
+                        ob.Entity = $scope.workCenterFPList[i].Entity;
+                        ob.Code = $scope.workCenterFPList[i].Code;
+                        ob.UserName = $scope.workCenterFPList[i].UserName;
+                        ob.Remark = $scope.workCenterFPList[i].Remark;
+
+                        $scope.productionFPWorkCenterList.push(ob);
+                    }
+                }
+            }
+
+
+
+            var eDialog = $("#workCenterbyFPPopUp").data("ejDialog");
+            eDialog.close();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    function checkExistsFPWC(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].WorkCenterMasterId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // #endregion  Work Center
 
@@ -3772,7 +3864,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     // #endregion
 
     // #endregion  ProductionBulletin
-
 
 
     // #region checkbox all for delete multi Operation

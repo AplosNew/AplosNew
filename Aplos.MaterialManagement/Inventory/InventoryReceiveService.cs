@@ -2714,6 +2714,7 @@ namespace Library.MaterialManagement.Inventory
 									LEFT JOIN DBO.[Contract] C on C.Id=xpo.ContractId
 									LEFT JOIN trn.MasterOrder MO on MO.Id=C.MasterOrderId
 									where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,Status =case when ir.Status ='Posting' then 'Posted' else 'To be Posted' end
 
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId

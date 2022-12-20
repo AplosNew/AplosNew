@@ -2022,6 +2022,12 @@ namespace Library.Service.Advances
                 if (!string.IsNullOrEmpty(voucherVM.BankMasterId))
                 {
                     var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
+                    if (string.IsNullOrEmpty(bankMaster.GLGeneralInfoId.ToString()))
+                        throw new CustomException("GL Id not found!");
+                    else if (string.IsNullOrEmpty(bankMaster.BudgetMasterId.ToString()))
+                        throw new CustomException("Budget Master Id not found!");
+                    else if (string.IsNullOrEmpty(bankMaster.ActivityId.ToString()))
+                        throw new CustomException("Activity Id not found!");
                     bankVoucherDetail.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
                     bankVoucherDetail.BudgetMasterId = bankMaster.BudgetMasterId;
                     bankVoucherDetail.ActivityId = bankMaster.ActivityId;
@@ -2031,6 +2037,12 @@ namespace Library.Service.Advances
                 else if (!string.IsNullOrEmpty(voucherVM.CashMasterId))
                 {
                     var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
+                    if (string.IsNullOrEmpty(cashMaster.GLGeneralInfoId.ToString()))
+                        throw new CustomException("GL Id not found!");
+                    else if (string.IsNullOrEmpty(cashMaster.BudgetMasterId.ToString()))
+                        throw new CustomException("Budget Master Id not found!");
+                    else if (string.IsNullOrEmpty(cashMaster.ActivityId.ToString()))
+                        throw new CustomException("Activity Id not found!");
                     bankVoucherDetail.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
                     bankVoucherDetail.BudgetMasterId = cashMaster.BudgetMasterId;
                     bankVoucherDetail.ActivityId = cashMaster.ActivityId;

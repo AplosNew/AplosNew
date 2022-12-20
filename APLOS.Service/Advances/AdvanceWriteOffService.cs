@@ -2586,6 +2586,12 @@ namespace Library.Service.Advances
                     if (voucherVM.PaymentSource == PaymentSource.Bank.ToString())
                     {
                         var bankMaster = _accountsCommonService.GetBankMaster(voucherDetailCr.BankMasterId);
+                        if (string.IsNullOrEmpty(bankMaster["GLGeneralInfoId"].ToString()))
+                            throw new CustomException("GL Id not found!");
+                        else if (string.IsNullOrEmpty(bankMaster["BudgetMasterId"].ToString()))
+                            throw new CustomException("Budget Master Id not found!");
+                        else if (string.IsNullOrEmpty(bankMaster["ActivityId"].ToString()))
+                            throw new CustomException("Activity Id not found!");
                         voucherDetailCr.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
                         voucherDetailCr.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
                         voucherDetailCr.ActivityId = bankMaster["ActivityId"].ToString();
@@ -2594,6 +2600,12 @@ namespace Library.Service.Advances
                     else if (voucherVM.PaymentSource == PaymentSource.Cash.ToString())
                     {
                         var cashMaster = _accountsCommonService.GetCashMaster(voucherDetailCr.CashMasterId);
+                        if (string.IsNullOrEmpty(cashMaster["GLGeneralInfoId"].ToString()))
+                            throw new CustomException("GL Id not found!");
+                        else if (string.IsNullOrEmpty(cashMaster["BudgetMasterId"].ToString()))
+                            throw new CustomException("Budget Master Id not found!");
+                        else if (string.IsNullOrEmpty(cashMaster["ActivityId"].ToString()))
+                            throw new CustomException("Activity Id not found!");
                         voucherDetailCr.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
                         voucherDetailCr.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
                         voucherDetailCr.ActivityId = cashMaster["ActivityId"].ToString();
