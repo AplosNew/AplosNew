@@ -47,7 +47,7 @@ namespace Aplos.Areas.Machines.Controllers
 
         #region -- Pages
 
-        [HttpGet]
+       
         public ActionResult Aplos()
         {
             return View();
@@ -130,7 +130,7 @@ where SM.IsActive=1 and EI.SystemId is not null
  and  Case when isnull((SELECT TOP 1 ActualDate from [TRN].[EmployeePlannedDetails] APD where APD.Id=EPD.Id
  ORDER BY APD.Id DESC),'')='' then GETDATE() else (SM.ScheduleDays+(select top 1 ActualDate from [TRN].[EmployeePlannedDetails] APD where APD.Id=EPD.Id
  ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + @"' 
- and (select count(Id) from [TRN].[EmployeePlannedDetails] APD where APD.EmployeeId=EI.SystemId  and 
+ and (select count(Id) from [TRN].[EmployeePlannedDetails] APD where APD.EmployeeId=EI.SystemId and APD.PositionCodeId=SPC.Id and APD.EntityId=SME.Id and
  APD.PlannedDate is not null and APD.ActualDate is null) = 0 order by Case when 
  isnull((SELECT TOP 1 ActualDate from [TRN].[EmployeePlannedDetails] APD where APD.Id=EPD.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() 
  else (SM.ScheduleDays + (select top 1 ActualDate from[TRN].[EmployeePlannedDetails] APD where APD.Id=EPD.Id ORDER BY APD.Id DESC)) end";
@@ -267,7 +267,7 @@ APD.Remarks
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,'' Id,(select top 1 Id from TRN.EmployeePlannedDetails where PositionCodeId=SPC.Id order by PlannedDate desc) as PlannedId,EI.SystemId as EmployeeId,EI.EmployeeName,
 P.Code as PositionCode,DIV.UserName Division,DEP.UserName EmpDepartment,S.UserName Section,SS.UserName SubSection,EB.Code as BudgetCode,P.Activity,DEG.UserName Designation,
-SM.Id as SMId,SPC.Id as PositionCodeId,SM.ScheduleDays,SM.AdvancePlanningDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails MPD where MPD.Id=APD.Id
+SM.Id as SMId,SPC.Id as PositionCodeId,E.UserName Entity,SPE.Id as EntityId,SM.ScheduleDays,SM.AdvancePlanningDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails MPD where MPD.Id=APD.Id
  ORDER BY MPD.Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails APD where APD.PositionCodeId=SPC.Id
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((SM.ScheduleDays+(select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId=SPC.Id
@@ -292,6 +292,7 @@ APD.Remarks
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
  left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id and APD.Id=(select top 1 Id from TRN.EmployeePlannedDetails MAPD where MAPD.PositionCodeId=SPC.Id order by MAPD.ActualDate desc)
  left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and EI.PositionID=SPC.PositionCodeId
+ left Join Org.Entity E ON E.Id=SPE.EntityId
  left Join ORG.Position P ON P.Id=EI.PositionID
  left join org.Division DIV ON DIV.Id=EI.DivisionId
  left join Org.Department DEP ON DEP.Id=EI.DepartmentId
@@ -304,14 +305,14 @@ APD.Remarks
  then GETDATE() else (SM.ScheduleDays + (select top 1 ActualDate from TRN.EmployeePlannedDetails APD where
  APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and SPC.Id = '" + PositionId + @"' and EI.SystemId = '" + EmployeeId + @"'
  and(select count(Id) from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id and APD.PlannedDate is not null
- and APD.ActualDate is null) = 0";
+ and APD.ActualDate is null and APD.EntityId=SPE.Id) = 0";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult LoadSkillManagementStatusPlannedListGetPlanDetails(string ToDate, string FromDate, string SMId, string EntityId, string PositionId, string EmployeeId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,SM.Id as SMId,SPC.Id as PositionCodeId,EI.SystemId as EmployeeId,EI.EmployeeName,
+            string sql = @"select CAST (CASE WHEN APD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,APD.Id,SM.Id as SMId,SPC.Id as PositionCodeId,SPE.Id as EntityId,EI.SystemId as EmployeeId,EI.EmployeeName,
 P.Code as PositionCode,DIV.UserName Division,DEP.UserName EmpDepartment,S.UserName Section,SS.UserName SubSection,EB.Code as BudgetCode,P.Activity,DEG.UserName Designation,
 SM.ScheduleDays,SM.AdvancePlanningDays,isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails MPD where MPD.Id=APD.Id
  ORDER BY MPD.Id DESC),'') as LastMaintenanceDate,
@@ -338,6 +339,7 @@ APD.Remarks
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
  left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id
  left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and EI.PositionID=SPC.PositionCodeId
+ left Join Org.Entity E ON E.Id=SPE.EntityId
  left Join ORG.Position P ON P.Id=EI.PositionID
  left join org.Division DIV ON DIV.Id=EI.DivisionId
  left join Org.Department DEP ON DEP.Id=EI.DepartmentId
@@ -432,7 +434,7 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeSt
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult createPlanned(List<Dictionary<string, object>> DataList)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -667,436 +669,6 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeSt
             }
         }
 
-
-        //[Authorize, HttpPost]
-        //public ActionResult XlsMaintenanceStatusSummary(string todate, string fromDate)
-        //{
-        //    try
-        //    {
-        //        var workbook = MaintenanceStatusSummaryReport(todate, fromDate);
-
-        //        var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "MaintenanceStatusSummary.xlsx";
-        //        string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-        //        workbook.SaveAs(fullPath);
-
-
-        //        return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        throw ex;
-        //    }
-        //}
-
-        //[Authorize, HttpPost]
-        //private IWorkbook MaintenanceStatusSummaryReport(string todate, string fromDate)
-        //{
-        //    var excelEngine = new ExcelEngine();
-        //    var report = new ReportUtility();
-        //    var workbook = report.GetWorkbook(ref excelEngine, 3);
-        //    workbook.Version = ExcelVersion.Excel2016;
-
-
-        //    var data = rsr.MaintenanceStatusSummaryReport(todate, fromDate);
-
-
-        //    var sheet = workbook.Worksheets[0];
-
-
-        //    #region sheet1
-        //    sheet.Name = "Maintenance Status Summary Report";
-
-        //    int ROW = 1;
-        //    int endCol = 1;
-        //    int COL = 1;
-
-        //    int COLHeader = 0;
-
-        //    report.SetHeaderText(ref sheet, ROW, COLHeader + 6, "Maintenance Status Summary Report :", 20, ExcelHAlign.HAlignCenter);
-        //    sheet.Range[ROW, COLHeader + 6, ROW, COLHeader + 7].Merge();
-        //    ROW++;
-        //    #region Grid Headers
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Entity", 12, ExcelHAlign.HAlignCenter);
-        //    int ColEntity = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Schedule Name", 12, ExcelHAlign.HAlignCenter);
-        //    int ColScheduleName = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Machine Name", 12, ExcelHAlign.HAlignCenter);
-        //    int ColMachineName = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Make", 12, ExcelHAlign.HAlignCenter);
-        //    int ColMake = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Model", 12, ExcelHAlign.HAlignCenter);
-        //    int ColModel = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Schedule Code", 15, ExcelHAlign.HAlignCenter);
-        //    int ColScheduleCode = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person BudgetCode", 15, ExcelHAlign.HAlignCenter);
-        //    int ColResponsiblePersonBudgetCode = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "No Of Asset", 12, ExcelHAlign.HAlignCenter);
-        //    int ColNoOfAsset = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Over Due", 12, ExcelHAlign.HAlignCenter);
-        //    int ColOverDue = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Due Today", 12, ExcelHAlign.HAlignCenter);
-        //    int ColDueToday = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Future Due", 12, ExcelHAlign.HAlignCenter);
-        //    int ColFutureDue = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Plan Status", 12, ExcelHAlign.HAlignCenter);
-        //    int ColPlanStatus = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 12, ExcelHAlign.HAlignCenter);
-        //    int ColRemarks = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Department", 12, ExcelHAlign.HAlignCenter);
-        //    int ColDepartment = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Maintenance Group", 12, ExcelHAlign.HAlignCenter);
-        //    int ColMaintenanceGroup = COL;
-
-        //    ROW++;
-        //    endCol = COL;
-        //    #endregion Headers
-
-        //    string MaintenanceEntity = "";
-        //    string MaintenanceScheduleName = "";
-
-        //    var startRow = 0;
-        //    var endRow = 0;
-        //    int RowIndex = ROW;
-        //    startRow = ROW;
-
-        //    int MaintenanceEntityRow = 0;
-        //    int MaintenanceScheduleNameRow = 0;
-
-
-        //    double[] arr = new double[4];
-
-        //    for (int i = 0; i < data.Rows.Count; i++)
-        //    {
-        //        if (MaintenanceEntity != data.Rows[i]["Entity"].ToString())
-        //        {
-        //            MaintenanceEntity = data.Rows[i]["Entity"].ToString();
-
-        //            sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
-
-        //            if (i != 0 && MaintenanceEntityRow != (ROW - 1))
-        //            {
-        //                sheet.Range[MaintenanceEntityRow, ColEntity, ROW - 1, ColEntity].Merge();
-        //                sheet.Range[MaintenanceEntityRow, ColEntity, ROW - 1, ColEntity].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //            }
-        //            MaintenanceEntityRow = ROW;
-        //        }
-
-        //        if (MaintenanceScheduleName != data.Rows[i]["ScheduleName"].ToString())
-        //        {
-        //            MaintenanceScheduleName = data.Rows[i]["ScheduleName"].ToString();
-        //            sheet[ROW, ColScheduleName].Text = data.Rows[i]["ScheduleName"].ToString();
-
-        //            if (i != 0 && MaintenanceScheduleNameRow != (ROW - 1))
-        //            {
-        //                sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].Merge();
-        //                sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //            }
-        //            MaintenanceScheduleNameRow = ROW;
-        //        }
-
-        //        sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
-        //        sheet[ROW, ColScheduleName].Text = data.Rows[i]["ScheduleName"].ToString();
-
-        //        sheet[ROW, ColMachineName].Text = data.Rows[i]["MachineName"].ToString();
-        //        sheet[ROW, ColMake].Text = data.Rows[i]["Make"].ToString();
-        //        sheet[ROW, ColModel].Text = data.Rows[i]["Model"].ToString();
-        //        sheet[ROW, ColScheduleCode].Text = data.Rows[i]["ScheduleCode"].ToString();
-
-        //        sheet[ROW, ColResponsiblePersonBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["ResponsiblePersonBudgetCode"].ToString());
-        //        sheet[ROW, ColNoOfAsset].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfAsset"].ToString());
-        //        sheet[ROW, ColOverDue].Number = clsStaticInfo.dbl(data.Rows[i]["OverDue"].ToString());
-        //        sheet[ROW, ColDueToday].Number = clsStaticInfo.dbl(data.Rows[i]["DueToday"].ToString());
-        //        sheet[ROW, ColFutureDue].Number = clsStaticInfo.dbl(data.Rows[i]["FutureDue"].ToString());
-        //        sheet[ROW, ColPlanStatus].Number = clsStaticInfo.dbl(data.Rows[i]["PlanStatus"].ToString());
-        //        sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
-        //        sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-        //        sheet[ROW, ColMaintenanceGroup].Text = data.Rows[i]["MaintenanceGroup"].ToString();
-
-
-        //        ROW++;
-
-        //    }
-
-        //    ROW++;
-
-
-        //    sheet.Range[ROW, ColEntity, ROW, endCol].CellStyle.Font.Bold = true;
-        //    endRow = ROW - 1;
-        //    endRow = ROW - 1;
-        //    #endregion sheet1
-
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    sheet.UsedRange.WrapText = true;
-        //    sheet.UsedRange.CellStyle.Font.Size = 8;
-        //    sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
-
-        //    ReportUtility reportUtility = new ReportUtility();
-        //    reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-        //    return workbook;
-        //}
-
-
-        //[Authorize, HttpPost]
-        //public ActionResult XlsMaintenanceStatusDetails(string todate, string fromDate)
-        //{
-        //    try
-        //    {
-        //        var workbook = MaintenanceStatusDetailsReport(todate, fromDate);
-
-        //        var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "MaintenanceStatusDetails.xlsx";
-        //        string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-        //        workbook.SaveAs(fullPath);
-
-
-        //        return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        throw ex;
-        //    }
-        //}
-
-        //[Authorize, HttpPost]
-        //private IWorkbook MaintenanceStatusDetailsReport(string todate, string fromDate)
-        //{
-        //    var excelEngine = new ExcelEngine();
-        //    var report = new ReportUtility();
-        //    var workbook = report.GetWorkbook(ref excelEngine, 3);
-        //    workbook.Version = ExcelVersion.Excel2016;
-
-
-        //    var data = rsr.MaintenanceStatusDetailsReport(todate, fromDate);
-
-
-        //    var sheet = workbook.Worksheets[0];
-
-
-        //    #region sheet1
-        //    sheet.Name = "Maintenance Status Details Report";
-
-
-
-        //    int ROW = 1;
-        //    int endCol = 1;
-        //    int COL = 1;
-        //    int COLHeader = 0;
-
-        //    report.SetHeaderText(ref sheet, ROW, COLHeader + 6, "Maintenance Status Details Report :", 15, ExcelHAlign.HAlignCenter);
-        //    sheet.Range[ROW, COLHeader + 6, ROW, COLHeader + 7].Merge();
-        //    ROW++;
-
-        //    #region Grid Headers
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Entity", 12, ExcelHAlign.HAlignCenter);
-        //    int ColEntity = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Schedule Name", 12, ExcelHAlign.HAlignCenter);
-        //    int ColScheduleName = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Machine Name", 12, ExcelHAlign.HAlignCenter);
-        //    int ColMachineName = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Make", 12, ExcelHAlign.HAlignCenter);
-        //    int ColMake = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Model", 12, ExcelHAlign.HAlignCenter);
-        //    int ColModel = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Schedule Code", 15, ExcelHAlign.HAlignCenter);
-        //    int ColScheduleCode = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person BudgetCode", 15, ExcelHAlign.HAlignCenter);
-        //    int ColResponsiblePersonBudgetCode = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Asset Name", 12, ExcelHAlign.HAlignCenter);
-        //    int ColAssetName = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Asset Code", 12, ExcelHAlign.HAlignCenter);
-        //    int ColAssetCode = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Work Center", 12, ExcelHAlign.HAlignCenter);
-        //    int ColWorkCenter = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Schedule Days", 12, ExcelHAlign.HAlignCenter);
-        //    int ColScheduleDays = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Planned Date", 12, ExcelHAlign.HAlignCenter);
-        //    int ColPlannedDate = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "LM.Date", 12, ExcelHAlign.HAlignCenter);
-        //    int ColLastMaintenanceDate = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "CM.Date", 12, ExcelHAlign.HAlignCenter);
-        //    int ColCurrentMaintanceDate = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Due Days", 12, ExcelHAlign.HAlignCenter);
-        //    int ColDueDays = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Over Due", 12, ExcelHAlign.HAlignCenter);
-        //    int ColOverDue = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Due Today", 12, ExcelHAlign.HAlignCenter);
-        //    int ColDueToday = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Future Due", 12, ExcelHAlign.HAlignCenter);
-        //    int ColFutureDue = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Standard Schedule Minutes", 12, ExcelHAlign.HAlignCenter);
-        //    int ColStandardScheduleMinutes = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 12, ExcelHAlign.HAlignCenter);
-        //    int ColRemarks = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Department", 12, ExcelHAlign.HAlignCenter);
-        //    int ColDepartment = COL;
-        //    COL++;
-
-        //    report.SetHeaderText(ref sheet, ROW, COL, "Maintenance Group", 12, ExcelHAlign.HAlignCenter);
-        //    int ColMaintenanceGroup = COL;
-
-        //    ROW++;
-        //    endCol = COL;
-        //    #endregion Headers
-
-        //    string MaintenanceEntity = "";
-        //    string MaintenanceScheduleName = "";
-
-        //    var startRow = 0;
-        //    var endRow = 0;
-        //    int RowIndex = ROW;
-        //    startRow = ROW;
-
-        //    int MaintenanceEntityRow = 0;
-        //    int MaintenanceScheduleNameRow = 0;
-
-
-        //    double[] arr = new double[4];
-
-        //    for (int i = 0; i < data.Rows.Count; i++)
-        //    {
-        //        if (MaintenanceEntity != data.Rows[i]["Entity"].ToString())
-        //        {
-        //            MaintenanceEntity = data.Rows[i]["Entity"].ToString();
-
-        //            sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
-
-        //            if (i != 0 && MaintenanceEntityRow != (ROW - 1))
-        //            {
-        //                sheet.Range[MaintenanceEntityRow, ColEntity, ROW - 1, ColEntity].Merge();
-        //                sheet.Range[MaintenanceEntityRow, ColEntity, ROW - 1, ColEntity].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //            }
-        //            MaintenanceEntityRow = ROW;
-        //        }
-
-        //        if (MaintenanceScheduleName != data.Rows[i]["ScheduleName"].ToString())
-        //        {
-        //            MaintenanceScheduleName = data.Rows[i]["ScheduleName"].ToString();
-        //            sheet[ROW, ColScheduleName].Text = data.Rows[i]["ScheduleName"].ToString();
-
-        //            if (i != 0 && MaintenanceScheduleNameRow != (ROW - 1))
-        //            {
-        //                sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].Merge();
-        //                sheet.Range[MaintenanceScheduleNameRow, ColScheduleName, ROW - 1, ColScheduleName].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //            }
-        //            MaintenanceScheduleNameRow = ROW;
-        //        }
-
-        //        sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
-        //        sheet[ROW, ColScheduleName].Text = data.Rows[i]["ScheduleName"].ToString();
-
-        //        sheet[ROW, ColMachineName].Text = data.Rows[i]["MachineName"].ToString();
-        //        sheet[ROW, ColMake].Text = data.Rows[i]["Make"].ToString();
-        //        sheet[ROW, ColModel].Text = data.Rows[i]["Model"].ToString();
-        //        sheet[ROW, ColScheduleCode].Text = data.Rows[i]["ScheduleCode"].ToString();
-
-        //        sheet[ROW, ColResponsiblePersonBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["ResponsiblePersonBudgetCode"].ToString());
-        //        sheet[ROW, ColAssetName].Text = data.Rows[i]["AssetName"].ToString();
-        //        sheet[ROW, ColAssetCode].Text = data.Rows[i]["AssetCode"].ToString();
-        //        sheet[ROW, ColWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
-        //        sheet[ROW, ColScheduleDays].Number = clsStaticInfo.dbl(data.Rows[i]["ScheduleDays"].ToString());
-        //        sheet[ROW, ColPlannedDate].Text = data.Rows[i]["PlannedDate"].ToString();
-        //        sheet[ROW, ColLastMaintenanceDate].Text = data.Rows[i]["LastMaintenanceDate"].ToString();
-        //        sheet[ROW, ColCurrentMaintanceDate].Text = data.Rows[i]["CurrentMaintanceDate"].ToString();
-        //        sheet[ROW, ColDueDays].Number = clsStaticInfo.dbl(data.Rows[i]["DueDays"].ToString());
-        //        sheet[ROW, ColOverDue].Number = clsStaticInfo.dbl(data.Rows[i]["OverDue"].ToString());
-        //        sheet[ROW, ColDueToday].Number = clsStaticInfo.dbl(data.Rows[i]["DueToday"].ToString());
-        //        sheet[ROW, ColFutureDue].Number = clsStaticInfo.dbl(data.Rows[i]["FutureDue"].ToString());
-        //        sheet[ROW, ColStandardScheduleMinutes].Number = clsStaticInfo.dbl(data.Rows[i]["StandardScheduleMinutes"].ToString());
-        //        sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
-        //        sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-        //        sheet[ROW, ColMaintenanceGroup].Text = data.Rows[i]["MaintenanceGroup"].ToString();
-
-
-        //        ROW++;
-
-        //    }
-
-        //    ROW++;
-
-
-        //    sheet.Range[ROW, ColEntity, ROW, endCol].CellStyle.Font.Bold = true;
-        //    endRow = ROW - 1;
-        //    endRow = ROW - 1;
-        //    #endregion sheet1
-
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    sheet.UsedRange.WrapText = true;
-        //    sheet.UsedRange.CellStyle.Font.Size = 8;
-        //    sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
-
-        //    ReportUtility reportUtility = new ReportUtility();
-        //    reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-        //    return workbook;
-        //}
         #endregion -- Operations
     }
 }

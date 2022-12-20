@@ -476,7 +476,7 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeSt
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult createResponsible(List<Dictionary<string, object>> DataList, string PId)
         {
             ConnectionManager.DAL.ConManager objCon;
