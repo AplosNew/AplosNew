@@ -253,8 +253,7 @@ namespace Library.Accounting.Accounts
             }
         }
 
-
-        public IEnumerable<object> GetMasterOrderSalesReceivable(string companyId, string plantId, string salesId,string taxApplicable,string partyAccountGroup)
+		public IEnumerable<object> GetMasterOrderSalesReceivable(string companyId, string plantId, string salesId,string taxApplicable,string partyAccountGroup)
 		{
 			try
 			{
