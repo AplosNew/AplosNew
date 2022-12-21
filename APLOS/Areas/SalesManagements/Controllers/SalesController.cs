@@ -69,6 +69,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             return View("~/Areas/SalesManagements/Views/EInvoice.cshtml");
         }
+        public ActionResult AdditionalInfo()
+        {
+            return View("~/Areas/SalesManagements/Views/AdditionalInfo.cshtml");
+        }
         [HttpGet, Authorize]
         public ActionResult GetMaterialSalesList(GridParameter parameters)
         {
@@ -148,7 +152,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 }
             }
             _salesService.Insert(voucherVM, salesMaterialVMList, salesServiceVMList);
-            return Json(new { Data= voucherVM, Message = AplosMessage.Insert + "Invoice No: " + voucherVM.Id + "" });
+            return Json(new { Data = voucherVM, Message = AplosMessage.Insert + "Invoice No: " + voucherVM.Id + "" });
         }
 
         [HttpPost]
@@ -226,7 +230,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult SalesInvoicePost(VoucherViewModel sales,IEnumerable<VoucherDetailViewModel> salesJVDetail
+        public JsonResult SalesInvoicePost(VoucherViewModel sales, IEnumerable<VoucherDetailViewModel> salesJVDetail
             , IEnumerable<SalesMaterialViewModel> salesDetailList, IEnumerable<SalesServiceViewModel> salesServiceDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -236,11 +240,11 @@ namespace Aplos.Areas.SalesManagements.Controllers
             sales.PostingDate = sales.PostingDate;
             if (salesJVDetail != null)
             {
-                if (salesJVDetail.Where(r => r.TrnType == "Dr").Sum(r => r.Amount) != salesJVDetail.Where(r=>r.TrnType=="Cr").Sum(r => r.Amount))
+                if (salesJVDetail.Where(r => r.TrnType == "Dr").Sum(r => r.Amount) != salesJVDetail.Where(r => r.TrnType == "Cr").Sum(r => r.Amount))
                     throw new CustomException("Dr Cr Amount is not match!");
                 foreach (var item in salesJVDetail)
                 {
-                    if (item.GLGeneralInfoId ==null)
+                    if (item.GLGeneralInfoId == null)
                         throw new CustomException("GL is not found");
                     if (item.BudgetMasterId == null)
                         throw new CustomException("Budget is not found");
@@ -265,7 +269,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_salesService.GetSalesPendingList(parameters, identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
-        
+
         [HttpGet, Authorize]
         public ActionResult SalesReport(ReportFormat reportFormat, string salesId)
         {
@@ -293,7 +297,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.GetSalesWordReportService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, grnId);
+            _salesReportService.GetSalesWordReportService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, grnId);
 
             return View();
         }
@@ -307,7 +311,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.LocalTaxInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, salesId);
+            _salesReportService.LocalTaxInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
 
             return View();
         }
@@ -316,7 +320,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.LocalTaxInvoiceWithProductDetailService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, salesId);
+            _salesReportService.LocalTaxInvoiceWithProductDetailService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
 
             return View();
         }
@@ -326,7 +330,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.LocalTaxInvoiceWithoutSKUService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, salesId);
+            _salesReportService.LocalTaxInvoiceWithoutSKUService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
 
             return View();
         }
@@ -336,7 +340,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.CommercialInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, salesId);
+            _salesReportService.CommercialInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
 
             return View();
         }
@@ -345,7 +349,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            _salesReportService.SalesInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId,identity.Name, salesId);
+            _salesReportService.SalesInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
 
             return View();
         }
@@ -356,7 +360,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult SalesReceivableReport(ReportFormat reportFormat, string voucherId)
         {
-            AccountsSalesReportService _accountsSalesReportService = new AccountsSalesReportService(_sqlRepository, _companyParallelCurrencyService,_plantService);
+            AccountsSalesReportService _accountsSalesReportService = new AccountsSalesReportService(_sqlRepository, _companyParallelCurrencyService, _plantService);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var workbook = _accountsSalesReportService.GetMasterOrderSalesPostReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
 
@@ -538,13 +542,25 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
-            return Json(_accountsSalesService.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_accountsSalesService.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+
+        [HttpPost, Authorize]
+        public JsonResult GetPostedMasterOrderSalesList(string column, string value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(clsSales.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [HttpPost]
         public ActionResult DeleteMasterOrderSalePost(string salesId, string voucherId)
         {
-            
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             _salesService.DeleteMasterOrderSalePost(identity.CompanyId, identity.PlantId, salesId, voucherId);
 
@@ -661,7 +677,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsSalesService.GetPackingJournal(identity.CompanyId,identity.PlantId, salesId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsSalesService.GetPackingJournal(identity.CompanyId, identity.PlantId, salesId), JsonRequestBehavior.AllowGet);
 
         }
 
@@ -717,7 +733,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [HttpPost, Authorize]
         public JsonResult PostSalesPacking(VoucherViewModel sales, IEnumerable<SalesMaterialViewModel> salesDetailVMList
             , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList
-            , SalesPacking packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList,string packingVoucherTypeId)
+            , SalesPacking packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList, string packingVoucherTypeId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sales.CompanyGroupId = identity.CompanyGroupId;
@@ -725,7 +741,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             sales.PlantId = identity.PlantId;
             //if (packing.PackingId == null)
             //    throw new CustomException("Packing List are not yet tag in Sales!!.");
-            if (PackingDetailVMList==null)
+            if (PackingDetailVMList == null)
                 throw new CustomException("Packing JV is missing!!.");
             if (salesDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != salesDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
                 throw new CustomException("Dr Cr Amount not equal");
@@ -774,7 +790,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [HttpGet, Authorize]
         public JsonResult GetSalesMaterialList(string Ids)
         {
-            JsonResult json=Json(clsSales.GetSalesMaterialList(Ids), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetSalesMaterialList(Ids), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -892,5 +908,117 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
             dr.EndEdit();
         }
+
+        private string GetPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalesAdditionalInfo", out sID);
+            return sID;
+        }
+
+        [HttpPost]
+        public ActionResult CreateSalesAdditionalInfo(Dictionary<string, object> data)
+        {
+            try
+            {
+                SaveSalesAdditionalInfodata(data);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
+        private void SaveSalesAdditionalInfodata(Dictionary<string, object> data)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesAdditionalInfo", out dsMaster, false, "1");
+
+
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        data["Id"] = GetPK();
+                        data["SalesId"] = data["SalesId"];
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, data);
+                    }
+
+
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSalesAdditionalInfoData(string salesId)
+        {
+            return Json(clsSales.GetSalesAdditionalInfoData(salesId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult DeleteItem(string id)
+        {
+            DeleteItemData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteItemData(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+
+                strSQL = "DELETE FROM [dbo].[SalesAdditionalInfo] WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
     }
 }

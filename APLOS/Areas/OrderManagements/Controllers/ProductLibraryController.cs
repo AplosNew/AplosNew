@@ -500,7 +500,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 string sql = ProductLibrarySql(IDs);
                 ExcelEngine excelEngine = new ExcelEngine();
-                //Instantiate the Excel application object
                 IApplication application = excelEngine.Excel;
 
                 //Set the default application version
@@ -512,86 +511,42 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 DataTable dtProductionLibrary = _sqlRepository.GetDataTable(sql);
 
-                int ROW = 6;
-                int COL = 1;
+                int ROW = 6;int COL = 1;
 
-
-                //sheet[ROW, COL].Text = "Sl No.";
-                //sheet[ROW, COL].ColumnWidth = 6;
-                //int colSlNo = COL;
-                //COL++;
-
-                sheet[ROW, COL].Text = "Sequence";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colSequence = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Code";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colCode = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Short Name";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colShortName = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Standard Name";
-                sheet[ROW, COL].ColumnWidth = 20;
-                int colStandardName = COL;
-                COL++;
-                sheet[ROW, COL].Text = "User Name";
-                sheet[ROW, COL].ColumnWidth = 10;
-                //sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colUserName = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Material Master";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int colMaterialMaster = COL;
-                COL++;
-                //sheet[ROW, COL].Text = "Article";
-                //sheet[ROW, COL].ColumnWidth = 15;
-                //int colArticle = COL;
-                //COL++;
-                sheet[ROW, COL].Text = "Display Name";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colDisplayName = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Recipe";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colRecipe = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Production Group";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int colProductionGroup = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Attribute";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int colAttribute = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Attribute Value";
-                //sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
-                sheet[ROW, COL].ColumnWidth = 20;
-                int colAttributeValue = COL;
+                sheet[ROW, COL].Text = "Sequence"; sheet[ROW, COL].ColumnWidth = 10;int colSequence = COL;COL++;
+                sheet[ROW, COL].Text = "Code";sheet[ROW, COL].ColumnWidth = 10; int colCode = COL;COL++;
+                sheet[ROW, COL].Text = "Short Name";sheet[ROW, COL].ColumnWidth = 10;int colShortName = COL;COL++;
+                sheet[ROW, COL].Text = "Standard Name";int colStandardName = COL;COL++;
+                sheet[ROW, COL].Text = "User Name";sheet[ROW, COL].ColumnWidth = 20;int colUserName = COL;COL++;
+                sheet[ROW, COL].Text = "Material Master";sheet[ROW, COL].ColumnWidth = 30;int colMaterialMaster = COL;COL++;
+                sheet[ROW, COL].Text = "Article";sheet[ROW, COL].ColumnWidth = 40;int colArticle = COL;COL++;
+                sheet[ROW, COL].Text = "Display Name";sheet[ROW, COL].ColumnWidth = 16;int colDisplayName = COL;COL++;
+                sheet[ROW, COL].Text = "Recipe";sheet[ROW, COL].ColumnWidth = 10;int colRecipe = COL; COL++;
+                sheet[ROW, COL].Text = "Production Group";sheet[ROW, COL].ColumnWidth = 16; int colProductionGroup = COL;COL++;
+                sheet[ROW, COL].Text = "Attribute";sheet[ROW, COL].ColumnWidth = 15;int colAttribute = COL;COL++;
+                sheet[ROW, COL].Text = "Attribute Value";sheet[ROW, COL].ColumnWidth = 20;int colAttributeValue = COL;
 
                 int endCol = COL;
+                
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
-                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
                 ROW++;
 
                 int StartRow = ROW; //row 20
                 for (int i = 0; i < dtProductionLibrary.Rows.Count; i++)
                 {
-
-
-                    //sheet[ROW, colSlNo].Number = (i + 1);
-
                     sheet[ROW, colSequence].Text = dtProductionLibrary.Rows[i]["Sequence"].ToString();
                     sheet[ROW, colCode].Text = dtProductionLibrary.Rows[i]["Code"].ToString();
                     sheet[ROW, colShortName].Text = dtProductionLibrary.Rows[i]["ShortName"].ToString();
                     sheet[ROW, colStandardName].Text = dtProductionLibrary.Rows[i]["StandardName"].ToString();
                     sheet[ROW, colUserName].Text = dtProductionLibrary.Rows[i]["UserName"].ToString();
                     sheet[ROW, colMaterialMaster].Text = dtProductionLibrary.Rows[i]["MaterialMaster"].ToString();
-                    //sheet[ROW, colMaterialMaster].Text = dtProductionLibrary.Rows[i]["Article"].ToString();
+                    sheet[ROW, colArticle].Text = dtProductionLibrary.Rows[i]["Article"].ToString();
                     sheet[ROW, colDisplayName].Text = dtProductionLibrary.Rows[i]["RecipeOrProductionGroup"].ToString();
                     sheet[ROW, colRecipe].Text = dtProductionLibrary.Rows[i]["Recipe"].ToString();
                     sheet[ROW, colProductionGroup].Text = dtProductionLibrary.Rows[i]["ProductionGroup"].ToString();
@@ -602,23 +557,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
                     ROW++;
-
                 }
-
-                //sheet.Range[StartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //sheet.Range[StartRow, colPOValue, ROW, colPOValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //sheet.Range[StartRow, colAcceptanceValue, ROW, colAcceptanceValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //sheet.Range[StartRow, colGRNValue, ROW, colGRNValue].NumberFormat = clsStaticInfo.NumberFormat(2);
+            
                 sheet.IsGridLinesVisible = false;
-
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet.AutoFilters.FilterRange = sheet.Range[StartRow - 1, 1, ROW, endCol];
 
                 sheet["A" + StartRow.ToString()].FreezePanes();
-
-                //sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
-                //sheet.Range[StartRow, colSlNo, ROW, colSlNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
@@ -644,10 +590,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
         private string ProductLibrarySql(string IDs)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @" SELECT 
-PL.*,MM.UserName MaterialMaster, RGM.UserName Recipe, MMA.StandardName Article, 
+            return @"SELECT PL.*,MM.UserName MaterialMaster, RGM.UserName Recipe, MMA.StandardName Article, 
 PM.UserName AS ProductMasterName,PLA.UserName Attribute,PLA.AttributeValue
-
 FROM [dbo].[ProductLibrary] PL
 LEFT JOIN MST.[MaterialMaster] MM ON MM.Id = PL.MaterialMasterId
 LEFT JOIN [TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId
@@ -655,9 +599,7 @@ LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id = PL.ArticleId
 LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
 LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
 LEFT JOIN [dbo].[ProductLibraryAttribute] PLA ON PLA.ProductLibraryId=PL.Id
-
-WHERE PL.CompanyGroupId='" + identity.CompanyGroupId + @"' and ISnull( PL.Id,'') in("+IDs+@")
-
+WHERE PL.CompanyGroupId='" + identity.CompanyGroupId + @"' --and ISnull( PL.Id,'') in("+IDs+@")
 ORDER BY PL.Sequence  ";
 
         }

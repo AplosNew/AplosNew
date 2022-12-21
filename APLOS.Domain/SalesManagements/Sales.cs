@@ -31,6 +31,7 @@ namespace Library.Model.SalesManagements
         public DateTime? BLDate { get; set; }
         public DateTime? EXPDate { get; set; }
         public string SourceType { get; set; }
+        public bool IsAdditionalInfoApplicable { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

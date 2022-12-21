@@ -1806,7 +1806,20 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.TotalMOIQty = 0;
     $scope.JobWorkType = '';
 
+    $scope.ProductionTypeList = [
+        {
+            'Value': 'Order',
+            'Text': 'Order'
+        },
+        {
+            'Value': 'Stock',
+            'Text': 'Stock'
+        }
+    ];
+
     $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
+
+
         $scope.TotalMOIQty = x.TotalQty;
         $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
 
@@ -1835,8 +1848,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , Rate: 0
             , HSNCodeId: hsnCodeId
             , TotalTaxAmount: 0
-            , MainRawMaterialInhouseDate: null
-            , OtherRawMaterialInhouseDate: null
+            , LSD: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+            , MainRawMaterialInhouseDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+            , OtherRawMaterialInhouseDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
             , SalesOrderYear: null
             , WeekNo: null
             , PlanExFactoryDate: null
@@ -1852,7 +1866,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , UpCharge: 0
             , Discount: 0
             , CM: 0
-            , ProductionType: null
+            , ProductionType: 'Order'
             , ShipmentFromStock: null
             , StockResponsiblePersonId: null
             , StockResponsiblePerson: null
@@ -1899,58 +1913,58 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     }
     $scope.PT = null;
 
-        $scope.showSku1 = false;
-        $scope.showSku2 = false;
-        $scope.showQty = false;
-        $scope.showToPlanQty = false;
-        $scope.showPlan = false;
+    $scope.showSku1 = false;
+    $scope.showSku2 = false;
+    $scope.showQty = false;
+    $scope.showToPlanQty = false;
+    $scope.showPlan = false;
 
-        $scope.GetPackingTypeChidChangeData = function () {
-            for (var i = 0; i < $scope.packingTypeList.length; i++) {
-                if ($scope.packingTypeList[i].Value == $scope.ModelPTNew.PackingTypeId) {
-                    if ($scope.packingTypeList[i].PackingType == 'AssortedAssorted') {
-                        $scope.showSku1 = true;
-                        $scope.showSku2 = true;
-                        $scope.showQty = true;
-                        $scope.showToPlanQty = false;
-                        $scope.showPlan = false;
-                        $scope.PT = $scope.packingTypeList[i].PackingType;
-                    }
-                    if ($scope.packingTypeList[i].PackingType == 'AssortedSolid') {
-                        $scope.showSku1 = true;
-                        $scope.showSku2 = false;
-                        $scope.showQty = true;
-                        $scope.showToPlanQty = true;
-                        $scope.showPlan = true;
-                        $scope.PT = $scope.packingTypeList[i].PackingType;
-                    }
-                    if ($scope.packingTypeList[i].PackingType == 'SolidSolid') {
-                        $scope.showSku1 = false;
-                        $scope.showSku2 = false;
-                        $scope.showQty = true;
-                        $scope.showToPlanQty = true;
-                        $scope.showPlan = true;
-                        $scope.PT = $scope.packingTypeList[i].PackingType;
-                    }
-                    if ($scope.packingTypeList[i].PackingType == 'SolidAssorted') {
-                        $scope.showSku1 = false;
-                        $scope.showSku2 = true;
-                        $scope.showQty = true;
-                        $scope.showToPlanQty = true;
-                        $scope.showPlan = true;
-                        $scope.PT = $scope.packingTypeList[i].PackingType;
-                    }
-
+    $scope.GetPackingTypeChidChangeData = function () {
+        for (var i = 0; i < $scope.packingTypeList.length; i++) {
+            if ($scope.packingTypeList[i].Value == $scope.ModelPTNew.PackingTypeId) {
+                if ($scope.packingTypeList[i].PackingType == 'AssortedAssorted') {
+                    $scope.showSku1 = true;
+                    $scope.showSku2 = true;
+                    $scope.showQty = true;
+                    $scope.showToPlanQty = false;
+                    $scope.showPlan = false;
+                    $scope.PT = $scope.packingTypeList[i].PackingType;
                 }
-            }
-            if (!baseService.isUndefinedOrNull($scope.ModelPTNew.Id)) {
-                $scope.GetPackingTypeChildData();
+                if ($scope.packingTypeList[i].PackingType == 'AssortedSolid') {
+                    $scope.showSku1 = true;
+                    $scope.showSku2 = false;
+                    $scope.showQty = true;
+                    $scope.showToPlanQty = true;
+                    $scope.showPlan = true;
+                    $scope.PT = $scope.packingTypeList[i].PackingType;
+                }
+                if ($scope.packingTypeList[i].PackingType == 'SolidSolid') {
+                    $scope.showSku1 = false;
+                    $scope.showSku2 = false;
+                    $scope.showQty = true;
+                    $scope.showToPlanQty = true;
+                    $scope.showPlan = true;
+                    $scope.PT = $scope.packingTypeList[i].PackingType;
+                }
+                if ($scope.packingTypeList[i].PackingType == 'SolidAssorted') {
+                    $scope.showSku1 = false;
+                    $scope.showSku2 = true;
+                    $scope.showQty = true;
+                    $scope.showToPlanQty = true;
+                    $scope.showPlan = true;
+                    $scope.PT = $scope.packingTypeList[i].PackingType;
+                }
 
-            } else {
-
-           $scope.getPackingTypeData();
             }
         }
+        if (!baseService.isUndefinedOrNull($scope.ModelPTNew.Id)) {
+            $scope.GetPackingTypeChildData();
+
+        } else {
+
+            $scope.getPackingTypeData();
+        }
+    }
 
     $scope.ProdBookedQty = 0;
     $scope.TotalProducedQty = 0;
@@ -2291,8 +2305,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , Rate: 0
             , HSNCodeId: $scope.HSNCodeId
             , TotalTaxAmount: 0
-            , MainRawMaterialInhouseDate: null
-            , OtherRawMaterialInhouseDate: null
+            , LSD: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+            , MainRawMaterialInhouseDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+            , OtherRawMaterialInhouseDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
             , SalesOrderYear: null
             , WeekNo: null
             , PlanExFactoryDate: null
@@ -2310,7 +2325,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , UpCharge: 0
             , Discount: 0
             , CM: 0
-            , ProductionType: null
+            , ProductionType: 'Order'
             , ShipmentFromStock: null
             , StockResponsiblePersonId: null
             , StockResponsiblePerson: null
@@ -5002,10 +5017,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.ModelSO.PackingDetailId = obj.data.Id;
         //$scope.ModelSO.SOId = obj.data;
         $scope.ModelPTNew.PackingDetailId = obj.data.Id;
-       
+
         $scope.GetSavedPackingType($scope.ModelPTNew.PackingDetailId);
 
-     
+
         angular.element(document.querySelector('#SOPopUpData')).modal('show');
     }
 
@@ -5072,7 +5087,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 if ($scope.SODataList[i].SOId == $event.data.SOId) {
                     selectedSO = true;
                     break;
-                   
+
                 }
             }
 
@@ -5099,7 +5114,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             if (baseService.isUndefinedOrNull($scope.ModelSO.SOId)) {
                 throw "Select SO No.";
             }
-            
+
             $http({
                 method: 'POST',
                 url: 'OrderManagements/MasterOrder/CreateSOData',
@@ -5316,7 +5331,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }
             $scope.sqlInStatement = wcEmpCode;
         }
-   
+
         angular.element(document.querySelector('#SKUPopUp')).modal('show');
     }
 
@@ -5386,7 +5401,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-   
+
 
     $scope.GetSKUDetailDblClick = function (args) {
         try {

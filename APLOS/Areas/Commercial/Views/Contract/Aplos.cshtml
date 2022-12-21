@@ -15,6 +15,7 @@
                              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
+                                <div e-column e-headertext="Actions" e-template="#SalesAdd" e-width="160"></div>
                                 <div e-column e-type="string" e-field="Id" e-headertext="ContractId" e-width="50"></div>
                                 <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
                                 <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLC RefNo" e-width="100"></div>
@@ -25,14 +26,19 @@
                                 <div e-column e-type="string" e-field="ItemNo" e-headertext="ItemNo" e-width="150"></div>
                                 <div e-column e-field="IsLC" e-headertext="IsLC" e-width="50"></div>
                                 <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
-                                <div e-column e-headertext="Actions" e-width="130">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Details" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.MasterOrderReport(this);"></i></button>
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Summary" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.GetDetailsReport(this);"></i></button>
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport(this);"></i></button>
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice without Agent" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport1(this);"></i></button>
-                                </div>
+
                             </div>
                         </div>
+                        <script type="text/template" id="SalesAdd">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Details" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.MasterOrderReport(this);"></i></button></li>
+                                    <li><button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Summary" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.GetDetailsReport(this);"></i></button></li>
+                                    <li><button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport(this);"></i></button></li>
+                                    <li><button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice without Agent" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport1(this);"></i></button></li>
+                                </ul>
+                            </div>
+                        </script>
                     </div>
                 </div>
             </div>

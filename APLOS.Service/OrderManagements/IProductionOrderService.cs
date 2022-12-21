@@ -22,6 +22,9 @@ namespace Library.Service.OrderManagements
 
         IEnumerable<object> GetProductionOrderWorkCenterList(string productionOrderId);
         IEnumerable<object> GetWorkCenterListByEntity(string entityId);
+
+        IEnumerable<object> GetWorkCenterListByEntityandFirstProcess(string entityId, string processId);
+        IEnumerable<object> GetSavedWorkCenterListByEntityandFirstProcess(string ProductionOrderId);
         void InsertGraph(ProductionOrder master, IEnumerable<ProductionOrderDetail> detaillist
             , IEnumerable<ProductionOrderProcessSet> processSetlist
             , IEnumerable<ProductionOrderEntity> entitylist
@@ -32,7 +35,8 @@ namespace Library.Service.OrderManagements
              , IEnumerable<ProductionOrderProcessSet> processSetlist
              , IEnumerable<ProductionOrderEntity> entitylist
              , IEnumerable<ProductionOrderWorkCenter> workcenterlist,
-                DataTable Runningworkcenterlist);
+                DataTable Runningworkcenterlist
+            , IEnumerable<ProductionOrderFirstProcessWorkCenter> fpworkcenterlist);
 
         void DeleteGraph(string id);
     }
