@@ -15,6 +15,7 @@
                              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
+                                <div e-column e-headertext="Actions" e-template="#SalesAdd" e-width="160"></div>
                                 <div e-column e-type="string" e-field="Id" e-headertext="ContractId" e-width="50"></div>
                                 <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
                                 <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLC RefNo" e-width="100"></div>
@@ -25,14 +26,19 @@
                                 <div e-column e-type="string" e-field="ItemNo" e-headertext="ItemNo" e-width="150"></div>
                                 <div e-column e-field="IsLC" e-headertext="IsLC" e-width="50"></div>
                                 <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
-                                <div e-column e-headertext="Actions" e-width="130">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Details" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.MasterOrderReport(this);"></i></button>
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Summary" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.GetDetailsReport(this);"></i></button>
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport(this);"></i></button>
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice without Agent" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport1(this);"></i></button>
-                                </div>
+
                             </div>
                         </div>
+                        <script type="text/template" id="SalesAdd">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Details" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.MasterOrderReport(this);"></i></button></li>
+                                    <li><button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Summary" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.GetDetailsReport(this);"></i></button></li>
+                                    <li><button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport(this);"></i></button></li>
+                                    <li><button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Proforma Invoice without Agent" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport1(this);"></i></button></li>
+                                </ul>
+                            </div>
+                        </script>
                     </div>
                 </div>
             </div>
@@ -393,15 +399,6 @@
                                     </ul>
                                 </div>
                             </div>
-                            @*<div class="col-sm-6">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Master Lc No</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" ng-model="lcMasterNew.Id" ng-disabled="true" />
-
-                                    </div>
-                                </div>
-                            </div>*@
                         </div>
                         <div class="clearfix"></div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -419,10 +416,10 @@
                                 <label class="col-sm-4 control-label">Opening Bank<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     @*<div class="select-style">
-                                            <select name="Opening Bank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.OpeningBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="3">
-                                                <option value="">--Select--</option>
-                                            </select>
-                                        </div>*@
+                    <select name="Opening Bank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.OpeningBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="3">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>*@
                                     <input type="text" name="Opening Bank" ng-model="lcMasterNew.OpeningBank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" required tabindex="3" maxlength="50">
                                 </div>
                             </div>
@@ -430,10 +427,10 @@
                                 <label class="col-sm-4 control-label">Advising Bank</label>
                                 <div class="col-sm-8">
                                     @*<div class="select-style">
-                                            <select name="Lein Bank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
-                                                <option value="">--Select--</option>
-                                            </select>
-                                        </div>*@
+                    <select name="Lein Bank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>*@
                                     <input type="text" name="Advising Bank" ng-model="lcMasterNew.LeinBank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" tabindex="5" maxlength="50">
                                 </div>
                             </div>
@@ -450,20 +447,27 @@
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                                <label class="col-sm-4 control-label">LC Shipment Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
+                                    <input type="text" name="LC Shipment Date" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.LCShipmentDate" datepicker class="form-control" required tabindex="9">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
+                                <div class="col-sm-8">
                                     <div class="select-style">
-                                        <select name="Currency" class="form-control" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList" required tabindex="11">
+                                        <select name="Destination" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" tabindex="13">
                                             <option value=""></option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
+                                <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Landing<sup>*</sup></label>
                                 <div class="col-sm-8">
                                     <div class="select-style">
-                                        <select name="Destination" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" tabindex="13">
+                                        <select name="Port Of Landing" class="form-control" ng-model="lcMasterNew.PortOfLandingId" ng-options="item.Value as item.Text for item in portList" tabindex="14">
                                             <option value=""></option>
                                         </select>
                                     </div>
@@ -492,8 +496,17 @@
 
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="Amount" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.Amount" class="form-control" maxlength="15" required tabindex="8">
+                                <div class="col-sm-3 show-message">
+                                    <input type="text" n-decimals="2" name="Amount" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.Amount" class="form-control" maxlength="15" required tabindex="12">
+                                </div>
+                                <label class="col-sm-2 control-label" style="margin-left:-25px">Currency<sup>*</sup></label>
+                                <div class="col-sm-3 show-message" style="padding-right: 0px; width: 69px;">
+                                    <div class="select-style">
+                                        <select id="currencyId" class="form-control" tabindex="15" name="Currency" ng-model="lcMasterNew.CurrencyId" required>
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in currencyList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -511,6 +524,16 @@
                                     <input type="text" name="Tenure" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null || lcMasterNew.Type==='AtSight'" ng-model="lcMasterNew.Tenure" class="form-control" n-decimals="2" tabindex="12">
                                 </div>
                                 <label class="col-sm-2 control-label"><span style="text-transform:lowercase">day(s)</span> </label>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Shipment Mode<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select name="Shipment Mode" class="form-control" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.ShipmentModeId" ng-options="item.Value as item.Text for item in shipmentModeList" ng-change="SetOtherDates();" required tabindex="108">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Landing<sup>*</sup></label>
@@ -664,12 +687,13 @@
                     <div style="color:black;" id="GridLC" ej-grid e-datasource="masterLCList" e-gridlines="vertical" e-allowfiltering="true" e-recorddoubleclick="SelectMasterLC"
                          e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-field="Id" e-headertext="MasterLC" e-width="20"></div>
-                            <div e-column e-field="LCRef" e-headertext="MasterLC No" e-width="80"></div>
-                            <div e-column e-field="LCDate" e-headertext="Opening Date" e-dateformat="dd-MMM-yyyy" e-width="30"></div>
-                            <div e-column e-field="OpeningBank" e-headertext="Opening Bank" e-width="50"></div>
-                            <div e-column e-field="Amount" e-headertext="Opening Value" e-width="30"></div>
-                            <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                            <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
+                            <div e-column e-type="string" e-field="LCRef" e-headertext="LC Ref No" e-width="30"></div>
+                            <div e-column e-type="string" e-field="PartyName" e-headertext="Customer" e-width="40"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LCDate" e-headertext="Opening Date" e-width="20"></div>
+                            <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="50"></div>
+                            <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="30" e-textalign="right"></div>
+                            <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
                         </div>
                     </div>
                 </div>

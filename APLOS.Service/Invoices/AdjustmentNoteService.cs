@@ -760,9 +760,9 @@ namespace Library.Service.Invoices
                         addtionalTaxDetailId++;
                         var tdsTaxDetail = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
-                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
-                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
+                            GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                             Amount = tdsTaxVM.TaxAmount,
                             AdditionalTaxId = tdsTax.Id,
                             TaxCodeId = tdsTaxVM.TaxCodeId,

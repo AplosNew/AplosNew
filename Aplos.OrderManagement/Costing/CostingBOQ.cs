@@ -159,13 +159,13 @@ namespace Library.OrderManagement.Costing
         public List<Dictionary<string, object>> GetAllCostingDirectMaterialForQuantityEdit(string CostingBOQMasterId)
         {
 
-            string sql = @"SELECT convert(bit,isnull(mm.WithSKU,0)) AS WithSKU,BOQ.CostingItemId,boq.SalesOrderId,boq.FGFirstCharacteristicsValueId,boq.FGSecondCharacteristicsValueId,cv1.UserName AS SKU1
+            string sql = @"SELECT distinct BOQ.Id, convert(bit,isnull(mm.WithSKU,0)) AS WithSKU,BOQ.CostingItemId,boq.SalesOrderId,boq.FGFirstCharacteristicsValueId,boq.FGSecondCharacteristicsValueId,cv1.UserName AS SKU1
 									,cv2.UserName AS SKU2,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
-									BOQ.Id, ci.Sequence,ci.UserName AS CostingItem,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
+									ci.Sequence,ci.UserName AS CostingItem,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
 									mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase
-									,(R.Rate+boq.UpDownCharge)*boq.RequiredQty AS BOMAmount,R.Rate,boq.UpDownCharge,BOQ.BOQCriteria,c.Code AS Currency,
+									,(R.Rate+isnull(boq.UpDownCharge,0))*boq.RequiredQty AS BOMAmount,R.Rate,isnull(boq.UpDownCharge,0)UpDownCharge,BOQ.BOQCriteria,c.Code AS Currency,
 									BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc,ci.Id CostingItemId,uom.UserName AS UOM
-									,(R.Rate+boq.UpDownCharge)*BOQ.BOMQty AS PlanAmount,R.Rate*BOQ.BOMQty AS BOMAmount ,BOQ.OwnReferenceNo,BOQ.Remark,
+									,(R.Rate+isnull(boq.UpDownCharge,0))*BOQ.BOMQty AS PlanAmount,R.Rate*BOQ.BOMQty AS BOMAmount ,BOQ.OwnReferenceNo,BOQ.Remark,
 									SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
 									CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
 									BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria
@@ -2160,6 +2160,7 @@ namespace Library.OrderManagement.Costing
                         dsMaster.Tables[0].DefaultView[0]["SKUDesc"] = clsStaticInfo.nullrecorder(QuantityData[i]["SKUDescConcat"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["OwnReferenceNo"] = clsStaticInfo.nullrecorder(QuantityData[i]["OwnReferenceNo"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["Remark"] = QuantityData[i]["Remark"];
+                        dsMaster.Tables[0].DefaultView[0]["UpDownCharge"] = QuantityData[i]["UpDownCharge"];
 
 
                         string BaseUOM = conversion.GetMaterialUOMByCategory(dsMaster.Tables[0].DefaultView[0]["MaterialMasterId"].ToString(), General.Conversions.UOMConversion.UOMCategory.BaseUOMId);

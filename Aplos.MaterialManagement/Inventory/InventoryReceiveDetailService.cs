@@ -1170,9 +1170,9 @@ namespace Library.MaterialManagement.Inventory
                                             BOQDetailId = boqallocat.BOQDetailId,
                                             TransactionQty = Convert.ToDecimal(boqallocat.TransactionQty),
                                             TransactionUoMId = boqallocat.TransactionUoMId,
-                                            BaseQty = (decimal)conversion.Convert(boqallocat.MaterialMasterId, boqallocat.TransactionUoMId, boqallocat.BaseUOMId.ToString(), Convert.ToDouble(boqallocat.TransactionQty)),
+                                            BaseQty = (decimal)conversion.Convert(boqallocat.MaterialMasterId, boqallocat.TransactionUoMId, boqallocat.BaseUOMId.ToString(), Convert.ToDouble(boqallocat.Qty)),
                                             BaseUoMId = boqallocat.BaseUOMId,
-                                            POBOQQty = (decimal)conversion.Convert(boqallocat.MaterialMasterId, boqallocat.TransactionUoMId, boqallocat.POUoMId.ToString(), Convert.ToDouble(boqallocat.TransactionQty)),
+                                            POBOQQty = (decimal)conversion.Convert(boqallocat.MaterialMasterId, boqallocat.TransactionUoMId, boqallocat.POUoMId.ToString(), Convert.ToDouble(boqallocat.Qty)),
                                             POUoMId = boqallocat.POUoMId,
                                             RejectQty = Convert.ToDecimal(boqallocat.RejectionQty),
                                             RejectBaseQty = Convert.ToDecimal(boqallocat.RejectBaseQty),
@@ -8230,5 +8230,10 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-    }
+        public void GRNBOQDetailDelete(InventoryReceiveDetail entity)
+        { 
+        }
+
+
+        }
 }

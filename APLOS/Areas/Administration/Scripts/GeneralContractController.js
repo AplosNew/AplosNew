@@ -129,10 +129,12 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.ModelNew.Id = response.data.Data.Id;
-                
-               // ClearFields(response.data.Sequence);
-                //$scope.getData();
-
+                $scope.GetContractItemDetail();
+                $scope.GetCheckByList();
+                $scope.GetApproveByList();
+                $scope.GetSaveEntityList();
+                $scope.GetHeaderList();
+               
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -556,4 +558,29 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
 
     //#endregion
     // #endregion Child
+
+    //  #region Clear
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+    function ClearFields() {
+        $scope.Action = 'Save';
+        $scope.ModelTemp = {
+            Id: null,
+            UserName: null,
+            StandardName: null,
+            ShortName: null,
+            PartyId: null,
+            PartyName: null,
+            PartyCode: null,
+        };
+        $scope.SelectedVendorEmployee = [];
+        $scope.SelectedItemList = [];
+        $scope.SelectedCheckedByList = [];
+        $scope.SelectedApprovedByList = [];
+        $scope.SelectedEntityList = [];
+    }
+    //  #endregion Clear
 }

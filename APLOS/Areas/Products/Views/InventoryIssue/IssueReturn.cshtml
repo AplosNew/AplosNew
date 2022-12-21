@@ -125,6 +125,7 @@
 					<div class="common-btn">
 						<ul class="list-inline text-right">
 							<li><button ng-click="recorddoubleclickloadArticleDetails();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Select</button></li>
+							<li><button ng-click="CloseArticlePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
 						</ul>
 					</div>
 				</div>
@@ -406,7 +407,7 @@
 					 e-detailstemplate="detailTemp"
 					 e-detailsdatabound="detailgrid">
                     <div e-columns>
-                        <div e-column e-field="Id" e-headertext="Issue No" e-width="80"></div>
+                        <div e-column e-field="Id" e-headertext="Issue Return No" e-width="80"></div>
                         <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="80"></div>
                         <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="80"></div>

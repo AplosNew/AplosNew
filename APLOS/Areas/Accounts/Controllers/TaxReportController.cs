@@ -44,8 +44,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View();
         }
- 
-        
+        public ActionResult DebitNoteCreditNoteTaxReport()
+        {
+            return View();
+        }
         public ActionResult GSTPayableSalesReport()
         {
             return View();
@@ -177,6 +179,24 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var workbook = _taxReportServiceService.GetGSTReceivableReport3(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, identity.Name);
             var reportFileName = DateTime.Now.ToString("yyMMdd") + "GST Report";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetDebitNoteCreditNoteTaxReport(ReportFormat reportFormat, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _taxReportServiceService.GetDebitNoteCreditNoteTaxReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, identity.Name);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + "DebitNoteCreditNoteStatusReport";
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:

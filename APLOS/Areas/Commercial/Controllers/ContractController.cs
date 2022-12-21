@@ -80,7 +80,10 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
 							LEFT JOIN dbo.MasterLC LC ON LC.Id = C.MasterLCId
 							LEFT JOIN [HKP].[Party] AS PM ON C.MarketingCommisssionId=PM.Id 
                             WHERE C.PlantId='" + identity.PlantId + "' ORDER BY C.AddedDate desc";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [HttpGet, Authorize]
@@ -892,6 +895,9 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
                     dr["FinalDestinationId"] = data.FinalDestinationId;
                     dr["PortOfLandingId"] = data.PortOfLandingId;
                     dr["CurrencyId"] = data.CurrencyId;
+                    dr["LCShipmentDate"] = data.LCShipmentDate;
+                    dr["ShipmentModeId"] = data.ShipmentModeId;
+                    dr["PortOfLoadingId"] = data.PortOfLoadingId;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -922,6 +928,9 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
                     dr["FinalDestinationId"] = data.FinalDestinationId;
                     dr["PortOfLandingId"] = data.PortOfLandingId;
                     dr["CurrencyId"] = data.CurrencyId;
+                    dr["LCShipmentDate"] = data.LCShipmentDate;
+                    dr["ShipmentModeId"] = data.ShipmentModeId;
+                    dr["PortOfLoadingId"] = data.PortOfLoadingId;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
@@ -1566,12 +1575,12 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            GetProformaInvoice1(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, ContractId);
+            GetProformaInvoice1(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name, ContractId);
 
             return View();
         }
 
-        public void GetProformaInvoice1(string companyGroupId, string companyId, string plantId, string UserId, string ContractId)
+        public void GetProformaInvoice1(string companyGroupId, string companyId, string plantId, string Name, string ContractId)
         {
             var fileName = "";
             var strPath = "";
@@ -1629,6 +1638,14 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                     {
                         //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                         document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
                     }
                 }
 
@@ -1778,7 +1795,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
 
             DataTable sales, materialTax;
 
-            int LasColumnIndex = 7;
+            int LasColumnIndex = 8;
 
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -1800,17 +1817,22 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 150;
+            wTable.Rows[ROW].Cells[colArticle].Width = 140;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Buyer Item Ref");
+            range.ApplyCharacterFormat(FontBold);
+            int colBuyerReferenceNo = COL; COL++;
+            wTable.Rows[ROW].Cells[colBuyerReferenceNo].Width = 60;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Del. Date");
             range.ApplyCharacterFormat(FontBold);
             int colDeliveryDate = COL; COL++;
-            wTable.Rows[ROW].Cells[colDeliveryDate].Width = 60;
+            wTable.Rows[ROW].Cells[colDeliveryDate].Width = 55;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SO#");
             range.ApplyCharacterFormat(FontBold);
             int colSONo = COL; COL++;
-            wTable.Rows[ROW].Cells[colSONo].Width = 80;
+            wTable.Rows[ROW].Cells[colSONo].Width = 65;
 
             //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description of Material");
             //range.ApplyCharacterFormat(FontBold);
@@ -1834,7 +1856,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty" + "(" + "" + dsOrderMaster.Rows[0]["UoM"].ToString() + "" + ")" + " ");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
-            wTable.Rows[ROW].Cells[colQty].Width = 65;
+            wTable.Rows[ROW].Cells[colQty].Width = 55;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
@@ -1849,7 +1871,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount" + "(" + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + " " + ")" + " ");
             range.ApplyCharacterFormat(FontBold);
             int colAmount = COL;
-            wTable.Rows[ROW].Cells[colAmount].Width = 90;
+            wTable.Rows[ROW].Cells[colAmount].Width = 100;
 
 
 
@@ -1878,6 +1900,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colSONo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SONo"].ToString());
+                TROW.Cells[colBuyerReferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyerReferenceNo"].ToString());
                 TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());
                 //TROW.Cells[colDestination].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Destination"].ToString());            
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Qty"].ToString()).ToString("#,##0.00"));
@@ -2080,7 +2103,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 CONVERT(NUMERIC(10,2),ISNULL(c.MarketingCommisssionValue,0)) MarketingCommisssionValue,
                                 c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
                                 p.UserName as MarketingCommissioningAgent,c.ContractNo,FORMAT(c.AddedDate,'dd-MMM-yyyy') AddedDate,PT.UserName PaymentTerm
-                                ,SO.Id SONo,CONVERT(varchar,SO.DeliveryDate,5) DeliveryDate,DS.UserName Destination
+                                ,SO.Id SONo,CONVERT(varchar,SO.DeliveryDate,5) DeliveryDate,DS.UserName Destination,moi.BuyerReferenceNo,C.AddedBy CreatedBy
                                 from dbo.[Contract] C
                                 left join TRN.MasterOrderItem as moi on moi.ContractId=c.Id
                                 left join  TRN.SalesOrder as so on MOI.Id=SO.MasterOrderItemId
@@ -2090,8 +2113,8 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 left join HKP.PartyPlant as pst on pst.Id=c.DeliveryPartyPlantId
                                 LEFT JOIN MST.Destination DS ON DS.Id=SO.DestinationId
                                 left join MST.MaterialMaster as mm on mm.Id=moi.MaterialMasterId
-                                left join HKP.HSNCode as h on h.Id=mm.HSNCodeId
                                 left join MST.MaterialMasterArticle as mma on mma.MaterialMasterId=mm.Id AND MOI.ArticleId=MMA.Id
+                                left join HKP.HSNCode as h on h.Id=mma.HSNCodeId
                                 left join TRN.MasterOrder as mo on mo.id=moi.MasterOrderId
                                 left join SCS.UnitOfMeasurement as u on u.Id=mo.TotalQtyUOMId
                                 left join scs.Currency as cu on cu.Id=mo.CurrencyId
@@ -3572,7 +3595,9 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
         public string FinalDestinationId { get; set; }
         public string PortOfLandingId { get; set; }
         public string CurrencyId { get; set; }
-
+        public DateTime? LCShipmentDate { get; set; }
+        public string ShipmentModeId { get; set; }
+        public string PortOfLoadingId { get; set; }
 
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }

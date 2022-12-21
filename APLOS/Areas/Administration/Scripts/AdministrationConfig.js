@@ -24,4 +24,20 @@ function AdministrationConfig($routeProvider, $locationProvider) {
             templateUrl: 'Administration/GeneralContract',
             controller: 'GeneralContractController'
         })
+        .when('/contract-entry', {
+            templateUrl: 'Administration/GeneralContractEntry',
+            controller: 'GeneralContractEntryController'
+        })
+        .when('/contract-report', {
+            templateUrl: 'Administration/GeneralContractReport',
+            controller: 'GeneralContractReportController'
+        })
+        .when('/generalcontract-check', {
+            templateUrl: 'Administration/GeneralContractChecked',
+            controller: 'GeneralContractCheckedController'
+        })
+        .when('/generalcontract-approved', {
+            templateUrl: 'Administration/GeneralContractApproved',
+            controller: 'GeneralContractApprovedController'
+        })
 };

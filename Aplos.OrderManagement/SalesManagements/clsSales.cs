@@ -227,6 +227,18 @@ namespace Library.OrderManagement.Sales
             return sID;
         }
 
+        public IEnumerable<object> GetSalesAdditionalInfoData(string salesId)
+        {
+            try
+            {
+                string sql = @"Select * from [dbo].[SalesAdditionalInfo] Where SalesId='"+ salesId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public void SaveAdditinalTax(string MasterId, decimal BooksCurrencyBaseRate, OTSBD.IdentityParameter para, List<Dictionary<string, object>> UserSendData)
         {
@@ -368,7 +380,7 @@ namespace Library.OrderManagement.Sales
 							--Select SUM(BookQty) Qty, SUM(PlanQty) PlanQty,PackingLineItemId from trn.POLotReference 
 							--GROUP BY PackingLineItemId
 							Select ISNULL(SUM(sc.NetWeight),0) Qty, ISNULL(SUM(PlanQty),0) PlanQty,PackingLineItemId from trn.POLotReference po
-							left join dbo.ItemScanChild sc on sc.PackingId = po.Id
+							left join dbo.ItemScanChild sc on sc.PackingId = po.Id AND Booked = 1 
 							 GROUP BY PackingLineItemId
 							)POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
 							LEFT JOIN(
@@ -558,7 +570,7 @@ namespace Library.OrderManagement.Sales
 									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
-                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "'  AND S.RowState='Parked'";
+                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "'";
                 return _sqlRepository.GetDataCollection(cmdText);
 
             }
@@ -612,7 +624,7 @@ LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 WHERE B.Code='CGST' AND SalesServiceId IS NULL
 ) TAxInfo3	ON TAxInfo3.SalesMaterialId=sm.Id
-WHERE s.RowState='Parked' AND s.Id " + Ids + "";
+WHERE s.Id " + Ids + "";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -625,15 +637,15 @@ WHERE s.RowState='Parked' AND s.Id " + Ids + "";
         {
             try
             {
-                var sql = @"SELECT CAST(0 AS BIT) Active,sm.Id SalesMaterialId,'B2B'SupplyTypeCode,'No'ReverseCharge,''eCommGSTIN,''IgstOnIntra,''DocumentType,S.Id DocumentNumber,FORMAT(s.InvoiceDate,'dd/MM/yyyy')DocumentDate
+                var sql = @"SELECT CAST(0 AS BIT) Active,sm.Id SalesMaterialId,'B2B'SupplyTypeCode,'No'ReverseCharge,''eCommGSTIN,''IgstOnIntra,'Tax Invoice' DocumentType,S.Id DocumentNumber,FORMAT(s.InvoiceDate,'dd/MM/yyyy')DocumentDate
 ,p.TINNO BuyerGSTIN,P.UserName BuyerLegalName,''BuyerTradeName,ST.UserName BuyerPOS,am.Address1 BuyerAddr1
 ,am.Address2 BuyerAddr2,ST.UserName BuyerLocation,P.PINCode BuyerPinCode,ST.UserName BuyerState, am.Phone BuyerPhoneNumber,am.Email BuyerEmailId
 ,'' DispatchName,'' DispatchAddr1,''DispatchAddr2,''DispatchLocation,''DispatchPinCode,''DispatchState,''ShippingGSTIN,''ShippingLegalName,''ShippingTradeName
 ,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,h.Code HSNcode   
-,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,CONVERT(numeric(10,2),sm.TransactionRate) UnitPrice,CONVERT(numeric(10,2),sm.TransactionAmount)GrossAmount,'' Discount,''PreTaxValue
-,CONVERT(numeric(10,2),sm.TransactionAmount)Taxablevalue,CONVERT(numeric(10,2),TAxInfo1.Percentage) GSTRate,CONVERT(numeric(10,2),TAxInfo1.Amount) IgstAmt,CONVERT(numeric(10,2),TAxInfo2.Amount) SgstAmt,CONVERT(numeric(10,2),TAxInfo3.Amount) CgstAmt,'' CessRate,''CessAmtAdval
-,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,''OtherCharges,CONVERT(numeric(10,2),sm.NetAmount) ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
-,CONVERT(numeric(10,2),sm.NetAmount)TotalInvoicevalue,''ShippingBillNo,''ShippingBillDt,''[Port],''Refundclaim,''ForeignCurrency,''CountryCode,''ExportDutyAmount,''TransID,''TransName 
+,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,CONVERT(numeric(10,2),sm.TransactionRate*s.ToCurrencyRate) UnitPrice,CONVERT(numeric(10,2),sm.TransactionAmount*s.ToCurrencyRate)GrossAmount,'' Discount,''PreTaxValue
+,CONVERT(numeric(10,2),sm.TransactionAmount*s.ToCurrencyRate)Taxablevalue,CONVERT(numeric(10,2),TAxInfo1.Percentage) GSTRate,CONVERT(numeric(10,2),TAxInfo1.Amount*s.ToCurrencyRate) IgstAmt,CONVERT(numeric(10,2),TAxInfo2.Amount*s.ToCurrencyRate) SgstAmt,CONVERT(numeric(10,2),TAxInfo3.Amount*s.ToCurrencyRate) CgstAmt,'' CessRate,''CessAmtAdval
+,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,''OtherCharges,CONVERT(numeric(10,2),sm.NetAmount*s.ToCurrencyRate) ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
+,CONVERT(numeric(10,2),sm.NetAmount*s.ToCurrencyRate)TotalInvoicevalue,''ShippingBillNo,''ShippingBillDt,''[Port],''Refundclaim,''ForeignCurrency,''CountryCode,''ExportDutyAmount,''TransID,''TransName 
 ,''TransMode,''Distance,''TransDocNo,''TransDocDate,''VehicleNo,''VehicleType,''ErrorListst
   FROM TRN.Sales S
 LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=s.Id 
@@ -1781,6 +1793,48 @@ Order by P.Sequence";
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
                                 WHERE PE.SalesOrderApprovalMasterId='" + masterId + "' Order by EmployeeCodeNumeric";
                 return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<Dictionary<string, object>> GetMasterOrderSalesPostedList(string companyGroupId, string companyId, string plantId, string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
+                        select * from ( SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
+									Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,
+									Replace(CONVERT(VARCHAR(11), S.EntryDate, 106), ' ', '-') VoucherDate, Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') PostingDate
+                                    , S.RowState, S.DeliveryPartyPlantId, S.InvoicingPartyPlantId AS PartyPlantId, S.InvoicingPartyPlantId, S.EntityId, S.PaymentTermId, S.BaseNoOfDays, S.BaseOnDueDate
+									, S.InvoiceNo, PPI.UserName AS BillTo, AM.StateId AS InvoicingStateId, ST.UserName AS InvoicingState, PPI.GSTIN AS InvoicingGSTIN
+									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
+									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId
+                                    , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark
+									,V.VoucherNo,SP.VoucherId SalesPackingVoucherId
+									FROM [TRN].[Sales] AS S
+                                    JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
+									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=S.InvoicingPartyPlantId
+									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
+									LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=S.DeliveryPartyPlantId
+									LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id=PPD.AddressMasterId
+									LEFT JOIN [SCS].[State] AS STD ON STD.Id=AMD.StateId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=S.CurrencyId
+									LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=S.PlantId
+									LEFT JOIN [TRN].Voucher V ON V.Id=S.VoucherId
+									LEFT JOIN dbo.SalesPacking SP ON SP.SalesId=S.Id
+									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
+									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
+									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
+                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND S.PlantId='" + plantId + "' AND S.VoucherId<>'' AND S.SourceType='MasterOrderSales' AND S.IsAdditionalInfoApplicable=1" +
+                                    ") AS TEMP WHERE " + strkey + " order by PostingDate DESC";
+                return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
             {

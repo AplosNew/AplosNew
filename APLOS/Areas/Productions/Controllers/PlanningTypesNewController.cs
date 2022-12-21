@@ -765,8 +765,8 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
 ,WeekOff= CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END,PWD.WeekDays
 ,Holiday=ISNULL(PHD.HDCount,0)
 ,NetWorkingShift=CASE WHEN ((CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)+ISNULL(PHD.HDCount,0)+(CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END))>0 THEN 0 ELSE 1 END
-,[From]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
-,[To]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END
+,[FromTime]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
+,[ToTime]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END
 ,NetWorkingMinute=DATEDIFF(MINUTE,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftStartTime,'hh:mm tt'),'')  ELSE NULL END
 ,CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)>0 THEN ISNULL(format(ps.ProductionShiftEndTime,'hh:mm tt'),'')  ELSE NULL END)
 ,PlanShift=(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 1 ELSE 0 END)>0 THEN 0 ELSE 1 END)
@@ -786,7 +786,7 @@ LEFT JOIN [dbo].[PlanningTypesShift] PS ON PS.PlanningTypesId=PW.PlanningTypesId
 LEFT JOIN [dbo].ShiftDefination AS sd ON PS.ShiftId=sd.SystemID 
 LEFT JOIN [dbo].[PlanningTypesWeekDays] PWD ON PWD.PlanningTypesId=PW.PlanningTypesId AND DATENAME(weekday,PD.PlanningDate)=PWD.WeekDays
 LEFT JOIN(Select COUNT(Id) HDCount,PlanningTypesId,HolidayDate FROM [dbo].[PlanningTypesHoliday] GROUP BY PlanningTypesId,HolidayDate) PHD ON PHD.PlanningTypesId=PW.PlanningTypesId AND PD.PlanningDate=PHD.HolidayDate
-WHERE PW.PlanningTypesId='"+ PlanningTypesId + @"' AND PD.PlanningDate NOT IN(Select PlanningDate from [dbo].[CapacityPlanning] Where PlanningTypesId='"+ PlanningTypesId + @"')
+WHERE PW.PlanningTypesId='" + PlanningTypesId + @"' AND PD.PlanningDate NOT IN(Select PlanningDate from [dbo].[CapacityPlanning] Where PlanningTypesId='"+ PlanningTypesId + @"')
 UNION ALL
 SELECT CP.Id,CP.WorkCenterMasterId,WCM.UserName WorkCenter,FORMAT(CP.EffectiveDate,'dd-MM-yyyy')EffectiveDate,FORMAT(CP.PlanningDate,'dd-MM-yyyy')PlanningDate,CP.ShiftId,sd.UserName [Shift],CP.ApplicableShift
 ,CP.WeekOff, NULL WeekDays,0 Hoiliday,CP.NetWorkingShift,CP.FromTime,CP.ToTime,CP.NetWorkingMinute,CP.PlanShift,CP.PlanMinute,CP.Remark,CP.Capacity,CP.CapacityInVolume

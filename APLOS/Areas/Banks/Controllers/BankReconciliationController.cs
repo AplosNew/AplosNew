@@ -446,6 +446,14 @@ namespace Aplos.Areas.Banks.Controllers
             return jsondata;
 
         }
+        [HttpPost, Authorize]
+        public ActionResult SaveAdjustmentJournalBankReconciliationMap(BankReconciliationUploadedDataViewModel bankReconciliation, IEnumerable<BankReconciliationUploadedDataViewModel> bankReconciliationList)
+        {
+            AccountsPostInvoiceService accountsPostInvoiceService = new AccountsPostInvoiceService(_sqlRepository);
+            accountsPostInvoiceService.SaveAdjustmentJournalBankReconciliationMap(bankReconciliation, bankReconciliationList);
+
+            return Json(new { Message = AplosMessage.Insert });
+        }
         [HttpPost]
         public ActionResult SaveBankReconciliationMap(BankReconciliation bankReconciliation, IEnumerable<BankReconciliationUploadedDataViewModel> bankReconciliationList)
         {

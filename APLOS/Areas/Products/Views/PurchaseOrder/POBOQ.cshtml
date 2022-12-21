@@ -1,6 +1,6 @@
 ﻿<style>
     .modellgModify {
-        width: 1400px;
+        width: 1300px;
     }
 </style>
 <togglable name="PO BOQ"></togglable>@*PO Without Requisition*@
@@ -401,6 +401,7 @@
 
                         <div e-column e-type="string" e-field="CostingItemId" e-headertext="Costing Item Id" e-width="80px"></div>
                         <div e-column e-field="CostingItemName" e-headertext="Costing Item" e-width="100"></div>
+                        <div e-column e-field="BOMId" e-headertext="BOMId" e-width="100"></div>
                         <div e-column e-field="BOQItemRefNo" e-headertext="Item Ref." e-width="100"></div>
                         <div e-column e-type="string" e-field="BOQCriteria" e-headertext="BOQ Criteria" e-width="80px"></div>
                         <div e-column e-type="string" e-field="CriteriaDetail" e-headertext="Criteria Detail" e-width="120px"></div>
@@ -412,6 +413,7 @@
                         <div e-column e-field="BalanceTrnUOMQty" e-headertext="Balance TRN UOM Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
                         <div e-column e-template="#BOQQRate" e-field="TransactionRate" e-textalign="right" e-decimalplaces="4" e-headertext="Rate" e-width="100"></div>
+                        <div e-column  e-field="UnitPrice" e-textalign="right" e-decimalplaces="4" e-headertext="UnitPrice" e-width="100"></div>
                         <div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" e-textalign="right"></div>
                         <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
                         <div e-column e-field="RMDescription" e-headertext="Item Desc" e-width="100"></div>
@@ -654,7 +656,7 @@
                     <div class="form-group" id="div_docNonos">
                         <label class="col-sm-4 control-label">Tolerance(%)<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="number" name="Tolerance" ng-model="productNew.Tolerance" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
+                            <input type="number" name="Tolerance" ng-model="productNew.Tolerance" ng-keyup="toleranceCalculate()" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
                         </div>
                     </div>
                 </div>
@@ -781,7 +783,7 @@
                                 <td>
                                     <div class="form-group">
                                         <div class="col-sm-12 show-message">
-                                            <input type="text" name="Tolerance" ng-model="x.Tolerance" class="form-control">
+                                            <input type="text" name="Tolerance" ng-model="x.Tolerance" class="form-control text-right">
                                         </div>
                                     </div>
                                 </td>
@@ -789,7 +791,7 @@
                                     <ul class="list-inline action-list">
                                         <li ng-hide="productNew.OrderSpecific==='No' || productNew.Id==null"><button ng-click="getPOBOQItemList(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
                                         <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                        <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                        <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                     </ul>
                                 </td>
                             </tr>
@@ -1255,7 +1257,7 @@
 </div>
 
 <div class="modal fade site-modal in" id="updatePOBOQPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modellgModify">
         <div class="modal-content">
             <div class="modal-header">PO BOQ List <button type="button" class="close" ng-click="CloseupdatePOBOQPopUp();">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
@@ -1267,56 +1269,20 @@
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>
-                                <!--<div e-column e-template="#CheckBoxTempUpdate" e-headertemplateid="#headerTemplate11"--> @*e-headertext="Chk"*@ <!--e-width="40" textAlign='center'></div>-->
-
-                                <div e-column e-field="BOQDetailId" e-headertext="BOQ System Id" e-width="100"></div>
-                                <div e-column e-type="string" e-field="POID" e-headertext="PO Id" e-width="80px"></div>
-                                <div e-column e-field="PODetailsID" e-headertext="PO DetailId" e-width="100"></div>
+                                <div e-column e-field="BOQDetailId" e-headertext="BOQ System Id" e-width="80"></div>
+                                <div e-column e-type="string" e-field="POID" e-headertext="PO Id" e-width="60px"></div>
+                                <div e-column e-field="PODetailsID" e-headertext="PO DetailId" e-width="80"></div>
                                 <div e-column e-field="BOQItemRefNo" e-headertext="Item Ref." e-width="100"></div>
                                 <div e-column e-type="string" e-field="UserName" e-headertext="Material" e-width="80px"></div>
                                 <div e-column e-type="string" e-field="StandardName" e-headertext="Article" e-width="120px"></div>
-                                <div e-column e-field="BOQUOM" e-headertext="BOQUOM" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="BOQUOM" e-headertext="BOQUOM" e-width="60" textAlign='Right'></div>
                                 <div e-column e-template="#POQtys" e-field="POQty" e-headertext="PO Qty" e-width="100" textAlign='Right'></div>
                                 <div e-column e-field="GRNRcvQty" e-headertext="OtherBOQ Qty" e-width="100" textAlign='Right'></div>
                                 <div e-column e-field="Balance" e-headertext="Balance Qty" e-width="100" textAlign='Right'></div>
                                 <div e-column e-field="TransactionUoM" e-headertext="UOM" e-width="100" textAlign='Right'></div>
                                 <div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
-                                <!--<div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>-->
-                                @*<div e-column e-field="TransactionRate" e-textalign="right" e-headertext="BOQRate" e-width="100"></div>*@
-                                <!--<div e-column e-template="#BOQQRate" e-field="TransactionRate" e-textalign="right" e-decimalplaces="4" e-headertext="Rate" e-width="100"></div>
-                                <div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" e-textalign="right"></div>
-                                <div e-column e-field="RMDescription" e-headertext="Item Desc" e-width="100"></div>
-                                <div e-column e-field="RMVendorSpec" e-headertext="Vendor Ref." e-width="100"></div>
-                                <div e-column e-field="RMCustomerSpec" e-headertext="Customer Ref." e-width="100"></div>
-                                <div e-column e-field="BOQOwnReferenceNo" e-headertext="Own Ref." e-width="100"></div>
-
-                                <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
-
-                                <div e-column e-field="RequiredQty" e-headertext="Required Qty" e-width="100" textAlign='Right'></div>
-                                <div e-column e-type="number" e-field="BOMQty" e-headertext="Plan Qty" e-width="100" textAlign='Right'></div>-->
-                                @*<div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="120px"></div>*@
-                                <!--<div e-column e-type="number" e-field="BOMAmount" e-headertext="Required Amount" e-width="60px"></div>
-                                <div e-column e-type="number" e-field="PlanAmount" e-headertext="Plan Amount" e-width="60px"></div>]
-                                <div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
-                                <div e-column e-type="string" e-field="MaterialCode" e-headertext="Material Code" e-width="120px"></div>
-                                <div e-column e-field="UserName" e-headertext="Material" e-width="120"></div>
-                                <div e-column e-type="string" e-field="ArticleCode" e-headertext="Article Code" e-width="120px"></div>
-                                <div e-column e-field="StandardName" e-headertext="Article" e-width="120"></div>
-                                <div e-column e-type="string" e-field="SKU1" e-headertext="SKU1" e-width="50px"></div>
-                                <div e-column e-type="string" e-field="SKU2" e-headertext="SKU2" e-width="50px"></div>
-                                <div e-column e-type="string" e-field="SKUDescConcat" e-headertext="SKU Desc." e-width="50px"></div>
-                                <div e-column e-field="SalesOrderId" e-headertext="SO Id" e-width="80"></div>
-                                <div e-column e-field="Destination" e-headertext="Destination" e-width="80"></div>
-                                <div e-column e-type="number" e-field="BOMQty" e-headertext="BOM Qty" e-width="60px"></div>
-                                <div e-column e-type="number" e-field="BalanceToPurchase" e-headertext="Reuse From Inventory" e-format="{0:N2}" e-width="100px"></div>
-                                <div e-column e-field="POCriteria" e-headertext="PO Criteria" e-width="100"></div>
-                                <div e-column e-field="Remark" e-headertext="Remark" e-width="100"></div>
-                                <div e-column e-field="FileName" e-headertext="File Name" e-width="100"></div>-->
                             </div>
                         </div>
-                        @*<script type="text/template" id="checkboxTemplateChild">
-                                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
-                            </script>*@
                         <script type="text/template" id="POQtys">
                             <input type="number" name="POQty" ng-model="data.POQty" class="form-control" e-disable="true">
                         </script>
@@ -1438,3 +1404,98 @@
         </div>
     </div>
 </div>
+@*End Extra tax Add*@
+<div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Tax Information</div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <p>Taxable amount : <b>{{taxAbleAmnt| number:2}}</b>&nbsp;<b>{{Currency}}</b></p>
+                    <p>HSNCode : <b>{{HSNCode}}</b></p>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">If Percentage Applicable-1</label>
+                        <div class="col-sm-6">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="TaxOption" ng-model="productNew.TaxOption" value="Yes" ng-click="TaxOption('Yes');"> @*ng-hide="HSNCode !=null"*@
+                                    <span class="cr"><i class="cr-icon"></i></span>Yes
+                                </label>
+                                <label>
+                                    <input type="radio" name="TaxOption" ng-model="productNew.TaxOption" value="No" ng-click="TaxOption('No');">@*ng-hide="HSNCode !=null"*@
+                                    <span class="cr"><i class="cr-icon"></i></span>No
+                                </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div>
+                    <p class="col-md-11"></p>
+                    <button type="button" class="btn btn-action" ng-click="addTax();">Add Tax</button>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped" border="1" id="AddTax">
+                        <thead>
+                            <tr>
+                                <th ng-hide="true">id</th>
+                                <th>Tax Category</th>
+                                <th ng-hide="true">HSN Code</th>
+                                <th>Percentage</th>
+                                <th>Tax Amount</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in taxCategoryList">
+                                <td ng-hide="true">
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Id" readonly>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="x.TaxCategoryId" ng-options="item.Value as item.Text for item in taxCategoryListcbo" ng-change="onchangeFunction1(x.TaxCategoryId)"></select>
+                                    </div>
+                                </td>
+                                <td ng-hide="true">
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.HSNCode">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.Percentage" ng-keyup="calculateTaxAmount(x);" ng-disabled="productNew.TaxOption ==='No'"> @*|| HSNCode !=null"*@
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.TaxAmount" ng-keyup="checkRowValidation(x, $index)" ng-disabled="productNew.TaxOption ==='Yes'">
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="Del(x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-right"><strong>{{taxCategoryList | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="closeReceiveTaxPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Update</button></li>
+                        <li><button ng-click="closeReceiveTaxPopUpwindow();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="rowDeletePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>

@@ -2130,20 +2130,23 @@ namespace Library.MaterialManagement.Inventory
 							,IIh.TotalAmount Amount
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
-							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
+							,IIH.CountryId,IIH.CountryName
+							,II.ContractId,II.ProductionOrderId,Con.ContractNo
                             ,IsNULL(V.VoucherNo,'') VoucherNo ,IsPark=case when II.VoucherId<>'' then 0 else 1 end
-							FROM[TRN].[InventoryIssue] AS II
+							FROM [TRN].[InventoryIssue] AS II
 							left join (
-									SELECT IID.InventoryIssueId,IID.IsAsset,IIH.IssueRequestDetailId,SUM(IIH.Qty) Qty, SUM(IIH.TotalAmount) TotalAmount
-									FROM trn.InventoryIssueHistory IIH JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+									SELECT IID.InventoryIssueId,IID.IsAsset,C.UserName CountryName,C.Id CountryId,SUM(IIH.Qty) Qty, SUM(IIH.TotalAmount) TotalAmount
+									FROM trn.InventoryIssueHistory IIH 
+									JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+									left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
+									left JOIN SCS.Country C ON C.Id=IR.CountryId
 									WHERE IID.IsAsset= 0
-									GROUP BY IID.InventoryIssueId,IIH.IssueRequestDetailId,IID.IsAsset
+									GROUP BY IID.InventoryIssueId,IID.IsAsset,C.UserName,C.Id
 									) IIH ON IIH.InventoryIssueId=II.Id
 							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
-							left JOIN SCS.Country c ON C.Id=IR.CountryId
+							
 							left join dbo.Contract Con On Con.Id=II.ContractId
                             LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
 						WHERE II.PlantId= '" + plantId + @"'
@@ -7401,7 +7404,7 @@ namespace Library.MaterialManagement.Inventory
                              
                            Where IRM.CheckedBy IS NOT NULL 
 						   AND IRM.CheckedByStatus='Checked' 
-						   AND IRM.AuthorizedByStatus='Approval' 
+						   AND IRM.AuthorizedByStatus='Approved' 
 						   AND IRM.AuthorizedBy IS NOT null  
 						   AND IRM.IssueSlipType='AssetSlip'
 						   AND IRM.PlantId='" + identity.PlantId + @"'
@@ -7609,7 +7612,7 @@ namespace Library.MaterialManagement.Inventory
                                 	,IR.ExpenseActivityId
                                 	,IA1.UserName ActivityName
                                 	,IRM.Id IssueRequestMasterId
-                                	,IR.Id IssueRequest
+                                	,IR.Id IssueRequest,MM.IsAsset
                                 	--,RequestedQty=Isnull(IR.RequestedQty,0)-ISNULL(ABC.Qty,0)							
                                 	--,PostingQty.MaterialStorageId
                                 	,Convert(BIT, 0) 'check'
@@ -7753,7 +7756,7 @@ namespace Library.MaterialManagement.Inventory
                                 	,IR.ExpenseActivityId
                                 	,IA1.UserName
                                 	,IRM.Id
-                                	,IR.Id
+                                	,IR.Id,MM.IsAsset
                                 	--,PostingQty.MaterialStorageId
                                 	,AlternativeUOM.BaseUOMFactor";
                 }

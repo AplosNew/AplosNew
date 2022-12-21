@@ -474,6 +474,7 @@ namespace Aplos.Areas.Productions.Controllers
             var fileName = "";
             var strPath = "";
             var File = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             ReportUtility ru = new ReportUtility();
             fileName = "PackingList" + plantId + ".docx";
@@ -527,10 +528,30 @@ namespace Aplos.Areas.Productions.Controllers
                     {
                         //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                         document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+
+                        
+                    }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, identity.Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
                     }
                 }
 
                 document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+
+                //string fn = "Printed By: " + identity.Name + "                                        Date&Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt");
+
+                //IWParagraph paragraph = section.AddParagraph();
+                //WFootnote footnote = (WFootnote)paragraph.AppendFootnote(Syncfusion.DocIO.FootnoteType.Endnote);
+                //footnote.MarkerCharacterFormat.SubSuperScript = SubSuperScript.SuperScript;
+                //document.EndnoteNumberFormat = FootEndNoteNumberFormat.LowerCaseRoman;               
+                //paragraph = footnote.TextBody.AddParagraph();
+                //paragraph.AppendText(fn);
+               
 
                 foreach (var item in ReplaceInfo.Keys)
                 {
@@ -547,6 +568,8 @@ namespace Aplos.Areas.Productions.Controllers
                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
                 pdfDocument.PageSettings.Width = 1200;
                 pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                
+               
                 //Releases all resources used by DocToPDFConverter
                 converter.Dispose();
 
@@ -588,7 +611,7 @@ namespace Aplos.Areas.Productions.Controllers
                                 ,ISNULL(sc.TotalQtyNetWeight,0)TotalQtyNetWeight,ISNULL(sc.GrossWeight,0)GrossWeight,sc.ProductCode, sc.LotNo,FORMAT(p.AddedDate,'dd-MMM-yyyy') PackingDate,
                                 u.UserName as UoM,pbt.UserName as ConsigneeBilltoName,pst.UserName as ConsigneeShiptoName,pst.UserName as AcceptedBy,c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
                                 c.ContractNo,FORMAT(c.AddedDate,'dd-MMM-yyyy') AddedDate,PT.UserName PaymentTerm
-                              ,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate
+                              ,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate,P.AddedBy CreatedBy
                                 from trn.Packing as p 
                                 LEFT JOIN TRN.PackingLineItem pli on pli.PackingId=p.PackingId
                                 LEFT JOIN TRN.POLotReference plr on plr.PackingLineItemId= pli.PackingLineItemId
@@ -621,7 +644,7 @@ namespace Aplos.Areas.Productions.Controllers
                                 FROM dbo.ItemScanChild sc 
 								LEFT JOIN TRN.POLotReference pol on pol.Id = sc.PackingId
 							    LEFT JOIN TRN.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
-							    WHERE pli.PackingId = '" + PackingId + @"' --and sc.IsDespatch = 0
+							    WHERE pli.PackingId = '" + PackingId + @"'  and sc.Booked = 1
                                 GROUP BY  sc.ProductCode ,sc.POId , sc.LotNo,sc.netWeight,sc.GWeight
                                 ) as sc on sc.LotNo = plr.LotNo and sc.ProductCode = plr.ProductCode and sc.POId = plr.PONo
 

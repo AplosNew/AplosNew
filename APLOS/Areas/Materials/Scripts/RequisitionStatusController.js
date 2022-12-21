@@ -16,6 +16,15 @@ function RequisitionStatusController(fileReader, commonMessage, $scope, $rootSco
 	$controller("employeeBaseController", { $scope: $scope, $http: $http });
 
 
+	$scope.Employee = "AllEmployee";
+	//$scope.IsEmployee = function () {
+	//	if ($scope.EmployeeName) {
+	//		$scope.EmployeeName = 'Employee';
+	//	}
+	//	else
+	//		$scope.EmployeeAll = 'All';
+	//}
+
 	$scope.showEmployeeListPopUp = function () {
 		
 		baseService.setCurrentPage('employeeList');
@@ -56,14 +65,19 @@ function RequisitionStatusController(fileReader, commonMessage, $scope, $rootSco
 	};
 
 
-	$scope.EmployeeId = null,
-	$scope.RequisitionBeforeDate = null,
-	$scope.RequisitionStatus = null,
+	$scope.EmployeeId = null;
+	$scope.RequisitionFromDate = null;
+	$scope.RequisitionToDate = null;
+	$scope.RequisitionStatus = null;
 	$scope.RequisitionStatusList = [];
 	$scope.GetRequisitionStatus = function () {
 		
-		if ($scope.RequisitionBeforeDate === null || $scope.RequisitionBeforeDate === "") {
-			ShowResult('Select Requisition Before Date', 'failure');
+		if ($scope.RequisitionFromDate === null || $scope.RequisitionFromDate === "") {
+			ShowResult('Select Requisition From Date', 'failure');
+			return false;
+		}
+		if ($scope.RequisitionToDate === null || $scope.RequisitionToDate === "") {
+			ShowResult('Select Requisition To Date', 'failure');
 			return false;
 		}
 		$http({
@@ -71,7 +85,8 @@ function RequisitionStatusController(fileReader, commonMessage, $scope, $rootSco
 			url: 'Materials/StockRegister/RequisitionStatusData',
 			data: {
 				employeeId: $scope.EmployeeId,
-				requisitionBeforeDate: $scope.RequisitionBeforeDate,
+				requisitionFromDate: $scope.RequisitionFromDate,
+				requisitionToDate: $scope.RequisitionToDate,
 				requisitionStatus: $scope.RequisitionStatus,
 			},
 			dataType: 'JSON'
@@ -115,6 +130,17 @@ function RequisitionStatusController(fileReader, commonMessage, $scope, $rootSco
 			ShowResult(response.data.Message, 'failure');
 		});
 	}
+
+	$scope.clearAllEmployee = function () {
+		$scope.RequisitionStatusList = [];
+		$scope.EmployeeId = null;
+		$scope.RequisitionBeforeDate = null;
+		$scope.RequisitionStatus = null;
+	};
+
+	$scope.clearSingleEmployee = function () {
+		$scope.RequisitionStatusList = [];
+	};
 }
    
 

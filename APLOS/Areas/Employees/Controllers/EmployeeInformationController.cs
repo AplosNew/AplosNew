@@ -940,6 +940,15 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpPost, Authorize]
+        public JsonResult CreateRelativeInfo(EmployeeInformation employeeInformation)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _employeeProfileService.UpdateRelativeInfo(employeeInformation, identity.Name);
+            return Json(new { EmployeeInformation = employeeInformation, Message = AplosMessage.Updated });
+        }
+
+
+        [HttpPost, Authorize]
         public JsonResult CreateEmployment(EmployeeInformation employeeInformation)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1386,6 +1395,20 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 return Json(employeeProfile.GetPlantWiseHRMSSetting(identity.PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+
+        [HttpGet, Authorize]
+        public JsonResult GetOnRollByBudget(string budgetId)
+        {
+            try
+            {
+                return Json(employeeProfile.GetOnRollByBudget(budgetId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

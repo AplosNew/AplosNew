@@ -247,7 +247,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                 });
     }
 
-    $scope.ConvertedDataRow = function (list,trnuomId) {
+    $scope.ConvertedDataRow = function (list, trnuomId) {
         var BaseUOMFactortemp = $.grep(list, function (item) {
             return item.Value === trnuomId;
         })[0].BaseUOMFactor;
@@ -610,6 +610,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                                 "MaterialMasterId": poboqlist[i].MaterialMasterId, "ArticleId": poboqlist[i].ArticleId
                                 , "FirstCharacteristicsValueId": poboqlist[i].FirstCharacteristicsValueId
                                 , "SecondCharacteristicsValueId": poboqlist[i].SecondCharacteristicsValueId
+                                , "SecondCharacteristicsValue": poboqlist[i].SecondCharacteristicsValue
                                 , "ThitrdCharacteristicsValueId": poboqlist[i].ThitrdCharacteristicsValueId
                                 , "GroupId": poboqlist[i].GroupId
                             });
@@ -634,6 +635,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                                         && row.ArticleId == getRow[0].ArticleId
                                         && row.FirstCharacteristicsValueId == getRow[0].FirstCharacteristicsValueId
                                         && row.SecondCharacteristicsValueId == getRow[0].SecondCharacteristicsValueId
+                                        && row.SecondCharacteristicsValue == getRow[0].SecondCharacteristicsValue
                                         && row.ThitrdCharacteristicsValueId == getRow[0].ThitrdCharacteristicsValueId
                                         && row.GroupId == getRow[0].GroupId
                                     ) {
@@ -719,7 +721,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             ShowResult('Please select Vendor', 'failure');
             return true;
         }
-        if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false && $scope.productNew.CheckedBy==null) {
+        if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false && $scope.productNew.CheckedBy == null) {
             ShowResult('Please select Checked By', 'failure');
             return true;
         }
@@ -731,7 +733,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             ShowResult('Please select Checked By', 'failure');
             return true;
         }
-       
+
         //if (baseService.isUndefinedOrNull($scope.productNew.DeliveryDate)) {
         //    ShowResult('Please Input DeliveryDate', 'failure');
         //    return true;
@@ -1418,7 +1420,10 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                     }
                     else {
                         var Done = 0;
-                        var getRow3 = $filter("filter")($scope.updatePOBOQListS, { "BOQDetailId": $scope.UpdatepoBoqItemList[i].BOQId });
+                        var getRow3 = $filter("filter")($scope.updatePOBOQListS, {
+                            "BOQDetailId": $scope.UpdatepoBoqItemList[i].BOQId, "MaterialMasterId": $scope.UpdatepoBoqItemList[i].MaterialMasterId
+                            , "ArticleId": $scope.UpdatepoBoqItemList[i].ArticleId, "FirstCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValueId
+                        });
                         if (getRow3.length > 0) {
                             throw "Already taken";
                         }
@@ -1426,17 +1431,17 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                             $scope.UpdatepoBoqItemList[i].Id = null;
                             $scope.poBoqItemListNew.push($scope.UpdatepoBoqItemList[i]);
                             Done = 1;
-                                var getRow = $filter("filter")($scope.tempList, {
-                                    "MaterialMasterId": $scope.UpdatepoBoqItemList[i].MaterialMasterId, "ArticleId": $scope.UpdatepoBoqItemList[i].ArticleId
-                                    , "FirstCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValueId
-                                    , "SecondCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].SecondCharacteristicsValueId
-                                    , "ThitrdCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].ThitrdCharacteristicsValueId
-                                    , "GroupId": $scope.UpdatepoBoqItemList[i].GroupId
-                                });
-                                if (getRow.length == 0) {
-                                    $scope.tempList.push($scope.UpdatepoBoqItemList[i]);
-                                }
-                            
+                            var getRow = $filter("filter")($scope.tempList, {
+                                "MaterialMasterId": $scope.UpdatepoBoqItemList[i].MaterialMasterId, "ArticleId": $scope.UpdatepoBoqItemList[i].ArticleId
+                                , "FirstCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValueId
+                                , "SecondCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].SecondCharacteristicsValueId
+                                , "ThitrdCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].ThitrdCharacteristicsValueId
+                                , "GroupId": $scope.UpdatepoBoqItemList[i].GroupId
+                            });
+                            if (getRow.length == 0) {
+                                $scope.tempList.push($scope.UpdatepoBoqItemList[i]);
+                            }
+
                         }
                         if (Done == 1) {
                             angular.element(document.querySelector('#AddMaterialPopUp')).modal('hide');
@@ -1448,5 +1453,176 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             ShowResult(e, 'info', 'AddMaterialPopUp');
         }
     };
+
+    $scope.taxCategoryListcbo = [];
+    $scope.LoadTaxButtonClick = function () {
+        accountService.getTaxCategoryMaterialLevelCbo(" ", function (result) {
+            $scope.taxCategoryListcbo = result;
+        });
+    }
+
+    $scope.closeReceiveTaxPopUp = function () { //hossain
+        $scope.detailModel = {};
+        $scope.receiveTaxList = [];
+        $scope.detailModel.InventoryReceiveDetailId = $scope.currentInventoryReceiveDetailIdRow;
+        $scope.detailModel.InventoryReceiveId = $scope.productNew.Id;
+        if ($scope.taxCategoryList.length > 0) {
+            for (var i = 0; i < $scope.taxCategoryList.length; i++) {
+                $scope.receiveTaxList.push($scope.taxCategoryList[i]);
+            }
+        }
+
+        for (var i = 0; i < $scope.receiveTaxList.length; i++) {
+            var getRow = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": $scope.receiveTaxList[i].TaxCategoryId });
+            if (getRow.length == 2) {
+                ShowResult("You can't add Same Tax two times", 'failure', 'receiveTaxPopUp');
+                return false;
+            }
+
+            if (baseService.isUndefinedOrNull($scope.receiveTaxList[i].TaxCategoryId)) {
+                ShowResult("Select Tax Category.", 'failure', 'receiveTaxPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.receiveTaxList[i].Percentage)) {
+                ShowResult("Input Percentage.", 'failure', 'receiveTaxPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.receiveTaxList[i].TaxAmount)) {
+                ShowResult("Input Tax Amount.", 'failure', 'receiveTaxPopUp');
+                return false;
+            }
+        }
+        $http({
+            method: 'POST',
+            url: 'Products/PurchaseOrder/InsertExtraTax',
+            data: {
+                entity: $scope.detailModel
+                , taxCategoryList: $scope.receiveTaxList
+            },
+            dataType: 'JSON'
+        }).then(function (response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure', 'receiveTaxPopUp');
+            }
+            else {
+                ShowResult(response.data.Message, 'success', 'receiveTaxPopUp');
+                angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
+                //getInventoryMaterialList($scope.productNew.Id);
+            }
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure', 'receiveTaxPopUp');
+        };
+    }
+
+    $scope.getReceiveTaxList = function (data, flag, index, Id) {
+        ;
+        $scope.productNew.TaxOption = 'Yes';
+        $scope.LoadTaxButtonClick();
+        $scope.Currency = $("#currency option:selected").text();
+        $scope.currentMaterialRow = index;
+        $scope.currentInventoryReceiveDetailIdRow = Id;
+        $scope.taxAbleAmnt = data.TrnAmount;
+        $scope.percentageColumn = flag;
+        $scope.currentMaterialRow = index;
+        $scope.receiveTaxList = [];
+        if (data.TaxList.length > 0) {
+            $scope.HSNCode = data.TaxList[0].HSNCode;
+            if (baseService.isUndefinedOrNull(data.TaxList[0].HSNCode)) {
+                $scope.HSNCode = data.HSNCode;
+            }
+            $scope.receiveTaxList = data.TaxList;
+        }
+        $scope.total = 0;
+        $scope.taxCategoryList = [];
+        for (var j = 0; j < $scope.receiveTaxList.length; j++) {
+            $scope.taxCategoryList.push($scope.receiveTaxList[j]);
+            $scope.total = $scope.total + $scope.receiveTaxList[j].TaxAmount;
+        }
+        angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
+    };
+    $scope.calculateTaxAmount = function (data) {
+        data.TaxAmount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
+    };
+    $scope.getTotalReceiveTaxList = function (amount, flag) {
+        $scope.taxAbleAmnt = amount;
+        $scope.percentageColumn = flag;
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetTotalReceiveTaxList?receiveId=' + $scope.productNew.Id
+        }).then(function (response) {
+            $scope.receiveTaxList = response.data;
+
+        });
+        //angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
+    };
+    $scope.closeReceiveTaxPopUpwindow = function () {
+        angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
+    }
+
+    $scope.valuePassInDelModal = function (id, index) {
+        $scope.id = id;
+        $scope.deleteindexId = index;
+        if (baseService.isUndefinedOrNull(id)) {
+            var indexData = $scope.poBoqItemListNew[index];
+            $scope.poBoqItemListNew.splice(index, 1);
+            var i = $scope.updatePOBOQListS.length;
+            while (i--) {
+                if ($scope.updatePOBOQListS[i]["MaterialMasterId"] === indexData.MaterialMasterId
+                    && $scope.updatePOBOQListS[i]["ArticleId"] === indexData.ArticleId
+                    && $scope.updatePOBOQListS[i]["FirstCharacteristicsValueId"] === indexData.FirstCharacteristicsValueId
+                    && $scope.updatePOBOQListS[i]["SecondCharacteristicsValueId"] === indexData.SecondCharacteristicsValueId
+                    && $scope.updatePOBOQListS[i]["ThitrdCharacteristicsValueId"] === indexData.ThitrdCharacteristicsValueId
+                    && $scope.updatePOBOQListS[i]["GroupId"] === indexData.GroupId) {
+                    $scope.updatePOBOQListS.splice(i, 1);
+                }
+            }
+        }
+        else {
+            $scope.message = 'Are you sure want to permanently delete this?';
+            angular.element(document.querySelector('#rowDeletePopUp')).modal('show');
+        }
+
+    };
+    $scope.detailDelete = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.detailDeleteUrl + $scope.id + '&OrderSpecific=' + $scope.productNew.OrderSpecific
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    {
+                        var indexData = $scope.poBoqItemListNew[$scope.deleteindexId];
+                        $scope.poBoqItemListNew.splice($scope.deleteindexId, 1);
+                        var i = $scope.updatePOBOQListS.length;
+                        while (i--) {
+                            if ($scope.updatePOBOQListS[i]["MaterialMasterId"] === indexData.MaterialMasterId
+                                && $scope.updatePOBOQListS[i]["ArticleId"] === indexData.ArticleId
+                                && $scope.updatePOBOQListS[i]["FirstCharacteristicsValueId"] === indexData.FirstCharacteristicsValueId
+                                && $scope.updatePOBOQListS[i]["SecondCharacteristicsValueId"] === indexData.SecondCharacteristicsValueId
+                                && $scope.updatePOBOQListS[i]["ThitrdCharacteristicsValueId"] === indexData.ThitrdCharacteristicsValueId
+                                && $scope.updatePOBOQListS[i]["GroupId"] === indexData.GroupId) {
+                                $scope.updatePOBOQListS.splice(i, 1);
+                            }
+                        }
+                        $scope.deleteindexId = null;
+
+                    }
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
+    $scope.toleranceCalculate = function () {
+        for (var t = 0; t < $scope.poBoqItemListNew.length; t++) {
+            $scope.poBoqItemListNew[t].Tolerance = $scope.productNew.Tolerance;
+        }
+    }
 }//End Of main
 

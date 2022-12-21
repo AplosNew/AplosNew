@@ -172,7 +172,9 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
         $scope.capitalizeJournalDataList.push($scope.cr);
     }
 
+    $scope.PostButton = false;
     $scope.Post = function () {
+        $scope.PostButton = true;
         $scope.modelNew.ToCurrencyRate = $scope.selectFixedAssetDataList[0].ToCurrencyRate;
         $scope.modelNew.CurrencyId = $scope.selectFixedAssetDataList[0].CurrencyId;
         $scope.modelNew.Id = $scope.selectFixedAssetDataList[0].IssueNo;
@@ -206,6 +208,7 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
                 $scope.popUp();
                 $scope.issueInventoryAUC();
                 $scope.PostedAUCData();
+                //$scope.PostButton = false;
             }
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
@@ -218,6 +221,7 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
         $scope.selectFixedAssetDataList = [];
         if (baseService.arrayLength($scope.voucherTypeList) === 1)
             $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
+        $scope.PostButton = false;
     };
 
     //#region GL, Budget & Activity

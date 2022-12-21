@@ -179,7 +179,7 @@ namespace Library.Service.Productions
 												where p.Id= '" + id + @"'                                                
 									) psd on psd.SalesOrderId=so.id and psd.MaterialMasterId=moi.MaterialMasterId and psd.ArticleId=moi.ArticleId
 									AND psd.FCharId=fc.Id 
-                                     WHERE so.id=(Select SalesOrderId from TRN.ProductionOrderDetail Where ProductionOrderId='" + soid + "')";
+                                     WHERE so.id IN (Select SalesOrderId from TRN.ProductionOrderDetail Where ProductionOrderId='" + soid + "')";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)
@@ -435,7 +435,7 @@ namespace Library.Service.Productions
 												WHERE p.Id='" + masterid + @"'                                                 
 									) psd on psd.SalesOrderId=so.id AND psd.MaterialMasterId=moi.MaterialMasterId AND psd.ArticleId=moi.ArticleId
 									AND psd.FCharId=fc.Id AND psd.SCharId=sc.Id 
-                                    WHERE so.id=(Select SalesOrderId from TRN.ProductionOrderDetail Where ProductionOrderId='" + soid + "') AND fc.CharacteristicsValueId='" + CharacteristicsValueId + @"' " + wc2 + @"
+                                    WHERE so.id IN (Select SalesOrderId from TRN.ProductionOrderDetail Where ProductionOrderId='" + soid + "') AND fc.CharacteristicsValueId='" + CharacteristicsValueId + @"' " + wc2 + @"
                                     --AND (isnull(cv1.UserName,'')<>'')"
                                     ;
                 }

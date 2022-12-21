@@ -12,7 +12,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
 
     $scope.masterLC = {
-        Id: null, CustomerId:null, ContractId: null, BenificiaryBankId: null, OpeningBankId: null, OpeningDescription: null, LeinBankId: null, LeinDescription: null, LCRef: null, LCDate: null, ExpiryDate: null, Amount: null, Type: null, Tenure: null, FinalDestinationId: null, PortOfLandingId: null, CurrencyId: null, IsClose: false
+        Id: null, CustomerId: null, ContractId: null, BenificiaryBankId: null, OpeningBankId: null, OpeningDescription: null, LeinBankId: null, LeinDescription: null, LCRef: null, LCDate: null, ExpiryDate: null, Amount: null, Type: null, Tenure: null, FinalDestinationId: null, PortOfLandingId: null, CurrencyId: null, IsClose: false
     };
     $scope.masterLCNew = Object.assign({}, $scope.masterLC);
 
@@ -35,6 +35,18 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         }
         $scope.hidePartyPopUp();
     };
+    $scope.shipmentModeList = [];
+    $scope.GetshipmentMode = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/shipmode/GetCbo/'
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.shipmentModeList = response.data;
+            }
+        });
+    }
+    $scope.GetshipmentMode();
 
     $scope.savedcontractList = [];
     $scope.GetSavedContract = function (masterLCId) {
@@ -198,7 +210,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                 $scope.masterLC.Tenure = 0;
             }
             if ($scope.MasterLCForm.$valid) {
-              
+
                 $http({
                     method: 'POST',
                     url: $scope.saveMasterLCUrl,
@@ -284,7 +296,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
             }
             else {
                 ShowResult(response.data.Message, 'success');
-              
+
                 $scope.GetSavedContract($scope.masterLC.Id);
             }
         }, function () {

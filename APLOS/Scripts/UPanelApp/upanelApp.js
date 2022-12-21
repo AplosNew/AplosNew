@@ -205,6 +205,7 @@ upanelApp.controller("interTransactionGivenOpeningBalanceController", interTrans
 upanelApp.controller("intSalesOrderInvoiceController", intSalesOrderInvoiceController);
 upanelApp.controller("intSalesOrderInvoiceEditController", intSalesOrderInvoiceEditController);
 upanelApp.controller("intSalesOrderInvoicePostController", intSalesOrderInvoicePostController);
+upanelApp.controller("AssetIssueSlipBaseController", AssetIssueSlipBaseController);
 upanelApp.controller("inventoryIssueController", inventoryIssueController);
 upanelApp.controller("inventoryIssueSlipBaseController", inventoryIssueSlipBaseController);
 upanelApp.controller("inventoryIssueJournalController", inventoryIssueJournalController);
@@ -798,6 +799,8 @@ upanelApp.controller("RCMTaxPayableSalesReportController", RCMTaxPayableSalesRep
 upanelApp.controller("RCMTaxReceivableSalesReportController", RCMTaxReceivableSalesReportController);
 upanelApp.controller("TDSDeductionReportController", TDSDeductionReportController);
 upanelApp.controller("GSTReceivableReportController", GSTReceivableReportController);
+upanelApp.controller("debitNoteCreditNoteTaxReportController", debitNoteCreditNoteTaxReportController);
+upanelApp.controller("parkedReportController", parkedReportController);
 upanelApp.controller("GSTPayableSalesReportController", GSTPayableSalesReportController);
 upanelApp.controller("BonusProcessController", BonusProcessController);
 upanelApp.controller("elementCodeController", ElementCodeController);
@@ -1116,6 +1119,16 @@ upanelApp.controller("GeneralContractItemMasterController", GeneralContractItemM
 upanelApp.controller("GeneralContractController", GeneralContractController)
 upanelApp.controller("maintenancePlanningReportController", maintenancePlanningReportController)
 upanelApp.controller("teamPlanReportController", teamPlanReportController)
+upanelApp.controller("GeneralContractEntryController", GeneralContractEntryController)
+upanelApp.controller("GeneralContractReportController", GeneralContractReportController)
+upanelApp.controller("GeneralContractApprovedController", GeneralContractApprovedController)
+upanelApp.controller("GeneralContractCheckedController", GeneralContractCheckedController)
+upanelApp.controller("skillManagementController", skillManagementController)
+upanelApp.controller("skillManagementDetailsController", skillManagementDetailsController)
+upanelApp.controller("pendingSkillManagementController", pendingSkillManagementController)
+upanelApp.controller("LandedcostreportController", LandedcostreportController)
+upanelApp.controller("OutPassRegisterController", OutPassRegisterController)
+upanelApp.controller("masterOrderSalesAdditionalController", masterOrderSalesAdditionalController)
 
 
 upanelApp.config(AccessControllerConfig);

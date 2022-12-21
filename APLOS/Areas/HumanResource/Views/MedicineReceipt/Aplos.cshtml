@@ -1,4 +1,4 @@
-﻿ <style>
+﻿<style>
     #medicinereceiptchildId {
         display: none
     }
@@ -46,110 +46,165 @@
             </div>
 
             @*COLUMN 2*@
-        <div class="col-xs-12 col-sm-8 col-md-6">
-            @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Location<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.LocationId" required name="Location"
-                            tabindex="2">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in LocationList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Invoice No.<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                   
-                    <input type="text" name="InvoiceNo" ng-model="ModalNew.InvoiceNumber" class="form-control" maxlength="15" required tabindex="3">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <span class="input-group-addon">{{ModalNew.PartyCode}}</span>
-                        <input type="text" name="Vendor" ng-model="ModalNew.PartyName" class="form-control" required readonly>
-                        <span class="input-group-btn">
-                            <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+            <div class="col-xs-12 col-sm-8 col-md-6">
+                @*<div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Location<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="ModelNew.LocationId" required name="Location"
+                                        tabindex="2">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in LocationList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>*@
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Invoice No.<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
 
-                        </span>
+                        <input type="text" name="InvoiceNo" ng-model="ModalNew.InvoiceNumber" class="form-control" maxlength="15" required tabindex="3">
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <span class="input-group-addon">{{ModalNew.PartyCode}}</span>
+                            <input type="text" name="Vendor" ng-model="ModalNew.PartyName" class="form-control" required readonly>
+                            <span class="input-group-btn">
+                                <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-           
-        </div>
-           
+
         </div>
 
 
         @*---------------------------------------------------------------------------------------------------------*@
-    <div class="table-responsive modal-table">
-        <table class="table table-responsive table-striped">
-            <thead ng-show="userMedicineList.length > 0">
-                <tr>
-                    <th>Serial No</th>
-                    <th>User Name</th>
-                    <th>Expiry Date</th>
-                    <th>Quantity</th>
-                    <th>Amount</th>
-                    <th>Rate</th>
-                    <th>Action</th>
+        <div class="table-responsive modal-table">
+            <table class="table table-responsive table-striped">
+                <thead ng-show="userMedicineList.length > 0">
+                    <tr>
+                        <th>Serial No</th>
+                        <th>User Name</th>
+                        <th>Expiry Date</th>
+                        <th>Quantity</th>
+                        <th>Amount</th>
+                        <th>Rate</th>
+                        <th>Action</th>
 
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="x in userMedicineList">
-                    <td>{{x.SrNo}}</td>
-                    <td>{{x.UserName}}</td>
-                    <td>
-                        <div class="show-message">
-                            <input type="text" ng-model="x.ExpiryDate" class="form-control" datepicker>
-                        </div>
-                    </td>
-                    <td>
-                        <input type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Quantity" ng-model="x.Quantity" ng-keyup="calcAmount(x, $index)">
-                    </td>
-                    <td>
-                        <input type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" ng-model="x.Amount" ng-keyup="calcAmount(x, $index)">
-                    </td>
-                    <td class="text-right">{{x.Rate | number:2 }}</td>
-                    <td><ul class="list-inline action-list">
-    <li>
-        <button ng-click="removeDetentionLResPerson(x.EmployeeName, $index, 'userMedicineList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Remove" ng-disabled="true"><i class="glyphicon glyphicon-remove"></i></button>
-    </li>
-</ul></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in userMedicineList">
+                        <td>{{x.SrNo}}</td>
+                        <td>{{x.UserName}}</td>
+                        <td>
+                            <div class="show-message">
+                                <input type="text" ng-model="x.ExpiryDate" class="form-control" datepicker>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Quantity" ng-model="x.Quantity" ng-keyup="calcAmount(x, $index)">
+                        </td>
+                        <td>
+                            <input type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" ng-model="x.Amount" ng-keyup="calcAmount(x, $index)">
+                        </td>
+                        <td class="text-right">{{x.Rate | number:2 }}</td>
+                        <td>
+                            <ul class="list-inline action-list">
+                                <li>
+                                    <button ng-click="deleteSingleRow(x.EmployeeName, $index, 'userMedicineList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                </li>
+                            </ul>
+                        </td>
 
-                </tr>
-            </tbody>
-            <tfoot ng-show="userMedicineList.length">
-                <tr>
-                    <td>Total</td>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right"><strong>{{userMedicineList | sumByKey : 'Amount' | number:2}}</strong></td>
+                    </tr>
+                </tbody>
+                <tfoot ng-show="userMedicineList.length">
+                    <tr>
+                        <td>Total</td>
+                        <td></td>
+                        <td></td>
+                        <td class="text-right"><strong>{{userMedicineList | sumByKey : 'Amount' | number:2}}</strong></td>
 
-                </tr>
-                
-            </tfoot>
-        </table>
-        <div class="common-btn" style="margin-top:10px">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="SaveHeader();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-                <li> <button ng-click="Update();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>
-                <li> <button ng-click="XlsMedicineReceipt();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
-               
-            </ul>
+                    </tr>
+
+                </tfoot>
+            </table>
+            <div class="common-btn" style="margin-top:10px">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="SaveHeader();" id="savebtn" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                    <li> <button ng-click="Update();" id="updatebtn" class="btn" tabindex="9" style="display:none"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>
+                    <li> <button ng-click="XlsMedicineReceipt();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
+
+                </ul>
+            </div>
         </div>
-    </div>
-       
+
     </fieldset>
 
 
 </div>
+<div class="aplos-grid-toggle">
+    <div class="row">
 
+        <div class="table-responsive modal-table">
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="form-element-ctrl">
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <label class="col-sm-4 control-label">From<sup>*</sup></label>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <input type="text" ng-model="data.FromDate" name="FromDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <label class="col-sm-4 control-label">To<sup>*</sup></label>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <input type="text" ng-model="data.ToDate" name="ToDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div style="color:black;" id="Grid" ej-grid e-datasource="MedicineReceiptList"
+                 e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                 e-detailsdatabound="detailgrid">
+                <div e-columns>
+                    <div e-column e-headertext="Actions" e-width="60">
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+                    </div>
+                    <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>
+                    <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
+                    <div e-column e-field="InvoiceNumber" e-headertext="Invoice Number" e-width="130"></div>
+                    <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="130"></div>
+                    <div e-column e-field="Amount" e-headertext="Sum Of Amount" e-width="130"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="common-btn" style="margin-top:10px">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="XlsDownloadMedicineInvoiceReport();" id="savebtn" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i>Export in Excel</button></li>
+
+        </ul>
+    </div>
+</div>
 <confirm-modal></confirm-modal>
 
 @Html.Partial("~/Areas/HumanResource/Views/MedicineReceipt/_MedicinePopUp.cshtml")
@@ -157,28 +212,3 @@
 
 
 
-<div class="aplos-grid-toggle">
-
-    <div style="color:black;" id="Grid" ej-grid e-datasource="MedicineReceiptList"
-         e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-         
-         e-detailsdatabound="detailgrid">
-        <div e-columns>
-            @*<div e-column e-headertext="Actions" e-width="60">
-            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
-        </div>*@
-            @*<div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>*@
-            <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
-            <div e-column e-field="InvoiceNumber" e-headertext="Invoice Number" e-width="130"></div>
-            <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="130"></div>
-            <div e-column e-field="Amount" e-headertext="Sum Of Amount" e-width="130"></div>
-            
-            
-
-        </div>
-    </div>
-
-
-</div>

@@ -92,7 +92,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/DayBookReport.cshtml");
         }
-
+        public ActionResult ParkedReport()
+        {
+            return View("~/Areas/Accounts/Views/ParkedReport.cshtml");
+        }
 
         public ActionResult ExpenseRegisterReport()
         {
@@ -103,6 +106,41 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var workbook = _accountVoucherReportService.GetDayBooksReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate, entityId, dateType);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+        [Authorize, HttpGet]
+        public ActionResult GetParkedReport(ReportFormat reportFormat, DateTime fromdate, DateTime todate,string reportType)
+        {
+            string reportFileName = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Syncfusion.XlsIO.IWorkbook workbook = null;
+            if(reportType== "Voucher")
+            {
+                workbook = _accountVoucherReportService.GetVoucherParkedReport(out  reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate);
+            }
+            else if (reportType == "GRN")
+            {
+                workbook = _accountVoucherReportService.GetGRNParkedReport(out reportFileName, identity.PlantId);
+            }
+            else if (reportType == "Issue")
+            {
+                workbook = _accountVoucherReportService.GetIssueParkedReport(out reportFileName, identity.PlantId);
+            }
+            else
+            {
+                workbook = _accountVoucherReportService.GetServiceParkedReport(out reportFileName, identity.PlantId);
+            }
+
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:

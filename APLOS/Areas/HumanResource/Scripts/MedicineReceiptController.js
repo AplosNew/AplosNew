@@ -15,6 +15,7 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     $scope.partyType = 'Vendor';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
     $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     // GET CURRENT DATE
     var curDate = new Date()
@@ -251,7 +252,8 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         $scope.ModalNew.Id = args.data.Id;
         $scope.GetChildValue();
         $scope.ModalNew = Object.assign({}, args.data);
-
+        document.getElementById("updatebtn").style.display = "block";
+        document.getElementById("savebtn").style.display = "none";
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -333,5 +335,58 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             });
 
     };
-   
+
+    $scope.deleteSingleRow = function (name, index, listName, tempId, listId) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.listName = listName;
+            $scope.tempDeptId = tempId;
+            $scope.listId = listId;
+            $scope.message_confirmation = "Are you sure you want to update [" + name + "]  ?";
+            angular.element(document.querySelector('#confirmRemoveDetentionLRPersonPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeDetentiontRow = function (e) {
+        $http({
+            method: 'POST',
+            url: 'Materials/DetentionLogout/DetentionLogRespPerDelete?Id=' + $scope.tempDeptId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getDetentionLogResponsiblePerson();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.fileName = "MedicineInvoiceReport.xlsx";
+    $scope.XlsDownloadMedicineInvoiceReport = function () {
+
+      $http({
+            method: 'POST',
+          url: 'HumanResource/MedicineReceipt/XlsDownloadMedicineInvoiceReport?from=' + $scope.FromDate + '&to='+$scope.ToDate ,
+            dataType: 'JSON',
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
 }

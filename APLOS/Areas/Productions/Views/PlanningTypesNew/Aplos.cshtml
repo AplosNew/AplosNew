@@ -150,7 +150,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Plan Capacity</label>
                         <div class="col-sm-8">
@@ -258,7 +258,7 @@
                         <li> <button ng-click="ClearShift();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="3"></i>Clear</button></li>
                     </ul>
                 </div>
-                <div id="GridSavedShift" ej-grid e-datasource="SavedShiftList"  e-recorddoubleclick="EditPlanShift"
+                <div id="GridSavedShift" ej-grid e-datasource="SavedShiftList" e-recorddoubleclick="EditPlanShift"
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
                      e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
                     <div e-columns>
@@ -300,7 +300,7 @@
                         <li> <button ng-click="ClearWeek();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="3"></i>Clear</button></li>
                     </ul>
                 </div>
-                <div id="GridSavedWK" ej-grid e-datasource="SavedWeekList"  e-recorddoubleclick="EditPlanWK"
+                <div id="GridSavedWK" ej-grid e-datasource="SavedWeekList" e-recorddoubleclick="EditPlanWK"
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
                      e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
                     <div e-columns>
@@ -348,7 +348,7 @@
                         <li> <button ng-click="ClearHoliday();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="3"></i>Clear</button></li>
                     </ul>
                 </div>
-                <div id="GridSavedHoliday" ej-grid e-datasource="SavedHolidayList"  e-recorddoubleclick="EditPlanHoliday"
+                <div id="GridSavedHoliday" ej-grid e-datasource="SavedHolidayList" e-recorddoubleclick="EditPlanHoliday"
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
                      e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
                     <div e-columns>
@@ -363,6 +363,215 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(7), active: isSet(7) }">
+                <div class="row">
+                    <div class="modal-body form-elements form-horizontal">
+                        <div ng-form="ppForm">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Sequence" ng-model="ModelParaNew.Sequence" class="form-control" required tabindex="1">
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Sandard Name<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Sandard Name" ng-model="ModelParaNew.SandardName" class="form-control" required tabindex="3" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Grade<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message" style="padding-right:-1px;">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="ModelParaNew.ParameterGrade" placeholder="Grade" name="ProductionGrade" ng-options="item.Value as item.Text for item in gradeList" required>
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label"></label>
+                                    <div class="col-sm-8">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="Assign" ng-model="ModelParaNew.EntryState" value="Entry">
+                                                <span class="cr"><i class="cr-icon"></i></span>Entry
+                                            </label>
+                                            <label>
+                                                <input type="radio" name="Assign" ng-model="ModelParaNew.EntryState" value="Calculate">
+                                                <span class="cr"><i class="cr-icon"></i></span>Calculate
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="ModelParaNew.EntryState=='Entry'">
+                                    <label class="col-sm-4 control-label"></label>
+                                    <div class="col-sm-4">
+                                        <div class="checkbox-site radio">
+                                            <label>
+                                                <input type="checkbox" ng-model="ModelParaNew.ValueinPercentage" ng-change="setCheckedValue('ValueinPercentage')">
+                                                <span class="cr"><i class="cr-icon"></i></span>
+                                            </label>
+                                            <label class="control-label">Percentage</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="checkbox-site radio">
+                                            <label>
+                                                <input type="checkbox" ng-model="ModelParaNew.ValueinDecimal" ng-change="setCheckedValue('ValueinDecimal')">
+                                                <span class="cr"><i class="cr-icon"></i></span>
+                                            </label>
+                                            <label class="control-label">Decimal</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="ModelParaNew.EntryState=='Entry'">
+                                    <label class="col-sm-4 control-label">Default Value</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="Fixed Value" n-decimals="2" ng-model="ModelParaNew.DefaultValue" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="User Name" ng-model="ModelParaNew.UserName" class="form-control" required tabindex="2" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Active</label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="ModelParaNew.Active" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div class="col-sm-12" ng-show="ModelParaNew.EntryState=='Calculate'">
+                                <fieldset class="scheduler-border" style="width:1076px">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Head</label>
+                                            <div class="col-sm-6">
+                                                <div class="select-style">
+                                                    <select ng-model="ModelParaNew.HeadIdFormula" id="QHeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in QualityProcessParameterHeaderList">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="common-btn">
+                                                    <ul class="list-inline text-left">
+                                                        <li>
+                                                            <button ng-click="SetQualityParaFormula('SHead');" class="btn"><i class="glyphicon glyphicon-forward"></i></button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Value</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" name="Value" ng-model="ModelParaNew.Value" class="form-control" maxlength="50">
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="common-btn">
+                                                    <ul class="list-inline text-left">
+                                                        <li>
+                                                            <button ng-click="SetQualityParaFormula('Value');" class="btn"><i class="glyphicon glyphicon-forward"></i></button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Operator</label>
+                                            <div class="col-sm-6">
+                                                <div class="select-style">
+                                                    <select ng-model="ModelParaNew.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="common-btn">
+                                                    <ul class="list-inline text-left">
+                                                        <li>
+                                                            <button ng-click="SetQualityParaFormula('Operator');" class="btn"><i class="glyphicon glyphicon-forward"></i></button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Precedence</label>
+                                            <div class="col-sm-6">
+                                                <div class="select-style">
+                                                    <select ng-model="ModelParaNew.Precedence" class="form-control" name="Precedence">
+                                                        <option value=""></option>
+                                                        <option value="(">(</option>
+                                                        <option value=")">)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="common-btn">
+                                                    <ul class="list-inline text-left">
+                                                        <li>
+                                                            <button ng-click="SetQualityParaFormula('Precedence');" class="btn"><i class="glyphicon glyphicon-forward"></i></button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="common-btn">
+                                            <ul class="list-inline text-left">
+                                                <li>
+                                                    <button ng-click="RemoveQualityParaFormula();" class="btn"><i class="glyphicon glyphicon-backward"></i></button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="form-group">
+                                            {{ModelParaNew.FormulaDescription}}
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="SaveQualityProcess();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{QualityParameterAction}}</button></li>
+                                    <li><button ng-click="ClearQualityProcessPara();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                </ul>
+                            </div>
+                            <div id="GridQualityPara" ej-grid e-datasource="QualityParameterList" e-recorddoubleclick="GetQualityPara"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+                                    <div e-column e-field="SandardName" e-headertext="Standard Name" e-width="5"></div>
+                                    <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                                    <div e-column e-field="Formula" e-headertext="Formula" e-width="5"></div>
+                                    <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                                    <div e-column e-headertext="Actions" e-template="#ShowQPActionButtons" e-width="3"></div>
+                                </div>
+                            </div>
+                            <script type="text/template" id="ShowQPActionButtons">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;" title="Quality Parameter Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeQualityPara(this);" style="margin: -6px;"></i></button>
+                            </script>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(8), active: isSet(8) }">
                 <div class="row" ng-form="dateform">
@@ -400,6 +609,12 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(9), active: isSet(9) }">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SavePlanCapacity();" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Save</button></li>
+                        <li> <button ng-click="GetPlanCapacityReport();" class="btn"><i class="glyphicon glyphicon-download" tabindex="3"></i>Expoert to Excel</button></li>
+                    </ul>
+                </div>
                 <div id="GridCapacity" ej-grid e-datasource="PlanCapacityList"
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
                      e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
@@ -411,8 +626,8 @@
                         <div e-column e-field="ApplicableShift" e-headertext="ApplicableShift" e-width="3"></div>
                         <div e-column e-field="WeekOff" e-headertext="WeekOff" e-width="3"></div>
                         <div e-column e-field="NetWorkingShift" e-headertext="NetWorkingShift" e-width="3"></div>
-                        <div e-column e-field="From" e-headertext="From" e-width="3"></div>
-                        <div e-column e-field="To" e-headertext="To" e-width="3"></div>
+                        <div e-column e-field="FromTime" e-headertext="FromTime" e-width="3"></div>
+                        <div e-column e-field="ToTime" e-headertext="ToTime" e-width="3"></div>
                         <div e-column e-field="NetWorkingMinute" e-headertext="NetWorkingMinute" e-width="3"></div>
                         <div e-column e-field="PlanShift" e-template="#PlanShift" e-headertext="PlanShift" e-width="3"></div>
                         <div e-column e-field="PlanMinute" e-template="#PlanMinute" e-headertext="PlanMinute" e-width="3"></div>
@@ -490,8 +705,6 @@
         </table>
     </div>
 </div>
-
-
 <div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -537,7 +750,6 @@
         <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
     </script>
 </div>
-
 <ej-dialog id="workCenterPopUp" title=" Work Center" e-enablemodal="true" e-position-y="0" e-showoninit="false"
            e-width="550" e-target="#tarekcontainer" e-open="enableBtn">
     <div class="row" style="width:540px">
@@ -564,7 +776,6 @@
         </div>
     </div>
 </ej-dialog>
-
 <div class="modal fade site-modal in" id="ShiftPopUpId" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -642,7 +853,6 @@
         </div>
     </div>
 </div>
-
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removeRPPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteResponsibleEmployee();"></confirm-archive-generic>
 <script type="text/javascript">

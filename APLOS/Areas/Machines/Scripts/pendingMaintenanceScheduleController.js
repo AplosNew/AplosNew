@@ -26,7 +26,7 @@ function pendingMaintenanceScheduleController(cboService, commonMessage, $scope,
             method: 'GET',
             url: 'Machines/MaintenanceStatusDetails/GetFromDateList'
         }).then(function successCallback(response) {
-            $scope.statusNew.FromDate = response.data[0];
+            $scope.statusNew.FromDate = response.data[0].FromDate;
         });
     }
     $scope.GetFromDateList();

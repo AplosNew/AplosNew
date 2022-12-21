@@ -851,7 +851,7 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
+                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
                                 AND IR.IsClosed= 0 and  (pod.TransactionQty+((pod.TransactionQty*ir.Tolerance)/100)) > ISNULL(pod.GRNQty,0) AND IR.PartyId='" + vendorId + @"'
                                          AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
@@ -899,7 +899,7 @@ namespace Library.MaterialManagement.Inventory
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
 								LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId                                        
-								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
+								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
                                          AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') = 'LC'  and isnull(PLC.IsAccepptanceFirst,0)=0
@@ -948,7 +948,7 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ') 
+                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq') 
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
@@ -998,7 +998,7 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ') 
+								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq') 
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') = 'LC' and isnull(PLC.IsAccepptanceFirst,0)=0
@@ -1046,7 +1046,7 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
+                                         WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
                                          AND IR.IsApproved=1 AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus IS NULL
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
@@ -1096,7 +1096,7 @@ namespace Library.MaterialManagement.Inventory
 											from  dbo.MasterLC PDAMAP 							 
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
-										WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
+										WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0 AND IR.PartyId='" + vendorId + @"'
                                          AND isnull(PT.PaymentMode,'') = 'LC' and isnull(PLC.IsAccepptanceFirst,0)=0
                                          AND IR.CheckedByStatus Is NULL AND IR.AuthorizedByStatus IS NULL
@@ -2475,9 +2475,15 @@ namespace Library.MaterialManagement.Inventory
                 WSection section = document.Sections[0];
 
                 DataTable dtOrderMaster;
+                DataTable dtOrderMasterDetail;
 
-
-                dtOrderMaster = loadGRNBOQPOMaterialMaster(grnBOQPOId);
+                dtOrderMaster = loadGRNBOQPOMaster(grnBOQPOId);
+                dtOrderMasterDetail = loadGRNBOQPOMaterialMaster(grnBOQPOId);
+                
+                if (dtOrderMasterDetail.Rows.Count==0)
+                {
+                    throw new CustomException("There is no Material in this GRN.");
+                }
 
 
                 var invoicePartyAddress = ru.GetAddress(dtOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dtOrderMaster.Rows[0]["InvoicingByAddress"].ToString());
@@ -2492,7 +2498,7 @@ namespace Library.MaterialManagement.Inventory
                 foreach (DataColumn item in dtOrderMaster.Columns)
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
                 var dsServiceItems = loadGRNBOQPOServiceMaster(grnBOQPOId);
-                var materialTotal = BOQPOmakeOrderDetailsTable(document, dtOrderMaster, grnBOQPOId);//Material Details 
+                var materialTotal = BOQPOmakeOrderDetailsTable(document, dtOrderMasterDetail, grnBOQPOId);//Material Details 
                 var dsInventoryReceiveAdditionalTax = BOQPOloadInventoryReceiveAdditionalTax(grnBOQPOId);
                 var InventoryReceiveAdditionalTax = 0.00;
                 if (dsInventoryReceiveAdditionalTax.Rows.Count > 0)
@@ -2518,12 +2524,17 @@ namespace Library.MaterialManagement.Inventory
                 //document.Replace("{TotalInWords}", ru.InWord(((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
                 var DiscountAmount = "";
-                DiscountAmount = dtOrderMaster.Rows[0]["DiscountAmount"].ToString();
-                document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
-                document.Replace("{DiscountAmount}", (DiscountAmount).ToString() + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
-                document.Replace("{AfterDiscountTotal}", ((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
-                document.Replace("{TotalInWords}", ru.InWord(((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+                DiscountAmount = dtOrderMasterDetail.Rows[0]["DiscountAmount"].ToString();
+                document.Replace("{GrandTotal}", ((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax).ToString("#,##0.00") + " " + dtOrderMasterDetail.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{DiscountAmount}", (DiscountAmount).ToString() + " " + dtOrderMasterDetail.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{AfterDiscountTotal}", ((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())).ToString("#,##0.00") + " " + dtOrderMasterDetail.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{TotalInWords}", ru.InWord(((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString()) + clsStaticInfo.dbl(InventoryReceiveAdditionalTax.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())), dtOrderMasterDetail.Rows[0]["CurrencyId"].ToString()), true, true);
+
+
                 //document.Replace("{TrnAmount}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+
+                //document.Replace("{TCSAmount}",  dtOrderMasterDetail.Rows[0]["CurrencyName"].ToString(), true, true);
+
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
@@ -2590,6 +2601,160 @@ namespace Library.MaterialManagement.Inventory
 
             }
             document.Close();
+        }
+        public DataTable loadGRNBOQPOMaster(string OrderMasterID)
+        {
+            string strSQL;
+            try
+            {
+
+                strSQL = @"SELECT distinct IR.Id grnNumber
+							--,PO1.PODate
+							,GTE.ModeofTransport
+                            ,IR.CompanyGroupId
+                            ,IR.CompanyId
+                            ,Plant.GSTIN
+                            ,ir.PODepended
+							,REPLACE(Convert(VARCHAR(11), PDA.AcceptanceDate, 106), ' ', '-') AS AcceptanceDate
+                            ,REPLACE(Convert(VARCHAR(11), IR.GRNDate, 106), ' ', '-') AS GRNDate
+							,GRNType=CASE WHEN IR.GRNType='GRNBYBOQ' then 'GRNBYBOQ' ELSE '' END
+                           
+                            ,IR.InvoicingPartyPlantId
+                            ,INVPARTYPL.UserName InvoicingPartyName
+                            ,INVPARTYPL.AddressMasterId InvoicePartyAddressMasterId
+                            ,INVPARTYPL.GSTIN InvoicingPartyGSTIN
+                            ,ISNULL(IR.InvoicingByAddress,'') InvoicingByAddress
+                            ,IR.DeliveryByAddress
+                            ,DPARTYPL.UserName DeliveryParty
+                            ,IR.DeliveryPartyPlantId
+                            ,IR.DocRefNo
+                            ,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS DocDate
+                            ,IR.GateEntryNo,REPLACE(Convert(VARCHAR(11), IR.EntryDate, 106), ' ', '-') AS GateEntryDate
+                            ,CheckedBy=CASE WHEN IR.CheckedByStatus='Checked' Then eI.EmployeeName else '' END
+                            ,AuthorizedBy=CASE When IR.AuthorizedByStatus='Approved'then eI1.EmployeeName else '' END
+                             ,AddedBy=CASE 
+									When IR.CheckedByStatus='ForChecked' Then eI3.EmployeeName
+									When IR.CheckedByStatus='Hold' Then eI3.EmployeeName
+									When IR.CheckedByStatus='Reject' Then eI3.EmployeeName
+									When IR.CheckedByStatus='Checked' Then eI3.EmployeeName
+									When IR.CheckedByStatus IS NULL then IR.AddedBy 
+									
+									else ''
+							END
+                            ,IR.AddedDate
+                            ,IR.UpdatedBy
+                            ,IR.UpdatedDate
+                            ,IR.IsApproved
+                            ,IR.PartyType
+                            ,EMPIN.EmployeeName
+                            ,Party.UserName VendorName
+                            ,Party.AddressMasterId VendorAddressMasterId
+                            ,Party.TINNO VendorGSTIN
+                            ,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
+                            ,IR.IsNonCreditable
+                            ,IR.CurrencyId
+                            ,CRNC.Code AS CurrencyName
+                           ,CONVERT(NUMERIC(10,4),IR.ToCurrencyRate) ToCurrencyRate 
+                            ,BASECRNC.Code AS BaseCurrencyName
+                            ,PayTerm.UserName PaymentTerm
+                           
+                            ,CheckStatus= CASE when IR.CheckedByStatus='ForChecked' Then 'To be checked'
+                            when IR.CheckedByStatus='Hold' Then 'Hold'
+                            when IR.CheckedByStatus='Reject' Then 'Reject'
+                            when IR.CheckedByStatus='Checked' Then 'Checked'
+                            else ''
+
+                            END
+                            ,ApproveStatus= CASE
+                            when IR.AuthorizedByStatus='Reject' Then 'Reject For Approved'
+                            when IR.AuthorizedByStatus='Hold' Then 'Hold For Approved'
+                            when IR.AuthorizedByStatus='For Approval' Then 'To be Approval'
+                            when IR.AuthorizedByStatus='Approved' Then 'Approved'
+                            else ''
+							END
+						,GRNStatus= CASE when IR.CheckedByStatus='ForChecked' Then 'To be checked'
+								when IR.CheckedByStatus='Hold' Then 'Hold'
+								when IR.CheckedByStatus='Reject' Then 'Reject'
+								when IR.CheckedByStatus='Checked' AND IR.AuthorizedByStatus='To be Approval' Then 'Checked' 
+								when IR.CheckedByStatus='Checked'  AND IR.AuthorizedByStatus='Reject' Then 'Reject For Approved'
+								when IR.CheckedByStatus='Checked' AND IR.AuthorizedByStatus='Hold' Then 'Hold For Approved'
+								when IR.CheckedByStatus='Checked' and IR.AuthorizedByStatus='For Approval' Then 'To be Approval'
+								when IR.CheckedByStatus='Checked' and IR.AuthorizedByStatus='Approved' Then 'Approved'
+								when IR.CheckedByStatus Is null and IR.AuthorizedByStatus Is null Then 'Approved'
+                            else ''
+                            END
+							
+                            ,BuyerPONumber=STUFF((SELECT DISTINCT ','+PO.PONumber from
+                            			BOQ boq
+                            			INNER JOin trn.POBOQMAP xboqMap on boq.Id=xboqMap.BOQDetailId
+										INNER JOIN trn.PurchaseOrderDetail xpod on xpod.Id=xboqMap.PODetailId
+										LEFT OUTER JOIN [TRN].[SalesOrder] AS so ON so.MasterOrderItemId=boq.MasterOrderItemId
+										LEFT OUTER JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+										left join trn.GRNPORequisitionAllocation pogrnmap on pogrnmap.BOQDetailId=boq.Id
+										LEFT JOIN (select * from TRN.InventoryReceiveDetail) IRD on IRD.InventoryReceiveId=IR.Id
+                            			WHERE pogrnmap.InventoryReceiveDetailId=IRD.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,PONumber=STUFF((select distinct ','+xpo.Id from
+									trn.PurchaseOrderDetail POD
+									LEFT JOIN TRN.PurchaseOrder xpo on xpo.Id=POD.InventoryReceiveId
+									LEFT JOIN (select * from TRN.InventoryReceiveDetail) IRD on IRD.InventoryReceiveId=IR.Id
+									where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							
+							,PoDate=STUFF((select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
+							trn.PurchaseOrderDetail POD
+							LEFT JOIN TRN.PurchaseOrder xpo on xpo.Id=POD.InventoryReceiveId
+							LEFT JOIN (select * from TRN.InventoryReceiveDetail) IRD on IRD.InventoryReceiveId=IR.Id
+							where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							
+							,ContractNo=STUFF((select distinct ','+C.ContractNo from
+									trn.PurchaseOrderDetail POD
+									LEFT JOIN TRN.PurchaseOrder xpo on xpo.Id=POD.InventoryReceiveId
+									LEFT JOIN (select * from TRN.InventoryReceiveDetail) IRD on IRD.InventoryReceiveId=IR.Id
+									LEFT JOIN DBO.[Contract] C on C.Id=xpo.ContractId
+									where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							
+							,BuyerReferenceNo=STUFF((select distinct ','+MO.BuyerReferenceNo from
+									trn.PurchaseOrderDetail POD
+									LEFT JOIN TRN.PurchaseOrder xpo on xpo.Id=POD.InventoryReceiveId
+									LEFT JOIN (select * from TRN.InventoryReceiveDetail) IRD on IRD.InventoryReceiveId=IR.Id
+									LEFT JOIN DBO.[Contract] C on C.Id=xpo.ContractId
+									LEFT JOIN trn.MasterOrder MO on MO.Id=C.MasterOrderId
+									where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,Status =case when ir.Status ='Posting' then 'Posted' else 'To be Posted' end
+
+                            FROM TRN.InventoryReceive IR
+                            LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
+                            LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+                            LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
+                            LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
+                            LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = IR.BaseCurrencyId
+                            LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
+                            LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = IR.InvoicingPartyPlantId
+                            LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId
+                            LEFT JOIN HKP.Party Party ON Party.Id = IR.PartyId
+                            	LEFT JOIN (select Distinct PDAA.Id,AcceptanceDate,AcceptanceNo,ACMAP.GRNId from TRN.GRNAcceptanceMap ACMAP 
+									left Join trn.PurchaseDocAcceptance  PDAA ON PDAA.Id=ACMAP.PurchaseDocumentAcceptanceId
+									)PDA ON PDA.GRNId=IR.Id
+                            LEFT JOIN EmployeeInformation AS EMPIN ON EMPIN.SystemId= IR.EmployeeId
+                            LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+                            LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+                            left join [SEC].[User] U on U.UserId=IR.AddedBy
+                            LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
+						
+							LEFT JOIN [TRN].[GateEntry] GTE  ON GTE.ID= IR.GateEntryNo
+                            WHERE IR.Id ='" + OrderMasterID + @"' ";
+
+
+                return _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
         }
 
         public DataTable loadGRNBOQPOMaterialMaster(string OrderMasterID)

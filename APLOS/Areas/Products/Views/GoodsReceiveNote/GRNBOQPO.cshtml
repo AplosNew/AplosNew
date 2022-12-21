@@ -420,21 +420,19 @@
                             <table class="table table-striped">
                                 <thead>
                                     <tr ng-show="MasterList.length">
-                                        <th>
-                                        </th>
+                                        <th></th>
+                                        <th>Action</th>
                                         <th>QualityStatus</th>
                                         <th ng-show="x.POID !='null' && x.POID!='null'">PO Id</th>
                                         <th ng-show="x.InventoryReceiveDetailId !='null' && x.InventoryReceiveDetailId!='null'">PORowId</th>
-                                        <th ng-hide="GriddataSelected.length===0 || GriddataSelected.length>0">AcceptanceId</th>
-                                        <th ng-hide="GriddataSelected.length===0 || GriddataSelected.length>0">AcceptanceDetailId</th>
                                         <th>Material Group</th>
                                         <th>Material Master</th>
                                         <th>Article</th>
                                         <th>Sku1</th>
                                         <th>Sku2</th>
-                                        <th>Sku3</th>
-                                        <th >Total POQty</th>
-                                        <th colspan="2" >PO RowQty</th>
+                                        <th colspan="2">Orginal POQty</th>
+                                        <th>Total POQty</th>
+                                        <th colspan="2">PO RowQty</th>
                                         <th ng-show="GriddataSelected.length>0">Other GRN Received</th>
                                         <th ng-show="GriddataSelected.length===0">Other Acceptance Received</th>
                                         <th ng-hide="false">Balance</th>
@@ -460,8 +458,7 @@
                                         <th>MaterialLotNumber </th>
                                         <th>MaterialDiameter</th>
                                         <th>MaterialType</th>
-
-                                        <th class="col-sm-1" colspan="2"></th>
+                                        <th>Action</th>
                                     </tr>
 
 
@@ -476,6 +473,12 @@
                                                 </label>
                                             </div>
                                         </td>
+                                        <td class="text-right">
+                                            <ul class="list-inline action-list">
+                                                @*<li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>*@
+                                                <li><button ng-click="getReceiveTaxListPOAfterSave(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                            </ul>
+                                        </td>
                                         <td>
                                             <div class="select-style">
                                                 <select name="Quality Status" style="height:30px;" ng-model="x.QualityStatus" class="form-control">
@@ -488,23 +491,20 @@
                                         </td>
                                         <td ng-show="x.POID !='null' && x.POID!='null'">{{x.POID}}</td>
                                         <td ng-show="x.InventoryReceiveDetailId !='null' && x.InventoryReceiveDetailId!='null'">{{x.InventoryReceiveDetailId}}</td> @*ng-show="x.InventoryReceiveDetailId !='null' && x.PurchaseDocAcceptanceDetailId ==='null'"*@
-                                        <td ng-hide="GriddataSelected.length===0 || GriddataSelected.length>0">{{x.PurchaseDocumentAcceptanceId}}</td> @*ng-show="x.InventoryReceiveDetailId !='null' && x.PurchaseDocAcceptanceDetailId !='null'"*@
-                                        <td ng-hide="GriddataSelected.length===0 || GriddataSelected.length>0">{{x.PurchaseDocumentAcceptanceDetailId}}</td> @*ng-show="x.InventoryReceiveDetailId !='null' && x.PurchaseDocAcceptanceDetailId !='null'"*@
                                         <td>{{x.MaterialGroupMasterName}}</td>
                                         <td>{{x.UserName}}</td>
                                         <td>{{x.StandardName}}</td>
                                         <td>{{x.FirstCharacteristicsValue}}</td>
                                         <td>{{x.SecondCharacteristicsValue}}</td>
-                                        <td>{{x.ThirdCharacteristicsValue}}</td>
-                                        <td ng-show="GriddataSelected.length===0" style="width:100px;">{{x.OriginalPOQty}}</td>
-                                        <td class="text-right" ng-show="GriddataSelected.length===0">{{x.TransactionUoM}}</td>
+                                        <td>{{x.OriginalPOQty}}</td>
+                                        <td class="text-right">{{x.TransactionUoM}}</td>
                                         <td><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" style="width:100px;" ng-model="x.TotalPOQty" ng-disabled="true"></td>
                                         <td><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" style="width:100px;" ng-model="x.POQty" ng-disabled="true"></td>
                                         <td class="text-right">{{x.TransactionUoM}}</td>
 
                                         <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.GRNRcvQty" ng-disabled="true"></td>
                                         <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.Balance" ng-disabled="true"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" @*ng-disabled="AcceptanceId!=null || x.Balance===0"*@></td>  @* x.enableid && ng-keyup="calculateAmount(x);"*@
+                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" ng-disabled="x.Id"></td>  @* x.enableid && ng-keyup="calculateAmount(x);"*@
                                         <td>
                                             <div class="checkbox-site">
                                                 <label>
@@ -537,13 +537,12 @@
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
 
-
                                         <td class="text-right">
                                             <ul class="list-inline action-list">
-                                                <li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                                <li><button ng-click="DeleteGRNBOQDetailPopUp(x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                             </ul>
                                         </td>
-                                        <td></td>
+
                                     </tr>
                                     <tr ng-show="MasterList.length">
                                         <td></td>
@@ -576,14 +575,13 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
                                     </tr>
 
                                 </tbody>
                             </table>
                         </div>
+                        
+<confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="GRNBOQDetailDelete();"></confirm-archive-generic>
 
 
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -672,7 +670,7 @@
                             </fieldset>
                         </div>
                         <ul class="common-btn list-inline text-right">
-                            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{productId.length>0?'Update':'Save'}}</button></li>
+                            <li> <button ng-click="Save();" class="btn" @*ng-disabled="PostButton"*@><i class="glyphicon glyphicon-floppy-disk"></i> @*{{productId.length>0?'Update':'Save'}}*@ {{Action}}</button></li>
                             <li> <button ng-click="Delete();" class="btn" ng-hide="SaveButtonDisable===true"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                             <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
@@ -1321,9 +1319,13 @@
                                  e-detailstemplate="detailTemp"
                                  e-detailsdatabound="detailgrid">
                                 <div e-columns>
-                                    <div e-column e-headertext="Actions" e-width="50">
+                                    @*<div e-column e-headertext="Actions" e-width="50">
                                         <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataApprovedHR');" style="margin: -6px;"></i></button>
+                                    </div>*@
+                                    <div e-column e-headertext="Actions" e-width="50">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.GetgrnBOQPO('GriddataApprovedHR');" style="margin: -6px;"></i></button>
                                     </div>
+
                                     <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
                                     <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -1601,8 +1603,12 @@
                                  e-detailsdatabound="detailgrid">
                                 <div e-columns>
                                     <div e-column e-headertext="Actions" e-width="50">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataPosted');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.GetgrnBOQPO('GriddataPosted');" style="margin: -6px;"></i></button>
                                     </div>
+
+                                    @*<div e-column e-headertext="Actions" e-width="50">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataPosted');" style="margin: -6px;"></i></button>
+                                    </div>*@
                                     <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
                                     <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -1930,22 +1936,24 @@
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-lg-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GRnBOQPoo" ej-grid e-datasource="MasterListNew"
+                        <div style="color:black;" id="GRnBOQPoo" ej-grid e-datasource="MasterListNewBOQ"
                              e-templaterefresh="refreshTemplateMasterOrderOperation"
                              e-recorddoubleclick=""
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>
                                 <div e-column e-template="#checkBOQboxList" e-textalign="center" e-width="30"></div>
-                                <div e-column e-field="BOQDetailId" e-headertext="BOQDetailId" e-width="80"></div>
-                                <div e-column e-field="RefferenceNo" e-headertext="Style" e-width="100"></div>
-                                <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="120"></div>
+                                <div e-column e-field="BOQDetailId" e-headertext="BOQDetailId" e-width="60"></div>
+                                <div e-column e-field="RefferenceNo" e-headertext="Style" e-width="80"></div>
+
                                 <div e-column e-field="UserName" e-headertext="Material" e-width="150"></div>
                                 <div e-column e-field="StandardName" e-headertext="Article" e-width="100"></div>
-                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
-                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
-                                <div e-column e-field="RMDescription" e-headertext="Description" e-width="80"></div>
+                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="120"></div>
+                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="60"></div>
+                                <div e-column e-field="RMDescription" e-headertext="Description" e-width="120"></div>
                                 <div e-column e-field="POQty" e-headertext="PO Qty" e-width="80"></div>
+                                <div e-column e-field="ToleranceQty" e-headertext="Tolerance Qty" e-width="80"></div>
+                                <div e-column e-field="TotalPOQty" e-headertext="Total Qty" e-width="80"></div>
                                 <div e-column e-field="TransactionUoM" e-headertext="UOM" e-width="80"></div>
                                 @*<div e-column e-template="#CurrentTextPOQtyBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>*@
                                 <div e-column e-template="#CurrentTextGRNRecvQty" e-field="GRNRcvQty" e-textalign="right" e-headertext="GRNRcvQty" e-width="100"></div>
@@ -1968,6 +1976,7 @@
                                 <div e-column e-field="ShortageValue" e-headertext="ShortageValue" e-width="80"></div>
                                 <div e-column e-field="RejectionRate" e-headertext="RejectionRate" e-width="80"></div>
                                 <div e-column e-field="RejectionClamRate" e-headertext="RejectionClamRate" e-width="80"></div>
+                                <div e-column e-field="MaterialGroupMasterName" e-headertext="MaterialGroup" e-width="120"></div>
                                 <div e-column e-field="MaterialDetail" e-headertext="MaterialDetail" e-width="80"></div>
                             </div>
 

@@ -53,11 +53,11 @@ namespace Aplos.Areas.Productions.Controllers
         #region -- Operations
 
         [HttpPost, Authorize]
-        public ActionResult XlsSalesOrderStatusReport(List<string> EntityList)
+        public ActionResult XlsSalesOrderStatusReport(string orderStatusId)
         {
             try
             {
-                var workbook = SalesOrderStatusReport(EntityList);
+                var workbook = SalesOrderStatusReport(orderStatusId);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "SOStatusReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -74,14 +74,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook SalesOrderStatusReport(List<string> EntityList)
+        private IWorkbook SalesOrderStatusReport(string orderStatusId)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
-            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            var workbook = report.GetWorkbook(ref excelEngine,1);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = SalesOrderStatusReportQuery(EntityList);
+            var data = SalesOrderStatusReportQuery(orderStatusId);
 
             var sheet = workbook.Worksheets[0];
 
@@ -96,106 +96,116 @@ namespace Aplos.Areas.Productions.Controllers
 
             #region Grid Headers
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Customer Group", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer Group", 14, ExcelHAlign.HAlignLeft);
             int ColCusG = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Created Date", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Created Date", 12, ExcelHAlign.HAlignLeft);
             int ColCd = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Customer", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer", 25, ExcelHAlign.HAlignLeft);
             int ColCus = COL;
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Master Order No", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Master Order No", 12, ExcelHAlign.HAlignLeft);
             int ColMO = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Master Order Date", 12, ExcelHAlign.HAlignCenter);
-            int ColMOD = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person", 20, ExcelHAlign.HAlignLeft);
+            int ColResponsiblePerson = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Item Id", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Item Id", 12, ExcelHAlign.HAlignLeft);
             int ColItem = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Article", 20, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Article", 40, ExcelHAlign.HAlignLeft);
             int ColArt = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "ContractID", 20, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "ContractID", 20, ExcelHAlign.HAlignLeft);
             int ColCont = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Own Ref No", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Own Ref No", 12, ExcelHAlign.HAlignLeft);
             int ColOwn = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Buyer Order No", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Buyer Order No", 12, ExcelHAlign.HAlignLeft);
             int ColBuy = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Product Code", 20, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Product Code", 20, ExcelHAlign.HAlignLeft);
             int ColProdC = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Product Detail", 20, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Product Detail", 20, ExcelHAlign.HAlignLeft);
             int ColProd = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "PR No", 20, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "PR No", 20, ExcelHAlign.HAlignLeft);
             int ColPR = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "SO NO", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "SO NO", 12, ExcelHAlign.HAlignLeft);
             int COlSo = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "SO Category", 16, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "SO Category", 16, ExcelHAlign.HAlignLeft);
             int ColSOCat = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "SO Qty", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "SO Qty", 12, ExcelHAlign.HAlignRight);
             int ColQty = COL;
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Ex Factory Date", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Ex Factory Date", 12, ExcelHAlign.HAlignLeft);
             int ColEFD = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Commitment Date", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Commitment Date", 12, ExcelHAlign.HAlignLeft);
             int ColComm = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Delivery Date", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Delivery Date", 12, ExcelHAlign.HAlignLeft);
             int ColDel = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Rate", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Rate", 12, ExcelHAlign.HAlignRight);
             int ColRate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "ExchangeRate", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "ExchangeRate", 12, ExcelHAlign.HAlignRight);
             int ColExRate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Dispatch Qty", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Dispatch Qty", 12, ExcelHAlign.HAlignRight);
             int ColDis = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Balance To Dispatch", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance To Dispatch", 12, ExcelHAlign.HAlignRight);
             int ColBal = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "FG Current Stock", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "FG Current Stock", 12, ExcelHAlign.HAlignRight);
             int ColAll = COL;
             COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Order Status", 12, ExcelHAlign.HAlignLeft);
+            int ColOrderStatus = COL;
+
+
+            endCol = COL;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
             ROW++;
-            endCol = COL;
             #endregion Headers
 
 
@@ -216,7 +226,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColCus].Text = data.Rows[i]["Customer"].ToString();
                 sheet[ROW, ColCusG].Text = data.Rows[i]["CustomerGroup"].ToString();
                 sheet[ROW, ColMO].Number = clsStaticInfo.dbl(data.Rows[i]["MasterOrderNo"].ToString());
-                sheet[ROW, ColMOD].DateTime = Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
+                //sheet[ROW, ColMOD].DateTime = Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
                 sheet[ROW, ColCd].DateTime = Convert.ToDateTime(data.Rows[i]["CreatedDate"].ToString());
                 sheet[ROW, ColDel].DateTime = Convert.ToDateTime(data.Rows[i]["DeliveryDate"].ToString());
                 sheet[ROW, ColOwn].Text = data.Rows[i]["OwnReferenceNo"].ToString();
@@ -228,7 +238,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColProd].Text = data.Rows[i]["ProdDetails"].ToString();
                 sheet[ROW, ColProdC].Text = data.Rows[i]["ProductCode"].ToString();
                 sheet[ROW, ColPR].Text = data.Rows[i]["ProductionOrderId"].ToString();
-                sheet[ROW, ColQty].Text = data.Rows[i]["SOQty"].ToString();
+                sheet[ROW, ColQty].Number = clsStaticInfo.dbl(data.Rows[i]["SOQty"].ToString());
                 sheet[ROW, ColEFD].Text = data.Rows[i]["ExFactoryDate"].ToString();
                 sheet[ROW, ColComm].Text = data.Rows[i]["CommitmentDate"].ToString();
                 sheet[ROW, ColSOCat].Text = data.Rows[i]["SOCategory"].ToString();
@@ -237,11 +247,13 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColDis].Number = clsStaticInfo.dbl(data.Rows[i]["DispatchQty"].ToString());
                 sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceToDispatch"].ToString());
                 sheet[ROW, ColAll].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedStock"].ToString());
+                sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
+                sheet[ROW, ColOrderStatus].Text = data.Rows[i]["OrderStatus"].ToString();
 
                 ROW++;
 
             }
-
+            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
             ROW++;
 
             endRow = ROW - 1;
@@ -261,21 +273,11 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Queries
 
-        private DataTable SalesOrderStatusReportQuery(List<string> EntityList)
+        private DataTable SalesOrderStatusReportQuery(string orderStatusId)
         {
             try
             {
-                string ent = "";
-                if (EntityList.Count > 0 && EntityList[0] != "")
-                {
-                    ent = "AND mo.EntityId IN (''";
-                    foreach (string e in EntityList)
-                    {
-                        ent += ",'" + e + "'";
-                    }
-                    ent += ")";
-                }
-
+                string orderStatusIds = "'" + orderStatusId.Replace(",", "','") + "'";//replaced with ""
                 var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,moi.ContractId, moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
                             format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
                             (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
@@ -295,7 +297,7 @@ namespace Aplos.Areas.Productions.Controllers
                             where pl.Id = moi.ProductLibraryId 
                             and s.WorkDate <= GetDate()
                             and sc.Booked = 0 and  (MMM.PurposeId <> 'MP7' AND MMM.PurposeId <> 'MP8' AND MMM.PurposeId <> 'MP9' AND MMM.PurposeId <> 'MP12')) as AllotedStock
-                            , so.Rate as Rates, mor.ExchangeRate
+                            , so.Rate as Rates, mor.ExchangeRate,E.EmployeeName ResponsiblePerson,OS.UserName OrderStatus
                             from trn.SalesOrder so
                             left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
@@ -314,9 +316,9 @@ namespace Aplos.Areas.Productions.Controllers
                             LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer'
                              LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
                              left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
-                            where os.Id not in ('Closed' , 'Cancelled') 
-                            order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc
-                            ";
+                             left join dbo.EmployeeInformation E ON e.SystemId=so.ResponsiblePersonId
+                            where os.Id IN(" + orderStatusIds + @")
+                            order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc";
 
                 return _sqlRepository.GetDataTable(str);
             }

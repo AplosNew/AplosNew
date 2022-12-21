@@ -51,13 +51,14 @@ namespace Library.MaterialManagement.InventoryManagements
         {
             try
             {
-                string TableName = "hkp.MaterialMovementPurpose";
+                string TableName = @"Select A.*,B.UserName Process from hkp.MaterialMovementPurpose A
+                                    LEFT JOIN HKP.Process B ON B.Id=A.ProcessId";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
+                string sql = @"select * from ( " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

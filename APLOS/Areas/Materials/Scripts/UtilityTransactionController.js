@@ -12,6 +12,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
     baseService.init($scope.getListUrl);
+    $scope.CalculatedValue = 0;
 
     $scope.ModelTemp = {
         Id: null,
@@ -96,14 +97,18 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
-
-    $scope.ModelNew.LastReading = 0;
     $scope.GetQuantity = function () {
-        if ($scope.LastReading > 0) {
-            $scope.ModelNew.Quantity = $scope.ModelNew.Reading - $scope.LastReading;
-        }
-        else
-            $scope.ModelNew.Quantity = $scope.ModelNew.Reading;
+        $scope.ModelNew.Quantity = $scope.ModelNew.Reading - $scope.ModelNew.LastReading;
+    }
+
+    $scope.GetCalculatedValue = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/UtilityTransaction/GetCalculatedValue?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
+        }).then(function successCallback(response) {
+            $scope.MultiplyingFactor = response.data[0].MultiplyingFactor;
+        });
+        $scope.CalculatedValue = $scope.ModelNew.Quantity * $scope.MultiplyingFactor;
     }
 
 
@@ -119,7 +124,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
 
 
     $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
+        //$scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             if ($scope.Action == 'Save') {
                 $http({
@@ -190,6 +195,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.Clear = function () {
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.UoMName = null;
+        $scope.CalculatedValue = 0;
         $scope.IsReadingApp = false;
         $scope.Action = 'Save';
     }

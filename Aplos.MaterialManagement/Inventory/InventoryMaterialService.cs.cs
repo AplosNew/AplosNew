@@ -1377,11 +1377,11 @@ namespace Library.MaterialManagement.Inventory
                     LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
                     LEFT JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,II.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
+					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,IH.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
 								JOIN TRN.InventoryIssueDetail IID ON IID.Id=IH.InventoryIssueDetailId 
-								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE II.MaterialStorageId='" + entity.MaterialStorageId+ @"' 
+								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE IH.MaterialStorageId='" + entity.MaterialStorageId+ @"' 
 								AND II.CompanyId='" + entity.CompanyId + @"' AND II.PlantId='" + entity.PlantId + @"' 
-								GROUP BY IH.InventoryReceiveDetailId,II.MaterialStorageId
+								GROUP BY IH.InventoryReceiveDetailId,IH.MaterialStorageId
 								) IIH ON 
 								IIH.InventoryReceiveDetailId=IRD.Id AND IIH.MaterialStorageId=IRD.MaterialStorageId
                     LEFT JOIN (SELECT TIRD.TransferedFromGrnId,SUM(ISNULL(TIRD.BaseQty,0)) TransferBaseQty 
@@ -1402,11 +1402,11 @@ namespace Library.MaterialManagement.Inventory
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
                     left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,II.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
+					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,IH.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
 								JOIN TRN.InventoryIssueDetail IID ON IID.Id=IH.InventoryIssueDetailId 
-								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE II.MaterialStorageId='" + entity.MaterialStorageId+ @"' 
+								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE IH.MaterialStorageId='" + entity.MaterialStorageId+ @"' 
 								AND II.CompanyId='" + entity.CompanyId + @"' AND II.PlantId='" + entity.PlantId + @"' 
-								GROUP BY IH.InventoryReceiveDetailId,II.MaterialStorageId
+								GROUP BY IH.InventoryReceiveDetailId,IH.MaterialStorageId
 								) IIH ON 
 								IIH.InventoryReceiveDetailId=IRD.Id AND IIH.MaterialStorageId=IRD.MaterialStorageId
                     LEFT JOIN (SELECT TIRD.TransferedFromGrnId,SUM(ISNULL(TIRD.BaseQty,0)) TransferBaseQty 
@@ -1429,11 +1429,11 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
                     left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,II.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
+					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,IH.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
 								JOIN TRN.InventoryIssueDetail IID ON IID.Id=IH.InventoryIssueDetailId 
-								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE II.MaterialStorageId='" + entity.MaterialStorageId + @"' 
+								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE IH.MaterialStorageId='" + entity.MaterialStorageId + @"' 
 								AND II.CompanyId='" + entity.CompanyId + @"' AND II.PlantId='" + entity.PlantId + @"' 
-								GROUP BY IH.InventoryReceiveDetailId,II.MaterialStorageId
+								GROUP BY IH.InventoryReceiveDetailId,IH.MaterialStorageId
 								) IIH ON 
 								IIH.InventoryReceiveDetailId=IRD.Id AND IIH.MaterialStorageId=IRD.MaterialStorageId
                     LEFT JOIN (SELECT TIRD.TransferedFromGrnId,SUM(ISNULL(TIRD.BaseQty,0)) TransferBaseQty 
@@ -1456,11 +1456,11 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
                     left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,II.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
+					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,IH.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
 								JOIN TRN.InventoryIssueDetail IID ON IID.Id=IH.InventoryIssueDetailId 
-								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE II.MaterialStorageId='" + entity.MaterialStorageId+ @"' 
+								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE IH.MaterialStorageId='" + entity.MaterialStorageId+ @"' 
 								AND II.CompanyId='" + entity.CompanyId + "' AND II.PlantId='" + entity.PlantId + @"' 
-								GROUP BY IH.InventoryReceiveDetailId,II.MaterialStorageId
+								GROUP BY IH.InventoryReceiveDetailId,IH.MaterialStorageId
 								) IIH ON 
 								IIH.InventoryReceiveDetailId=IRD.Id AND IIH.MaterialStorageId=IRD.MaterialStorageId
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
@@ -1479,11 +1479,11 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
                     left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,II.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
+					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,IH.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
 								JOIN TRN.InventoryIssueDetail IID ON IID.Id=IH.InventoryIssueDetailId 
-								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE II.MaterialStorageId='"+ entity.MaterialStorageId+ @"' 
+								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE IH.MaterialStorageId='" + entity.MaterialStorageId+ @"' 
 								AND II.CompanyId='" + entity.CompanyId + "' AND II.PlantId='" + entity.PlantId + @"' 
-								GROUP BY IH.InventoryReceiveDetailId,II.MaterialStorageId
+								GROUP BY IH.InventoryReceiveDetailId,IH.MaterialStorageId
 								) IIH ON 
 								IIH.InventoryReceiveDetailId=IRD.Id AND IIH.MaterialStorageId=IRD.MaterialStorageId
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
@@ -1502,11 +1502,11 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
                     left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,II.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
+					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,IH.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
 								JOIN TRN.InventoryIssueDetail IID ON IID.Id=IH.InventoryIssueDetailId 
-								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE II.MaterialStorageId='" + entity.MaterialStorageId+ @"' 
+								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE IH.MaterialStorageId='" + entity.MaterialStorageId+ @"' 
 								AND II.CompanyId='" + entity.CompanyId + "' AND II.PlantId='" + entity.PlantId + @"' 
-								GROUP BY IH.InventoryReceiveDetailId,II.MaterialStorageId
+								GROUP BY IH.InventoryReceiveDetailId,IH.MaterialStorageId
 								) IIH ON 
 								IIH.InventoryReceiveDetailId=IRD.Id AND IIH.MaterialStorageId=IRD.MaterialStorageId
                     LEFT JOIN (SELECT TIRD.TransferedFromGrnId,SUM(ISNULL(TIRD.BaseQty,0)) TransferBaseQty 
@@ -1528,11 +1528,11 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
                     left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,II.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
+					LEFT JOIN(SELECT IH.InventoryReceiveDetailId,IH.MaterialStorageId,sum(isnull(IH.Qty,0)) Qty FROM  TRN.InventoryIssueHistory IH 
 								JOIN TRN.InventoryIssueDetail IID ON IID.Id=IH.InventoryIssueDetailId 
-								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE II.MaterialStorageId='"+ entity.MaterialStorageId+ @"' 
+								JOIN TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId WHERE IH.MaterialStorageId='" + entity.MaterialStorageId+ @"' 
 								AND II.CompanyId='" + entity.CompanyId + @"' AND II.PlantId='" + entity.PlantId + @"' 
-								GROUP BY IH.InventoryReceiveDetailId,II.MaterialStorageId
+								GROUP BY IH.InventoryReceiveDetailId,IH.MaterialStorageId
 								) IIH ON 
 								IIH.InventoryReceiveDetailId=IRD.Id AND IIH.MaterialStorageId=IRD.MaterialStorageId
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
@@ -1649,8 +1649,11 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
 			{
 				var sql = "";
                 var tempsql = "";
-                if (!string.IsNullOrEmpty(entity.MaterialStorageId))
-                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' ";
+                if (!string.IsNullOrEmpty(entity.MaterialStorageId) && entity.IsAsset==false)
+                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' AND IRD.IsAsset=0 ";
+                if (string.IsNullOrEmpty(entity.MaterialStorageId) && entity.IsAsset == true)
+                    tempsql = "IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'  AND IRD.IsAsset=1 ";
+
                 else
                     tempsql = " IM.CompanyGroupId = '" + entity.CompanyGroupId + "' AND IM.CompanyId = '" + entity.CompanyId + "' AND IM.PlantId = '" + entity.PlantId + @"' ";
 

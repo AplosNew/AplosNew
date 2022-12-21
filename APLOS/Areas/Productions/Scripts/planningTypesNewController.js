@@ -935,33 +935,64 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         }
     };
 
+    $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.GetPlanCapacityReport = function () {
+        var dataLists = [];
+        var g = $("#GridCapacity").data("ejGrid");
+        dataLists = g.getFilteredRecords();
+
+        if (dataLists.length == 0) {
+            dataLists = $scope.PlanCapacityList;
+        }
+
+         $scope.fileName = "PlanCapacityData";
+
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpd,
+            data: { 'reportFileName': $scope.fileName, 'data': dataLists },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+
     //#endregion
 
 
-    document.addEventListener('keydown', function () {
-        if (event.keyCode == 123) {
-            alert("You Can not Do This!");
-            return false;
-        } else if (event.ctrlKey && event.shiftKey && event.keyCode == 73) {
-            alert("You Can not Do This!");
-            event.preventDefault();
-            return false;
-        } else if (event.ctrlKey && event.keyCode == 85) {
-            alert("You Can not Do This!");
-            return false;
-        }
-    }, false);
+    //document.addEventListener('keydown', function () {
+    //    if (event.keyCode == 123) {
+    //        alert("You Can not Do This!");
+    //        return false;
+    //    } else if (event.ctrlKey && event.shiftKey && event.keyCode == 73) {
+    //        alert("You Can not Do This!");
+    //        event.preventDefault();
+    //        return false;
+    //    } else if (event.ctrlKey && event.keyCode == 85) {
+    //        alert("You Can not Do This!");
+    //        return false;
+    //    }
+    //}, false);
 
-    if (document.addEventListener) {
-        document.addEventListener('contextmenu', function (e) {
-            alert("You Can not Do This!");
-            e.preventDefault();
-        }, false);
-    } else {
-        document.attachEvent('oncontextmenu', function () {
-            alert("You Can not Do This!");
-            window.event.returnValue = false;
-        });
-    }
+    //if (document.addEventListener) {
+    //    document.addEventListener('contextmenu', function (e) {
+    //        alert("You Can not Do This!");
+    //        e.preventDefault();
+    //    }, false);
+    //} else {
+    //    document.attachEvent('oncontextmenu', function () {
+    //        alert("You Can not Do This!");
+    //        window.event.returnValue = false;
+    //    });
+    //}
 
 }

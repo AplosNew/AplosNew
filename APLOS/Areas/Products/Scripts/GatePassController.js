@@ -4924,4 +4924,30 @@ function GatePassController(accountService, addressService, $location, $window, 
 			ShowResult(e, 'failure');
 		}
 	};
+
+	// Written By Nitesh
+	
+
+	//$scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+	//$scope.fileName = "GatePass.xlsx";
+	//$scope.GateAgainstGatePassExl = function () {
+
+	//	$http({
+	//		method: 'POST',
+	//		url: 'Products/GateentryToken/GateAgainstGatePassExl',
+	//		dataType: 'JSON',
+	//	})
+	//		.then(function successCallback(response) {
+	//			if (response.data.Error === true) {
+	//				ShowResult(response.data.Message, 'failure');
+	//			}
+	//			else {
+
+	//				$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+	//			}
+	//		}, function errorCallback(response) {
+	//			ShowResult(response.data.Message, 'failure');
+	//		});
+
+	//};
 }

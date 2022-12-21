@@ -985,13 +985,13 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetListForGRNBYPO(string GRNbyPOCheckStatus)
+        public JsonResult GetListForGRNBYPO(string GRNbyPOCheckStatus,string grnType)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-                return Json(obj.QueryGetListGRNMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
+                return Json(obj.QueryGetListGRNMasterData(identity.PlantId, GRNbyPOCheckStatus, grnType), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -4973,6 +4973,13 @@ UNION ALL
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             _gRNPORequisitionAllocationService.InsertOrUpdateGraphNewGRNAllocationBOQ(entity);
             return Json(new { Message = AplosMessage.Success });
+        }
+
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+        public JsonResult GRNBOQDetailDelete(InventoryReceiveDetail entity)
+        {
+            _inventoryDetailService.GRNBOQDetailDelete(entity);
+            return Json(new { Message = AplosMessage.Deleted });
         }
         #endregion
 
