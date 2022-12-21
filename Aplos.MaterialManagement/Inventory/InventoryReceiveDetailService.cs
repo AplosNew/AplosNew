@@ -8230,5 +8230,10 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-    }
+        public void GRNBOQDetailDelete(InventoryReceiveDetail entity)
+        { 
+        }
+
+
+        }
 }

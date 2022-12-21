@@ -30,5 +30,9 @@ function salesManagementConfig($routeProvider) {
             templateUrl: "SalesManagements/Sales/EInvoice",
             controller: "EInvoiceController"
         })
+        .when("/additionalinfo", {
+            templateUrl: "SalesManagements/Sales/AdditionalInfo",
+            controller: "masterOrderSalesAdditionalController"
+        })
         ;
 }

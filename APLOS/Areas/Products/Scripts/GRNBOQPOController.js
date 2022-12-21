@@ -871,7 +871,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         'receiveTaxList': $scope.POMaterialTaxList,
                         'chargesListPO': $scope.chargesListPOnew,
                         'POServiceTaxList': $scope.ServiceTaxList,
-                        'GRNType': 'GRNBYPO',
+                        'GRNType': 'GRNBYBOQ',
                         'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
                         'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
                         'BOQAllocation': JSON.stringify($scope.MasterListNewBOQ)
@@ -2216,4 +2216,36 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
         });
     }
+
+
+    $scope.DeleteGRNBOQDetailPopUp = function (data) {
+        $scope.tempData = data;
+        $scope.message = 'Are you sure want to permanently delete this?';
+        angular.element(document.querySelector('#removePopUp')).modal('show');
+    };
+    $scope.DeleteGRNBOQDetail = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Products/GoodsReceiveNote/GRNBOQDetailDelete',
+                data:
+                {
+                    'entity': $scope.tempData,
+                },
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Id = null;
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
+
 }

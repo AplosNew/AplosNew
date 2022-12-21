@@ -4974,6 +4974,13 @@ UNION ALL
             _gRNPORequisitionAllocationService.InsertOrUpdateGraphNewGRNAllocationBOQ(entity);
             return Json(new { Message = AplosMessage.Success });
         }
+
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+        public JsonResult GRNBOQDetailDelete(InventoryReceiveDetail entity)
+        {
+            _inventoryDetailService.GRNBOQDetailDelete(entity);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
         #endregion
 
     }//

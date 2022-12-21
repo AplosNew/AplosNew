@@ -261,7 +261,7 @@ namespace Aplos.Areas.Machines.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult ItemDelete(string id)
         {
             try
@@ -279,7 +279,7 @@ namespace Aplos.Areas.Machines.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult StoresDelete(string id)
         {
             try
@@ -297,7 +297,7 @@ namespace Aplos.Areas.Machines.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult BudgetCodeDelete(string id)
         {
             try
@@ -315,7 +315,7 @@ namespace Aplos.Areas.Machines.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult TeamDefinitionDelete(string id)
         {
             try
@@ -647,7 +647,7 @@ where MTD.MaintenanceSchedulingId ='" + ScheduleId + "' order by MTD.SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult CreateMachineGroup(List<Dictionary<string, object>> DataList)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -691,7 +691,7 @@ where MTD.MaintenanceSchedulingId ='" + ScheduleId + "' order by MTD.SNO";
                 throw (ex);
             }
         }
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult CreateAsset(List<Dictionary<string, object>> DataList)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -735,7 +735,7 @@ where MTD.MaintenanceSchedulingId ='" + ScheduleId + "' order by MTD.SNO";
                 throw (ex);
             }
         }
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult CreateItem(Dictionary<string, object> ItemData, string Pid)
         {
             try
@@ -783,7 +783,7 @@ where MTD.MaintenanceSchedulingId ='" + ScheduleId + "' order by MTD.SNO";
 
             }
         }
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult CreateParameter(Dictionary<string, object> ParameterData, string Pid)
         {
             try
@@ -831,7 +831,7 @@ where MTD.MaintenanceSchedulingId ='" + ScheduleId + "' order by MTD.SNO";
 
             }
         }
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult CreateStores(Dictionary<string, object> StoresData, string Pid)
         {
             try
@@ -879,7 +879,7 @@ where MTD.MaintenanceSchedulingId ='" + ScheduleId + "' order by MTD.SNO";
 
             }
         }
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult createBudgetCode(Dictionary<string, object> BudgetCodeData, string Pid)
         {
             try
@@ -928,7 +928,7 @@ where MTD.MaintenanceSchedulingId ='" + ScheduleId + "' order by MTD.SNO";
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult createTeamDefinition(Dictionary<string, object> TeamDefinitionData, string Pid)
         {
             try
