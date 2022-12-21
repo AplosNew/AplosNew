@@ -334,8 +334,7 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where --mma.Id NOT in (SELECT M.MaterialMasterArticleId FROM TRN.MaterialAlocation M) and 
-mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
+                            where  mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "' and bah.MaterialMasterId is null";
                 }
                 
                         

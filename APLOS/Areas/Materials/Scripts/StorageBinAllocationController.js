@@ -23,7 +23,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             'name': 'Code',
             'value': 'Code'
         },
-        
+
         {
             'name': 'User Name',
             'value': 'UserName'
@@ -36,7 +36,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             'name': 'Short Name',
             'value': 'ShortName'
         },
-       
+
         {
             'name': 'Id',
             'value': 'Id'
@@ -49,13 +49,13 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         StorageLocationId: null,
         StorageSubLocation: null,
         MaterialTypeId: null,
-        MaterialGroupMasterId: null,       
+        MaterialGroupMasterId: null,
         MaterialMasterId: null,
-        MaterialMasterArticleId:null,
-        AccessType:null,
+        MaterialMasterArticleId: null,
+        AccessType: null,
         NoOfBin: null,
         Remarks: null,
-        StorageLevel:null,
+        StorageLevel: null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -133,7 +133,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.MaterialGroupList = response.data;
-           
+
         })
     }
     //$scope.getMaterialGroup();
@@ -146,9 +146,9 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.MaterialList = response.data;
-            
+
         })
-    }   
+    }
 
     $scope.getStorageLocation = function () {
         $http({
@@ -167,14 +167,14 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             url: $scope.path + "getStorageSubLocation",
             data: {
                 'storageLocationId': $scope.ModelNew.StorageLocationId,
-               
+
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.StorageSubLocationList = response.data;
         })
     }
-   // $scope.getStorageSubLocation();
+    // $scope.getStorageSubLocation();
 
     $scope.getMaterialArticle = function () {
         $http({
@@ -187,32 +187,32 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         })
     }
 
-   
-    
+
+
 
     // save op
-    
+
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
 
         $http({
             method: 'POST',
             url: $scope.path + 'Save',
-            data: {'datas': $scope.ModelNew,},
+            data: { 'datas': $scope.ModelNew, },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
-                
+
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                
+
                 $scope.ModelNew.Id = response.data.Data.Id;
                 $scope.ModelNew.MaterialMasterId = response.data.Data.MaterialMasterId
                 $scope.SaveMaterialAllocation();
                 $scope.SaveBinAllocation();
-                
+
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -230,18 +230,18 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
 
         $scope.ResponsiblePerson = null,
             $scope.ModelTemp = {
-            Id: null,
-            UserName: null,
-            StorageLocation: null,
-            StorageSubLocation: null,
-            MaterialType: null,
-            MaterialGroup: null,
-            MaterialMaster: null,
-            MaterialArticle: null,
-            AccessType: null,
-            NoOfBin: null,
-            Remarks: null,
-            StorageLevel: null,
+                Id: null,
+                UserName: null,
+                StorageLocation: null,
+                StorageSubLocation: null,
+                MaterialType: null,
+                MaterialGroup: null,
+                MaterialMaster: null,
+                MaterialArticle: null,
+                AccessType: null,
+                NoOfBin: null,
+                Remarks: null,
+                StorageLevel: null,
 
 
             };
@@ -251,49 +251,30 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
 
-   
-    
+
+
     // #region ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
 
-    
+
     $scope.userMaterialList = [];
     $scope.selectIDs = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "selectIDs",
-            data: {
-                'materialType': $scope.ModelNew.MaterialTypeId,
-                'materialGroup': $scope.ModelNew.MaterialGroupMasterId,
-                'material': $scope.ModelNew.MaterialMasterId,
-                'storagelevel': $scope.ModelNew.StorageLevel,
-               
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (baseService.isUndefinedOrNull($scope.ModelNew.MaterialTypeId)) {
-                ShowResult('Material Type Id is Required.', 'failure');
-                throw 'Invalid Request';
-            }
-
-            if (baseService.isUndefinedOrNull($scope.ModelNew.MaterialGroupMasterId)) {
-                ShowResult('Material Group Master Id is Required.', 'failure');
-                throw 'Invalid Request';
-            }
-
-            if (baseService.isUndefinedOrNull($scope.ModelNew.MaterialMasterId)) {
-                ShowResult('Material Master Id is Required.', 'failure');
-                throw 'Invalid Request';
-            }
-            $scope.BinHeadList = response.data;
-            //for (var i = 0; i < $scope.userMaterialList.length; i++) {
-            //    for (var j = 0; j < $scope.BinHeadList.length; j++) {
-            //        if ($scope.userMaterialList[i].Id === $scope.BinHeadList[j].Id) {
-            //            $scope.BinHeadList[j].chk = true;
-            //        }
-            //    }
-            //}
-            $scope.selectBinIDs();
-        })
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.ModelNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.path + "selectIDs",
+                data: {
+                    'materialType': $scope.ModelNew.MaterialTypeId,
+                    'materialGroup': $scope.ModelNew.MaterialGroupMasterId,
+                    'material': $scope.ModelNew.MaterialMasterId,
+                    'storagelevel': $scope.ModelNew.StorageLevel,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.BinHeadList = response.data;
+                $scope.selectBinIDs();
+            })
+        }
     }
     // #endregion ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
     /*
@@ -308,38 +289,21 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             method: 'POST',
             url: $scope.path + "selectBinIDs",
             data: {
-                'storagelocation': $scope.ModelNew.StorageBinmasterId,
+                'storagelocation': $scope.ModelNew.StorageLocationId,
                 'storagesublocation': $scope.ModelNew.StorageSubLocation,
                 'AccessType': $scope.ModelNew.AccessType,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            if (baseService.isUndefinedOrNull($scope.ModelNew.StorageBinmasterId)) {
-                ShowResult('StorageBinmasterId is Required.', 'failure');
-                throw 'Invalid Request';
-            }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.StorageSubLocation)) {
-                ShowResult('StorageSubLocation is Required.', 'failure');
-                throw 'Invalid Request';
-            }
             $scope.BinAllocationChildList = response.data;
-
-            //for (var i = 0; i < $scope.userBinAllocationList.length; i++) {
-            //    for (var j = 0; j < $scope.BinAllocationChildList.length; j++) {
-            //        if ($scope.userBinAllocationList[i].Id === $scope.BinAllocationChildList[j].Id) {
-            //            $scope.BinAllocationChildList[j].chk = true;
-            //        }
-            //    }
-            //}
         })
     }
-
     $scope.selHeaderBinList = [];
     $scope.headerBinId = [];
 
     $scope.selheaderBin = function () {
-        
+
         for (var i = 0; i < $scope.BinHeadList.length; i++) {
             if ($scope.BinHeadList[i].chk == true) {
                 $scope.headerBinId.push($scope.BinHeadList[i].Id);
@@ -347,7 +311,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             }
         }
         $scope.selectIDs();
-       }
+    }
 
     $scope.SelectedBinAllocationList = [];
     $scope.BinAllocationId = [];
@@ -357,7 +321,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
                 $scope.BinAllocationId.push($scope.BinAllocationChildList[i].Id);
                 $scope.SelectedBinAllocationList.push($scope.BinAllocationChildList[i]);
             }
-           // $scope.selectBinIDs();
+            // $scope.selectBinIDs();
         }
     }
 
@@ -366,26 +330,26 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
 
         if (baseService.arrayLength($scope.BinHeadList) > 0) {
             angular.forEach($scope.BinHeadList, function (a) {
-                
-                    if (a.chk) {
-                        var ob = {};
-                        ob.Id = null;
-                        ob.ArticleName = a.ArticleName;
-                        ob.MaterialGroupMasterId = a.MaterialGroupMasterId;
-                        ob.MaterialMaster = a.MaterialMaster;
-                        ob.MaterialMasterId = a.MaterialMasterId;
-                        ob.MaterialType = a.MaterialType;
-                        ob.MaterialTypeId = a.MaterialTypeId;
-                        ob.MaterialgroupName = a.MaterialgroupName;
 
-                        $scope.userMaterialList.push(ob);
-                        ob = {};
-                    }
-                
+                if (a.chk) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.ArticleName = a.ArticleName;
+                    ob.MaterialGroupMasterId = a.MaterialGroupMasterId;
+                    ob.MaterialMaster = a.MaterialMaster;
+                    ob.MaterialMasterId = a.MaterialMasterId;
+                    ob.MaterialType = a.MaterialType;
+                    ob.MaterialTypeId = a.MaterialTypeId;
+                    ob.MaterialgroupName = a.MaterialgroupName;
+
+                    $scope.userMaterialList.push(ob);
+                    ob = {};
+                }
+
 
             });
         }
-        
+
         $scope.$broadcast('show-errors-check-validity');
 
         $http({
@@ -403,7 +367,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                
+
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -464,7 +428,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     };
 
     // TAB CHANGE
-   
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -498,7 +462,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
 
     // SELECT UNSELECT ALL
 
-   // Materiall Allocation
+    // Materiall Allocation
     $scope.chkdMaterialAllocation = [];
     $scope.MaterialAllocationGridAllCheck = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
