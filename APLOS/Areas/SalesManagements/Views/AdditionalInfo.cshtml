@@ -1,4 +1,4 @@
-﻿<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Additional Info</h3>
+﻿<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span>Invoice Additional Info</h3>
 <div class="aplos-grid-toggle">
     <div class="row text-right">
         <div class="col-xs-12 col-sm-12 col-sm-12">
@@ -37,43 +37,43 @@
                 <div e-column e-field="RowState" e-headertext="Status" e-width="100"></div>
                 <div e-column e-headertext="Edit" e-template="#SalesAdd" e-width="60"></div>
                 @*<div e-column e-headertext="Sales" e-template="#SalesTemplate" e-width="60"></div>
-                <div e-column e-headertext=" Posting " e-template="#PostingTemplate" e-width="80"></div>*@
+                    <div e-column e-headertext=" Posting " e-template="#PostingTemplate" e-width="80"></div>*@
             </div>
         </div>
         <script type="text/template" id="SalesAdd">
             <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.ShowAdditionalPopup(this);" style="margin: -6px;"></i></button>
         </script>
         @*<script id="SalesTemplate" type="text/template">
-            <div class="common-btn">
-                <ul class="common-btn list-inline text-center">
-                    <li>
-                        <button ng-click="$parent.onClickReportMOS(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
-                            <i class="fa fa-file-pdf-o"></i>
-                        </button>
-                        <button ng-click="$parent.onClickReportExcelMOS(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
-                            <i class="fa fa-file-excel-o"></i>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </script>*@
+                <div class="common-btn">
+                    <ul class="common-btn list-inline text-center">
+                        <li>
+                            <button ng-click="$parent.onClickReportMOS(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                                <i class="fa fa-file-pdf-o"></i>
+                            </button>
+                            <button ng-click="$parent.onClickReportExcelMOS(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                                <i class="fa fa-file-excel-o"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </script>*@
         @*<script id="PostingTemplate" type="text/template">
-            <div class="common-btn">
-                <ul class="common-btn list-inline text-center">
-                    <li>
-                        <button ng-click="$parent.onClickReportPDFPosting(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
-                            <i class="fa fa-file-pdf-o"></i>
-                        </button>
-                        <button ng-click="$parent.onClickReportExcelPosting(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
-                            <i class="fa fa-file-excel-o"></i>
-                        </button>
-                        <button ng-click="$parent.onClickReportPDFPackingPosting(data);" ng-show="data.SalesPackingVoucherId" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Packing">
-                            <i class="fa fa-file-pdf-o"></i>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </script>*@
+                <div class="common-btn">
+                    <ul class="common-btn list-inline text-center">
+                        <li>
+                            <button ng-click="$parent.onClickReportPDFPosting(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                                <i class="fa fa-file-pdf-o"></i>
+                            </button>
+                            <button ng-click="$parent.onClickReportExcelPosting(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                                <i class="fa fa-file-excel-o"></i>
+                            </button>
+                            <button ng-click="$parent.onClickReportPDFPackingPosting(data);" ng-show="data.SalesPackingVoucherId" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Packing">
+                                <i class="fa fa-file-pdf-o"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </script>*@
     </div>
 </div>
 
@@ -96,29 +96,29 @@
                     <div class="form-horizontal form-elements">
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Post Code</label>
+                                <label class="col-sm-4 control-label">Post Code<sup>*</sup></label>
                                 <div class="col-sm-8">
-                                    <input type="text" name="PostCode" ng-model="modelNew.PostCode" class="form-control" maxlength="30" tabindex="12">
+                                    <input type="text" name="PostCode" ng-model="modelNew.PostCode" class="form-control" maxlength="30" tabindex="1">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Shipping Bill</label>
+                                <label class="col-sm-4 control-label">Shipping Bill<sup>*</sup></label>
                                 <div class="col-sm-8">
-                                    <input type="text" name="Shipping Bill"  n-decimals="2" ng-model="modelNew.ShippingBill" class="form-control" tabindex="12">
+                                    <input type="text" name="Shipping Bill" n-decimals="2" ng-model="modelNew.ShippingBill" class="form-control" tabindex="3">
                                 </div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Shipping Date</label>
+                                <label class="col-sm-4 control-label">Shipping Date<sup>*</sup></label>
                                 <div class="col-sm-8">
-                                    <input type="text" name="Shipping Date" ng-model="modelNew.ShippingDate" datefilter class="form-control" tabindex="12">
+                                    <input type="text" name="Shipping Date" ng-model="modelNew.ShippingDate" datepicker class="form-control" tabindex="2">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">RodTep Amount</label>
+                                <label class="col-sm-4 control-label">RodTep Amount<sup>*</sup></label>
                                 <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="RodTep Amount" ng-model="modelNew.RodTepAmount" class="form-control" tabindex="12">
+                                    <input type="text" n-decimals="2" name="RodTep Amount" ng-model="modelNew.RodTepAmount" class="form-control" tabindex="4">
                                 </div>
                             </div>
                         </div>
@@ -132,35 +132,37 @@
                         <li> <button ng-click="ClosePopUp();" class="btn" tabindex="9"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                     </ul>
                 </div>
-            </div>
-            <div class="table-responsive modal-table">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>FGSKU1</th>
-                            <th>FGSKU2</th>
-                            <th>FGSKU3</th>
-                            <th>RMSKU1</th>
-                            <th>RMSKU2</th>
-                            <th>RMSKU3</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="x in bomSKUMappingDataList">
-                            <td>{{x.FGSKU1}}-{{x.FGSKU1Value}}</td>
-                            <td>{{x.FGSKU2}}-{{x.FGSKU2Value}}</td>
-                            <td>{{x.FGSKU3}}-{{x.FGSKU3Value}}</td>
-
-                            <td>{{x.RMSKU1}}-{{x.RMSKU1Value}}</td>
-                            <td>{{x.RMSKU2}}-{{x.RMSKU2Value}}</td>
-                            <td>{{x.RMSKU3}}-{{x.RMSKU3Value}}</td>
-
-                            <td>{{x.Description}}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>InvoiceNo</th>
+                                <th>Post Code</th>
+                                <th>Shipping Date</th>
+                                <th>Shipping Bill</th>
+                                <th>RodTep Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in SalesAdditionalInfoDataList">
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="EditData(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button></li>
+                                        <li><button ng-click="removeLineItem(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    </ul>
+                                </td>
+                                <td>{{x.SalesId}}</td>
+                                <td>{{x.PostCode}}</td>
+                                <td>{{x.ShippingDate| dateFiltering}}</td>
+                                <td>{{x.ShippingBill}}</td>
+                                <td>{{x.RodTepAmount}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
+<confirm-archive-generic modalid="confirmBoMDetailPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteItem();"></confirm-archive-generic>

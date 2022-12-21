@@ -227,6 +227,18 @@ namespace Library.OrderManagement.Sales
             return sID;
         }
 
+        public IEnumerable<object> GetSalesAdditionalInfoData(string salesId)
+        {
+            try
+            {
+                string sql = @"Select * from [dbo].[SalesAdditionalInfo] Where SalesId='"+ salesId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public void SaveAdditinalTax(string MasterId, decimal BooksCurrencyBaseRate, OTSBD.IdentityParameter para, List<Dictionary<string, object>> UserSendData)
         {
@@ -558,7 +570,7 @@ namespace Library.OrderManagement.Sales
 									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
-                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "'  AND S.RowState='Parked'";
+                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "'";
                 return _sqlRepository.GetDataCollection(cmdText);
 
             }
@@ -612,7 +624,7 @@ LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 WHERE B.Code='CGST' AND SalesServiceId IS NULL
 ) TAxInfo3	ON TAxInfo3.SalesMaterialId=sm.Id
-WHERE s.RowState='Parked' AND s.Id " + Ids + "";
+WHERE s.Id " + Ids + "";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

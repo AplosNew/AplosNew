@@ -26,90 +26,80 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     };
     $scope.getMasterOrderSalesPosted();
 
+    $scope.model = { Id: null, SalesId: null, PostCode: null, ShippingDate: null, ShippingBill: null, RodTepAmount: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+    $scope.modelNew = Object.assign({}, $scope.model);
 
-
-    $scope.InvoiceId = null;
+    $scope.SalesId = null;
     $scope.ShowAdditionalPopup = function (obj) {
-        $scope.InvoiceId = obj.data.Id;
+        $scope.model = { Id: null, SalesId: null, PostCode: null, ShippingDate: null, ShippingBill: null, RodTepAmount: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        $scope.modelNew = Object.assign({}, $scope.model);
+        $scope.SalesAdditionalInfoDataList = [];
+        $scope.SalesId = obj.data.Id;
+        $scope.GetSalesAdditionalInfoData();
         angular.element(document.querySelector('#detailpopup')).modal('show');
     }
 
-
-    $scope.ClosePopUp = function () {
-        angular.element(document.querySelector('#detailpopup')).modal('hide');
+    $scope.EditData = function (data) {
+        $scope.modelNew = Object.assign({}, data);
     }
 
+    $scope.ClosePopUp = function () {
+        $scope.model = { Id: null, SalesId: null, PostCode: null, ShippingDate: null, ShippingBill: null, RodTepAmount: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        $scope.modelNew = Object.assign({}, $scope.model);
+        angular.element(document.querySelector('#detailpopup')).modal('hide');
+    }
+    $scope.Action = "Save";
     $scope.Save = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.bomNew.FGMaterialMasterId)) {
-                throw "Finish Goods Material is required.";
+            $scope.modelNew.SalesId = $scope.SalesId;
+            if (baseService.isUndefinedOrNull($scope.modelNew.PostCode)) {
+                throw "Post Code is required.";
             }
-            if (baseService.isUndefinedOrNull($scope.bomNew.FGArticleId)) {
-                throw "Finish Goods Article is required.";
+            if (baseService.isUndefinedOrNull($scope.modelNew.ShippingDate)) {
+                throw "Shipping Date is required.";
             }
-            if (baseService.isUndefinedOrNull($scope.bomNew.UnitOfMeasurementId)) {
-                throw "Finish Goods UoM is required.";
+            if (baseService.isUndefinedOrNull($scope.modelNew.ShippingBill)) {
+                throw "Shipping Bill is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.modelNew.RodTepAmount)) {
+                throw "RodTep Amount is required.";
             }
 
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.bomNewForm.$valid) {
-                if ($scope.Action == "Save") {
-                    $http({
-                        method: 'POST',
-                        url: $scope.saveMasterUrl,
-                        data: {
-                            'entity': $scope.bomNew
-                        },
-                        dataType: 'JSON'
-                        , contentType: "application/json charset=utf-8"
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.bomNew.Id = response.data.Data.Id;
-                            $scope.getmasterData();
-                        }
-                    }), function errorCallBack(response) {
+            if ($scope.Action == "Save") {
+                $http({
+                    method: 'POST',
+                    url: 'SalesManagements/Sales/CreateSalesAdditionalInfo',
+                    data: {
+                        'data': $scope.modelNew
+                    },
+                    dataType: 'JSON'
+                    , contentType: "application/json charset=utf-8"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
-                    };
-                }
-                else if ($scope.Action == "Update") {
-                    $http({
-                        method: 'POST',
-                        url: $scope.updateUrl,
-                        data: {
-                            'entity': $scope.bomNew
-                        },
-                        dataType: 'JSON'
-                        , contentType: "application/json charset=utf-8"
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.bomNew.Id = response.data.Data.Id;
-                            $scope.getmasterData();
-                        }
-                    }), function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    };
-                }
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetSalesAdditionalInfoData();
+                        $scope.Clear();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
             }
         } catch (e) {
-            ShowResult(e, "failure");
+            ShowResult(e, "failure",'detailpopup');
         }
     };
 
-    $scope.masterDataList = [];
-    $scope.getmasterData = function () {
-        $http.get("OrderManagements/BOMMaster/GetList")
+    $scope.SalesAdditionalInfoDataList = [];
+    $scope.GetSalesAdditionalInfoData = function () {
+        $scope.SalesAdditionalInfoDataList = [];
+        $http.get("SalesManagements/Sales/GetSalesAdditionalInfoData?salesId=" + $scope.SalesId)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
-                        $scope.masterDataList = response.data;
+                        $scope.SalesAdditionalInfoDataList = response.data;
                     }
                 },
                 function errorCallback(response) {
@@ -118,10 +108,35 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     };
 
     $scope.Clear = function () {
-        $scope.masterOrderItemList = [];
-        $scope.salesMaterialList = [];
-        $scope.invoiceList = [];
-        $scope.postedSalesList = [];
-        $scope.selectedpostedSalesList = [];
+        $scope.model = { Id: null, SalesId: null, PostCode: null, ShippingDate: null, ShippingBill: null, RodTepAmount: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        $scope.modelNew = Object.assign({}, $scope.model);
     }
+
+    $scope.message_detailconfirmation = null;
+    $scope.removeLineItem = function (data) {
+        $scope.modelNew = Object.assign({}, data);
+        if (!baseService.isUndefinedOrNull($scope.modelNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.modelNew.PostCode + ' ]';
+        angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
+    }
+
+    $scope.DeleteItem = function () {
+        $http({
+            method: 'POST',
+            url: 'SalesManagements/Sales/DeleteItem?id=' + $scope.modelNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSalesAdditionalInfoData();
+                $scope.Clear();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
 }

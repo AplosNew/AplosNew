@@ -442,6 +442,12 @@
                                     <tr>
                                         <th class="col-sm-1">Action</th>
                                         <th>Copy SO</th>
+                                        <th>Total Quantity</th>
+                                        <th>SO Total Quantity</th>
+                                        <th>UoM</th>
+                                        <th>Order Wastage Percentage</th>
+                                        <th>Extra Order Percentage</th>
+                                        <th>Item Costing</th>
                                         <th>Code</th>
                                         <th>Inquiry</th>
                                         <th>Sample No</th>
@@ -451,12 +457,6 @@
                                         <th>Production Grouping</th>
                                         <th>Buyer Ref.No</th>
                                         <th>Own Ref.No</th>
-                                        <th>Total Quantity</th>
-                                        <th>SO Total Quantity</th>
-                                        <th>UoM</th>
-                                        <th>Order Wastage Percentage</th>
-                                        <th>Extra Order Percentage</th>
-                                        <th>Item Costing</th>
                                         <th>Repeat</th>
                                         <th>Product Library</th>
                                         <th>Order Costing</th>
@@ -504,6 +504,35 @@
                                                 </span>
                                             </div>
                                         </td>
+                                        <td>
+                                            <input type="text" n-decimals="2" ng-model=" x.TotalQty" class="form-control text-right" />
+                                        </td>
+                                        <td class="text-right">
+                                            <label ng-class="{'control-label redClr':x.SOQty != x.TotalQty, 'control-label': x.SOQty == x.TotalQty}">
+                                                {{x.SOQty}}
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <div class="select-style">
+                                                @*<select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
+
+                     <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
+                    <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
+                </select>*@
+                                                <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId"
+                                                        ng-options="item.Value as item.Text for item in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}"
+                                                        ng-selected="x.ByDefault == item.ByDefault"></select>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">
+                                        </td>
+                                        <td>
+                                            <input type="text" n-decimals="2" ng-model=" x.ExtraOrderPercentage" ng-disabled="!fileNew.IsExtraOrderPercentage" class="form-control text-right">
+                                        </td>
+                                        <td>
+                                            <button ng-click="GetMOSORatePopup($index,x);" style="background: yellow;" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
+                                        </td>
                                         <td>{{x.Id}}</td>
                                         <td>{{x.Inquiry}}</td>
                                         <td>{{x.SampleNo}}</td>
@@ -543,35 +572,6 @@
                                         </td>
                                         <td>
                                             <input type="text" ng-model=" x.OwnReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
-                                        </td>
-                                        <td>
-                                            <input type="text" n-decimals="2" ng-model=" x.TotalQty" class="form-control text-right" />
-                                        </td>
-                                        <td class="text-right">
-                                            <label ng-class="{'control-label redClr':x.SOQty != x.TotalQty, 'control-label': x.SOQty == x.TotalQty}">
-                                                {{x.SOQty}}
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <div class="select-style">
-                                                @*<select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
-
-                     <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
-                    <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
-                </select>*@
-                                                <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId"
-                                                        ng-options="item.Value as item.Text for item in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}"
-                                                        ng-selected="x.ByDefault == item.ByDefault"></select>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">
-                                        </td>
-                                        <td>
-                                            <input type="text" n-decimals="2" ng-model=" x.ExtraOrderPercentage" ng-disabled="!fileNew.IsExtraOrderPercentage" class="form-control text-right">
-                                        </td>
-                                        <td>
-                                            <button ng-click="GetMOSORatePopup($index,x);" style="background: yellow;" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
                                         </td>
                                         <td>
                                             <div class="checkbox-site">
@@ -664,7 +664,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="9"></td>
+                                        <td colspan="2"></td>
                                         <td class="text-right">
                                             <label ng-class="{'control-label redClr text-right':x.SOQty != x.TotalQty, 'control-label text-right': x.SOQty == x.TotalQty}">
                                                 {{itemList | sumByKey : 'TotalQty'|number:2}}
@@ -675,7 +675,7 @@
                                                 {{itemList | sumByKey : 'SOQty'|number:2}}
                                             </label>
                                         </td>
-                                        <td colspan="17"></td>
+                                        <td colspan="26"></td>
                                         <td class="text-center">
                                             <button ng-click="addNewItem();" ng-disabled="fileNew.Id===null" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button>
                                         </td>
