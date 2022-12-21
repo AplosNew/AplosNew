@@ -667,10 +667,10 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 wcPayrollGroup = @"";
             }
-            else
-            {
-                wcPayrollGroup = @"AND E.SystemId  IN (SELECT employeeid from MST.PayrollGroupMaster where PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"'))";
-            }
+            //else
+            //{
+            //    wcPayrollGroup = @"AND E.SystemId  IN (SELECT employeeid from MST.PayrollGroupMaster where PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"'))";
+            //}
             if (salaryProcessId == "STRUCTURE")
             {
                 wcEmpStatus = " Where (1=1 ";
