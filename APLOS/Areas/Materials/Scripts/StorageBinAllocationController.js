@@ -46,7 +46,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     $scope.ModelTemp = {
         Id: null,
         UserName: null,
-        StorageBinmasterId: null,
+        StorageLocationId: null,
         StorageSubLocation: null,
         MaterialTypeId: null,
         MaterialGroupMasterId: null,       
@@ -166,7 +166,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             method: 'POST',
             url: $scope.path + "getStorageSubLocation",
             data: {
-                'storageLocationId': $scope.ModelNew.StorageBinmasterId,
+                'storageLocationId': $scope.ModelNew.StorageLocationId,
                
             },
             dataType: 'JSON'

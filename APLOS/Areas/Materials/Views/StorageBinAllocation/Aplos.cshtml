@@ -99,7 +99,7 @@
                 <label class="col-sm-4 control-label">Storage Location</label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-change="getStorageSubLocation()" ng-model="ModelNew.StorageBinmasterId" required name="Storage Location"
+                        <select class="form-control" ng-change="getStorageSubLocation()" ng-model="ModelNew.StorageLocationId" required name="Storage Location"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in StorageLocationList" value="{{option.Value}}">{{option.Text}}</option>
