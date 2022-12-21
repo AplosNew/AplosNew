@@ -1351,10 +1351,8 @@
                             <label class="col-sm-4 control-label">Production Type<sup>*</sup></label>
                             <div class="col-sm-3 show-message">
                                 <div class="select-style">
-                                    <select name="Production Type" class="form-control" ng-model="soModel.ProductionType" tabindex="102">
-                                        <option value="">--Select--</option>
-                                        <option value="Order">Order</option>
-                                        <option value="Stock">Stock</option>
+                                    <select class="form-control" ng-model="soModel.ProductionType" placeholder="ProductionType" name="ProductionType" ng-options="item.Value as item.Text for item in ProductionTypeList" required>
+                                        <option value=""></option>
                                     </select>
                                 </div>
                             </div>
