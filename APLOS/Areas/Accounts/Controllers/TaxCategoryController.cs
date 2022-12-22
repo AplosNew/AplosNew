@@ -63,7 +63,17 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             return Json(_accountsGLService.GetTaxCategoryMaterialLevelCbo(identity.CompanyGroupId, countryId), JsonRequestBehavior.AllowGet);
         }
-
+        [Authorize]
+        public JsonResult GetTaxCategoryGSTTypeCbo(string countryId)
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(countryId))
+            {
+                countryId = _plantService.GetPlantCountryId(identity.PlantId);
+            }
+            return Json(_accountsGLService.GetTaxCategoryGSTTypeCbo(identity.CompanyGroupId, countryId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetList(GridParameter parameters, string countryId)

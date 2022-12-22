@@ -151,6 +151,79 @@ function loanInterestPayableController(accountService, bankService, cboService, 
             }
         });
     };
+    $scope.taxCodCboList = [];
+    $scope.getTaxCodeInvoiceTriggeringInstanceOthers = function () {
+        $http({
+            method: "GET",
+            url: "accounts/TaxCode/GetTaxCodeInvoiceTriggeringInstanceOthers"
+        }).then(function successCallback(response) {
+            $scope.taxCodCboList = response.data;
+        });
+    };
+    $scope.getTaxCodeInvoiceTriggeringInstanceOthers();
+    $scope.taxCodDataList = [];
+    $scope.addTaxCodeonList = function (item) {
+
+        $http({
+            method: "get",
+            url: "accounts/taxcode/GetTaxCodewithPersentageById?id=" + item + '&postingDate=' + $scope.voucher.PostingDate
+        }).then(function successCallback(response) {
+            $scope.taxcodedata = response.data;
+            var ob = {
+                Code: $scope.taxcodedata.Code,
+                Type: $scope.taxcodedata.Type,
+                ValueOfFixed: $scope.taxcodedata.ValueOfFixed,
+                Description: $scope.taxcodedata.Description,
+                UserName: $scope.taxcodedata.UserName,
+                VoucherDetailId: $scope.voucherDetailId,
+                Sequence: 1,
+                TaxAmount: null,
+                TaxAutoAmount: null,
+                TaxCodeId: $scope.taxcodedata.TaxCodeId,
+                TaxCategoryId: $scope.taxcodedata.TaxCategoryId,
+                InvoiceDetailId: null,
+                Id: null,
+                WithholdCreditableGLId: $scope.taxcodedata.WithholdCreditableGLId,
+                ExpensesGLId: $scope.taxcodedata.ExpensesGLId,
+                CreditableGLId: $scope.taxcodedata.CreditableGLId,
+                IsWithhold: $scope.taxcodedata.IsWithhold,
+                IsCreditable: $scope.taxcodedata.IsCreditable,
+                IsMerge: $scope.taxcodedata.IsMerge,
+                IsRCM: $scope.taxcodedata.IsRCM,
+                ManuallyEditable: $scope.taxcodedata.ManuallyEditable,
+                TotalTax: null,
+                TotalAmount: null,
+            };
+
+            var getRow = $filter("filter")($scope.taxCodDataList, { "TaxCodeId": ob.TaxCodeId });
+            if (getRow.length === 0) {
+                $scope.taxCodDataList.push(ob);
+            }
+            else {
+                ShowResult("Tax code (<b>" + ob.UserName + "</b>) is already added !!!", "failure");
+            }
+            
+        });
+    };
+    $scope.taxCodeDelModal = function (taxcodeid, username) {
+        $scope.TaxCodeId = taxcodeid;
+        if (baseService.isUndefinedOrNull($scope.TaxCodeId))
+            $scope.Taxmessage_confirmation = "Are you sure want to delete [ " + username + " ] data....";
+        else
+            $scope.Taxmessage_confirmation = "Are you sure want to delete [ " + username + " ] ?";
+        angular.element(document.querySelector("#confirmTaxCodeDelPopUp")).modal("show");
+    };
+
+    $scope.removeTaxCodeRow = function () {
+        if (!baseService.isUndefinedOrNull($scope.TaxCodeId)) {
+            for (var i = 0; i < $scope.taxCodDataList.length; i++) {
+                if ($scope.taxCodDataList[i].TaxCodeId === $scope.TaxCodeId) {
+                    $scope.taxCodDataList.splice(i, 1);
+                }
+            }
+            $scope.TaxCodeId = "";
+        }
+    };
 
     $scope.customerList = [];
     $scope.customerIndex = -1;
@@ -371,7 +444,8 @@ function loanInterestPayableController(accountService, bankService, cboService, 
                     url: "Accounts/Loan/InsertLoanInterestPayable",
                     data: {
                         "voucherVM": $scope.voucher,
-                        "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist
+                        "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist,
+                        "invoiceTaxVMList": $scope.taxCodDataList,
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
