@@ -4098,7 +4098,7 @@ namespace Library.MaterialManagement.Inventory
             var cmdText = "";
             if (Type == "Posted")
             {
-                cmdText = @"SELECT II.Id AS IssueId
+                cmdText = @"SELECT II.Id AS IssueId,II.IssueType
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
 	                        ,II.IssueType
 	                        --,II.CompanyId
@@ -4226,7 +4226,7 @@ namespace Library.MaterialManagement.Inventory
             }
             else
             {
-                cmdText = @"SELECT II.Id AS IssueId
+                cmdText = @"SELECT II.Id AS IssueId,II.IssueType
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
 	                        ,II.IssueType
 	                        --,II.CompanyId
