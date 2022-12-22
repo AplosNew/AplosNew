@@ -641,6 +641,22 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
             });
         }
     }
+
+    $scope.NewgetDataList = function (grnId) {
+        $scope.searchService = grnId;
+        $http({
+            method: 'POST',
+            url: 'Accounts/InventoryPayable/GetServicePostingList',
+            data: { column: $scope.searchByPostedService, value: $scope.searchService },
+        }).then(function successCallback(response) {
+            $scope.products = response.data;
+            var rowdata = $filter("filter")($scope.products, { "Id": grnId });
+            if (!baseService.isUndefinedOrNull(rowdata[0].AdditionalTaxId)) {
+                $scope.onClickadditionalTaxPop(rowdata[0]);
+            }
+        });
+    };
+
     
     $scope.Post = function () {
         if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
@@ -687,7 +703,7 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
                 ShowResult(response.data.Message, 'failure');
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.getDataList();
+                $scope.NewgetDataList($scope.modelNew.Id);
                 $scope.Clear();
             }
         }), function (response) {

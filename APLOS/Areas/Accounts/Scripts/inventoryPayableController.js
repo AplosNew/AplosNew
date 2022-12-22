@@ -294,8 +294,8 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         $scope.LCNo = data.data.LCNo;
         $scope.modelNew.PaymentMode = data.data.PaymentMode;
         $scope.ContractId = data.data.ContractNo;
-        $scope.modelNew.InvoiceNo = data.data.Id;
-        $scope.modelNew.InvoiceDate = data.data.GRNDateNew;
+        $scope.modelNew.InvoiceNo = data.data.DocRefNo;
+        $scope.modelNew.InvoiceDate = data.data.DocDate;
         $scope.modelNew.IsFOC = data.data.IsFOC;
         $scope.modelNew.IsInvoice = true;
         $scope.TDSList = [];
