@@ -1854,6 +1854,56 @@ where APD.Id='" + PlannedId + @"' order by MSC.SNO";
             }
         }//End Function
 
+        public void GetSkillManagemenetPlannedDetails(string PlannedId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select  E.UserName Entity,SM.UserName ScheduleName,APD.Id as PlannedId,SM.ScheduleCode,SM.ScheduleDays,EI.SystemId as EmployeeId,EI.EmployeeName,
+P.Code as PositionCode,DIV.UserName Division,DEP.UserName EmpDepartment,S.UserName Section,SS.UserName SubSection,EB.Code as BudgetCode,P.Activity,DEG.UserName Designation,P.UserName as Process,
+Case when isnull((SELECT TOP 1 format(MPD.ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails MPD where MPD.Id=APD.Id
+ORDER BY MPD.Id DESC),'')='' then DATEDIFF(day, GETDATE(), GETDATE()) else DATEDIFF(day, GETDATE(), (SM.ScheduleDays+GETDATE())) end DueDays,
+Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,Format(APD.FromDate,'dd-MMM-yyyy') as FromDate,Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,SM.StandardScheduleMinutes as StandardTime,SM.MaxScheduleMinutes as Maximumtime,
+format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as ToTime,APD.Minute as [Minute],
+Reverse(stuff(Reverse((Select EmployeeName + ',' from EmployeeInformation where 
+SystemId in (select ResponsiblePersonId from [TRN].[SkillResponsiblePlannedDetails] where PlannedId=APD.Id and IsActive=1) for xml PATH(''))),1,1,'')) as ResponsiblePerson,
+isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails where Id=APD.Id
+ ORDER BY Id DESC),'') as LastMaintenanceDate,
+Case when isnull((SELECT TOP 1 format(MPD.ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails MPD where MPD.Id=APD.Id
+ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((SM.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate
+from TRN.SkillManagement SM
+left join HKP.Process PRO ON PRO.Id=SM.ProcessId
+left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
+ left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and EI.PositionID=SPC.PositionCodeId 
+ left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
+ left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id and APD.Id=(select top 1 Id from TRN.EmployeePlannedDetails MAPD where MAPD.PositionCodeId=SPC.Id and MAPD.EmployeeId=EI.SystemId and MAPD.EntityId=SPE.Id order by MAPD.ActualDate desc)
+ left Join Org.Entity E ON E.Id=SPE.EntityId
+ left Join ORG.Position P ON P.Id=EI.PositionID
+ left join org.Division DIV ON DIV.Id=EI.DivisionId
+ left join Org.Department DEP ON DEP.Id=EI.DepartmentId
+ left join Org.Section S ON S.Id=EI.SectionId
+ left join Org.SubSection SS ON SS.Id=EI.SubSectionId
+ left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
+ left join HKP.Designation DEG ON DEG.Id=EI.GivenDesignationId
+where APD.Id='" + PlannedId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetMaintenanceSchedulePlannedItemDetails(string PlannedId, string plantId, out DataSet dsRef)
         {
 
@@ -1889,6 +1939,40 @@ where APD.Id='" + PlannedId + @"'";
             }
         }
 
+
+        public void GetSkillManagemenetPlannedItemDetails(string PlannedId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select distinct SM.ScheduleCode,MI.Id,MI.SNO,
+ROW_NUMBER() OVER(ORDER BY MI.SNO ASC) as ItemSNO,MI.ItemName as [Item Name],MI.CriticalLevel,MI.Remarks as ItemRemarks,
+Reverse(stuff(Reverse((Select CheckPoints + '[ ],' from SkillItemParameterDetails where 
+ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,MI.ItemMinutes
+from TRN.SkillManagementItem MI
+left join TRN.SkillManagement SM ON SM.Id=MI.SMID
+left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id 
+left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id
+where APD.Id='" + PlannedId + @"'";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         public void GetSpecialIssueControlDetails(string IssueId, string plantId, out DataSet dsRef)
         {
 

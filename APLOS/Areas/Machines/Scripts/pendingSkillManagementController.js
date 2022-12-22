@@ -26,7 +26,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
             method: 'GET',
             url: 'Machines/SkillManagementDetails/GetFromDateList'
         }).then(function successCallback(response) {
-            $scope.statusNew.FromDate = response.data[0].FromDate;
+            //$scope.statusNew.FromDate = response.data[0].FromDate;
         });
     }
     $scope.GetFromDateList();
@@ -41,92 +41,19 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         });
     }
     $scope.GetActionablePersonList();
-    //$scope.filters = [];
-    //$scope.getFiltersData = function () {
-    //    try {
-    //        if (baseService.isUndefinedOrNull($scope.statusNew.ToDate)) {
-    //            throw "To Date is required.";
-    //        }
-          
-    //        $http({
-    //            method: 'GET',
-    //            url: 'Machines/PendingSkillManagement/LoadMaintenanceStatusDetailsList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&Status=' + $scope.statusNew.Status,
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            $scope.filters = response.data;
-    //            var columnList = [
-    //                { field: 'AssetName', width: 20, headerText: "Asset/Machine", type: "string" },
-    //                { field: 'WorkCenter', width: 20, headerText: "Work Center", type: "string" },
-    //                { field: 'ResponsiblePersonBudgetCode', width: 20, headerText: "Responsible Person Budget Code", type: "string" },
-    //                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-    //                { field: 'ActionableResponsiblePerson', width: 20, headerText: "Actionable Responsible Person", type: "string" }
-    //            ];
-    //            $("#filters").ejGrid({
-    //                dataSource: $scope.filters,
-    //                minWidth: 450, minHeight: 400,
-    //                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-    //                filterSettings: { filterType: "excel" },
-    //                columns: columnList
-    //            });
-
-    //            var gridObj = $("#filters").data("ejGrid");
-    //            gridObj.refreshContent(true);
-    //            gridObj.refreshTemplate();
-    //            $("#filters").children('.e-pager.e-js.e-pager').hide();
-    //            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-    //            $("#filters").children('.e-gridcontent').hide();
-    //        });
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
-    //$scope.parameters = [];
-    //$scope.filterComplete = function () {
-
-    //    var g = $("#filters").data("ejGrid");
-    //    var fl = g.getFilteredRecords();
-    //    if (fl.length == 0) {
-    //        fl = $scope.filters;
-    //    }
-
-
-    //    var parameters = [];
-    //    parameters.push({ "Key": "AssetId", "Value": getString(fl, "AssetId") });
-    //    parameters.push({ "Key": "WorkCenterMasterId", "Value": getString(fl, "WorkCenterMasterId") });
-    //    parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
-    //    parameters.push({ "Key": "ResponsiblePersoneBgtCodeId", "Value": getString(fl, "ResponsiblePersoneBgtCodeId") });
-    //    parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
-       
-
-    //    $scope.parameters = parameters;
-    //}
-
-    //var getString = function (data, column) {
-    //    var string = "''";
-    //    var collection = [];
-
-    //    for (var i = 0; i < data.length; i++) {
-    //        if (collection.includes(data[i][column]) == false) {
-    //            string += ",'" + data[i][column] + "'";
-    //            collection.push(data[i][column]);
-    //        }
-    //    }
-    //    return string;
-    //}
-
-    $scope.PendingMaintenanceScheduleList = [];
+    
+    $scope.PendingSkillManagementList = [];
     $scope.View = function () {
         try {
             if (baseService.isUndefinedOrNull($scope.statusNew.ToDate)) {
                 throw "To Date is required.";
             }
 
-           $scope.PendingMaintenanceScheduleList = [];
-            //$scope.filterComplete();
+            $scope.PendingSkillManagementList = [];
 
             $http({
                 method: 'POST',
-                url: $scope.path + "LoadPendingMaintenanceSchedule",
+                url: $scope.path + "LoadPendingSkillMangament",
                 data: { 'ActResponsiblePerson': $scope.statusNew.ActResponsiblePerson, 'todate': $scope.statusNew.ToDate, 'fromDate': $scope.statusNew.FromDate, 'Status' : $scope.statusNew.Status},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -134,8 +61,8 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    $scope.PendingMaintenanceScheduleList = response.data;
-                   var gridObj = $("#GridPendingMaintenanceSchedule").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+                    $scope.PendingSkillManagementList = response.data;
+                    var gridObj = $("#GridPendingSkillManagement").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
                 }
             }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -247,19 +174,19 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         }
     };
 
-    $scope.refreshTemplateMachineAsset = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllMachineAsset });
+    $scope.refreshTemplateEmployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmployee });
     };
-    function CheckBoxSelectAllMachineAsset(e) {
+    function CheckBoxSelectAllEmployee(e) {
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
         }
 
-        var filtered = $("#GridPlannedMachineAsset").data("ejGrid").getFilteredRecords();
+        var filtered = $("#GridPlannedEmployee").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.MaintenanceStatusPlannedDetailsList.length; i++) {
-                $scope.MaintenanceStatusPlannedDetailsList[i].Flag = ChkOrUnchk;
+            for (var i = 0; i < $scope.SkillManagementStatusPlannedDetailsList.length; i++) {
+                $scope.SkillManagementStatusPlannedDetailsList[i].Flag = ChkOrUnchk;
             }
         }
         else {
@@ -267,46 +194,45 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
                 filtered[j].Flag = ChkOrUnchk;
             }
         }
-        var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        var gridObj = $("#GridPlannedEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
     $scope.Asset = null;
-    $scope.MaintenanceStatusPlannedDetailsList = [];
-    $scope.GetAssetPopUp = function (data) {
+    $scope.SkillManagementStatusPlannedDetailsList = [];
+    $scope.GetEmployeePopUp = function (data) {
         $scope.PlannedId = data.data.PlannedId;
-        //$scope.Asset = data.data.AssetId;
         $http({
             method: 'Get',
-            url: 'Machines/SkillManagementDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + data.data.PlannedId
+            url: 'Machines/SkillManagementDetails/LoadSkillManagementPendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + data.data.PlannedId
         }).then(function successCallback(response) {
-            $scope.MaintenanceStatusPlannedDetailsList = response.data;
-            var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            angular.element(document.querySelector('#MachineAssetPop')).modal('show');
+            $scope.SkillManagementStatusPlannedDetailsList = response.data;
+            var gridObj = $("#GridPlannedEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#EmployeeePopUp')).modal('show');
         }
         )
     }
-    $scope.GetAssetDetails = function () {
+    $scope.GetEmployeeDetails = function () {
 
         $http({
             method: 'Get',
-            url: 'Machines/SkillManagementDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.PlannedId
+            url: 'Machines/SkillManagementDetails/LoadSkillManagementPendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.PlannedId
         }).then(function successCallback(response) {
-            $scope.MaintenanceStatusPlannedDetailsList = response.data;
-            var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            angular.element(document.querySelector('#MachineAssetPop')).modal('show');
+            $scope.SkillManagementStatusPlannedDetailsList = response.data;
+            var gridObj = $("#GridPlannedEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#EmployeeePopUp')).modal('show');
         }
         )
     }
-    $scope.closeMachinePopUp = function () {
-        angular.element(document.querySelector('#MachineAssetPop')).modal('hide');
+    $scope.closeEmployeePopUp = function () {
+        angular.element(document.querySelector('#EmployeeePopUp')).modal('hide');
     }
     $scope.SavePlannedDetails = function () {
         try {
 
             $scope.SaveList = [];
-            for (var i = 0; i < $scope.MaintenanceStatusPlannedDetailsList.length; i++) {
-                if ($scope.MaintenanceStatusPlannedDetailsList[i].Flag == true) {
-                    $scope.SaveList.push($scope.MaintenanceStatusPlannedDetailsList[i]);
+            for (var i = 0; i < $scope.SkillManagementStatusPlannedDetailsList.length; i++) {
+                if ($scope.SkillManagementStatusPlannedDetailsList[i].Flag == true) {
+                    $scope.SaveList.push($scope.SkillManagementStatusPlannedDetailsList[i]);
                 }
             }
 
@@ -325,7 +251,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetAssetDetails();
+                    $scope.GetEmployeeDetails();
                     $scope.Action = 'Save';
                 }
 
