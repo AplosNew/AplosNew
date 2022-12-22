@@ -6259,8 +6259,6 @@ namespace Library.MaterialManagement.Inventory
 
         private void CreateIssueRegisterGRNIssueReport(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
         {
-
-
             var cmdText = "";
             if (Type == "Posted")
             {
