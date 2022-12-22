@@ -1806,7 +1806,20 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.TotalMOIQty = 0;
     $scope.JobWorkType = '';
 
+    $scope.ProductionTypeList = [
+        {
+            'Value': 'Order',
+            'Text': 'Order'
+        },
+        {
+            'Value': 'Stock',
+            'Text': 'Stock'
+        }
+    ];
+
     $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
+
+
         $scope.TotalMOIQty = x.TotalQty;
         $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
 
@@ -1853,7 +1866,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , UpCharge: 0
             , Discount: 0
             , CM: 0
-            , ProductionType: null
+            , ProductionType: 'Order'
             , ShipmentFromStock: null
             , StockResponsiblePersonId: null
             , StockResponsiblePerson: null
@@ -2312,7 +2325,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , UpCharge: 0
             , Discount: 0
             , CM: 0
-            , ProductionType: null
+            , ProductionType: 'Order'
             , ShipmentFromStock: null
             , StockResponsiblePersonId: null
             , StockResponsiblePerson: null

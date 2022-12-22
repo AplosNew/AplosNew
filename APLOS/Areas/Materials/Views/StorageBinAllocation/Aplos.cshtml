@@ -35,11 +35,11 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">User Name </label>
                 <div class="col-sm-6 show-message">
-                    <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="30" autocomplete="off">
+                    <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" tabindex="5" maxlength="30" autocomplete="off">
                 </div>
             </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Storage Sub Location</label>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Storage Sub Location<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
                         <select class="form-control" ng-change="getAccessType();" ng-model="ModelNew.StorageSubLocation" required name="Storage Location"
@@ -51,11 +51,11 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Storage Level<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.StorageLevel" required name="Storage Location"
+                        <select class="form-control" ng-model="ModelNew.StorageLevel" required name="Storage Location Level"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option value="Material">Material</option>
@@ -65,8 +65,8 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Material Group</label>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Material Group<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
                         <select class="form-control" ng-change="getMaterial();" ng-model="ModelNew.MaterialGroupMasterId" required name="Material Group"
@@ -83,7 +83,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">No. Of Bin</label>
                 <div class="col-sm-6 show-message">
-                    <input type="number" name="No Of Bin" ng-model="ModelNew.NoOfBin" class="form-control" required tabindex="5" maxlength="30">
+                    <input type="number" name="No Of Bin" ng-model="ModelNew.NoOfBin" class="form-control" tabindex="5" maxlength="30">
                 </div>
             </div>
 
@@ -91,15 +91,15 @@
         </div>
 
         <!--
-         //** ----------------------------------------------------  **//
-        -->
+     //** ----------------------------------------------------  **//
+    -->
 
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Storage Location</label>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Storage Location<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-change="getStorageSubLocation()" ng-model="ModelNew.StorageBinmasterId" required name="Storage Location"
+                        <select class="form-control" ng-change="getStorageSubLocation()" ng-model="ModelNew.StorageLocationId" required name="Storage Location"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in StorageLocationList" value="{{option.Value}}">{{option.Text}}</option>
@@ -108,22 +108,9 @@
                     </div>
                 </div>
             </div>
-            @*<div class="form-group">
-                    <label class="col-sm-4 control-label">Storage Level<sup>*</sup></label>
-                    <div class="col-sm-6 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-change="EnableDisable()" ng-model="ModelNew.StorageLevel" required name="Storage Location"
-                                    tabindex="2">
-                                <option value="">--Select--</option>
-                                <option value="Material">Material</option>
-                                <option value="Article">Article</option>
 
-                            </select>
-                        </div>
-                    </div>
-                </div>*@
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Access Type</label>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Access Type<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
                         <select class="form-control" ng-model="ModelNew.AccessType" required name="Access Type"
@@ -136,7 +123,7 @@
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Material Type<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
@@ -149,19 +136,6 @@
                 </div>
             </div>
 
-            @*<div class="form-group">
-                    <label class="col-sm-4 control-label">Material Article<sup>*</sup></label>
-                    <div class="col-sm-6 show-message">
-                        <div class="select-style">
-                            <select class="form-control" id="MaterialMasterArticleId" ng-model="ModelNew.MaterialMasterArticleId" ng-disabled="true" required name="Access Type"
-                                    tabindex="2">
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in MaterialArticleList" value="{{option.Value}}">{{option.Text}}</option>
-
-                            </select>
-                        </div>
-                    </div>
-                </div>*@
 
             <div class="form-group">
                 <label class="col-sm-4 control-label">Material</label>
@@ -180,34 +154,11 @@
             </div>
 
         </div>
-
-
         <div class="common-btn">
-            <div class="col-xs-12 col-lg-3 col-md-3">
-
-                <ul class="list-inline text-right">
-
-                    @* <li> <button ng-click="selectIDs()" class="btn" tabindex="11"><i class="glyphicon glyphicon-chevron-down"></i> View</button></li>*@
-
-                </ul>
-
-            </div>
-            <div class="col-xs-12 col-lg-3 col-md-3"></div>
             <ul class="list-inline text-right">
-
-                <li> <button ng-click="selectIDs()" class="btn" tabindex="11"><i class="glyphicon glyphicon-chevron-down"></i> View</button></li>
-
+                <li><button ng-click="selectIDs();" class="btn"><i class="glyphicon glyphicon-chevron-down"></i> View</button></li>
             </ul>
-            <!--<div class="col-xs-12 col-lg-6 col-md-6">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>-->
-            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-            <!--<li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>-->
-
         </div>
-        @*</div>*@
     </fieldset>
     <div class="tab-design">
         <div class="site-tab">
