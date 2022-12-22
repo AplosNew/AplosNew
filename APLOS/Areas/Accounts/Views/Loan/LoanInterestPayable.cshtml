@@ -184,7 +184,7 @@
                     <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Other Expenses As Payable
                 </label>
                 <label>
-                    <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.LoanTransactionType.Tax.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.LoanTransactionType.Tax.ToString()">
+                    <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.LoanTransactionType.LoanTax.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.LoanTransactionType.LoanTax.ToString()">
                     <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Tax
                 </label>
             </div>
@@ -197,11 +197,11 @@
                 <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanTaken.ToString()'">Payable Amount<sup>*</sup></label>
                 <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanGiven.ToString()'">Receiable Amount<sup>*</sup></label>
                 <div class="col-sm-4 show-message" style="padding-right:0px;">
-                    <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-keyup="exchangeGainLossAmount(voucher.Amount)" n-decimals="2" class="form-control text-right" autocomplete="off" required>
+                    <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-keyup="exchangeGainLossAmount(voucher.Amount)" n-decimals="2" class="form-control text-right" autocomplete="off">
                 </div>
                 <label class="col-sm-3 control-label">Rate<sup>*</sup></label>
                 <div class="col-sm-2 show-message">
-                    <input type="text" maxlength="50" id="Rate" name="Rate" required ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate)" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4">
+                    <input type="text" maxlength="50" id="Rate" name="Rate" ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate)" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4">
                 </div>
             </div>
             <div class="form-group" id="div_qty" ng-show="voucher.ExchangeType">
@@ -223,11 +223,11 @@
                 <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanTaken.ToString()'">Payable Amount<sup>*</sup></label>
                 <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanGiven.ToString()'">Receiable Amount<sup>*</sup></label>
                 <div class="col-sm-4 show-message" style="padding-right:0px;">
-                    <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-keyup="exchangeGainLossAmount(voucher.Amount)" n-decimals="2" class="form-control text-right" autocomplete="off" required>
+                    <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-keyup="exchangeGainLossAmount(voucher.Amount)" n-decimals="2" class="form-control text-right" autocomplete="off" >
                 </div>
                 <label class="col-sm-3 control-label">Rate<sup>*</sup></label>
                 <div class="col-sm-2 show-message">
-                    <input type="text" maxlength="50" id="Rate" name="Rate" required ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate)" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4">
+                    <input type="text" maxlength="50" id="Rate" name="Rate"  ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate)" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4">
                 </div>
             </div>
             <div class="form-group" id="div_qty" ng-show="voucher.ExchangeType">
@@ -302,7 +302,7 @@
                 <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanTaken.ToString()'">Expenses Amount<sup>*</sup></label>
                 <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanGiven.ToString()'">Expenses Amount<sup>*</sup></label>
                 <div class="col-sm-4 show-message" style="padding-right:0px;">
-                    <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-keyup="exchangeGainLossAmount(voucher.Amount)" n-decimals="2" class="form-control text-right" autocomplete="off" required>
+                    <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-keyup="exchangeGainLossAmount(voucher.Amount)" n-decimals="2" class="form-control text-right" autocomplete="off" >
                 </div>
             </div>
             <div class="form-group" id="div_qty" ng-show="voucher.ExchangeType">
@@ -318,16 +318,16 @@
         </fieldset>
     </div>
     <div class="col-md-5 col-sm-5 col-xs-5">
-        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.LoanTransactionType.Tax.ToString()'">
+        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.LoanTransactionType.LoanTax.ToString()'">
             <legend class="scheduler-border">Tax</legend>
             <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal">
                 <div class="common-btn">
                     <div class="form-group" show-errors>
                         <label class="col-sm-3 col-md-2 control-label">Tax Code<sup>*</sup></label>
-                        <div class="col-sm-4  show-message">
+                        <div class="col-sm-8  show-message">
                             <div class="select-style">
                                 <select name="TaxCode" ng-model="taxCode.Id" class="col-sm-3 form-control"
-                                        ng-options="item.Value as item.Text for item in taxCodCboList" required>
+                                        ng-options="item.Value as item.Text for item in taxCodCboList">
                                     <option></option>
                                 </select>
                             </div>

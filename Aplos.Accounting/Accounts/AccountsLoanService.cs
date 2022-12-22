@@ -61,7 +61,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [HKP].[Party] AS P ON P.Id=LP.PartyId
                                     LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=LP.PartyPlantId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=LP.CurrencyId
-                                WHERE   LP.CompanyGroupId='" + companyGroupId + "'AND LP.CompanyId='" + companyId + "' AND LP.PlantId='" + plantId + "' AND LP.SourceType in ('LoanInterestPayable','AdditionalLoanPayable','OtherExpensesPayable')";
+                                WHERE   LP.CompanyGroupId='" + companyGroupId + "'AND LP.CompanyId='" + companyId + "' AND LP.PlantId='" + plantId + "' AND LP.SourceType in ('LoanInterestPayable','AdditionalLoanPayable','OtherExpensesPayable','LoanTax')";
             return _sqlRepository.GetGridData(parameters);
         }
         public GridModel GetLoanInterestPayableReserveList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
