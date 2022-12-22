@@ -163,6 +163,7 @@ namespace Library.Service.EmployeeServices
         {
             try
             {
+                string processId = "";
                 string inventory = "";
                 string Booked, IsDespatch, ToLocation, FLoc = "";bool Inventchk=false ;
                 decimal counter = 0,filter=0;
@@ -203,7 +204,7 @@ namespace Library.Service.EmployeeServices
                 //getProcess&Entity
                 var sqlProcess = @"SELECT ProcessId FROM HKP.MaterialMovementPurpose where Id ='"+ PurposeId + "'";
                 DataTable dtProcess = _sqlRepository.GetDataTable(sqlProcess);
-                string processId = dtProcess.Rows[0]["ProcessId"].ToString();
+                 processId = dtProcess.Rows[0]["ProcessId"].ToString();
                 
 
                 // Check repeat Rows 
