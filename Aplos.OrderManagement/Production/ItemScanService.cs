@@ -389,6 +389,14 @@ namespace Library.Service.EmployeeServices
              
                 if (!string.IsNullOrEmpty(processId))
                 {
+                    netWeight = 0;
+                    for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
+                    {
+                        netWeight += Convert.ToDecimal(dsMaster.Tables[0].Rows[j]["NetWeight"]);
+                        lotNo = dsMaster.Tables[0].Rows[j]["LotNo"].ToString();
+                        POId = dsMaster.Tables[0].Rows[j]["POId"].ToString();
+                    }
+
 
                     bplib.clsGenID objGenID = new bplib.clsGenID();
                     objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
@@ -402,6 +410,7 @@ namespace Library.Service.EmployeeServices
                     drProductionSummary["ProductionOrderId"] = POId;
                     drProductionSummary["ProductionShiftId"] = ShiftId;
                     drProductionSummary["ProductionGrade"] = Grade;
+                    drProductionSummary["LotNumber"] = lotNo;
 
                     drProductionSummary["AddedBy"] = User;
                     drProductionSummary["AddedDate"] = DateTime.Now;
