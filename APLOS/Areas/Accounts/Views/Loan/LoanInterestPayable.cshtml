@@ -183,6 +183,10 @@
                     <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.LoanTransactionType.OtherExpensesPayable.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.LoanTransactionType.OtherExpensesPayable.ToString()">
                     <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Other Expenses As Payable
                 </label>
+                <label>
+                    <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.LoanTransactionType.Tax.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.LoanTransactionType.Tax.ToString()">
+                    <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Tax
+                </label>
             </div>
         </div>
     </div>
@@ -313,6 +317,57 @@
             </div>
         </fieldset>
     </div>
+    <div class="col-md-5 col-sm-5 col-xs-5">
+        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.LoanTransactionType.Tax.ToString()'">
+            <legend class="scheduler-border">Tax</legend>
+            <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal">
+                <div class="common-btn">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-3 col-md-2 control-label">Tax Code<sup>*</sup></label>
+                        <div class="col-sm-4  show-message">
+                            <div class="select-style">
+                                <select name="TaxCode" ng-model="taxCode.Id" class="col-sm-3 form-control"
+                                        ng-options="item.Value as item.Text for item in taxCodCboList" required>
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-default" ng-click="addTaxCodeonList(taxCode.Id);">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>UserName</th>
+                            <th>Percentage</th>
+                            <th>Tax </th>
+                            <th><i class="glyphicon glyphicon-trash"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in taxCodDataList">
+                            <td>{{x.Code}}</td>
+                            <td>{{x.UserName}}</td>
+                            <td><input type="number" class="form-control" ng-model="x.ValueOfFixed" ng-disabled="true" /></td>
+                            <td><input type="text" class="form-control" n-decimals="2" ng-model="x.TaxAmount"  /></td>
+                            <td class="table-td" ng-hide="voucher.Id">
+                                <button ng-click="taxCodeDelModal(x.TaxCodeId,x.UserName)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </fieldset>
+    </div>
 
 
     <div class="common-btn">
@@ -392,4 +447,5 @@
 
     <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(loanIntPayableId,voucherId)"></confirm-archive-generic>
     <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>
+    <confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
     @*<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(employeePayableWriteOffId,voucherId)"></confirm-archive-generic>*@

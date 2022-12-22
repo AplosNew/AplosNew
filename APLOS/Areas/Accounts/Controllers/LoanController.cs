@@ -15,6 +15,7 @@ using Library.Service.Finances;
 using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.ViewModel.Accounts;
+using Library.ViewModel.Invoices;
 using Library.ViewModel.Vouchers;
 using OTSBD;
 using Syncfusion.XlsIO;
@@ -449,7 +450,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertLoanInterestPayable(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        public JsonResult InsertLoanInterestPayable(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -482,7 +483,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Please Input  No Of Installment!");
             }
 
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanInterestPayable(voucherVM, loanRepaymentSchedulelist)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanInterestPayable(voucherVM, loanRepaymentSchedulelist, invoiceTaxVMList)) });
         }
 
         [HttpPost]

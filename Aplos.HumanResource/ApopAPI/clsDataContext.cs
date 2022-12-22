@@ -1140,6 +1140,161 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
             }
         }
 
+        public void GetActiveTask(out List<ActiveTask> DataList , string UserId, string Date)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<ActiveTask>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+                strSQL = @"select 'TodayCreation' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType = 'CreatedBy'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = '" + Date + @"'
+
+Union All
+select 'FutureCreation' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType = 'CreatedBy'
+and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate > DATEADD(day, 7, '"+Date+@"')
+
+Union All
+select 'OverDueCreation' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType = 'CreatedBy'
+and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate < '"+Date+@"'
+
+Union All
+
+select 'NextWeekCreation' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType = 'CreatedBy'
+and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate = DATEADD(day, 7, '"+Date+@"')
+
+Union All
+select 'TodayAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy'
+and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate = '"+Date+@"'
+
+Union All
+select 'FutureAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy'
+and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate > DATEADD(day, 7, '"+Date+@"')
+
+Union All
+
+select 'OverDueAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy'
+and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate < '"+Date+@"'
+
+Union All
+
+select 'NextWeekAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy'
+and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate = DATEADD(day, 7, '"+Date+"')";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new ActiveTask
+                    {
+                        Dated = dsRef.Tables[0].Rows[i]["Dated"].ToString(),
+                        Counted = dsRef.Tables[0].Rows[i]["Counted"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+
+        public void GetCloseTask(out List<ActiveTask> DataList, string UserId, string Date)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<ActiveTask>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+                strSQL = @"select 'TodayCreation' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus = 'Closed' and ta.AuthorizationType = 'CreatedBy'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = '" + Date + @"'
+
+Union All
+select 'FutureCreation' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus = 'Closed' and ta.AuthorizationType = 'CreatedBy'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate > DATEADD(day, 7, '" + Date + @"')
+
+Union All
+select 'OverDueCreation' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus = 'Closed' and ta.AuthorizationType = 'CreatedBy'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate < '" + Date + @"'
+
+Union All
+
+select 'NextWeekCreation' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus = 'Closed' and ta.AuthorizationType = 'CreatedBy'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '" + Date + @"')
+
+Union All
+select 'TodayAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus = 'Closed' and ta.AuthorizationType <> 'CreatedBy'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = '" + Date + @"'
+
+Union All
+select 'FutureAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus = 'Closed' and ta.AuthorizationType <> 'CreatedBy'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate > DATEADD(day, 7, '" + Date + @"')
+
+Union All
+
+select 'OverDueAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus = 'Closed' and ta.AuthorizationType <> 'CreatedBy'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate < '" + Date + @"'
+
+Union All
+
+select 'NextWeekAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
+LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus = 'Closed' and ta.AuthorizationType <> 'CreatedBy'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '" + Date + "')";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new ActiveTask
+                    {
+                        Dated = dsRef.Tables[0].Rows[i]["Dated"].ToString(),
+                        Counted = dsRef.Tables[0].Rows[i]["Counted"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
         public string PostCreateDetention(IEnumerable<CreateDetentionList> DataToSave)
         {
             try
@@ -1970,5 +2125,13 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public DateTime? UpdatedDate { get; set; }
     }
     #endregion Written by Nitesh
+
+    #region WrittenBy Aman
+    public class ActiveTask
+    {
+        public string Dated { get; set; }
+        public string Counted { get; set; }
+    }
+    #endregion WrittenBy Aman
 
 }

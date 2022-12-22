@@ -334,8 +334,7 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where --mma.Id NOT in (SELECT M.MaterialMasterArticleId FROM TRN.MaterialAlocation M) and 
-mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
+                            where  mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "' and bah.MaterialMasterId is null";
                 }
                 
                         
@@ -351,13 +350,12 @@ mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = 
         {
             try
             {
-                var sql = @"SELECT DISTINCT 
-                            sb.AreaRackCode, sb.ColumnNo, sb.RowNo, sb.BinCode, sb.BinReference, sb.CapacityValue,
-                            sb.AccessType, sb.UserLocationType, sb.Remarks, sb.Id as StorageBinMasterId, ba.Id
+                var sql = @"SELECT   sb.AreaRackCode, sb.ColumnNo, sb.RowNo, sb.BinCode, sb.BinReference, sb.CapacityValue,
+                            sb.AccessType, sb.UserLocationType, sb.Remarks, sb.Id as StorageBinMasterId,BAH.StorageLocationId, ba.Id
                             FROM MST.StorageBinMaster sb
-							left join trn.BinAllocationHead ba on ba.StorageBinMasterId = sb.Id
-                        WHERE not exists(SELECT * FROM TRN.BinAllocation as B where B.StorageBinMasterId = sb.Id) and
-                        sb.StorageLocation = '" + storagelocation + "'  and sb.AccessType = '"+ AccessType + "'";
+							LEFT JOIN TRN.BinAllocation BA ON BA.StorageBinMasterId=sb.Id
+							left join trn.BinAllocationHead BAH on BAH.Id = BA.BinAllocationHeadId
+                           WHERE   sb.StorageLocation = '" + storagelocation + "'  and sb.AccessType = '" + AccessType + "' AND BA.Id IS NULL AND SB.StorageSubLocation='"+ storagesublocation + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
