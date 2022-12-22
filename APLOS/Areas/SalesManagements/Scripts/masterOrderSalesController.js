@@ -144,7 +144,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         BooksCurrencyTransactionAmount: null,
         BooksCurrencyTaxAmount: null,
         BooksCurrencyBaseRate: null,
-        IsPark: 1
+        IsPark: 1,
+        IsAdditionalInfoApplicable: false
     };
     $scope.salesVM.TaxOptionAddiTax = 'Yes';
 

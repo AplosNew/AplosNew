@@ -137,6 +137,23 @@ namespace Aplos.Controllers.ApopAPIHR
             return detentionLoggridlist;
         }
 
+        #region todaydated
+        public List<ActiveTask> GetActiveTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetActiveTask(out List<ActiveTask> activelist, UserId, Date);
+            return activelist;
+        }
+
+        public List<ActiveTask> GetCloseTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetCloseTask(out List<ActiveTask> activelist, UserId, Date);
+            return activelist;
+        }
+        #endregion todaydated
+
+
         [HttpPost]
         public string PostGetDetentionLogGrid([FromBody] IEnumerable<CreateDetentionList> DataToSave)
         {

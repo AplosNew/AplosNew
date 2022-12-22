@@ -194,12 +194,13 @@ namespace Aplos.Areas.Payrolls.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Date", 15, ExcelHAlign.HAlignLeft);
             int ColActualDate = COL;
-            COL++;
 
-            sheet.Range[ROW, 1, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
-            sheet.Range[ROW, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[ROW, 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
             sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Size = 9f;
+            sheet.Range[ROW, 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
 
             endCol = COL;
             sheet.AutoFilters.FilterRange = sheet.Range[ROW - 1, 1, ROW, endCol];
@@ -237,8 +238,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 ROW++;
             }
-
-
 
             #region Sheet2
             
@@ -464,9 +463,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             sheet.FirstVisibleRow = 6;
 
             #endregion Freeze Panes
-
-            //report.CompanyHeader(ref sheet, endCol, "Employee Service Variable: " + FromDate + " - " + ToDate + " ", identity.CompanyId);
-            //report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+          
             return workbook;
         }
 
@@ -481,8 +478,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                 }
 
                 string sql = @"select A.* from (select ei.EmployeeCode EmpId,ei.EmployeeName EmpName,e.UserName EmpEntity,d.UserName EmpDepertment,ld.UserName Designation,
-                                est.Service ServiceName,esc.Category ServiceCategory,uom.UserName UOM, esd.[From] , esd.[To],
-								esd.Quantity Qty,cu.Code Currency,esr.Rate ,esd.Amount, 
+                                est.Service ServiceName,esc.Category ServiceCategory,uom.UserName UOM, ISNULL(esd.[From],0)[From] , ISNULL(esd.[To],0)[To],
+								ISNULL(esd.Quantity,0) Qty,cu.Code Currency,esr.Rate ,esd.Amount, 
 								 FinalAmount=case when ISNULL( esd.Amount,0) =0 then (isnull(esd.Quantity,0)* isnull(esr.Rate,0)) 
 								 else ISNULL( esd.Amount,0) end
                                 , case when esd.Chargeable = '1' then 'Yes' else '' end Chargable
@@ -506,8 +503,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 where esd.Date between '" + FromDate + "' and '" + ToDate + "' " + svc + @"
 UNION
 select ei.EmployeeCode EmpId, ei.EmployeeName EmpName, e.UserName EmpEntity, d.UserName EmpDepertment, ld.UserName Designation,
-                                    est.Service ServiceName, esc.Category ServiceCategory, uom.UserName UOM, esd.[From] , esd.[To],
-								esd.Quantity Qty, cu.Code Currency, esr.Rate ,esd.Amount, 
+                                    est.Service ServiceName, esc.Category ServiceCategory, uom.UserName UOM, ISNULL(esd.[From],0)[From] , ISNULL(esd.[To],0)[To],
+								ISNULL(esd.Quantity,0) Qty, cu.Code Currency, esr.Rate ,esd.Amount, 
 								 FinalAmount =case when ISNULL(esd.Amount,0) = 0 then(isnull(esd.Quantity, 0) * isnull(esr.Rate, 0))
 
                                  else ISNULL(esd.Amount, 0) end

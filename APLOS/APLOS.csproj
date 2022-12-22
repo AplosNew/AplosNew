@@ -2734,6 +2734,7 @@
     <Content Include="Areas\QMS\Scripts\qmsConfig.js" />
     <Content Include="Areas\QMS\Scripts\StockKeepingUnitController.js" />
     <Content Include="Areas\SalesManagements\Scripts\EInvoiceController.js" />
+    <Content Include="Areas\SalesManagements\Scripts\masterOrderSalesAdditionalController.js" />
     <Content Include="Areas\SalesManagements\Scripts\salesPackingPostController.js" />
     <Content Include="Areas\SalesManagements\Scripts\masterOrderSalesPostController.js" />
     <Content Include="Areas\SalesManagements\Scripts\masterOrderSalesController.js" />
@@ -4581,6 +4582,7 @@
     <Content Include="Areas\Securities\Views\UserAccessAppRole\_UserDetailPopUp.cshtml" />
     <Content Include="Areas\Productions\Views\ParameterMaster\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\Landedcostreport\Report.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\AdditionalInfo.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

@@ -1128,6 +1128,7 @@ upanelApp.controller("skillManagementDetailsController", skillManagementDetailsC
 upanelApp.controller("pendingSkillManagementController", pendingSkillManagementController)
 upanelApp.controller("LandedcostreportController", LandedcostreportController)
 upanelApp.controller("OutPassRegisterController", OutPassRegisterController)
+upanelApp.controller("masterOrderSalesAdditionalController", masterOrderSalesAdditionalController)
 
 
 upanelApp.config(AccessControllerConfig);

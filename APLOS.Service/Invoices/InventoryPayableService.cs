@@ -289,6 +289,8 @@ namespace Library.Service.Invoices
                     _voucherService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix);
 
                     receiveData.VoucherId = voucher.Id;
+                    receiveData.InvoiceNo = voucherVM.InvoiceNo;
+                    receiveData.InvoiceDate = voucherVM.InvoiceDate;
                     receiveData.Status = "Posting";
                     receiveData.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(receiveData);

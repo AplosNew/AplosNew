@@ -8229,6 +8229,105 @@ namespace Library.MaterialManagement.Inventory
                 }
             }
         }
+        public void GRNBOQDetailDelete(string receiveId,string receiveDetailId)
+        {
+            var flag = false;
+            try
+            {
+                var isNonCreditable = _receiveDetailRepository.SqlQuery<bool>(@"SELECT A.IsNonCreditable FROM [TRN].[InventoryReceive] AS A JOIN [TRN].[InventoryReceiveDetail] AS B ON B.InventoryReceiveId=A.Id WHERE B.Id='" + receiveDetailId + "'").First();
+                var masterdata = _inventoryReceiveService.Find(receiveId);
+                if(masterdata!=null && masterdata.Status=="Posting" && masterdata.VoucherId != null)
+                {
+                    throw new CustomException("Posted GRN delete is not allowed");
+                }
+                var data = Find(receiveDetailId);
+                if (data.IsNotNull())
+                {
+                    _unitOfWork.BeginTransaction();
+                    flag = true;
+                    _inventoryMaterialMasterService.UpdateFromReceive(data.InventoryMaterialId, receiveDetailId);
+                    var taxCategoryList = _receiveTaxRepository.Query(t => t.InventoryReceiveDetailId == receiveDetailId).Select().ToList();
+                    if (taxCategoryList.IsNotNull())
+                    {
+                        foreach (var item in taxCategoryList)
+                        {
+                            item.ModelState = ModelState.Deleted;
+                            _receiveTaxRepository.Delete(item);
+                        }
+                    }
+                    var ratio = _inventoryReceiveService.GetChargesRatio(data.InventoryReceiveId, data.Id, 0, null, 0, isNonCreditable);
+                    var ratioServiceTax = _inventoryReceiveService.GetChargesTaxRatio(data.InventoryReceiveId, data.Id, 0, null, 0, isNonCreditable);
+                    UpdateInventoryDetailAfterDelete(data, ratioServiceTax, ratio, 1, isNonCreditable);
 
-    }
+                    var PODetailData = _poDetailRepository.Find(data.PODetailsID);
+                    if (PODetailData.IsNotNull())
+                    {
+                        PODetailData.GRNRcvQty = Convert.ToDecimal(((PODetailData.GRNRcvQty - data.GRNQty)));
+                        PODetailData.QtyStatus = PODetailData.TransactionQty == PODetailData.GRNRcvQty;
+                        _poDetailRepository.Update(PODetailData);
+                    }
+
+                    var GRNPORequisitionAllocation = _gRNPOAllocationRepository.Query(t => t.InventoryReceiveDetailId == receiveDetailId).Select().ToList();
+                    if (GRNPORequisitionAllocation.IsNotNull())
+                    {
+                        foreach (var item in GRNPORequisitionAllocation)
+                        {
+                            item.ModelState = ModelState.Deleted;
+                            _gRNPOAllocationRepository.Delete(item);
+                        }
+                    }
+                    base.DeleteGraph(data);
+
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    DataSet dsMaster2 = null;
+                    string setOffsql = @"SELECT * from trn.GRNPORequisitionMap where InventoryReceiveDetailId = '" + receiveDetailId + "'";
+                    string grnBinAllocationMapsql = @"SELECT * from trn.GRNBinAllocationMap where InventoryReceiveDetailId = '" + receiveDetailId + "'";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+                    objCon1.OpenDataSetThroughAdapter(grnBinAllocationMapsql, out dsMaster2, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var grnPOreqSql = @"DELETE trn.GRNPORequisitionMap where InventoryReceiveDetailId ='" + receiveDetailId + "'";
+                        rdBuilder.Append(grnPOreqSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+
+                    if (dsMaster2.Tables[0].Rows.Count > 0)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var grnBinAllocationSql = @"DELETE trn.GRNBinAllocationMap where InventoryReceiveDetailId ='" + receiveDetailId + "'";
+                        rdBuilder.Append(grnBinAllocationSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+
+                    _unitOfWork.SaveChanges();
+                    flag = false;
+                    _unitOfWork.Commit();
+                }
+                else
+                    throw new CustomException("Data not found");
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
+        }
+
+        }
 }

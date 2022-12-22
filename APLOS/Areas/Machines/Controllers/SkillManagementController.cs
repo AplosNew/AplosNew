@@ -31,7 +31,7 @@ namespace Aplos.Areas.Machines.Controllers
 
         #region -- Pages
 
-        [HttpGet]
+       
         public ActionResult Aplos()
         {
             return View();
@@ -141,7 +141,7 @@ where P.Id='" + Pid + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult Create(Dictionary<string, object> ScheduleData)
         {
             try
@@ -244,7 +244,7 @@ where P.Id='" + Pid + "'";
             dr.EndEdit();
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult ScheduleDelete(string id)
         {
             try
@@ -677,7 +677,7 @@ where MTD.SMID ='" + ScheduleId + "' order by MTD.SNO";
             }
         }
 
-        [HttpPost, Authorize]
+        [Authorize, HttpPost]
         public JsonResult CreateLevel(Dictionary<string, object> LevelData, string Pid)
         {
             try
@@ -726,7 +726,7 @@ where MTD.SMID ='" + ScheduleId + "' order by MTD.SNO";
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult CreateItem(Dictionary<string, object> ItemData, string Pid)
         {
             try
@@ -774,7 +774,7 @@ where MTD.SMID ='" + ScheduleId + "' order by MTD.SNO";
 
             }
         }
-        [HttpPost, Authorize]
+        [Authorize, HttpPost]
         public JsonResult CreateParameter(Dictionary<string, object> ParameterData, string Pid)
         {
             try
@@ -823,7 +823,7 @@ where MTD.SMID ='" + ScheduleId + "' order by MTD.SNO";
             }
         }
         
-        [HttpPost, Authorize]
+        [Authorize, HttpPost]
         public JsonResult createBudgetCode(Dictionary<string, object> BudgetCodeData, string Pid)
         {
             try
@@ -872,7 +872,7 @@ where MTD.SMID ='" + ScheduleId + "' order by MTD.SNO";
             }
         }
 
-        [HttpPost, Authorize]
+        [Authorize, HttpPost]
         public JsonResult createTeamDefinition(Dictionary<string, object> TeamDefinitionData, string Pid)
         {
             try
