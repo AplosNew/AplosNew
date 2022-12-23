@@ -200,7 +200,7 @@
                             <th class="text-right">Receivable</th>
                             <th class="text-right">Received</th>
                             <th class="text-right">Balance</th>
-                            <th class="text-right" ng-hide="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.SetOff.ToString()'||'@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'">Amount</th>
+                            <th class="text-right" @*ng-hide="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.SetOff.ToString()'||'@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'"*@>Amount</th>
                             <th>Exchange Type</th>
                             <th>Exchange Amount</th>
                             <th>Action</th>
@@ -216,7 +216,7 @@
                             <td class="text-right">{{x.Receivable | number:3}}</td>
                             <td class="text-right">{{x.Received | number:3}}</td>
                             <td class="text-right">{{x.Balance | number:3}}</td>
-                            <td ng-hide="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.SetOff.ToString()'||'@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'">
+                            <td @*ng-hide="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.SetOff.ToString()'||'@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'"*@>
                                 <input ng-keyup="exchangeGainLossAmount(x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount">
                             </td>
                             <td>

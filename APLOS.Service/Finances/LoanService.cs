@@ -3128,6 +3128,8 @@ namespace Library.Service.Finances
                     loanInterestPayable.TransactionType = LoanTransactionType.InterestPayable.ToString();
                 if (voucherVM.SourceType == "OtherExpensesPayable")
                     loanInterestPayable.TransactionType = LoanTransactionType.OtherExpensesPayable.ToString();
+                if (voucherVM.SourceType == "LoanTax")
+                    loanInterestPayable.TransactionType = LoanTransactionType.LoanTax.ToString();
 
                 _loanInterestPayableRepository.Insert(loanInterestPayable);
 
