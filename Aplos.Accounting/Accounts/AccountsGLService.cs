@@ -285,6 +285,23 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public List<Dictionary<string, object>> GetTaxCategoryGSTTypeCbo(string companyGroupId, string countryId)
+        {
+            try
+            {
+                string sql = "";
+                sql = @"SELECT Id Value, UserName Text FROM MST.TaxCategory 
+								WHERE  Active = 1 AND CompanyGroupId = '" + companyGroupId + @"' AND CountryId = '" + countryId + @"' AND TaxCategoryType='GST' ";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public List<Dictionary<string, object>> GetAdditionalTaxCbo(DateTime postingDate, string companyId)
         {
             try
@@ -462,6 +479,25 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [ORG].Company AS CO ON CO.COAId=TCGL.COAId
                         WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Input + @"' AND TCT.TaxCategoryType IN ('GST','VAT')
 						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + "'";
+                var data = _sqlRepository.GetCombo(sql, "Id", "Text");
+                if (null == data)
+                    throw new CustomException(ResourcesCore.FYNotFound);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public IEnumerable<object> GetTaxCodeInvoiceTriggeringInstanceOthers()
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT TC.Id, TC.UserName AS Text
+                        FROM [MST].[TaxCode] TC
+                        WHERE TC.InvoiceOrPayment='Others' ";
                 var data = _sqlRepository.GetCombo(sql, "Id", "Text");
                 if (null == data)
                     throw new CustomException(ResourcesCore.FYNotFound);

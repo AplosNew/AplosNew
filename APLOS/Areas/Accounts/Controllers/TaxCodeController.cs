@@ -75,6 +75,13 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsGLService.GetTaxCodeInputVATGST(postingDate, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public ActionResult GetTaxCodeInvoiceTriggeringInstanceOthers()
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsGLService.GetTaxCodeInvoiceTriggeringInstanceOthers(), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpGet]
         public ActionResult GetTaxCodeOutputVATGST(DateTime postingDate)
