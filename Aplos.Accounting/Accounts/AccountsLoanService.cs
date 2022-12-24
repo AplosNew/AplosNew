@@ -61,7 +61,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [HKP].[Party] AS P ON P.Id=LP.PartyId
                                     LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=LP.PartyPlantId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=LP.CurrencyId
-                                WHERE   LP.CompanyGroupId='" + companyGroupId + "'AND LP.CompanyId='" + companyId + "' AND LP.PlantId='" + plantId + "' AND LP.SourceType in ('LoanInterestPayable','AdditionalLoanPayable','OtherExpensesPayable')";
+                                WHERE   LP.CompanyGroupId='" + companyGroupId + "'AND LP.CompanyId='" + companyId + "' AND LP.PlantId='" + plantId + "' AND LP.SourceType in ('LoanInterestPayable','AdditionalLoanPayable','OtherExpensesPayable','LoanTax')";
             return _sqlRepository.GetGridData(parameters);
         }
         public GridModel GetLoanInterestPayableReserveList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
@@ -267,9 +267,9 @@ namespace Library.Accounting.Accounts
                                         , A.Code AS ActivityCode, A.UserName AS ActivityName, Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDate, Replace(CONVERT(VARCHAR(11), I.PostingDate, 106), ' ', '-') AS PostingDate
                                         , I.DocRefNo, I.Narration
                                         , ISNULL(ID.Amount+ID.AdditionalLoanAmount,0) AS LoanAmount
-										, ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)) AS InterestAmount
+										, ISNULL(LIP.InterestAmount,0)+ISNULL(LTP.TaxAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)) AS InterestAmount
 										, (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0)) AS LoanPayment
-										, (ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+(ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)))- (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0))) AS Balance
+										, (ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+(ISNULL(LIP.InterestAmount,0)+ISNULL(LTP.TaxAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)))- (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0))) AS Balance
 										,ISNULL(LPR.InterestReverseAmount,0) InterestReverseAmount
                                         , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo
 										,[Particulars]=CASE WHEN P.UserName<>'' THEN P.UserName  WHEN I.OtherBankMasterId<>'' THEN OBKM.AccountTitle WHEN I.CashMasterId<>'' THEN CM.UserName ELSE ''	END
@@ -294,7 +294,9 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [MST].CashMaster AS CM ON CM.Id=I.CashMasterId
 										LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestAmount
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
-											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
+											LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) TaxAmount
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanTax') group by LP.FinancingId) LTP ON LTP.FinancingId=I.Id 
+                                            LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanPayment') and LP.SourceType='Loan' group by LP.SetOffFinancingId) LPY ON LPY.SetOffFinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanPayment') and LP.SourceType='LoanPayment' group by LP.SetOffFinancingId) SLPY ON SLPY.SetOffFinancingId=I.Id
@@ -420,9 +422,10 @@ namespace Library.Accounting.Accounts
                                         , A.Code AS ActivityCode, A.UserName AS ActivityName, Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDate, Replace(CONVERT(VARCHAR(11), I.PostingDate, 106), ' ', '-') AS PostingDate
                                         , I.DocRefNo, I.Narration
                                         , ISNULL(ID.Amount+ID.AdditionalLoanAmount,0) AS LoanAmount
-										, ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)) AS InterestAmount
+										, ISNULL(LIP.InterestAmount,0)+ISNULL(LTP.TaxAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)) AS InterestAmount
+										, ISNULL(LTP.TaxAmount,0) AS TaxAmount
 										, (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0)) AS LoanPayment
-										, (ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+(ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)))- (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0))) AS Balance
+										, (ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+(ISNULL(LIP.InterestAmount,0)+ISNULL(LTP.TaxAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)))- (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0))) AS Balance
 										,ISNULL(LPR.InterestReverseAmount,0) InterestReverseAmount
                                         , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo,bk.UserName BankName
 										,[Particulars]=CASE WHEN P.UserName<>'' THEN P.UserName  WHEN I.OtherBankMasterId<>'' THEN OBKM.AccountTitle WHEN I.CashMasterId<>'' THEN CM.UserName ELSE ''	END
@@ -448,7 +451,11 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [MST].CashMaster AS CM ON CM.Id=I.CashMasterId
                                         LEFT JOIN HKP.Bank AS bk ON bk.Id=OBKM.BankId
 										LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestAmount
-											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') 
+											group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
+											LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) TaxAmount
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanTax') 
+											group by LP.FinancingId) LTP ON LTP.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanPayment') and LP.SourceType='Loan' group by LP.SetOffFinancingId) LPY ON LPY.SetOffFinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
@@ -480,6 +487,7 @@ namespace Library.Accounting.Accounts
                                         , I.DocRefNo, I.Narration
                                         , ISNULL(ID.Amount+ID.AdditionalLoanAmount,0) AS LoanAmount
 										, ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)) AS InterestAmount
+										, 0 AS TaxAmount
 										, (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0)) AS LoanPayment
 										, (ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+(ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)))- (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0))) AS Balance
 										,ISNULL(LPR.InterestReverseAmount,0) InterestReverseAmount

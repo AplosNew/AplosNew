@@ -991,7 +991,6 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
     };
 
     $scope.delete = function (serviceAckId, voucherId, invoiceId, tDSTaxVoucherId, tDSVoucherNo) {
-        //ServiceAckId, VoucherId, InvoiceId, TDSTaxVoucherId, TDSVoucherNo
         $http({
             method: "POST",
             url: 'accounts/Invoice/DeleteServicePayable',

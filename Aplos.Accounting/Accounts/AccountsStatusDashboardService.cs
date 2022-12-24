@@ -22012,7 +22012,7 @@ SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-				 WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+				 WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('VendorInvoice','InventoryPayable','PurchaseDocAcceptance','SuspensePayable','ServicePayable')
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"' AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )
                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                 

@@ -5,13 +5,14 @@
             <label class="col-sm-4 col-xs-4 control-label" title="Transaction Type" tooltip>Transaction Type<sup>*</sup></label>
             <div class="radio col-sm-8 col-xs-8">
                 <label>
-                    <input type="radio" name="Transaction Type" ng-click="changeTransactionType('@Library.Model.Enums.TransactionType.LoanGiven.ToString()')" ng-model="report.TransactionType" value="@Library.Model.Enums.TransactionType.LoanGiven.ToString()">
-                    <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Given
-                </label>
-                <label>
                     <input type="radio" name="Transaction Type" ng-click="changeTransactionType('@Library.Model.Enums.TransactionType.LoanTaken.ToString()')" ng-model="report.TransactionType" value="@Library.Model.Enums.TransactionType.LoanTaken.ToString()">
                     <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Taken
                 </label>
+                <label>
+                    <input type="radio" name="Transaction Type" ng-click="changeTransactionType('@Library.Model.Enums.TransactionType.LoanGiven.ToString()')" ng-model="report.TransactionType" value="@Library.Model.Enums.TransactionType.LoanGiven.ToString()">
+                    <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Given
+                </label>
+
             </div>
         </div>
         <div class="form-group" show-errors>

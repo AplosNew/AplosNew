@@ -15,6 +15,6 @@
         AdditionalLoanPayment,
         OtherExpensesPayable,
         OtherExpensesPayment,
-        Tax
+        LoanTax
     }
 }
