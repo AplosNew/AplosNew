@@ -289,6 +289,8 @@ namespace Library.Service.Invoices
                     _voucherService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix);
 
                     receiveData.VoucherId = voucher.Id;
+                    receiveData.InvoiceNo = voucherVM.InvoiceNo;
+                    receiveData.InvoiceDate = voucherVM.InvoiceDate;
                     receiveData.Status = "Posting";
                     receiveData.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(receiveData);
@@ -1978,6 +1980,7 @@ namespace Library.Service.Invoices
                 totalAmountCr += taxDrAmount;
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
+
                 //if (totalCurrencyAmountCr != totalCurrencyAmountDr)
                 //    throw new CustomException("Dr and Cr amount is not equal.");
 

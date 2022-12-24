@@ -53,7 +53,7 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 	};
 	$scope.productNew.Type = 'NonPosted';
 	$scope.changeSourceFrom = function (from) {
-		debugger;
+		//debugger;
 		if (from === 'Posted') {
 			$scope.productNew.Type = 'Posted';
 
@@ -89,7 +89,7 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
 	$scope.IssueRegisterList = [];
 	$scope.GetIssueRegister = function () {
-		debugger;
+		//debugger;
 		if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
 			ShowResult('Select From Date', 'failure');
 			return false;
@@ -111,9 +111,9 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		}).then(function successCallback(response) {
 
 			$scope.IssueRegisterList = response.data.NewData;
-			for (var i = 0; i < $scope.IssueRegisterList.length; i++) {
-				response.data[i].IssueDate = new Date($scope.IssueRegisterList[i].IssueDate);
-			}
+			//for (var i = 0; i < $scope.IssueRegisterList.length; i++) {
+			//	response.data[i].IssueDate = new Date($scope.IssueRegisterList[i].IssueDate);
+			//}
 		});
 
 	};
@@ -121,7 +121,7 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
 	$scope.IssueRegisterListByGRN = [];
 	$scope.GetIssueRegisterListByGRN = function () {
-		debugger;
+		//debugger;
 		if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
 			ShowResult('Select From Date', 'failure');
 			return false;
@@ -141,7 +141,7 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 			},
 			dataType: 'JSON'
 		}).then(function successCallback(response) {
-			$scope.IssueRegisterListByGRN = response.data;
+			$scope.IssueRegisterListByGRN = response.data.NewData;
 
 			//entrydata = copy(searchdata);
 		});

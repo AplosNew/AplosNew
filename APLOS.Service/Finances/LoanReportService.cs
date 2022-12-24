@@ -1340,7 +1340,7 @@ namespace Library.Service.Finances
                     JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
                     WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                     ) AS CC ON CC.VoucherDetailId=VD.Id
-                    WHERE LIP.FinancingId='" + financingId + @"' and lip.IsPark=0  AND LIP.TransactionType in ('InterestPayable','OtherExpensesPayable','AccrulInterestPayment','InterestPayableReverse','ChargesPayableReverse')
+                    WHERE LIP.FinancingId='" + financingId + @"' and lip.IsPark=0  AND LIP.TransactionType in ('InterestPayable','LoanTax','OtherExpensesPayable','AccrulInterestPayment','InterestPayableReverse','ChargesPayableReverse')
                     UNION
 
 					 SELECT REPLACE(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') AS PostingDate, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate

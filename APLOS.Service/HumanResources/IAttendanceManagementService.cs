@@ -59,6 +59,6 @@ namespace Library.Service.HumanResources
 
 
         IWorkbook GetTiffinBillReport(string plantId, string FromDate, string ToDate, string ShiftId, string Hr, string Min);
-        
+        IWorkbook GetSkillManagementJobCardReports(string name, string companyGroupId, string companyId, string plantId, string plantName, string plannedId);
     }
 }

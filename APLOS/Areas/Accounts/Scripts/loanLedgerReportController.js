@@ -26,7 +26,7 @@ function loanLedgerReportController(commonMessage, $scope, $rootScope, baseServi
         GSTIN: null,
         ReportFormat: 'Pdf',
         PartyType: 'Customer',
-        TransactionType: 'LoanGiven'
+        TransactionType: 'LoanTaken'
     };
 
    

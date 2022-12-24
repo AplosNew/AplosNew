@@ -16789,8 +16789,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
                 //{ TotalInWords}
 
-                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
-                //document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+                document.Replace("{GrandTotal}", (materialTotal).ToString("F2") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{TotalInWords}", ru.InWord((materialTotal), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
@@ -16860,7 +16860,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             string strSQL;
             try
             {
-                strSQL = @"SELECT IR.Id IssueNo
+                strSQL = @"SELECT IR.Id IssueReturnNo
                                 ,IR.CompanyGroupId
                                 ,IR.CompanyId
                                 ,Plant.GSTIN 
@@ -17030,7 +17030,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             //dsOrderItems = loadInventoryIssueRetrunMasterItems(grnId);
             //dsTax = loadInventoryIssueRetrunTax(grnId);
 
-            int LasColumnIndex = 7;
+            int LasColumnIndex = 8;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             DataView dv = new DataView();
             //(dsTax.DefaultView.ToTable(true, "TaxCode"));
@@ -17068,33 +17068,35 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("CostCenter");
             range.ApplyCharacterFormat(FontBold);
             int colCostCenter = COL; COL++;
+            //wTable.Rows[ROW].Cells[colCostCenter].Width = 90;
+
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
             range.ApplyCharacterFormat(FontBold);
             int colMaterialGroup = COL; COL++;
-            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 90;
+            //wTable.Rows[ROW].Cells[colMaterialGroup].Width = 104;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article ");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 90;
+            //wTable.Rows[ROW].Cells[colArticle].Width = 104;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
             range.ApplyCharacterFormat(FontBold);
             int colChar1 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar1].Width = 45;
+            //wTable.Rows[ROW].Cells[colChar1].Width = 50;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU2");
             range.ApplyCharacterFormat(FontBold);
             int colChar2 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar2].Width = 45;
+            //wTable.Rows[ROW].Cells[colChar2].Width = 50;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
             range.ApplyCharacterFormat(FontBold);
             int colChar3 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar3].Width = 45;
+            //wTable.Rows[ROW].Cells[colChar3].Width = 50;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
@@ -17107,15 +17109,13 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
             range.ApplyCharacterFormat(FontBold);
-            int colUoM = COL;
-            wTable.Rows[ROW].Cells[colUoM].Width = 30;
+            int colUoM = COL; COL++;
+            //wTable.Rows[ROW].Cells[colUoM].Width = 104;
 
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("TrnAmount");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colUoM = COL;
-
-
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("TrnAmount");
+            range.ApplyCharacterFormat(FontBold);
             int colTotalTaxableAmount = COL;
+
 
             if (dv.Count > 0)
             {
@@ -17125,7 +17125,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount");
                 range.ApplyCharacterFormat(FontBold);
                 //COL+=2;
-                COL++;
+                //COL++;
                 //for (int i = 0; i < dv.Count; i++)
                 //{
                 //    //two columns required for tax
@@ -17225,7 +17225,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                if (C == colCostCenter || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colUoM || C == colMaterialGroup || dicTaxes.ContainsValue(C))
+                if (C == colCostCenter || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colQty || C == colUoM || C == colMaterialGroup || dicTaxes.ContainsValue(C))
                     continue;
 
                 double value = 0;

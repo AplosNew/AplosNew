@@ -2230,14 +2230,16 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 url: 'Products/GoodsReceiveNote/GRNBOQDetailDelete',
                 data:
                 {
-                    'entity': $scope.tempData,
+                    'receiveId': $scope.tempData.InventoryReceiveId,
+                    'receiveDetailId': $scope.tempData.InventoryReceiveDetailId,
                 },
             }).then(function successCallback(response) {
                 if (response.data.Error === true)
                     ShowResult(response.data.Message, 'failure');
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.Id = null;
+                    getInventoryMaterialListBOQ($scope.productNew.Id);
+                    $scope.tempData = null;
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

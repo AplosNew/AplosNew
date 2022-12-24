@@ -33,7 +33,7 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetOSIssueRegister(string fromDate, string toDate, string Type);
 
         IEnumerable<object> GetIssueReturnRegister(string fromDate, string toDate, string Type);
-        IEnumerable<object> GetIssueRegisterBYGRN(string fromDate, string toDate, string Type);
+        DataTable GetIssueRegisterBYGRN(string fromDate, string toDate, string Type);
 
         // Out Source
 

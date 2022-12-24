@@ -40,6 +40,6 @@ namespace Library.MaterialManagement.Inventory
 
         void IssueSlipDelete(string receiveDetailId);
         void IssueSlipDeleteFn(string receiveDetailId);
-        void GRNBOQDetailDelete(InventoryReceiveDetail entity);
+        void GRNBOQDetailDelete(string receiveId, string receiveDetailId);
     }
 }

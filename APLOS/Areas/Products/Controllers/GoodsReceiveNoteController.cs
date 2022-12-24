@@ -4975,10 +4975,10 @@ UNION ALL
             return Json(new { Message = AplosMessage.Success });
         }
 
-        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
-        public JsonResult GRNBOQDetailDelete(InventoryReceiveDetail entity)
+        [HttpPost]
+        public JsonResult GRNBOQDetailDelete(string receiveId, string receiveDetailId)
         {
-            _inventoryDetailService.GRNBOQDetailDelete(entity);
+            _inventoryDetailService.GRNBOQDetailDelete(receiveId,receiveDetailId);
             return Json(new { Message = AplosMessage.Deleted });
         }
         #endregion
