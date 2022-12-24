@@ -1099,9 +1099,189 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
 
         }
 
+        public void GetTodayAssignedTask(out List<Tasks> DataList, string UserId, string Date)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Tasks>();
 
+            System.Data.DataSet dsRef;
+            try
+            {
 
+                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId, ta.AddedDate, 
+ta.DueDate,ta.CommitmentDate from dbo.TaskManagerMaster As tm
+left Join dbo.TaskAudit As ta on ta.TaskManagerMasterId = tm.Id 
+where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = '" + Date + "'";
 
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Tasks
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        TaskDescription = dsRef.Tables[0].Rows[i]["TaskDescription"].ToString(),
+                        CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
+                        TaskDetailDescription = dsRef.Tables[0].Rows[i]["TaskDetailDescription"].ToString(),
+                        AuthorizationType = dsRef.Tables[0].Rows[i]["AuthorizationType"].ToString(),
+                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        DueDate = dsRef.Tables[0].Rows[i]["DueDate"].ToString(),
+                        CommitmentDate = dsRef.Tables[0].Rows[i]["CommitmentDate"].ToString(),
+                       
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetOverDueAssignedTask(out List<Tasks> DataList, string UserId, string Date)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Tasks>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId, ta.AddedDate, 
+ta.DueDate,ta.CommitmentDate from dbo.TaskManagerMaster As tm
+left Join dbo.TaskAudit As ta on ta.TaskManagerMasterId = tm.Id 
+where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate < '" + Date + "'";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Tasks
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        TaskDescription = dsRef.Tables[0].Rows[i]["TaskDescription"].ToString(),
+                        CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
+                        TaskDetailDescription = dsRef.Tables[0].Rows[i]["TaskDetailDescription"].ToString(),
+                        AuthorizationType = dsRef.Tables[0].Rows[i]["AuthorizationType"].ToString(),
+                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        DueDate = dsRef.Tables[0].Rows[i]["DueDate"].ToString(),
+                        CommitmentDate = dsRef.Tables[0].Rows[i]["CommitmentDate"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetNextWeakAssignedTask(out List<Tasks> DataList, string UserId, string Date)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Tasks>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId, ta.AddedDate, 
+ta.DueDate,ta.CommitmentDate from dbo.TaskManagerMaster As tm
+left Join dbo.TaskAudit As ta on ta.TaskManagerMasterId = tm.Id 
+where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '" + Date + "')";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Tasks
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        TaskDescription = dsRef.Tables[0].Rows[i]["TaskDescription"].ToString(),
+                        CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
+                        TaskDetailDescription = dsRef.Tables[0].Rows[i]["TaskDetailDescription"].ToString(),
+                        AuthorizationType = dsRef.Tables[0].Rows[i]["AuthorizationType"].ToString(),
+                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        DueDate = dsRef.Tables[0].Rows[i]["DueDate"].ToString(),
+                        CommitmentDate = dsRef.Tables[0].Rows[i]["CommitmentDate"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetFutureAssignedTask(out List<Tasks> DataList, string UserId, string Date)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Tasks>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId, ta.AddedDate, 
+ta.DueDate,ta.CommitmentDate from dbo.TaskManagerMaster As tm
+left Join dbo.TaskAudit As ta on ta.TaskManagerMasterId = tm.Id 
+where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate =  DATEADD(day, 7, '" + Date + "')";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Tasks
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        TaskDescription = dsRef.Tables[0].Rows[i]["TaskDescription"].ToString(),
+                        CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
+                        TaskDetailDescription = dsRef.Tables[0].Rows[i]["TaskDetailDescription"].ToString(),
+                        AuthorizationType = dsRef.Tables[0].Rows[i]["AuthorizationType"].ToString(),
+                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        DueDate = dsRef.Tables[0].Rows[i]["DueDate"].ToString(),
+                        CommitmentDate = dsRef.Tables[0].Rows[i]["CommitmentDate"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         #endregion Aman
         public void GetProcess(out List<Process> DataList)
         {
@@ -2131,6 +2311,19 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
     {
         public string Dated { get; set; }
         public string Counted { get; set; }
+    }
+
+    public class Tasks
+    {
+        public string Id { get; set; }
+        public string TaskDescription { get; set; }
+        public string CurrentStatus { get; set; }
+        public string TaskDetailDescription { get; set; }
+        public string AuthorizationType { get; set; }
+        public string ResponsiblePersonId { get; set; }
+        public string AddedDate { get; set; }
+        public string DueDate { get; set; }
+        public string CommitmentDate { get; set; }
     }
     #endregion WrittenBy Aman
 
