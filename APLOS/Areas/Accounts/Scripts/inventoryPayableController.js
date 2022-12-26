@@ -141,7 +141,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
             $scope.paymentTermList = response.data;
         });
     };
-
+    $scope.paymentTerm();
     cboService.getCboEntityByPlant(null, null, "", function (result) {
         $scope.entityList = result;
     });
@@ -294,8 +294,11 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         $scope.LCNo = data.data.LCNo;
         $scope.modelNew.PaymentMode = data.data.PaymentMode;
         $scope.ContractId = data.data.ContractNo;
+        $scope.modelNew.InvoiceNo = data.data.DocRefNo;
+        $scope.modelNew.InvoiceDate = data.data.DocDate;
         $scope.modelNew.IsFOC = data.data.IsFOC;
         $scope.modelNew.IsInvoice = true;
+        $scope.TDSList = [];
         $scope.controlInvoicePaymentTerm();
         //if (baseService.isUndefinedOrNull($scope.PurchaseLCId) && $scope.TempEmployeeId!=null) {
         //    $scope.modelNew.IsInvoice = true;
@@ -309,7 +312,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
             $scope.GetCboExpensesBookingTranType();
             
         }
-        $scope.paymentTerm();
+        //$scope.paymentTerm();
         getRecievedList();
         getServiceChargeList();
         getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable, $scope.modelNew.IsFOC);
@@ -792,7 +795,9 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         }
     }
 
-    $scope.getNewDataList = function (grnId) {
+    $scope.getNewDataList = function (grnId, docrefno) {
+        $scope.products = [];
+        $scope.searchGRN = grnId;
         $http({
             method: 'POST',
             url: 'Accounts/InventoryPayable/GetPostingList',
@@ -800,7 +805,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.products = response.data;
-            var rowdata = $filter("filter")($scope.products, { Id: grnId });
+            var rowdata = $filter("filter")($scope.products, { "Id": grnId, "DocRefNo": docrefno });
             if (!baseService.isUndefinedOrNull(rowdata[0].AdditionalTaxId)) {
                 $scope.onClickadditionalTaxPop(rowdata[0]);
             }
@@ -875,7 +880,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.ispostDisable = true;
-                $scope.getNewDataList($scope.modelNew.Id);
+                $scope.getNewDataList($scope.modelNew.Id, $scope.modelNew.DocRefNo);
             }
         }), function (response) {
             ShowResult(response.data.Message, 'failure');

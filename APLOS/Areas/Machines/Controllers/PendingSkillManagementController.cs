@@ -102,7 +102,7 @@ from TRN.Maintenancescheduling MS
         }
 
         [HttpPost, Authorize]
-        public ActionResult LoadPendingMaintenanceSchedule(string ActResponsiblePerson, string todate,string fromdate, string Status)
+        public ActionResult LoadPendingSkillMangament(string ActResponsiblePerson, string todate,string fromdate, string Status)
         {
             string Filter = string.Empty;
             string Responsible = string.Empty;
@@ -112,7 +112,7 @@ from TRN.Maintenancescheduling MS
             }
             else
             {
-                Responsible = "and (select top 1 ResponsiblePersonId from TRN.ResponsiblePlannedDetails RP where RP.PlannedId=MPD.Id and RP.IsActive=1 and ResponsiblePersonId='" + ActResponsiblePerson + "') = '" + ActResponsiblePerson + "'";
+                Responsible = "and (select top 1 ResponsiblePersonId from TRN.SkillResponsiblePlannedDetails RP where RP.PlannedId=MPD.Id and RP.IsActive=1 and ResponsiblePersonId='" + ActResponsiblePerson + "') = '" + ActResponsiblePerson + "'";
             }
             
             if (Status == "All")
@@ -128,41 +128,45 @@ from TRN.Maintenancescheduling MS
                 Filter = " and MPD.ActualDate is null and MPD.PlannedDate is not null";
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select MS.Id,Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,MPD.Id as PlannedId,MMA.EntityId,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
-MM.MachineModel Model,MS.ScheduleCode,MS.ResponsiblePersoneBgtCodeId,MB.Code ResponsiblePersonBudgetCode,MMA.AssetId,MA.AssetName,MA.AssetCode,MA.AssetReference,
-MMA.WorkCenterMasterId,WC.UserName WorkCenter,MS.ScheduleDays,MMA.Id as MachineAssetId,
- isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
+            string sql = @"select SM.Id as SMId,Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,MPD.Id as PlannedId,SPE.Id as EntityId,E.UserName Entity,SM.UserName ScheduleName,SM.ScheduleCode,SM.ResponsiblePersoneBgtCodeId,MB.Code ResponsiblePersonBudgetCode,
+SM.ScheduleDays,SPC.Id as PositionCodeId,SPE.Id as EntityId,EI.SystemId as EmployeeId,EI.EmployeeName,
+P.Code as PositionCode,DIV.UserName Division,DEP.UserName EmpDepartment,S.UserName Section,SS.UserName SubSection,EB.Code as BudgetCode,P.Activity,DEG.UserName Designation,
+ isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC),'') as LastMaintenanceDate,
-Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
- ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
+Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((SM.ScheduleDays+(select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy') end CurrentMaintanceDate,
-DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
- ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
+DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((SM.ScheduleDays+(select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end) DueDays,
- case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
- ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
+ case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((SM.ScheduleDays+(select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))<0 then 1 else 0 end OverDue,
-  case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
- ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
+  case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((SM.ScheduleDays+(select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))=0 then 1 else 0 end DueToday,
- case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
- ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
+ case when (DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
+ ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((SM.ScheduleDays+(select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))>0 then 1 else 0 end FutureDue,
-MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MS.MaintenanceGroup,MPD.FileName,'Pid' as test,
+SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Department D where D.Id=SM.DepartmentId) as Department,SM.TrainingGroup,MPD.FileName,'Pid' as test,
   Reverse(stuff(Reverse((select EmployeeName+',' from EmployeeInformation where SystemId in (select ResponsiblePersonId from TRN.ResponsiblePlannedDetails AP where AP.PlannedId=MPD.Id and AP.IsActive=1) for xml path(''))),1,1,'')) ActionableResponsiblePerson
- from TRN.Maintenancescheduling MS
- left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
- left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
- left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
- left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
- left join ORG.Entity E ON E.Id=MMA.EntityId
- left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
- left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id
- --left join TRN.ResponsiblePlannedDetails RP ON RP.PlannedId=MPD.Id and RP.IsActive=1
- --left Join EmployeeInformation EI ON EI.SystemId=RP.ResponsiblePersonId
- where MS.IsActive=1 and
- Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
- ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
+ from TRN.SkillManagement SM
+ left join MST.ManpowerBudget MB ON MB.id=SM.ResponsiblePersoneBgtCodeId
+ left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
+ left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
+ left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and EI.PositionID=SPC.PositionCodeId 
+ left Join Org.Entity E ON E.Id=SPE.EntityId
+ left Join ORG.Position P ON P.Id=EI.PositionID
+ left join org.Division DIV ON DIV.Id=EI.DivisionId
+ left join Org.Department DEP ON DEP.Id=EI.DepartmentId
+ left join Org.Section S ON S.Id=EI.SectionId
+ left join Org.SubSection SS ON SS.Id=EI.SubSectionId
+ left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
+ left join HKP.Designation DEG ON DEG.Id=EI.GivenDesignationId
+ left Join TRN.EmployeePlannedDetails MPD ON MPD.PositionCodeId=SPC.Id and MPD.Id=(select top 1 Id from TRN.EmployeePlannedDetails MAPD where MAPD.PositionCodeId=SPC.Id and MAPD.EntityId=SPE.Id and MAPD.EmployeeId=EI.SystemId order by MAPD.ActualDate desc)
+ where SM.IsActive=1 and
+ Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
+ ORDER BY APD.Id DESC),'')='' then GETDATE() else (SM.ScheduleDays+(select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC)) end between '" + fromdate + "' and '" + todate + "' " + Filter + @" " + Responsible + @"  order by MPD.PlannedDate";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -235,7 +239,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
-            string TableName = "[TRN].[MachineAssetPlannedDetails]";
+            string TableName = "TRN.EmployeePlannedDetails";
             string contId = string.Empty;
             string _Id, Id = string.Empty;
             try
@@ -247,8 +251,8 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                 {
                     foreach (var item in DataList)
                     {
-                        objCon.OpenDataSetThroughAdapter("select * from [TRN].[ResponsiblePlannedDetails] where PlannedId='" + item["Id"] + "'", out DataSet dsResponsibleValidation, false, "1");
-                        objCon.OpenDataSetThroughAdapter("select * from [TRN].[MachineAssetPlannedDetails] where ActualDate is not null and Id='" + item["Id"] + "'", out DataSet dsMachineAssetPlannedDetailsValidation, false, "1");
+                        objCon.OpenDataSetThroughAdapter("select * from [TRN].[SkillResponsiblePlannedDetails] where PlannedId='" + item["Id"] + "'", out DataSet dsResponsibleValidation, false, "1");
+                        objCon.OpenDataSetThroughAdapter("select * from TRN.EmployeePlannedDetails where ActualDate is not null and Id='" + item["Id"] + "'", out DataSet dsEmployeePlannedDetailsValidation, false, "1");
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
                         if (dsResponsibleValidation.Tables[0].Rows.Count > 0)
@@ -289,7 +293,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                                 {
                                     DateTime ActualDate = Convert.ToDateTime(item["ActualDate"]);
                                     DateTime LastDayDate = DateTime.Today.AddDays(-1);
-                                    if (dsMachineAssetPlannedDetailsValidation.Tables[0].Rows.Count > 0)
+                                    if (dsEmployeePlannedDetailsValidation.Tables[0].Rows.Count > 0)
                                     {
                                         if (ActualDate == DateTime.Today || ActualDate == LastDayDate)
                                         {

@@ -1663,7 +1663,7 @@ UNION
 	                            , IR.MaterialStorageId, IR.DocRefNo, IR.DocDate
 	                            , IR.GateEntryNo,PG.UserName GateEntryName, REPLACE(CONVERT(CHAR(11), GE.EntryDate, 106),' ','-') AS EntryDate
 								, IR.CurrencyId, CU.Code AS CurrencyCode
-								, IR.BaseCurrencyId
+								, IR.BaseCurrencyId,IR.PaymentTermId,IR.BaseOnDueDate,IR.BaseNoOfDays,IR.MatureDate
 	                            , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.InvoiceNo
 								, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 	                            , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId

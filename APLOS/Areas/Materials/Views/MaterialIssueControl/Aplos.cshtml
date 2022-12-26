@@ -31,20 +31,20 @@
                         <input type="text" name="Plan Percentage" ng-model="ModelNew.PlanPercentage" only-numbers class="form-control" ng-change="CalculationByPlan();" required tabindex="5">
                     </div>
                 </div>
-                <div class="form-group" show-errors>
+                @*<div class="form-group" show-errors>
                     <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select name="Storage" ng-model="ModelNew.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="1" required>
+                            <select name="Storage" ng-model="ModelNew.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="7" required>
                                 <option value=""></option>
                             </select>
                         </div>
                     </div>
-                </div>
+                </div>*@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Issue Date" ng-model="ModelNew.IssueDate" datepicker class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
+                        <input type="text" name="Issue Date" ng-model="ModelNew.IssueDate" datepicker class="form-control" placeholder="dd-mmm-yyyy" required tabindex="9">
                     </div>
                 </div>
                 <div class="form-group">
@@ -82,10 +82,13 @@
                     <label class="col-sm-4 control-label">Level</label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="ModelNew.Level" name="Level" tabindex="6" ng-change="GetQBOQCostingData();">
+                            @*<select class="form-control" ng-model="ModelNew.Level" name="Level" tabindex="6" ng-change="GetQBOQCostingData();">
                                 <option value="">--Select--</option>
                                 <option value="Costing">Costing</option>
                                 <option value="QBOQ">QBOQ</option>
+                            </select>*@
+                            <select class="form-control" ng-model="ModelNew.Level" placeholder="Level" name="Level" ng-options="item.Value as item.Text for item in LevelList"  ng-change="GetQBOQCostingData();" tabindex="6">
+                                <option value=""></option>
                             </select>
                         </div>
                     </div>
@@ -108,7 +111,7 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 <div style="color:black;" id="SOGrid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true" 
                      e-allowselection="false" e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
@@ -155,7 +158,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div ng-show="ModelNew.Level == 'QBOQ'">
                     <div style="color:black;" id="BGrid" ej-grid e-datasource="QBOQCostingList" e-allowscrolling="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true" 
                          e-allowselection="false" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-type="string" e-field="SrNo" e-headertext="SrNo" e-width="80"></div>
@@ -180,7 +183,7 @@
                 </div>
                 <div ng-show="ModelNew.Level == 'Costing'">
                     <div style="color:black;" id="CGrid" ej-grid e-datasource="QBOQCostingList" e-allowscrolling="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true" 
                          e-allowselection="false" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-type="string" e-field="SrNo" e-headertext="SrNo" e-width="80"></div>
@@ -225,15 +228,15 @@
             </div>
         </script>
         <script type="text/template" id="QAdditionReductionTemplate">
-            <div class="col-sm-10" style="padding:0px; width:70px;">
-                @*<input type="text" class="form-control" n-decimals="4" ng-model="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />*@
-                <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />
+            <div class="col-sm-10" style="padding:0px; width:80px;text-align:right;">
+                <input type="text" class="form-control" n-decimals="4" ng-model="data.AdditionReduction" ng-blur="$parent.BoqCalculation(this)" e-width="80" style="text-align: right;"/>
+                @*<input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.BoqCalculation(this)" e-width="80" />*@
             </div>
         </script>
         <script type="text/template" id="CAdditionReductionTemplate">
-            <div class="col-sm-10" style="padding:0px; width:70px;">
-                @*<input type="text" class="form-control" n-decimals="4" ng-model="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />*@
-                <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />
+            <div class="col-sm-10" style="padding:0px; width:80px;text-align:right;">
+                <input type="text" class="form-control" n-decimals="4" ng-model="data.AdditionReduction" ng-blur="$parent.CostCalculation(this)" e-width="80" style="text-align: right;" />
+                @*<input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.CostCalculation(this)" e-width="80" />*@
             </div>
         </script>
 

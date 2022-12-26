@@ -123,8 +123,12 @@ namespace Aplos.Areas.Materials.Controllers
 				throw new CustomException("Select To Date");
 			}
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryIssueService.GetIssueRegisterBYGRN(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-		}
+			//return Json(_inventoryIssueService.GetIssueRegisterBYGRN(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(_inventoryIssueService.GetIssueRegisterBYGRN(fromDate, toDate, Type));
+            var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
 
 		#endregion Pages
 

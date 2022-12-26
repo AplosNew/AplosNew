@@ -7777,6 +7777,265 @@ namespace Library.Accounting.Accounts
 					AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0   AND IR.ApprovedByStatus='Approved'";
             return _sqlRepository.GetDataTable(cmdText);
         }
+
+        public IWorkbook GetServiceTDSReport(out string reportFileName, string plantId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            DataTable dtServiceParkedData = GetServiceTDSData(plantId);
+
+            worksheet.Name = "TDS Report";
+            reportFileName = "TDS Report ";
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            worksheet[ROW, COL].Text = "Type";
+            int colGRNType = COL;
+            worksheet[ROW, COL].ColumnWidth = 8;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Particular";
+            int colParticular = COL;
+            worksheet[ROW, COL].ColumnWidth = 30;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "GRN No";
+            int colGRNNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+            worksheet[ROW, COL].Text = "GRN Date";
+            int colGRNDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Gate Entry No";
+            int colGateEntryNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Voucher No";
+            int colVoucherNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Posting Date";
+            int colPostingDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "PO No";
+            int colPONo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Doc Ref No";
+            int colDocRefNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 13;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Doc Ref Date";
+            int colDocDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++; 
+
+            worksheet[ROW, COL].Text = "Storage Location";
+            int colMaterialStorageName = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Transaction Qty";
+            int colTransactionQty = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++; 
+
+            worksheet[ROW, COL].Text = "Currency";
+            int colCurrencyCode = COL;
+            worksheet[ROW, COL].ColumnWidth = 6;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++; 
+
+            worksheet[ROW, COL].Text = "Transaction Amount";
+            int colTransactionAmount  = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++; 
+
+            worksheet[ROW, COL].Text = "TDS";
+            int colTDSTax = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++; 
+
+            worksheet[ROW, COL].Text = "TDS Voucher No";
+            int colTDSVoucherNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Tax Status";
+            int colTaxStatus = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            ///worksheet.Range[ROW, 1, ROW, endCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
+            //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Black;
+            //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+            ROW++;
+            int Row_Total_Start = ROW;
+            for (int i = 0; i < dtServiceParkedData.Rows.Count; i++)
+            {
+                worksheet[ROW, colGRNType].Text = dtServiceParkedData.Rows[i]["GRNType"].ToString();
+                worksheet[ROW, colParticular].Text = dtServiceParkedData.Rows[i]["Particular"].ToString();
+                worksheet[ROW, colGRNNo].Text = dtServiceParkedData.Rows[i]["Id"].ToString();
+                worksheet[ROW, colGRNDate].Text = dtServiceParkedData.Rows[i]["GRNDate"].ToString();
+                worksheet[ROW, colGateEntryNo].Text = dtServiceParkedData.Rows[i]["GateEntryNo"].ToString();
+                worksheet[ROW, colVoucherNo].Text = dtServiceParkedData.Rows[i]["VoucherNo"].ToString();
+                worksheet[ROW, colPostingDate].Text = dtServiceParkedData.Rows[i]["PostingDate"].ToString();
+                worksheet[ROW, colPONo].Text = dtServiceParkedData.Rows[i]["POId"].ToString();
+                worksheet[ROW, colDocRefNo].Text = dtServiceParkedData.Rows[i]["DocRefNo"].ToString();
+                worksheet[ROW, colDocDate].Text = dtServiceParkedData.Rows[i]["DocDate"].ToString();
+                worksheet[ROW, colMaterialStorageName].Text = dtServiceParkedData.Rows[i]["MaterialStorageName"].ToString();
+
+                worksheet[ROW, colTransactionQty].Number = clsStaticInfo.dbl(dtServiceParkedData.Rows[i]["TransactionQty"].ToString());
+                worksheet[ROW, colTransactionQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colCurrencyCode].Text = dtServiceParkedData.Rows[i]["CurrencyCode"].ToString();
+                worksheet[ROW, colTransactionAmount].Number = clsStaticInfo.dbl(dtServiceParkedData.Rows[i]["TransactionAmount"].ToString());
+                worksheet[ROW, colTransactionAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colTDSTax].Number = clsStaticInfo.dbl(dtServiceParkedData.Rows[i]["TDSTax"].ToString());
+                worksheet[ROW, colTDSTax].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colTDSVoucherNo].Text = dtServiceParkedData.Rows[i]["TDSVoucherNo"].ToString();
+                worksheet[ROW, colTaxStatus].Text = dtServiceParkedData.Rows[i]["IsTDSTaxPost"].ToString();
+               
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+            var report = new ReportUtility();
+            // var workbook = report.GetWorkbook(ref excelEngine, 1);
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref worksheet, endCol, "TDS Report", identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.IsGridLinesVisible = false;
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            worksheet.FirstVisibleColumn = 1;
+            worksheet.FirstVisibleRow = 6;
+
+            #endregion Freeze Panes
+
+            return workbook;
+        }
+
+        public DataTable GetServiceTDSData(string plantId)
+        {
+            var cmdText = @"select * from(SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName
+			                        , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+                                    , Particular=CASE WHEN IR.EmployeeId<>'' THEN EI.EmployeeName WHEN IR.PartyId<>'' THEN P.UserName  ELSE P.UserName END
+	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+	                                , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice
+                                    , InvoiceId=CASE WHEN IR.EmployeeId<> '' THEN EP.Id ELSE IV.Id END
+                                    , IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+	                                , IR.InvoicingPartyPlantId, IR.InvoicingPartyPlantId PartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, IR.IsTaxApplicable
+                                    , COUNT(*) OVER () AS TotalRows
+									,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
+									,IR.GateEntryNo,IR.POId,IR.ToCurrencyRate,IR.NoteForAccounts Narration
+									,VoucherNo = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherNo ELSE V.VoucherNo END
+									,VoucherId = CASE WHEN IR.EmployeeId <>'' THEN VE.Id ELSE V.Id END
+									,VoucherTypeId = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherTypeId ELSE V.VoucherTypeId END
+									,PostingDate= CASE WHEN IR.EmployeeId <>'' THEN REPLACE(CONVERT(CHAR(11), VE.PostingDate, 106),' ','-') ELSE REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') END
+                                    ,MS.UserName MaterialStorageName, IR.IsFOC, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
+                                    ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'TDSPosted' WHEN  ADT.InventoryReceiveId IS NULL THEN '' ELSE 'TDSParked' end
+									,VT.VoucherNo TDSVoucherNo,V.IsPark,IV.WrittenOffAmount
+                                    ,IR.OtherPartyId,IR.OtherPartyPlantId
+						FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
+                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
+		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
+		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+                        --LEFT JOIN TRN.GRNAcceptanceMap IGD ON IGD.GRNId=IR.Id
+                        LEFT JOIN TRN.Invoice IV ON IV.inventoryReceiveId=IR.Id
+						LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+						LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IR.Id
+						LEFT JOIN TRN.Voucher VE ON VE.Id=EP.VoucherId
+                        LEFT JOIN HKP.MaterialStorage MS ON MS.Id=IR.MaterialStorageId
+                        LEFT JOIN TRN.AdditionalTax ADT ON ADT.InventoryReceiveId=IR.Id
+						LEFT JOIN TRN.Voucher VT ON VT.Id=ADT.VoucherId
+                        WHERE IR.PlantId='" + plantId + @"') x
+						where x.TDSTax>0 and x.IsTDSTaxPost='TDSParked'";
+
+            return _sqlRepository.GetDataTable(cmdText);
+        }
+
         public IWorkbook GetEmployeeLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, string employeeId, string fromDate, string toDate)
         {
             try
