@@ -153,6 +153,35 @@ namespace Aplos.Controllers.ApopAPIHR
         }
         #endregion todaydated
 
+        #region Task
+        public List<Tasks> GetTodayAssignedTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTodayAssignedTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetOverDueAssignedTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetOverDueAssignedTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetNextWeakAssignedTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetNextWeakAssignedTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetFutureAssignedTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetFutureAssignedTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+        #endregion Task
 
         [HttpPost]
         public string PostGetDetentionLogGrid([FromBody] IEnumerable<CreateDetentionList> DataToSave)
