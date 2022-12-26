@@ -105,7 +105,8 @@ namespace Library.MaterialManagement.Material
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
                 var sql = @"
-                        select top 100 * from (select BAH.Id,BAH.UserName ,SBM.UserName MaterialStorage,MT.UserName MaterialType,MGM.UserName MaterialGroup,MM.UserName MaterialName,BAH.MaterialMasterId,BAH.StorageLocationId,BAH.AccessType 
+                        select top 100 * from (select BAH.* ,SBM.UserName MaterialStorage,MT.UserName MaterialType,MGM.UserName MaterialGroup
+                        ,MM.UserName MaterialName 
 	                    FROM TRN.BinAllocationHead BAH 
 	                    LEFT JOIN HKP.MaterialStorage SBM ON SBM.Id=BAH.StorageLocationId
 	                    LEFT JOIN HKP.MaterialType MT ON MT.Id=BAH.MaterialTypeId
@@ -438,7 +439,7 @@ namespace Library.MaterialManagement.Material
         }
         #region Material Allocation
         // MATERIAL ALLOCATION SAVE FUNCTION
-        public List<Dictionary<string, object>> SaveMaterialAllocation(List<Dictionary<string, object>> material, string headerId, string storagelevel)
+        public List<Dictionary<string, object>> SaveMaterialAllocation(string headerId, List<Dictionary<string, object>> material,  string storagelevel)
         {
             try
             {
@@ -468,7 +469,7 @@ namespace Library.MaterialManagement.Material
                         {
                             item["Id"] = headerId + "-" + count;
                             item["BinAllocationHeaderId"] = headerId;
-                            item["MaterialmaterArticleId"] = null;
+                            item["MaterialMasterArticleId"] = null;
                             AddNewRow(dsMaster.Tables[0], item);
                         }
                         else
@@ -483,7 +484,9 @@ namespace Library.MaterialManagement.Material
                         {
                             item["Id"] = headerId + "-" + count;
                             item["BinAllocationHeaderId"] = headerId;
-                            
+                            //item["MaterialMasterArticleId"]
+
+
                             AddNewRow(dsMaster.Tables[0], item);
                         }
                         else

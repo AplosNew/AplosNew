@@ -248,7 +248,7 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                var data = sba.SaveMaterialAllocation(material, HeaderId, storagelevel);
+                var data = sba.SaveMaterialAllocation(HeaderId, material,  storagelevel);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
