@@ -635,13 +635,13 @@ namespace Library.MaterialManagement.Material
 
             worksheet[ROW, COL].Text = "Material";
             int colMaterial = COL;
-            worksheet[ROW, COL].ColumnWidth = 8;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             COL++;
 
             worksheet[ROW, COL].Text = "Material Article";
             int colMaterialArticle = COL;
-            worksheet[ROW, COL].ColumnWidth = 30;
+            worksheet[ROW, COL].ColumnWidth = 25;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
@@ -685,12 +685,12 @@ namespace Library.MaterialManagement.Material
             int colCapacityValue = COL;
             worksheet[ROW, COL].ColumnWidth = 13;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             COL++;
 
             worksheet[ROW, COL].Text = "User Location Type";
             int colUserLocationType = COL;
-            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
@@ -705,28 +705,28 @@ namespace Library.MaterialManagement.Material
             int colStorageSubLocation = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             COL++;
 
             worksheet[ROW, COL].Text = "Access Type";
             int colAccessType = COL;
-            worksheet[ROW, COL].ColumnWidth = 6;
+            worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             COL++;
 
             worksheet[ROW, COL].Text = "Material Type";
             int colMaterialType = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             COL++;
 
             worksheet[ROW, COL].Text = "Material Group";
             int colMaterialGroup = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
             int endCol = COL;
             worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -785,7 +785,7 @@ namespace Library.MaterialManagement.Material
             worksheet.IsDisplayZeros = false;
             worksheet.UsedRange["A6"].FreezePanes();
             worksheet.FirstVisibleColumn = 1;
-            worksheet.FirstVisibleRow = 6;
+            worksheet.FirstVisibleRow = 5;
 
             #endregion Freeze Panes
 
