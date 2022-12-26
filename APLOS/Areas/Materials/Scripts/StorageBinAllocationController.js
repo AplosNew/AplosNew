@@ -75,6 +75,15 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         , { value: 'MaterialType', name: "MaterialType" }, { value: 'MaterialGroup', name: "Material Group" }, { value: 'MaterialName', name: "Material" }
         , { value: 'AccessType', name: "Access Type" }];
 
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+           
+        }
+    };
+
     $scope.binAllocationHeads = [];
     $scope.getbinAllocationHeadDataList = function () {
         $http({
