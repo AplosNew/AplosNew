@@ -2171,6 +2171,7 @@ namespace Library.Service.SalesManagements
 
                 if (selectedMasterOrderList != null)
                 {
+                     currentSalesOrderItemId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.SalesOrderItem WHERE SalesId='{sales.Id}'").First();
                     foreach (var item in selectedMasterOrderList)
                     {
                         if (string.IsNullOrEmpty(item.Id))
