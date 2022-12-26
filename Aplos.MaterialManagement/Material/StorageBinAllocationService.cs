@@ -2,8 +2,10 @@
 using Library.Data;
 using Library.Data.Sql;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using Library.Service.Logs;
 using OTSBD;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -605,5 +607,206 @@ namespace Library.MaterialManagement.Material
             dr.EndEdit();
         }
         #endregion Add and set New Row
+
+        public IWorkbook GetStorageBinAllocationReport(out string reportFileName, string sbaId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            DataTable dtStorageBinAllocationData = GetStorageBinAllocationSql(sbaId);
+
+            worksheet.Name = "Storage Bin Allocation Report";
+            reportFileName = "Storage Bin Allocation Report ";
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            worksheet[ROW, COL].Text = "Material";
+            int colMaterial = COL;
+            worksheet[ROW, COL].ColumnWidth = 8;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Material Article";
+            int colMaterialArticle = COL;
+            worksheet[ROW, COL].ColumnWidth = 30;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Estimated Capacity";
+            int colEstimatedCapacity = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+            worksheet[ROW, COL].Text = "Area Rack Code";
+            int colAreaRackCode = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Column No";
+            int colColumnNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Row No";
+            int colRowNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Bin Reference";
+            int colBinReference = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Bin Code";
+            int colBinCode = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Capacity Value";
+            int colCapacityValue = COL;
+            worksheet[ROW, COL].ColumnWidth = 13;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "User Location Type";
+            int colUserLocationType = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Storage Bin";
+            int colStorageBin = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Storage Sub-Location";
+            int colStorageSubLocation = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Access Type";
+            int colAccessType = COL;
+            worksheet[ROW, COL].ColumnWidth = 6;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Material Type";
+            int colMaterialType = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Material Group";
+            int colMaterialGroup = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            ///worksheet.Range[ROW, 1, ROW, endCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
+            //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Black;
+            //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+            ROW++;
+            int Row_Total_Start = ROW;
+            for (int i = 0; i < dtStorageBinAllocationData.Rows.Count; i++)
+            {
+                worksheet[ROW, colMaterial].Text = dtStorageBinAllocationData.Rows[i]["Material"].ToString();
+                worksheet[ROW, colMaterialArticle].Text = dtStorageBinAllocationData.Rows[i]["MaterialArticle"].ToString();
+                worksheet[ROW, colEstimatedCapacity].Text = dtStorageBinAllocationData.Rows[i]["EstimatedCapacity"].ToString();
+                worksheet[ROW, colAreaRackCode].Text = dtStorageBinAllocationData.Rows[i]["AreaRackCode"].ToString();
+                worksheet[ROW, colColumnNo].Text = dtStorageBinAllocationData.Rows[i]["ColumnNo"].ToString();
+                worksheet[ROW, colRowNo].Text = dtStorageBinAllocationData.Rows[i]["RowNo"].ToString();
+                worksheet[ROW, colBinReference].Text = dtStorageBinAllocationData.Rows[i]["BinReference"].ToString();
+                worksheet[ROW, colBinCode].Text = dtStorageBinAllocationData.Rows[i]["BinCode"].ToString();
+                worksheet[ROW, colCapacityValue].Text = dtStorageBinAllocationData.Rows[i]["CapacityValue"].ToString();
+                worksheet[ROW, colUserLocationType].Text = dtStorageBinAllocationData.Rows[i]["UserLocationType"].ToString();
+                worksheet[ROW, colStorageBin].Text = dtStorageBinAllocationData.Rows[i]["StorageBin"].ToString();
+                worksheet[ROW, colStorageSubLocation].Text = dtStorageBinAllocationData.Rows[i]["StorageSubLocation"].ToString();
+                worksheet[ROW, colAccessType].Text = dtStorageBinAllocationData.Rows[i]["AccessType"].ToString();
+                worksheet[ROW, colMaterialType].Text = dtStorageBinAllocationData.Rows[i]["MaterialType"].ToString();
+                worksheet[ROW, colMaterialGroup].Text = dtStorageBinAllocationData.Rows[i]["MaterialGroup"].ToString();
+
+                //worksheet[ROW, colTDSTax].Number = clsStaticInfo.dbl(dtStorageBinAllocationData.Rows[i]["TDSTax"].ToString());
+                //worksheet[ROW, colTDSTax].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+            var report = new ReportUtility();
+            // var workbook = report.GetWorkbook(ref excelEngine, 1);
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref worksheet, endCol, "Storage Bin Allocation Report", identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.IsGridLinesVisible = false;
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            worksheet.FirstVisibleColumn = 1;
+            worksheet.FirstVisibleRow = 6;
+
+            #endregion Freeze Panes
+
+            return workbook;
+        }
+
+        public DataTable GetStorageBinAllocationSql(string sbaId)
+        {
+            var sql = @"select distinct BAH.Id, MM.UserName Material, MMA.StandardName MaterialArticle, MA.EstimatedCapacity,       SBM.AreaRackCode,SBM.ColumnNo, SBM.RowNo, SBM.BinReference, SBM.BinCode,SBM.CapacityValue, SBM.UserLocationType, SBM.UserName StorageBin, SBM.StorageSubLocation, SBM.AccessType, MT.UserName MaterialType, MGM.UserName MaterialGroup
+                                    from TRN.BinAllocationHead BAH
+                                    LEFT JOIN TRN.BinAllocation BA ON BA.BinAllocationHeadId = BAH.Id
+                                    LEFT JOIN TRN.MaterialAlocation MA on MA.BinAllocationHeaderId = BAH.Id
+                                    LEFT JOIN MST.MaterialMaster MM on MM.Id  = MA.MaterialMasterId
+                                    LEFT JOIN MST.MaterialMasterArticle MMA on MMA.Id = MA.MaterialMasterArticleId
+                                    LEFT JOIN MST.StorageBinMaster SBM ON SBM.Id = BA.StorageBinMasterId
+                                    LEFT JOIN EmployeeInformation EI on EI.SystemId = SBM.ResponsiblePersonId
+                                    LEFT JOIN MST.MaterialGroupMaster MGM ON MGM.Id = BAH.MaterialGroupMasterId
+                                    LEFT JOIN HKP.MaterialType MT ON MT.Id = BAH.MaterialTypeId
+                                                WHERE BAH.Id ='" + sbaId + @"'";
+
+            return _sqlRepository.GetDataTable(sql);
+        }
     }
 }

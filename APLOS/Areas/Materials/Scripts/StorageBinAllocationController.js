@@ -508,5 +508,15 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         gridObj.refreshContent();
     };
 
+    $scope.ReportFormat ='Excel',
+        $scope.GetStorageBinAllocation = function (data) {
+        //var z = "#" + x;
+        //var gridObj = $(x).data("ejGrid");
+        //var Data = gridObj.getSelectedRecords()[0];
+        var url = "Materials/StorageBinAllocation/StorageBinAllocationReport?reportFormat=" + $scope.ReportFormat + '&sbaId=' + data.Id;
+        $rootScope.report(url);
+    };
+
+
 }
 
