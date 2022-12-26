@@ -7840,7 +7840,7 @@ UNION ALL
 
                 var sheet4 = workbook.Worksheets[3];
                 DataTable dtHSN = null;
-                dtHSN = GetHSN();
+                dtHSN = GetHSN(fromDate, toDate, plantId);
 
                 //string taxyearId = GetTaxYearId(fromDate, toDate, companyId);
                 //dtRCMPayable = GetGSTPayableSQL(companyGroupId, companyId, plantId, plantName, fromDate, toDate, taxyearId);
@@ -7960,31 +7960,31 @@ UNION ALL
                     sheet4.Range[xlsRow4, iHSN].Text = dtHSN.Rows[i]["HSN"].ToString();
                     sheet4.Range[xlsRow4, iDescription].Text = dtHSN.Rows[i]["Description"].ToString();
 
-                    sheet4.Range[xlsRow4, iUQC].Text = dtHSN.Rows[i]["UQC"].ToString();
+                    sheet4.Range[xlsRow4, iUQC].Text = dtHSN.Rows[i]["UoM"].ToString();
 
-                    sheet4.Range[xlsRow4, iTotalQuantity].Text = dtHSN.Rows[i]["TotalQuantity"].ToString();
+                    sheet4.Range[xlsRow4, iTotalQuantity].Number =clsStaticInfo.dbl(dtHSN.Rows[i]["TotalQuantity"].ToString());
                     sheet4.Range[xlsRow4, iTotalQuantity].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    sheet4.Range[xlsRow4, iTotalValue].Text = dtHSN.Rows[i]["TotalValue"].ToString();
+                    sheet4.Range[xlsRow4, iTotalValue].Number = clsStaticInfo.dbl(dtHSN.Rows[i]["TotalValue"].ToString());
                     sheet4.Range[xlsRow4, iTotalValue].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    sheet4.Range[xlsRow4, iRate4].Text = dtHSN.Rows[i]["Rate"].ToString();
+                    sheet4.Range[xlsRow4, iRate4].Number = clsStaticInfo.dbl(dtHSN.Rows[i]["Rate"].ToString());
                     sheet4.Range[xlsRow4, iRate4].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    sheet4.Range[xlsRow4, iTaxableValue].Text = dtHSN.Rows[i]["TaxableValue"].ToString();
+                    sheet4.Range[xlsRow4, iTaxableValue].Number = clsStaticInfo.dbl(dtHSN.Rows[i]["TaxableValue"].ToString());
                     sheet4.Range[xlsRow4, iTaxableValue].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    sheet4.Range[xlsRow4, iIntegratedTaxAmount].Text = dtHSN.Rows[i]["IntegratedTaxAmount"].ToString();
+                    sheet4.Range[xlsRow4, iIntegratedTaxAmount].Number = clsStaticInfo.dbl(dtHSN.Rows[i]["IntegratedTaxAmount"].ToString());
                     sheet4.Range[xlsRow4, iIntegratedTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    sheet4.Range[xlsRow4, iCentralTaxAmount].Text = dtHSN.Rows[i]["CentralTaxAmount"].ToString();
+                    sheet4.Range[xlsRow4, iCentralTaxAmount].Number = clsStaticInfo.dbl(dtHSN.Rows[i]["CentralTaxAmount"].ToString());
                     sheet4.Range[xlsRow4, iCentralTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     sheet4.Range[xlsRow4, iStateUTTaxAmount].Number = clsStaticInfo.dbl(dtHSN.Rows[i]["StateUTTaxAmount"].ToString());
                     sheet4.Range[xlsRow4, iStateUTTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
 
-                    sheet4.Range[xlsRow4, iCessAmount4].Text = dtHSN.Rows[i]["CessAmount"].ToString();
+                    sheet4.Range[xlsRow4, iCessAmount4].Number = clsStaticInfo.dbl(dtHSN.Rows[i]["CessAmount"].ToString());
                     sheet4.Range[xlsRow4, iCessAmount4].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     xlsRow4++;
@@ -8460,12 +8460,89 @@ GROUP BY x.InvoiceNumber,x.DocDate,X.Amount,x.HSNSAC,X.PostCode,X.ShippingBill,X
 
             return _sqlRepository.GetDataTable(strSql);
         }
-        private DataTable GetHSN()
+        private DataTable GetHSN(string fromDate, string toDate, string plantId)
         {
             string strSql = "";
-            strSql = @"select '7404' HSN,'Note- NA in service' Description,'KGS-KILOGRAMS' UQC,420 TotalQuantity,2478 TotalValue,18 Rate,2100 TaxableValue,8826.6 IntegratedTaxAmount,189 CentralTaxAmount,189 StateUTTaxAmount,0 CessAmount";
+            //strSql = @"select '7404' HSN,'Note- NA in service' Description,'KGS-KILOGRAMS' UQC,420 TotalQuantity,2478 TotalValue,18 Rate,2100 TaxableValue,8826.6 IntegratedTaxAmount,189 CentralTaxAmount,189 StateUTTaxAmount,0 CessAmount";
+            try
+            {
+                strSql = @"Select * from (Select IRD.Id,HSN =case when IGST.HSN<>'' then IGST.HSN when CGST.HSN<>'' then CGST.HSN else SGST.HSN end
+,[Description]=case when IGST.[Description]<>'' then IGST.[Description] when CGST.[Description]<>'' then CGST.[Description] else SGST.[Description] end
+,UoM.UserName UoM,IRD.TransactionQty TotalQuantity
+,IRD.TotalMaterialTranAmount+IRD.TotalTaxAmount+IRD.ChargesTranAmount TotalValue
+,Rate=case when IGST.Rate<>0 then IGST.Rate when CGST.Rate<>0 then CGST.Rate else SGST.Rate end
+,IRD.TotalMaterialTranAmount TaxableValue
+,IntegratedTaxAmount=CASE WHEN IGST.IGSTAmount<>0 THEN  IGST.IGSTAmount+IRD.ChargesTaxTranAmount ELSE 0 END
+, CentralTaxAmount=CASE WHEN CGST.CGSTAmount<>0 THEN  CGST.CGSTAmount+NULLIF((IRD.ChargesTaxTranAmount/2),0) ELSE 0 END
+, StateUTTaxAmount=CASE WHEN SGST.SGSTAmount<>0 THEN  SGST.SGSTAmount+NULLIF((IRD.ChargesTaxTranAmount/2),0) ELSE 0 END
+,CONVERT(varchar(50), I.PostingDate ,103)PostingDate,'GRN' [Category],0 CessAmount,IR.PlantId
+from TRN.InventoryReceiveDetail IRD
+LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+LEFT JOIN TRN.Invoice I ON I.InventoryReceiveId=IR.Id
+LEFT JOIN SCS.UnitOfMeasurement UoM ON UoM.Id=IRD.TransactionUoMId
+LEFT JOIN (SELECT IRT.InventoryReceiveDetailId,IRT.TaxAmount IGSTAmount,H.Code HSN,H.[Description],IRT.[Percentage] Rate 
+        FROM TRN.InventoryReceiveTax IRT
+        LEFT JOIN HKP.HSNCode AS H ON H.Id = IRT.HSNCodeId
+        LEFT JOIN MST.TaxCategory TC ON TC.Id=IRT.TaxCategoryId
+        WHERE TC.Code='IGST' and IRT.InventoryServiceId is null
+    )IGST ON IRD.Id=IGST.InventoryReceiveDetailId
+    LEFT JOIN (SELECT IRT.InventoryReceiveDetailId,IRT.TaxAmount CGSTAmount,H.Code HSN,H.[Description],IRT.[Percentage] Rate 
+        FROM TRN.InventoryReceiveTax IRT
+        LEFT JOIN HKP.HSNCode AS H ON H.Id = IRT.HSNCodeId
+        LEFT JOIN MST.TaxCategory TC ON TC.Id=IRT.TaxCategoryId
+        WHERE TC.Code='CGST' and IRT.InventoryServiceId is null
+    )CGST ON IRD.Id=CGST.InventoryReceiveDetailId
+    LEFT JOIN (SELECT IRT.InventoryReceiveDetailId,IRT.TaxAmount SGSTAmount,H.Code HSN,H.[Description],IRT.[Percentage] Rate 
+        FROM TRN.InventoryReceiveTax IRT
+        LEFT JOIN HKP.HSNCode AS H ON H.Id = IRT.HSNCodeId
+        LEFT JOIN MST.TaxCategory TC ON TC.Id=IRT.TaxCategoryId
+        WHERE TC.Code='SGST' and IRT.InventoryServiceId is null
+    )SGST ON IRD.Id=SGST.InventoryReceiveDetailId
+Where I.PostingDate between '" + fromDate + "' AND '" + toDate + @"' AND IR.PlantId='" + plantId + @"'
+UNION 
 
-            return _sqlRepository.GetDataTable(strSql);
+Select IRD.Id,HSN =case when IGST.HSN<>'' then IGST.HSN when CGST.HSN<>'' then CGST.HSN else SGST.HSN end
+,[Description]=case when IGST.[Description]<>'' then IGST.[Description] when CGST.[Description]<>'' then CGST.[Description] else SGST.[Description] end
+,UoM.UserName UoM,IRD.Qty TotalQuantity
+,IRD.TotalAmount+IRD.TotalTaxAmount TotalValue
+,Rate=case when IGST.Rate<>0 then IGST.Rate when CGST.Rate<>0 then CGST.Rate else SGST.Rate end
+,IRD.TotalAmount TaxableValue
+,IntegratedTaxAmount=IGST.IGSTAmount
+, CentralTaxAmount=CGST.CGSTAmount
+, StateUTTaxAmount=SGST.SGSTAmount
+,CONVERT(varchar(50), I.PostingDate ,103)PostingDate,'SERVICE ACKNOWLEDGEMENT' [Category],0 CessAmount,IR.PlantId
+from TRN.ServiceAcknowledgementDetail IRD
+LEFT JOIN TRN.ServiceAcknowledgementMaster IR ON IR.Id=IRD.ServiceAcknowledgementMasterId
+LEFT JOIN TRN.Invoice I ON I.ServiceAcknowledgementMasterId=IR.Id
+LEFT JOIN SCS.UnitOfMeasurement UoM ON UoM.Id=IRD.TransactionUoMId
+LEFT JOIN (SELECT IRT.ServiceAcknowledgementDetailId,IRT.TaxAmount IGSTAmount,H.Code HSN,H.[Description],IRT.[Percentage] Rate 
+        FROM TRN.ServicePOAckTax IRT
+        LEFT JOIN HKP.HSNCode AS H ON H.Id = IRT.HSNCodeId
+        LEFT JOIN MST.TaxCategory TC ON TC.Id=IRT.TaxCategoryId
+        WHERE TC.Code='IGST' and IRT.ServiceAcknowledgementChargeId is null
+    )IGST ON IRD.Id=IGST.ServiceAcknowledgementDetailId
+    LEFT JOIN (SELECT IRT.ServiceAcknowledgementDetailId,IRT.TaxAmount CGSTAmount,H.Code HSN,H.[Description],IRT.[Percentage] Rate 
+        FROM TRN.ServicePOAckTax IRT
+        LEFT JOIN HKP.HSNCode AS H ON H.Id = IRT.HSNCodeId
+        LEFT JOIN MST.TaxCategory TC ON TC.Id=IRT.TaxCategoryId
+        WHERE TC.Code='CGST' and IRT.ServiceAcknowledgementChargeId is null
+    )CGST ON IRD.Id=CGST.ServiceAcknowledgementDetailId
+    LEFT JOIN (SELECT IRT.ServiceAcknowledgementDetailId,IRT.TaxAmount SGSTAmount,H.Code HSN,H.[Description],IRT.[Percentage] Rate 
+        FROM TRN.ServicePOAckTax IRT
+        LEFT JOIN HKP.HSNCode AS H ON H.Id = IRT.HSNCodeId
+        LEFT JOIN MST.TaxCategory TC ON TC.Id=IRT.TaxCategoryId
+        WHERE TC.Code='SGST' and IRT.ServiceAcknowledgementChargeId is null
+    )SGST ON IRD.Id=SGST.ServiceAcknowledgementDetailId
+ Where I.PostingDate between '" + fromDate + "' AND '" + toDate + @"' AND IR.PlantId='" + plantId + @"'
+	)A";
+                return _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
         }
 
         private DataTable GetImportSQL()
