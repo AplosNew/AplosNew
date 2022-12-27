@@ -161,6 +161,20 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<ChatTask> GetTaskChats(string Id)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTaskChats(out List<ChatTask> activelists, Id);
+            return activelists;
+        }
+
+        public List<AssignTaskDatals> GetTaskAssignedDetail(string Id)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTaskAssignedDetail(out List<AssignTaskDatals> activelists, Id);
+            return activelists;
+        }
+
         public List<Tasks> GetOverDueAssignedTask(string UserId, string Date)
         {
             clsDataContext clsData = new clsDataContext();

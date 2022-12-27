@@ -439,10 +439,175 @@ namespace Library.Service.EmployeeServices
             }
         }
 
+        public string CreateSummaryData(string MId, IEnumerable<ItemScanChildData> DataToSave)
+        {
+            try
+            {
+                string processId = "";
+                string inventory = "";
+                string Booked, IsDespatch, ToLocation, FLoc = ""; bool Inventchk = false;
+                decimal counter = 0, filter = 0;
+                DataSet dsMaster;
+                string TableName = "dbo.ItemScanChild";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                var items = DataToSave.ToList();
+
+
+                string PackedBy = "''";
+                string RefNo = "''";
+                string LocId = items[0].LocMasterId;
+                string User = items[0].AddedBy;  /// Can delete later on
+                foreach (ItemScanChildData item in DataToSave)
+                {
+                    PackedBy += ",'" + item.PackedBy + "'";
+                    RefNo += ",'" + item.RefNo + "'";
+                }
+
+
+
+                var sqly = @"select SystemId as EmpId,EmployeeCode from dbo.EmployeeInformation where EmployeeCode IN(" + PackedBy + ")";
+                var EmpId = _sqlRepository.GetDataTable(sqly);
+
+                //getscandata
+                var sqlscan = @"Select WorkDate,ShiftId,Grade,PurposeId,LocMasterId from dbo.ItemScan Where Id='" + MId + "'";
+                DataTable dtScan = _sqlRepository.GetDataTable(sqlscan);
+
+                DateTime WorkDate = Convert.ToDateTime(dtScan.Rows[0]["WorkDate"].ToString());
+                string ShiftId = dtScan.Rows[0]["ShiftId"].ToString();
+                string Grade = dtScan.Rows[0]["Grade"].ToString();
+                string PurposeId = dtScan.Rows[0]["PurposeId"].ToString();
+
+                //getProcess&Entity
+                var sqlProcess = @"SELECT ProcessId FROM HKP.MaterialMovementPurpose where Id ='" + PurposeId + "'";
+                DataTable dtProcess = _sqlRepository.GetDataTable(sqlProcess);
+                processId = dtProcess.Rows[0]["ProcessId"].ToString();
+
+
+                // Check repeat Rows 
+                var sql = @"select * from dbo.ItemScanChild where RefNo IN(" + RefNo + @")";
+                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                // For History
+                var sqlx = @"select * from dbo.ItemScanChildHistory where 1=2";
+                con.OpenDataSetThroughAdapter(sqlx, out DataSet DsHistory, false, "1");
+
+                // For ProductionSummary
+                string sqlPS = @"SELECT * FROM TRN.ProductionSummary where 1=2";
+                con.OpenDataSetThroughAdapter(sqlPS, out DataSet dsProductionSummary, false, "1");
+
+                // Inventory Check
+                var _sql = @"select Inventorycheck,EntityId from mst.MaterialMovementMaster where Id ='" + LocId + "'";
+                var Location = _sqlRepository.GetDataTable(_sql);
+                Inventchk = bplib.clsWebLib.GetBoolData(Location.Rows[0]["Inventorycheck"].ToString());
+                string entityId = Location.Rows[0]["EntityId"].ToString();
+
+                string esql = "select PlantId from ORG.Entity Where Id='" + entityId + "'";
+                DataTable dtPlant = _sqlRepository.GetDataTable(esql);
+                string PlantId = dtPlant.Rows[0]["PlantId"].ToString();
+
+                DataTable ToLocList = new DataTable();
+                if (Inventchk == true)
+                {
+                    var _sqlx = @"select FromLocation from mst.MaterialMovementMaster where Id='" + LocId + "'";
+                    var fromloc = _sqlRepository.GetDataTable(_sqlx);
+                    FLoc = fromloc.Rows[0]["FromLocation"].ToString();
+
+                    _sqlx = @"select LocMasterId,ToLocation,Booked,RefNo,IsDespatch from 
+                    dbo.ItemScanChild sc
+                    left join mst.MaterialMovementMaster m on m.Id=sc.LocMasterId
+                    where sc.RefNo IN(" + RefNo + ")";
+
+                    ToLocList = _sqlRepository.GetDataTable(_sqlx);
+                    if (ToLocList.Rows.Count > 0)
+                    {
+                        filter = 1;
+                    }
+                }
+
+                int Index = 0;
+                decimal netWeight = 0;
+                string POId = string.Empty;
+                string lotNo = string.Empty;
+                string _Id = ""; string _Idx = "";
+                foreach (ItemScanChildData item in DataToSave)
+                {
+                    netWeight += Convert.ToDecimal(item.NetWeight);
+                    POId = item.POId;
+                    lotNo = item.LotNo;
+
+                    Index++;
+                    object Emp = DBNull.Value;
+                    // Get EmpId
+                    EmpId.DefaultView.RowFilter = "EmployeeCode='" + item.PackedBy + "'";
+                    if (EmpId.DefaultView.Count > 0)
+                    {
+                        Emp = EmpId.DefaultView[0]["EmpId"].ToString();
+                    }
+                    counter = 0;
+
+                }
+
+                #region ProductionSummary
+
+
+                if (!string.IsNullOrEmpty(processId))
+                {
+                    netWeight = 0;
+                    for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
+                    {
+                        netWeight += Convert.ToDecimal(dsMaster.Tables[0].Rows[j]["NetWeight"]);
+                        lotNo = dsMaster.Tables[0].Rows[j]["LotNo"].ToString();
+                        POId = dsMaster.Tables[0].Rows[j]["POId"].ToString();
+                    }
+
+
+                    bplib.clsGenID objGenID = new bplib.clsGenID();
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
+                    DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
+                    drProductionSummary["Id"] = "PS" + sID;
+                    drProductionSummary["PlantId"] = PlantId;
+                    drProductionSummary["EntityId"] = entityId;
+                    drProductionSummary["ProcessId"] = processId;
+                    drProductionSummary["ProductionDate"] = WorkDate;
+                    drProductionSummary["Quantity"] = netWeight;
+                    drProductionSummary["ProductionOrderId"] = POId;
+                    drProductionSummary["ProductionShiftId"] = ShiftId;
+                    drProductionSummary["ProductionGrade"] = Grade;
+                    drProductionSummary["LotNumber"] = lotNo;
+
+                    drProductionSummary["AddedBy"] = User;
+                    drProductionSummary["AddedDate"] = DateTime.Now;
+                    drProductionSummary["AddedFromIP"] = "1";
+
+                    dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
+                }
+                #endregion
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, DsHistory, dsProductionSummary);
+
+                if (inventory != "")
+                {
+                    return "Inventory not Found of these cartons:- " + inventory;
+                }
+
+                return "true";
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         /// <summary>
         ///  For Booking & Dispatch
         /// </summary>
-      
+
         public IEnumerable<object> GetCust()
         {
             try
