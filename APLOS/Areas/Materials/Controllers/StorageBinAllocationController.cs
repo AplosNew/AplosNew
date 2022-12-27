@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
 using Library.MaterialManagement.Material;
+using Library.Model.Enums;
 #endregion Using
 
 
@@ -247,7 +248,7 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                var data = sba.SaveMaterialAllocation(material, HeaderId, storagelevel);
+                var data = sba.SaveMaterialAllocation(HeaderId, material,  storagelevel);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
@@ -276,5 +277,30 @@ namespace Aplos.Areas.Materials.Controllers
 
             }
         }
+
+        #region Storage Bin Allocation  Report  
+
+        [Authorize, HttpGet]
+        public ActionResult StorageBinAllocationReport(ReportFormat reportFormat, string sbaId)
+        {
+            string reportFileName = "";
+            Syncfusion.XlsIO.IWorkbook workbook = null;
+         
+            workbook = sba.GetStorageBinAllocationReport(out reportFileName, sbaId);
+            
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+
+        #endregion
     }
 }

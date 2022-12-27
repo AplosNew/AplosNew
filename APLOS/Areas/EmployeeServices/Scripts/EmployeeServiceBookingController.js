@@ -181,7 +181,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
             data: { column: $scope.searchBy, value: $scope.search , 'FromDate':$scope.FromDate , 'ToDate':$scope.ToDate},
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.EmployeeServiceBookingList = response.data.Data;
+            $scope.EmployeeServiceBookingList = response.data;
             ClearFields();
             ClearFieldsForms();
         });
@@ -226,11 +226,12 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
     $scope.EmployeeServiceBooking = Object.assign({}, $scope.ModelTemp);
 
     $scope.Get = function (args) {
-
+        debugger
         $scope.EmployeeServiceBooking = Object.assign({}, args.data);
         $scope.EmployeeServiceBooking.Date = $scope.EmployeeServiceBooking.EmpServiceDate;
         $scope.EmployeeServiceBooking.Time = $scope.EmployeeServiceBooking.GetTime;
         $scope.EmployeeServiceBooking.ShiftId = $scope.EmployeeServiceBooking.ShiftId;
+        $scope.EmployeeServiceBooking.EmployeeCode = args.data.EmployeeCode;
        
 
         $scope.GetCategoryList();
@@ -242,13 +243,35 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         //else {
         //    $scope.EmployeeServiceBooking.Chargeable = false;
         //}
-        ClearFieldsForms();
+        //ClearFieldsForms();
      //   $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
     $scope.Action = 'Save';
+
+    $scope.GetGridQuantityDataToShow = function () {
+        $scope.SelectedQuantityList = [];
+        $http({
+            method: 'POST',
+            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date), Time: $scope.EmployeeServiceBooking.GetTime, EmployeeCode: $scope.EmployeeServiceBooking.EmployeeCode },
+            url: 'EmployeeServices/EmployeeServiceBooking/getgriddatatoshow'
+        }).then(function successCallback(response) {
+            $scope.SelectedQuantityList = response.data;
+        });
+    }
+
+    $scope.GetGridAmountDataToShow = function () {
+        $scope.SelectedAmountList = [];
+        $http({
+            method: 'POST',
+            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date), Time: $scope.EmployeeServiceBooking.GetTime, EmployeeCode: $scope.EmployeeServiceBooking.EmployeeCode },
+            url: 'EmployeeServices/EmployeeServiceBooking/getgriddatatoshow'
+        }).then(function successCallback(response) {
+            $scope.SelectedAmountList = response.data;
+        });
+    }
 
     // GET Shift
 
@@ -315,33 +338,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
     };
 
 
-    function ClearFieldsForms() {
-        $scope.Action = 'Save';
-        $scope.EmployeeServiceBooking.Id = null;
-        $scope.EmployeeServiceBooking.EmployeeId = null;
-        $scope.EmployeeServiceBooking.Chargeable = true;
-        $scope.EmployeeServiceBooking.From = null;
-        $scope.EmployeeServiceBooking.To = null;
-        $scope.EmployeeServiceBooking.Quantity = null;
-        $scope.EmployeeServiceBooking.Amount = null;
-        $scope.EmployeeServiceBooking.Particulars = null;
-        $scope.EmployeeServiceBooking.BillOtherReferenceNo = null;
-        $scope.EmployeeServiceBooking.EmpName = null;
-        $scope.EmployeeServiceBooking.EmployeeCode = null;
-        $scope.EmployeeServiceBooking.EmployeeStatus = null;
-
-    }
-
-    $scope.Clear = function () {
-        ClearFields();
-
-        return true;
-    };
-
-    function ClearFields() {
-        $scope.Action = 'Save';
-        $scope.EmployeeServiceBooking = Object.assign({}, $scope.ModelTemp);
-    }
+   
 
     // Employee POP up
 
@@ -383,27 +380,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
     };
     // # end region  Employee
 
-    $scope.GetGridQuantityDataToShow = function () {
-        $scope.SelectedQuantityList = [];
-        $http({
-            method: 'POST',
-            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date), Time: $scope.EmployeeServiceBooking.GetTime },
-            url: 'EmployeeServices/EmployeeServiceBooking/getgriddatatoshow'
-        }).then(function successCallback(response) {
-            $scope.SelectedQuantityList = response.data;
-        });
-    }
-
-    $scope.GetGridAmountDataToShow = function () {
-        $scope.SelectedAmountList = [];
-        $http({
-            method: 'POST',
-            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date), Time: $scope.EmployeeServiceBooking.GetTime},
-            url: 'EmployeeServices/EmployeeServiceBooking/getgriddatatoshow'
-        }).then(function successCallback(response) {
-            $scope.SelectedAmountList = response.data;
-        });
-    }
+   
 
     $scope.GetGridReadingDataToShow = function () {
         $scope.SelectedReadingList = [];
@@ -551,4 +528,31 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         angular.element(document.querySelector("#DeleteReading")).modal("show");
     }
 
+    function ClearFieldsForms() {
+        $scope.Action = 'Save';
+        $scope.EmployeeServiceBooking.Id = null;
+        $scope.EmployeeServiceBooking.EmployeeId = null;
+        $scope.EmployeeServiceBooking.Chargeable = true;
+        $scope.EmployeeServiceBooking.From = null;
+        $scope.EmployeeServiceBooking.To = null;
+        $scope.EmployeeServiceBooking.Quantity = null;
+        $scope.EmployeeServiceBooking.Amount = null;
+        $scope.EmployeeServiceBooking.Particulars = null;
+        $scope.EmployeeServiceBooking.BillOtherReferenceNo = null;
+        $scope.EmployeeServiceBooking.EmpName = null;
+        $scope.EmployeeServiceBooking.EmployeeCode = null;
+        $scope.EmployeeServiceBooking.EmployeeStatus = null;
+
+    }
+
+    $scope.Clear = function () {
+        ClearFields();
+
+        return true;
+    };
+
+    function ClearFields() {
+        $scope.Action = 'Save';
+        $scope.EmployeeServiceBooking = Object.assign({}, $scope.ModelTemp);
+    }
 }

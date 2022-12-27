@@ -136,9 +136,13 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 workbook = _accountVoucherReportService.GetIssueParkedReport(out reportFileName, identity.PlantId);
             }
-            else
+            else if (reportType == "Service")
             {
                 workbook = _accountVoucherReportService.GetServiceParkedReport(out reportFileName, identity.PlantId);
+            }
+            else
+            {
+                workbook = _accountVoucherReportService.GetServiceTDSReport(out reportFileName, identity.PlantId);
             }
 
             switch (reportFormat)
