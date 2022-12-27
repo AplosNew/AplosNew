@@ -479,7 +479,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 string sql = @"select A.* from (select ei.EmployeeCode EmpId,ei.EmployeeName EmpName,e.UserName EmpEntity,d.UserName EmpDepertment,ld.UserName Designation,
                                 est.Service ServiceName,esc.Category ServiceCategory,uom.UserName UOM, ISNULL(esd.[From],0)[From] , ISNULL(esd.[To],0)[To],
-								ISNULL(esd.Quantity,0) Qty,cu.Code Currency,esr.Rate ,esd.Amount, 
+								ISNULL(esd.Quantity,0) Qty,cu.Code Currency,ISNULL(esr.Rate,0)Rate ,ISNULL(esd.Amount,0)Amount,  
 								 FinalAmount=case when ISNULL( esd.Amount,0) =0 then (isnull(esd.Quantity,0)* isnull(esr.Rate,0)) 
 								 else ISNULL( esd.Amount,0) end
                                 , case when esd.Chargeable = '1' then 'Yes' else '' end Chargable
@@ -504,7 +504,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 UNION
 select ei.EmployeeCode EmpId, ei.EmployeeName EmpName, e.UserName EmpEntity, d.UserName EmpDepertment, ld.UserName Designation,
                                     est.Service ServiceName, esc.Category ServiceCategory, uom.UserName UOM, ISNULL(esd.[From],0)[From] , ISNULL(esd.[To],0)[To],
-								ISNULL(esd.Quantity,0) Qty, cu.Code Currency, esr.Rate ,esd.Amount, 
+								ISNULL(esd.Quantity,0) Qty, cu.Code Currency, ISNULL(esr.Rate,0)Rate ,ISNULL(esd.Amount,0)Amount, 
 								 FinalAmount =case when ISNULL(esd.Amount,0) = 0 then(isnull(esd.Quantity, 0) * isnull(esr.Rate, 0))
 
                                  else ISNULL(esd.Amount, 0) end
