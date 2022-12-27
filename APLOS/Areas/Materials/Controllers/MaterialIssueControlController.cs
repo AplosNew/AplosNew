@@ -274,44 +274,14 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
                 strkey = column + " like '%" + value + "%'";
 
 
-            string sql = @"select * from (
-                        SELECT  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName,
-                        ISNULL(PO.Qty,0) AS POQuantity,ISNULL(PO.PlannedQty,0) AS SOQuantity,ISNULL(SO.Qty,0) AS SavedQuantity,t1.Color,FORMAT(t1.LSD,'dd-MMM-yyyy') AS LSD,FORMAT(t1.CommitmentDate,'dd-MMM-yyyy') AS CommitmentDate,t1.TargetPerDay
-                                ,T1.ProductionPriority ,so.Material, so.Product,t1.Qty,
-                                so.ProductCategory, so.FirstShipmentDate,
-                                so.LastShipmentDate, so.buyer, so.BuyerRefNo,
-                                so.OwnRefNo, so.StyleNo, so.OwnStyleNo, so.SONo,
-                                so.SODesc,So.MasterOrderId,
-                                so.Customer,so.article,PRODPR.ProductionQtyAtPR 
-                                   ,ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS ToBePlanQty                                  			
-								,SOCount=(Select  Count (S.Id) From TRN.SalesOrder S 
-								INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=s.Id
-								Where pod.ProductionOrderId=po.Id)
-								,ItemCount=(Select  Count (M.Id) From TRN.MasterOrderItem M
-								INNER JOIN TRN.SalesOrder S ON S.MasterOrderItemId=M.Id
-								INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=s.Id
-								Where pod.ProductionOrderId=po.Id)
-                            FROM [TRN].[ProductionOrder] AS PO
-                            JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
-                            LEFT JOIN ProductionOrderSchedulingParametersType1 t1 ON t1.ProductionOrderID=po.Id
-
-                             LEFT OUTER JOIN (
-												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR
-											FROM  trn.ProductionSummary S 
-											GROUP BY  s.ProductionOrderId,s.ProcessId
-							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
-							 left outer join (SELECT pod.ProductionOrderId,
-                                sum(isnull(so.ProductionBookedQty,0)) ProductionBookedQty
-                                 FROM trn.SalesOrder AS so
-                                INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
-
-                                GROUP BY pod.ProductionOrderId
-                            ) AS PRDQ ON PRDQ.ProductionOrderId=T1.ProductionOrderId
+            string sql = @"select * from (SELECT  PO.Id,s.UserName AS ProductionStatus,so.SONo,so.BuyerRefNo,so.SODesc,ISNULL(SO.Qty,0) AS SOQuantity,ISNULL(PO.Qty,0) AS POQuantity
+                        ,FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')ExFactoryDate,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy')CommitmentDate
+                               ,so.Material, so.Product,so.ProductCategory, so.Buyer, so.OwnRefNo, so.StyleNo, so.OwnStyleNo, So.MasterOrderId,so.Customer,so.article,PO.AddedDate
+                            FROM [TRN].[ProductionOrder] AS PO                            
                             LEFT OUTER  JOIN (select
                                                     pod.ProductionOrderId,
                                                     mm.userName AS Material,ma.StandardName AS Article, PM.UserName AS Product,pc.UserName AS ProductCategory,
-                                                     min(so.DeliveryDate) AS FirstShipmentDate,  max(so.DeliveryDate) AS LastShipmentDate,
-                                                    sum(so.Qty) AS Qty,
+                                                     so.DeliveryDate,sum(so.Qty) AS Qty,SO.PlanExFactoryDate,SO.CommitmentDate,
                                                     MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -372,10 +342,7 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
 		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                                      from 
- 
- 
-                                                     trn.SalesOrder SO 
+                                                      from  trn.SalesOrder SO 
                                                       JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                                                     left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                     left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
@@ -383,9 +350,9 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
                                                     left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                                     left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
-                                                    group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
+                                                    group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName ,so.DeliveryDate,SO.PlanExFactoryDate,SO.CommitmentDate) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE PO.entityid='" + entityid + @"' AND S.UserName<>'Closed' AND PO.Id NOT IN(Select POId from dbo.MaterialIssueControlMaster)) AS TEMP WHERE " + strkey + " ORDER BY ProductionPriority";
+                            WHERE PO.entityid='" + entityid + @"' AND S.UserName<>'Closed' AND PO.Id NOT IN(Select POId from dbo.MaterialIssueControlMaster)) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
