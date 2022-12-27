@@ -112,9 +112,16 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         });
     }
     $scope.GetSupervisorCboList();
+
     $scope.CostCenterLoad = function () {
         cboService.getCostCenterCbo(function (result) {
             $scope.costCenterList = result;
+            for (var i = 0; i < $scope.costCenterList.length; i++) {
+                if ($scope.costCenterList[i].Text == 'Mixing') {
+                    $scope.ModelNew.CostCenterId = $scope.costCenterList[i].Value;
+                    break;
+                }
+            }
         });
     }
     $scope.CostCenterLoad();
