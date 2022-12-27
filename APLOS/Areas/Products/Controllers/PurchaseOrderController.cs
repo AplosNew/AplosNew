@@ -976,6 +976,12 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_purchaseOrderService.GetSupervisorCbo(), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
+        public JsonResult GetIssueSlipCheckByCbo()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_purchaseOrderService.GetIssueSlipCheckByCbo(), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
         public JsonResult GetSupervisorCboApproved()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
