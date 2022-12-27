@@ -1399,6 +1399,29 @@
 
             </div>
 
+            <div class="col-md-6 pdl3 pdr3">
+                <div class="col-md-8">
+                    <div class="form-group" id="div_entryNo">
+                        <label class="col-sm-6 control-label">Gate Entry No<sup>*</sup></label>
+                        <div class="col-sm-6 show-message">
+                            <div class="input-group">
+                                <input type="text" name="Gate Entry No" ng-model="productNew.GateEntryNo" class="form-control" readonly required>
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-disabled="productNew.PartyId==null" ng-click="getalldataGateEntry(productNew.PartyId)" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group" id="div_entryDate">
+                        <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
+                        <div class="col-sm-9 show-message pdl3">
+                            <input type="text" name="Entry Date" ng-model="productNew.EntryDate" ng-disabled="true" datepicker="modelValidation('div_entryDate', 'productNew', 'EntryDate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="5">
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
         </fieldset>
@@ -2302,6 +2325,39 @@
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="ConPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="ConfirmSave();"></confirm-archive-generic>
 
+<div class="modal fade site-modal in" id="POPopUpGateEntry" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Gate Entry List List<button type="button" class="close" ng-click="POPopUpCloseGateEntry();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-lg-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridGE" ej-grid e-datasource="GriddataGateEntry"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="true" e-recorddoubleclick="recorddoubleclickGateEntry" e-filtersettings-filterType="excel" e-enabletouch="false">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="GateEntryNo" e-width="100"></div>
+                                <div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100"></div>
+                                <div e-column e-field="UserName" e-headertext="PartyName" e-width="100"></div>
+                                <div e-column e-field="ModeofTransport" e-headertext="ModeofTransport" e-width="100"></div>
+                                <div e-column e-field="PersonName" e-headertext="ConcernPerson" e-width="100"></div>
+                                <div e-column e-field="MobileNo" e-headertext="ConMobileNo" e-width="100"></div>
+                                <div e-column e-field="AddedBy" e-headertext="AddedBy" e-width="100"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="POPopUpCloseGateEntry();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 

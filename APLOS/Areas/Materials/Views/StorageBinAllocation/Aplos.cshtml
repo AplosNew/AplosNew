@@ -296,8 +296,11 @@
                 <div e-column e-field="MaterialGroup" e-headertext="Material Group" e-width="80" textAlign='Left'></div>
                 <div e-column e-field="MaterialName" e-headertext="Material " e-width="80" textAlign='Left'></div>
                 <div e-column e-field="AccessType" e-headertext="AccessType " e-width="80" textAlign='Left'></div>
+                <div e-column e-headertext="Actions" e-width="30">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.GetStorageBinAllocation(data);" style="margin: -6px;"></i></button>
+                </div>
                 @*<div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
-                    <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>*@
+                <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>*@
             </div>
         </div>
     </div>
