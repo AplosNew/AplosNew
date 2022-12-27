@@ -9108,7 +9108,6 @@ UNION ALL
 							and V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
                             AND v.SourceType IN ('DebitNote','CreditNote','InventoryReturnPayable','VendorPayment') ";
             return _sqlRepository.GetDataTable(strSql);
-
         }
 
         private DataTable GetGSTPayableSalesSQL(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId)
