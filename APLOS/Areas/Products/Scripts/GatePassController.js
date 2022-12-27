@@ -798,7 +798,10 @@ function GatePassController(accountService, addressService, $location, $window, 
 			return false;
 		}
 	
-
+		if (baseService.isUndefinedOrNull($scope.productNew.ToType)) {
+			ShowResult("Select a type", 'failure');
+			return false;
+		}
 
 		
 		//debugger;
@@ -1187,10 +1190,10 @@ function GatePassController(accountService, addressService, $location, $window, 
 			ShowResult('Enter the Qty', 'failure', 'detailPopUp');
 			return false;
 		}
-		//if (baseService.isUndefinedOrNull($scope.detailModel.TransactionUoMId) || isNaN($scope.detailModel.TransactionUoMId)) {
-		//    ShowResult('Please select UOM', 'failure', 'detailPopUp');
-		//    return false;
-		//}
+		if (baseService.isUndefinedOrNull($scope.detailModel.Rate) || isNaN($scope.detailModel.Rate)) {
+		    ShowResult('Please select Rate', 'failure', 'detailPopUp');
+		    return false;
+		}
 
 
 		// $scope.detailSaveUrlLink = "";
@@ -4945,14 +4948,15 @@ function GatePassController(accountService, addressService, $location, $window, 
 	};
 
 	$scope.GriddataGateEntry = [];
-	$scope.getalldataGateEntry = function () {
+	$scope.getalldataGateEntry = function (partyId) {
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			url: 'Products/GoodsReceiveNote/GetListOfPOGateEntry?partyCode=' + $scope.productNew.PartyId,
+			url: 'Products/GoodsReceiveNote/GetListOfPOGateEntry?partyCode=' + partyId,
 		}).then(function successCallback(response) {
 			$scope.GriddataGateEntry = response.data;
 		});
+		angular.element(document.querySelector('#POPopUpGateEntry')).modal('show');
 	};
 
 	$scope.POPopUpCloseGateEntry = function () {
