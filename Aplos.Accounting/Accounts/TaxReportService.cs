@@ -9030,14 +9030,7 @@ UNION ALL
         private DataTable GetDebitNoteCreditNoteTaxSQL(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId)
         {
             string strSql = "";
-            strSql = @"SELECT * FROM(
-SELECT	x.SourceType,x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyName,x.PartyPlantName,x.GSTIN
-		,x.TaxCategoryType,x.TaxCode
-		,SUM(x.TaxableAmount) TaxableAmount,SUM(x.DrAmount) DrAmount,SUM(x.CrAmount) CrAmount
-		,x.TCSequence,x.EntryDate,x.GRNNo,x.Percentage,x.PartyType,x.ParkStatus,SUM(x.TotalAmount)TotalAmount,SUM(x.WrittenOffAmount)WrittenOffAmount,(SUM(x.TotalAmount)-SUM(x.WrittenOffAmount))Balance
-		FROM 
-        (
-            SELECT  V.SourceType ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
+            strSql = @"SELECT  V.SourceType ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
 							,P.UserName PartyName,PP.GSTIN,NULL GRNNo,pp.UserName PartyPlantName
                             ,TaxableAmount=case 
 							when v.SourceType='DebitNote' then (select sum(CrAmount) from trn.VoucherDetail where VoucherId=V.Id and CrAmount>0 and  InvoiceTaxDetailId is null)
@@ -9049,36 +9042,64 @@ SELECT	x.SourceType,x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate
 							when v.SourceType='CreditNote' then (select sum(DrAmount) from trn.VoucherDetail where VoucherId=V.Id and DrAmount>0)
 							when v.SourceType='InventoryReturnPayable' OR v.SourceType='VendorPayment' then (select sum(CrAmount) from trn.VoucherDetail where VoucherId=V.Id and CrAmount>0)
                             else 0 end
-                            ,DrAmount=ISNULL(IT.TaxAmount,0) 
-							,0 CrAmount
+                            ,IsNULL(IGST.TaxAmount,0) IGSTAmount,IsNULL(CGST.TaxAmount,0) CGSTAmount,IsNULL(SGST.TaxAmount,0) SGSTAmount
+							
 	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
-                            ,TC.TaxCategoryType,ISNULL(TC.Code,'IGST') TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM
-                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,0 IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
-                            ,TCD.ValueOfFixed [Percentage],NULL HSNCodeId,NULL Material , Format (V.AddedDate,'dd-MMM-yyyy')EntryDate,ADT.PartyType
+							,IsNULL(IGST.IsRCM,0) IsRCM
+                            ,0 IsTaxApplicable,IGST.[Type]
+                            ,[Percentage]=CASE WHEN IGST.ValueOfFixed<>0 THEN IGST.ValueOfFixed WHEN SGST.ValueOfFixed<>0 THEN SGST.ValueOfFixed ELSE CGST.ValueOfFixed END
+							, Format (V.AddedDate,'dd-MMM-yyyy')EntryDate,ADT.PartyType
 							,ParkStatus = case when V.IsPark=1 then 'Parked' else 'Posted' end,ADT.WrittenOffAmount
                             FROM   TRN.AdjustmentNote ADT
-							LEFT JOIN TRN.InvoiceTax IT ON ADT.VoucherId=IT.VoucherId
-                            LEFT JOIN TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId
-                            LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
-                            LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
 							LEFT JOIN TRN.Voucher V  ON ADT.VoucherId=V.Id
                             LEFT JOIN HKP.Party P ON P.Id=ADT.PartyId
 							LEFT JOIN hkp.PartyPlant PP on PP.Id=ADT.PartyPlantId
-                            LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+							LEFT JOIN(select IT.VoucherId,TCD.ValueOfFixed [Percentage],TAXC.[Type],TAXC.ValueOfFixed,TC.TaxCategoryType
+							,TC.Code,TC.[Sequence],TC.UserName,IsNULL(TAXC.IsRCM,0) IsRCM,SUM(ISNULL(IT.TaxAmount,0)) TaxAmount
+							from TRN.InvoiceTax IT
+							LEFT JOIN TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId
+							LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
                             LEFT JOIN MST.TaxCodeYear TY ON TY.TaxCodeId=IT.TaxCodeId AND TY.TaxYearId=IT.TaxYearId AND TY.Active=1
                             LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeYearId=TY.Id AND TCD.TaxCodeId=TY.TaxCodeId
                             LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
                             LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
                             LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") ) TAXC ON TAXC.Id=IT.TaxCodeId
-                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
-                            LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+							where TC.Code='IGST'
+							GROUP BY IT.VoucherId,TCD.ValueOfFixed,TAXC.[Type],TAXC.ValueOfFixed,TC.TaxCategoryType
+							,TC.Code,TC.[Sequence],TC.UserName,TAXC.IsRCM
+							)IGST ON ADT.VoucherId=IGST.VoucherId
+                            LEFT JOIN(select IT.VoucherId,TCD.ValueOfFixed [Percentage],TAXC.[Type],TAXC.ValueOfFixed,TC.TaxCategoryType
+							,TC.Code,TC.[Sequence],TC.UserName,IsNULL(TAXC.IsRCM,0) IsRCM,SUM(ISNULL(IT.TaxAmount,0)) TaxAmount
+							from TRN.InvoiceTax IT
+							LEFT JOIN TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId
+							LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            LEFT JOIN MST.TaxCodeYear TY ON TY.TaxCodeId=IT.TaxCodeId AND TY.TaxYearId=IT.TaxYearId AND TY.Active=1
+                            LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeYearId=TY.Id AND TCD.TaxCodeId=TY.TaxCodeId
+                            LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
+                            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") ) TAXC ON TAXC.Id=IT.TaxCodeId
+							where TC.Code='CGST'
+							GROUP BY IT.VoucherId,TCD.ValueOfFixed,TAXC.[Type],TAXC.ValueOfFixed,TC.TaxCategoryType
+							,TC.Code,TC.[Sequence],TC.UserName,TAXC.IsRCM
+							)CGST ON ADT.VoucherId=CGST.VoucherId
+							LEFT JOIN(select IT.VoucherId,TCD.ValueOfFixed [Percentage],TAXC.[Type],TAXC.ValueOfFixed,TC.TaxCategoryType
+							,TC.Code,TC.[Sequence],TC.UserName,IsNULL(TAXC.IsRCM,0) IsRCM,SUM(ISNULL(IT.TaxAmount,0)) TaxAmount
+							from TRN.InvoiceTax IT
+							LEFT JOIN TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId
+							LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            LEFT JOIN MST.TaxCodeYear TY ON TY.TaxCodeId=IT.TaxCodeId AND TY.TaxYearId=IT.TaxYearId AND TY.Active=1
+                            LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeYearId=TY.Id AND TCD.TaxCodeId=TY.TaxCodeId
+                            LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
+                            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") ) TAXC ON TAXC.Id=IT.TaxCodeId
+							where TC.Code='SGST'
+							GROUP BY IT.VoucherId,TCD.ValueOfFixed,TAXC.[Type],TAXC.ValueOfFixed,TC.TaxCategoryType
+							,TC.Code,TC.[Sequence],TC.UserName,TAXC.IsRCM
+							)SGST ON ADT.VoucherId=SGST.VoucherId
+							
                             where V.PlantId='" + plantId + @"'
 							and V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType IN ('DebitNote','CreditNote','InventoryReturnPayable','VendorPayment')
-                            ) x
-							group by x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyName
-							,x.TCSequence,x.PartyPlantName,x.GSTIN,x.SourceType
-							,x.TaxCategoryType,x.EntryDate,x.TaxCode,x.GRNNo,x.Percentage,x.PartyType,x.ParkStatus)T --WHERE T.Balance>0 ";
+                            AND v.SourceType IN ('DebitNote','CreditNote','InventoryReturnPayable','VendorPayment') ";
             return _sqlRepository.GetDataTable(strSql);
 
         }

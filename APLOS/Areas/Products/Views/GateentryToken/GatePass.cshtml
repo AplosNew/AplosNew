@@ -1407,7 +1407,7 @@
                             <div class="input-group">
                                 <input type="text" name="Gate Entry No" ng-model="productNew.GateEntryNo" class="form-control" readonly required>
                                 <span class="input-group-btn">
-                                    <button name="submit" ng-disabled="inventoryMaterialList.length>0" ng-click="POPopUpGateEntry()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button name="submit" ng-disabled="productNew.PartyId==null" ng-click="getalldataGateEntry(productNew.PartyId)" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                 </span>
                             </div>
                         </div>

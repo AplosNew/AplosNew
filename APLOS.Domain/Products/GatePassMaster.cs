@@ -60,6 +60,7 @@ namespace Library.Model.Products
         public string ConsignmentNo { get; set; } 
         public string DriverName { get; set; }
         public string NoofPackages { get; set; }  
+        public string GateEntryNo { get; set; }
         #endregion Scalar Properties
 
 
