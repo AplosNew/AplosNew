@@ -75,6 +75,24 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     }
     $scope.Getstorage();
 
+    $scope.checkedByList = [];
+    $scope.GetSupervisorCboList = function () {
+        //debugger;
+        $http({
+            method: 'GET',
+            url: 'Products/PurchaseOrder/GetSupervisorCbo'
+        }).then(function successCallback(response) {
+            $scope.checkedByList = response.data;
+        });
+    }
+    $scope.GetSupervisorCboList();
+    $scope.CostCenterLoad = function () {
+        cboService.getCostCenterCbo(function (result) {
+            $scope.costCenterList = result;
+        });
+    }
+    $scope.CostCenterLoad();
+
     $scope.PRSearchColumn = 'Id';
     $scope.PRSearchValue = null;
     $scope.modelList = [];
@@ -92,7 +110,23 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             });
         }
     };
-    $scope.getData();
+
+    $scope.savedList = [];
+    $scope.GetSavedData = function () {
+        $scope.savedList = [];
+        $http.get('Materials/MaterialIssueControl/GetApprovedData')
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.savedList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    };
+    $scope.GetSavedData();
 
     $scope.SOItemList = [];
     $scope.Get = function (obj) {
@@ -113,6 +147,51 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+    };
+
+    $scope.GetSaved = function (obj) {
+        $scope.ModelNew = Object.assign({}, obj.data);
+        $scope.ModelNew.IssueDate = $filter('dateFiltering')($scope.ModelNew.IssueDate, 'dd-M-yyyy');
+        $scope.Action = 'Update';
+        $scope.GetSavedSODetailData();
+        $scope.GetSavedDetailData();
+       // $scope.IssueSlipGriddata('ForChecked', 'InventorySlip', $scope.ModelNew.POId);
+        /*$scope.getdataInventoryIssue($scope.ModelNew.POId);*/
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.SOItemList = [];
+    $scope.GetSavedSODetailData = function () {
+        $scope.SOItemList = [];
+        $http.get('Materials/MaterialIssueControl/GetSavedSODetailData?masterId=' + $scope.ModelNew.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.SOItemList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    };
+
+    $scope.QBOQCostingList = [];
+    $scope.GetSavedDetailData = function () {
+        $scope.QBOQCostingList = [];
+        $http.get('Materials/MaterialIssueControl/GetSavedDetailData?masterId=' + $scope.ModelNew.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.QBOQCostingList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
     };
 
     $scope.getArticle = function (data) {
@@ -228,6 +307,14 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     };
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
+    };
+
+    $scope.tab2 = 1;
+    $scope.setTab2 = function (newTab) {
+        $scope.tab2 = newTab;
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab2 === tabNum;
     };
 
     function removeDuplicates(myArr, prop) {

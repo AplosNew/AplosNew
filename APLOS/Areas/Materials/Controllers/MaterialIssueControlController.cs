@@ -274,7 +274,7 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
                 strkey = column + " like '%" + value + "%'";
 
 
-            string sql = @"select * from (SELECT  PO.Id,s.UserName AS ProductionStatus,so.SONo,so.BuyerRefNo,so.SODesc,ISNULL(SO.Qty,0) AS SOQuantity,ISNULL(PO.Qty,0) AS POQuantity
+            string sql = @"select * from (SELECT  PO.Id,s.UserName AS ProductionStatus,so.SONo,so.BuyerRefNo,so.SODesc,SO.SOQty,ISNULL(PO.Qty,0) AS POQuantity
                         ,FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')ExFactoryDate,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy')CommitmentDate
                                ,so.Material, so.Product,so.ProductCategory, so.Buyer, so.OwnRefNo, so.StyleNo, so.OwnStyleNo, So.MasterOrderId,so.Customer,so.article,PO.AddedDate
                             FROM [TRN].[ProductionOrder] AS PO                            
@@ -342,7 +342,15 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
 		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                                      from  trn.SalesOrder SO 
+,SOQty=(select SUM((isnull(XSO.qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) from 
+trn.SalesOrder XSO 
+join TRN.MasterOrderItem moi on moi.id=xso.MasterOrderItemId
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+where pod.ProductionOrderID=Xpod.ProductionOrderId)
+
+                                                      from 
+ 
+                                                     trn.SalesOrder SO 
                                                       JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                                                     left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                     left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
