@@ -322,4 +322,8 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'Materials/DetentionLogReport',
             controller: 'DetentionLogReportController'
         })
+        .when('/scan-data', {
+            templateUrl: 'Materials/ScanData/Aplos',
+            controller: 'ScanDataController'
+        })
 };
