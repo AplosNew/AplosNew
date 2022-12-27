@@ -1109,8 +1109,8 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
             try
             {
 
-                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId, ta.AddedDate, 
-ta.DueDate,ta.CommitmentDate from dbo.TaskManagerMaster As tm
+                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate,
+format(ta.DueDate,'dd-MM-yy') as DueDate , format(ta.AddedDate, 'dd-MM-yy') as AddedDate from dbo.TaskManagerMaster As tm
 left Join dbo.TaskAudit As ta on ta.TaskManagerMasterId = tm.Id 
 where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = '" + Date + "'";
 
@@ -1145,6 +1145,90 @@ where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and t
             }
         }
 
+
+        public void GetTaskChats(out List<ChatTask> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<ChatTask>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+                strSQL = @"select tc.Id, tc.TaskManagerMasterId,CreatedById, CommentText , ei.EmployeeName , ei.EmpPicPath from dbo.TaskComments As tc  
+left join dbo.EmployeeInformation As ei on tc.CreatedById = ei.SystemId where tc.TaskManagerMasterId = '"+Id+"'";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new ChatTask
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        TaskManagerMasterId = dsRef.Tables[0].Rows[i]["TaskManagerMasterId"].ToString(),
+                        CreatedById = dsRef.Tables[0].Rows[i]["CreatedById"].ToString(),
+                        CommentText = dsRef.Tables[0].Rows[i]["CommentText"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        EmpPicPath = dsRef.Tables[0].Rows[i]["EmpPicPath"].ToString(),
+                       
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        public void GetTaskAssignedDetail(out List<AssignTaskDatals> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<AssignTaskDatals>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+                strSQL = @"select Id,TaskManagerMasterId,AuthorizationType,ResponsiblePersonId , ei.EmployeeName, ei.EmpPicPath from dbo.TaskAudit as ta
+left join dbo.EmployeeInformation As ei on ta.ResponsiblePersonId = ei.SystemId  where TaskManagerMasterId =  '" + Id + "'";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new AssignTaskDatals
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        TaskManagerMasterId = dsRef.Tables[0].Rows[i]["TaskManagerMasterId"].ToString(),
+                        AuthorizationType = dsRef.Tables[0].Rows[i]["AuthorizationType"].ToString(),
+                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        EmpPicPath = dsRef.Tables[0].Rows[i]["EmpPicPath"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetOverDueAssignedTask(out List<Tasks> DataList, string UserId, string Date)
         {
             clsConnectionManager objCon = null;
@@ -1155,8 +1239,8 @@ where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and t
             try
             {
 
-                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId, ta.AddedDate, 
-ta.DueDate,ta.CommitmentDate from dbo.TaskManagerMaster As tm
+                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId, format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate,
+format(ta.DueDate,'dd-MM-yy') as DueDate , format(ta.AddedDate, 'dd-MM-yy') as AddedDate from dbo.TaskManagerMaster As tm
 left Join dbo.TaskAudit As ta on ta.TaskManagerMasterId = tm.Id 
 where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate < '" + Date + "'";
 
@@ -1201,8 +1285,8 @@ where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and t
             try
             {
 
-                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId, ta.AddedDate, 
-ta.DueDate,ta.CommitmentDate from dbo.TaskManagerMaster As tm
+                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId, format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate,
+format(ta.DueDate,'dd-MM-yy') as DueDate , format(ta.AddedDate, 'dd-MM-yy') as AddedDate from dbo.TaskManagerMaster As tm
 left Join dbo.TaskAudit As ta on ta.TaskManagerMasterId = tm.Id 
 where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '" + Date + "')";
 
@@ -1247,8 +1331,8 @@ where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and t
             try
             {
 
-                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId, ta.AddedDate, 
-ta.DueDate,ta.CommitmentDate from dbo.TaskManagerMaster As tm
+                strSQL = @"select tm.Id, TaskDescription , CurrentStatus,  TaskDetailDescription , ta.AuthorizationType, ResponsiblePersonId, format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate,
+format(ta.DueDate,'dd-MM-yy') as DueDate , format(ta.AddedDate, 'dd-MM-yy') as AddedDate from dbo.TaskManagerMaster As tm
 left Join dbo.TaskAudit As ta on ta.TaskManagerMasterId = tm.Id 
 where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate =  DATEADD(day, 7, '" + Date + "')";
 
@@ -2313,6 +2397,27 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
         public string Counted { get; set; }
     }
 
+    public class ChatTask
+    {
+        public string Id { get; set; }
+        public string TaskManagerMasterId { get; set; }
+        public string CreatedById { get; set; }
+        public string CommentText { get; set; }
+        public string EmployeeName { get; set; }
+        public string EmpPicPath { get; set; }
+       
+    }
+
+    public class AssignTaskDatals
+    {
+        public string Id { get; set; }
+        public string TaskManagerMasterId { get; set; }
+        public string AuthorizationType { get; set; }
+        public string ResponsiblePersonId { get; set; }
+        public string EmployeeName { get; set; }
+        public string EmpPicPath { get; set; }
+
+    }
     public class Tasks
     {
         public string Id { get; set; }
