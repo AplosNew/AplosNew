@@ -80,7 +80,8 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-           
+            $scope.getStorageLocation();
+            $scope.getStorageSubLocation();
         }
     };
 
@@ -344,13 +345,14 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
                     var ob = {};
                     ob.Id = null;
                     ob.ArticleName = a.ArticleName;
+                    ob.MaterialMasterArticleId = a.MaterialMasterArticleId;
                     ob.MaterialGroupMasterId = a.MaterialGroupMasterId;
                     ob.MaterialMaster = a.MaterialMaster;
                     ob.MaterialMasterId = a.MaterialMasterId;
                     ob.MaterialType = a.MaterialType;
                     ob.MaterialTypeId = a.MaterialTypeId;
                     ob.MaterialgroupName = a.MaterialgroupName;
-
+                    ob.EstimatedCapacity = a.EstimatedCapacity;
                     $scope.userMaterialList.push(ob);
                     ob = {};
                 }
