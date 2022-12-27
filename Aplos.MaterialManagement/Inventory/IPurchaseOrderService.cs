@@ -48,7 +48,7 @@ namespace Library.MaterialManagement.Inventory
 		IEnumerable<object> getUNApprovalList(string plantId, string POTypeApprovalStatus);
 
 
-		
+		IEnumerable<object> GetIssueSlipCheckByCbo();
 		IEnumerable<object> GetSupervisorCbo();
 		IEnumerable<object> GetSupervisorCboApproved();
 
