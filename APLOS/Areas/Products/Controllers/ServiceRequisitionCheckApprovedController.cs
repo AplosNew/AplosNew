@@ -82,7 +82,7 @@ namespace Aplos.Areas.Products.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value,E.EmployeeCode +'-'+E.EmployeeName from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where A.ActionStatus='RequisitionCheckedBy'";// A.PlantId='" + identity.PlantId + "' AND
+                          where A.ActionStatus='RequisitionCheckedBy' AND E.EmployeeStatus='Active'";// A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
 
             }
@@ -101,7 +101,7 @@ namespace Aplos.Areas.Products.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.systemId As Value, E.SystemId+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where A.ActionStatus='ServiceRequisitionApproveBy'";
+                          where A.ActionStatus='ServiceRequisitionApproveBy' AND E.EmployeeStatus='Active'";
                 //--A.PlantId = '" + identity.PlantId + "' " +
                 return _sqlRepository.GetDataCollection(sql);
 
@@ -1173,7 +1173,28 @@ namespace Aplos.Areas.Products.Controllers
             try
             {
 
-                var _sql = @"SELECT    top 1 MM.id MaterialId		                            ,Isnull(MM.UserName,'') Material		                            ,ART.Id ArticleId		                            ,isnull(ART.StandardName,'') Article		                            ,FCV.Id FCVId		                            ,ISNULL(FCV.UserName, '') AS Sku1		                            ,SCV.Id SCVId		                            ,ISNULL(SCV.UserName, '') AS Sku2		                            ,TCV.Id TCVId		                            ,ISNULL(TCV.UserName, '') AS Sku3			                            ,IRD.Description			                            ,IR.Id		                            ,REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate 		                            ,IRD.AddedDate		                            ,p.StandardName		                            ,CU.Code		                            ,IRD.TransactionQty		                            ,IRD.TransactionRate		                            ,IRD.TransactionAmount		                            --,MAX(IR.GRNDate) GRNDate                            FROM   TRN.PurchaseOrderDetail IRD                            LEFT JOIN trn.PurchaseOrder IR ON IR.Id=IRD.InventoryReceiveId
+                var _sql = @"SELECT    top 1 MM.id MaterialId
+		                            ,Isnull(MM.UserName,'') Material
+		                            ,ART.Id ArticleId
+		                            ,isnull(ART.StandardName,'') Article
+		                            ,FCV.Id FCVId
+		                            ,ISNULL(FCV.UserName, '') AS Sku1
+		                            ,SCV.Id SCVId
+		                            ,ISNULL(SCV.UserName, '') AS Sku2
+		                            ,TCV.Id TCVId
+		                            ,ISNULL(TCV.UserName, '') AS Sku3	
+		                            ,IRD.Description	
+		                            ,IR.Id
+		                            ,REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate 
+		                            ,IRD.AddedDate
+		                            ,p.StandardName
+		                            ,CU.Code
+		                            ,IRD.TransactionQty
+		                            ,IRD.TransactionRate
+		                            ,IRD.TransactionAmount
+		                            --,MAX(IR.GRNDate) GRNDate
+                            FROM   TRN.PurchaseOrderDetail IRD
+                            LEFT JOIN trn.PurchaseOrder IR ON IR.Id=IRD.InventoryReceiveId
                            -- LEFT JOIN TRN.POMaterial AS IM ON IM.Id=IRD.InventoryMaterialId
                             LEFT JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId = MM.Id 
 							--AND IM.MaterialMasterId=IRD.InventoryMaterialId AND IM.ArticleId=IRD.ArticleId 
@@ -1189,7 +1210,11 @@ namespace Aplos.Areas.Products.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = SCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
                             Left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                            LEFT JOIN HKP.Party AS P ON P.id=IR.PartyId                            WHERE  IRD.InventoryMaterialId is not null AND Art.Id is not null --ANd FCV.Id is not null AND SCV.Id is not null AND TCV.Id is not null                            AND isnull(IRD.InventoryMaterialId,'')='" + MMId + @"' AND isnull(IRD.ArticleId,'')='" + Id + @"' ANd isnull(IRD.FirstCharacteristicsValueId,'')='" + Sku1 + @"'AND isnull(IRD.SecondCharacteristicsValueId,'')='" + Sku2 + @"' AND isnull(IRD.ThirdCharacteristicsValueId,'')='" + Sku3 + @"'                             AND IR.AuthorizedByStatus='Approval'                            Order BY AddedDate DESC";
+                            LEFT JOIN HKP.Party AS P ON P.id=IR.PartyId
+                            WHERE  IRD.InventoryMaterialId is not null AND Art.Id is not null --ANd FCV.Id is not null AND SCV.Id is not null AND TCV.Id is not null
+                            AND isnull(IRD.InventoryMaterialId,'')='" + MMId + @"' AND isnull(IRD.ArticleId,'')='" + Id + @"' ANd isnull(IRD.FirstCharacteristicsValueId,'')='" + Sku1 + @"'AND isnull(IRD.SecondCharacteristicsValueId,'')='" + Sku2 + @"' AND isnull(IRD.ThirdCharacteristicsValueId,'')='" + Sku3 + @"' 
+                            AND IR.AuthorizedByStatus='Approval'
+                            Order BY AddedDate DESC";
 
             return _sqlRepository.GetDataCollection(_sql);
             }

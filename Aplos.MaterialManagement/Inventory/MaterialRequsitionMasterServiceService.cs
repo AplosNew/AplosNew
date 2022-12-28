@@ -4450,7 +4450,7 @@ ORDER BY IR.ID DESC";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='RequisitionCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='RequisitionCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
 
             }

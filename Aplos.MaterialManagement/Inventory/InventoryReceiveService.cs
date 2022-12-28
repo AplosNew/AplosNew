@@ -1778,7 +1778,9 @@ namespace Library.MaterialManagement.Inventory
                                 FROM TRN.GateEntry GE
                                 left Join hkp.Party p on p.Id=GE.PartyId
                                 Where GE.CompanyGroupId='" + CompanyGroupId + "' AND GE.CompanyId='" + CompanyId + "' AND GE.PlantId='" + PlantId + "' AND GE.FlagStatus='Ok' and p.Id='" + partyCode + "' " +
-                                " and GE.GateEntryType='Vendor'and GE.Id  not in(select GateEntryNo from TRN.InventoryReceive where GateEntryNo is not null) and GE.Id  not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null) Order By GE.EntryDate DESC";
+                                " and GE.GateEntryType='Vendor'and GE.Id  not in(select GateEntryNo from TRN.InventoryReceive where GateEntryNo is not null) and GE.Id  not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null) " +
+                                "and GE.Id  not in(select GateEntryNo from [TRN].[GatePassMaster] where GateEntryNo is not null)" +
+                                "Order By GE.EntryDate DESC";
                 //AND GE.Id not in(select GateEntryNo from trn.InventoryReceive)
                 return _sqlRepository.GetDataCollection(Sql);
             }
@@ -13986,7 +13988,7 @@ namespace Library.MaterialManagement.Inventory
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='GoodsReceiveNoteCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='GoodsReceiveNoteCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
 
             }
@@ -14006,7 +14008,7 @@ namespace Library.MaterialManagement.Inventory
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value, E.EmployeeCode+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where A.ActionStatus='GoodsReceiveNoteApproveBy'";//A.PlantId='" + identity.PlantId + "' AND 
+                          where A.ActionStatus='GoodsReceiveNoteApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND 
                 return _sqlRepository.GetDataCollection(sql);
 
             }

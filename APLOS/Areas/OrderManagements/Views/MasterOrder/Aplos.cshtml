@@ -440,19 +440,20 @@
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
+                                        <th>Code</th>
                                         <th class="col-sm-1">Action</th>
                                         <th>Copy SO</th>
                                         <th>Total Quantity</th>
                                         <th>SO Total Quantity</th>
                                         <th>UoM</th>
+                                        <th>Material</th>
+                                        <th>Article</th>
                                         <th>Order Wastage Percentage</th>
                                         <th>Extra Order Percentage</th>
                                         <th>Item Costing</th>
-                                        <th>Code</th>
                                         <th>Inquiry</th>
                                         <th>Sample No</th>
-                                        <th>Material</th>
-                                        <th>Article</th>
+
                                         <th>Testing Std</th>
                                         <th>Production Grouping</th>
                                         <th>Buyer Ref.No</th>
@@ -475,6 +476,7 @@
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="x in itemList">
+                                        <td>{{x.Id}}</td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 @*<li><button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
@@ -525,18 +527,6 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">
-                                        </td>
-                                        <td>
-                                            <input type="text" n-decimals="2" ng-model=" x.ExtraOrderPercentage" ng-disabled="!fileNew.IsExtraOrderPercentage" class="form-control text-right">
-                                        </td>
-                                        <td>
-                                            <button ng-click="GetMOSORatePopup($index,x);" style="background: yellow;" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
-                                        </td>
-                                        <td>{{x.Id}}</td>
-                                        <td>{{x.Inquiry}}</td>
-                                        <td>{{x.SampleNo}}</td>
-                                        <td>
                                             <div class="input-group">
                                                 <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
                                                 <span class="input-group-btn">
@@ -556,6 +546,19 @@
                                                 </span>
                                             </div>
                                         </td>
+                                        <td>
+                                            <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">
+                                        </td>
+                                        <td>
+                                            <input type="text" n-decimals="2" ng-model=" x.ExtraOrderPercentage" ng-disabled="!fileNew.IsExtraOrderPercentage" class="form-control text-right">
+                                        </td>
+                                        <td>
+                                            <button ng-click="GetMOSORatePopup($index,x);" style="background: yellow;" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
+                                        </td>
+
+                                        <td>{{x.Inquiry}}</td>
+                                        <td>{{x.SampleNo}}</td>
+
                                         <td>
                                             <div class="select-style">
                                                 <select class="form-control" ng-model="x.TestingStandardId"

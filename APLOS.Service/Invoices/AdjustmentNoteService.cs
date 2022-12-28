@@ -1238,11 +1238,11 @@ namespace Library.Service.Invoices
                                 totalAPBaseCurrencyDrAmount += voucherDetailCurrencybase.DrAmount;
                                 _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencybase);
                             }
-                            if (merge && !taxCode.IsCreditable)
-                            {
-                                voucherDetaiSales.DrAmount += invoiceTax.TaxAmount;
-                                totalAmountDr += invoiceTax.TaxAmount;
-                            }
+                            //if (merge && !taxCode.IsCreditable)
+                            //{
+                            //    voucherDetaiSales.DrAmount += invoiceTax.TaxAmount;
+                            //    totalAmountDr += invoiceTax.TaxAmount;
+                            //}
                         }
                     }
 
@@ -1262,7 +1262,7 @@ namespace Library.Service.Invoices
 
                 if (voucherVM.PartyType == "Customer")
                 {
-                    adjustmentNoteDetail.Amount = adjustmentNote.Amount + totalwithholdDrAmount;
+                    adjustmentNoteDetail.Amount = adjustmentNote.Amount + totalwithholdDrAmount + totalBaseCurrencyCrAmount;
 
                 }
                 else
