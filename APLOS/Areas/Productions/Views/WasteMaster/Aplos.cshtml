@@ -5,7 +5,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100%" required />
+                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" tabindex="1" e-value="ModelNew.Sequence" e-width="100%" required />
             </div>
         </div>
 
@@ -14,7 +14,7 @@
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     <select class="form-control" ng-model="ModelNew.ProcessId" name="Process"
-                            ng-options="item.Value as item.Text for item in ProcessList">
+                            ng-options="item.Value as item.Text for item in ProcessList" tabindex="3">
                         <option value="">--Select--</option>
                     </select>
                 </div>
@@ -37,14 +37,14 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Item Name" ng-model="ModelNew.ItemName" class="form-control" required maxlength="100">
+                <input type="text" name="Item Name" ng-model="ModelNew.ItemName" class="form-control" required maxlength="100" tabindex="5">
             </div>
         </div>
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Category<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Category" ng-model="ModelNew.Category" class="form-control" maxlength="30" required tabindex="3">
+                <input type="text" name="Category" ng-model="ModelNew.Category" class="form-control" maxlength="30" required tabindex="7" >
             </div>
         </div>
         <div class="form-group">
@@ -52,7 +52,7 @@
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     <select class="form-control" ng-model="ModelNew.WasteTypeId" name="Waste Type"
-                            ng-options="item.Value as item.Text for item in WasteTypeList">
+                            ng-options="item.Value as item.Text for item in WasteTypeList" tabindex="9">
                         <option value="">--Select--</option>
                     </select>
                 </div>
@@ -61,7 +61,7 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="50" tabindex="6"></textarea>
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="50" tabindex="11"></textarea>
             </div>
         </div>
     </div>
@@ -69,7 +69,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Code<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="30" maxlength="30">
+                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="30">
             </div>
         </div>
         <div class="form-group">
@@ -79,7 +79,7 @@
 
             </div>*@
             <div class="col-sm-6">
-                <button ng-click="selectBudget()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                <button ng-click="selectBudget()" class="btn" tabindex="4"><i class="glyphicon glyphicon-search"></i></button>
             </div>
 
         </div>
@@ -101,7 +101,7 @@
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     <select class="form-control" ng-model="ModelNew.UOMId" name="uom"
-                            ng-options="item.Value as item.Text for item in UOMList">
+                            ng-options="item.Value as item.Text for item in UOMList" tabindex="6">
                         <option value="">--Select--</option>
                     </select>
                 </div>
@@ -110,7 +110,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Sub Category<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Sub Category" ng-model="ModelNew.SubCategory" class="form-control" required tabindex="2" maxlength="10">
+                <input type="text" name="Sub Category" ng-model="ModelNew.SubCategory" class="form-control" required tabindex="8" maxlength="10">
             </div>
         </div>
         
@@ -118,7 +118,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Standard Rate<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="number" name="Standard Rate" style="text-align:left;" ng-model="ModelNew.StandardRate" class="form-control" required tabindex="4" maxlength="50">
+                <input type="number" name="Standard Rate" style="text-align:left;" ng-model="ModelNew.StandardRate" class="form-control" required tabindex="10" maxlength="50">
             </div>
         </div>
 
