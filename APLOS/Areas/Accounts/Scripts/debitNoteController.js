@@ -854,9 +854,9 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
 
     //----------------#regoin for Debit Note-----------------------
    // $scope.voucherDetailId = "";
-    $scope.getTaxCode = function (index) {
+    $scope.getTaxCode = function (index, voucherDetailId) {
         $scope.setTaxVoucherDetailIndex = index;
-        //$scope.voucherDetailId = voucherDetailId;
+        $scope.voucherDetailId = voucherDetailId;
         angular.element(document.querySelector("#texCodePopUp")).modal("show");
     };
 
@@ -869,11 +869,11 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
 
     $scope.removeTaxCodeRow = function () {
         if (!baseService.isUndefinedOrNull($scope.TaxCodeId)) {
-            for (var t = 0; t < baseService.arrayLength($scope.voucherDetailList); t++) {
-                if ($scope.voucherDetailList[t].Id === $scope.voucherDetailId)
-                    for (var a = 0; a < baseService.arrayLength($scope.voucherDetailList[t].InvoiceTaxViewModel); a++) {
-                        if ($scope.voucherDetailList[t].InvoiceTaxViewModel[a].TaxCodeId === $scope.TaxCodeId) {
-                            $scope.voucherDetailList[t].InvoiceTaxViewModel.splice(a, 1);
+            for (var t = 0; t < baseService.arrayLength($scope.invoiceSalesAvailableList); t++) {
+                if ($scope.invoiceSalesAvailableList[t].ActivityId === $scope.voucherDetailId)
+                    for (var a = 0; a < baseService.arrayLength($scope.invoiceSalesAvailableList[t].InvoiceTaxViewModel); a++) {
+                        if ($scope.invoiceSalesAvailableList[t].InvoiceTaxViewModel[a].TaxCodeId === $scope.TaxCodeId) {
+                            $scope.invoiceSalesAvailableList[t].InvoiceTaxViewModel.splice(a, 1);
                         }
                     }
             }
@@ -883,6 +883,7 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
                 }
             }
             $scope.TaxCodeId = "";
+            $scope.calculatebackTax($scope.setTaxVoucherDetailIndex);
             $scope.calculateTax($scope.setTaxVoucherDetailIndex);
         }
     };

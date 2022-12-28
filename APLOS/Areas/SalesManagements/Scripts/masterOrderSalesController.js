@@ -2156,7 +2156,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
     $scope.selectedMasterOrderList = [];
     function MakeData() {
-        $scope.selectedMasterOrderList = [];
+       // $scope.selectedMasterOrderList = [];
         try {
             for (var i = 0; i < $scope.masterOrderList.length; i++) {
                 var getRow = $filter("filter")($scope.selectedMasterOrderList, { "selectedMasterOrderList": $scope.masterOrderList[i].MasterOrderId, "MasterOrderItemId": $scope.masterOrderList[i].MasterOrderItemId });
