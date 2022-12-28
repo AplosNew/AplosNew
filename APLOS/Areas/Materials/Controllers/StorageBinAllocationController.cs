@@ -278,7 +278,7 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        #region Storage Bin Allocation  Report  
+        #region Storage Bin Allocation  Report Per column
 
         [Authorize, HttpGet]
         public ActionResult StorageBinAllocationReport(ReportFormat reportFormat, string sbaId)
@@ -298,6 +298,25 @@ namespace Aplos.Areas.Materials.Controllers
 
                 default:
                     return View();
+            }
+        }
+
+        #endregion
+
+        #region Storage Bin Allocation Report 
+
+        [Authorize, HttpPost]
+        public ActionResult StorageBinAllocationAllReport()
+        {
+            try
+            {
+                string fileName = "";
+                fileName = sba.GetStorageBinAllocationAllReport("Storage Bin Allocation");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 

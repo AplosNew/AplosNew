@@ -9,6 +9,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     $scope.searchbyMaterialMasterDatalist = [
         {
@@ -528,6 +529,25 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         $rootScope.report(url);
     };
 
+
+    $scope.GetStorageBinAllocationAllReport = function () {
+    $scope.fileName = "StorageBinAllocation.xlsx";
+		$http({
+			method: 'POST',
+            url: $scope.path + "StorageBinAllocationAllReport",
+			dataType: 'JSON',
+		})
+			.then(function successCallback(response) {
+				if (response.data.Error === true) {
+					ShowResult(response.data.Message, 'failure');
+				}
+				else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+				}
+			}, function errorCallback(response) {
+				ShowResult(response.data.Message, 'failure');
+			});
+	};
 
 }
 

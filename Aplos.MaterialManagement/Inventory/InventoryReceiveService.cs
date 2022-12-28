@@ -13988,7 +13988,7 @@ namespace Library.MaterialManagement.Inventory
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='GoodsReceiveNoteCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='GoodsReceiveNoteCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
 
             }
@@ -14008,7 +14008,7 @@ namespace Library.MaterialManagement.Inventory
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value, E.EmployeeCode+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where A.ActionStatus='GoodsReceiveNoteApproveBy'";//A.PlantId='" + identity.PlantId + "' AND 
+                          where A.ActionStatus='GoodsReceiveNoteApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND 
                 return _sqlRepository.GetDataCollection(sql);
 
             }

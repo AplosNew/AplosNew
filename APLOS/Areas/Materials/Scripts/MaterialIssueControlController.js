@@ -75,20 +75,53 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     }
     $scope.Getstorage();
 
-    $scope.checkedByList = [];
-    $scope.GetSupervisorCboList = function () {
+    $scope.NotificationSettingStatus = function () {
         //debugger;
         $http({
             method: 'GET',
-            url: 'Products/PurchaseOrder/GetSupervisorCbo'
+            url: 'Products/GoodsReceiveNote/NotificationSetting',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.NotificationSetting = response.data;
+            $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
+            $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
+            if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
+                $scope.labelCheckAndApproved = 'To be checked by';
+            }
+            else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
+                $scope.labelCheckAndApproved = 'To be approved by';
+            }
+            else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
+                $scope.labelCheckAndApproved = 'To be checked by';
+            }
+            //else {
+            //    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
+            //}
+
+        });
+    }
+    $scope.NotificationSettingStatus();
+
+    $scope.checkedByList = [];
+    $scope.GetSupervisorCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'Products/PurchaseOrder/GetIssueSlipCheckByCbo'
         }).then(function successCallback(response) {
             $scope.checkedByList = response.data;
         });
     }
     $scope.GetSupervisorCboList();
+
     $scope.CostCenterLoad = function () {
         cboService.getCostCenterCbo(function (result) {
             $scope.costCenterList = result;
+            for (var i = 0; i < $scope.costCenterList.length; i++) {
+                if ($scope.costCenterList[i].Text == 'Mixing') {
+                    $scope.ModelNew.CostCenterId = $scope.costCenterList[i].Value;
+                    break;
+                }
+            }
         });
     }
     $scope.CostCenterLoad();
