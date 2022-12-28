@@ -1297,6 +1297,17 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.openPopup('dialogSOItemsForProductionOrder');
         $http({
             method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + prodOrdId.data.POId
+        }).then(function successCallback(response) {
+            $scope.SalesOrderListForProductionOrderId = response.data;
+
+        });
+    }
+
+    $scope.getSalesOrderByProdOrderList = function (prodOrdId) {
+        $scope.openPopup('dialogSOItemsFromProductionOrder');
+        $http({
+            method: 'GET',
             url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + prodOrdId
         }).then(function successCallback(response) {
             $scope.SalesOrderListForProductionOrderId = response.data;
