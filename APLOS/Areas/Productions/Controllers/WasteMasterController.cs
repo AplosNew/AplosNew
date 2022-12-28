@@ -52,6 +52,11 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(ws.getProcess(), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public ActionResult GetWasteType()
+        {
+            return Json(ws.GetWasteType(), JsonRequestBehavior.AllowGet);
+        }
 
         //[Authorize, HttpPost]
         //public ActionResult getEntity(string PlantId)

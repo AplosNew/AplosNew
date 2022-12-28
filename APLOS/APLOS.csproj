@@ -787,6 +787,7 @@
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityMasterController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogController.cs" />
+    <Compile Include="Areas\Materials\Controllers\WasteTypeController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingReports.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingAgendaController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingPointsController.cs" />
@@ -2260,6 +2261,7 @@
     <Content Include="Areas\Materials\Scripts\UtilityMasterController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
     <Content Include="Areas\Administration\Scripts\AdministrationConfig.js" />
+    <Content Include="Areas\Materials\Scripts\WasteTypeController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingReportsController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingAgendaController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingPointsController.js" />
@@ -4473,6 +4475,7 @@
     <Content Include="Areas\Machines\Views\PendingSkillManagement\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\OutPassRegister\Report.cshtml" />
     <Content Include="Areas\Materials\Views\ScanData\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\WasteType\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

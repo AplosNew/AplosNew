@@ -49,6 +49,11 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        public IEnumerable<object> GetWasteType()
+        {
+            var str = "Select Id as Value , UserName as Text from HKP.WasteType";
+            return _sqlRepository.GetDataCollection(str);
+        }
        /* public IEnumerable<object> getEntity(string PlantId)
         {
             try
@@ -126,10 +131,11 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-				string sql = @"select wm.* , uom.UserName as UOM
+				string sql = @"select wm.* , uom.UserName as UOM, WT.UserName WasteType
                                 from dbo.WasteMaster wm
                                 
-                                left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId 
+                                left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId
+                                left join HKP.WasteType WT on WT.Id = wm.WasteTypeId
                                 order by wm.Sequence asc";
 
 				return _sqlRepository.GetDataCollection(sql);
