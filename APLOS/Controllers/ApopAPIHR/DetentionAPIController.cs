@@ -195,6 +195,34 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetFutureAssignedTask(out List<Tasks> activelists, UserId, Date);
             return activelists;
         }
+
+        public List<Tasks> GetTodayCreateTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTodayCreateTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetOverDueCreateTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetOverDueCreateTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetNextWeakCreateTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetNextWeakCreateTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetFutureCreateTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetFutureCreateTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
         #endregion Task
 
         [HttpPost]
