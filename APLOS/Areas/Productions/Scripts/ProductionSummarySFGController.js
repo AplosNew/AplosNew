@@ -836,6 +836,10 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
             $scope.productionSummaryNew.Quantity = soitem.Quantity;
             $scope.productionSummaryNew.ProductionGrade = soitem.ProductionGrade;
             $scope.productionSummaryNew.LotNumber = soitem.LotNumber;
+            $scope.productionSummaryNew.BuyerItem = soitem.BuyerItem;
+            $scope.productionSummaryNew.OwnItem = soitem.OwnItem;
+            $scope.productionSummaryNew.BuyerOrder = soitem.BuyerOrder;
+            $scope.productionSummaryNew.OwnOrder = soitem.OwnOrder;
             angular.element(document.querySelector('#SOItemPopup')).modal('hide');
 
         } catch (ex) {
