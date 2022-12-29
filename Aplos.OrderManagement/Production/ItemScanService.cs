@@ -385,9 +385,12 @@ namespace Library.Service.EmployeeServices
 
                 }
 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, DsHistory);
+
                 #region ProductionSummary
-              
-             
+
+
                 if (!string.IsNullOrEmpty(processId))
                 {
                     netWeight = 0;
@@ -417,15 +420,12 @@ namespace Library.Service.EmployeeServices
                     drProductionSummary["AddedDate"] = DateTime.Now;
                     drProductionSummary["AddedFromIP"] = "1";
 
-                    dsProductionSummary.Tables[0].Rows.Add(drProductionSummary); 
+                    dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
                 }
+                _info.SaveDataSets(dsProductionSummary);
                 #endregion
 
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, DsHistory, dsProductionSummary);
-
-                if(inventory !="")
+                if (inventory !="")
                 {
                     return "Inventory not Found of these cartons:- "+inventory;
                 }
@@ -539,30 +539,28 @@ namespace Library.Service.EmployeeServices
                     POId = item.POId;
                     lotNo = item.LotNo;
 
-                    Index++;
-                    object Emp = DBNull.Value;
-                    // Get EmpId
-                    EmpId.DefaultView.RowFilter = "EmployeeCode='" + item.PackedBy + "'";
-                    if (EmpId.DefaultView.Count > 0)
-                    {
-                        Emp = EmpId.DefaultView[0]["EmpId"].ToString();
-                    }
-                    counter = 0;
+                    
 
                 }
+
+                
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, DsHistory, dsProductionSummary);
 
                 #region ProductionSummary
 
 
                 if (!string.IsNullOrEmpty(processId))
                 {
-                    netWeight = 0;
-                    for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
-                    {
-                        netWeight += Convert.ToDecimal(dsMaster.Tables[0].Rows[j]["NetWeight"]);
-                        lotNo = dsMaster.Tables[0].Rows[j]["LotNo"].ToString();
-                        POId = dsMaster.Tables[0].Rows[j]["POId"].ToString();
-                    }
+                    //netWeight = 0;
+                    //for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
+                    //{
+                    //    netWeight += Convert.ToDecimal(dsMaster.Tables[0].Rows[j]["NetWeight"]);
+                    //    lotNo = dsMaster.Tables[0].Rows[j]["LotNo"].ToString();
+                    //    POId = dsMaster.Tables[0].Rows[j]["POId"].ToString();
+                    //}
 
 
                     bplib.clsGenID objGenID = new bplib.clsGenID();
@@ -586,10 +584,6 @@ namespace Library.Service.EmployeeServices
                     dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
                 }
                 #endregion
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, DsHistory, dsProductionSummary);
 
                 if (inventory != "")
                 {

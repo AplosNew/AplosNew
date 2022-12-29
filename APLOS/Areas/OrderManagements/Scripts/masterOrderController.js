@@ -421,6 +421,14 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         return $scope.tab2 === tabNum;
     };
 
+    $scope.tab3 = 1;
+    $scope.setTab3 = function (newTab) {
+        $scope.tab3 = newTab;
+    };
+    $scope.isSet3 = function (tabNum) {
+        return $scope.tab3 === tabNum;
+    };
+
 
     $scope.currency = null;
     $scope.Get = function (index) {

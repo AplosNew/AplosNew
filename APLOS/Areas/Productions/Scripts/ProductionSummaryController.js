@@ -568,12 +568,15 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
 
     $scope.SetPrOData = function ($event) {
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
+        $scope.productionSummaryNew.BuyerItem = $event.data.BuyerItem;
+        $scope.productionSummaryNew.OwnItem = $event.data.OwnItem;
+        $scope.productionSummaryNew.BuyerOrder = $event.data.BuyerOrder;
+        $scope.productionSummaryNew.OwnOrder = $event.data.OwnOrder;
 
         $scope.productionSummaryNew.ProductLibraryId = null;
         $scope.productionSummaryNew.ProductCode = null;
         $scope.productionSummaryNew.MasterOrderItemId = null;
         $scope.productionSummaryNew.SalesOrderId = null;
-
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
         $scope.GetTotalProductionBookingQty();
         $scope.getLotNumberCbo();
@@ -659,6 +662,10 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             $scope.productionSummaryNew.Quantity = soitem.Quantity;
             $scope.productionSummaryNew.ProductionGrade = soitem.ProductionGrade;
             $scope.productionSummaryNew.LotNumber = soitem.LotNumber;
+            $scope.productionSummaryNew.BuyerItem = soitem.BuyerItem;
+            $scope.productionSummaryNew.OwnItem = soitem.OwnItem;
+            $scope.productionSummaryNew.BuyerOrder = soitem.BuyerOrder;
+            $scope.productionSummaryNew.OwnOrder = soitem.OwnOrder;
             angular.element(document.querySelector('#SOItemPopup')).modal('hide');
 
         } catch (ex) {
@@ -1295,6 +1302,17 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     $scope.SalesOrderListForProductionOrderId = [];
     $scope.getSalesOrderOfProdOrderList = function (prodOrdId) {
         $scope.openPopup('dialogSOItemsForProductionOrder');
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + prodOrdId.data.POId
+        }).then(function successCallback(response) {
+            $scope.SalesOrderListForProductionOrderId = response.data;
+
+        });
+    }
+
+    $scope.getSalesOrderByProdOrderList = function (prodOrdId) {
+        $scope.openPopup('dialogSOItemsFromProductionOrder');
         $http({
             method: 'GET',
             url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + prodOrdId

@@ -173,7 +173,7 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                                 OR 
                        	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
                        )
-                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail])) AND MOI.ArticleId<>''
+                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail])) AND MOI.ArticleId<>'' AND OC.UserName<>'Projected'
                         
 						UNION
 						
@@ -203,7 +203,7 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                       WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail] WHERE ProductionOrderID='" + productionorderid + @"')
+                       WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail] WHERE ProductionOrderID='" + productionorderid + @"') AND OC.UserName<>'Projected'
                         
 						
 						

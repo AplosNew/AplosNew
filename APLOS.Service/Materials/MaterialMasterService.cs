@@ -1053,6 +1053,16 @@ namespace Library.Service.Materials
             return _sqlRepository.GetDataCollection(_sql, null);
         }
 
+        public IEnumerable<object> GetCharacteristicsWithoutMaterial()
+        {
+            var _sql = @"SELECT  CR.UserName Characteristics,CV.UserName AS [Text],CV.Id AS [Value],CV.CharacteristicsId
+							FROM HKP.CharacteristicsValue CV 
+							JOIN HKP.Characteristics CR ON CR.Id=CV.CharacteristicsId
+							where CV.Active=1 and CV.MaterialMasterId is null
+							order by CV.UserName";
+            return _sqlRepository.GetDataCollection(_sql, null);
+        }
+
         public GridModel Query(GridParameter parameters, string groupId)
         {
             parameters.CmdText = @"SELECT MT.UserName AS MaterialTypeName, MM.IsOriginApplicable

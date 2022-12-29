@@ -7,7 +7,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $scope.path = 'Materials/MaterialIssueControl/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrl = $scope.path + 'CreateIssue';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
 
@@ -51,6 +51,10 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         }
 
     }
+
+    $scope.AllTabPrint = function (data) {
+        location.href = "Materials/MaterialIssueControl/IssueRequestReport?mId=" + data.data.Id;
+    };
 
     $scope.LevelList = [
         {
@@ -188,7 +192,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         $scope.Action = 'Update';
         $scope.GetSavedSODetailData();
         $scope.GetSavedDetailData();
-       // $scope.IssueSlipGriddata('ForChecked', 'InventorySlip', $scope.ModelNew.POId);
+        // $scope.IssueSlipGriddata('ForChecked', 'InventorySlip', $scope.ModelNew.POId);
         /*$scope.getdataInventoryIssue($scope.ModelNew.POId);*/
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -285,6 +289,16 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $scope.Action = 'Save';
     $scope.Save = function () {
+        $scope.QBOQCostingListNew = [];
+        for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
+
+            $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
+            $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
+            $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
+            $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
+            $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
+
+        }
         try {
             if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
                 throw "Select Production Order.";
@@ -302,7 +316,8 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                         data: {
                             'model': $scope.ModelNew
                             , 'soList': $scope.SOItemList
-                            , 'dataList': $scope.QBOQCostingList
+                            , 'dataList': $scope.QBOQCostingListNew
+                            , 'dataLists': $scope.QBOQCostingListNew
                         },
                         dataType: 'JSON'
                         , contentType: "application/json charset=utf-8"
@@ -313,6 +328,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                         else {
                             ShowResult(response.data.Message, 'success');
                             $scope.Clear();
+                            $scope.GetSavedData();
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -323,6 +339,45 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             ShowResult(e, "failure");
         }
     };
+    //$scope.Save = function () {
+    //    try {
+    //        if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
+    //            throw "Select Production Order.";
+    //        }
+    //        if (baseService.arrayLength($scope.SOItemList) === 0) {
+    //            throw "Select SO Detail.";
+    //        }
+
+    //        $scope.$broadcast('show-errors-check-validity');
+    //        if ($scope.ModelNewForm.$valid) {
+    //            if ($scope.Action === 'Save' || $scope.Action === 'Update') {
+    //                $http({
+    //                    method: 'POST',
+    //                    url: $scope.saveUrl,
+    //                    data: {
+    //                        'model': $scope.ModelNew
+    //                        , 'soList': $scope.SOItemList
+    //                        , 'dataList': $scope.QBOQCostingList
+    //                    },
+    //                    dataType: 'JSON'
+    //                    , contentType: "application/json charset=utf-8"
+    //                }).then(function successCallback(response) {
+    //                    if (response.data.Error === true) {
+    //                        ShowResult(response.data.Message, 'failure');
+    //                    }
+    //                    else {
+    //                        ShowResult(response.data.Message, 'success');
+    //                        $scope.Clear();
+    //                    }
+    //                }), function errorCallBack(response) {
+    //                    ShowResult(response.data.Message, 'failure');
+    //                };
+    //            }
+    //        }
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
 
     $scope.Clear = function () {
         $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
