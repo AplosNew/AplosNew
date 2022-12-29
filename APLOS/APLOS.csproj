@@ -4473,6 +4473,7 @@
     <Content Include="Areas\Machines\Views\PendingSkillManagement\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\OutPassRegister\Report.cshtml" />
     <Content Include="Areas\Materials\Views\ScanData\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\Shared\_IndependentCharacteristicsValuePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
