@@ -31,16 +31,6 @@
                         <input type="text" name="Plan Percentage" ng-model="ModelNew.PlanPercentage" only-numbers class="form-control" ng-change="CalculationByPlan();" required tabindex="5">
                     </div>
                 </div>
-                @*<div class="form-group" show-errors>
-                    <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select name="Storage" ng-model="ModelNew.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="7" required>
-                                <option value=""></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>*@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
@@ -51,11 +41,17 @@
                     <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                     <div class="col-sm-8">
                         <div class="input-group">
-                            <input type="text" name="ByWhom" ng-model="ModelNew.ByWhom" class="form-control" readonly tabindex="7">
+                            <input type="text" name="ByWhom" ng-model="ModelNew.ByWhom" class="form-control" readonly tabindex="11">
                             <span class="input-group-btn">
                                 <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
                             </span>
                         </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control" rows="1" ng-model="ModelNew.Remarks" maxlength="250" tabindex="13"></textarea>
                     </div>
                 </div>
             </div>
@@ -83,33 +79,48 @@
                     <div class="col-sm-8">
                         <div class="select-style">
                             @*<select class="form-control" ng-model="ModelNew.Level" name="Level" tabindex="6" ng-change="GetQBOQCostingData();">
-                                <option value="">--Select--</option>
-                                <option value="Costing">Costing</option>
-                                <option value="QBOQ">QBOQ</option>
-                            </select>*@
-                            <select class="form-control" ng-model="ModelNew.Level" placeholder="Level" name="Level" ng-options="item.Value as item.Text for item in LevelList"  ng-change="GetQBOQCostingData();" tabindex="6">
+                        <option value="">--Select--</option>
+                        <option value="Costing">Costing</option>
+                        <option value="QBOQ">QBOQ</option>
+                    </select>*@
+                            <select class="form-control" ng-model="ModelNew.Level" placeholder="Level" name="Level" ng-options="item.Value as item.Text for item in LevelList" ng-change="GetQBOQCostingData();" tabindex="6">
                                 <option value=""></option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Remarks</label>
-                    <div class="col-sm-8">
-                        <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{labelCheckAndApproved}}</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style" ng-show="checkedByList.length">
+                            <select id="CheckedBy" class="form-control" name="Checked By" ng-model="ModelNew.CheckedBy" tabindex="8">
+                                <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Cost Center</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select id="CheckedBy" class="form-control" name="Cost Center" ng-model="ModelNew.CostCenterId" tabindex="10">
+                                <option ng-repeat="option in costCenterList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
         </div>
         <div class="clearfix"></div>
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">SODetail</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" data-toggle="tab">{{ModelNew.Level}}</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" data-toggle="tab">SODetail</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2);" href="" data-toggle="tab">{{ModelNew.Level}}</a></li>
             </ul>
         </div>
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
                 <div style="color:black;" id="SOGrid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true" 
                      e-allowselection="false" e-filtersettings-filterType="excel">
@@ -155,7 +166,7 @@
                     </div>
                 </script>
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
                 <div ng-show="ModelNew.Level == 'QBOQ'">
                     <div style="color:black;" id="BGrid" ej-grid e-datasource="QBOQCostingList" e-allowscrolling="true"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true" 
@@ -208,7 +219,6 @@
                 </div>
 
             </div>
-
         </div>
 
         <script type="text/template" id="Remarks">
@@ -239,18 +249,13 @@
                 @*<input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.CostCalculation(this)" e-width="80" />*@
             </div>
         </script>
-
         <div class="common-btn">
             <ul class="list-inline text-right">
                 <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
-
     </div>
-
-
-
 </div>
 
 <div class="aplos-grid-toggle" id="maincontainer">
@@ -276,9 +281,15 @@
                 </div>
             </div>
         </div>*@
-        <div id="Tab" ej-tab e-itemactive="onactivetab" e-create="oncreatetab">
-            <ul><li><a href="#TabEdit">Production Orders</a></li> </ul>
-            <div id="TabEdit">
+        <div class="clearfix"></div>
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Production Orders</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" data-toggle="tab">Saved Data</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 <div class="row text-right">
                     <div class="col-xs-12 col-sm-12 col-sm-12">
                         <div class="search-form">
@@ -313,39 +324,67 @@
                                 <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
                                 <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Cust. Order#" e-width="100"></div>
                                 <div e-column e-type="string" e-field="SODesc" e-headertext="SO Desc" e-width="100"></div>
-                                <div e-column e-type="string" e-field="POQuantity" e-headertext="Qty" e-width="80"></div>
-                                <div e-column e-type="string" e-field="SOQuantity" e-headertext="Plan SO Qty" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SOQty" e-headertext="SO Qty" e-width="80"></div>
+                                <div e-column e-type="string" e-field="POQuantity" e-headertext="PO Qty" e-width="80"></div>
 
                                 <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ExFactoryDate" e-headertext="ExFactory Date" e-width="80"></div>
-                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}"  e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>
-                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}"  e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>
+                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
                                 <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="180"></div>
                                 <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="180"></div>
                                 <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
                                 <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
 
-                                <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
+                                <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="80"></div>
                                 <div e-column e-type="string" e-field="OwnRefNo" e-headertext="Own Order#" e-width="100"></div>
                                 <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="100"></div>
                                 <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
-
                             </div>
 
                         </div>
                         @*<script type="text/template" id="SOCount">
-                                <div class="text-left" style="width:100%">
-                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetSOItemList(data);">{{data.SOCount}}</a>
+                    <div class="text-left" style="width:100%">
+                        <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetSOItemList(data);">{{data.SOCount}}</a>
+                    </div>
+                </script>
+                <script type="text/template" id="ItemCount">
+                    <div class="text-left" style="width:100%">
+                        <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetMOIItemList(data);">{{data.ItemCount}}</a>
+                    </div>
+                </script>*@
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
+                    <div class="col-xs-12" style="color:black;">
+                        <div id="Gridunassigned" e-load="actionCompleteSearch" ej-grid e-datasource="savedList" e-recorddoubleclick="GetSaved"
+                             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                             e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
+                             e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+                             e-allowselection="false" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-headertext="Print" e-width="20">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint(this);" style="margin: -6px;"></i></button>
                                 </div>
-                            </script>
-                            <script type="text/template" id="ItemCount">
-                                <div class="text-left" style="width:100%">
-                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetMOIItemList(data);">{{data.ItemCount}}</a>
-                                </div>
-                            </script>*@
+                                <div e-column e-type="string" e-field="Id" e-headertext="ID" e-visible="false" e-width="50"></div>
+                                <div e-column e-type="string" e-field="POId" e-headertext="POId" e-width="100"></div>
+                                <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                                <div e-column e-type="string" e-field="UserCode" e-headertext="User Code" e-width="50"></div>
+                                <div e-column e-type="string" e-field="UserRef" e-headertext="User Ref" e-width="80"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="100"></div>
+                                <div e-column e-type="text" e-field="PlanPercentage" e-headertext="Plan  Percentage" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-type="text" e-field="ByWhom" e-headertext="ByWhom" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-type="string" e-field="Level" e-headertext="Level" e-width="80"></div>
+                                <div e-column e-type="string" e-field="LotNo" e-headertext="LotNo" e-width="80"></div>
+                                @*<div e-column e-field="IsApproved" e-headertext="IsApproved" e-width="80"></div>*@
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        
     </div>
 </div>
 

@@ -7,7 +7,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $scope.path = 'Materials/MaterialIssueControl/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrl = $scope.path + 'CreateIssue';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
 
@@ -52,6 +52,10 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     }
 
+    $scope.AllTabPrint = function (data) {
+        location.href = "Materials/MaterialIssueControl/IssueRequestReport?mId=" + data.data.Id;
+    };
+
     $scope.LevelList = [
         {
             'Value': 'Costing',
@@ -75,6 +79,57 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     }
     $scope.Getstorage();
 
+    $scope.NotificationSettingStatus = function () {
+        //debugger;
+        $http({
+            method: 'GET',
+            url: 'Products/GoodsReceiveNote/NotificationSetting',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.NotificationSetting = response.data;
+            $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
+            $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
+            if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
+                $scope.labelCheckAndApproved = 'To be checked by';
+            }
+            else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
+                $scope.labelCheckAndApproved = 'To be approved by';
+            }
+            else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
+                $scope.labelCheckAndApproved = 'To be checked by';
+            }
+            //else {
+            //    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
+            //}
+
+        });
+    }
+    $scope.NotificationSettingStatus();
+
+    $scope.checkedByList = [];
+    $scope.GetSupervisorCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'Products/PurchaseOrder/GetIssueSlipCheckByCbo'
+        }).then(function successCallback(response) {
+            $scope.checkedByList = response.data;
+        });
+    }
+    $scope.GetSupervisorCboList();
+
+    $scope.CostCenterLoad = function () {
+        cboService.getCostCenterCbo(function (result) {
+            $scope.costCenterList = result;
+            for (var i = 0; i < $scope.costCenterList.length; i++) {
+                if ($scope.costCenterList[i].Text == 'Mixing') {
+                    $scope.ModelNew.CostCenterId = $scope.costCenterList[i].Value;
+                    break;
+                }
+            }
+        });
+    }
+    $scope.CostCenterLoad();
+
     $scope.PRSearchColumn = 'Id';
     $scope.PRSearchValue = null;
     $scope.modelList = [];
@@ -92,7 +147,23 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             });
         }
     };
-    $scope.getData();
+
+    $scope.savedList = [];
+    $scope.GetSavedData = function () {
+        $scope.savedList = [];
+        $http.get('Materials/MaterialIssueControl/GetApprovedData')
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.savedList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    };
+    $scope.GetSavedData();
 
     $scope.SOItemList = [];
     $scope.Get = function (obj) {
@@ -113,6 +184,51 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+    };
+
+    $scope.GetSaved = function (obj) {
+        $scope.ModelNew = Object.assign({}, obj.data);
+        $scope.ModelNew.IssueDate = $filter('dateFiltering')($scope.ModelNew.IssueDate, 'dd-M-yyyy');
+        $scope.Action = 'Update';
+        $scope.GetSavedSODetailData();
+        $scope.GetSavedDetailData();
+        // $scope.IssueSlipGriddata('ForChecked', 'InventorySlip', $scope.ModelNew.POId);
+        /*$scope.getdataInventoryIssue($scope.ModelNew.POId);*/
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.SOItemList = [];
+    $scope.GetSavedSODetailData = function () {
+        $scope.SOItemList = [];
+        $http.get('Materials/MaterialIssueControl/GetSavedSODetailData?masterId=' + $scope.ModelNew.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.SOItemList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    };
+
+    $scope.QBOQCostingList = [];
+    $scope.GetSavedDetailData = function () {
+        $scope.QBOQCostingList = [];
+        $http.get('Materials/MaterialIssueControl/GetSavedDetailData?masterId=' + $scope.ModelNew.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.QBOQCostingList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
     };
 
     $scope.getArticle = function (data) {
@@ -173,6 +289,16 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $scope.Action = 'Save';
     $scope.Save = function () {
+        $scope.QBOQCostingListNew = [];
+        for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
+
+            $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
+            $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
+            $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
+            $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
+            $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
+
+        }
         try {
             if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
                 throw "Select Production Order.";
@@ -190,7 +316,8 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                         data: {
                             'model': $scope.ModelNew
                             , 'soList': $scope.SOItemList
-                            , 'dataList': $scope.QBOQCostingList
+                            , 'dataList': $scope.QBOQCostingListNew
+                            , 'dataLists': $scope.QBOQCostingListNew
                         },
                         dataType: 'JSON'
                         , contentType: "application/json charset=utf-8"
@@ -201,6 +328,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                         else {
                             ShowResult(response.data.Message, 'success');
                             $scope.Clear();
+                            $scope.GetSavedData();
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -211,6 +339,45 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             ShowResult(e, "failure");
         }
     };
+    //$scope.Save = function () {
+    //    try {
+    //        if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
+    //            throw "Select Production Order.";
+    //        }
+    //        if (baseService.arrayLength($scope.SOItemList) === 0) {
+    //            throw "Select SO Detail.";
+    //        }
+
+    //        $scope.$broadcast('show-errors-check-validity');
+    //        if ($scope.ModelNewForm.$valid) {
+    //            if ($scope.Action === 'Save' || $scope.Action === 'Update') {
+    //                $http({
+    //                    method: 'POST',
+    //                    url: $scope.saveUrl,
+    //                    data: {
+    //                        'model': $scope.ModelNew
+    //                        , 'soList': $scope.SOItemList
+    //                        , 'dataList': $scope.QBOQCostingList
+    //                    },
+    //                    dataType: 'JSON'
+    //                    , contentType: "application/json charset=utf-8"
+    //                }).then(function successCallback(response) {
+    //                    if (response.data.Error === true) {
+    //                        ShowResult(response.data.Message, 'failure');
+    //                    }
+    //                    else {
+    //                        ShowResult(response.data.Message, 'success');
+    //                        $scope.Clear();
+    //                    }
+    //                }), function errorCallBack(response) {
+    //                    ShowResult(response.data.Message, 'failure');
+    //                };
+    //            }
+    //        }
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
 
     $scope.Clear = function () {
         $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
@@ -228,6 +395,14 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     };
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
+    };
+
+    $scope.tab2 = 1;
+    $scope.setTab2 = function (newTab) {
+        $scope.tab2 = newTab;
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab2 === tabNum;
     };
 
     function removeDuplicates(myArr, prop) {

@@ -20,6 +20,16 @@ using Library.ViewModel.OrderManagements;
 using Newtonsoft.Json;
 using Library.MaterialManagement.Products;
 using Library.Model.Products;
+using Syncfusion.DocToPDFConverter;
+using Syncfusion.Pdf;
+using System.Collections.Specialized;
+using Syncfusion.DocIO.DLS;
+using Syncfusion.DocIO;
+using Library.Service.Helpers;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Drawing;
+using Aplos.Areas.Commercial.Controllers;
 #endregion
 
 namespace Aplos.Areas.Materials.Controllers
@@ -108,7 +118,7 @@ namespace Aplos.Areas.Materials.Controllers
                 string sql = @"SELECT M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage FROM [dbo].[MaterialIssueControlMaster] M
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
 LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
-LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId Where M.IsApproved=1";
+LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -274,7 +284,7 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
                 strkey = column + " like '%" + value + "%'";
 
 
-            string sql = @"select * from (SELECT  PO.Id,s.UserName AS ProductionStatus,so.SONo,so.BuyerRefNo,so.SODesc,ISNULL(SO.Qty,0) AS SOQuantity,ISNULL(PO.Qty,0) AS POQuantity
+            string sql = @"select * from (SELECT  PO.Id,s.UserName AS ProductionStatus,so.SONo,so.BuyerRefNo,so.SODesc,SO.SOQty,ISNULL(PO.Qty,0) AS POQuantity
                         ,FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')ExFactoryDate,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy')CommitmentDate
                                ,so.Material, so.Product,so.ProductCategory, so.Buyer, so.OwnRefNo, so.StyleNo, so.OwnStyleNo, So.MasterOrderId,so.Customer,so.article,PO.AddedDate
                             FROM [TRN].[ProductionOrder] AS PO                            
@@ -342,7 +352,15 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
 		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                                      from  trn.SalesOrder SO 
+,SOQty=(select SUM((isnull(XSO.qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) from 
+trn.SalesOrder XSO 
+join TRN.MasterOrderItem moi on moi.id=xso.MasterOrderItemId
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+where pod.ProductionOrderID=Xpod.ProductionOrderId)
+
+                                                      from 
+ 
+                                                     trn.SalesOrder SO 
                                                       JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                                                     left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                     left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
@@ -732,7 +750,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                 inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
                 inventoryIssue.CompanyId = identity.CompanyId;
                 inventoryIssue.PlantId = identity.PlantId;
-                inventoryIssue.CheckedBy = model["CheckedBy"].ToString(); 
+                inventoryIssue.CheckedBy = model["CheckedBy"].ToString();
                 inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
                 inventoryIssue.CompanyId = identity.CompanyId;
                 inventoryIssue.PlantId = identity.PlantId;
@@ -741,12 +759,24 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                 inventoryIssue.Preparedby = model["ByWhomId"].ToString();
                 inventoryIssue.ProductionOrderId = model["POId"].ToString();
 
-                SaveIssueData(model, soList, dataList);
+                SaveData(model, soList, dataList);
                 List<IssueRequestViewModel> entityDetailVM = dataLists;
                 List<IssueRequestViewModel> entityGroupDataVM = dataLists;
+
+                foreach (var item in entityGroupDataVM)
+                {
+                    foreach (var ditem in dataList)
+                    {
+                        if (item.SrNo == Convert.ToInt32(ditem["SrNo"]))
+                        {
+                            item.MaterialIssueControlDetailId = ditem["Id"].ToString();
+                        }
+                    }
+                }
+
                 List<IssueRequestViewModel> SOListSelectedNewDetailVM = null;
                 List<IssueRequestViewModel> MaterialColorListNewDetailVM = null;
-                
+
                 _issueRequestService.InsertOrUpdateGraphIssueSlipCreate(inventoryIssue, entityDetailVM, entityGroupDataVM, inventoryIssue.IssueSlipType, null, null, SOListSelectedNewDetailVM, MaterialColorListNewDetailVM, null);
                 return Json(new { Data = model, Message = AplosMessage.Insert });
             }
@@ -793,63 +823,63 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
 
                 _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                //#region MaterialIssueControlSODetail 
-                //objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlSODetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsSOChild, false, "1");
-                //int socount = 0;
-                //if (soList != null)
-                //{
-                //    foreach (var item in soList)
-                //    {
-                //        socount++;
-                //        DataView dv = new DataView(dsSOChild.Tables[0]);
-                //        dv.RowFilter = "Id='" + item["Id"] + "'";
+                #region MaterialIssueControlSODetail 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlSODetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsSOChild, false, "1");
+                int socount = 0;
+                if (soList != null)
+                {
+                    foreach (var item in soList)
+                    {
+                        socount++;
+                        DataView dv = new DataView(dsSOChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
 
 
-                //        if (dv.Count == 0)
-                //        {
-                //            item["Id"] = _Id + "-" + socount;
-                //            item["MaterialIssueControlMasterId"] = _Id;
-                //            item["SOQty"] = item["PlannedQty"];
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _Id + "-" + socount;
+                            item["MaterialIssueControlMasterId"] = _Id;
+                            item["SOQty"] = item["PlannedQty"];
 
-                //            AddNewRow(dsSOChild.Tables[0], item);
-                //        }
-                //        else
-                //        {
-                //            DataRow drmo = dv[0].Row;
-                //            EditRow(drmo, item);
-                //        }
-                //    }
-                //}
+                            AddNewRow(dsSOChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
 
-                //#endregion
+                #endregion
 
-                //#region MaterialIssueControlDetail 
-                //objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlDetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsChild, false, "1");
-                //int ccount = 0;
-                //if (dataList != null)
-                //{
-                //    foreach (var item in dataList)
-                //    {
-                //        ccount++;
-                //        DataView dv = new DataView(dsChild.Tables[0]);
-                //        dv.RowFilter = "Id='" + item["Id"] + "'";
+                #region MaterialIssueControlDetail 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlDetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsChild, false, "1");
+                int ccount = 0;
+                if (dataList != null)
+                {
+                    foreach (var item in dataList)
+                    {
+                        ccount++;
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
 
 
-                //        if (dv.Count == 0)
-                //        {
-                //            item["Id"] = _Id + "-" + ccount;
-                //            item["MaterialIssueControlMasterId"] = _Id;
-                //            AddNewRow(dsChild.Tables[0], item);
-                //        }
-                //        else
-                //        {
-                //            DataRow drmo = dv[0].Row;
-                //            EditRow(drmo, item);
-                //        }
-                //    }
-                //}
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _Id + "-" + ccount;
+                            item["MaterialIssueControlMasterId"] = _Id;
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
 
-                //#endregion
+                #endregion
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster);
 
@@ -964,6 +994,610 @@ GROUP BY IM.MaterialMasterId,IM.ArticleId ) SR ON SR.MaterialMasterId=M.Id AND S
 Where SO.Id " + soId + "";
             return Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public ActionResult IssueRequestReport(string mId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IssueRequestReport(identity.PlantId, mId);
+            return null;
+        }
+
+        public void IssueRequestReport(string plantId, string mId)
+        {
+            _ = new ReportUtility();
+            string issueId = "";
+            string fileName = "IssueRequestReport" + plantId + ".docx";
+            string strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);
+            string File = strPath;
+            if (!System.IO.File.Exists(strPath))
+            {
+                throw new CustomException("File <" + fileName + "> Not Found.");
+            }
+
+            //makeDictionary();
+            ////A opens input document.
+            WordDocument document = new WordDocument(File, FormatType.Docx);
+            //Gets the paragraph at index 1
+            try
+            {
+                var sqlissue = @"Select distinct IssueRequestMasterId from [TRN].[IssueRequest] Where MaterialIssueControlDetailId IN(SELECT Id FROM dbo.MaterialIssueControlDetail Where MaterialIssueControlMasterId='" + mId + "')";
+                DataTable dtIssue = _sqlRepository.GetDataTable(sqlissue);
+                if (dtIssue.Rows.Count > 0)
+                {
+                    issueId = dtIssue.Rows[0]["IssueRequestMasterId"].ToString();
+                }
+                else
+                {
+                    throw new CustomException("No issue slip found.");
+                }
+
+                WSection section = document.Sections[0];
+
+                DataTable dtOrderMaster;
+                dtOrderMaster = loadIssueRequestMaster(issueId);
+
+
+                Dictionary<string, string> columns = new Dictionary<string, string>();
+
+
+                //document.Replace("{Remarks}", dtOrderMaster.Rows[0]["Remarks"].ToString(), false, false);
+                //document.Replace("{PreparedBy}", dtOrderMaster.Rows[0]["PreparedBy"].ToString(), false, false);
+                document.Replace("{CheckedByName}", dtOrderMaster.Rows[0]["CheckedByName"].ToString(), false, false);
+                document.Replace("{AuthorizedByName}", dtOrderMaster.Rows[0]["AuthorizedByName"].ToString(), false, false);
+                document.Replace("{EmployeeName}", dtOrderMaster.Rows[0]["ReceivedBy"].ToString(), false, false);
+
+
+
+
+                foreach (DataColumn item in dtOrderMaster.Columns)
+                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+
+                var dsServiceItems = loadIssueRequestDetail(issueId);
+                var materialTotal = makeIssueDetailsTable(document, dsServiceItems, issueId);//Material Details 
+                var serviceTotal = 0.00;
+                //if (dsServiceItems.Rows.Count > 0)
+                //{
+                //    serviceTotal = makeOrderServiceTable(document, dsServiceItems, issueId);//Service Details 
+                //    document.Replace("{ServiceDetails}", "Service Details", true, true);
+                //}
+                //{TotalInWords}
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                //document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+
+                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+
+                //creating secondary array to prevent memory leak and accidental over-writing (Tarek Talukder-26-May-2019)
+                List<string> strReplace = new List<string>();
+
+                StringCollection strColDistinct = new StringCollection();
+
+                for (int i = 0; i < allresult.Length; i++)
+                    strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+
+                for (int i = 0; i < strReplace.Count; i++)
+                {
+                    if (strColDistinct.Contains(strReplace[i].ToUpper()))
+                        continue;
+
+                    strColDistinct.Add(strReplace[i].ToUpper());             //For Same Name Use
+                    string text = strReplace[i].ToUpper();
+
+                    ReplaceInfo.Add(text, 0);
+                    if (columns.ContainsKey(text.ToUpper()))
+                    {
+                        ReplaceInfo[text] = document.Replace(text, dtOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+                }
+                document.Replace("{IssueId}", dtOrderMaster.Rows[0]["IssueId"].ToString(), false, false);
+                document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+
+
+                //removing any unused place holder
+                foreach (var item in ReplaceInfo.Keys)
+                {
+                    if (ReplaceInfo[item.ToString()] == 0)
+                        document.Replace(item.ToString(), "", false, false);
+
+                }
+
+                ////Creates an instance of the DocToPDFConverter
+                DocToPDFConverter converter = new DocToPDFConverter();
+
+                //Converts Word document into PDF document
+                PdfDocument pdfDocument = converter.ConvertToPDF(document);
+
+                //Releases all resources used by DocToPDFConverter
+                converter.Dispose();
+
+                //Closes the instance of document objects
+                document.Close();
+                var filename = "IssueRequestReport-" + plantId + "-" + issueId;
+                //Saves the PDF file 
+                pdfDocument.Save(filename + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                //Closes the instance of document objects
+                pdfDocument.Close(true);
+
+                document.Close();
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+            document.Close();
+        }
+
+        public DataTable loadIssueRequestMaster(string issueId)
+        {
+            string strSQL;
+            try
+            {
+                strSQL = @"SELECT 
+                             EmIU.EmployeeName ReceivedBy
+						,IsR.Id IssueId
+						,REPLACE(CONVERT(VARCHAR(11),IsR.AddedDate, 113), ' ', '-') IssueDate
+						,CheckedByName=CASE WHEN IsR.CheckedByStatus='Checked' Then eI.EmployeeName else '' END 
+						,AuthorizedByName=CASE When IsR.AuthorizedByStatus='Approved'then eI1.EmployeeName else '' END
+						--,AddedBy=CASE When IsR.CheckedByStatus='ForChecked' OR IsR.CheckedByStatus='Hold' OR IsR.CheckedByStatus='Reject' OR IsR.CheckedByStatus='Checked'then eI3.EmployeeName else ''  END 
+						,PurOrCheckedStatus= CASE when IsR.CheckedByStatus='ForChecked' Then 'To be checked'
+						when IsR.CheckedByStatus='Hold' Then 'Hold'
+						when IsR.CheckedByStatus='Reject' Then 'Reject'
+						when IsR.CheckedByStatus='Checked' Then 'Checked'
+						else ''
+						END
+						,PurOrApprovedStatus= CASE 
+						when IsR.AuthorizedByStatus='Reject' Then 'Reject For Approved'
+						when IsR.AuthorizedByStatus='Hold' Then 'Hold For Approved'
+						when IsR.AuthorizedByStatus='For Approval' Then 'To be Approval'
+						when IsR.AuthorizedByStatus='Approved' Then 'Approved'
+						else ''
+						END
+						,p.UserName ProcessName,po.SalesOrderId,FGColor=isnull(po.FGColor1,'')+','+isnull(po.FGColor2,'')+','+isnull(po.FGColor3,'')
+						,po.ProductionOrder,PreparedBy.EmployeeName AddedBy
+						FROM TRN.IssueRequestMaster As IsR
+						                LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IsR.CheckedBy
+                                         LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IsR.AuthorizedBy
+							             LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=IsR.AddedBy
+										 Left Join EmployeeInformation EmIU on EmIU.SystemId=IsR.UpdatedBy
+										  Left Join EmployeeInformation PreparedBy on PreparedBy.SystemId=IsR.Preparedby
+										 left join trn.IssueRequestMasterProcessMap IRPmap On IRPmap.IssueRequestMasterId=IsR.Id
+										 left join hkp.Process p On p.Id=IRPmap.ProcessId
+										 LEFT JOIN(
+							SELECT distinct PDAMAP.IssueRequestMasterId
+								,SalesOrderId=STUFF((select distinct ','+xPDAMAP.SalesOrderId from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestMasterSalesOrderMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,FGColor1=STUFF((select distinct ','+FCV.UserName from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+							   ,FGColor2=STUFF((select distinct ','+SCV.UserName from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,FGColor3=STUFF((select distinct ','+TCV.UserName from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,ProductionOrder=STUFF((select distinct ','+PrOrderDetail.ProductionOrderId from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestMasterSalesOrderMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								left join trn.ProductionOrderDetail PrOrderDetail ON PrOrderDetail.SalesOrderId=xPDAMAP.SalesOrderId
+								
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+								from  trn.IssueRequestMasterSalesOrderMap PDAMAP 							 
+							  group by  PDAMAP.IssueRequestMasterId
+							)PO ON PO.IssueRequestMasterId = IsR.Id
+                      WHERE IsR.Id ='" + issueId + "'";
+
+                return _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        public DataTable loadIssueRequestDetail(string issueId)
+        {
+            string strSQL1;
+            try
+            {
+                strSQL1 = @"DECLARE @Own VARCHAR(10)='Own',@Other VARCHAR(10)='Other';
+                            Select 
+                            ROW_NUMBER() OVER(ORDER BY IR.Id ASC) AS SiNo
+                            ,IR.Id
+                            ,CC.UserName AS CostCenterName
+                            ,B.UserName ActivityName 
+                            ,mm.UserName MaterialMasterName
+                            ,ART.StandardName
+                            ,ART.Code
+                            ,IR.RequisitionId
+                            ,IR.RequisitionDetailId
+                            ,TUoM.UserName AS UOM
+                            ,IR.RequestedQty
+                            ,IR.RejectedQty
+                            ,IR.RequestedQty+IR.RejectedQty AS Total
+
+                            ,En.Username As EntityName
+                            ,MRM.EntityId
+                            --,Bu.Code
+                            --,Bu.UserName
+                            ,Us.FullName AddedBy
+                            ,MRM.Id RequisitionNo
+                            ,MRD.ArticleId
+                            ,Dp.UserName DepartmentName
+                            ,MGM.UserName MaterialMasterGroupName
+
+                            ,MT.UserName MaterialType
+                            ,MRD.FirstCharacteristicsId
+                            ,FC.UserName AS FirstCharacteristics
+                            ,MRD.FirstCharacteristicsValueId
+                            ,FCV.UserName AS FirstCharacteristicsValue
+                            ,MRD.SecondCharacteristicsId
+                            ,SC.UserName AS SecondCharacteristics
+                            ,MRD.SecondCharacteristicsValueId
+                            ,SCV.UserName AS SecondCharacteristicsValue
+                            ,MRD.ThirdCharacteristicsId
+                            ,TC.UserName AS ThirdCharacteristics
+                            ,MRD.ThirdCharacteristicsValueId
+                            ,TCV.UserName AS ThirdCharacteristicsValue
+
+                            ,IR.CostCenterId
+                            ,IR.ExpenseActivityId
+                            ,IR.BudgetMasterId
+                            ,IR.GLGeneralInfoId 
+                            ,OwnOtherQty=CASE
+								WHEN IR.CostCenterId=IR.ExpenseActivityId THEN @Own						
+								ELSE @Other
+							
+							END
+,isnull(IGL1.UserName,'') AS CGL									
+							,isnull(B1.UserName,'') AS CBUdget
+							,isnull(IA1.UserName,'') AS GLBudgetActivity
+                            --,IR.AddedBy
+							--,CC.UserName AS CostCenterName
+                            from trn.IssueRequest IR
+                            left Join [TRN].[MaterialRequsitionDetails] As MRD on MRD.Id=IR.REquisitionDetailId
+                            Left Join [TRN].[MaterialRequsitionMaster] As MRM On MRD.MaterialReqqusitionMasterId=MRM.Id
+                            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
+                            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
+
+                            Left Join [ORG].[Entity] As En On MRM.EntityId=En.Id
+                            Left Join [HKP].[Budget] As Bu On Bu.Id=MRD.ActivityId
+                            Left JOIN MST.MaterialMaster AS MM ON IR.MaterialMasterId = MM.Id
+                            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                            LEFT JOIN MST.MaterialMasterArticle AS ART ON IR.ArticleId = ART.Id
+                            LEFT JOIN HKP.Characteristics AS FC ON IR.FirstCharacteristicsId = FC.Id
+                            LEFT JOIN HKP.Characteristics AS SC ON IR.SecondCharacteristicsId = SC.Id
+                            LEFT JOIN HKP.Characteristics AS TC ON IR.ThirdCharacteristicsId = TC.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS FCV ON IR.FirstCharacteristicsValueId = FCV.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS SCV ON IR.SecondCharacteristicsValueId = SCV.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS TCV ON IR.ThirdCharacteristicsValueId = TCV.Id
+                             LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IR.TransactionUoMId = TUoM.Id
+                            LEFT JOIN [SEC].[User] As Us On MRM.AddedBy=Us.UserId
+                            LEFT JOIN dbo.EmployeeInformation As Em On Us.EmployeeId=Em.SystemId
+                            LEFT JOIN [ORG].[Department] AS Dp On Dp.Id=Em.DepartmentId
+                            LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+                            LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IR.GLGeneralInfoId 
+									LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IR.BudgetMasterId
+									LEFT JOIN HKP.Activity IA1 ON IA1.Id=IR.ExpenseActivityId
+									Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+
+                      where IR.IssueRequestMasterId='" + issueId + "'";
+
+                return _sqlRepository.GetDataTable(strSQL1);
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        public double makeIssueDetailsTable(WordDocument document, DataTable dsOrderMaster, string issueId)
+        {
+            string replaceString = "{IssueSlipDetails}";
+
+            DataTable dsOrderItems, dsTax;
+
+            //dsOrderItems = loadOrderMasterItems(grnId);
+            //dsTax = loadOrderMasterTax(grnId);
+
+            int LasColumnIndex = 10;
+            Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
+            //DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
+
+            //LasColumnIndex++;
+            //dicTaxes.Add("totaltax", LasColumnIndex);
+            //if (dv.Count > 0)
+            //{
+            //    for (int i = 0; i < dv.Count; i++)
+            //    {
+            //        LasColumnIndex++;
+            //        dicTaxes.Add(dv[i]["TaxCode"].ToString(), LasColumnIndex);
+            //        LasColumnIndex++;
+            //    }
+            //}
+
+
+            WTable wTable = new WTable(document);
+            wTable.TableFormat.Borders.LineWidth = 1;
+            wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex + 1);
+
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            FontBold.Bold = true;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SL");
+            range.ApplyCharacterFormat(FontBold);
+            int colSLNo = COL; COL++;
+            wTable.Rows[ROW].Cells[colSLNo].Width = 50;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("IssueId");
+            range.ApplyCharacterFormat(FontBold);
+            int colIssueId = COL; COL++;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Cost Center Name");
+            range.ApplyCharacterFormat(FontBold);
+            int CostCenterNameId = COL; COL++;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Expe.Activity Code ");
+            range.ApplyCharacterFormat(FontBold);
+            int colActivityCode = COL; COL++;
+
+
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Material");
+            range.ApplyCharacterFormat(FontBold);
+            int colItemName = COL; COL++;
+            wTable.Rows[ROW].Cells[colItemName].Width = 120;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
+            range.ApplyCharacterFormat(FontBold);
+            int colArticleCode = COL; COL++;
+            wTable.Rows[ROW].Cells[colArticleCode].Width = 120;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
+            range.ApplyCharacterFormat(FontBold);
+            int colSku1 = COL; COL++;
+            wTable.Rows[ROW].Cells[colSku1].Width = 70;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU2");
+            range.ApplyCharacterFormat(FontBold);
+            int colSku2 = COL; COL++;
+            wTable.Rows[ROW].Cells[colSku2].Width = 70;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
+            range.ApplyCharacterFormat(FontBold);
+            int colSku3 = COL; COL++;
+            wTable.Rows[ROW].Cells[colSku3].Width = 70;
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+            range.ApplyCharacterFormat(FontBold);
+            int colUOM = COL; COL++;
+            wTable.Rows[ROW].Cells[colUOM].Width = 70;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Qty");
+            range.ApplyCharacterFormat(FontBold);
+            int colValidQty = COL; //COL++;
+
+            #endregion column headers
+            double totalValue = 0;
+            int startRow = ROW;
+            for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
+            {
+                ROW++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    //TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+
+
+                TROW.Cells[colSLNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SiNo"].ToString());
+                TROW.Cells[colIssueId].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Id"].ToString());
+                TROW.Cells[CostCenterNameId].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CostCenterName"].ToString());
+                TROW.Cells[colActivityCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["GLBudgetActivity"].ToString());
+                TROW.Cells[colItemName].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMasterName"].ToString());
+                TROW.Cells[colArticleCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["StandardName"].ToString());
+                TROW.Cells[colSku1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
+
+                TROW.Cells[colSku2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
+
+                TROW.Cells[colSku3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
+
+
+                TROW.Cells[colUOM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["UOM"].ToString());
+                TROW.Cells[colValidQty].AddParagraph().AppendText(dsOrderMaster.Rows[i]["RequestedQty"].ToString());
+
+
+                totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["Total"].ToString());
+
+                //if (dv.Count > 0)
+                //{
+                //    DataView dvtax = new DataView(dsTax.DefaultView.ToTable());
+                //    //double totalTax = 0;
+
+                //    for (int T = 0; T < dv.Count; T++)
+                //    {
+                //        dvtax.RowFilter = "TaxCode='" + dv[T]["TaxCode"].ToString() + "' AND InventoryReceiveDetailId ='" + dsOrderMaster.Rows[i]["InventoryReceiveDetailId"].ToString() + "'";
+                //        if (dvtax.Count > 0)
+                //        {
+                //            TROW.Cells[dicTaxes[dv[T]["TaxCode"].ToString()]].AddParagraph().AppendText(Convert.ToDouble(dvtax[0]["Percentage"].ToString()).ToString("F2"));
+
+                //            TROW.Cells[dicTaxes[dv[T]["TaxCode"].ToString()] + 1].AddParagraph().AppendText(Convert.ToDouble(dvtax[0]["TaxAmount"].ToString()).ToString("F2"));
+
+                //        }
+                //    }
+
+                //}
+                //ROW++;
+            }
+
+
+            #region Total
+            int TotalRow = ROW + 1;
+            wTable.AddRow();
+            WTableRow _TROW = wTable.LastRow;
+            _TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
+
+
+            for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
+            {
+                if (C == colSLNo || C == CostCenterNameId || C == colIssueId || C == colActivityCode || C == colItemName || C == colArticleCode || C == colSku1 || C == colSku2 || C == colSku3 || C == colUOM)
+                    continue;
+
+                double value = 0;
+                for (int i = startRow; i < TotalRow; i++)
+                {
+
+                    foreach (WParagraph item in wTable.Rows[i].Cells[C].Paragraphs)
+                    {
+                        value += clsStdLib.dbl(item.Text);
+                    }
+                }
+                _TROW.Cells[C].AddParagraph().AppendText(value.ToString("F2")).ApplyCharacterFormat(FontBold);
+            }
+            #endregion Total
+
+
+            ROW++;
+            #region Sub Total
+            //int SubTotalRow = ROW;
+            //int SubTotalColumn = 0;//_TROW.Cells.Count - 5;
+            //wTable.AddRow();
+            //_TROW = wTable.LastRow;
+
+            //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
+
+            //double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(TrnAmount)", "").ToString());
+            //- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
+            //+ clsStdLib.dbl(dsTax.Compute("SUM(TaxAmount)", "").ToString());
+
+            //_TROW.Cells[SubTotalColumn + 1].AddParagraph().AppendText(total.ToString("F2"));
+
+            #endregion Total
+
+
+            ROW++;
+            #region Total Payable
+            //int TotalPayableRow = ROW;
+            //int TotalPayableColumn = 0;//_TROW.Cells.Count - 5;
+            //wTable.AddRow();
+            //_TROW = wTable.LastRow;
+
+            //_TROW.Cells[TotalPayableColumn].AddParagraph().AppendText("Total Amount Payable");
+            //_TROW.Cells[TotalPayableColumn + 1].AddParagraph().AppendText("Need To Discuss");
+
+            #endregion Total Payable
+
+            ROW++;
+
+            #region paragrpath formats
+            //Adds a new paragraph style named "MyStyle"
+            IWParagraphStyle myStyle = document.AddParagraphStyle("MyStyle");
+            //Sets the formatting of the style
+            myStyle.CharacterFormat.FontSize = 8f;
+            myStyle.CharacterFormat.TextColor = Color.Black;
+            myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            for (int R = 0; R < wTable.Rows.Count; R++)
+            {
+                WTableRow TROW = wTable.Rows[R];
+                TROW.Cells[0].Width = 30;
+                //if (dv.Count < 3)
+                //    TROW.Cells[0].Width = 120 + ((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
+
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.ApplyStyle("MyStyle");
+                    }
+                }
+            }
+
+            #endregion paragrpath formats
+
+
+            #region merging section
+
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            //for (int i = 0; i < dv.Count; i++)
+            //    wTable.ApplyHorizontalMerge(ROW, dicTaxes[dv[i]["TaxCode"].ToString()], dicTaxes[dv[i]["TaxCode"].ToString()] + 1);
+
+            //primary cells merging (veritcal)
+            ROW++;
+            //for (int i = 0; i <= colTotalTaxableAmount; i++)
+            //    wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+
+
+            IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
+            style.CharacterFormat.Bold = true;
+            style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
+            //Adds new paragraph to the section
+
+
+            //for (int CELL = 0; CELL < wTable.Rows[SubTotalRow].Cells.Count; CELL++)
+            //    foreach (WParagraph PARA in wTable.Rows[SubTotalRow].Cells[CELL].Paragraphs)
+            //        PARA.ApplyStyle("SubTotalStyle");
+
+            //wTable.ApplyHorizontalMerge(SubTotalRow, 1, wTable.LastCell.GetCellIndex());
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+            double total = 0.00;
+            return total;
+        }
+
 
         #endregion
     }

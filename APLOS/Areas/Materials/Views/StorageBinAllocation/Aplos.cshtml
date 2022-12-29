@@ -288,7 +288,7 @@
     <div class="content-container-fluid" style="color:black;">
         <div style="color:black;" id="GridPrint" ej-grid e-datasource="binAllocationHeads" e-allowfiltering="true" e-allowpaging="true"
              e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true" e-recorddoubleclick="Get"
-             e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true" >
+             e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
             <div e-columns>
                 <div e-column e-field="UserName" e-headertext="UserName" e-width="60" e-filter="false"></div>
                 <div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="180"></div>
@@ -302,6 +302,12 @@
                 @*<div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
                 <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>*@
             </div>
+        </div>
+  
+        <div class="col-md-12 text-right" style="padding-top: 17px;">
+            <ul class="common-btn list-inline text-right">
+                <li> <button ng-click="GetStorageBinAllocationAllReport();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Download</button></li>
+            </ul>
         </div>
     </div>
 </div>

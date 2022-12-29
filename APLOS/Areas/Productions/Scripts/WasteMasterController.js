@@ -124,6 +124,7 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.ModelTemp = {
         Id: null,
         Sequence: 0,
+        WasteTypeId:null,
         ProcessId: null,
         UOMId: null,
         Category: null,
@@ -278,4 +279,16 @@ function WasteMasterController(cboService, commonMessage, $scope, $rootScope, ba
 
         angular.element(document.querySelector('#BudgetPop')).modal('hide');
     }
+
+    $scope.WasteTypeList = [];
+    $scope.getWasteType = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetWasteType",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.WasteTypeList = response.data;
+        });
+    }
+    $scope.getWasteType();
 }
