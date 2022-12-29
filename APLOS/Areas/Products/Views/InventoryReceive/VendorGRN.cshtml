@@ -1542,14 +1542,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group" >
-                            <label class="col-sm-4 control-label" ng-show="binMasterList.length">Bin Allocation</label>
-                            <div class="col-sm-8 input-group">
-                                <span class="input-group-btn">
-                                    <button tabindex="1" ng-click="getbinAllocationPopUp();" ng-show="binMasterList.length" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
-                            </div>
-                        </div>
+
 
                         <div class="form-group">
                             <label class="col-sm-4 control-label" title="Contract" ng-hide="productNew.OrderSpecific==='No'">Master Order</label>
@@ -1622,7 +1615,7 @@
                     <div class="form-group" id="div_qty">
                         <label class="col-sm-4 control-label">Transaction Qty<sup>*</sup></label>
                         <div class="col-sm-4 show-message" style="padding-right:0px;">
-                            <input type="text" n-decimals="{{currencyPrecision}}" name="Transaction Qty" maxlength="18" ng-model="detailModel.TransactionQty" class="form-control text-right" ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_qty', 'detailModel','TransactionQty');calculateAmountPOPUP();">
+                            <input type="text" n-decimals="2"  name="Transaction Qty" maxlength="18"  ng-model="detailModel.TransactionQty" class="form-control text-right" ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_qty', 'detailModel','TransactionQty');calculateAmountPOPUP();">
                         </div>
                         <div class="col-sm-4 show-message" style="padding-left:0px;">
                             <div class="select-style">
@@ -1708,6 +1701,7 @@
                             </div>
                         </div>
                     </div>
+                    
                 </div>
                 <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group" id="div_tamnt">
@@ -1735,6 +1729,19 @@
                                         <option value="Pending">Pending</option>
                                         <option value="Reject">Reject</option>
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" ng-show="binMasterList.length">Bin Allocation</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="Finished Goods" ng-model="TotalBinQty" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button tabindex="1" ng-click="getbinAllocationPopUp();" ng-show="binMasterList.length" ng-disabled="detailModel.TransactionQty==null" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
                                 </div>
                             </div>
                         </div>
