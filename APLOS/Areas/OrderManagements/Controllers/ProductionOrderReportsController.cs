@@ -4611,8 +4611,8 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 Dictionary<string, DateTime> allDates = new Dictionary<string, DateTime>();
                 foreach (KeyValuePair<string, List<DataRow>> item in dicActualData)
                     for (int i = 0; i < item.Value.Count; i++)
-                        if (allDates.ContainsKey(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString() + item.Value[i]["Id"].ToString()) == false)
-                            allDates.Add(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString() + item.Value[i]["Id"].ToString(), Convert.ToDateTime(item.Value[i]["ActualDate"].ToString()));
+                        if (allDates.ContainsKey(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString() + item.Value[i]["Id"].ToString() + item.Value[i]["PartyId"].ToString()) == false)
+                            allDates.Add(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString() + item.Value[i]["Id"].ToString() + item.Value[i]["PartyId"].ToString(), Convert.ToDateTime(item.Value[i]["ActualDate"].ToString()));
 
 
                 allDates.OrderBy(ee => ee.Value);
@@ -6529,7 +6529,7 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
 
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0) AS ActualMinutes,
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*pp.ProductionHours*60) AS ActualEfficiency
-							,pp.LotNumber LotNo,ORD.Customer,ORD.ProductCode,PST.UserName ProductionStatus
+							,pp.LotNumber LotNo,ORD.Customer,ORD.ProductCode,PST.UserName ProductionStatus,ORD.PartyId
 
                             FROM (SELECT  ps.Id,ps.ProcessId,ps.LotNumber,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
                                     FROM trn.ProductionSummary AS ps 
@@ -6561,7 +6561,7 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
                                                         select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory,
                                                           SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
                                                           SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
-														  ,P.UserName Customer,PL.Code ProductCode
+														  ,P.UserName Customer,PL.Code ProductCode,P.Id PartyId
                                                         from trn.ProductionOrderDetail POD 
                                                         left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
                                                         left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
@@ -6570,15 +6570,15 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
 														left join HKP.Party P on P.Id=MO.PartyId
                                                         left join MasterOrderExchangeRates RT ON RT.TransactionId=MO.Id
                                                         left JOIN org.Company AS com ON com.Id=mo.CompanyId
-                                                        LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN ('','119','112','121','115','116','117','118','114','120'))
-                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN ('','119','112','121','115','116','117','118','114','120'))
+                                                        LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + entityid + @"))
+                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + entityid + @"))
                                                         LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
                                                         left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
                                                         LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
                                                         left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
                                                         left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                                         left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-                                                        group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId,P.UserName,PL.Code
+                                                        group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId,P.UserName,PL.Code,P.Id
                                               ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId";
 
                 DataTable dt = _sqlRepository.GetDataTable(sql);
@@ -6587,10 +6587,10 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
                 string _id = "";
                 foreach (DataRow item in dt.Rows)
                 {
-                    if (_id != item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString() + item["Id"].ToString())
+                    if (_id != item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString() + item["Id"].ToString() + item["PartyId"].ToString())
                     {
                         drtemp = new List<DataRow>();
-                        _id = item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString() + item["Id"].ToString();
+                        _id = item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString() + item["Id"].ToString() + item["PartyId"].ToString();
                         dtOrderMaster.Add(_id, drtemp);
 
 
