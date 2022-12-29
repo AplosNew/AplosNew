@@ -713,10 +713,11 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				)/*&&$scope.detailList[i].CountryId === $scope.detailModel.CountryId*/
 					throw 'This material already issued.';
 			}
-			$scope.detailModel.FirstCharacteristicsId = $scope.char1.CharacteristicsId;
-			$scope.detailModel.FirstCharacteristicsValueId = $scope.char1.CharacteristicsValueId;
-			$scope.detailModel.FirstCharacteristicText = $scope.char1.FreeText;
-
+			if (!$scope.detailModel.SKU1) {
+				$scope.detailModel.FirstCharacteristicsId = $scope.char1.CharacteristicsId;
+				$scope.detailModel.FirstCharacteristicsValueId = $scope.char1.CharacteristicsValueId;
+				$scope.detailModel.FirstCharacteristicText = $scope.char1.FreeText;
+            }
 			$scope.detailModel.SecondCharacteristicsId = $scope.char2.CharacteristicsId;
 			$scope.detailModel.SecondCharacteristicText = $scope.char2.FreeText;
 			$scope.detailModel.SecondCharacteristicsValueId = $scope.char2.CharacteristicsValueId;
@@ -807,6 +808,36 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		};
 	}
 
+	$scope.selectIndependentcharacteristics = function (x) {
+		//debugger;
+		try {
+			if (!$scope.hasSku) {
+				var tempSKU = x.data;
+				$scope.detailModel.FirstCharacteristicsId = tempSKU.CharacteristicsId;
+				$scope.detailModel.FirstCharacteristicsValueId = tempSKU.Value;
+				$scope.detailModel.SKU1 = tempSKU.Text;
+				$scope.detailModel.FirstCharacteristicText = tempSKU.Text;
+				getMaterialStock();
+            }
+		
+			angular.element(document.querySelector('#searchIndependentcharacterepopup')).modal('hide');
+		} catch (e) {
+			ShowResult(e, '', 'searchIndependentcharacterepopup');
+		}
+	};
+	$scope.IndependentcharacteristicsList = [];
+	$scope.getIndependentCharacteristicsList = function () {
+		$http({
+			method: 'GET',
+			url: 'Materials/MaterialMaster/GetCharacteristicsWithoutMaterial/',
+		}).then(function (response) {
+			$scope.IndependentcharacteristicsList = [];
+			$scope.IndependentcharacteristicsList = response.data.charData;
+		});
+		angular.element(document.querySelector('#searchIndependentcharacterepopup')).modal('show');
+
+	};
+
 	$scope.getCharacteristicsList = function (id) {
 		$scope.clearCharNames();
 		$http({
@@ -875,6 +906,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 			}
 		});
 	};
+
 	$scope.removeRowModal = function (ob, index) {
 		try {
 			$scope.delData = ob;

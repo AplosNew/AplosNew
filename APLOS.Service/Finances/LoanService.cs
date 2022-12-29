@@ -440,6 +440,8 @@ namespace Library.Service.Finances
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailTo.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                         DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2)
                     });
+                    totalAmountDr += voucherDetailTo.DrAmount;
+                    totalCurrencyAmountDr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2);
                     if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId) || !string.IsNullOrEmpty(voucherDetailTo.CashMasterId))
                     {
                         if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId))

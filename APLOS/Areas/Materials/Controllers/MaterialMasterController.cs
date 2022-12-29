@@ -211,6 +211,13 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetCharacteristicsWithoutMaterial()
+        {
+            var charData = _materialMasterService.GetCharacteristicsWithoutMaterial();
+            return Json(new { charData, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetRevenueBudget(string materialMasterId)
         {
             return Json(_materialMasterService.GetRevenueBudget(materialMasterId), JsonRequestBehavior.AllowGet);
