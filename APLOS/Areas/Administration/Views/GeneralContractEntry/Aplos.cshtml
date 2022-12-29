@@ -124,7 +124,7 @@
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button ng-click="Save();" id="savebtn" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-                    <li> <button ng-click="Update();" id="updatebtn" class="btn" tabindex="9" style="display:none"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>
+                    <li> <button ng-click="Update();" ng-disabled="ModelNew.ApprovedStatus == 'Approved'" id="updatebtn" class="btn" tabindex="9" style="display:none"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>
                     <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                 </ul>
             </div>
