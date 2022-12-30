@@ -385,9 +385,12 @@ namespace Library.Service.EmployeeServices
 
                 }
 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, DsHistory);
+
                 #region ProductionSummary
-              
-             
+
+
                 if (!string.IsNullOrEmpty(processId))
                 {
                     netWeight = 0;
@@ -417,15 +420,12 @@ namespace Library.Service.EmployeeServices
                     drProductionSummary["AddedDate"] = DateTime.Now;
                     drProductionSummary["AddedFromIP"] = "1";
 
-                    dsProductionSummary.Tables[0].Rows.Add(drProductionSummary); 
+                    dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
                 }
+                _info.SaveDataSets(dsProductionSummary);
                 #endregion
 
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, DsHistory, dsProductionSummary);
-
-                if(inventory !="")
+                if (inventory !="")
                 {
                     return "Inventory not Found of these cartons:- "+inventory;
                 }
@@ -543,6 +543,12 @@ namespace Library.Service.EmployeeServices
 
                 }
 
+                
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, DsHistory, dsProductionSummary);
+
                 #region ProductionSummary
 
 
@@ -578,10 +584,6 @@ namespace Library.Service.EmployeeServices
                     dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
                 }
                 #endregion
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, DsHistory, dsProductionSummary);
 
                 if (inventory != "")
                 {

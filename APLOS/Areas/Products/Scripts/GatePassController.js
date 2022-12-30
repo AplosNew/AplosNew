@@ -4929,49 +4929,6 @@ function GatePassController(accountService, addressService, $location, $window, 
 	};
 
 
-	$scope.productNew.GateEntryNo = null;
-	$scope.productNew.EntryDate = null;
-
-	$scope.POPopUpGateEntry = function () {
-		$scope.getalldataGateEntry();
-		angular.element(document.querySelector('#POPopUpGateEntry')).modal('show');
-	};
-
-	$scope.modelValidation = function (divId, modelName, fieldName, message) {
-		var msg = fieldName + ' is required.';
-		msg = baseService.isUndefinedOrNull(message) ? msg : message;
-		var str = fieldName;
-		if (baseService.isUndefinedOrNull($scope[modelName][str.replace(/\s/g, '')]))
-			throw manualValidation(divId, true, msg);
-		else
-			return manualValidation(divId, false);
-	};
-
-	$scope.GriddataGateEntry = [];
-	$scope.getalldataGateEntry = function (partyId) {
-		$http({
-			method: "GET",
-			dataType: 'JSON',
-			url: 'Products/GoodsReceiveNote/GetListOfPOGateEntry?partyCode=' + partyId,
-		}).then(function successCallback(response) {
-			$scope.GriddataGateEntry = response.data;
-		});
-		angular.element(document.querySelector('#POPopUpGateEntry')).modal('show');
-	};
-
-	$scope.POPopUpCloseGateEntry = function () {
-		angular.element(document.querySelector('#POPopUpGateEntry')).modal('hide');
-	};
-
-	$scope.recorddoubleclickGateEntry = function ($event) {
-		var x = $event;
-		var Id = x.data.Id;
-		$scope.productNew.GateEntryNo = x.data.Id;
-		$scope.productNew.EntryDate = x.data.EntryDate;
-
-		$scope.POPopUpCloseGateEntry();
-	}
-
 	// Written By Nitesh
 	
 
