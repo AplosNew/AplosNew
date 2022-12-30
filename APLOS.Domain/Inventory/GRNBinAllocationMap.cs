@@ -14,6 +14,7 @@ namespace Library.Model.Inventory
         public string StorageBinMasterId { get; set; }
 
         public string PurchaseOrderDetailId { get; set; }
+        public decimal Qty { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
