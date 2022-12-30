@@ -4100,7 +4100,6 @@ namespace Library.MaterialManagement.Inventory
             {
                 cmdText = @"SELECT II.Id AS IssueId,II.IssueType
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
-	                        ,II.IssueType
 	                        --,II.CompanyId
 	                        --,II.PlantId
 	                        -- ,II.EntityId  ---userName as Entityname 
