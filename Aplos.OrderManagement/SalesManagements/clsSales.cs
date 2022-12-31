@@ -63,7 +63,7 @@ namespace Library.OrderManagement.Sales
                             , hasFirst=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId=SO.Id)
                             
                             ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
-                            , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),mm.HSNCodeId,mo.InvoicingPartyPlantId
+                            , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),mma.HSNCodeId,mo.InvoicingPartyPlantId
 							, Qty=case when SCH.CharacteristicsValueId<>''  then SCH.Qty
 										when FCH.CharacteristicsValueId<>'' then FCH.Qty 
 										else SO.Qty end
@@ -348,7 +348,7 @@ namespace Library.OrderManagement.Sales
 							, hasFirst=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId=SO.Id)
                             
 							,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
-							, isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),mm.HSNCodeId,mo.InvoicingPartyPlantId
+							, isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),MMA.HSNCodeId,mo.InvoicingPartyPlantId
 							,POLR.Qty,POLR.PlanQty,Balance=POLR.PlanQty-POLR.Qty,TransactionQty=POLR.Qty,TransactionAmount=POLR.Qty*SO.Rate
 							,BaseRate=SO.Rate,TransactionRate=SO.Rate,BaseQty=POLR.Qty,TransactionQty=POLR.Qty,BaseAmount=POLR.Qty*SO.Rate,POLR.Qty SalesQty,'' GoodsDescription
 							FROM [TRN].[SalesOrder] AS SO
@@ -504,7 +504,7 @@ namespace Library.OrderManagement.Sales
                             LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId = pk.DispatchResponsiblePersonId
                             LEFT JOIN hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
                             LEFT JOIN org.Entity en on en.Id = pk.EntityId
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
 							Where SP.SalesId='" + salesId + "'";
                 return _sqlRepository.GetDataCollection(str);
@@ -597,8 +597,8 @@ namespace Library.OrderManagement.Sales
   FROM TRN.Sales S
 LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=s.Id 
 LEFT JOIN MST.MaterialMaster AS mm ON sm.MaterialMasterId=mm.Id
-LEFT JOIN HKP.HSNCode AS h ON h.Id = mm.HSNCodeId
 LEFT JOIN MST.MaterialMasterArticle AS mma ON sm.ArticleId=mma.Id
+LEFT JOIN HKP.HSNCode AS h ON h.Id = mma.HSNCodeId
 LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = sm.BaseUOMId
 LEFT JOIN hkp.Party P ON P.Id = S.PartyId
 LEFT JOIN MST.AddressMaster AS am ON am.Id = P.AddressMasterId
@@ -650,8 +650,8 @@ WHERE s.Id " + Ids + "";
   FROM TRN.Sales S
 LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=s.Id 
 LEFT JOIN MST.MaterialMaster AS mm ON sm.MaterialMasterId=mm.Id
-LEFT JOIN HKP.HSNCode AS h ON h.Id = mm.HSNCodeId
 LEFT JOIN MST.MaterialMasterArticle AS mma ON sm.ArticleId=mma.Id
+LEFT JOIN HKP.HSNCode AS h ON h.Id = mma.HSNCodeId
 LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = sm.BaseUOMId
 LEFT JOIN hkp.Party P ON P.Id = S.PartyId
 LEFT JOIN MST.AddressMaster AS am ON am.Id = P.AddressMasterId

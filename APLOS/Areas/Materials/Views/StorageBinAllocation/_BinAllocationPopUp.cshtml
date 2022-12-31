@@ -1,16 +1,16 @@
 ﻿<style>
 	.modellgModify {
-		width: 800px;
+		width: 900px;
 	}
 </style>
 <div class="modal fade site-modal in" id="binAllocationPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
-        <div class="modal-content" style="overflow:scroll">
-            <div class="modal-header" style="width:1960px;"> Material Stock<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+        <div class="modal-content" >
+            <div class="modal-header" style="width:1960px;"> Bin Allocation<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
-                    <div id="GridEditB" ej-grid e-datasource="binMasterList" e-load="loadGridEdit"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" 
+                    @*<div id="GridEditB" ej-grid e-datasource="binMasterList" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="BinAllocationGridAllCheck">
                         <div e-columns>
                             <div e-column e-headertext="Select" e-headertemplateid="#headerTemplateB" e-template="#checkboxTemplateB" e-textalign="center" e-width="20"></div>
@@ -21,15 +21,63 @@
                             <div e-column e-field="MaterialName" e-headertext="Material " e-width="80" textAlign='Left'></div>
                             <div e-column e-field="AccessType" e-headertext="AccessType " e-width="80" textAlign='Left'></div>
                         </div>
+                    </div>*@
+                    <div class="table-responsive modal-table" ng-show="binMasterList.length">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Bin_Code</th>
+                                    <th>Bin_Ref</th>
+                                    <th>Bin_Allocation_Qty</th>
+                                    <th>MaterialName</th>
+                                    <th>StorageBinMaster</th>
+                                    <th>StorageLocation</th>
+                                    <th>MaterialType</th>
+                                    <th>MaterialGroup</th>
+                                    <th>AccessType</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in binMasterList">
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox"  ng-model="x.check">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{x.BinCode}}</td>
+                                    <td>{{x.BinReference}}</td>
+
+                                    <td>
+                                        <input type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Bin Qty" ng-model="x.Qty">
+                                    </td>
+                                    <td>{{x.MaterialName}}</td>
+                                    <td>{{x.StorageBinMaster}}</td>
+                                    <td>{{x.StorageLocation}}</td>
+                                    <td>{{x.MaterialType}}</td>
+                                    <td>{{x.MaterialGroup}}</td>
+                                    <td>{{x.AccessType}}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-right">Total</td>
+                                    <td class="text-right"><b>{{ (binMasterList) | sumByKey:'Qty' | number:2}}</b></td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
-                    <script type="text/x-jsrender" id="headerTemplateB">
+                    @*<script type="text/x-jsrender" id="headerTemplateB">
                         <input type="checkbox" id="headchkB" />
                     </script>
 
                     <script type="text/template" id="checkboxTemplateB">
 
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.check" e-value="data.check" />
-                    </script>
+                    </script>*@
                 </div>
                 <div class="common-btn" style="margin-top:10px">
                     <ul class="list-inline text-right">
