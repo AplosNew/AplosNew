@@ -268,9 +268,9 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             for (var i = 0; i < $scope.MasterLCList.length; i++) {
                 if ($scope.MasterLCList[i].isSelected == true) {
 
-                    if (NewMasterLCList, $scope.MasterLCList[i].PartyId) {
-                        NewMasterLCList.push($scope.MasterLCList[i].PartyId);
-                    }
+                        NewMasterLCList.push($scope.MasterLCList[i]);
+                    //if (NewMasterLCList, $scope.MasterLCList[i].PartyId) {
+                    //}
                 }
             }
             if (NewMasterLCList.length == 0) {
