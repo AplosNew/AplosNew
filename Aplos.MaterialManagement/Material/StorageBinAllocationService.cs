@@ -178,7 +178,7 @@ namespace Library.MaterialManagement.Material
 						 LEFT JOIN TRN.MaterialAlocation MA ON MA.BinAllocationHeaderId=BAH.Id
 						 LEFT JOIN MST.StorageBinMaster SBM ON SBM.Id=ba.StorageBinMasterId
                         LEFT JOIN HKP.MaterialStorage MS ON MS.Id=BAH.StorageLocationId
-                        WHERE   IRD.InventoryMaterialId is not null 	AND IRD.InventoryReceiveId in (" + poId + @")			
+                        WHERE   IRD.InventoryMaterialId is not null 	AND IRD.InventoryReceiveId in (" + poId + @")	and BAH.Id<>''		
 						UNION ALL
 					     SELECT  IR.Id AS POID,IRD.Id AS PODetailsID ,BAH.UserName ,SBM.UserName StorageBinMaster,MS.UserName StorageLocation,IRD.Id AS InventoryReceiveDetailId
                             , IRD.InventoryMaterialId MaterialMasterId,SBM.BinCode,SBM.BinReference,0 Qty 
@@ -201,7 +201,7 @@ namespace Library.MaterialManagement.Material
 						 LEFT JOIN TRN.MaterialAlocation MA ON MA.BinAllocationHeaderId=BAH.Id
 						 LEFT JOIN MST.StorageBinMaster SBM ON SBM.Id=ba.StorageBinMasterId
                          LEFT JOIN HKP.MaterialStorage MS ON MS.Id=BAH.StorageLocationId
-                         WHERE IRD.QtyStatus=0 and IRD.InventoryMaterialId is null 
+                         WHERE IRD.QtyStatus=0 and IRD.InventoryMaterialId is null AND  BAH.Id<>''
 						 AND IRD.InventoryReceiveId in (" + poId + @") ";
                 return _sqlRepository.GetDataCollection(sql);
             }
