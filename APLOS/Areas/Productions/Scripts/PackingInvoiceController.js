@@ -250,7 +250,6 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             $scope.salesOrderList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
                 getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
-
             }
         });
     }
@@ -352,7 +351,6 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#salesOrderItemPopUp')).modal('hide');
     }
 
-
     $scope.CalculateTransactionAmount = function (data) {
 
         data.TaxAmount = 0;
@@ -374,7 +372,6 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             data.NetAmount = parseFloat(data.TransactionAmount).toFixed(2);
         }
     }
-
 
     function getTaxCategoryList(hsnCodeId, soId, transactionAmount) {
         $http({
@@ -446,11 +443,6 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
-
-    //$scope.CloseSalesOrderPopUp = function () {
-    //    angular.element(document.querySelector('#SalesOrderPopUp')).modal('hide');
-
-    //}
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -673,6 +665,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.selectedPackingList = [];
         $scope.salesOrderList = [];
         $scope.SalesAdditionalInfoList = [];
+        $scope.taxCategoryList = [];
     }
 
     $scope.serviceChargeTaxPopUp = function () {

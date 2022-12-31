@@ -342,7 +342,7 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                                     Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
                                     Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
                                     left join [HKP].[Bank] bb on bb.Id = s.BankSystemID
-                                    Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') AND SL.MonthNo=Month('" + effectiveDate + @"')
+                                    Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') --AND SL.MonthNo=Month('" + effectiveDate + @"')
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
                                     WHERE  s.CompanyGroupId='" + _identity.CompanyGroupId + "' AND s.PlantId='" + _identity.PlantId + "' and sl.islocked=1 and  sl.IsDisbursed=0  " + wcPayrollGroup + @" 

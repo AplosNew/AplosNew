@@ -884,7 +884,7 @@ LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
 left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
 left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
 left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
-                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "'";
+                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and ApprovedStatus = 'Approved'";
                 }
                 else
                 {
@@ -898,7 +898,7 @@ LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
 left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
 left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
 left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
-                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and E.Id = '" + entityid + "'";
+                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and E.Id = '" + entityid + "' and ApprovedStatus = 'Approved'";
                 }
                 
                 data = _sqlRepository.GetDataTable(sql);
