@@ -357,6 +357,23 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         return false;
     }
 
+    $scope.AutoBinAllocation = function (podetail) {
+        $scope.RowLength = $filter("filter")($scope.binMasterList, { 'PODetailId': podetail.PODetailsID, MaterialMasterId: podetail.MaterialMasterId, 'ArticleId': podetail.ArticleId });
+        if ($scope.RowLength.length == 1 && $scope.RowLength[0].Qty == 0) {
+            for (var b = 0; b < $scope.binMasterList.where('PODetailId' == podetail.PODetailsID); b++) {
+                $scope.binMasterList[b].Qty = podetail.TransactionQty;
+            }
+        }
+        else  {
+            $scope.totalBinQty=  Math.round($filter("sumByKey")($filter("filter")($scope.binMasterList, { PODetailId: podetail.PODetailsID, MaterialMasterId: podetail.MaterialMasterId, 'ArticleId': podetail.ArticleId }), "Qty") * 1000 + Number.EPSILON) / 1000;
+            if ($scope.totalBinQty != podetail.TransactionQty) {
+                ShowResult("Please allocate Bin Qty ", 'failure');
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.requisitionListByPoForSave = [];
     $scope.checkValidation = function () {
         $scope.checkgridcheckornot = $filter("filter")($scope.inventoryMaterialListPO, { check: true });
@@ -426,6 +443,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 }
                 if ($scope.requisitionListByPo.length > 0) {
                     $scope.ReqAllocation($scope.inventoryMaterialListPO[i]);
+                    $scope.AutoBinAllocation($scope.inventoryMaterialListPO[i]);
                     $scope.RowLength = $filter("filter")($scope.requisitionListByPoForSave, { PODetailId: $scope.inventoryMaterialListPO[i].PODetailsID, MaterialMasterId: $scope.inventoryMaterialListPO[i].MaterialMasterId, ArticleId: $scope.inventoryMaterialListPO[i].ArticleId });
 
                     if ($scope.RowLength.length > 0) {
@@ -437,6 +455,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     }
                 }
                 else {
+
                     $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
                 }
                 
@@ -1641,17 +1660,13 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             for (var k = 0; k < $scope.tempList.length; k++) {
                 if ($scope.tempList[k].PartyId != $scope.tempList[0].PartyId) {// ||  && $scope.tempList[k].CurrencyId != $scope.tempList[0].CurrencyId
                     flagTemp = true;
-                    // angular.element(document.querySelector('#POPopUp')).modal('hide');
                     ShowResult('Have you selected Same vendor?', 'failure', 'POPopUp');
                     return;
-
                 }
                 else if ($scope.tempList[k].InvoicingPartyPlantId != $scope.tempList[0].InvoicingPartyPlantId) {// ||  && $scope.tempList[k].CurrencyId != $scope.tempList[0].CurrencyId
                     flagTemp = true;
-                    // angular.element(document.querySelector('#POPopUp')).modal('hide');
                     ShowResult('Have you selected Same Invoicing Party?', 'failure', 'POPopUp');
                     return;
-
                 }
                 else if ($scope.tempList[k].POType != $scope.tempList[0].POType) {
                     ShowResult('Have you selected Same Types of PO?', 'failure', 'POPopUp');
@@ -1748,6 +1763,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             getPartyPlantList();
             //getPartyPlantEditList();
             GetInventoryMaterialListByPO(id1, $scope.AcceptanceId);
+            
             getServiceChargeListPO(id1);
             $scope.productNew.PO = $scope.status;
             if ($scope.loadAcceptanceDetailList[0].IsNonCreditable === 'Yes') {
@@ -1854,6 +1870,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
             getPartyPlantList();
             GetInventoryMaterialListByPO(id1, $scope.AcceptanceId);
+            GetBinAllocationForPO(id1);
             GetRequisitionListByPO(id1);
             getServiceChargeListPO(id1);
             $scope.productNew.PO = $scope.status;
@@ -2101,6 +2118,47 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 $scope.GetPOMaterialTaxData();
             });
     }
+    $scope.binMasterPOList=[]
+    function GetBinAllocationForPO(inveReveiveId) {
+        $scope.masterId = inveReveiveId;
+        $http({
+            method: 'Post'
+            , url: 'Materials/StorageBinAllocation/GetBinAllocationForPO?poId=' + inveReveiveId
+        }).then(function (response) {
+            $scope.binMasterPOList = response.data;
+        });
+    }
+
+    $scope.binMasterList = [];
+    $scope.GetbinAllocationPopUp = function (data) {
+        $scope.PODetailsID = data.InventoryReceiveDetailId;
+        $scope.binMasterList = [];
+        for (var i = 0; i < $scope.binMasterPOList.length; i++) {
+            if ($scope.binMasterPOList[i].PODetailsID == $scope.PODetailsID) {
+                var getRow = $filter("filter")($scope.binMasterList, { "PODetailsID": $scope.PODetailsID });
+                if (getRow.length == 0) {
+
+                $scope.binMasterList.push($scope.binMasterPOList[i])
+                }
+            }
+        }
+        angular.element(document.querySelector('#binAllocationPopUp')).modal('show');
+    }
+
+    $scope.selectedBinAllocationList = [];
+    $scope.CloseBinAllocationPopUp = function () {
+        if ($scope.binMasterList.length) {
+            for (var b = 0; b < $scope.binMasterList.length; b++) {
+                if ($scope.binMasterList[b].check == true) {
+                    $scope.binMasterList[b].PurchaseOrderDetailId = $scope.tempPurchaseDetailId;
+                    $scope.selectedBinAllocationList.push($scope.binMasterList[b]);
+                }
+            }
+        }
+        $scope.tempPurchaseDetailId = null;
+        angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
+    }
+
     $scope.GetPOMaterialTaxData = function () {
         $scope.POMaterialTaxList = [];
         $http({
@@ -2377,7 +2435,9 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     }
 
                     else if (newpoQty < (parseFloat($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty).toFixed(2)) && (!baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].Tolerance) || $scope.inventoryMaterialListPO[i].Tolerance > 0)) {
-                        ShowResult('Current quantity can not grater than po qty and Tolerance qty!PO + Tolerance=' + newpoQty, 'failure');
+                        $scope.inventoryMaterialListPO[i].TransactionQty = '';
+                        $scope.inventoryMaterialListPO[i].Balance = $scope.inventoryMaterialListPO[i].POQty + $scope.inventoryMaterialListPO[i].ToleranceQty;
+                        ShowResult('Current quantity can not grater than  Balance Qty !', 'failure');
                         return false;
                     }
                     else if ($scope.inventoryMaterialListPO[i].ShortageQty > $scope.inventoryMaterialListPO[i].TransactionQty) {
@@ -2416,7 +2476,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
                             }
 
-                            $scope.inventoryMaterialListPO[i].Balance = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
+                            $scope.inventoryMaterialListPO[i].Balance = (($scope.inventoryMaterialListPO[i].POQty + $scope.inventoryMaterialListPO[i].ToleranceQty) - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
                             //$scope.inventoryMaterialListPO[i].ShortageQty = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
                             $scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - ($scope.inventoryMaterialListPO[i].ShortageQty + $scope.inventoryMaterialListPO[i].RejectionQty));
                             //$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].RejectionQty);
@@ -2440,7 +2500,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                                 }
 
                             }
-                            $scope.inventoryMaterialListPO[i].Balance = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
+                            $scope.inventoryMaterialListPO[i].Balance = (($scope.inventoryMaterialListPO[i].POQty + $scope.inventoryMaterialListPO[i].ToleranceQty) - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
                             //$scope.inventoryMaterialListPO[i].ShortageQty = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty+$scope.inventoryMaterialListPO[i].TransactionQty));
                             $scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - ($scope.inventoryMaterialListPO[i].ShortageQty + $scope.inventoryMaterialListPO[i].RejectionQty));
                             //$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].RejectionQty);
@@ -2450,7 +2510,6 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                             $scope.inventoryMaterialListPO[i].TrnAmount = ($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate).toFixed(2);
                             $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount)) * 100 + Number.EPSILON) / 100;
                             $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount)) * $scope.productNew.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
-
                         }
                         else {
                             $scope.inventoryMaterialListPO[i].TrnAmount = Math.round(($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate) * 100 + Number.EPSILON) / 100;
@@ -2458,11 +2517,8 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                             $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
                         }
                     }
-
                 }
             }
-
-
         }
         else {
             $scope.PreBal = data.Balance;
@@ -2498,7 +2554,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                                 $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
                             }
 
-                            $scope.inventoryMaterialListPO[i].Balance = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
+                            $scope.inventoryMaterialListPO[i].Balance = (($scope.inventoryMaterialListPO[i].POQty  + $scope.inventoryMaterialListPO[i].ToleranceQty) - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
                             //$scope.inventoryMaterialListPO[i].ShortageQty = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
                             $scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - ($scope.inventoryMaterialListPO[i].ShortageQty + $scope.inventoryMaterialListPO[i].RejectionQty));
                             //$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].RejectionQty);
@@ -2511,7 +2567,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                                 $scope.inventoryMaterialListPO[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
                                 $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
                             }
-                            $scope.inventoryMaterialListPO[i].Balance = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
+                            $scope.inventoryMaterialListPO[i].Balance = (($scope.inventoryMaterialListPO[i].POQty + $scope.inventoryMaterialListPO[i].ToleranceQty) - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
                             //$scope.inventoryMaterialListPO[i].ShortageQty = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty+$scope.inventoryMaterialListPO[i].TransactionQty));
                             $scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - ($scope.inventoryMaterialListPO[i].ShortageQty + $scope.inventoryMaterialListPO[i].RejectionQty));
                             //$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].RejectionQty);
@@ -2553,7 +2609,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 $scope.inventoryMaterialList[i].TrnAmount = data.TrnAmount;
                 $scope.inventoryMaterialList[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialList[i].TrnAmount;
                 $scope.inventoryMaterialList[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialList[i].TrnAmount;
-                $scope.inventoryMaterialList[i].Balance = ($scope.inventoryMaterialList[i].POQty - ($scope.inventoryMaterialList[i].OtherReceived + $scope.inventoryMaterialList[i].TransactionQty));
+                $scope.inventoryMaterialList[i].Balance = (($scope.inventoryMaterialList[i].POQty + $scope.inventoryMaterialList[i].ToleranceQty) - ($scope.inventoryMaterialList[i].OtherReceived + $scope.inventoryMaterialList[i].TransactionQty));
                 //$scope.inventoryMaterialList[i].ShortageQty = ($scope.inventoryMaterialList[i].POQty - ($scope.inventoryMaterialList[i].OtherReceived + $scope.inventoryMaterialList[i].TransactionQty));
                 //$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - ($scope.inventoryMaterialListPO[i].ShortageQty + $scope.inventoryMaterialListPO[i].RejectionQty));
                 //$scope.inventoryMaterialList[i].ApprovedQty = ($scope.inventoryMaterialList[i].TransactionQty - $scope.inventoryMaterialList[i].RejectionQty);
@@ -2572,7 +2628,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             else {
                 $scope.inventoryMaterialList[i].ServiceCharge = (TotalServiceAmount / TotalTrnAmount) * $scope.inventoryMaterialList[i].TrnAmount;
                 $scope.inventoryMaterialList[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialList[i].TrnAmount;
-                $scope.inventoryMaterialList[i].Balance = ($scope.inventoryMaterialList[i].POQty - ($scope.inventoryMaterialList[i].OtherReceived + $scope.inventoryMaterialList[i].TransactionQty));
+                $scope.inventoryMaterialList[i].Balance = (($scope.inventoryMaterialList[i].POQty + $scope.inventoryMaterialList[i].ToleranceQty) - ($scope.inventoryMaterialList[i].OtherReceived + $scope.inventoryMaterialList[i].TransactionQty));
                 //$scope.inventoryMaterialList[i].ShortageQty = ($scope.inventoryMaterialList[i].POQty - ($scope.inventoryMaterialList[i].OtherReceived + $scope.inventoryMaterialList[i].TransactionQty));
                 //$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - ($scope.inventoryMaterialListPO[i].ShortageQty + $scope.inventoryMaterialListPO[i].RejectionQty));
                 //$scope.inventoryMaterialList[i].ApprovedQty = ($scope.inventoryMaterialList[i].TransactionQty - $scope.inventoryMaterialList[i].RejectionQty);
@@ -4456,29 +4512,5 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         }
 
     };
-    $scope.binMasterList = [];
-    $scope.GetbinAllocationPopUp = function(data,materialMasterId,) {
-        $scope.binMasterList = [];
-        $http({
-            method: 'Post'
-            , url: 'Materials/StorageBinAllocation/GetBinAllocationByMaterialId?materialMasterId=' + materialMasterId + '&materialStorageId=' + $scope.productNew.MaterialStorageId
-        }).then(function (response) {
-            $scope.binMasterList = response.data;
-        });
-        $scope.tempPurchaseDetailId = data.InventoryReceiveDetailId;
-        angular.element(document.querySelector('#binAllocationPopUp')).modal('show');
-    }
-    $scope.selectedBinAllocationList = [];
-    $scope.CloseBinAllocationPopUp = function () {
-        if ($scope.binMasterList.length) {
-            for (var b = 0; b < $scope.binMasterList.length; b++) {
-                if ($scope.binMasterList[b].check == true) {
-                    $scope.binMasterList[b].PurchaseOrderDetailId = $scope.tempPurchaseDetailId;
-                    $scope.selectedBinAllocationList.push($scope.binMasterList[b]);
-                }
-            }
-        }
-        $scope.tempPurchaseDetailId = null;
-        angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
-    }
+
 }

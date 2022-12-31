@@ -156,6 +156,19 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetBinAllocationForPO(string poId)
+        {
+            try
+            {
+                return Json(sba.GetBinAllocationForPO(poId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetList(string materialMasterId)
         {
