@@ -44,7 +44,7 @@ namespace Library.MaterialManagement.Inventory
         private readonly IRepositoryAsync<GRNRejectionDetails> _gRNRejectionDetailsRepository;
         private readonly IRepositoryAsync<GRNAcceptanceMap> _GRNAcceptanceMapRepository;
         private readonly IRepositoryAsync<GRNBOQMAP> _GRNBOQMAPRepository;
-        //  private readonly IRepositoryAsync<POGGRNMap> _POGGRNMapRepository;
+        private readonly IRepositoryAsync<GRNBinAllocationMap> _GRNBinAllocationMapRepository;
         private readonly IRepositoryAsync<GRNPORequisitionMap> _GRNPORequisitionMapRepository;
 
         private readonly IRepositoryAsync<PurchaseDocAcceptanceTax> _PurchaseDocAcceptanceTaxRepository;
@@ -73,6 +73,7 @@ namespace Library.MaterialManagement.Inventory
             , IRepositoryAsync<GRNRejectionDetails> gRNRejectionDetailsRepository
             , IRepositoryAsync<GRNAcceptanceMap> GRNAcceptanceMapRepository
             , IRepositoryAsync<GRNPORequisitionMap> GRNPORequisitionMapRepository
+            , IRepositoryAsync<GRNBinAllocationMap> GRNBinAllocationMapRepository
             // , IRepositoryAsync<POGGRNMap> POGGRNMapRepository
             , IRepositoryAsync<PurchaseDocAcceptanceTax> PurchaseDocAcceptanceTaxRepository
             , IRepositoryAsync<PurchaseReturn> PurchaseReturnRepository
@@ -99,6 +100,7 @@ namespace Library.MaterialManagement.Inventory
             _GRNAcceptanceMapRepository = GRNAcceptanceMapRepository;
             _GRNBOQMAPRepository = GRNBOQMAPRepository;
             _GRNPORequisitionMapRepository = GRNPORequisitionMapRepository;
+            _GRNBinAllocationMapRepository = GRNBinAllocationMapRepository;
             // _POGGRNMapRepository = POGGRNMapRepository;
             _PurchaseDocAcceptanceTaxRepository = PurchaseDocAcceptanceTaxRepository;
             _PurchaseReturnRepository = PurchaseReturnRepository;
@@ -367,7 +369,8 @@ namespace Library.MaterialManagement.Inventory
             return sID;
         }
         //PO GRN
-        public void InsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<GRNPORequisitionMap> requisitionDetailList)
+        public void InsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id
+            , string MaterialStorageId, string GRNType, IEnumerable<GRNPORequisitionMap> requisitionDetailList, IEnumerable<GRNBinAllocationMap> grnBinAllocationMap)
         {
             var flag = false;
             Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
@@ -637,9 +640,26 @@ namespace Library.MaterialManagement.Inventory
                                 itemDetail.ApprovedQty = Convert.ToDecimal(receiveDetail.ApprovedQty + ApprovedQty);
 
                                 _inventoryMaterialMasterService.InsertOrUpdateFromReceive(itemDetail);
+
                                 receiveDetail.InventoryMaterialId = itemDetail.InventoryMaterialId;
                                 InsertGraph(receiveDetail);
-
+                                if (grnBinAllocationMap != null)
+                                {
+                                    int b = 0;
+                                    foreach (var grnbinAllo in grnBinAllocationMap.Where(r=>r.InventoryReceiveDetailId==receiveDetail.PODetailsID))
+                                    {
+                                        b++;
+                                        var grnbinAlloObj = new GRNBinAllocationMap
+                                        {
+                                            Id = MakePK(receiveDetail.Id,b,2),
+                                            InventoryReceiveDetailId = receiveDetail.Id,
+                                            StorageBinMasterId = grnbinAllo.StorageBinMasterId,
+                                            Qty = grnbinAllo.Qty
+                                        };
+                                        AuditService.AddedLog(grnbinAlloObj);
+                                        _GRNBinAllocationMapRepository.Insert(grnbinAlloObj);
+                                    }
+                                }
 
 
                                 int rejectDetailId = 1;

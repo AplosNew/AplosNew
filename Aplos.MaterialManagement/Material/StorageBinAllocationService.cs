@@ -129,16 +129,80 @@ namespace Library.MaterialManagement.Material
             {
                 var sql = @"
                         select BAH.Id,BAH.UserName ,SBM.UserName StorageBinMaster,MS.UserName StorageLocation,MT.UserName MaterialType,MGM.UserName MaterialGroup
-	                    ,MM.UserName MaterialName,BAH.MaterialMasterId,BAH.StorageLocationId,BA.StorageBinMasterId,BAH.AccessType ,0 [check],NULL PurchaseOrderDetailId
+	                    ,MM.UserName MaterialName,BAH.MaterialMasterId,MMA.StandardName ArticleName,MA.MaterialMasterArticleId ArticleId
+                        ,BAH.StorageLocationId,BA.StorageBinMasterId,BAH.AccessType ,0 [check],NULL PurchaseOrderDetailId
                         ,SBM.BinCode,SBM.BinReference,0 Qty
 	                    FROM TRN.BinAllocationHead BAH 
 	                    LEFT JOIN TRN.BinAllocation BA ON BA.BinAllocationHeadId=BAH.Id
 	                    LEFT JOIN MST.StorageBinMaster SBM ON SBM.Id=ba.StorageBinMasterId
+                        LEFT JOIN TRN.MaterialAlocation MA ON MA.BinAllocationHeaderId=BAH.Id
 	                    LEFT JOIN HKP.MaterialStorage MS ON MS.Id=BAH.StorageLocationId
 	                    LEFT JOIN HKP.MaterialType MT ON MT.Id=BAH.MaterialTypeId
 	                    LEFT JOIN MST.MaterialMaster MM ON MM.Id=BAH.MaterialMasterId
+                        LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MA.MaterialMasterArticleId
 	                    LEFT JOIN MST.MaterialGroupMaster MGM ON MGM.Id=BAH.MaterialGroupMasterId
 	                    where BAH.MaterialMasterId='" + materialMasterId + "' AND BAH.StorageLocationId='"+ materialStorageId + @"' ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GetBinAllocationForPO(string poId)
+        {
+            try
+            {
+                var sql = @"
+                        SELECT  IR.Id AS POID,IRD.Id AS PODetailsID,BAH.UserName ,SBM.UserName StorageBinMaster,MS.UserName StorageLocation
+                            ,IRD.Id AS InventoryReceiveDetailId,SBM.BinCode,SBM.BinReference,0 Qty  
+							, MM.Id MaterialMasterId , MM.UserName MaterialName,IRD.MaterialStorageId 
+							,IRD.BaseUOMId , IRD.ArticleId, ART.StandardName ,MGM.UserName MaterialGroup, IRD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
+                            , IRD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue , IRD.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
+                            , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
+                         FROM TRN.PurchaseOrderDetail AS IRD
+                         left JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId=MM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId=ART.Id
+						LEFT JOIN MST.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
+                        LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId=FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId=SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId=TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId=FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId=SCV.Id
+                        LEFT JOIN [TRN].[PurchaseOrder] AS IR ON IRD.InventoryReceiveId=IR.Id
+						LEFT JOIN TRN.BinAllocationHead BAH ON BAH.MaterialMasterId=MM.Id
+						 LEFT JOIN TRN.BinAllocation BA ON BA.BinAllocationHeadId=BAH.Id
+						 LEFT JOIN TRN.MaterialAlocation MA ON MA.BinAllocationHeaderId=BAH.Id
+						 LEFT JOIN MST.StorageBinMaster SBM ON SBM.Id=ba.StorageBinMasterId
+                        LEFT JOIN HKP.MaterialStorage MS ON MS.Id=BAH.StorageLocationId
+                        WHERE   IRD.InventoryMaterialId is not null 	AND IRD.InventoryReceiveId in (" + poId + @")	and BAH.Id<>''		
+						UNION ALL
+					     SELECT  IR.Id AS POID,IRD.Id AS PODetailsID ,BAH.UserName ,SBM.UserName StorageBinMaster,MS.UserName StorageLocation,IRD.Id AS InventoryReceiveDetailId
+                            , IRD.InventoryMaterialId MaterialMasterId,SBM.BinCode,SBM.BinReference,0 Qty 
+							, MM.UserName MaterialName,IRD.MaterialStorageId  ,IRD.BaseUOMId
+                            , IRD.ArticleId, ART.StandardName ,MGM.UserName MaterialGroup, IRD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
+                            , IRD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue , IRD.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
+                            , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
+                         FROM TRN.PurchaseOrderDetail AS IRD
+						 left JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId=MM.Id
+						 LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId=ART.Id
+						 LEFT JOIN MST.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
+						 LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId=FC.Id
+						 LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId=SC.Id
+						 LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId=TC.Id
+						 LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId=FCV.Id
+						 LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId=SCV.Id
+						 LEFT JOIN [TRN].[PurchaseOrder] AS IR ON IRD.InventoryReceiveId=IR.Id
+						 LEFT JOIN TRN.BinAllocationHead BAH ON BAH.MaterialMasterId=MM.Id
+						 LEFT JOIN TRN.BinAllocation BA ON BA.BinAllocationHeadId=BAH.Id
+						 LEFT JOIN TRN.MaterialAlocation MA ON MA.BinAllocationHeaderId=BAH.Id
+						 LEFT JOIN MST.StorageBinMaster SBM ON SBM.Id=ba.StorageBinMasterId
+                         LEFT JOIN HKP.MaterialStorage MS ON MS.Id=BAH.StorageLocationId
+                         WHERE IRD.QtyStatus=0 and IRD.InventoryMaterialId is null AND  BAH.Id<>''
+						 AND IRD.InventoryReceiveId in (" + poId + @") ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
