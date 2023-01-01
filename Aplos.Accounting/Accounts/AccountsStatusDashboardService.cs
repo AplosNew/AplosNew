@@ -1775,14 +1775,15 @@ group by Id) O60 ON O60.Id=IV.Id
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                                         LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                                         LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-										LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,SUM(VDC.DrAmount) SetOffBooksAmount
+										LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId 
+                                                    ,SUM(VDC.DrAmount) SetOffBooksAmount
 										FROM  [TRN].[InvoiceWriteOffDetail] iwd 
 										JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
 										LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
 										LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
 										 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
 										WHERE  ( convert(Date,WV.PostingDate) <= '"+ toDate + @"' )
-										GROUP BY iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId
+										GROUP BY iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId
 										)AS IwV ON IwV.InvoiceDetailId=IVD.Id AND VD.PartyId=IwV.PartyId
                                         
 										LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
