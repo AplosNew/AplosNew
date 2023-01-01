@@ -4053,6 +4053,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                             FormatTextBox(ref sheet, "BloodGroup", dtEmp.Rows[0]["BloodGroup"].ToString(), 12, ExcelKnownColors.Red);
                             FormatTextBox(ref sheet, "PermanentAddress", dtEmp.Rows[0]["ParmanentAddress"].ToString(), 10, ExcelKnownColors.Black);
                             FormatTextBox(ref sheet, "PhoneNumber", cnDgt(dtEmp.Rows[0]["MobileNo"].ToString(), langName), 12, ExcelKnownColors.Black);
+                            FormatTextBox(ref sheet, "EmergencyTelNo", cnDgt(dtEmp.Rows[0]["EmrCntPer1CellNo"].ToString(), langName), 11, ExcelKnownColors.Black);
                             FormatTextBox(ref sheet, "NID", cnDgt(dtEmp.Rows[0]["NationalID"].ToString(), langName), 12, ExcelKnownColors.Black);
                         }
                         else
@@ -4120,6 +4121,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                             FormatTextBox(ref sheet, "BloodGroup", dtEmp.Rows[0]["BloodGroup"].ToString(), 11, ExcelKnownColors.Red);
                             FormatTextBox(ref sheet, "PermanentAddress", dtEmp.Rows[0]["ParmanentAddress"].ToString(), 10, ExcelKnownColors.Black);
                             FormatTextBox(ref sheet, "PhoneNumber", dtEmp.Rows[0]["MobileNo"].ToString(), 11, ExcelKnownColors.Black);
+                            FormatTextBox(ref sheet, "EmergencyTelNo", cnDgt(dtEmp.Rows[0]["EmrCntPer1CellNo"].ToString(), langName), 11, ExcelKnownColors.Black);
                             FormatTextBox(ref sheet, "NID", dtEmp.Rows[0]["NationalID"].ToString(), 11, ExcelKnownColors.Black);
 
 
@@ -4192,6 +4194,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         FormatTextBox(ref sheet, "BloodGroup", dr["BloodGroup"].ToString(), 11, ExcelKnownColors.Red);
                         FormatTextBox(ref sheet, "PermanentAddress", dr["ParmanentAddress"].ToString(), 10, ExcelKnownColors.Black);
                         FormatTextBox(ref sheet, "PhoneNumber", cnDgt(dr["CellPhnNo"].ToString(), langName), 11, ExcelKnownColors.Black);
+                        FormatTextBox(ref sheet, "EmergencyTelNo", cnDgt(dr["EmrCntPer1CellNo"].ToString(), langName), 11, ExcelKnownColors.Black);
                         FormatTextBox(ref sheet, "NID", cnDgt(dr["NationalID"].ToString(), langName), 11, ExcelKnownColors.Black);
                     }
                     else
