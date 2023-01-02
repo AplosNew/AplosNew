@@ -162,7 +162,7 @@ namespace Library.MaterialManagement.Material
 							, MM.Id MaterialMasterId , MM.UserName MaterialName,IRD.MaterialStorageId 
 							,IRD.BaseUOMId , IRD.ArticleId, ART.StandardName ,MGM.UserName MaterialGroup, IRD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
                             , IRD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue , IRD.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
-                            , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
+                            , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue,isnull(SBM.Id,'') StorageBinMasterId
                          FROM TRN.PurchaseOrderDetail AS IRD
                          left JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId=MM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId=ART.Id
@@ -185,7 +185,7 @@ namespace Library.MaterialManagement.Material
 							, MM.UserName MaterialName,IRD.MaterialStorageId  ,IRD.BaseUOMId
                             , IRD.ArticleId, ART.StandardName ,MGM.UserName MaterialGroup, IRD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
                             , IRD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue , IRD.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
-                            , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
+                            , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue,isnull(SBM.Id,'') StorageBinMasterId
                          FROM TRN.PurchaseOrderDetail AS IRD
 						 left JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId=MM.Id
 						 LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId=ART.Id
