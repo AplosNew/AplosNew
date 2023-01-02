@@ -374,7 +374,16 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         }
         return false;
     }
-
+    $scope.binMasterPOList = []
+    function GetBinAllocationForPO(inveReveiveId) {
+        $scope.masterId = inveReveiveId;
+        $http({
+            method: 'Post'
+            , url: 'Materials/StorageBinAllocation/GetBinAllocationForPO?poId=' + inveReveiveId
+        }).then(function (response) {
+            $scope.binMasterPOList = response.data;
+        });
+    }
     $scope.requisitionListByPoForSave = [];
     $scope.checkValidation = function () {
         $scope.checkgridcheckornot = $filter("filter")($scope.inventoryMaterialListPO, { check: true });
@@ -444,7 +453,16 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 }
                 if ($scope.requisitionListByPo.length > 0) {
                     $scope.ReqAllocation($scope.inventoryMaterialListPO[i]);
-                    //$scope.AutoBinAllocation($scope.inventoryMaterialListPO[i]);
+                    //Bin Allocation
+                    $scope.BinRowLength = $filter("filter")($scope.binMasterPOList, { 'PODetailId': $scope.inventoryMaterialListPO[i].PODetailsID });
+                    if ($scope.BinRowLength.length > 0) {
+                        if ($scope.BinRowLength.length == 1 && $scope.BinRowLength[0].Qty == 0) {
+                            for (var b = 0; b < $scope.BinRowLength.where('PODetailId' == $scope.inventoryMaterialListPO[i].PODetailsID); b++) {
+                                $scope.BinRowLength[b].Qty = $scope.inventoryMaterialListPO[i].TransactionQty;
+                                $scope.binMasterList.push($scope.BinRowLength[b]);
+                            }
+                        }
+                    }
                     $scope.RowLength = $filter("filter")($scope.requisitionListByPoForSave, { PODetailId: $scope.inventoryMaterialListPO[i].PODetailsID, MaterialMasterId: $scope.inventoryMaterialListPO[i].MaterialMasterId, ArticleId: $scope.inventoryMaterialListPO[i].ArticleId });
 
                     if ($scope.RowLength.length > 0) {
@@ -456,7 +474,14 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     }
                 }
                 else {
-                    //$scope.AutoBinAllocation($scope.inventoryMaterialListPO[i]);
+                     //Bin Allocation
+                    $scope.BinRowLength = $filter("filter")($scope.binMasterPOList, { 'PODetailsID': $scope.inventoryMaterialListPO[i].PODetailsID });
+                    if ($scope.BinRowLength.length > 0) {
+                        if ($scope.BinRowLength.length == 1 && $scope.BinRowLength[0].Qty == 0) {
+                                $scope.BinRowLength[0].Qty = $scope.inventoryMaterialListPO[i].TransactionQty;
+                                $scope.binMasterList.push($scope.BinRowLength[0]);
+                        }
+                    }
                     $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
                 }
             }
@@ -472,8 +497,14 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 }
             }
         }
-
-
+        if ($scope.binMasterPOList.length > 0) {
+            $scope.totalBinQty = Math.round($filter("sumByKey")($filter("filter")($scope.binMasterPOList), "Qty") * 1000 + Number.EPSILON) / 1000;
+            $scope.totalTransactionQty = Math.round($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPOnew), "TransactionQty") * 1000 + Number.EPSILON) / 1000;
+            if ($scope.totalBinQty != $scope.totalTransactionQty) {
+                ShowResult("Please allocate Bin Qty ", 'failure');
+                return true;
+            }
+        }
         return false;
     }
 
@@ -2115,46 +2146,49 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 $scope.GetPOMaterialTaxData();
             });
     }
-    $scope.binMasterPOList=[]
-    function GetBinAllocationForPO(inveReveiveId) {
-        $scope.masterId = inveReveiveId;
-        $http({
-            method: 'Post'
-            , url: 'Materials/StorageBinAllocation/GetBinAllocationForPO?poId=' + inveReveiveId
-        }).then(function (response) {
-            $scope.binMasterPOList = response.data;
-        });
-    }
+   
 
     $scope.binMasterList = [];
     $scope.GetbinAllocationPopUp = function (data) {
         $scope.PODetailsID = data.InventoryReceiveDetailId;
-        $scope.binMasterList = [];
+        $scope.POData = data;
         for (var i = 0; i < $scope.binMasterPOList.length; i++) {
             if ($scope.binMasterPOList[i].PODetailsID == $scope.PODetailsID) {
-                var getRow = $filter("filter")($scope.binMasterList, { "PODetailsID": $scope.PODetailsID });
-                if (getRow.length == 0) {
+                var getRow = $filter("filter")($scope.binMasterList, { "PODetailsID": $scope.PODetailsID, "BinCode": $scope.binMasterPOList[i].BinCode, "BinReference": $scope.binMasterPOList[i].BinReference });
+                var getbinRow = $filter("filter")($scope.binMasterPOList, { "PODetailsID": $scope.PODetailsID });
 
-                $scope.binMasterList.push($scope.binMasterPOList[i])
+                if (getRow.length == 0 && getbinRow.length == 1) {
+                    $scope.binMasterPOList[i].Qty = data.TransactionQty;
+                    $scope.binMasterList.push($scope.binMasterPOList[i])
+                }
+                else if (getRow.length == 0) {
+                    $scope.binMasterList.push($scope.binMasterPOList[i])
                 }
             }
         }
         angular.element(document.querySelector('#binAllocationPopUp')).modal('show');
     }
 
-    //$scope.selectedBinAllocationList = [];
-    //$scope.CloseBinAllocationPopUp = function () {
-    //    if ($scope.binMasterList.length) {
-    //        for (var b = 0; b < $scope.binMasterList.length; b++) {
-    //            if ($scope.binMasterList[b].check == true) {
-    //                $scope.binMasterList[b].PurchaseOrderDetailId = $scope.tempPurchaseDetailId;
-    //                $scope.selectedBinAllocationList.push($scope.binMasterList[b]);
-    //            }
-    //        }
-    //    }
-    //    $scope.tempPurchaseDetailId = null;
-    //    angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
-    //}
+    $scope.selectedBinAllocationList = [];
+    $scope.CloseBinAllocationPopUp = function () {
+        if ($scope.binMasterList.length > 0) {
+            for (var b = 0; b < $scope.binMasterList.length; b++) {
+                if ($scope.binMasterList[b].PODetailsID == $scope.PODetailsID && $scope.POData.TransactionQty > 0) {
+                    $scope.totalBinQty = Math.round($filter("sumByKey")($filter("filter")($scope.binMasterList, { 'PODetailsID': $scope.PODetailsID }), "Qty") * 1000 + Number.EPSILON) / 1000;
+                    if ($scope.POData.TransactionQty != $scope.totalBinQty) {
+                        ShowResult("Bin Qty cann't less than Transaction Qty", 'failure', 'binAllocationPopUp');
+                        angular.element(document.querySelector('#binAllocationPopUp')).modal('show');
+                    }
+                    else {
+                        angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
+                    }
+                }
+            }
+        }
+        else {
+            angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
+        }
+    }
 
     $scope.GetPOMaterialTaxData = function () {
         $scope.POMaterialTaxList = [];
