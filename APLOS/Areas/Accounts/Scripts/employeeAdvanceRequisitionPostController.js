@@ -703,7 +703,8 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
     }
     $scope.selectDoubleClick = function (args) {
         var gridObj = $("#employeeAdvanceRequisitionId").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];        $scope.advance.EmployeeName = data.EmployeeName;
+        var data = gridObj.getSelectedRecords()[0];
+        $scope.advance.EmployeeName = data.EmployeeName;
         $scope.advance.EmployeeId = data.EmpSystemId;
         $scope.advance.Amount = data.Amount;
         $scope.advance.CurrencyId = data.CurrencyId;
