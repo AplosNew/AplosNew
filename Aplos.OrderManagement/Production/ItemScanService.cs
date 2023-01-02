@@ -406,7 +406,7 @@ namespace Library.Service.EmployeeServices
 
                     if (dsScanChild.Tables[0].Rows.Count > 0)
                     {
-                        netWeight = Convert.ToDecimal(dsMaster.Tables[0].Rows[0]["TotalQty"]);
+                        netWeight = Convert.ToDecimal(dsScanChild.Tables[0].Rows[0]["TotalQty"]);
                         lotNo = dsScanChild.Tables[0].Rows[0]["LotNo"].ToString();
                         POId = dsScanChild.Tables[0].Rows[0]["POId"].ToString();
 
