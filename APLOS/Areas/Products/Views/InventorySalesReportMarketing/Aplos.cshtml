@@ -40,33 +40,31 @@
 
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Customer<sup>*</sup></label>
-                        <div class="col-sm-6 radio">
-                            <label>
+                        <div class="col-sm-9 radio">
+                            <label class="col-sm-2">
                                 <input @*ng-click="clearAllEmployee()"*@ type="radio" name="source" ng-model="Customer" value="AllCustomer">
                                 <span class="cr" tabindex="17"><i class="cr-icon"></i></span>All
                             </label>
-                            <label>
-                                <input @*ng-click="clearSingleEmployee()"*@ type="radio" name="source" ng-model="Customer" value="Customer">
-                                <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Customer
+                            <label class="col-sm-7">
+                                <label class="col-sm-4">
+                                    <input @*ng-click="clearSingleEmployee()"*@ type="radio" name="source" ng-model="Customer" value="Customer">
+                                    <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Customer
+                                </label>
+                                    <div ng-hide="Customer=='AllCustomer'">
+                                        <label class="col-sm-8">
+                                            <div class="input-group">
+                                                <input type="text" name="PartyName" ng-model="PartyName" class="form-control" readonly>
+                                                <span class="input-group-btn">
+                                                    <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="14" ng-disabled="detailList.length"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                                                </span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </label>
 
-                            </label>
-
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div ng-hide="Customer=='AllCustomer'">
-                        <label class="col-sm-3 control-label">Customer<sup>*</sup></label>
-                        <div class="col-sm-5 show-message">
-                            <div class="input-group">
-                                <input type="text" name="PartyName" ng-model="PartyName" class="form-control" readonly>
-                                <span class="input-group-btn">
-                                    @*showPartyPopUp()*@
-                                    <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="14" ng-disabled="detailList.length"><i class="glyphicon glyphicon-search"></i></button>
-                                    <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                        </div>
+</div>
+                    
                     </div>
 
                     <div class="form-group">
