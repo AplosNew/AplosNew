@@ -78,14 +78,14 @@ namespace Aplos.Areas.Products.Controllers
         #endregion Aplos
 
         [Authorize, HttpGet]
-        public ActionResult InventorySalesReportExcel(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory, string Summary, bool WithTax, string Type)
+        public ActionResult InventorySalesReportExcel(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory, string Summary, bool WithTax, string Type, string partyId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             plantId = identity.PlantId;
             var reportFileName = "Sales Register.xls" + fromDate + "To" + toDate + "";
             ExcelEngine excelEngine = new ExcelEngine();
 
-            IWorkbook workbook = InventorySalesReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summary, WithTax, Type);
+            IWorkbook workbook = InventorySalesReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summary, WithTax, Type, partyId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -99,17 +99,26 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-        public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summary, string Type)
+        public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summary, string Type, string partyId)
         {
-            var sql = "";
+
+            var CusAll = "";
+            if (partyId != "null")
+            {
+				CusAll = "where x.PartyId = '" + partyId + @"'";
+            }
+
+			var sql = "";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (Summary == "Details")
                 {
+
                     if (Type == "ForThePeriod")
                     {
-                        sql = @"SELECT 
+                        sql = @"Select * from(
+								SELECT 
 								ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
 								,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
 									WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
@@ -132,7 +141,7 @@ namespace Aplos.Areas.Products.Controllers
 								, SA.ToCurrencyRate
 								, SA.DocRefNo
 								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocDate
-								, P.UserName AS PartyName,p.Code
+								,SA.PartyId,P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
@@ -205,45 +214,45 @@ namespace Aplos.Areas.Products.Controllers
 								                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
-,(Select Stuff((
-Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
-from dbo.ProductLibraryAttribute pla
-where pla.ProductLibraryId = pll.Id
-for XML PATH('')
-) , 1, 2, '')) as PordDertails , 
+									,(Select Stuff((
+									Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+									from dbo.ProductLibraryAttribute pla
+									where pla.ProductLibraryId = pll.Id
+									for XML PATH('')
+									) , 1, 2, '')) as PordDertails , 
  
-(Select Stuff((
-Select ', ' + sc.LotNo
-from (Select distinct sc.LotNo
-from dbo.SalesPacking spss
-left join trn.Packing p on p.PackingId = spss.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where spss.SalesId = SM.SalesId) as sc
-for XML PATH('')
-),1,2,''))  as LOT
-, BuyerRefNo=STUFF((select distinct ','+MO.BuyerReferenceNo
-from trn.SalesMaterial SMX									 
-join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
-LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
-where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-(Select Count(sc.RefNo)  as Bags
-from dbo.SalesPacking sp
-left join trn.Packing p on p.PackingId = sp.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where sp.SalesId = SM.SalesId) as Bags,
-Convert(varchar , (Select SUM(sc.GWeight)  as Bags
-from dbo.SalesPacking sp
-left join trn.Packing p on p.PackingId = sp.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where sp.SalesId = SM.SalesId) ) as GrossWeights,
-PSI.TransportVehicleNo , PSI.TransportDriverNo
+									(Select Stuff((
+									Select ', ' + sc.LotNo
+									from (Select distinct sc.LotNo
+									from dbo.SalesPacking spss
+									left join trn.Packing p on p.PackingId = spss.PackingId
+									left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+									left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+									left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+									where spss.SalesId = SM.SalesId) as sc
+									for XML PATH('')
+									),1,2,''))  as LOT
+									, BuyerRefNo=STUFF((select distinct ','+MO.BuyerReferenceNo
+									from trn.SalesMaterial SMX									 
+									join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+									LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+									LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+									where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+									(Select Count(sc.RefNo)  as Bags
+									from dbo.SalesPacking sp
+									left join trn.Packing p on p.PackingId = sp.PackingId
+									left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+									left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+									left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+									where sp.SalesId = SM.SalesId) as Bags,
+									Convert(varchar , (Select SUM(sc.GWeight)  as Bags
+									from dbo.SalesPacking sp
+									left join trn.Packing p on p.PackingId = sp.PackingId
+									left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+									left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+									left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+									where sp.SalesId = SM.SalesId) ) as GrossWeights,
+									PSI.TransportVehicleNo , PSI.TransportDriverNo
 
 								FROM TRN.SalesMaterial AS SM 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
@@ -335,7 +344,8 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
                         --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
 
-								WHERE SA.PlantId='" + identity.PlantId + @"' AND convert(Date,SA.InvoiceDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
+								WHERE SA.PlantId='" + identity.PlantId + @"' 
+								AND convert(Date,SA.InvoiceDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
 
 									UNION ALL
 
@@ -360,7 +370,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								, 0 ToCurrencyRate
 								, '' DocRefNo
 								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocDate
-								, P.UserName AS PartyName,p.Code
+								,IR.PartyId, P.UserName AS PartyName,p.Code
 								,'' AS MaterialGroupMasterName
 								,SM.UserName MaterialMasterName
 								,'' AS MaterialMasterArticleName
@@ -398,12 +408,12 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-		,''ContainerNo ,''TransporterName,''TransportDocRefNo 
+								,''ContainerNo ,''TransporterName,''TransportDocRefNo 
 								,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') TransportDocDate,''AgentName
 								,''AgentCommission
 								,'' Insurance
-		,''GrossWeight,''LoTNo
-		,CON.ContractNo
+								,''GrossWeight,''LoTNo
+								,CON.ContractNo
 								,ML.LCRef MasterLcNo
 								,IR.ComercialInvoiceNo
 								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
@@ -431,44 +441,44 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-,(Select Stuff((
-Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
-from dbo.ProductLibraryAttribute pla
-where pla.ProductLibraryId = pll.Id
-for XML PATH('')
-) , 1, 2, '')) as PordDertails  , 
-(Select Stuff((
-Select ', ' + sc.LotNo
-from (Select distinct sc.LotNo
-from dbo.SalesPacking spss
-left join trn.Packing p on p.PackingId = spss.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where spss.SalesId = IR.Id) as sc
-for XML PATH('')
-),1,2,''))  as LOT
-, BuyerRefNo=STUFF((select distinct ','+MO.BuyerReferenceNo
-from trn.SalesMaterial SMX									 
-join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
-LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
-where smx.SalesId=IR.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-(Select Count(sc.RefNo)  as Bags
-from dbo.SalesPacking sp
-left join trn.Packing p on p.PackingId = sp.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where sp.SalesId = IR.Id) as Bags,
-Convert(varchar , (Select SUM(sc.GWeight)  as Bags
-from dbo.SalesPacking sp
-left join trn.Packing p on p.PackingId = sp.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where sp.SalesId = IR.Id) ) as GrossWeights,
-PSI.TransportVehicleNo , PSI.TransportDriverNo
+								,(Select Stuff((
+								Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+								from dbo.ProductLibraryAttribute pla
+								where pla.ProductLibraryId = pll.Id
+								for XML PATH('')
+								) , 1, 2, '')) as PordDertails  , 
+								(Select Stuff((
+								Select ', ' + sc.LotNo
+								from (Select distinct sc.LotNo
+								from dbo.SalesPacking spss
+								left join trn.Packing p on p.PackingId = spss.PackingId
+								left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+								left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+								left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+								where spss.SalesId = IR.Id) as sc
+								for XML PATH('')
+								),1,2,''))  as LOT
+								, BuyerRefNo=STUFF((select distinct ','+MO.BuyerReferenceNo
+								from trn.SalesMaterial SMX									 
+								join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+								LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+								LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+								where smx.SalesId=IR.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								(Select Count(sc.RefNo)  as Bags
+								from dbo.SalesPacking sp
+								left join trn.Packing p on p.PackingId = sp.PackingId
+								left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+								left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+								left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+								where sp.SalesId = IR.Id) as Bags,
+								Convert(varchar , (Select SUM(sc.GWeight)  as Bags
+								from dbo.SalesPacking sp
+								left join trn.Packing p on p.PackingId = sp.PackingId
+								left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+								left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+								left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+								where sp.SalesId = IR.Id) ) as GrossWeights,
+								PSI.TransportVehicleNo , PSI.TransportDriverNo
 
 									--, BalanceAmount=isnull(ISNULL(ISs.Amount,0)- ISNULL(I.WrittenOffAmount,0),0)
 
@@ -540,7 +550,8 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 									WHERE B.Code='TCS'
 						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
 
-								WHERE IR.PlantId='" + identity.PlantId + @"' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
+								WHERE IR.PlantId='" + identity.PlantId + @"' 
+								AND convert(Date,IR.InvoiceDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
 								union ALL
 
 								SELECT 
@@ -563,6 +574,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,PPI1.GSTIN ShipToGSTNo
 								,II.ToCurrencyRate
 								, II.DocRefNo
+								,II.CustomerId PartyId
 								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocDate
 								, P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
@@ -604,12 +616,12 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-		,''ContainerNo ,''TransporterName,''TransportDocRefNo 
+								,''ContainerNo ,''TransporterName,''TransportDocRefNo 
 								,''TransportDocDate,''AgentName
 								,''AgentCommission
 								,'' Insurance
-		,''GrossWeight,''LoTNo
-		,''ContractNo
+								,''GrossWeight,''LoTNo
+								,''ContractNo
 								,''MasterLcNo
 								,''ComercialInvoiceNo
 								,''ExpiryDate
@@ -625,12 +637,11 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,''CNFContainerNo
 								,''CNFVesselTrackingNo
 								,''OwnReferenceNo
-													,0 RealizeAmount
+								,0 RealizeAmount
+								,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,'' GrossWeights,
+								'' TransportVehicleNo , '' TransportDriverNo
 
-									,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,'' GrossWeights,
-'' TransportVehicleNo , '' TransportDriverNo
-
-									--,0BalanceAmount
+								--,0BalanceAmount
 
 								FROM[TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
@@ -710,7 +721,8 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 									Group by A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						
-						WHERE II.PlantId='" + identity.PlantId + @"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
+						WHERE II.PlantId='" + identity.PlantId + @"' 
+						AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
 					
 
 								UNION ALL
@@ -744,7 +756,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,'' SecondCharacteristicsValue
 								,'' ThirdCharacteristicsValue
 								--, '' HSNCode
-
+								,IR.CustomerId PartyId
 								,0 BaseRate
 								,0 BaseUoMFactor
 								,0 TransactionRate
@@ -775,12 +787,12 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-,''ContainerNo ,''TransporterName,''TransportDocRefNo 
+						,''ContainerNo ,''TransporterName,''TransportDocRefNo 
 						,''TransportDocDate,''AgentName
 						,''AgentCommission
 						,'' Insurance
-,''GrossWeight,''LoTNo
-,''ContractNo
+						,''GrossWeight,''LoTNo
+						,''ContractNo
 						,''MasterLcNo
 						,''ComercialInvoiceNo
 						,''ExpiryDate
@@ -798,7 +810,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 						,''OwnReferenceNo
 						,0 RealizeAmount
 					    ,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,'' GrossWeights,
-'' TransportVehicleNo , '' TransportDriverNo
+						'' TransportVehicleNo , '' TransportDriverNo
 
 							--,0BalanceAmount
 						from trn.InventoryService AS ISS
@@ -859,12 +871,15 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
                                     Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesServiceId=ISs.Id AND TAxInfo6.InventorySalesServiceId IS NOT NULL
 
-								WHERE IR.PlantId='" + identity.PlantId + @"' AND convert(Date,IR.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' ";
+								WHERE  IR.PlantId='" + identity.PlantId + @"' 
+								AND convert(Date,IR.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"')x
+								 " + CusAll + "";
                         return _sqlRepository.GetDataTable(sql);
                     }
                     else
                     {
-                        sql = @" SELECT 
+                        sql = @"Select * from( 
+								SELECT 
 								ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
 								,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
 									WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
@@ -887,7 +902,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								, SA.ToCurrencyRate
 								, SA.DocRefNo
 								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocDate
-								, P.UserName AS PartyName,p.Code
+								,SA.PartyId, P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
@@ -958,44 +973,44 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),(Select Stuff((
-Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
-from dbo.ProductLibraryAttribute pla
-where pla.ProductLibraryId = pll.Id
-for XML PATH('')
-) , 1, 2, '')) as PordDertails , 
+												Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+												from dbo.ProductLibraryAttribute pla
+												where pla.ProductLibraryId = pll.Id
+												for XML PATH('')
+												) , 1, 2, '')) as PordDertails , 
  
-(Select Stuff((
-Select ', ' + sc.LotNo
-from (Select distinct sc.LotNo
-from dbo.SalesPacking spss
-left join trn.Packing p on p.PackingId = spss.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where spss.SalesId = SM.SalesId) as sc
-for XML PATH('')
-),1,2,''))  as LOT
-, BuyerRefNo=STUFF((select distinct ','+MO.BuyerReferenceNo
-from trn.SalesMaterial SMX									 
-join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
-LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
-where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-(Select Count(sc.RefNo)  as Bags
-from dbo.SalesPacking sp
-left join trn.Packing p on p.PackingId = sp.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where sp.SalesId = SM.SalesId) as Bags,
-Convert(varchar , (Select SUM(sc.GWeight)  as Bags
-from dbo.SalesPacking sp
-left join trn.Packing p on p.PackingId = sp.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where sp.SalesId = SM.SalesId) ) as GrossWeights,
-PSI.TransportVehicleNo , PSI.TransportDriverNo
+												(Select Stuff((
+												Select ', ' + sc.LotNo
+												from (Select distinct sc.LotNo
+												from dbo.SalesPacking spss
+												left join trn.Packing p on p.PackingId = spss.PackingId
+												left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+												left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+												left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+												where spss.SalesId = SM.SalesId) as sc
+												for XML PATH('')
+												),1,2,''))  as LOT
+												, BuyerRefNo=STUFF((select distinct ','+MO.BuyerReferenceNo
+												from trn.SalesMaterial SMX									 
+												join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+												LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+												LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+												where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+												(Select Count(sc.RefNo)  as Bags
+												from dbo.SalesPacking sp
+												left join trn.Packing p on p.PackingId = sp.PackingId
+												left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+												left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+												left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+												where sp.SalesId = SM.SalesId) as Bags,
+												Convert(varchar , (Select SUM(sc.GWeight)  as Bags
+												from dbo.SalesPacking sp
+												left join trn.Packing p on p.PackingId = sp.PackingId
+												left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+												left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+												left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+												where sp.SalesId = SM.SalesId) ) as GrossWeights,
+												PSI.TransportVehicleNo , PSI.TransportDriverNo
 
 								FROM TRN.SalesMaterial AS SM 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
@@ -1086,7 +1101,8 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 						LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
                         --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
-						WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) <= '" + toDate + @"'
+						WHERE SA.PlantId='" + identity.PlantId + "' " +
+						"AND convert(Date,SA.InvoiceDate) <= '" + toDate + @"'
 						UNION ALL
 						
 						Select                  
@@ -1110,7 +1126,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								, 0 ToCurrencyRate
 								, '' DocRefNo
 								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocDate
-								, P.UserName AS PartyName,p.Code
+								,IR.PartyId, P.UserName AS PartyName,p.Code
 								,'' AS MaterialGroupMasterName
 								,SM.UserName MaterialMasterName
 								,'' AS MaterialMasterArticleName
@@ -1148,12 +1164,12 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-		,''ContainerNo ,''TransporterName,''TransportDocRefNo 
+								,''ContainerNo ,''TransporterName,''TransportDocRefNo 
 								,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') TransportDocDate,''AgentName
 								,''AgentCommission
 								,'' Insurance
-		,''GrossWeight,''LoTNo
-		,CON.ContractNo
+								,''GrossWeight,''LoTNo
+								,CON.ContractNo
 								,ML.LCRef MasterLcNo
 								,IR.ComercialInvoiceNo
 								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
@@ -1181,43 +1197,43 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),(Select Stuff((
-Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
-from dbo.ProductLibraryAttribute pla
-where pla.ProductLibraryId = pll.Id
-for XML PATH('')
-) , 1, 2, '')) as PordDertails  , 
-(Select Stuff((
-Select ', ' + sc.LotNo
-from (Select distinct sc.LotNo
-from dbo.SalesPacking spss
-left join trn.Packing p on p.PackingId = spss.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where spss.SalesId = IR.Id) as sc
-for XML PATH('')
-),1,2,''))  as LOT
-, BuyerRefNo=STUFF((select distinct ','+MO.BuyerReferenceNo
-from trn.SalesMaterial SMX									 
-join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
-LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
-where smx.SalesId=IR.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-(Select Count(sc.RefNo)  as Bags
-from dbo.SalesPacking sp
-left join trn.Packing p on p.PackingId = sp.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where sp.SalesId = IR.Id) as Bags,
-Convert(varchar , (Select SUM(sc.GWeight)  as Bags
-from dbo.SalesPacking sp
-left join trn.Packing p on p.PackingId = sp.PackingId
-left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
-left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-where sp.SalesId = IR.Id) ) as GrossWeights,
-PSI.TransportVehicleNo , PSI.TransportDriverNo
+											Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+											from dbo.ProductLibraryAttribute pla
+											where pla.ProductLibraryId = pll.Id
+											for XML PATH('')
+											) , 1, 2, '')) as PordDertails  , 
+											(Select Stuff((
+											Select ', ' + sc.LotNo
+											from (Select distinct sc.LotNo
+											from dbo.SalesPacking spss
+											left join trn.Packing p on p.PackingId = spss.PackingId
+											left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+											left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+											left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+											where spss.SalesId = IR.Id) as sc
+											for XML PATH('')
+											),1,2,''))  as LOT
+											, BuyerRefNo=STUFF((select distinct ','+MO.BuyerReferenceNo
+											from trn.SalesMaterial SMX									 
+											join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+											LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+											LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+											where smx.SalesId=IR.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+											(Select Count(sc.RefNo)  as Bags
+											from dbo.SalesPacking sp
+											left join trn.Packing p on p.PackingId = sp.PackingId
+											left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+											left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+											left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+											where sp.SalesId = IR.Id) as Bags,
+											Convert(varchar , (Select SUM(sc.GWeight)  as Bags
+											from dbo.SalesPacking sp
+											left join trn.Packing p on p.PackingId = sp.PackingId
+											left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+											left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+											left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+											where sp.SalesId = IR.Id) ) as GrossWeights,
+											PSI.TransportVehicleNo , PSI.TransportDriverNo
 
 									--, BalanceAmount=isnull(ISNULL(ISs.Amount,0)- ISNULL(I.WrittenOffAmount,0),0)
 
@@ -1289,7 +1305,8 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 									WHERE B.Code='TCS'
 						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
 
-								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.InvoiceDate) <= '" + toDate + @"'
+								WHERE IR.PlantId='" + identity.PlantId + "' " +
+								"AND convert(Date,IR.InvoiceDate) <= '" + toDate + @"'
 								UNION ALL
 
 								SELECT 
@@ -1313,7 +1330,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,II.ToCurrencyRate
 								, II.DocRefNo
 								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocDate
-								, P.UserName AS PartyName,p.Code
+								,II.CustomerId PartyId, P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
@@ -1321,7 +1338,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
 								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 								--, ISNULL(TAxInfo.HSCode,'') HSNCode
-
+							
 								,IID.SalesRate BaseRate
 								,IRD.BaseUoMFactor 
 								,IID.SalesRate TransactionRate
@@ -1353,12 +1370,12 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-		,''ContainerNo ,''TransporterName,''TransportDocRefNo 
+								,''ContainerNo ,''TransporterName,''TransportDocRefNo 
 								,''TransportDocDate,''AgentName
 								,''AgentCommission
 								,'' Insurance
-		,''GrossWeight,''LoTNo
-		,''ContractNo
+								,''GrossWeight,''LoTNo
+								,''ContractNo
 								,''MasterLcNo
 								,''ComercialInvoiceNo
 								,''ExpiryDate
@@ -1377,7 +1394,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 													,0 RealizeAmount
 
 									,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,'' GrossWeights,
-'' TransportVehicleNo , '' TransportDriverNo
+								'' TransportVehicleNo , '' TransportDriverNo
 
 									--,0BalanceAmount
 
@@ -1459,7 +1476,8 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 									Group by A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						
-						WHERE II.PlantId='" + identity.PlantId + "' AND convert(Date,II.SalesDate) <= '" + toDate + @"'
+						WHERE II.PlantId='" + identity.PlantId + "' " +
+						"AND convert(Date,II.SalesDate) <= '" + toDate + @"'
 						
 						UNION ALL
 						Select                  
@@ -1491,7 +1509,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,'' SecondCharacteristicsValue
 								,'' ThirdCharacteristicsValue
 								--, '' HSNCode
-
+								,IR.CustomerId PartyId
 								,0 BaseRate
 								,0 BaseUoMFactor
 								,0 TransactionRate
@@ -1522,12 +1540,12 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-,''ContainerNo ,''TransporterName,''TransportDocRefNo 
+						,''ContainerNo ,''TransporterName,''TransportDocRefNo 
 						,''TransportDocDate,''AgentName
 						,''AgentCommission
 						,'' Insurance
-,''GrossWeight,''LoTNo
-,''ContractNo
+						,''GrossWeight,''LoTNo
+						,''ContractNo
 						,''MasterLcNo
 						,''ComercialInvoiceNo
 						,''ExpiryDate
@@ -1545,7 +1563,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 						,''OwnReferenceNo
 						,0 RealizeAmount
 					    ,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,'' GrossWeights,
-'' TransportVehicleNo , '' TransportDriverNo
+						'' TransportVehicleNo , '' TransportDriverNo
 
 							--,0BalanceAmount
 						from trn.InventoryService AS ISS
@@ -1605,7 +1623,9 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 									WHERE B.Code='TCS' 
                                     Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesServiceId=ISs.Id AND TAxInfo6.InventorySalesServiceId IS NOT NULL
-						WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.SalesDate) <= '" + toDate + @"'";
+						WHERE IR.PlantId='" + identity.PlantId + "' " +
+						"AND convert(Date,IR.SalesDate) <= '" + toDate + @"')x
+						 " + CusAll + "";
                         return _sqlRepository.GetDataTable(sql);
                     }
                 }
@@ -1613,7 +1633,8 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
                 {
                     if (Type == "ForThePeriod")
                     {
-                        sql = @"SELECT 
+                        sql = @"Select * from(
+									SELECT 
 									ROW_NUMBER() Over(Order by SA.Id) As[S.N]
 									,SA.Id SalesId
 									,SA.SourceType
@@ -1624,14 +1645,10 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 									, SA.ToCurrencyRate
 									, SA.DocRefNo
 									,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocDate
-									, P.UserName AS PartyName,p.Code	
-
+									,SA.PartyId, P.UserName AS PartyName,p.Code	
 									,SMD.TransactionAmount
-
 									,v.VoucherNo VoucherId
-
 									,CU.Code AS Currency
-
 									,''SOType
 									,sum(round(isnull(ServiceData.ServiceAmount,0),2)) ServiceCharge
 									,sum(round(isnull(ServiceData.ServiceTax,0),2)) ServiceTax
@@ -1824,8 +1841,9 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 											group by ISS.SalesId
 											)ServiceData on ServiceData.SalesId=SA.Id
 
-									WHERE SA.PlantId='" + identity.PlantId + @"' AND convert(Date,SA.InvoiceDate) BETWEEN '" + fromDate + @"' AND '" + toDate + @"'-- and sm.SalesId='202110'
-									Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName
+									WHERE SA.PlantId='" + identity.PlantId + @"' 
+									AND convert(Date,SA.InvoiceDate) BETWEEN '" + fromDate + @"' AND '" + toDate + @"'-- and sm.SalesId='202110'
+									Group By SA.PartyId,p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName
 									,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,E.UserName,SA.VoucherId,I.Amount,I.WrittenOffAmount,PSI.ExpDate,PSI.CNFBLAWB,PSI.CNFBLAWBDate 
 									,PSI.ExFactoryDate,PSI.TransportDocRefNo
 									,PSI.CNFContainerNo,PSI.CNFVesselTrackingNo,SMD.TransactionAmount
@@ -1857,19 +1875,15 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,II.ToCurrencyRate
 								, II.DocRefNo
 								,FORMAT(II.DocDate,'dd-MMM-yyyy') DocDate
-								, P.UserName AS PartyName,p.Code
-
+								,II.CustomerId PartyId, P.UserName AS PartyName,p.Code
 								,Sum(IID.Qty *IID.SalesRate) TransactionAmount
 								--,sum(SCr1.TaxAmount) TaxAmount
 								--,0 NetAmount
 								,v.VoucherNo VoucherId
-
 								,'' AS Currency
-
 								,'' SOType
 								,sum(SCr.ServiceAmount) ServiceCharge
 								,sum(SCr.TotalTaxAmount) ServiceTax
-
 								,E.UserName AS Entity 
 								,EI2.EmployeeName CheckedByName
 								,II.CheckedBy
@@ -1891,16 +1905,12 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
 								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
 								,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
-
-
 								,'' SONumber
 								,'' PONumber
 								,'' MasterOrder
 								, InvoiceAmount=isnull(I.Amount,0)
 								, RealizeAmount=isnull(I.WrittenOffAmount,0)
-
-		, BalanceAmount=isnull(isnull(IID.TransactionAmount,0) -isnull(I.WrittenOffAmount,0),0)
-
+								, BalanceAmount=isnull(isnull(IID.TransactionAmount,0) -isnull(I.WrittenOffAmount,0),0)
 									, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
 		                                         from trn.InvoiceWriteOffDetail IWD									 
 												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
@@ -1995,16 +2005,18 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 											GROUP BY A.InventorySalesId
 								) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 								LEFT JOIN trn.Voucher V On V.Id=II.VoucherId
-								WHERE II.PlantId='" + identity.PlantId + @"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
-								GROUP BY p.Code,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,IID.TransactionAmount
+								WHERE II.PlantId='" + identity.PlantId + @"' 
+								AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+								GROUP BY II.CustomerId,p.Code,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,IID.TransactionAmount
 								,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName 
-								,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,II.VoucherId,I.Amount,I.WrittenOffAmount";
+								,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,II.VoucherId,I.Amount,I.WrittenOffAmount)x
+								 " + CusAll + "";
                         return _sqlRepository.GetDataTable(sql);
                     }
                     else
                     {
-                        sql = @"SELECT 
-									ROW_NUMBER() Over(Order by SA.Id) As[S.N]
+                        sql = @"SELECT * FROM(
+									SELECT ROW_NUMBER() Over(Order by SA.Id) As[S.N]
 									,SA.Id SalesId
 									,SA.SourceType
 									--SM.Id	
@@ -2018,7 +2030,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 									, SA.ToCurrencyRate
 									, SA.DocRefNo
 									,'' DocDate
-									, P.UserName AS PartyName,p.Code	
+									,SA.PartyId, P.UserName AS PartyName,p.Code	
 									--, '' HSNCode
 									--,SM.BaseRate
 									--,SM.BaseUoMFactor
@@ -2157,8 +2169,9 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 											group by ISS.SalesId
 											)ServiceData on ServiceData.SalesId=SA.Id
 									LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
-									WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) <= '" + toDate + @"'-- and sm.SalesId='202110'
-									Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code
+									WHERE SA.PlantId='" + identity.PlantId + "' " +
+									"AND convert(Date,SA.InvoiceDate) <= '" + toDate + @"'-- and sm.SalesId='202110'
+									Group By SA.PartyId,p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code
 								UNION ALL
 								SELECT 
 
@@ -2184,7 +2197,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								--, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
 								--, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 								--, '' HSNCode
-
+								,II.CustomerId PartyId
 								--,Sum(IID.PolicyRate) BaseRate
 								--,0 BaseUoMFactor
 								--,sum(IID.PolicyRate) TransactionRate
@@ -2298,8 +2311,10 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 											GROUP BY A.InventorySalesId
 								) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 								LEFT JOIN trn.Voucher V On V.Id=II.VoucherId
-								WHERE II.PlantId='" + identity.PlantId + @"' AND convert(Date,II.SalesDate) <= '" + toDate + @"'
-								GROUP BY p.Code	,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy";
+								WHERE II.PlantId='" + identity.PlantId + @"' 
+								AND convert(Date,II.SalesDate) <= '" + toDate + @"'
+								GROUP BY II.CustomerId,p.Code	,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy)x
+							 " + CusAll + "";
                         return _sqlRepository.GetDataTable(sql);
                     }
                 }
@@ -2316,7 +2331,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
         public string NumberFormatTwoDecimal = "#,##0.00;(#,##0.00)";
         public string NumberFormatFourDecimal = "#,####0.0000;(#,####0.0000)";
         [Authorize, HttpGet]
-        private IWorkbook InventorySalesReportList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string Summary, bool WithTax, string Type)
+        private IWorkbook InventorySalesReportList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string Summary, bool WithTax, string Type, string partyId)
         {
 
             //Start EmployeeAdvanceDueList
@@ -2336,7 +2351,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 
                 //Get the first worksheet in the workbook into IWorksheet
                 IWorksheet worksheet = workbook.Worksheets[0];
-                DataTable dtInventorySalesReportList = GetInventorySalesReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summary, Type);
+                DataTable dtInventorySalesReportList = GetInventorySalesReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summary, Type, partyId);
 
                 if (dtInventorySalesReportList.Rows.Count == 0)
                     throw new Exception("No data found");

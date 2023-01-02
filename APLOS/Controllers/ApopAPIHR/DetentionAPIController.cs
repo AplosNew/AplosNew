@@ -33,8 +33,13 @@ namespace Aplos.Controllers.ApopAPIHR
             
         }
 
+        public List<ActiveTask> GetCloseTask(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetCloseTask(out List<ActiveTask> activelist, UserId);
+            return activelist;
+        }
 
-        
 
         public List<WorkCenterList> GetWorkCenter(string processid)
         {
