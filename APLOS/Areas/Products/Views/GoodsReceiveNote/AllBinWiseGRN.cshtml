@@ -1,0 +1,47 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="row form-elements form-horizontal">
+            <div class="col-xs-3">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="From Date" ng-model="FromDate" datepicker class="form-control" tabindex="0">
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-3">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="To Date" ng-model="ToDate" datepicker class="form-control" tabindex="1">
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-3">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input id="ddMaterialTypeId" ng-model="MaterialTypeId" e-watermarktext="MaterialType" class="form-control" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="MaterialTypeList" e-fields-value="Value" e-fields-text="Text" required tabindex="2" e-showcheckbox="true" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-3">
+                <div class="common-btn" style="margin-top:10px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="XlsDownloadBinWiseGRNReport();" class="btn"><i class="glyphicon glyphicon-download"></i> Report </button></li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>

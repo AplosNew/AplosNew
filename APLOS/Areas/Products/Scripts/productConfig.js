@@ -41,7 +41,11 @@ function ProductConfig($routeProvider, $locationProvider) {
 		.when('/GRN-By-PO', {
 			templateUrl: 'Products/GoodsReceiveNote/GRNByPO',
 			controller: 'GRNByPOController'
-		})
+        })
+        .when('/bin-wise-GRN', {
+            templateUrl: 'Products/GoodsReceiveNote/AllBinWiseGRN',
+            controller: 'AllBinWiseGRNController'
+        })
         .when('/GRN-boq-PO', {
             templateUrl: 'Products/GoodsReceiveNote/GRNBOQPO',
             controller: 'GRNBOQPOController'

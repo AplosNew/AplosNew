@@ -10,7 +10,23 @@ function grnApprovalController(accountService, addressService, $window, cboServi
     $scope.path = 'Products/GoodsReceiveNote/';
 
 
-    //#region GRNApplrval Detail    $scope.lst = [];    $scope.POListDetails = function () {        //debugger;        $http({            method: 'GET',            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData            url: 'Products/GoodsReceiveNote/GRNDetailsData'        }).then(function successCallback(response) {            $scope.lst = response.data;            //$scope.detailgrid($scope.lst);            window.lst = response.data;        });    }    $scope.POListDetails();    $scope.GRNDocumentMapDataAll = function () {
+    //#region GRNApplrval Detail
+    $scope.lst = [];
+    $scope.POListDetails = function () {
+        //debugger;
+        $http({
+            method: 'GET',
+            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
+            url: 'Products/GoodsReceiveNote/GRNDetailsData'
+        }).then(function successCallback(response) {
+            $scope.lst = response.data;
+            //$scope.detailgrid($scope.lst);
+            window.lst = response.data;
+
+        });
+    }
+    $scope.POListDetails();
+    $scope.GRNDocumentMapDataAll = function () {
         //debugger;
         $http({
             method: 'GET',
@@ -23,7 +39,23 @@ function grnApprovalController(accountService, addressService, $window, cboServi
 
         });
     }
-    $scope.GRNDocumentMapDataAll();    $scope.data1 = $scope.lst;    $scope.detailTemp = "#tabGridContents";    //$scope.detailgrid = "detailGridData(e)";    $scope.detailgrid = function detailGridData(e) {        //debugger;        var filteredData = e.data["Id"];        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("InventoryReceiveId", "equal", parseInt(filteredData), true).take(200));        e.detailsElement.find("#detailGrid").ejGrid({            dataSource: data,			columns: ["MaterialGroupName", "MaterialName", "Article", "SKU1", "SKU2", "SKU3", "MaterialDetail", "TransactionQty", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount"]        });        e.detailsElement.find(".tabcontrol").ejTab();        //var filteredData1 = e.data["Id"];
+    $scope.GRNDocumentMapDataAll();
+
+    $scope.data1 = $scope.lst;
+    $scope.detailTemp = "#tabGridContents";
+    //$scope.detailgrid = "detailGridData(e)";
+    $scope.detailgrid = function detailGridData(e) {
+        //debugger;
+
+        var filteredData = e.data["Id"];
+        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("InventoryReceiveId", "equal", parseInt(filteredData), true).take(200));
+        e.detailsElement.find("#detailGrid").ejGrid({
+
+            dataSource: data,
+			columns: ["MaterialGroupName", "MaterialName", "Article", "SKU1", "SKU2", "SKU3", "MaterialDetail", "TransactionQty", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount"]
+        });
+        e.detailsElement.find(".tabcontrol").ejTab();
+        //var filteredData1 = e.data["Id"];
         var dataImg = ej.DataManager(window.Img).executeLocal(ej.Query().where("GRNId", "equal", parseInt(filteredData), true).take(100));
         e.detailsElement.find("#detailGrid1").ejGrid({
             dataSource: dataImg,
@@ -33,7 +65,10 @@ function grnApprovalController(accountService, addressService, $window, cboServi
 
             ]
         });
-        e.detailsElement.find(".tabcontrol").ejTab();    }    //#endregion
+        e.detailsElement.find(".tabcontrol").ejTab();
+    }
+    //#endregion
+
 
     $scope.LoadapprovalStatus = function () {
         cboService.getEnumCbo("enum/GetCheckedStatusCbo", function (result) {
@@ -1125,7 +1160,15 @@ function grnApprovalController(accountService, addressService, $window, cboServi
 
     //#region GRN Check UI screen
 
-    $scope.AllTabPrint = function (z) {        var x = "#" + z;        var gridObj = $(x).data("ejGrid");        var data = gridObj.getSelectedRecords()[0];        location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.Id + '&plantId=' + data.PlantId;    };
+    $scope.AllTabPrint = function (z) {
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.Id + '&plantId=' + data.PlantId;
+
+
+
+    };
 
     $scope.GriddataGRNCk = [];
     $scope.getListForGRNUnchecked = function () {

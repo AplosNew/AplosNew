@@ -16,7 +16,8 @@ function maintenancePlanningReportController(cboService, commonMessage, $scope, 
         FromDate: null,
         ToDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
         FromDateMD: null,
-        ToDateMD: $filter('dateFiltering')(date, 'dd-MM-yyyy')
+        ToDateMD: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
+        Status: 'Pending'
     };
     $scope.statusNew = Object.assign({}, $scope.status);
 
@@ -57,7 +58,7 @@ function maintenancePlanningReportController(cboService, commonMessage, $scope, 
             $http({
 
                 method: 'Get',
-                url: 'Machines/MaintenancePlanningReport/LoadMaintenancePlanningReportList?ToDate=' + $scope.statusNew.ToDateMD + '&FromDate=' + $scope.statusNew.FromDateMD
+                url: 'Machines/MaintenancePlanningReport/LoadMaintenancePlanningReportList?ToDate=' + $scope.statusNew.ToDateMD + '&FromDate=' + $scope.statusNew.FromDateMD + '&Status=' + $scope.statusNew.Status
             }).then(function successCallback(response) {
                 $scope.MaintenancePlanningReportList = response.data;
                 var gridObj = $("#GridMaintenancePlanningReport").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -72,7 +73,7 @@ function maintenancePlanningReportController(cboService, commonMessage, $scope, 
     //$scope.MaintenancePlanningReport = function () {
     //    $http({
     //        method: 'POST',
-    //        url: $scope.path + 'XlsMaintenancePlanningReport?todate=' + $scope.statusNew.ToDateMD + '&fromDate=' + $scope.statusNew.FromDateMD,
+    //        url: $scope.path + 'XlsMaintenancePlanningReport?todate=' + $scope.statusNew.ToDateMD + '&fromDate=' + $scope.statusNew.FromDateMD + '&Status=' + $scope.statusNew.Status,
     //        dataType: 'JSON'
     //    }).then(function successCallback(response) {
     //        if (response.data.Error === true) {

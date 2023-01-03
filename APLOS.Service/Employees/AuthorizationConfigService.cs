@@ -167,7 +167,7 @@ namespace Library.Service.Employees
             {
                 var sql = @"SELECT AC.EmployeeId Id,EI.EmployeeName AS Value FROM [dbo].[AuthorizationConfig] AC  
 						LEFT JOIN dbo.EmployeeInformation AS EI ON EI.SystemId=AC.EmployeeId
-						WHERE AC.ActionStatus='" + status + "' ";
+						WHERE AC.ActionStatus='" + status + "' AND EI.EmployeeStatus='Active'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

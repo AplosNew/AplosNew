@@ -21,7 +21,9 @@ using Library.ViewModel.Setup;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 
 #endregion Using
@@ -221,7 +223,25 @@ namespace Library.Service.Employees
                         + "<br/>ID : " + item.Id + " <br/>OTP : " + item.InitialPIN
                         + "<br/><b>N.B.</b> Google Chrome is recommended browser.";
                     var em = new EmailSender(dom.Host, dom.Port, dom.MailingUserName, dom.Password, dom.IsSSL);
-                    em.Send(emailSetup.SenderName + " <" + emailSetup.SenderEmail + ">", item.Email, cc, emailSetup.Subject, emailSetup.Message);
+                  em.Send(emailSetup.SenderName + " <" + emailSetup.SenderEmail + ">", item.Email, cc, emailSetup.Subject, emailSetup.Message);
+
+
+                    //SmtpClient client = new SmtpClient();
+                    //client.Port = 587;
+                    //client.Host = "cedaartextile.com";
+                    //client.EnableSsl = true;
+                    //client.Timeout = 100000;
+                    //client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    //client.UseDefaultCredentials = false;
+
+
+                    //client.Credentials = new System.Net.NetworkCredential(dom.MailingUserName, dom.Password);
+                    //System.Net.Mail.MailMessage reportEmail = new System.Net.Mail.MailMessage(dom.MailingUserName, emailSetup.SenderEmail, emailSetup.Subject, emailSetup.Message);
+                    //reportEmail.BodyEncoding = UTF8Encoding.UTF8;
+                    //reportEmail.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
+                    //reportEmail.IsBodyHtml = true;
+                    //client.Send(reportEmail);
+
                 }
             }
             catch (Exception ex)
