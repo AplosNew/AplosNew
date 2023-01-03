@@ -9,14 +9,23 @@ function InventoryrequisitionCheckbyController($window, cboService, $scope, $roo
     $scope.path1 = 'Products/Requisition/';
     $scope.detailUpdate = 'Products/Requisition/UpdateApprovedQty';
 
-    $scope.AllTabPrint = function (z) {        //debugger;        var FromCheckedUI = 'FromCheckedUI';        var x = "#" + z;        var gridObj = $(x).data("ejGrid");        var data = gridObj.getSelectedRecords()[0];        $http({
+    $scope.AllTabPrint = function (z) {
+        //debugger;
+        var FromCheckedUI = 'FromCheckedUI';
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+
+        $http({
             method: 'GET',
             url: 'Products/Requisition/GetFiscalYear?formattedDate=' + data.RequisitionDate1,
         }).then(function successCallback(response) {
             $scope.startDate = response.data[0].StartDate;
             $scope.endDate = response.data[0].EndDate;
             location.href = "Products/Requisition/RequisitionReportby?RequisitionId=" + data.Id + '&startDate=' + $scope.startDate + '&endDate=' + $scope.endDate + '&PreparedBy=' + data.PreparedBy + '&FromCheckedUI=' + FromCheckedUI;
-        });            };
+        });
+        
+    };
 
 
     $scope.RequisitionHoldRejectList = [];

@@ -255,9 +255,9 @@ namespace Library.Service.EmployeeServices
                 string _Id = ""; string _Idx = "";
                 foreach (ItemScanChildData item in DataToSave)
                 {
-                    netWeight += Convert.ToDecimal(item.NetWeight);
-                    POId = item.POId;
-                    lotNo = item.LotNo;
+                    //netWeight += Convert.ToDecimal(item.NetWeight);
+                    //POId = item.POId;
+                    //lotNo = item.LotNo;
 
                     Index++;
                     object Emp = DBNull.Value;
