@@ -18745,13 +18745,13 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='JobWorkReceiptCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='JobWorkReceiptCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='JobWorkReceiptApproveBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='JobWorkReceiptApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {
