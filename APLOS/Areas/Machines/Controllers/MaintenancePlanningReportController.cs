@@ -75,14 +75,28 @@ namespace Aplos.Areas.Machines.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadMaintenancePlanningReportList(string ToDate,string FromDate)
+        public ActionResult LoadMaintenancePlanningReportList(string ToDate,string FromDate,string Status)
         {
+            string Filter = string.Empty;
+
+            if (Status == "All")
+            {
+                Filter = " and (MPD.ActualDate is not null or MPD.ActualDate is null) and MPD.PlannedDate is not null";
+            }
+            else if (Status == "Completed")
+            {
+                Filter = " and MPD.ActualDate is not null and MPD.PlannedDate is not null";
+            }
+            else
+            {
+                Filter = " and MPD.ActualDate is null and MPD.PlannedDate is not null";
+            }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"Select E.UserName as Entity,D.UserName Department,P.UserName as Process,WC.UserName WorkCenter,WC.Code WCCode,MA.AssetName,MA.AssetCode,MM.MachineMake Make,
-MM.MachineModel Model,MS.UserName ScheduleName,MS.ScheduleCode,	MS.ScheduleDays,
-Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,
-Case when isnull(MPD.ActualDate,'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+MPD.ActualDate),'dd-MMM-yyyy') end CMD,
-isnull(Format(MPD.ActualDate,'dd-MMM-yyyy'),'') as LMD,MPD.Remarks
+MM.MachineModel Model,MS.UserName ScheduleName,MS.ScheduleCode,Reverse(stuff(Reverse((Select EmployeeName + ',' from EmployeeInformation where 
+SystemId in (select ResponsiblePersonId from [TRN].[ResponsiblePlannedDetails] where PlannedId=MPD.Id and IsActive=1) for xml PATH(''))),1,1,'')) as ActionablePerson,MS.ScheduleDays,
+Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,isnull(Format(MPD.ActualDate,'dd-MMM-yyyy'),'') as ActualDate,DATEDIFF(Day,MPD.PlannedDate,MPD.ActualDate) DaysDifference,
+Case when isnull(MPD.ActualDate,'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+MPD.ActualDate),'dd-MMM-yyyy') end CMD,MPD.AddedBy PlannedBy,MPD.UpdatedBy CompletedBy,MPD.Remarks
 from HKP.Process P
 left join SCS.WorkCenterMaster WC ON WC.ProcessId=P.Id
 left join ORG.Entity E ON E.Id=WC.EntityId
@@ -91,20 +105,21 @@ left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
 left join TRN.MaintenanceMachineAsset MMA ON MA.Id=MMA.AssetId
 left Join TRN.MaintenanceScheduling MS ON MMA.MaintenanceSchedulingId=MS.Id and MS.IsActive=1
 left Join ORG.Department D ON D.Id=MS.DepartmentId
-left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id and MPD.ActualDate is not null and MPD.PlannedDate is not null
+left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id
+--and MPD.ActualDate is not null and MPD.PlannedDate is not null
 where
-P.Active=1 and 
+P.Active=1 and MMA.Id is not null and
 Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+MPD.ActualDate) end between '"+FromDate+"' and '"+ ToDate + "' ORDER by MPD.ActualDate DESC";
+ ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+MPD.ActualDate) end between '" + FromDate+"' and '"+ ToDate + "' " + Filter + @" ORDER by MPD.ActualDate DESC";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
-        public ActionResult XlsMaintenancePlanningReport(string todate, string fromDate)
+        public ActionResult XlsMaintenancePlanningReport(string todate, string fromDate, string Status)
         {
             try
             {
-                var workbook = MaintenancePlanningReport(todate,fromDate);
+                var workbook = MaintenancePlanningReport(todate,fromDate,Status);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "MaintenancePlanningReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -121,7 +136,7 @@ Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails
         }
 
         [Authorize, HttpPost]
-        private IWorkbook MaintenancePlanningReport(string todate, string fromDate)
+        private IWorkbook MaintenancePlanningReport(string todate, string fromDate, string Status)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -129,7 +144,7 @@ Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails
             workbook.Version = ExcelVersion.Excel2016;
 
 
-            var data = rsr.MaintenancePlanningReport(todate, fromDate);
+            var data = rsr.MaintenancePlanningReport(todate, fromDate, Status);
 
 
             var sheet = workbook.Worksheets[0];
