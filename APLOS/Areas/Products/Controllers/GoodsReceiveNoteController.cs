@@ -208,7 +208,7 @@ namespace Aplos.Areas.Products.Controllers
             return View();
         }
 
-        [Authorize]
+        
         public ActionResult AllBinWiseGRN()
         {
             return View();
