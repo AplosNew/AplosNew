@@ -21,14 +21,24 @@ function UserAppAuthenticationController(cboService, baseService, $rootScope, $s
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-            $scope.GetDataById();
+
+            $scope.GetDataById(args.data.ModuleId);
         }
     }
 
     $scope.GetDataById = function (x) {
-        $http.get('Securities/UserAppAuthentication/GetDataById')
+        $http.get('Securities/UserAppAuthentication/GetDataById?moduleid=' + x)
         .then(function successCallback(response) {
             $scope.DataList = response.data;
+            for (var j = 0; j < $scope.ModuleList.length; j++)  {
+                for (var i = 0; i < $scope.DataList.length; i++) {
+                    if ($scope.DataList[j].ModuleId == $scope.ModuleList[i].Value) {
+                        $scope.userAccessApp.ModuleId = $scope.ModuleList[i].Value;
+                        break;
+                    }
+                }
+            }
+
         },
             function errorCallback(response) {
                 ShowResult(response, 'failure');

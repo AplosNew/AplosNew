@@ -164,7 +164,7 @@ namespace Aplos.Areas.Securities.Controllers
                 //LEFT JOIN dbo.MobileAppModule AS mp ON p.ModuleId = mp.id
                 //LEFT JOIN dbo.MobileAppIcon AS mi ON p.IconId = mi.id";
                 #endregion commented
-                string sql = @"SELECT distinct mp.ModuleName  ModuleName, c.name  RoleName 
+                string sql = @"SELECT distinct p.ModuleId, mp.ModuleName  ModuleName, c.name  RoleName 
 FROM SEC.AppRoleDetail AS p
 LEFT JOIN SEC.AppRole AS c ON p.RoleId = c.id
 LEFT JOIN dbo.MobileAppModule AS mp ON p.ModuleId = mp.id
@@ -191,7 +191,7 @@ order by mp.ModuleName";
                 LEFT JOIN SEC.AppRole AS c ON p.RoleId = c.id
                 LEFT JOIN dbo.MobileAppModule AS mp ON p.ModuleId = mp.id
                 LEFT JOIN dbo.MobileAppIcon AS mi ON p.IconId = mi.id
-                where p.ModuleId = 3
+                where p.ModuleId = '"+ moduleid + @"'
                 order by mp.ModuleName
                 ";
                 #endregion commented
