@@ -440,6 +440,8 @@ namespace Library.Service.Finances
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailTo.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                         DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2)
                     });
+                    totalAmountDr += voucherDetailTo.DrAmount;
+                    totalCurrencyAmountDr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2);
                     if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId) || !string.IsNullOrEmpty(voucherDetailTo.CashMasterId))
                     {
                         if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId))
@@ -3128,6 +3130,8 @@ namespace Library.Service.Finances
                     loanInterestPayable.TransactionType = LoanTransactionType.InterestPayable.ToString();
                 if (voucherVM.SourceType == "OtherExpensesPayable")
                     loanInterestPayable.TransactionType = LoanTransactionType.OtherExpensesPayable.ToString();
+                if (voucherVM.SourceType == "LoanTax")
+                    loanInterestPayable.TransactionType = LoanTransactionType.LoanTax.ToString();
 
                 _loanInterestPayableRepository.Insert(loanInterestPayable);
 
@@ -3364,7 +3368,7 @@ namespace Library.Service.Finances
                     #endregion To
                 }
                 var currentVoucherDetailId = 1;
-                if (null != invoiceTaxVMList && voucherVM.SourceType == LoanTransactionType.Tax.ToString())
+                if (null != invoiceTaxVMList && voucherVM.SourceType == LoanTransactionType.LoanTax.ToString())
                 {
                     taxDrAmount = 0;
                     foreach (var invoiceTaxVM in invoiceTaxVMList)
@@ -3385,12 +3389,16 @@ namespace Library.Service.Finances
                         var invoice = new Invoice
                         {
                             PartyId = voucherVM.PartyId,
-                            SourceType = SourceType.LoanInterestPayable.ToString()
+                            SourceType = SourceType.LoanInterestPayable.ToString(),
+                            TaxYearId = financing.TaxYearId,
+                            TaxYearPeriodId = financing.TaxYearPeriodId
                         };
+                        AuditService.AddedLog(invoice);
                         var invoiceTax = new InvoiceTax
                         {
-                            //VoucherDetailId = voucherExpenses.Id,
-                            //InvoiceId = invoice.Id,
+                            TaxYearId = financing.TaxYearId,
+                            TaxYearPeriodId = financing.TaxYearPeriodId,
+                            FinancingId = voucherVM.FinancingId,
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
                             TaxCategoryId = invoiceTaxVM.TaxCategoryId,
                             TaxAmount = Math.Round(invoiceTaxVM.TaxAmount, 4),
@@ -3483,7 +3491,7 @@ namespace Library.Service.Finances
                                 DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.DrAmount,
                                 ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
                             };
-                            totalBaseCurrencyDrAmount += voucherDetailCurrencybase.DrAmount;
+                            totalCurrencyAmountDr += voucherDetailCurrencybase.DrAmount;
                             totalAPBaseCurrencyDrAmount += voucherDetailCurrencybase.DrAmount;
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencybase);
                         }
@@ -3491,12 +3499,13 @@ namespace Library.Service.Finances
                     }
                 }
                 if (financing.TransactionType == TransactionType.LoanTaken.ToString() && voucherVM.SourceType == LoanTransactionType.LoanInterestPayable.ToString()
-                    || voucherVM.SourceType == LoanTransactionType.OtherExpensesPayable.ToString() || voucherVM.SourceType == LoanTransactionType.Tax.ToString())
+                    || voucherVM.SourceType == LoanTransactionType.OtherExpensesPayable.ToString() || voucherVM.SourceType == LoanTransactionType.LoanTax.ToString())
                 {
                     //********************VoucherDetail From******************************
                     //_voucherService.InsertVoucherDetail(voucher, voucherDetailFrom, currentVoucherDetailId);
                     //totalAmountDr += voucherDetailFrom.DrAmount;
                     //********************VoucherDetail To******************************
+                    currentVoucherDetailId++;
                     _voucherService.InsertVoucherDetail(voucher, voucherDetailTo, currentVoucherDetailId);
                     totalAmountCr += voucherDetailTo.CrAmount;
                     loanInterestPayable.VoucherDetailId = voucherDetailTo.Id;

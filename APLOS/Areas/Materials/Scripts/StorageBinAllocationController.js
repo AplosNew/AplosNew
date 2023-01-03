@@ -9,6 +9,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     $scope.searchbyMaterialMasterDatalist = [
         {
@@ -74,6 +75,16 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
     $scope.searchByBinAllocationList = [{ value: 'UserName', name: "User Name" }, { value: 'StorageBinMaster', name: "StorageBinMaster" }
         , { value: 'MaterialType', name: "MaterialType" }, { value: 'MaterialGroup', name: "Material Group" }, { value: 'MaterialName', name: "Material" }
         , { value: 'AccessType', name: "Access Type" }];
+
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+            $scope.getStorageLocation();
+            $scope.getStorageSubLocation();
+        }
+    };
 
     $scope.binAllocationHeads = [];
     $scope.getbinAllocationHeadDataList = function () {
@@ -335,13 +346,14 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
                     var ob = {};
                     ob.Id = null;
                     ob.ArticleName = a.ArticleName;
+                    ob.MaterialMasterArticleId = a.MaterialMasterArticleId;
                     ob.MaterialGroupMasterId = a.MaterialGroupMasterId;
                     ob.MaterialMaster = a.MaterialMaster;
                     ob.MaterialMasterId = a.MaterialMasterId;
                     ob.MaterialType = a.MaterialType;
                     ob.MaterialTypeId = a.MaterialTypeId;
                     ob.MaterialgroupName = a.MaterialgroupName;
-
+                    ob.EstimatedCapacity = a.EstimatedCapacity;
                     $scope.userMaterialList.push(ob);
                     ob = {};
                 }
@@ -507,6 +519,35 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         var gridObj = $("#GridEditB").data("ejGrid");
         gridObj.refreshContent();
     };
+
+    $scope.ReportFormat ='Excel',
+        $scope.GetStorageBinAllocation = function (data) {
+        //var z = "#" + x;
+        //var gridObj = $(x).data("ejGrid");
+        //var Data = gridObj.getSelectedRecords()[0];
+        var url = "Materials/StorageBinAllocation/StorageBinAllocationReport?reportFormat=" + $scope.ReportFormat + '&sbaId=' + data.Id;
+        $rootScope.report(url);
+    };
+
+
+    $scope.GetStorageBinAllocationAllReport = function () {
+    $scope.fileName = "StorageBinAllocation.xlsx";
+		$http({
+			method: 'POST',
+            url: $scope.path + "StorageBinAllocationAllReport",
+			dataType: 'JSON',
+		})
+			.then(function successCallback(response) {
+				if (response.data.Error === true) {
+					ShowResult(response.data.Message, 'failure');
+				}
+				else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+				}
+			}, function errorCallback(response) {
+				ShowResult(response.data.Message, 'failure');
+			});
+	};
 
 }
 

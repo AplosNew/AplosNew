@@ -773,6 +773,7 @@
     <Compile Include="Areas\Machines\Controllers\MaintenanceSchedulingController.cs" />
     <Compile Include="Areas\Machines\Controllers\PendingMaintenanceScheduleController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogReportController.cs" />
+    <Compile Include="Areas\Materials\Controllers\ScanDataController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityGroupController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogoutController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
@@ -786,6 +787,7 @@
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityMasterController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogController.cs" />
+    <Compile Include="Areas\Materials\Controllers\WasteTypeController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingReports.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingAgendaController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingPointsController.cs" />
@@ -2239,6 +2241,7 @@
     <Content Include="Areas\Machines\Scripts\maintenanceStatusDetailsController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogReportController.js" />
+    <Content Include="Areas\Materials\Scripts\ScanDataController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityGroupController.js" />
     <Content Include="Areas\Materials\Scripts\MaterialIssueController.js" />
     <Content Include="Areas\Materials\Scripts\MaterialIssueControlApprovalController.js" />
@@ -2258,6 +2261,7 @@
     <Content Include="Areas\Materials\Scripts\UtilityMasterController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
     <Content Include="Areas\Administration\Scripts\AdministrationConfig.js" />
+    <Content Include="Areas\Materials\Scripts\WasteTypeController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingReportsController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingAgendaController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingPointsController.js" />
@@ -4470,6 +4474,9 @@
     <Content Include="Areas\Machines\Views\SkillManagementDetails\Aplos.cshtml" />
     <Content Include="Areas\Machines\Views\PendingSkillManagement\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\OutPassRegister\Report.cshtml" />
+    <Content Include="Areas\Materials\Views\ScanData\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\WasteType\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\Shared\_IndependentCharacteristicsValuePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

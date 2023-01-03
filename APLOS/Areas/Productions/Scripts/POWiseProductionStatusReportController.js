@@ -298,33 +298,42 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     }
 
     $scope.ProductionData = function () {
-        var dataList = [];
-        var g = $("#GridEmp").data("ejGrid");
-        dataList = g.getFilteredRecords();
+        try {
+            var dataList = [];
+            var g = $("#GridEmp").data("ejGrid");
+            dataList = g.getFilteredRecords();
 
-        if (dataList.length == 0) {
-            dataList = $scope.ProductionDataReportList;
-        }
-        $scope.fileName = "ProductionDataReport.xlsx";
+            if (dataList.length == 0) {
+                dataList = $scope.ProductionDataReportList;
+            }
 
-        $http({
-            method: 'POST',
-            url: $scope.path + "ProductionDataXls",
-            //data: { 'parameters': $scope.parameters },
-            data: { 'reportFileName': $scope.fileName, 'data': dataList },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
+            if (dataList.length == 0) {
+                throw "Select List.";
+            }
+
+            $scope.fileName = "ProductionDataReport.xlsx";
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "ProductionDataXls",
+                //data: { 'parameters': $scope.parameters },
+                data: { 'reportFileName': $scope.fileName, 'data': dataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    //$scope.ProductionDataReportList = response.data;
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                //$scope.ProductionDataReportList = response.data;
-                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.wcparameters = [];
@@ -400,30 +409,39 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     //}
 
     $scope.ProWCDataReport = function () {
-        var dataList = [];
-        var g = $("#GridWC").data("ejGrid");
-        dataList = g.getFilteredRecords();
+        try {
+            var dataList = [];
+            var g = $("#GridWC").data("ejGrid");
+            dataList = g.getFilteredRecords();
 
-        if (dataList.length == 0) {
-            dataList = $scope.ProductionDataWCReportList;
-        }
-        $scope.fileName = "ProductionDataWithWCReport.xlsx";
+            if (dataList.length == 0) {
+                dataList = $scope.ProductionDataWCReportList;
+            }
 
-        $http({
-            method: 'POST',
-            url: $scope.path + "ProductionDataWCXls",
-            data: { 'reportFileName': $scope.fileName, 'data': dataList },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
+            if (dataList.length == 0) {
+                throw "Select List.";
+            }
+
+            $scope.fileName = "ProductionDataWithWCReport.xlsx";
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "ProductionDataWCXls",
+                data: { 'reportFileName': $scope.fileName, 'data': dataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
 
@@ -471,58 +489,73 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
 
 
     $scope.ProductionSummaryData = function () {
-        var dataList = [];
-        var g = $("#GridSum").data("ejGrid");
-        dataList = g.getFilteredRecords();
+        try {
+            var dataList = [];
+            var g = $("#GridSum").data("ejGrid");
+            dataList = g.getFilteredRecords();
 
-        if (dataList.length == 0) {
-            dataList = $scope.ProductionDataSumReportList;
-        }
-        $scope.fileName = "ProductionSummaryDataReport.xlsx";
+            if (dataList.length == 0) {
+                dataList = $scope.ProductionDataSumReportList;
+            }
+            if (dataList.length == 0) {
+                throw "Select List.";
+            }
 
-        $http({
-            method: 'POST',
-            url: $scope.path + "ProductionSummaryDataXls",
-            data: { 'reportFileName': $scope.fileName, 'data': dataList },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
+            $scope.fileName = "ProductionSummaryDataReport.xlsx";
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "ProductionSummaryDataXls",
+                data: { 'reportFileName': $scope.fileName, 'data': dataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.ProSumDataReport = function () {
-        var dataLists = [];
-        var g = $("#GridSum").data("ejGrid");
-        dataLists = g.getFilteredRecords();
+        try {
+            var dataLists = [];
+            var g = $("#GridSum").data("ejGrid");
+            dataLists = g.getFilteredRecords();
 
-        if (dataLists.length == 0) {
-            dataLists = $scope.ProductionDataSumReportList;
-        }
+            if (dataLists.length == 0) {
+                dataLists = $scope.ProductionDataSumReportList;
+            }
 
-        $scope.fileName = "ProductionDataSummary";
+            if (dataList.length == 0) {
+                throw "Select List.";
+            }
+            $scope.fileName = "ProductionDataSummary";
 
-        $http({
-            method: 'POST',
-            url: $scope.exportgriddataUrlUpd,
-            data: { 'reportFileName': $scope.fileName, 'data': dataLists },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
+            $http({
+                method: 'POST',
+                url: $scope.exportgriddataUrlUpd,
+                data: { 'reportFileName': $scope.fileName, 'data': dataLists },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.loadallsumfilters = function () {
@@ -617,58 +650,75 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     }
 
     $scope.ProSumAllDataReport = function () {
-        var alldataLists = [];
-        var g = $("#GridAllSum").data("ejGrid");
-        alldataLists = g.getFilteredRecords();
+        try {
+            var alldataLists = [];
+            var g = $("#GridAllSum").data("ejGrid");
+            alldataLists = g.getFilteredRecords();
 
-        if (alldataLists.length == 0) {
-            alldataLists = $scope.ProductionDataAllSumReportList;
-        }
+            if (alldataLists.length == 0) {
+                alldataLists = $scope.ProductionDataAllSumReportList;
+            }
 
-        $scope.fileName = "ProductionDataAllSummary";
+            if (alldataLists.length == 0) {
+                throw "Select List.";
+            }
 
-        $http({
-            method: 'POST',
-            url: $scope.exportgriddataUrlUpd,
-            data: { 'reportFileName': $scope.fileName, 'data': alldataLists },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
+            $scope.fileName = "ProductionDataAllSummary";
+
+            $http({
+                method: 'POST',
+                url: $scope.exportgriddataUrlUpd,
+                data: { 'reportFileName': $scope.fileName, 'data': alldataLists },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.GetProductionAllSummaryData = function () {
-        var dataList = [];
-        var g = $("#GridAllSum").data("ejGrid");
-        dataList = g.getFilteredRecords();
+        try {
+            var dataList = [];
+            var g = $("#GridAllSum").data("ejGrid");
+            dataList = g.getFilteredRecords();
 
-        if (dataList.length == 0) {
-            dataList = $scope.ProductionDataAllSumReportList;
-        }
-        $scope.fileName = "ProductionAllSummaryDataReport.xlsx";
+            if (dataList.length == 0) {
+                dataList = $scope.ProductionDataAllSumReportList;
+            }
 
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetProductionAllSummaryDataXls",
-            data: { 'reportFileName': $scope.fileName, 'data': dataList },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
+            if (dataList.length == 0) {
+                throw "Select List.";
+            }
+
+            $scope.fileName = "ProductionAllSummaryDataReport.xlsx";
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetProductionAllSummaryDataXls",
+                data: { 'reportFileName': $scope.fileName, 'data': dataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
 

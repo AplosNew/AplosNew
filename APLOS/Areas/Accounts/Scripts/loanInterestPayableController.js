@@ -163,7 +163,14 @@ function loanInterestPayableController(accountService, bankService, cboService, 
     $scope.getTaxCodeInvoiceTriggeringInstanceOthers();
     $scope.taxCodDataList = [];
     $scope.addTaxCodeonList = function (item) {
-
+        if (baseService.isUndefinedOrNull($scope.voucher.PostingDate)) {
+            ShowResult("Please select Posting Date!", "failure");
+            return;
+        }
+        else if (baseService.isUndefinedOrNull(item)) {
+            ShowResult(" Please select Tax Code!", "failure");
+            return;
+        }
         $http({
             method: "get",
             url: "accounts/taxcode/GetTaxCodewithPersentageById?id=" + item + '&postingDate=' + $scope.voucher.PostingDate
@@ -415,6 +422,11 @@ function loanInterestPayableController(accountService, bankService, cboService, 
             }
         }
     };
+    $scope.passTaxAmount = function () {
+        if ($scope.voucher.SourceType === "LoanTax") {
+            $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.taxCodDataList), "TaxAmount") * 1000 + Number.EPSILON) / 1000;
+        }
+    };
 
     $scope.changeTransactionType = function (type) {
         $scope.Clear();
@@ -437,6 +449,7 @@ function loanInterestPayableController(accountService, bankService, cboService, 
         $scope.checkDocDate();
         $scope.checkPostingDate();
         $scope.passBankCashAmount();
+        $scope.passTaxAmount();
         if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate && !$scope.validation()) {
             if ($scope.Action === "Save") {
                 $http({

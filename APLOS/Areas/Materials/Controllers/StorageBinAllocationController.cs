@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
 using Library.MaterialManagement.Material;
+using Library.Model.Enums;
 #endregion Using
 
 
@@ -155,6 +156,19 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetBinAllocationForPO(string poId)
+        {
+            try
+            {
+                return Json(sba.GetBinAllocationForPO(poId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetList(string materialMasterId)
         {
@@ -247,7 +261,7 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                var data = sba.SaveMaterialAllocation(material, HeaderId, storagelevel);
+                var data = sba.SaveMaterialAllocation(HeaderId, material,  storagelevel);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
@@ -276,5 +290,49 @@ namespace Aplos.Areas.Materials.Controllers
 
             }
         }
+
+        #region Storage Bin Allocation  Report Per column
+
+        [Authorize, HttpGet]
+        public ActionResult StorageBinAllocationReport(ReportFormat reportFormat, string sbaId)
+        {
+            string reportFileName = "";
+            Syncfusion.XlsIO.IWorkbook workbook = null;
+         
+            workbook = sba.GetStorageBinAllocationReport(out reportFileName, sbaId);
+            
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+
+        #endregion
+
+        #region Storage Bin Allocation Report 
+
+        [Authorize, HttpPost]
+        public ActionResult StorageBinAllocationAllReport()
+        {
+            try
+            {
+                string fileName = "";
+                fileName = sba.GetStorageBinAllocationAllReport("Storage Bin Allocation");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
     }
 }

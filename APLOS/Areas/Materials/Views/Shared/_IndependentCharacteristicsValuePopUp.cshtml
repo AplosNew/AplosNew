@@ -1,0 +1,46 @@
+﻿<div class="modal fade site-modal in" id="searchIndependentcharacterepopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header"> SKU 1<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+			<div class="modal-body text-center">
+				<!--Search Filter-->
+				@*<div class="row text-right">
+					<div class="col-xs-12 col-sm-12 col-sm-12 ">
+						<div class="search-form">
+							<div class="row">
+								<div class="col-xs-12 col-sm-3 col-md-3">
+									<div class="select-style">
+										<select ng-model="charValueParameters.searchBy">
+											<option ng-repeat="option in searchCharFilterList" value="{{option.value}}">{{option.name}}</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-xs-12 col-sm-7 col-md-7">
+									<input type="text" class="form-control" placeholder="Search" ng-model="charValueParameters.search" ng-enter="getSearchCharData()">
+								</div>
+								<div class="col-xs-12 col-sm-2 col-md-2">
+									<button type="button" ng-click="getSearchCharData()" class="btn"><i class="glyphicon glyphicon-search"></i>Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>*@
+				<!--Search Grid-->
+
+                <div class="content-container-fluid" style="color:black;overflow:scroll">
+                    <div style="color:black;" id="IndependentcharacteristicsGrid" ej-grid e-datasource="IndependentcharacteristicsList" 
+						 e-templaterefresh="refreshTemplateMasterOrderOperation" 
+                         e-recorddoubleclick="selectIndependentcharacteristics"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                        <div e-columns>
+                            <div e-column e-field="Characteristics" e-headertext="Level" e-width="80" e-filter="false"></div>
+                            <div e-column e-field="Text" e-headertext="Text" e-width="80" e-filter="false"></div>
+                        </div>
+                    </div>
+                </div>
+
+			</div>
+        </div>
+    </div>
+</div>

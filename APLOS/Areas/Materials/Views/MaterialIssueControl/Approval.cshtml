@@ -31,20 +31,20 @@
                         <input type="text" name="Plan Percentage"  ng-model="ModelNew.PlanPercentage" only-numbers class="form-control" ng-change="CalculationByPlan();" required tabindex="5">
                     </div>
                 </div>
-                <div class="form-group" show-errors>
+                @*<div class="form-group" show-errors>
                     <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select name="Storage" ng-model="ModelNew.MaterialStorageId" disabled class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="1" required>
+                            <select name="Storage" ng-model="ModelNew.MaterialStorageId" disabled class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="7" required>
                                 <option value=""></option>
                             </select>
                         </div>
                     </div>
-                </div>
+                </div>*@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Issue Date" ng-model="ModelNew.IssueDate"  datepicker class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
+                        <input type="text" name="Issue Date" ng-model="ModelNew.IssueDate"  datepicker class="form-control" placeholder="dd-mmm-yyyy" required tabindex="9">
                     </div>
                 </div>
                 <div class="form-group">
@@ -63,7 +63,7 @@
                     <div class="col-sm-8">
                         <div class="checkbox-site">
                             <label>
-                                <input type="checkbox" ng-model="ModelNew.IsApproved" tabindex="8">
+                                <input type="checkbox" ng-model="ModelNew.IsApproved" tabindex="11">
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
@@ -131,7 +131,7 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 <div style="color:black;" id="SOGrid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"e-allowResizing="true" 
                      e-allowselection="false" e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
@@ -177,7 +177,7 @@
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                     <div style="color:black;" id="BGrid" ej-grid e-datasource="QBOQCostingList" e-allowscrolling="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true" 
                          e-allowselection="false" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-type="string" e-field="SrNo" e-headertext="SrNo" e-width="80"></div>
@@ -220,8 +220,7 @@
         </script>
         <script type="text/template" id="AdditionReductionTemplate">
             <div class="col-sm-10" style="padding:0px; width:70px;">
-                <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-change="$parent.Calculation(this)" e-width="80" />
-                @*<input type="text" class="form-control" n-decimals="4" ng-model="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80" />*@
+                <input type="text" class="form-control" n-decimals="4" ng-model="data.AdditionReduction" ng-blur="$parent.Calculation(this)" e-width="80"  style="text-align: right;"/>
             </div>
         </script>
 
@@ -258,7 +257,7 @@
                                 <div e-column e-type="text" e-field="ByWhom" e-headertext="ByWhom" e-width="80" style="height: 20px;"></div>
                                 <div e-column e-type="string" e-field="Level" e-headertext="Level" e-width="80"></div>
                                 <div e-column e-type="string" e-field="LotNo" e-headertext="LotNo" e-width="80"></div>
-                                <div e-column e-type="string" e-field="MaterialStorage" e-headertext="Material Storage" e-width="80"></div>
+                                @*<div e-column e-type="string" e-field="MaterialStorage" e-headertext="Material Storage" e-width="80"></div>*@
                                 <div e-column e-type="string" e-field="IsApproved" e-headertext="IsApproved" e-width="80"></div>
                             </div>
                         </div>

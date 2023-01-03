@@ -9,7 +9,7 @@ namespace Library.MaterialManagement.Inventory
 {
     public interface IInventoryReceiveDetailService : IService<InventoryReceiveDetail>
     {
-        void InsertOrUpdateGraphNew(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType, IEnumerable<GRNPORequisitionMap> requisitionDetailList);
+        void InsertOrUpdateGraphNew(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType, IEnumerable<GRNPORequisitionMap> requisitionDetailList, IEnumerable<GRNBinAllocationMap> grnBinAllocationMap);
         void UpdateGRNBYPOMaster(InventoryReceive entity, string GRNType);
         void InsertOrUpdateGraphNewGRNBOQ(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType, IEnumerable<InventoryMaterialViewModel> BOQAllocationSave);
         void BOQInsertOrUpdateGraphNew(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType,List<InventoryMaterialViewModel> List);

@@ -18,15 +18,15 @@ namespace Library.Service.EmployeeServices
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
         }
-  
-     
-        public IEnumerable<object> FromLoc(string Entity,string Purpose)
+
+
+        public IEnumerable<object> FromLoc(string Entity, string Purpose)
         {
             try
             {
                 var _sql = @"select distinct m.FromLocation as Text
                 from mst.MaterialMovementMaster m
-                where PurposeId='"+Purpose+"' and EntityId='"+Entity+"'";
+                where PurposeId='" + Purpose + "' and EntityId='" + Entity + "'";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)
@@ -34,14 +34,14 @@ namespace Library.Service.EmployeeServices
                 throw ex;
             }
         }
-      
-        public IEnumerable<object> ToLoc(string Entity,string Purpose,string FromLoc)
+
+        public IEnumerable<object> ToLoc(string Entity, string Purpose, string FromLoc)
         {
             try
             {
                 var sql = @"select distinct m.ToLocation as Text,m.Id as Value
                 from mst.MaterialMovementMaster m
-                where PurposeId='" + Purpose+"' and EntityId='"+Entity+"' and FromLocation='"+FromLoc+"'";
+                where PurposeId='" + Purpose + "' and EntityId='" + Entity + "' and FromLocation='" + FromLoc + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -57,7 +57,7 @@ namespace Library.Service.EmployeeServices
                 var _sql = @"select distinct PurposeId as Value,mp.UserName as Text 
                 from mst.MaterialMovementMaster m
                 left join hkp.MaterialMovementPurpose mp on mp.Id=m.PurposeId
-                where m.EntityId='"+ Entity+ "'and mp.Active='1'";
+                where m.EntityId='" + Entity + "'and mp.Active='1'";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)
@@ -71,13 +71,13 @@ namespace Library.Service.EmployeeServices
             try
             {
                 DataSet dsMaster;
-           
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<ItemScanData> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from dbo.ItemScan where Id='" + items[0].Id +"'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.ItemScan where Id='" + items[0].Id + "'", out dsMaster, false, "1");
 
                 foreach (ItemScanData item in DataToSave)
                 {
@@ -86,7 +86,7 @@ namespace Library.Service.EmployeeServices
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
-                       
+
                         bplib.clsGenID id = new bplib.clsGenID();
                         id.GenIDYearly(DateTime.Now.ToShortDateString(), "Item Scan", out string NewId);
 
@@ -97,7 +97,7 @@ namespace Library.Service.EmployeeServices
                         dr["Time"] = item.Time;
                         dr["ShiftId"] = item.ShiftId;
                         dr["Grade"] = item.Grade;
-                        dr["LocMasterId"] = item.LocMasterId;                       
+                        dr["LocMasterId"] = item.LocMasterId;
                         dr["PurposeId"] = item.PurposeId;
                         dr["Remarks"] = item.Remarks;
                         dr["AddedBy"] = item.AddedBy;
@@ -110,7 +110,7 @@ namespace Library.Service.EmployeeServices
                     {
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
-                      
+
                         dr["WorkDate"] = item.WorkDate;
                         dr["Time"] = item.Time;
                         dr["ShiftId"] = item.ShiftId;
@@ -165,8 +165,8 @@ namespace Library.Service.EmployeeServices
             {
                 string processId = "";
                 string inventory = "";
-                string Booked, IsDespatch, ToLocation, FLoc = "";bool Inventchk=false ;
-                decimal counter = 0,filter=0;
+                string Booked, IsDespatch, ToLocation, FLoc = ""; bool Inventchk = false;
+                decimal counter = 0, filter = 0;
                 DataSet dsMaster;
                 string TableName = "dbo.ItemScanChild";
 
@@ -176,10 +176,10 @@ namespace Library.Service.EmployeeServices
 
                 var items = DataToSave.ToList();
 
-              
+
                 string PackedBy = "''";
                 string RefNo = "''";
-                string LocId =  items[0].LocMasterId;
+                string LocId = items[0].LocMasterId;
                 string User = items[0].AddedBy;  /// Can delete later on
                 foreach (ItemScanChildData item in DataToSave)
                 {
@@ -187,25 +187,25 @@ namespace Library.Service.EmployeeServices
                     RefNo += ",'" + item.RefNo + "'";
                 }
 
-                
+
 
                 var sqly = @"select SystemId as EmpId,EmployeeCode from dbo.EmployeeInformation where EmployeeCode IN(" + PackedBy + ")";
                 var EmpId = _sqlRepository.GetDataTable(sqly);
 
                 //getscandata
-                var sqlscan = @"Select WorkDate,ShiftId,Grade,PurposeId,LocMasterId from dbo.ItemScan Where Id='"+MId+"'";
+                var sqlscan = @"Select WorkDate,ShiftId,Grade,PurposeId,LocMasterId from dbo.ItemScan Where Id='" + MId + "'";
                 DataTable dtScan = _sqlRepository.GetDataTable(sqlscan);
 
-                DateTime WorkDate =Convert.ToDateTime(dtScan.Rows[0]["WorkDate"].ToString());
+                DateTime WorkDate = Convert.ToDateTime(dtScan.Rows[0]["WorkDate"].ToString());
                 string ShiftId = dtScan.Rows[0]["ShiftId"].ToString();
                 string Grade = dtScan.Rows[0]["Grade"].ToString();
                 string PurposeId = dtScan.Rows[0]["PurposeId"].ToString();
 
                 //getProcess&Entity
-                var sqlProcess = @"SELECT ProcessId FROM HKP.MaterialMovementPurpose where Id ='"+ PurposeId + "'";
+                var sqlProcess = @"SELECT ProcessId FROM HKP.MaterialMovementPurpose where Id ='" + PurposeId + "'";
                 DataTable dtProcess = _sqlRepository.GetDataTable(sqlProcess);
-                 processId = dtProcess.Rows[0]["ProcessId"].ToString();
-                
+                processId = dtProcess.Rows[0]["ProcessId"].ToString();
+
 
                 // Check repeat Rows 
                 var sql = @"select * from dbo.ItemScanChild where RefNo IN(" + RefNo + @")";
@@ -222,10 +222,10 @@ namespace Library.Service.EmployeeServices
                 // Inventory Check
                 var _sql = @"select Inventorycheck,EntityId from mst.MaterialMovementMaster where Id ='" + LocId + "'";
                 var Location = _sqlRepository.GetDataTable(_sql);
-                Inventchk =bplib.clsWebLib.GetBoolData(Location.Rows[0]["Inventorycheck"].ToString());
+                Inventchk = bplib.clsWebLib.GetBoolData(Location.Rows[0]["Inventorycheck"].ToString());
                 string entityId = Location.Rows[0]["EntityId"].ToString();
 
-                string esql = "select PlantId from ORG.Entity Where Id='"+ entityId + "'";
+                string esql = "select PlantId from ORG.Entity Where Id='" + entityId + "'";
                 DataTable dtPlant = _sqlRepository.GetDataTable(esql);
                 string PlantId = dtPlant.Rows[0]["PlantId"].ToString();
 
@@ -242,7 +242,7 @@ namespace Library.Service.EmployeeServices
                     where sc.RefNo IN(" + RefNo + ")";
 
                     ToLocList = _sqlRepository.GetDataTable(_sqlx);
-                    if(ToLocList.Rows.Count >0)
+                    if (ToLocList.Rows.Count > 0)
                     {
                         filter = 1;
                     }
@@ -286,10 +286,10 @@ namespace Library.Service.EmployeeServices
                     }
 
                     dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
-                   
+
                     if (dsMaster.Tables[0].DefaultView.Count == 0 && Inventchk != true)
                     {
-                      
+
                         DataRow dr = dsMaster.Tables[0].NewRow();
                         if (_Id == "")
                         {
@@ -319,26 +319,26 @@ namespace Library.Service.EmployeeServices
 
                     else if (Inventchk == true && counter != 1 && filter == 1)
                     {
-                        inventory = inventory+item.RefNo+" ";
-                       
+                        inventory = inventory + item.RefNo + " ";
+
                     }
 
-                    else if(Inventchk == true && counter !=1 && filter !=1)
+                    else if (Inventchk == true && counter != 1 && filter != 1)
                     {
-                        inventory = inventory + item.RefNo+" ";
+                        inventory = inventory + item.RefNo + " ";
 
-                    }                   
+                    }
                     else
-                    {                       
+                    {
 
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
                         if (item.LocMasterId.ToUpper() != dr["LocMasterId"].ToString().ToUpper())
                         {
 
-                            if (Inventchk == true && counter == 1 && filter==1)
+                            if (Inventchk == true && counter == 1 && filter == 1)
                             {
-                                
+
                                 DataRow drx = DsHistory.Tables[0].NewRow();
                                 if (_Idx == "")
                                 {
@@ -353,7 +353,7 @@ namespace Library.Service.EmployeeServices
                                 drx["Shade"] = dr["Shade"].ToString();
                                 drx["AddedBy"] = dr["AddedBy"].ToString();
                                 drx["AddedDate"] = dr["AddedDate"].ToString();
-                                string BookingDate= bplib.clsWebLib.RetValidLen(dr["BookedDate"]).ToString();
+                                string BookingDate = bplib.clsWebLib.RetValidLen(dr["BookedDate"]).ToString();
                                 if (BookingDate != "")
                                 {
                                     drx["BookedDate"] = BookingDate;
@@ -385,18 +385,194 @@ namespace Library.Service.EmployeeServices
 
                 }
 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, DsHistory);
+
                 #region ProductionSummary
-              
-             
+
+
                 if (!string.IsNullOrEmpty(processId))
                 {
-                    netWeight = 0;
-                    for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
+                    //netWeight = 0;
+                    //for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
+                    //{
+                    //    netWeight += Convert.ToDecimal(dsMaster.Tables[0].Rows[j]["NetWeight"]);
+                    //    lotNo = dsMaster.Tables[0].Rows[j]["LotNo"].ToString();
+                    //    POId = dsMaster.Tables[0].Rows[j]["POId"].ToString();
+                    //}
+                    DataSet dsScanChild;
+                    var sqlScanChild = @"select SUM(NetWeight)TotalQty,POId,LotNo from dbo.ItemScanChild where MasterId='" + MId + "' Group BY POId,LotNo";
+                    con.OpenDataSetThroughAdapter(sqlScanChild, out dsScanChild, false, "1");
+
+                    if (dsScanChild.Tables[0].Rows.Count > 0)
                     {
-                        netWeight += Convert.ToDecimal(dsMaster.Tables[0].Rows[j]["NetWeight"]);
-                        lotNo = dsMaster.Tables[0].Rows[j]["LotNo"].ToString();
-                        POId = dsMaster.Tables[0].Rows[j]["POId"].ToString();
+                        netWeight = Convert.ToDecimal(dsScanChild.Tables[0].Rows[0]["TotalQty"]);
+                        lotNo = dsScanChild.Tables[0].Rows[0]["LotNo"].ToString();
+                        POId = dsScanChild.Tables[0].Rows[0]["POId"].ToString();
+
+                        bplib.clsGenID objGenID = new bplib.clsGenID();
+                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
+                        DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
+                        drProductionSummary["Id"] = "PS" + sID;
+                        drProductionSummary["PlantId"] = PlantId;
+                        drProductionSummary["EntityId"] = entityId;
+                        drProductionSummary["ProcessId"] = processId;
+                        drProductionSummary["ProductionDate"] = WorkDate;
+                        drProductionSummary["Quantity"] = netWeight;
+                        drProductionSummary["ProductionOrderId"] = POId;
+                        drProductionSummary["ProductionShiftId"] = ShiftId;
+                        drProductionSummary["ProductionGrade"] = Grade;
+                        drProductionSummary["LotNumber"] = lotNo;
+
+                        drProductionSummary["AddedBy"] = User;
+                        drProductionSummary["AddedDate"] = DateTime.Now;
+                        drProductionSummary["AddedFromIP"] = "1";
+
+                        dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
                     }
+
+
+
+                }
+                _info.SaveDataSets(dsProductionSummary);
+                #endregion
+
+                if (inventory != "")
+                {
+                    return "Inventory not Found of these cartons:- " + inventory;
+                }
+
+                return "true";
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        public string CreateSummaryData(string MId, IEnumerable<ItemScanChildData> DataToSave)
+        {
+            try
+            {
+                string processId = "";
+                string inventory = "";
+                string Booked, IsDespatch, ToLocation, FLoc = ""; bool Inventchk = false;
+                decimal counter = 0, filter = 0;
+                DataSet dsMaster;
+                string TableName = "dbo.ItemScanChild";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                var items = DataToSave.ToList();
+
+
+                string PackedBy = "''";
+                string RefNo = "''";
+                string LocId = items[0].LocMasterId;
+                string User = items[0].AddedBy;  /// Can delete later on
+                foreach (ItemScanChildData item in DataToSave)
+                {
+                    PackedBy += ",'" + item.PackedBy + "'";
+                    RefNo += ",'" + item.RefNo + "'";
+                }
+
+
+
+                var sqly = @"select SystemId as EmpId,EmployeeCode from dbo.EmployeeInformation where EmployeeCode IN(" + PackedBy + ")";
+                var EmpId = _sqlRepository.GetDataTable(sqly);
+
+                //getscandata
+                var sqlscan = @"Select WorkDate,ShiftId,Grade,PurposeId,LocMasterId from dbo.ItemScan Where Id='" + MId + "'";
+                DataTable dtScan = _sqlRepository.GetDataTable(sqlscan);
+
+                DateTime WorkDate = Convert.ToDateTime(dtScan.Rows[0]["WorkDate"].ToString());
+                string ShiftId = dtScan.Rows[0]["ShiftId"].ToString();
+                string Grade = dtScan.Rows[0]["Grade"].ToString();
+                string PurposeId = dtScan.Rows[0]["PurposeId"].ToString();
+
+                //getProcess&Entity
+                var sqlProcess = @"SELECT ProcessId FROM HKP.MaterialMovementPurpose where Id ='" + PurposeId + "'";
+                DataTable dtProcess = _sqlRepository.GetDataTable(sqlProcess);
+                processId = dtProcess.Rows[0]["ProcessId"].ToString();
+
+
+                // Check repeat Rows 
+                var sql = @"select * from dbo.ItemScanChild where RefNo IN(" + RefNo + @")";
+                con.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                // For History
+                var sqlx = @"select * from dbo.ItemScanChildHistory where 1=2";
+                con.OpenDataSetThroughAdapter(sqlx, out DataSet DsHistory, false, "1");
+
+                // For ProductionSummary
+                string sqlPS = @"SELECT * FROM TRN.ProductionSummary where 1=2";
+                con.OpenDataSetThroughAdapter(sqlPS, out DataSet dsProductionSummary, false, "1");
+
+                // Inventory Check
+                var _sql = @"select Inventorycheck,EntityId from mst.MaterialMovementMaster where Id ='" + LocId + "'";
+                var Location = _sqlRepository.GetDataTable(_sql);
+                Inventchk = bplib.clsWebLib.GetBoolData(Location.Rows[0]["Inventorycheck"].ToString());
+                string entityId = Location.Rows[0]["EntityId"].ToString();
+
+                string esql = "select PlantId from ORG.Entity Where Id='" + entityId + "'";
+                DataTable dtPlant = _sqlRepository.GetDataTable(esql);
+                string PlantId = dtPlant.Rows[0]["PlantId"].ToString();
+
+                DataTable ToLocList = new DataTable();
+                if (Inventchk == true)
+                {
+                    var _sqlx = @"select FromLocation from mst.MaterialMovementMaster where Id='" + LocId + "'";
+                    var fromloc = _sqlRepository.GetDataTable(_sqlx);
+                    FLoc = fromloc.Rows[0]["FromLocation"].ToString();
+
+                    _sqlx = @"select LocMasterId,ToLocation,Booked,RefNo,IsDespatch from 
+                    dbo.ItemScanChild sc
+                    left join mst.MaterialMovementMaster m on m.Id=sc.LocMasterId
+                    where sc.RefNo IN(" + RefNo + ")";
+
+                    ToLocList = _sqlRepository.GetDataTable(_sqlx);
+                    if (ToLocList.Rows.Count > 0)
+                    {
+                        filter = 1;
+                    }
+                }
+
+                int Index = 0;
+                decimal netWeight = 0;
+                string POId = string.Empty;
+                string lotNo = string.Empty;
+                string _Id = ""; string _Idx = "";
+                foreach (ItemScanChildData item in DataToSave)
+                {
+                    netWeight += Convert.ToDecimal(item.NetWeight);
+                    POId = item.POId;
+                    lotNo = item.LotNo;
+
+
+
+                }
+
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, DsHistory, dsProductionSummary);
+
+                #region ProductionSummary
+
+
+                if (!string.IsNullOrEmpty(processId))
+                {
+                    //netWeight = 0;
+                    //for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
+                    //{
+                    //    netWeight += Convert.ToDecimal(dsMaster.Tables[0].Rows[j]["NetWeight"]);
+                    //    lotNo = dsMaster.Tables[0].Rows[j]["LotNo"].ToString();
+                    //    POId = dsMaster.Tables[0].Rows[j]["POId"].ToString();
+                    //}
 
 
                     bplib.clsGenID objGenID = new bplib.clsGenID();
@@ -417,17 +593,13 @@ namespace Library.Service.EmployeeServices
                     drProductionSummary["AddedDate"] = DateTime.Now;
                     drProductionSummary["AddedFromIP"] = "1";
 
-                    dsProductionSummary.Tables[0].Rows.Add(drProductionSummary); 
+                    dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
                 }
                 #endregion
 
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, DsHistory, dsProductionSummary);
-
-                if(inventory !="")
+                if (inventory != "")
                 {
-                    return "Inventory not Found of these cartons:- "+inventory;
+                    return "Inventory not Found of these cartons:- " + inventory;
                 }
 
                 return "true";
@@ -438,11 +610,10 @@ namespace Library.Service.EmployeeServices
                 return ex.ToString();
             }
         }
-
         /// <summary>
         ///  For Booking & Dispatch
         /// </summary>
-      
+
         public IEnumerable<object> GetCust()
         {
             try
@@ -459,17 +630,17 @@ namespace Library.Service.EmployeeServices
             }
         }
 
-        public IEnumerable<object> GetPackingId(string Cust,string User)
+        public IEnumerable<object> GetPackingId(string Cust, string User)
         {
             try
             {
                 var _sql = @"select distinct p.PackingId as Value from trn.Packing p
 		     left join EmployeeInformation e on e.SystemId=p.ByWhom
 		     left join [SEC].[User] u on u.EmployeeId=e.SystemId
-		     where p.CustomerId = '"+Cust+"' and u.UserId='"+User+ "' " +
-             "and InactiveDate>=CAST(GETDATE() AS Date) "; 
-             
-            return _sqlRepository.GetDataCollection(_sql, null);
+		     where p.CustomerId = '" + Cust + "' and u.UserId='" + User + "' " +
+             "and InactiveDate>=CAST(GETDATE() AS Date) ";
+
+                return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception)
             {
@@ -483,7 +654,7 @@ namespace Library.Service.EmployeeServices
             {
                 var _sql = @"select distinct pl.SOId,pl.PackingLineItemId from trn.PackingLineItem pl
                 left join trn.Packing p ON pl.PackingId=p.PackingId
-                where pl.PackingId='" + PId+ "' and InactiveDate>=CAST(GETDATE() AS Date) ";
+                where pl.PackingId='" + PId + "' and InactiveDate>=CAST(GETDATE() AS Date) ";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception)
@@ -498,7 +669,7 @@ namespace Library.Service.EmployeeServices
             {
                 var sql = @"select distinct p.ProductCode as Value from trn.POLotReference P
                 left join trn.PackingLineItem pl ON pl.PackingLineItemId=p.PackingLineItemId
-                where p.PackingLineItemId='"+PL+"'";
+                where p.PackingLineItemId='" + PL + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception)
@@ -506,15 +677,15 @@ namespace Library.Service.EmployeeServices
                 throw;
             }
         }
-      
-        public IEnumerable<object> GetPO(string PL,string Prod)
+
+        public IEnumerable<object> GetPO(string PL, string Prod)
         {
             try
             {
                 var sql = @"select distinct p.PONo as Value from trn.POLotReference P
                 left join trn.PackingLineItem pl ON pl.PackingLineItemId=p.PackingLineItemId
-                where p.PackingLineItemId='"+PL+"' and p.ProductCode='"+Prod+"'";
-                
+                where p.PackingLineItemId='" + PL + "' and p.ProductCode='" + Prod + "'";
+
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -522,14 +693,14 @@ namespace Library.Service.EmployeeServices
                 throw ex;
             }
         }
-        
-        public IEnumerable<object> GetLotId(string PL, string Prod,string PO)
+
+        public IEnumerable<object> GetLotId(string PL, string Prod, string PO)
         {
             try
             {
                 var sql = @"select distinct p.LotNo ,p.Id as SystemId,p.PlanQty from trn.POLotReference P
                 left join trn.PackingLineItem pl ON pl.PackingLineItemId=p.PackingLineItemId
-                where p.PackingLineItemId='" + PL+"' and p.ProductCode='"+Prod+"' and p.PONo='"+PO+ "'and p.Status='Active'";
+                where p.PackingLineItemId='" + PL + "' and p.ProductCode='" + Prod + "' and p.PONo='" + PO + "'and p.Status='Active'";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -539,14 +710,14 @@ namespace Library.Service.EmployeeServices
             }
         }
 
-        public IEnumerable<object> GetBookedQty(string Lot, string Prod, string PO,string Pqty,string PoLotRefernceId)
+        public IEnumerable<object> GetBookedQty(string Lot, string Prod, string PO, string Pqty, string PoLotRefernceId)
         {
             try
             {
                 decimal PlanQty = Convert.ToDecimal(Pqty);
                 var sql = @"select '" + PlanQty + "'-req.BookedQty as AvailQty from(select isnull(Floor(Sum(Netweight)),0) as BookedQty " +
-                    "from dbo.ItemScanChild where ProductCode='"+Prod+"'and POId='"+PO+ "'and PackingId='"+PoLotRefernceId+"' " +
-                    "and LotNo='" + Lot+"' and Booked ='1' ) as req";
+                    "from dbo.ItemScanChild where ProductCode='" + Prod + "'and POId='" + PO + "'and PackingId='" + PoLotRefernceId + "' " +
+                    "and LotNo='" + Lot + "' and Booked ='1' ) as req";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -562,7 +733,7 @@ namespace Library.Service.EmployeeServices
             {
                 var sql = @"select Count(refno)CartonQty,
                 isnull(Floor(Sum(netweight)),0)BookedQty from itemscanchild 
-                where PackingId='"+PackingId+"'and Booked=1";                
+                where PackingId='" + PackingId + "'and Booked=1";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception)
@@ -593,29 +764,29 @@ namespace Library.Service.EmployeeServices
                     PckId = item.PackingId;
                 }
 
-                var items=DataToSave.ToList();
+                var items = DataToSave.ToList();
 
                 var sqlx = @"select * from dbo.ItemScanChild where Booked=0 AND IsDespatch=0 and RefNo IN(" + RefNo + @")";
                 con.OpenDataSetThroughAdapter(sqlx, out dsMaster, false, "1");
 
                 double BkQty = 0.0;
-                
+
                 foreach (ItemScanChildData item in DataToSave)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
                     if (dsMaster.Tables[0].DefaultView.Count > 0)
                     {
-                        
-                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            dr["BookedDate"] = DateTime.Now;
-                            dr["UpdatedBy"] = item.UpdatedBy;
-                            dr["PackingId"] = item.PackingId;
-                            dr["Booked"] = true;
-                            dr.EndEdit();
-                            PckId = item.PackingId;
-                            BkQty += clsStaticInfo.dbl(dr["NetWeight"].ToString());
-                        
+
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["BookedDate"] = DateTime.Now;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["PackingId"] = item.PackingId;
+                        dr["Booked"] = true;
+                        dr.EndEdit();
+                        PckId = item.PackingId;
+                        BkQty += clsStaticInfo.dbl(dr["NetWeight"].ToString());
+
                     }
                     else
                     {
@@ -640,22 +811,22 @@ namespace Library.Service.EmployeeServices
                 }
                 SaveDataSets(dsMaster);
                 SaveDataSets(dsPo);
-               
-                if(ErrorList!="")
+
+                if (ErrorList != "")
                 {
                     return "Their are issues with these Cartons:- " + ErrorList;
                 }
-              
+
                 return "true";
 
-              
+
             }
             catch (Exception ex)
             {
                 return ex.ToString();
             }
         }
-        
+
         public static void SaveLog(string Message, string Cartons, string User)
         {
 
@@ -672,7 +843,7 @@ namespace Library.Service.EmployeeServices
 
             SaveDataSets(dsPacking);
         }
-       
+
         private static void SaveDataSets(params DataSet[] dsRef)
         {
             bool IsTransactionStarted = false;
@@ -730,7 +901,7 @@ namespace Library.Service.EmployeeServices
 
     }
 
-   public class ItemScanChildData
+    public class ItemScanChildData
     {
         public string AddedBy { get; set; }
         public string Id { get; set; }
@@ -749,8 +920,7 @@ namespace Library.Service.EmployeeServices
         public string PackedBy { get; set; }
         public string Booked { get; set; }
         public string IsDespatch { get; set; }
-        public string PackingId { get; set; }             
+        public string PackingId { get; set; }
     }
 
 }
-  

@@ -2036,7 +2036,7 @@ ORDER BY IR.ID DESC";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='ServiceRequisitionCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='ServiceRequisitionCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
 
             }
@@ -2056,7 +2056,7 @@ ORDER BY IR.ID DESC";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value, E.SystemId+'-'+E.EmployeeName As Text from dbo.SupervisorSetUp A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where A.PlantId='" + identity.PlantId + "' AND A.ActionStatus='AuthorizedBy'";
+                          where A.PlantId='" + identity.PlantId + "' AND A.ActionStatus='AuthorizedBy' AND E.EmployeeStatus='Active'";
                 return _sqlRepository.GetDataCollection(sql);
 
             }

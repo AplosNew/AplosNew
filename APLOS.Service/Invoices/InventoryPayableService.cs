@@ -1980,6 +1980,7 @@ namespace Library.Service.Invoices
                 totalAmountCr += taxDrAmount;
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
+
                 //if (totalCurrencyAmountCr != totalCurrencyAmountDr)
                 //    throw new CustomException("Dr and Cr amount is not equal.");
 

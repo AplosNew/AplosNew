@@ -4,7 +4,7 @@ function parkedReportController(cboService, $scope, $rootScope, $filter, baseSer
     $rootScope.title = 'Parked Report';
     $scope.entityList =[];
     $scope.report = {
-        ReportFormat: 'Pdf',
+        ReportFormat: 'Excel',
         FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now()),
         ReportType: 'Voucher'

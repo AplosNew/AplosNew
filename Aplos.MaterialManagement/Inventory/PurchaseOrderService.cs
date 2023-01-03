@@ -7120,7 +7120,7 @@ ORDER BY IR.ID DESC";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='PurchaseOrderCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='PurchaseOrderCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
 
             }
@@ -7132,6 +7132,24 @@ ORDER BY IR.ID DESC";
             }
         }
 
+        public IEnumerable<object> GetIssueSlipCheckByCbo()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='IssueSlipCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
 
         public IEnumerable<object> GetSupervisorCboApproved()
         {
@@ -7140,7 +7158,7 @@ ORDER BY IR.ID DESC";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value, E.EmployeeCode+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='PurchaseOrderApproveBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='PurchaseOrderApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
 
             }
@@ -7158,7 +7176,7 @@ ORDER BY IR.ID DESC";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value, E.EmployeeCode+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='RequisitionApproveBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='RequisitionApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
 
             }

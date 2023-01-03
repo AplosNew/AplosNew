@@ -33,8 +33,13 @@ namespace Aplos.Controllers.ApopAPIHR
             
         }
 
+        public List<ActiveTask> GetCloseTask(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetCloseTask(out List<ActiveTask> activelist, UserId);
+            return activelist;
+        }
 
-        
 
         public List<WorkCenterList> GetWorkCenter(string processid)
         {
@@ -153,6 +158,77 @@ namespace Aplos.Controllers.ApopAPIHR
         }
         #endregion todaydated
 
+        #region Task
+        public List<Tasks> GetTodayAssignedTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTodayAssignedTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<ChatTask> GetTaskChats(string Id)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTaskChats(out List<ChatTask> activelists, Id);
+            return activelists;
+        }
+
+        public List<AssignTaskDatals> GetTaskAssignedDetail(string Id)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTaskAssignedDetail(out List<AssignTaskDatals> activelists, Id);
+            return activelists;
+        }
+
+        public List<Tasks> GetOverDueAssignedTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetOverDueAssignedTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetNextWeakAssignedTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetNextWeakAssignedTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetFutureAssignedTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetFutureAssignedTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetTodayCreateTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTodayCreateTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetOverDueCreateTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetOverDueCreateTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetNextWeakCreateTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetNextWeakCreateTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+
+        public List<Tasks> GetFutureCreateTask(string UserId, string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetFutureCreateTask(out List<Tasks> activelists, UserId, Date);
+            return activelists;
+        }
+        #endregion Task
 
         [HttpPost]
         public string PostGetDetentionLogGrid([FromBody] IEnumerable<CreateDetentionList> DataToSave)
