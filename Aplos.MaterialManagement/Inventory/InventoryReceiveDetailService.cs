@@ -1188,7 +1188,8 @@ namespace Library.MaterialManagement.Inventory
                                             POBOQMapId = boqallocat.POBOQMapId,
                                             POReqDetailsID = boqallocat.POReqDetailsID,
                                             BOQDetailId = boqallocat.BOQDetailId,
-                                            TransactionQty = Convert.ToDecimal(boqallocat.TransactionQty),
+                                           // TransactionQty = Convert.ToDecimal(boqallocat.TransactionQty),//Receivable detail TransactionQty and Boq Detail TransactionQty same object name. 
+                                            TransactionQty = Convert.ToDecimal(boqallocat.Qty),
                                             TransactionUoMId = boqallocat.TransactionUoMId,
                                             BaseQty = (decimal)conversion.Convert(boqallocat.MaterialMasterId, boqallocat.TransactionUoMId, boqallocat.BaseUOMId.ToString(), Convert.ToDouble(boqallocat.Qty)),
                                             BaseUoMId = boqallocat.BaseUOMId,

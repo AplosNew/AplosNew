@@ -816,6 +816,7 @@
     <Compile Include="Areas\Productions\Controllers\ProcessWiseProductionBookingController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionGeneralReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\FinishedStockReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\QuaityProcessBookingController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductiveAllowanceRateSetupController.cs" />
     <Compile Include="Areas\Productions\Controllers\SalesOrderStatusReportController.cs" />
@@ -2287,6 +2288,7 @@
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
     <Content Include="Areas\Productions\Scripts\ParameterController.js" />
     <Content Include="Areas\Productions\Scripts\ParameterMasterController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionReportController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionSummaryReportController.js" />
     <Content Include="Areas\Productions\Scripts\planningTypesNewController.js" />
     <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
@@ -4479,6 +4481,7 @@
     <Content Include="Areas\Materials\Views\WasteType\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\Shared\_IndependentCharacteristicsValuePopUp.cshtml" />
     <Content Include="Areas\Products\Views\GoodsReceiveNote\AllBinWiseGRN.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionReport\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
