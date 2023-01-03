@@ -156,19 +156,53 @@ namespace Aplos.Areas.Securities.Controllers
         {
             try
             {
-                string st = @"SELECT p.RoleId AS RoleId, p.ModuleId As ModuleId, p.IconId As IconID, c.name AS RoleName ,  mp.ModuleName As ModuleName, 
-mi.IconName As IconName
+                #region commented
+                //                string st = @"SELECT p.RoleId AS RoleId, p.ModuleId As ModuleId, p.IconId As IconID, c.name AS RoleName ,  mp.ModuleName As ModuleName, 
+                //mi.IconName As IconName
+                //FROM SEC.AppRoleDetail AS p
+                //LEFT JOIN SEC.AppRole AS c ON p.RoleId = c.id
+                //LEFT JOIN dbo.MobileAppModule AS mp ON p.ModuleId = mp.id
+                //LEFT JOIN dbo.MobileAppIcon AS mi ON p.IconId = mi.id";
+                #endregion commented
+                string sql = @"SELECT distinct mp.ModuleName  ModuleName, c.name  RoleName 
 FROM SEC.AppRoleDetail AS p
 LEFT JOIN SEC.AppRole AS c ON p.RoleId = c.id
 LEFT JOIN dbo.MobileAppModule AS mp ON p.ModuleId = mp.id
-LEFT JOIN dbo.MobileAppIcon AS mi ON p.IconId = mi.id";
-                return Json(_sqlRepository.GetDataCollection(st), JsonRequestBehavior.AllowGet);
+LEFT JOIN dbo.MobileAppIcon AS mi ON p.IconId = mi.id
+order by mp.ModuleName";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch(Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message });
             }
             
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetDataById(string moduleid)
+        {
+            try
+            {
+                #region commented
+                string st = @"SELECT p.RoleId AS RoleId, p.ModuleId As ModuleId, p.IconId As IconID, c.name AS RoleName ,  mp.ModuleName As ModuleName, 
+                mi.IconName As IconName
+                FROM SEC.AppRoleDetail AS p
+                LEFT JOIN SEC.AppRole AS c ON p.RoleId = c.id
+                LEFT JOIN dbo.MobileAppModule AS mp ON p.ModuleId = mp.id
+                LEFT JOIN dbo.MobileAppIcon AS mi ON p.IconId = mi.id
+                where p.ModuleId = 3
+                order by mp.ModuleName
+                ";
+                #endregion commented
+
+                return Json(_sqlRepository.GetDataCollection(st), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
         }
 
     }

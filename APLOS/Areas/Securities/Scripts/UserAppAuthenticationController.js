@@ -1,10 +1,11 @@
 ﻿'use strict';
 UserAppAuthenticationController.$inject = ['cboService', 'baseService', '$rootScope', '$scope', '$routeParams', '$location', '$http', '$filter'];
 function UserAppAuthenticationController(cboService, baseService, $rootScope, $scope, $routeParams, $location, $http, $filter) {
-    $rootScope.title = "User AppAuthentication";
+    $rootScope.title = "App Role Privileges"; //"User AppAuthentication";
     $scope.saveUrl = 'Securities/UserAppAuthentication/Save'
     $scope.tableShow = false;
     $scope.Action = 'Save';
+    $scope.DataList = [];
 
     $scope.userRoleNew = {
         Id: null,
@@ -14,6 +15,25 @@ function UserAppAuthenticationController(cboService, baseService, $rootScope, $s
         IconId: null
     }
     $scope.userAccessApp = Object.assign({}, $scope.userRoleNew);
+
+    $scope.Get = function (args) {
+        $scope.userAccessApp = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+            $scope.GetDataById();
+        }
+    }
+
+    $scope.GetDataById = function (x) {
+        $http.get('Securities/UserAppAuthentication/GetDataById')
+        .then(function successCallback(response) {
+            $scope.DataList = response.data;
+        },
+            function errorCallback(response) {
+                ShowResult(response, 'failure');
+            });
+    }
 
     $scope.roleList = [];
     $scope.getRole = function () {
