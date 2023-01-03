@@ -1203,37 +1203,24 @@ function inventoryReceiveController(accountService, addressService, $window, fac
         if ($scope.binMasterList.length > 0) {
             $scope.TempbinMasterList = [];
             for (var i = 0; i < $scope.binMasterList.length; i++) {
-                if ($scope.binMasterList[i].check == true) {
-                    if ($scope.TempbinMasterList.length == 0 && $scope.binMasterList[i].Qty==0) {
-                        $scope.binMasterList[i].Qty = $scope.detailModel.TransactionQty
-                    }
-                    if ($scope.binMasterList[i].Qty == 0 || $scope.binMasterList[i].Qty == null) {
-                        ShowResult("Please Input Bin Qty", "failure", "binAllocationPopUp");
-                        angular.element(document.querySelector('#binAllocationPopUp')).modal('show');
-                    } else {
-                        $scope.TempbinMasterList.push($scope.binMasterList[i]);
-                    }
-                }
-            }
-            if ($scope.TempbinMasterList.length > 0) {
-                $scope.TotalBinQty = Math.round($filter("sumByKey")($filter("filter")($scope.TempbinMasterList), "Qty") * 1000 + Number.EPSILON) / 1000;
-
-                if ($scope.detailModel.TransactionQty > 0 && $scope.detailModel.TransactionQty< $scope.TotalBinQty) {
-                    ShowResult("Allocation Qty can not gater than Transaction Qty", "failure", "binAllocationPopUp");
-                }
-                if ($scope.detailModel.TransactionQty > 0 && $scope.detailModel.TransactionQty != $scope.TotalBinQty) {
-                    ShowResult("Allocation Qty can not equal with Transaction Qty", "failure", "binAllocationPopUp");
-                }
-                else {
+                if ($scope.binMasterList.length == 1) {
+                    $scope.binMasterList[i].Qty = $scope.detailModel.TransactionQty
                     angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
                 }
+                else {
+                    $scope.TotalBinQty = Math.round($filter("sumByKey")($filter("filter")($scope.binMasterList), "Qty") * 1000 + Number.EPSILON) / 1000;
+                    if ($scope.detailModel.TransactionQty > 0 && $scope.detailModel.TransactionQty < $scope.TotalBinQty) {
+                        ShowResult("Allocation Qty can not greater than Transaction Qty", "failure", "binAllocationPopUp");
+                    }
+                    else if ($scope.detailModel.TransactionQty > 0 && $scope.detailModel.TransactionQty != $scope.TotalBinQty) {
+                        ShowResult("Allocation Qty can not less than Transaction Qty", "failure", "binAllocationPopUp");
+                    }
+                    else {
+                        angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
+                    }
+                }
+
             }
-            else {
-                angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
-            }
-        }
-        else {
-            angular.element(document.querySelector('#binAllocationPopUp')).modal('hide');
         }
     }
     $scope.LoadMaterialStatusLoad = function (ob) {
@@ -1401,7 +1388,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
             if ($scope.binMasterList.length) {
                 $scope.selectedBinAllocationList = [];
                 for (var b = 0; b < $scope.binMasterList.length; b++) {
-                    if ($scope.binMasterList[b].check == true) {
+                    if ($scope.binMasterList[b].Qty>0) {
                         $scope.selectedBinAllocationList.push($scope.binMasterList[b]);
                     }
                 }
@@ -1456,6 +1443,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
                     };
                     $scope.taxCategoryList = [];
                     $scope.selectedBinAllocationList = [];
+                    $scope.TotalBinQty = 0;
                     getInventoryMaterialList($scope.productNew.Id);
                     $scope.getDataList();
                     $scope.clearCharNames();

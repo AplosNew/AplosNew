@@ -1820,7 +1820,74 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
             }
         }
 
+        public void GetCloseTask(out List<ActiveTask> DataList, string UserId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<ActiveTask>();
 
+
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+
+
+                strSQL = @"select 'OnTimeTaskAssigned' As Dated, Count(tm.Id) As Counted  from dbo.TaskManagerMaster As tm
+left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where tm.ClosingDate <= ta.DueDate and ta.AuthorizationType <> 
+'CreatedBy' and tm.ClosedBy = '" + UserId + @"'
+
+ 
+
+
+Union All
+select 'LateTaskAssigned' As Dated,  Count(tm.Id) As Counted from dbo.TaskManagerMaster As tm
+left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where tm.ClosingDate > ta.DueDate and ta.AuthorizationType <> 
+'CreatedBy' and tm.ClosedBy = '" + UserId + @"'
+
+ 
+
+Union All
+select 'OnTimeTaskCreation' As Dated, Count(tm.Id) As Counted  from dbo.TaskManagerMaster As tm
+left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where tm.ClosingDate <= ta.DueDate and ta.AuthorizationType = 
+'CreatedBy' and tm.ClosedBy = '" + UserId + @"'
+
+ 
+
+
+Union All
+select 'LateTaskCreation' As Dated,  Count(tm.Id) As Counted from dbo.TaskManagerMaster As tm
+left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where tm.ClosingDate > ta.DueDate and ta.AuthorizationType = 
+'CreatedBy' and tm.ClosedBy = '" + UserId + @"'";
+
+
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new ActiveTask
+                    {
+                        Dated = dsRef.Tables[0].Rows[i]["Dated"].ToString(),
+                        Counted = dsRef.Tables[0].Rows[i]["Counted"].ToString(),
+
+
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
 
 
         // Detention Log Out

@@ -58,7 +58,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         //summary Report Downloard
         [HttpPost, Authorize]
-        public ActionResult PartyPaymentStatusReport(Dictionary<string, string> MasterLCList, string fromDate, string toDate)
+        public ActionResult PartyPaymentStatusReport(List<Dictionary<string, object>> MasterLCList, string fromDate, string toDate)
         {
 
             try
@@ -83,6 +83,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         }
+
 
         //PartyPaymentStatusAgingReport
         [HttpPost, Authorize]

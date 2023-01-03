@@ -1586,10 +1586,24 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
             }
         }
 
-        public DataTable MaintenancePlanningReport(string todate, string fromdate)
+        public DataTable MaintenancePlanningReport(string todate, string fromdate, string Status)
         {
             try
             {
+                string Filter = string.Empty;
+
+                if (Status == "All")
+                {
+                    Filter = " and (MPD.ActualDate is not null or MPD.ActualDate is null) and MPD.PlannedDate is not null";
+                }
+                else if (Status == "Completed")
+                {
+                    Filter = " and MPD.ActualDate is not null and MPD.PlannedDate is not null";
+                }
+                else
+                {
+                    Filter = " and MPD.ActualDate is null and MPD.PlannedDate is not null";
+                }
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 var sql = @"Select  P.UserName as Process,WC.UserName WorkCenter,WC.Code WCCode,MA.AssetName,MA.AssetCode,MM.MachineMake Make,
@@ -1608,7 +1622,7 @@ left Join TRN.MaintenanceScheduling MS ON MMA.MaintenanceSchedulingId=MS.Id
 left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id
 where P.Active=1 and Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
  ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
- ORDER BY APD.Id DESC)) end between '" + fromdate + "' and '" + todate + "' order by Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end";
+ ORDER BY APD.Id DESC)) end between '" + fromdate + "' and '" + todate + "' " + Filter + @" order by Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (MS.ScheduleDays + (select top 1 ActualDate from[TRN].[MachineAssetPlannedDetails] APD where APD.AssetId = MMA.Id ORDER BY APD.Id DESC)) end";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)

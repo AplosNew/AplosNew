@@ -5847,11 +5847,11 @@ namespace Aplos.MaterialManagement
                             , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
                             , IRD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
                             , IRD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
-                             , IRD.TransactionQty AS POQty,(IRD.TransactionQty*IR.Tolerance/100) ToleranceQty
-							,TotalPOQty=IRD.TransactionQty+(IRD.TransactionQty*IR.Tolerance/100)
+                             , IRD.TransactionQty AS POQty,(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100) ToleranceQty
+							,TotalPOQty=IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)
                             , ISNULL(GRND.GRNRcvQty,0) AS GRNRcvQty                           
                             , '' AS TransactionQty
-                            , (IRD.TransactionQty+(IRD.TransactionQty*IR.Tolerance/100)-ISNULL(GRND.GRNRcvQty,0)) As Balance
+                            , (IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)-ISNULL(GRND.GRNRcvQty,0)) As Balance
                             ,ISNULL(IRD.QtyStatus,0) QtyStatus
                             , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM, IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
                             ,IRD.TransactionAmount
@@ -5915,11 +5915,11 @@ namespace Aplos.MaterialManagement
                             , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
                             , IRD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
                             , IRD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
-                             , IRD.TransactionQty AS POQty,(IRD.TransactionQty*IR.Tolerance/100) ToleranceQty
-							,TotalPOQty=IRD.TransactionQty+(IRD.TransactionQty*IR.Tolerance/100)
+                             , IRD.TransactionQty AS POQty,(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100) ToleranceQty
+							,TotalPOQty=IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)
                             , ISNULL(GRND.GRNRcvQty,0) AS GRNRcvQty                           
                             , '' AS TransactionQty
-                            , (IRD.TransactionQty+(IRD.TransactionQty*IR.Tolerance/100)-ISNULL(GRND.GRNRcvQty,0)) As Balance
+                            , (IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)-ISNULL(GRND.GRNRcvQty,0)) As Balance
                             ,ISNULL(IRD.QtyStatus,0) QtyStatus
                             , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM, IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
                             ,IRD.TransactionAmount
