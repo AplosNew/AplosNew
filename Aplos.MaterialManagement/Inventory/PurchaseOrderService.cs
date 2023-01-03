@@ -11430,7 +11430,7 @@ ORDER BY IR.ID DESC";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='ServicePOCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='ServicePOCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
 
             }
@@ -13614,13 +13614,13 @@ ORDER BY IR.ID DESC";
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='PurchaseOrderCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='PurchaseOrderCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='PurchaseOrderApproveBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='PurchaseOrderApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {
@@ -13647,14 +13647,14 @@ ORDER BY IR.ID DESC";
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='OutSourceCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='OutSourceCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           --where  A.ActionStatus='OutSourceApprovedBy'
-                            where  A.ActionStatus='OutSourceApproveBy' ";//A.PlantId='" + identity.PlantId + "' AND
+                            where  A.ActionStatus='OutSourceApproveBy' AND E.EmployeeStatus='Active' ";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {
@@ -13727,13 +13727,13 @@ ORDER BY IR.ID DESC";
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='ServiceAcknowledgementCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='ServiceAcknowledgementCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='ServiceAcknowledgementApproveBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='ServiceAcknowledgementApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {
