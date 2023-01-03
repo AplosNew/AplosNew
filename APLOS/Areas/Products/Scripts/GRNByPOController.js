@@ -4544,4 +4544,29 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
     };
 
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.fileName = "Bin Wise GRN Report.xlsx";
+    $scope.XlsDownloadBinWiseGRNReport = function (x) {
+
+        //$http.get('Materials/DetentionLogout/XlsGetClosedDetentionReport?from=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId)
+        $http({
+            method: 'POST',
+            url: 'Products/GoodsReceiveNote/XlsBinWiseGRNReport?grnId=' + x.data.Id,
+            dataType: 'JSON',
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
 }
