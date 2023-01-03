@@ -1,103 +1,101 @@
 ﻿
-
-<div id="Test">
+<div id="Test1">
     <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Sales Register/Report</h3>
-    <div class="form-elements form-horizontal" ng-form="from0">
-       <div class="row">
-
-        <div class="col-xs-12 col-sm-9 col-md-9">
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Select Options</legend>
-                <div class="col-xs-12 ">
+    <div class="form-elements form-horizontal">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12" ng-form="from1">
+                <div class="col-xs-12 col-sm-9 col-md-9">
                     <div class="form-group">
-                        <label class="col-sm-4 col-xs-4 control-label" title="Select Option" tooltip>Select Option<sup>*</sup></label>
-                        <div class="radio col-sm-8 col-xs-8" style="margin-left: -61px">
-                            <label>
-                                <input type="radio" name="As On Date" ng-click="change('AsOnDate')" ng-model="productNew.AsOnDate" value="AsOnDate">
-                                <span class="cr" tabindex="14"><i class="cr-icon"></i></span>As On Date
-                            </label>
-                            <label>
-                                <input type="radio" name="As On Date" ng-click="change('ForThePeriod')" ng-model="productNew.AsOnDate" value="ForThePeriod" ng-checked="true">
-                                <span class="cr" tabindex="15"><i class="cr-icon"></i></span>For The Period
-                            </label>
-                        </div>
+                        <fieldset class="scheduler-border">
+                            <legend class="scheduler-border">Select Options</legend>
+                            <div class="clearfix"></div>
+                            <div class="col-xs-12 ">
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-xs-4 control-label" title="Select Option" tooltip>Select Option<sup>*</sup></label>
+                                    <div class="radio col-sm-8 col-xs-8" style="margin-left: -61px">
+                                        <label>
+                                            <input type="radio" name="As On Date" ng-click="change('AsOnDate')" ng-model="productNew.AsOnDate" value="AsOnDate">
+                                            <span class="cr" tabindex="14"><i class="cr-icon"></i></span>As On Date
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="As On Date" ng-click="change('ForThePeriod')" ng-model="productNew.AsOnDate" value="ForThePeriod" ng-checked="true">
+                                            <span class="cr" tabindex="15"><i class="cr-icon"></i></span>For The Period
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 ">
+                                <div class="form-group" show-errors id="div_FromDate">
+                                    <label class="col-sm-3 control-label" ng-hide="productNew.AsOnDate==='AsOnDate'">From Date<sup>*</sup></label>
+                                    <div class="col-sm-5 show-message">
+                                        <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control" ng-hide="productNew.AsOnDate==='AsOnDate'">  @*ng-disabled="productNew.AsOnDate==='AsOnDate'"*@
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors id="div_ToDate">
+                                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                                    <div class="col-sm-5  show-message">
+                                        <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Customer<sup>*</sup></label>
+                                    <div class="col-sm-9 radio">
+                                        <label class="col-sm-2">
+                                            <input ng-click="clearAllEmployee()"
+                                                   type="radio" name="source" ng-model="Customer" value="AllCustomer">
+                                            <span class="cr" tabindex="17"><i class="cr-icon"></i></span>All
+                                        </label>
+                                        <label class="col-sm-4">
+                                            <input type="radio" name="source" ng-model="Customer" value="Customer">
+                                            <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Customer
+                                        </label>
+                                        <div>
+                                            <div ng-hide="Customer=='AllCustomer'">
+                                                <div class="input-group">
+                                                    <input type="text" name="PartyName" ng-model="PartyName" class="form-control" readonly>
+                                                    <span class="input-group-btn">
+                                                        <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="14" ng-disabled="detailList.length"><i class="glyphicon glyphicon-search"></i></button>
+                                                        <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Tax</label>
+                                    <div class="col-sm-9">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="tax.IncludingTax">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-xs-4 control-label" title="Select Option" tooltip>Select Option<sup>*</sup></label>
+                                    <div class="radio col-sm-8 col-xs-8" style="margin-left: -61px">
+                                        <label>
+                                            <input type="radio" name="Summery" ng-click="change2('Summary')" ng-model="productNew.Summary" value="Summary" ng-checked="true">
+                                            <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Summary
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="Details" ng-click="change2('Details')" ng-model="productNew.Summary" value="Details">
+                                            <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Details
+                                        </label>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </fieldset>
                     </div>
                 </div>
-
-                <div class="col-xs-12 ">
-                    <div class="form-group" show-errors id="div_FromDate">
-                        <label class="col-sm-3 control-label" ng-hide="productNew.AsOnDate==='AsOnDate'">From Date<sup>*</sup></label>
-                        <div class="col-sm-5 show-message">
-                            <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control" ng-hide="productNew.AsOnDate==='AsOnDate'">  @*ng-disabled="productNew.AsOnDate==='AsOnDate'"*@
-                        </div>
-                    </div>
-                    <div class="form-group" show-errors id="div_ToDate">
-                        <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
-                        <div class="col-sm-5  show-message">
-                            <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">Customer<sup>*</sup></label>
-                        <div class="col-sm-6 radio">
-                            <label>
-                                <input @*ng-click="clearAllEmployee()"*@ type="radio" name="source" ng-model="Customer" value="AllCustomer">
-                                <span class="cr" tabindex="17"><i class="cr-icon"></i></span>All
-                            </label>
-                            <label>
-                                <input @*ng-click="clearSingleEmployee()"*@ type="radio" name="source" ng-model="Customer" value="Customer">
-                                <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Customer
-
-                            </label>
-
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div ng-hide="Customer=='AllCustomer'">
-                        <label class="col-sm-3 control-label">Customer<sup>*</sup></label>
-                        <div class="col-sm-5 show-message">
-                            <div class="input-group">
-                                <input type="text" name="PartyName" ng-model="PartyName" class="form-control" readonly>
-                                <span class="input-group-btn">
-                                    @*showPartyPopUp()*@
-                                    <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="14" ng-disabled="detailList.length"><i class="glyphicon glyphicon-search"></i></button>
-                                    <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">Tax</label>
-                        <div class="col-sm-9">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-model="tax.IncludingTax">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 col-xs-4 control-label" title="Select Option" tooltip>Select Option<sup>*</sup></label>
-                        <div class="radio col-sm-8 col-xs-8" style="margin-left: -61px">
-                            <label>
-                                <input type="radio" name="Summery" ng-click="change2('Summary')" ng-model="productNew.Summary" value="Summary" ng-checked="true">
-                                <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Summary
-                            </label>
-                            <label>
-                                <input type="radio" name="Details" ng-click="change2('Details')" ng-model="productNew.Summary" value="Details">
-                                <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Details
-                            </label>
-                        </div>
-                    </div>
-
-                </div>
-            </fieldset>
+            </div>
         </div>
-       </div>
         <div class="common-btn">
             <ul class="list-inline text-left">
 

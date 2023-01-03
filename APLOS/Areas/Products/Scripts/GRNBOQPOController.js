@@ -618,7 +618,11 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.receiveTaxList = [];
         if ($scope.POMaterialTaxList.length > 0) {
             $scope.HSNCode = $scope.POMaterialTaxList[0].HSNCode;
-            $scope.receiveTaxList = $scope.POMaterialTaxList;
+            for (var i = 0; i < $scope.POMaterialTaxList.length; i++) {
+                if ($scope.POMaterialTaxList[i].PODetailId == data.PODetailsID) {
+                    $scope.receiveTaxList.push($scope.POMaterialTaxList[i])
+                }
+            }
         }
         $scope.total = 0;
         for (var j = 0; j < $scope.receiveTaxList.length; j++) {
@@ -632,7 +636,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         ClearFields();
         return true;
         $scope.PostButton = false;
-        
+
     };
 
     function ClearFields() {
@@ -673,7 +677,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.PostButton = false;
     $scope.Save = function () {
         if ($scope.Action === 'Save') {
-           
+
             //if (!$scope.checkValidation()) {
 
             try {
@@ -706,7 +710,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         return false;
                     }
                 }
-                
+
                 $scope.$broadcast('show-errors-check-validity');
                 if ($scope.productNewForm.$valid) {
                     if ($scope.Action === "Save") {
@@ -793,7 +797,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             //}
         }
         else if ($scope.Action === "Update") {
-            
+
 
             if (!baseService.isUndefinedOrNull($scope.AcceptanceId) && ($scope.productNew.AcceptanceDate > $scope.productNew.GRNDate)) {
                 ShowResult("Acceptance Date  can not grather than GRN Date", 'failure');
@@ -1358,7 +1362,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
         }
     };
-    $scope.calculateAmounts = function(data) {
+    $scope.calculateAmounts = function (data) {
         if (data.Balance < data.TransactionQty) {
             data.TransactionQty = '';
             ShowResult("Receive Qty can not greater than Balance Qty", 'failure', 'GRnBOQPoo');
@@ -1961,6 +1965,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         nRow.TrnAmount = Math.round(($scope.MasterListNewBOQ[n].Qty * $scope.MasterListNewBOQ[n].TransactionRate) * 100 + Number.EPSILON) / 100;
 
                         nRow.BaseTaxAmount = taxAmount;
+                        nRow.QualityStatus = 'Approved';
                         $scope.MasterList.push(nRow);
                         taxAmount = 0;
                     }

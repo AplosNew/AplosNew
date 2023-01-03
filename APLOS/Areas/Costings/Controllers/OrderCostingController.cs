@@ -6243,7 +6243,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         {
             string sql = @"SELECT E.SystemId As Value, E.EmployeeName As Text, A.ActionStatus from dbo.AuthorizationConfig A 
                           INNER JOIN dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='OrderCostingApproveBy'";
+                          where  A.ActionStatus='OrderCostingApproveBy' AND E.EmployeeStatus='Active'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

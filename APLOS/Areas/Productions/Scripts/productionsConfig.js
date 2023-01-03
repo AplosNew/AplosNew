@@ -322,5 +322,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/Parameter/Aplos',
             controller: 'ParameterController'
         })
+        .when('/productionreport', {
+            templateUrl: 'Productions/ProductionReport/Report',
+            controller: 'ProductionReportController'
+        })
         ;
 }

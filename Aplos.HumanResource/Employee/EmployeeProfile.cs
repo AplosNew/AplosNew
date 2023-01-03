@@ -1720,7 +1720,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
             {
                 sql = @"SELECT E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           INNER JOIN dbo.EmployeeInformation E On E.SystemId=A.EmployeeId 
-                          WHERE  A.ActionStatus='EmployeeApprovalAuthority' And A.PlantId='" + plantId + "'";
+                          WHERE  A.ActionStatus='EmployeeApprovalAuthority' AND E.EmployeeStatus='Active' And A.PlantId='" + plantId + "'";
                 return _sqlRepository.GetDataCollection(sql);
 
             }

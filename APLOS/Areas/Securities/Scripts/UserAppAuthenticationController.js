@@ -1,10 +1,11 @@
 ﻿'use strict';
 UserAppAuthenticationController.$inject = ['cboService', 'baseService', '$rootScope', '$scope', '$routeParams', '$location', '$http', '$filter'];
 function UserAppAuthenticationController(cboService, baseService, $rootScope, $scope, $routeParams, $location, $http, $filter) {
-    $rootScope.title = "User AppAuthentication";
+    $rootScope.title = "App Role Privileges"; //"User AppAuthentication";
     $scope.saveUrl = 'Securities/UserAppAuthentication/Save'
     $scope.tableShow = false;
     $scope.Action = 'Save';
+    $scope.DataList = [];
 
     $scope.userRoleNew = {
         Id: null,
@@ -14,6 +15,35 @@ function UserAppAuthenticationController(cboService, baseService, $rootScope, $s
         IconId: null
     }
     $scope.userAccessApp = Object.assign({}, $scope.userRoleNew);
+
+    $scope.Get = function (args) {
+        $scope.userAccessApp = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+
+            $scope.GetDataById(args.data.ModuleId);
+        }
+    }
+
+    $scope.GetDataById = function (x) {
+        $http.get('Securities/UserAppAuthentication/GetDataById?moduleid=' + x)
+        .then(function successCallback(response) {
+            $scope.DataList = response.data;
+            for (var j = 0; j < $scope.ModuleList.length; j++)  {
+                for (var i = 0; i < $scope.DataList.length; i++) {
+                    if ($scope.DataList[j].ModuleId == $scope.ModuleList[i].Value) {
+                        $scope.userAccessApp.ModuleId = $scope.ModuleList[i].Value;
+                        break;
+                    }
+                }
+            }
+
+        },
+            function errorCallback(response) {
+                ShowResult(response, 'failure');
+            });
+    }
 
     $scope.roleList = [];
     $scope.getRole = function () {

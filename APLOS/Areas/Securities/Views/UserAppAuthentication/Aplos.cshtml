@@ -1,4 +1,4 @@
-﻿<h3 class="site-heading" style="cursor:default"><span class="glyphicon glyphicon-info-sign"></span>App Role Privileges</h3>
+﻿<togglable name="{{title}}"></togglable>
 <div class="form-horizontal form-elements" ng-form>
     <input type="hidden" ng-model="roleDetail.UserId">
     <div class="row">
@@ -51,6 +51,19 @@
 
         </ul>
     </div>
+    <div class="table-responsive" style="margin-top: 10px ">
+        <div id="GridEdit" ej-grid e-datasource="DataList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                <div e-column e-field="RoleName" e-headertext="Role Name" e-width="80"></div>
+
+                <div e-column e-field="ModuleName" e-headertext="Module Name" e-width="100"></div>
+                <div e-column e-field="IconName" e-headertext="Icon Name" e-width="50"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="table-responsive aplos-grid-toggle" style="margin-top: 10px ">
@@ -62,7 +75,7 @@
             <div e-column e-field="RoleName" e-headertext="Role Name" e-width="80"></div>
 
             <div e-column e-field="ModuleName" e-headertext="Module Name" e-width="100"></div>
-            <div e-column e-field="IconName" e-headertext="Icon Name" e-width="50"></div>
+            @*<div e-column e-field="IconName" e-headertext="Icon Name" e-width="50"></div>*@
         </div>
     </div>
 </div>
