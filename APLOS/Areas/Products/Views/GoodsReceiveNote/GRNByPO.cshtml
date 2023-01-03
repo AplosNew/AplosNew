@@ -1660,9 +1660,7 @@
                                  e-detailstemplate="detailTemp"
                                  e-detailsdatabound="detailgrid">
                                 <div e-columns>
-                                    <div e-column e-headertext="Actions" e-width="50">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>
-                                    </div>
+                                    <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="80"></div>
                                     <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
                                     <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -1673,7 +1671,7 @@
                                     <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
                                     @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
+                    <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
                                     <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
@@ -1710,14 +1708,18 @@
 
 
                                     @*<div e-column e-headertext="ExportTOExcel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="50"></div>
-                                        <div e-column e-headertext="ExportTOPdf" e-commands="commandPdf" e-isunbound=true e-textalign="left" e-width="50"></div>*@
+                    <div e-column e-headertext="ExportTOPdf" e-commands="commandPdf" e-isunbound=true e-textalign="left" e-width="50"></div>*@
                                     @*  <div e-column e-headertext="ExportTOWord" e-commands="commandWord" e-isunbound=true e-textalign="left" e-width="50"></div>*@
 
 
                                 </div>
                             </div>
                         </div>
-
+                        <script type="text/template" id="ShowActionButtons">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>
+                            <button ng-click="$parent.XlsDownloadBinWiseGRNReport(this)" style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-download-alt" title="Convert in Excel" style="margin: -6px;"></i></button>
+                           
+                        </script>
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
                                 <ul>
@@ -1732,6 +1734,7 @@
                                 </div>
                             </div>
                         </script>
+
                     </div>
                 </fieldset>
                 @*<div class="row text-right" hidden="hidden">

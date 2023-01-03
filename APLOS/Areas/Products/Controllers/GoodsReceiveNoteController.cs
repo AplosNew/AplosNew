@@ -29,6 +29,9 @@ using Library.Security.Core;
 using Library.MaterialManagement.JobWork;
 using Aplos.MaterialManagement;
 using Aplos.MaterialManagement.MaterialQuery;
+using Syncfusion.XlsIO;
+using Library.Service.Helpers;
+using System.IO;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -201,6 +204,12 @@ namespace Aplos.Areas.Products.Controllers
 
         [Authorize]
         public ActionResult GRNRequitionSOAllocation()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult AllBinWiseGRN()
         {
             return View();
         }
@@ -4983,5 +4992,516 @@ UNION ALL
         }
         #endregion
 
-    }//
+        #region BinWiseGReport -- Nitesh
+        public ActionResult BinWiseGRN(string grnId, out DataTable data)
+        {
+            try
+            {
+                var sql = @"SELECT 
+ROW_NUMBER() OVER(ORDER BY MT.Id) SrNo
+,MT.UserName MaterialType    
+,MM.UserName Material
+,MMA.StandardName Article 
+,HSNC.Code HSNNo
+,TUoM.UserName UOM
+,IsAsset = CASE WHEN IRD.IsAsset = 0 then 'Revenue' ELSE 'Asset' END
+,ISNULL(IR.Id,0) grnNumber
+,REPLACE(Convert(VARCHAR(11), IR.GRNDate, 106), ' ', '-') AS GRNDate  
+,MS.UserName StorageLocation
+,SBM.UserName BinLocation
+,SBM.BinCode BinNumber
+,CEILING(IRD.TransactionQty)  QTY
+,TaxAmount = (
+                            SELECT CEILING(SUM(TaxAmount))
+                            FROM [TRN].[InventoryReceiveTax]
+                            WHERE InventoryReceiveDetailId = IRD.Id
+                            )
+                            FROM  [TRN].[GRNBinAllocationMap] GAM 
+							LEFT JOIN MST.StorageBinMaster SBM on SBM.Id = GAM.StorageBinMasterId
+							LEFT JOIN TRN.BinAllocation BA on BA.StorageBinMasterId = SBM.Id
+                            LEFT JOIN trn.inventoryReceiveDetail IRD ON IRD.Id = GAM.InventoryReceiveDetailId
+							LEFT JOIN TRN.InventoryReceive IR ON ir.Id = IRD.InventoryReceiveId
+                            LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
+                            LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+                            LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId                       
+                            LEFT JOIN HKP.Party Party ON Party.Id = IR.PartyId
+                            LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
+                             LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
+							LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
+                            LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId                            
+                            JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id                           														
+							LEFT JOIN HKP.MaterialType MT on MT.Id = MGM.MaterialTypeId
+							LEFT JOIN [HKP].[MaterialStorage] MS on MS.Id = IR.MaterialStorageId                          
+                            WHERE IR.Id ='" + grnId+"' and IOM.MaterialMasterId is not NULL";
+                data = _sqlRepository.GetDataTable(sql);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        
+
+        [Authorize, HttpPost]
+        public ActionResult XlsBinWiseGRNReport(string grnId)
+        {
+            try
+            {
+
+                string fileName = "";
+                fileName = BinWiseGRNExcel(grnId,"BinWiseGRNReport");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string BinWiseGRNExcel(string grnId, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+
+            try
+            {
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Bin Wise GRN";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                BinWiseGRN(grnId, out data);
+
+                sheet[4, 3].Text = "GRN Number : " + data.Rows[0]["grnNumber"];
+                sheet[4, 3].ColumnWidth = 16;
+
+                sheet[4, 5].Text = "GRN Date : " + data.Rows[0]["GRNDate"].ToString();
+                sheet[4, 5].ColumnWidth = 16;
+
+                int ROW = 6; int COL = 1;
+
+                #region Columns
+                sheet[ROW, COL].Text = "SR No";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColSRNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material Type";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMaterialType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMaterial = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "HSN No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColHSNNo = COL;
+                COL++;
+
+              
+
+                
+
+                sheet[ROW, COL].Text = "Revenue / Asset";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColGRNType= COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Storage Location";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColStorageLoc = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bin Location";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBinLocation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bin No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBinNo = COL;
+                COL++;
+
+                
+
+                sheet[ROW, COL].Text = "QTY";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColQTY = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "UOM";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColUOM = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColAmount = COL;
+                //COL++;
+
+                //COL++;
+                #endregion Columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                double[] arr = new double[3];
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColSRNo].Number = clsStaticInfo.dbl(data.Rows[i]["SrNo"].ToString());
+                    sheet[ROW, ColMaterialType].Text = data.Rows[i]["MaterialType"].ToString();
+                    sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
+                    sheet[ROW, ColArticle].Text = data.Rows[i]["Article"].ToString();
+                    sheet[ROW, ColHSNNo].Number = clsStaticInfo.dbl(data.Rows[i]["HSNNo"].ToString());
+                    sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
+                    sheet[ROW, ColGRNType].Text = data.Rows[i]["IsAsset"].ToString();
+                    //sheet[ROW, ColGRNNo].Number = clsStaticInfo.dbl(data.Rows[i]["grnNumber"].ToString());
+                    //sheet[ROW, ColGRNDate].Text = data.Rows[i]["GRNDate"].ToString();
+                    sheet[ROW, ColStorageLoc].Text = data.Rows[i]["StorageLocation"].ToString();
+                    sheet[ROW, ColBinLocation].Text = data.Rows[i]["BinLocation"].ToString();
+                    sheet[ROW, ColBinNo].Number = clsStaticInfo.dbl(data.Rows[i]["BinNumber"].ToString());
+                    sheet[ROW, ColQTY].Number = clsStaticInfo.dbl(data.Rows[i]["QTY"].ToString());
+                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TaxAmount"].ToString());
+
+                   
+
+                    ROW++;
+                }
+
+               
+                
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Bin Wise GRN", identity.PlantId);
+                
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = true;
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public ActionResult AllBinGRN(string from, string to, string materialtype, out DataTable data)
+        {
+            try
+            {
+                string MaterialType = "'" + materialtype.Replace(",", "','") + "'";//replaced with ""
+                var sql = @"SELECT 
+ROW_NUMBER() OVER(ORDER BY MT.Id) SrNo
+,MT.UserName MaterialType    
+,MM.UserName Material
+,MMA.StandardName Article 
+,HSNC.Code HSNNo
+,TUoM.UserName UOM
+,IsAsset = CASE WHEN IRD.IsAsset = 0 then 'Revenue' ELSE 'Asset' END
+,ISNULL(IR.Id,0) grnNumber
+,REPLACE(Convert(VARCHAR(11), IR.GRNDate, 106), ' ', '-') AS GRNDate  
+,MS.UserName StorageLocation
+,SBM.UserName BinLocation
+,SBM.BinCode BinNumber
+,CEILING(IRD.TransactionQty)  QTY
+,TaxAmount = (
+                            SELECT CEILING(SUM(TaxAmount))
+                            FROM [TRN].[InventoryReceiveTax]
+                            WHERE InventoryReceiveDetailId = IRD.Id
+                            )
+                            FROM  [TRN].[GRNBinAllocationMap] GAM 
+							LEFT JOIN MST.StorageBinMaster SBM on SBM.Id = GAM.StorageBinMasterId
+							LEFT JOIN TRN.BinAllocation BA on BA.StorageBinMasterId = SBM.Id
+                            LEFT JOIN trn.inventoryReceiveDetail IRD ON IRD.Id = GAM.InventoryReceiveDetailId
+							LEFT JOIN TRN.InventoryReceive IR ON ir.Id = IRD.InventoryReceiveId
+                            LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
+                            LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+                            LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId                       
+                            LEFT JOIN HKP.Party Party ON Party.Id = IR.PartyId
+                            LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
+                             LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
+							LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
+                            LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId                            
+                            JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id                           														
+							LEFT JOIN HKP.MaterialType MT on MT.Id = MGM.MaterialTypeId
+							LEFT JOIN [HKP].[MaterialStorage] MS on MS.Id = IR.MaterialStorageId                          
+                            WHERE IR.GRNDate between '"+from+"' and '"+to+ "' and MT.Id in ("+ MaterialType + ") and IOM.MaterialMasterId is not NULL";
+                data = _sqlRepository.GetDataTable(sql);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult XlsAllBinWiseGRNReport(string from, string to,string materialtype)
+        {
+            try
+            {
+
+                string fileName = "";
+                fileName = AllBinWiseGRNExcel(from, to, materialtype, "AllBinWiseGRNReport");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string AllBinWiseGRNExcel(string from, string to, string materialtype, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+
+            try
+            {
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "All Bin Wise GRN";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                AllBinGRN(from, to, materialtype, out data);
+
+                
+                int ROW = 6; int COL = 1;
+
+                #region Columns
+                sheet[ROW, COL].Text = "SR No";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColSRNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material Type";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMaterialType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMaterial = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "HSN No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColHSNNo = COL;
+                COL++;
+
+               
+
+
+
+                sheet[ROW, COL].Text = "Revenue / Asset";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColGRNType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GRN No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColGRNNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GRN Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColGRNDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Storage Location";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColStorageLoc = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bin Location";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBinLocation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bin No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBinNo = COL;
+                COL++;
+
+
+
+                sheet[ROW, COL].Text = "QTY";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColQTY = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "UOM";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColUOM = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColAmount = COL;
+                //COL++;
+
+                //COL++;
+                #endregion Columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                double[] arr = new double[3];
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColSRNo].Number = clsStaticInfo.dbl(data.Rows[i]["SrNo"].ToString());
+                    sheet[ROW, ColMaterialType].Text = data.Rows[i]["MaterialType"].ToString();
+                    sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
+                    sheet[ROW, ColArticle].Text = data.Rows[i]["Article"].ToString();
+                    sheet[ROW, ColHSNNo].Number = clsStaticInfo.dbl(data.Rows[i]["HSNNo"].ToString());
+                    sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
+                    sheet[ROW, ColGRNType].Text = data.Rows[i]["IsAsset"].ToString();
+                    sheet[ROW, ColGRNNo].Number = clsStaticInfo.dbl(data.Rows[i]["grnNumber"].ToString());
+                    sheet[ROW, ColGRNDate].DateTime = Convert.ToDateTime(data.Rows[i]["GRNDate"].ToString());
+                    sheet[ROW, ColStorageLoc].Text = data.Rows[i]["StorageLocation"].ToString();
+                    sheet[ROW, ColBinLocation].Text = data.Rows[i]["BinLocation"].ToString();
+                    sheet[ROW, ColBinNo].Number = clsStaticInfo.dbl(data.Rows[i]["BinNumber"].ToString());
+                    sheet[ROW, ColQTY].Number = clsStaticInfo.dbl(data.Rows[i]["QTY"].ToString());
+                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TaxAmount"].ToString());
+
+
+
+                    ROW++;
+                }
+
+
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "All Bin Wise GRN", identity.PlantId);
+
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = true;
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetMaterialType()
+        {
+            try
+            {
+                var sql = @"select Id Value, StandardName Text from HKP.MaterialType";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion BinWiseGReport -- Nitesh
+    }
 }
