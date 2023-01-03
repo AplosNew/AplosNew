@@ -232,8 +232,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 							LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=POD.InventoryReceiveId
 							LEFT JOIN SCS.Currency CU ON CU.Id=PO.CurrencyId
 							WHERE boq.MaterialMasterId IN (" + MaterialIds + ") AND boq.ArticleId IN (" + ArticleIds + @")
-                            AND ISNULL(boq.OwnReferenceNo,'null') in (" + OwnReferenceNo + ") AND ISNULL(boq.RMCustomerSpec,'null') IN (" + CustomerRefNos + @")
-							AND ISNULL(boq.RMVendorSpec,'null') IN (" + VendorRefNos + @") AND boq.VendorId='" + PartyId + @"' AND POD.InventoryReceiveId<>''";
+                            AND ISNULL(boq.OwnReferenceNo,'') in (" + OwnReferenceNo + ") AND ISNULL(boq.RMCustomerSpec,'') IN (" + CustomerRefNos + @")
+							AND ISNULL(boq.RMVendorSpec,'') IN (" + VendorRefNos + @") AND boq.VendorId='" + PartyId + @"' AND POD.InventoryReceiveId<>''";
 
                 return _sqlRepository.GetDataCollection(sql);
             }

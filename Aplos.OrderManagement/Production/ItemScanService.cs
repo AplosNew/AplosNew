@@ -255,9 +255,9 @@ namespace Library.Service.EmployeeServices
                 string _Id = ""; string _Idx = "";
                 foreach (ItemScanChildData item in DataToSave)
                 {
-                    netWeight += Convert.ToDecimal(item.NetWeight);
-                    POId = item.POId;
-                    lotNo = item.LotNo;
+                    //netWeight += Convert.ToDecimal(item.NetWeight);
+                    //POId = item.POId;
+                    //lotNo = item.LotNo;
 
                     Index++;
                     object Emp = DBNull.Value;
@@ -393,13 +393,13 @@ namespace Library.Service.EmployeeServices
 
                 if (!string.IsNullOrEmpty(processId))
                 {
-                    //netWeight = 0;
-                    //for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
-                    //{
-                    //    netWeight += Convert.ToDecimal(dsMaster.Tables[0].Rows[j]["NetWeight"]);
-                    //    lotNo = dsMaster.Tables[0].Rows[j]["LotNo"].ToString();
-                    //    POId = dsMaster.Tables[0].Rows[j]["POId"].ToString();
-                    //}
+                    netWeight = 0;
+                    for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
+                    {
+                        netWeight += Convert.ToDecimal(dsMaster.Tables[0].Rows[j]["NetWeight"]);
+                        lotNo = dsMaster.Tables[0].Rows[j]["LotNo"].ToString();
+                        POId = dsMaster.Tables[0].Rows[j]["POId"].ToString();
+                    }
                     DataSet dsScanChild;
                     var sqlScanChild = @"select SUM(NetWeight)TotalQty,POId,LotNo from dbo.ItemScanChild where MasterId='" + MId + "' Group BY POId,LotNo";
                     con.OpenDataSetThroughAdapter(sqlScanChild, out dsScanChild, false, "1");
@@ -431,10 +431,10 @@ namespace Library.Service.EmployeeServices
                         dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
                     }
 
-
+                    _info.SaveDataSets(dsProductionSummary);
 
                 }
-                _info.SaveDataSets(dsProductionSummary);
+               
                 #endregion
 
                 if (inventory != "")

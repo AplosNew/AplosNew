@@ -556,6 +556,7 @@ upanelApp.controller('fixedAssetDisposePostController', fixedAssetDisposePostCon
 upanelApp.controller('FixedAssetsRegisterReportController', FixedAssetsRegisterReportController);
 upanelApp.controller('FixedAssetsRegisterDisposedReportController', FixedAssetsRegisterDisposedReportController);
 upanelApp.controller('goodsReceiveNoteController', goodsReceiveNoteController);
+upanelApp.controller('AllBinWiseGRNController', AllBinWiseGRNController);
 upanelApp.controller('gratuityReportController', gratuityReportController);
 upanelApp.controller('gratuityPolicyController', gratuityPolicyController);
 upanelApp.controller('GRNByPOController', GRNByPOController);

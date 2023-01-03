@@ -2628,6 +2628,7 @@
     <Content Include="Areas\Productions\Scripts\recipeConfigController.js" />
     <Content Include="Areas\Productions\Scripts\recipeGlobalMasterController.js" />
     <Content Include="Areas\Productions\Scripts\recipeMaterialController.js" />
+    <Content Include="Areas\Products\Scripts\AllBinWiseGRNController.js" />
     <Content Include="Areas\Products\Scripts\assetInventoryIssueController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionReportWithParameterController.js" />
     <Content Include="Areas\Products\Scripts\AssetIssueSlipBaseController.js" />
@@ -4479,6 +4480,7 @@
     <Content Include="Areas\Materials\Views\ScanData\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\WasteType\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\Shared\_IndependentCharacteristicsValuePopUp.cshtml" />
+    <Content Include="Areas\Products\Views\GoodsReceiveNote\AllBinWiseGRN.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionReport\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
