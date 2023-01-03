@@ -258,10 +258,22 @@ namespace Aplos.Areas.Productions.Controllers
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    //if (i == colPlant - 1 || i == colWorkDate - 1 || i == colId - 1)
-                    //    continue;
-                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                    if (i == colId || i == colStandardName || i == colShade || i == colLotNo || i == colRefNo)
+                    {
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                    }
+                    else if (i == colWorkDate)
+                    {
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.Sum;
+                    }
+                    else
+                    {
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                    }
                 }
+
+                //  pivotTable.Fields[colWorkDate].Subtotals = PivotSubtotalTypes.Sum;
+
 
                 pivotTable.ShowDrillIndicators = false;
                 pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
