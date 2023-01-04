@@ -5601,7 +5601,7 @@ namespace Library.MaterialManagement.Inventory
 
                     --,B.UserName OpeningBank
                     , PO.CompanyGroupId
-                    ,PO.CompanyId
+                    ,PO.CompanyId,PO.BaseNoOfDays
                     ,Plant.GSTIN
 	                ,REPLACE(Convert(VARCHAR(11), PLC.LCDate, 106), ' ', '-') AS LCODate
                     , REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
@@ -8475,7 +8475,7 @@ ORDER BY IR.ID DESC";
                   ,PLC.BenificiaryBank BeneficiaryBank
                   ,PLC.BenificiaryBank OpeningBank
                      , PO.CompanyGroupId
-                    ,PO.CompanyId
+                    ,PO.CompanyId,PO.BaseNoOfDays
                     ,Plant.GSTIN
 	                ,REPLACE(Convert(VARCHAR(11), PLC.LCDate, 106), ' ', '-') AS LCODate
                     , REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
