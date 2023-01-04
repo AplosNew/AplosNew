@@ -205,7 +205,8 @@ namespace Aplos.Areas.Materials.Controllers
 					LEFT JOIN EmployeeInformation EMRM1 ON EMRM1.SystemId=MRM.CheckedBy
 					LEFT JOIN EmployeeInformation EMRM2 ON EMRM2.SystemId=MRM.AuthorizedBy
 					WHERE  IR.PlantId='" + PlantId + "' " + tempquery + @"
-						AND (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject' 
+						AND (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject'
+                        AND IRD.QualityStatus!='Reject'
 					AND (IRD.BaseQty-IRD.IssueQty)>0  
 						) x where x.StockInDays >= " + Days + " AND x.IsRegular='" + Type + "'";
                 return _sqlRepository.GetDataTable(str);
