@@ -3208,7 +3208,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 0 and 3  
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 						)Res3 ON Res3.CompanyGroupId=cmpGR.Id --ANd Res3.PlantId=P.Id
 						left JOIN(
@@ -3232,7 +3232,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 4 and 5
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --ANd Res5.PlantId=P.Id
 						left JOIN(
@@ -3256,7 +3256,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 6 and 10
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res10 ON Res10.CompanyGroupId=cmpGR.Id --ANd Res10.PlantId=P.Id
 						left JOIN(
@@ -3280,7 +3280,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 11 and 15
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --ANd Res15.PlantId=P.Id
 						left JOIN(
@@ -3304,7 +3304,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 16 and 20
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --ANd Res20.PlantId=P.Id
 						left JOIN(
@@ -3328,7 +3328,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 21 and 25
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 						)Res25 ON Res25.CompanyGroupId=cmpGR.Id -- ANd Res25.PlantId=P.Id
 						left JOIN(
@@ -3352,7 +3352,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 26 and 30
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --ANd Res30.PlantId=P.Id
 						left JOIN(
@@ -3376,7 +3376,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 31 and 900000
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --ANd Res31.PlantId=P.Id
 						left JOIN(
@@ -3400,7 +3400,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate())  Between 0 and 900000
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --ANd res32.PlantId=P.Id
 						where CMPGR.Active = 1 --AND cmp.Id='C20171'	
@@ -10237,7 +10237,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 0 And 3
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 								)Res3 ON Res3.CompanyGroupId=cmpGR.Id --ANd Res3.PlantId=P.Id
 								left JOIN(
@@ -10259,7 +10259,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 4 And 5
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 								)Res5 ON Res5.CompanyGroupId=cmpGR.Id --ANd Res5.PlantId=P.Id
 								left JOIN(
@@ -10281,7 +10281,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 6 And 10
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 								)Res10 ON Res10.CompanyGroupId=cmpGR.Id --ANd Res10.PlantId=P.Id
 								left JOIN(
@@ -10303,7 +10303,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 11 And 15
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 								)Res15 ON Res15.CompanyGroupId=cmpGR.Id --ANd Res15.PlantId=P.Id
 								left JOIN(
@@ -10325,7 +10325,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 16 And 20
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 								)Res20 ON Res20.CompanyGroupId=cmpGR.Id --ANd Res20.PlantId=P.Id
 								left JOIN(
@@ -10347,7 +10347,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 21 And 25
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 								)Res25 ON Res25.CompanyGroupId=cmpGR.Id -- ANd Res25.PlantId=P.Id
 								left JOIN(
@@ -10369,7 +10369,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 26 And 30
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 								)Res30 ON Res30.CompanyGroupId=cmpGR.Id --ANd Res30.PlantId=P.Id
 								left JOIN(
@@ -10391,7 +10391,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 31 And 9000000
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 								)Res31 ON Res31.CompanyGroupId=cmpGR.Id --ANd Res31.PlantId=P.Id
 								left JOIN(
@@ -10413,7 +10413,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 0 And 90000
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 								)Res32 ON Res32.CompanyGroupId=cmpGR.Id --ANd res32.PlantId=P.Id
 								where CMPGR.Active = 1 --AND cmp.Id='C20171'	
@@ -22306,7 +22306,7 @@ UNION ALL
 									LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
 								Where DATEDIFF(day,IRM.AddedDate,getdate()) Between '" + fromDate + @"' ANd '" + toDate + @"'  
 							    AND IRM.CompanyId='" + companyId + @"' AND IRM.PlantId='" + PlantId + @"' 
-								AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+								AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 								AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
 								GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName,IRM.AddedDate";
 
