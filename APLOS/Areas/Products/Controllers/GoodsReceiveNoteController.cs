@@ -664,6 +664,16 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException(Resources.IdNotFound);
         }
 
+        [HttpPost]
+        public ActionResult UpdateGRNBOQTax(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+            _inventoryDetailService.UpdateGRNBOQTax(entity, taxCategoryList);
+            return Json(new { Message = AplosMessage.Success });
+        }
         #endregion GRN-By-PO
 
         #region purchase-return

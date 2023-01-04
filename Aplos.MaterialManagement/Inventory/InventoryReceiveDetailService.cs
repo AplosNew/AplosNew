@@ -361,6 +361,60 @@ namespace Library.MaterialManagement.Inventory
             }
 
         }
+        public void UpdateGRNBOQTax(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
+        {
+            var flag = false;
+            var rdBuilder = new System.Text.StringBuilder();
+            var builderSql = "";
+            try
+            {
+                ResetCurrencyRate(entity);
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                if (entity.IsNotNull())
+                {
+                    // insert in PO Item tax
+                    if (taxCategoryList.IsNotNull())
+                    {
+                        foreach (var item in taxCategoryList)
+                        {
+                                item.InventoryReceiveId = entity.InventoryReceiveId;
+                                item.InventoryReceiveDetailId = entity.InventoryReceiveDetailId;
+                                item.InventoryServiceId = null;
+                                item.TaxAmount = Math.Round(item.TaxAmount, 2);
+                                AuditService.AddedLog(item);
+                                _receiveTaxRepository.Update(item);
+                                var res =  Convert.ToDecimal(taxCategoryList.Sum(r=>r.TaxAmount));
+                                builderSql = @"Update trn.InventoryReceiveDetail set TotalTaxAmount='" + res + "'  where Id='" + item.InventoryReceiveDetailId + "'";
+                                rdBuilder.Append(builderSql);
+                                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                        }
+                    }
+                }
+                _unitOfWork.SaveChanges();
+
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
+
+        }
         private string GetPKGRNPORequisitionAllocation()
         {
             string sID = string.Empty;
