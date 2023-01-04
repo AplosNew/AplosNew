@@ -615,6 +615,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.taxAbleAmnt = data.TrnAmount;
         $scope.percentageColumn = flag;
         $scope.currentMaterialRow = index;
+        $scope.GRNDetailRowData = data;
         $scope.receiveTaxList = [];
         if ($scope.POMaterialTaxList.length > 0) {
             $scope.HSNCode = $scope.POMaterialTaxList[0].HSNCode;
@@ -2161,6 +2162,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
             angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
             $scope.receiveTaxindex = null;
+            $scope.GRNDetailRowData = null;
         }
         else {
             $scope.MasterList[$scope.receiveTaxindex].BaseTaxAmount = $filter("sumByKey")($filter("filter")($scope.receiveTaxList), "TaxAmount");
@@ -2179,6 +2181,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
             angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
             $scope.receiveTaxindex = null;
+            $scope.GRNDetailRowData = null;
         }
 
     }
@@ -2433,6 +2436,44 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.serviceModel.TotalTaxAmount = 0;
         for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
             $scope.serviceModel.TotalTaxAmount = (parseFloat($scope.serviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
+        }
+    };
+
+    $scope.calculateTaxAmountForService1 = function (data) {
+
+        if ($scope.Action === 'Update') {
+            if (baseService.isUndefinedOrNull(data.Percentage)) {
+                data.Percentage = 0;
+            }
+            data.TaxAmount = Math.round($scope.serviceModel.TransactionAmount * data.Percentage) / 100;
+            for (var i = 0; i < $scope.taxCategoryList.length; i++) {
+                if ($scope.taxCategoryList[i].Id === data.Id) {
+                    $scope.taxCategoryList[i].Percentage = data.Percentage;
+                    $scope.taxCategoryList[i].TaxAmount = data.TaxAmount;
+                }
+            }
+        }
+    };
+    $scope.MaterialTaxUpdate = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Products/GoodsReceiveNote/UpdateGRNBOQTax',
+                data: {
+                    entity: $scope.GRNDetailRowData
+                    , taxCategoryList: $scope.receiveTaxList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure', 'receiveTaxPopUp');
+                else {
+                    ShowResult(response.data.Message, 'success', 'receiveTaxPopUp');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure', 'receiveTaxPopUp');
+            };
+        } catch (e) {
         }
     };
 }
