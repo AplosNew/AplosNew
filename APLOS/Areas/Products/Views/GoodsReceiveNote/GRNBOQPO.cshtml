@@ -2037,9 +2037,9 @@
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-lg-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GRnBOQPoo" ej-grid e-datasource="MasterListNewBOQ"
+                        <div style="color:black;" id="GRnBOQPooGrid" ej-grid e-datasource="MasterListNewBOQ"
                              e-templaterefresh="refreshTemplateMasterOrderOperation"
-                             e-recorddoubleclick=""
+                             e-recorddoubleclick="" e-summaryrows="summaryUnassignRows"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>
@@ -2086,13 +2086,15 @@
                             <input type="checkbox" ng-click="Change($event,$index,x)" ng-model="data.check" ng-disabled="data.TransactionQty===0 || data.TransactionQty==='' || data.TransactionQty===null">
                         </script>
                         <!--<script type="text/template" id="CurrentTextPOQtyBOQ">
-                            <input type="number" class="input form-control" ng-keyup="calculateAmounts(data)" form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80"--> @*ng-keyup="$parent.refreshQtyTemplete(this)"*@ <!--/>
-                        </script>-->
+        <input type="number" class="input form-control" ng-keyup="calculateAmounts(data)" form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80"-->
+                        @*ng-keyup="$parent.refreshQtyTemplete(this)"*@
+                        <!--/>
+    </script>-->
                         <script type="text/template" id="CurrentTextGRNRecvQty">
                             <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="popupcalculateAmounts(data);" width="200" ng-model="data.GRNRcvQty" ng-disabled="true">
                         </script>
                         <script type="text/template" id="CurrentTextTRNQty">
-                            <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="$parent.calculateAmounts(data);" width="200" ng-model="data.TransactionQty">
+                            <input type="text" n-decimals="2" class="form-control text-right" ng-blur="$parent.calculateAmounts(data);" width="200" ng-model="data.TransactionQty">
                         </script>
                         <script type="text/template" id="CurrentTextShortQty">
                             <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmounts(data,$index);" width="200" ng-model="data.ShortageQty" ng-disabled="false">
