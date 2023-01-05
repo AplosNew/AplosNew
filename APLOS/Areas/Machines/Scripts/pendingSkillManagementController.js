@@ -26,7 +26,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
             method: 'GET',
             url: 'Machines/SkillManagementDetails/GetFromDateList'
         }).then(function successCallback(response) {
-            //$scope.statusNew.FromDate = response.data[0].FromDate;
+            $scope.statusNew.FromDate = response.data[0].FromDate;
         });
     }
     $scope.GetFromDateList();
@@ -123,7 +123,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         $http({
 
             method: 'Get',
-            url: 'Machines/SkillManagementDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId + '&MaintenanceId='+ data.data.Id
+            url: 'Machines/SkillManagementDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId + '&SMId=' + data.data.SMId
         }).then(function successCallback(response) {
             $scope.ReponsiblePersonList = response.data;
             var gridObj = $("#GridResponsiblePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -207,7 +207,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         }).then(function successCallback(response) {
             $scope.SkillManagementStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            angular.element(document.querySelector('#EmployeeePopUp')).modal('show');
+            angular.element(document.querySelector('#EmployeePopUp')).modal('show');
         }
         )
     }
@@ -219,12 +219,12 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         }).then(function successCallback(response) {
             $scope.SkillManagementStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            angular.element(document.querySelector('#EmployeeePopUp')).modal('show');
+            angular.element(document.querySelector('#EmployeePopUp')).modal('show');
         }
         )
     }
     $scope.closeEmployeePopUp = function () {
-        angular.element(document.querySelector('#EmployeeePopUp')).modal('hide');
+        angular.element(document.querySelector('#EmployeePopUp')).modal('hide');
     }
     $scope.SavePlannedDetails = function () {
         try {
@@ -294,11 +294,11 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         var str = data.FileName;
         var extention = str.substr(str.indexOf('.'));
         if (test == 'id') {
-            $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.Id + extention;
+            $scope.dwonloadUrl = virtualPath.SMEPath + '/' + data.Id + extention;
             test = null;
         }
         else {
-            $scope.dwonloadUrl = virtualPath.MSAPath + '/' + data.PlannedId + extention;
+            $scope.dwonloadUrl = virtualPath.SMEPath + '/' + data.PlannedId + extention;
             test = null;
         }
     };
@@ -307,17 +307,14 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
 
         $http({
             method: 'Get',
-            url: 'Machines/SkillManagementDetails/LoadMaintenancePendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.PlannedId 
+            url: 'Machines/SkillManagementDetails/LoadSkillManagementPendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.PlannedId
         }).then(function successCallback(response) {
-            $scope.MaintenanceStatusPlannedDetailsList = response.data;
-            var gridObj = $("#GridPlannedMachineAsset").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            angular.element(document.querySelector('#MachineAssetPop')).modal('show');
+            $scope.SkillManagementStatusPlannedDetailsList = response.data;
+            var gridObj = $("#GridPlannedEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#EmployeePopUp')).modal('show');
         }
         )
     }
-
-
-
     //#endregion
 }
 

@@ -439,7 +439,7 @@ namespace Library.Service.EmployeeServices
                         else
                         {
                             //edit
-                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            DataRow dr = dsProductionSummary.Tables[0].DefaultView[0].Row;
 
                             dr.BeginEdit();
                             dr["Quantity"] = netWeight;
