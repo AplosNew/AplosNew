@@ -759,7 +759,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                 inventoryIssue.Preparedby = model["ByWhomId"].ToString();
                 inventoryIssue.ProductionOrderId = model["POId"].ToString();
 
-               
+                SaveData(model, soList, dataList);
                 List<IssueRequestViewModel> entityDetailVM = dataLists;
                 List<IssueRequestViewModel> entityGroupDataVM = dataLists;
 
@@ -779,7 +779,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
 
                 _issueRequestService.InsertOrUpdateGraphIssueSlipCreate(inventoryIssue, entityDetailVM, entityGroupDataVM, inventoryIssue.IssueSlipType, null, null, SOListSelectedNewDetailVM, MaterialColorListNewDetailVM, null);
 
-                SaveData(model, soList, dataList);
+                
                 return Json(new { Data = model, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
