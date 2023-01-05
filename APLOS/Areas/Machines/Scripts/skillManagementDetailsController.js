@@ -204,7 +204,7 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
         $scope.SD = args.data.SD;
         $http({
             method: 'Get',
-            url: 'Machines/SkillManagementDetails/LoadSkillManagementStatusPlannedListGetDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&SMId=' + $scope.SMId + '&EntityId=' + $scope.EntityId + '&PositionId=' + $scope.PositionCodeId + '&EmployeeId=' + $scope.EmployeeId
+            url: 'Machines/SkillManagementDetails/LoadSkillManagementStatusPlannedListGetDetails?ToDate=' + $scope.statusNew.ToDateMD + '&FromDate=' + $scope.statusNew.FromDateMD + '&SMId=' + $scope.SMId + '&EntityId=' + $scope.EntityId + '&PositionId=' + $scope.PositionCodeId + '&EmployeeId=' + $scope.EmployeeId
         }).then(function successCallback(response) {
             $scope.SkillManagementStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -218,7 +218,7 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
             method: 'Get',
             url: 'Machines/SkillManagementDetails/LoadSkillManagementStatusPlannedListDetails?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&SMId=' + $scope.SMID + '&EntityId=' + $scope.EntityId + '&PositionId=' + $scope.PositionId 
         }).then(function successCallback(response) {
-            $scope.MaintenanceStatusPlannedDetailsList = response.data;
+            $scope.SkillManagementStatusPlannedDetailsList = response.data;
             var gridObj = $("#GridPlannedEmployeeSummary").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
             angular.element(document.querySelector('#EmployeeSummaryPopup')).modal('show');
         }
@@ -264,7 +264,7 @@ function skillManagementDetailsController(cboService, commonMessage, $scope, $ro
         $http({
 
             method: 'Get',
-            url: 'Machines/SkillManagementDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId + '&MaintenanceId=' + data.data.MaintenanceSchedulingId
+            url: 'Machines/SkillManagementDetails/LoadReponsiblePersonList?Id=' + $scope.PlannedId + '&SMId=' + data.data.SMId
         }).then(function successCallback(response) {
             $scope.ReponsiblePersonList = response.data;
             var gridObj = $("#GridResponsiblePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
