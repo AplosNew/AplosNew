@@ -176,7 +176,7 @@ SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Dep
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
-            string TableName = "[TRN].[ResponsiblePlannedDetails]";
+            string TableName = "[TRN].[SkillResponsiblePlannedDetails]";
             string contId = string.Empty;
             string _Id, Id = string.Empty;
             try
@@ -196,7 +196,7 @@ SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Dep
                                 {
                                     bplib.clsGenID genid = new bplib.clsGenID();
                                     genid.GenID(TableName, out _Id);
-                                    item["Id"] = "RPD" + _Id;
+                                    item["Id"] = "SPD" + _Id;
                                     item["PlannedId"] = PId;
                                     AddNewRow(dsProdBooked.Tables[0], item);
                                 }
@@ -283,7 +283,7 @@ SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Dep
 
                                 bplib.clsGenID genid = new bplib.clsGenID();
                                 genid.GenID(TableName, out _Id);
-                                item["Id"] = "APD" + _Id;
+                                item["Id"] = "EPD" + _Id;
                                 AddNewRow(dsProdBooked.Tables[0], item);
 
                             }
@@ -436,16 +436,16 @@ SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Dep
 
                     var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
                     var fileN = file.FileName;
-                    var destinationPath = Path.Combine(ResourcesPathReader.GetMSADocumentPath(), fileName);
+                    var destinationPath = Path.Combine(ResourcesPathReader.GetSMEDocumentPath(), fileName);
 
-                    var directory = ResourcesPathReader.GetMSADocumentPath();
+                    var directory = ResourcesPathReader.GetSMEDocumentPath();
                     var path = Path.Combine(directory);
 
-                    if (System.IO.Directory.Exists(ResourcesPathReader.GetMSADocumentPath()) == false)
+                    if (System.IO.Directory.Exists(ResourcesPathReader.GetSMEDocumentPath()) == false)
                     {
                         try
                         {
-                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetMSADocumentPath());
+                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetSMEDocumentPath());
                         }
                         catch (Exception)
                         {
@@ -455,7 +455,7 @@ SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Dep
 
 
                     ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
-                    string sql = "SELECT * FROM [TRN].[MachineAssetPlannedDetails] WHERE Id='" + UploadDefault_data + "'";
+                    string sql = "SELECT * FROM [TRN].[EmployeePlannedDetails] WHERE Id='" + UploadDefault_data + "'";
                     DataSet dsLocal = null;
                     connection.BeginTransaction();
                     connection.getDataSet(sql, out dsLocal);
@@ -503,7 +503,7 @@ SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Dep
         {
             try
             {
-                return Json(_sqlRepository.GetDataCollection("select * from [TRN].[MachineAssetPlannedDetails]  where Id='" + Id + "'"), JsonRequestBehavior.AllowGet);
+                return Json(_sqlRepository.GetDataCollection("select * from [TRN].[EmployeePlannedDetails]  where Id='" + Id + "'"), JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)

@@ -43,6 +43,7 @@ virtualPath.ActivityDocuments = virtualPath.ROOT_FOLDRR + '/ActivityDocuments';
 virtualPath.MSAPath = virtualPath.ROOT_FOLDRR + '/MSADocument';
 virtualPath.ICUPath = virtualPath.ROOT_FOLDRR + '/ICUDocument';
 virtualPath.GeneralContractPath = virtualPath.ROOT_FOLDRR + '/GeneralContractDocument';
+virtualPath.SMEPath = virtualPath.ROOT_FOLDRR + '/SMEDocument';
 
 
 function getCookie(cname) {
