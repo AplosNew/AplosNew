@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Collections.Specialized;
+using Library.ViewModel.Materials;
 
 #endregion Using
 
@@ -46,7 +47,7 @@ namespace Library.MaterialManagement.Products
         private readonly IRepositoryAsync<IssueRequestMasterProcessMap> _issueRequestMasterProcessMap;
         private readonly IRepositoryAsync<IssueRequestSKUMap> _issueRequestSKUMap;
         private readonly IRepositoryAsync<IssueRequestBOQMap> _issueRequestBOQMap;
-
+        private readonly IInventoryMaterialService _inventoryMaterialMasterService;
 
         public IssueRequestService(
              IRepositoryAsync<PurchaseOrderGroup> purchaseOrderGroupMaster
@@ -62,6 +63,7 @@ namespace Library.MaterialManagement.Products
             , IRepositoryAsync<IssueRequestMasterProcessMap> issueRequestMasterProcessMap
             , IRepositoryAsync<IssueRequestSKUMap> issueRequestSKUMap
             , IRepositoryAsync<IssueRequestBOQMap> issueRequestBOQMap
+            , IInventoryMaterialService inventoryMaterialMasterService
             ) : base(issueRequest, unitOfWork, pkGeneratorService)
         {
             _sqlRepository = sqlRepository;
@@ -76,6 +78,7 @@ namespace Library.MaterialManagement.Products
             _issueRequestMasterProcessMap = issueRequestMasterProcessMap;
             _issueRequestSKUMap = issueRequestSKUMap;
             _issueRequestBOQMap = issueRequestBOQMap;
+            _inventoryMaterialMasterService = inventoryMaterialMasterService;
         }
 
         #endregion Constructor
@@ -211,6 +214,7 @@ namespace Library.MaterialManagement.Products
                 flag = true;
                 foreach (var itemDetail in entityGroupData)
                 {
+                   
 
                     if (string.IsNullOrEmpty(itemDetail.Id))
                     {
@@ -245,6 +249,36 @@ namespace Library.MaterialManagement.Products
                         try
                         {
                             //InsertGraph(receiveDetail); AuditService.UpdatedLog(receiveDetail);
+
+                            if (string.IsNullOrEmpty(itemDetail.InventoryMaterialId))
+                            {
+                                InventoryMaterialViewModel inventoryMaterial = new InventoryMaterialViewModel();
+
+                                inventoryMaterial.Id = null;
+                                inventoryMaterial.CountryId = itemDetail.CountryId;
+                                inventoryMaterial.CompanyGroupId = identity.CompanyGroupId;
+                                inventoryMaterial.CompanyId = identity.CompanyId;
+                                inventoryMaterial.PlantId = identity.PlantId;
+                                inventoryMaterial.MaterialStorageId = null;
+                                inventoryMaterial.OpeningBalanceId = null;
+                                inventoryMaterial.MaterialMasterId = itemDetail.MaterialMasterId;
+                                inventoryMaterial.ArticleId = itemDetail.ArticleId;
+                                inventoryMaterial.FirstCharacteristicsId = itemDetail.FirstCharacteristicsId;
+                                inventoryMaterial.FirstCharacteristicsValueId = itemDetail.FirstCharacteristicsValueId;
+                                inventoryMaterial.SecondCharacteristicsId = itemDetail.SecondCharacteristicsId;
+                                inventoryMaterial.SecondCharacteristicsValueId = itemDetail.SecondCharacteristicsValueId;
+                                inventoryMaterial.ThirdCharacteristicsId = itemDetail.ThirdCharacteristicsId;
+                                inventoryMaterial.ThirdCharacteristicsValueId = itemDetail.ThirdCharacteristicsValueId;
+                                inventoryMaterial.TotalQty = 0;
+                                inventoryMaterial.AvgRate = 0;
+                                inventoryMaterial.ShortageQty = 0;
+                                inventoryMaterial.RejectionQty = 0;
+                                inventoryMaterial.ApprovedQty = 0;
+                                
+
+                                _inventoryMaterialMasterService.InsertOrUpdateFromReceive(inventoryMaterial);
+                                IssueRequstD.InventoryMaterialId = inventoryMaterial.InventoryMaterialId;
+                            }
 
                             AuditService.AddedLog(IssueRequstD);
                             _issueRequestRepository.Insert(IssueRequstD);

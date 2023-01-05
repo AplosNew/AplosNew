@@ -3208,7 +3208,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 0 and 3  
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 						)Res3 ON Res3.CompanyGroupId=cmpGR.Id --ANd Res3.PlantId=P.Id
 						left JOIN(
@@ -3232,7 +3232,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 4 and 5
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --ANd Res5.PlantId=P.Id
 						left JOIN(
@@ -3256,7 +3256,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 6 and 10
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res10 ON Res10.CompanyGroupId=cmpGR.Id --ANd Res10.PlantId=P.Id
 						left JOIN(
@@ -3280,7 +3280,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 11 and 15
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --ANd Res15.PlantId=P.Id
 						left JOIN(
@@ -3304,7 +3304,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 16 and 20
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --ANd Res20.PlantId=P.Id
 						left JOIN(
@@ -3328,7 +3328,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 21 and 25
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 						)Res25 ON Res25.CompanyGroupId=cmpGR.Id -- ANd Res25.PlantId=P.Id
 						left JOIN(
@@ -3352,7 +3352,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 26 and 30
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --ANd Res30.PlantId=P.Id
 						left JOIN(
@@ -3376,7 +3376,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate()) Between 31 and 900000
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --ANd Res31.PlantId=P.Id
 						left JOIN(
@@ -3400,7 +3400,7 @@ namespace Library.Service.Expenses
 						) IR ON IRM.Id=IR.IssueRequestMasterId    
 						Where DATEDIFF(day,IRM.AddedDate,getdate())  Between 0 and 900000
 						AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-						AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+						AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --ANd res32.PlantId=P.Id
 						where CMPGR.Active = 1 --AND cmp.Id='C20171'	
@@ -10237,7 +10237,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 0 And 3
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 								)Res3 ON Res3.CompanyGroupId=cmpGR.Id --ANd Res3.PlantId=P.Id
 								left JOIN(
@@ -10259,7 +10259,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 4 And 5
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 								)Res5 ON Res5.CompanyGroupId=cmpGR.Id --ANd Res5.PlantId=P.Id
 								left JOIN(
@@ -10281,7 +10281,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 6 And 10
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 								)Res10 ON Res10.CompanyGroupId=cmpGR.Id --ANd Res10.PlantId=P.Id
 								left JOIN(
@@ -10303,7 +10303,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 11 And 15
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 								)Res15 ON Res15.CompanyGroupId=cmpGR.Id --ANd Res15.PlantId=P.Id
 								left JOIN(
@@ -10325,7 +10325,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 16 And 20
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 								)Res20 ON Res20.CompanyGroupId=cmpGR.Id --ANd Res20.PlantId=P.Id
 								left JOIN(
@@ -10347,7 +10347,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 21 And 25
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 								)Res25 ON Res25.CompanyGroupId=cmpGR.Id -- ANd Res25.PlantId=P.Id
 								left JOIN(
@@ -10369,7 +10369,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 26 And 30
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 								)Res30 ON Res30.CompanyGroupId=cmpGR.Id --ANd Res30.PlantId=P.Id
 								left JOIN(
@@ -10391,7 +10391,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 31 And 9000000
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 								)Res31 ON Res31.CompanyGroupId=cmpGR.Id --ANd Res31.PlantId=P.Id
 								left JOIN(
@@ -10413,7 +10413,7 @@ namespace Library.Service.Expenses
 									LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 									Where DATEDIFF(day,IRM.AddedDate,getdate()) between 0 And 90000
 									AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)
-									AND IRM.CheckedByStatus !='Reject'
+									AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 									GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 								)Res32 ON Res32.CompanyGroupId=cmpGR.Id --ANd res32.PlantId=P.Id
 								where CMPGR.Active = 1 --AND cmp.Id='C20171'	
@@ -19858,10 +19858,6 @@ UNION ALL
 								,EI.EmployeeName CheckedBy
 								,PO.CheckedByStatus
 								,EI1.EmployeeName AuthorizedBy
-								--,AuthorizedByStatus=CASE WHEN PO.AuthorizedByStatus='Approval' 
-										--THEN 'Approved' 
-										--WHEN PO.CheckedByStatus='Pending'OR  PO.CheckedByStatus='Hold'OR PO.CheckedByStatus='' THEN ''   
-										--ELSE 'For Approving' END
                                  ,AuthorizedByStatus=CASE WHEN PO.AuthorizedByStatus='Approved'  THEN 'Approved' 
 									WHEN PO.CheckedByStatus='Checked'  ANd  PO.AuthorizedByStatus ='For Approval' THEN 'To be approved'  
 									WHEN PO.CheckedByStatus='Checked'  ANd  isnull(PO.AuthorizedByStatus,'')='' THEN 'To be approved'  
@@ -21522,194 +21518,7 @@ UNION ALL
 								GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
 
                     }
-                    //else if (Category == "Pending Inventory Issue" && days == "5")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >3  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=5 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >3  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=5  
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "10")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >5  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=10 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >5  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=10 
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "15")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >10  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=15 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >10  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=15 
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "20")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >15  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=20 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >15  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=20 
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "25")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >20  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=25 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >20  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=25 
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "30")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >25  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=30 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >25  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=30 
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "31")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >30   THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >30  
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "32")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >0   THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >0  
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-
-                    //}
+                    
                     #endregion
                     #region pending expense booking
                     else if (Category == "Pending Inventory Issue Posting" && days == "3")
@@ -22306,7 +22115,7 @@ UNION ALL
 									LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
 								Where DATEDIFF(day,IRM.AddedDate,getdate()) Between '" + fromDate + @"' ANd '" + toDate + @"'  
 							    AND IRM.CompanyId='" + companyId + @"' AND IRM.PlantId='" + PlantId + @"' 
-								AND IRM.CheckedByStatus !='Reject' AND irm.AuthorizedByStatus!='Approved'
+								AND (IRM.CheckedByStatus !='Reject'And IRM.CheckedByStatus !='ForChecked' ) AND (irm.AuthorizedByStatus!='Approved' and irm.AuthorizedByStatus!='Reject')
 								AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
 								GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName,IRM.AddedDate";
 
@@ -27865,17 +27674,6 @@ UNION ALL
 		                        ,IR.ToCurrencyRate
 		                        ,ROUND((IM.TransactionQty * IM.TransactionRate), 2) AS TotalAmount
                                 ,BaseAmount
-		                        --,BaseAmount = CASE 
-			                       -- WHEN IR.IsNonCreditable = 1
-				                      --  THEN (
-						                    --    (ROUND((IM.TransactionQty * IM.TransactionRate), 2)) + (
-							                   --     SELECT SUM(TaxAmount)
-							                   --     FROM [TRN].[PurchaseOrderTax]
-							                   --     WHERE InventoryReceiveDetailId = IM.Id
-							                   --     )
-						                    --    )
-			                       -- ELSE IM.BaseAmount
-			                       -- E
 		                        ,BaseTaxAmount = (
 			                        SELECT SUM(TaxAmount)
 			                        FROM [TRN].[PurchaseOrderTax]
@@ -27898,15 +27696,6 @@ UNION ALL
 	                            ,IM.RefferenceNo
 								,ccc.MaterialDetail,IM.GRNRcvQty,Balance=(ROUND(IM.TransactionQty, 2)-IM.GRNRcvQty)
 	                        FROM [TRN].[PurchaseOrderDetail] AS IM
-	                        --JOIN MST.MaterialMaster AS MM ON IM.InventoryMaterialId = MM.Id
-	                        --LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-	                        --LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-	                        --LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-	                        --LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-	                        --LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-	                        --LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-	                        --LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-	                        --LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
 	                        JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IM.TransactionUoMId = TUoM.Id
 	                        JOIN [TRN].[PurchaseOrder] AS IR ON IM.InventoryReceiveId = IR.Id
 	                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id

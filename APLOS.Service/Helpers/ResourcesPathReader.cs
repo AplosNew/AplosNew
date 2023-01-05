@@ -164,6 +164,18 @@ namespace Library.Service.Helpers
 			}
 		}
 
+		public static string GetSMEDocumentPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/SMEDocument/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
 		public static string GetICUDocumentPath()
 		{
 			try

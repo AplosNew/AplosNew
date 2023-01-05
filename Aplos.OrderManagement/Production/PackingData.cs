@@ -1250,6 +1250,44 @@ WHERE R.PurposeId IN(" + purposeId + ") AND ISM.WorkDate between '" + fromDate +
             }
         }
 
+        public void GetFinishedGoodsPackingData(string fromDate, string toDate, string PurposeId, out DataTable dtOrder)
+        {
+            try
+            {
+                string purposeId = "'" + PurposeId.Replace(",", "','") + "'";//replaced with ""
+                var str = @"Select SUM(A.NetWeight)Quantity,A.POId ProductionOrderId,A.LotNo LotNumber,A.EntityId,A.WorkDate ProductionDate,A.ShiftId,A.Grade,A.ProcessId from(
+select distinct MP.UserName AS 'PROD_TYPE',
+S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation,R.EntityId,ISM.Id,ISM.ShiftId,ISM.Grade,MP.ProcessId  
+FROM ItemScanChild S 
+LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
+LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
+WHERE R.PurposeId IN(" + purposeId + ") AND ISM.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+union all
+select distinct MP.UserName AS 'PROD_TYPE',
+S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation,R.EntityId,ISM.Id,ISM.ShiftId,ISM.Grade,MP.ProcessId  
+FROM ItemScanChildHistory S 
+LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
+LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
+WHERE R.PurposeId IN(" + purposeId + ") AND ISM.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+)A
+Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId
+";
+                dtOrder = _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public DataTable getAllFinishedStocksReport(string Loc, string ToDate, string FromDate)
         {
             try
@@ -1278,6 +1316,135 @@ WHERE R.PurposeId IN(" + purposeId + ") AND ISM.WorkDate between '" + fromDate +
             }
         }
 
+        private string GetPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out sID);
+            return sID;
+        }
+
+        public void SaveScandataToBooking(DataTable data)
+        {
+            try
+            {
+                #region ProductionSummary
+                DataSet dsProductionSummary;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                if (data.Rows.Count > 0)
+                    {
+                    for (int i = 0; i < data.Rows.Count; i++)
+                    {
+                        con.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionSummary WHERE ProductionDate between '" + data.Rows[i]["ProductionDate"].ToString() + @"' AND '" + data.Rows[i]["ProductionDate"].ToString() + @"' AND ProductionOrderId='" + data.Rows[i]["ProductionOrderId"].ToString() + @"' AND EntityId='" + data.Rows[i]["EntityId"].ToString() + @"' AND ProcessId='" + data.Rows[i]["ProcessId"].ToString() + @"' AND ProcessId='" + data.Rows[i]["LotNumber"].ToString() + @"'", out dsProductionSummary, false, "1");
+
+
+
+
+                    }
+                        //string sqlPS = @"SELECT * FROM TRN.ProductionSummary where ProductionDate between '" + WorkDate + "' and '" + WorkDate + "' AND ProductionOrderId='" + POId + "' AND LotNumber='" + lotNo + "'";
+                        //con.OpenDataSetThroughAdapter(sqlPS, out dsProductionSummary, false, "1");
+
+                        //if (dsProductionSummary.Tables[0].Rows.Count == 0)
+                        //{
+                        //    bplib.clsGenID objGenID = new bplib.clsGenID();
+                        //    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
+                        //    DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
+                        //    drProductionSummary["Id"] = "PS" + sID;
+                        //    drProductionSummary["PlantId"] = PlantId;
+                        //    drProductionSummary["EntityId"] = entityId;
+                        //    drProductionSummary["ProcessId"] = processId;
+                        //    drProductionSummary["ProductionDate"] = WorkDate;
+                        //    drProductionSummary["Quantity"] = netWeight;
+                        //    drProductionSummary["ProductionOrderId"] = POId;
+                        //    drProductionSummary["ProductionShiftId"] = ShiftId;
+                        //    drProductionSummary["ProductionGrade"] = Grade;
+                        //    drProductionSummary["LotNumber"] = lotNo;
+
+                        //    drProductionSummary["AddedBy"] = User;
+                        //    drProductionSummary["AddedDate"] = DateTime.Now;
+                        //    drProductionSummary["AddedFromIP"] = "1";
+
+                        //    dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
+                        //}
+                        //else
+                        //{
+                        //    //edit
+                        //    DataRow dr = dsProductionSummary.Tables[0].DefaultView[0].Row;
+
+                        //    dr.BeginEdit();
+                        //    dr["Quantity"] = netWeight;
+                        //    dr["UpdatedBy"] = User;
+                        //    dr["UpdatedDate"] = DateTime.Now.ToString();
+                        //    dr["UpdatedFromIP"] = "1";
+
+                        //    dr.EndEdit();
+                        //}
+
+                    //clsStaticInfo _info = new clsStaticInfo();
+                    //_info.SaveDataSets(dsProductionSummary);
+                    }
+
+
+               
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void XAddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
     }
 
 }
