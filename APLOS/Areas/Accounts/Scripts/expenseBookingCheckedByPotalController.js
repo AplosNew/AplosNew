@@ -493,7 +493,8 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
         var gridObj = $("#GridCheckedId1").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Pdf";
-        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
     };
     $scope.PdfPrint = [{
 
@@ -509,7 +510,8 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
         var gridObj = $("#GridCheckedId1").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Excel";
-        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
     };
     $scope.ExcelPrint = [{
 
@@ -525,7 +527,8 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
         var gridObj = $("#GridCheckedId2").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Pdf";
-        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
     };
     $scope.PdfPrintChecked = [{
 
@@ -541,7 +544,8 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
         var gridObj = $("#GridCheckedId2").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Excel";
-        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
     };
     $scope.ExcelPrintChecked = [{
 
@@ -557,7 +561,8 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
         var gridObj = $("#GridCheckedHoldId").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Pdf";
-        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
     };
     $scope.PdfPrintCheckedHold = [{
 
@@ -573,7 +578,8 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
         var gridObj = $("#GridCheckedHoldId").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Excel";
-        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
     };
     $scope.ExcelPrintCheckedHold = [{
 
@@ -589,7 +595,8 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
         var gridObj = $("#GridCheckedRejectId").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Pdf";
-        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
     };
     $scope.PdfPrintCheckedReject = [{
 
@@ -605,7 +612,8 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
         var gridObj = $("#GridCheckedRejectId").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Excel";
-        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
     };
     $scope.ExcelPrintCheckedReject = [{
 

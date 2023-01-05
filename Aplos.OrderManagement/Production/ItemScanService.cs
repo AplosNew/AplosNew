@@ -215,9 +215,7 @@ namespace Library.Service.EmployeeServices
                 var sqlx = @"select * from dbo.ItemScanChildHistory where 1=2";
                 con.OpenDataSetThroughAdapter(sqlx, out DataSet DsHistory, false, "1");
 
-                // For ProductionSummary
-                string sqlPS = @"SELECT * FROM TRN.ProductionSummary where 1=2";
-                con.OpenDataSetThroughAdapter(sqlPS, out DataSet dsProductionSummary, false, "1");
+
 
                 // Inventory Check
                 var _sql = @"select Inventorycheck,EntityId from mst.MaterialMovementMaster where Id ='" + LocId + "'";
@@ -255,9 +253,9 @@ namespace Library.Service.EmployeeServices
                 string _Id = ""; string _Idx = "";
                 foreach (ItemScanChildData item in DataToSave)
                 {
-                    netWeight += Convert.ToDecimal(item.NetWeight);
-                    POId = item.POId;
-                    lotNo = item.LotNo;
+                    //netWeight += Convert.ToDecimal(item.NetWeight);
+                    //POId = item.POId;
+                    //lotNo = item.LotNo;
 
                     Index++;
                     object Emp = DBNull.Value;
@@ -393,7 +391,9 @@ namespace Library.Service.EmployeeServices
 
                 if (!string.IsNullOrEmpty(processId))
                 {
-                    //netWeight = 0;
+                    // For ProductionSummary
+
+                    netWeight = 0;
                     //for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
                     //{
                     //    netWeight += Convert.ToDecimal(dsMaster.Tables[0].Rows[j]["NetWeight"]);
@@ -401,6 +401,7 @@ namespace Library.Service.EmployeeServices
                     //    POId = dsMaster.Tables[0].Rows[j]["POId"].ToString();
                     //}
                     DataSet dsScanChild;
+                    DataSet dsProductionSummary;
                     var sqlScanChild = @"select SUM(NetWeight)TotalQty,POId,LotNo from dbo.ItemScanChild where MasterId='" + MId + "' Group BY POId,LotNo";
                     con.OpenDataSetThroughAdapter(sqlScanChild, out dsScanChild, false, "1");
 
@@ -410,31 +411,50 @@ namespace Library.Service.EmployeeServices
                         lotNo = dsScanChild.Tables[0].Rows[0]["LotNo"].ToString();
                         POId = dsScanChild.Tables[0].Rows[0]["POId"].ToString();
 
-                        bplib.clsGenID objGenID = new bplib.clsGenID();
-                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
-                        DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
-                        drProductionSummary["Id"] = "PS" + sID;
-                        drProductionSummary["PlantId"] = PlantId;
-                        drProductionSummary["EntityId"] = entityId;
-                        drProductionSummary["ProcessId"] = processId;
-                        drProductionSummary["ProductionDate"] = WorkDate;
-                        drProductionSummary["Quantity"] = netWeight;
-                        drProductionSummary["ProductionOrderId"] = POId;
-                        drProductionSummary["ProductionShiftId"] = ShiftId;
-                        drProductionSummary["ProductionGrade"] = Grade;
-                        drProductionSummary["LotNumber"] = lotNo;
+                        string sqlPS = @"SELECT * FROM TRN.ProductionSummary where ProductionDate between '" + WorkDate + "' and '" + WorkDate + "' AND ProductionOrderId='" + POId + "' AND LotNumber='" + lotNo + "'";
+                        con.OpenDataSetThroughAdapter(sqlPS, out dsProductionSummary, false, "1");
 
-                        drProductionSummary["AddedBy"] = User;
-                        drProductionSummary["AddedDate"] = DateTime.Now;
-                        drProductionSummary["AddedFromIP"] = "1";
+                        if (dsProductionSummary.Tables[0].Rows.Count == 0)
+                        {
+                            bplib.clsGenID objGenID = new bplib.clsGenID();
+                            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
+                            DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
+                            drProductionSummary["Id"] = "PS" + sID;
+                            drProductionSummary["PlantId"] = PlantId;
+                            drProductionSummary["EntityId"] = entityId;
+                            drProductionSummary["ProcessId"] = processId;
+                            drProductionSummary["ProductionDate"] = WorkDate;
+                            drProductionSummary["Quantity"] = netWeight;
+                            drProductionSummary["ProductionOrderId"] = POId;
+                            drProductionSummary["ProductionShiftId"] = ShiftId;
+                            drProductionSummary["ProductionGrade"] = Grade;
+                            drProductionSummary["LotNumber"] = lotNo;
 
-                        dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
+                            drProductionSummary["AddedBy"] = User;
+                            drProductionSummary["AddedDate"] = DateTime.Now;
+                            drProductionSummary["AddedFromIP"] = "1";
+
+                            dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
+                        }
+                        else
+                        {
+                            //edit
+                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                            dr.BeginEdit();
+                            dr["Quantity"] = netWeight;
+                            dr["UpdatedBy"] = User;
+                            dr["UpdatedDate"] = DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = "1";
+
+                            dr.EndEdit();
+                        }
+                        _info.SaveDataSets(dsProductionSummary);
                     }
 
 
-
                 }
-                _info.SaveDataSets(dsProductionSummary);
+
                 #endregion
 
                 if (inventory != "")

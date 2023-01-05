@@ -40,6 +40,40 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelist;
         }
 
+        public List<closeTask> GetOnTimeTaskAssigned(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetOnTimeTaskAssigned(out List<closeTask> activelists, UserId);
+            return activelists;
+        }
+
+
+
+        public List<closeTask> GetLateTaskAssigned(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetLateTaskAssigned(out List<closeTask> activelists, UserId);
+            return activelists;
+        }
+
+
+
+
+        public List<closeTask> GetOnTimeTaskCreation(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetOnTimeTaskCreation(out List<closeTask> activelists, UserId);
+            return activelists;
+        }
+
+
+
+        public List<closeTask> GetLateTaskCreation(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetLateTaskCreation(out List<closeTask> activelists, UserId);
+            return activelists;
+        }
 
         public List<WorkCenterList> GetWorkCenter(string processid)
         {

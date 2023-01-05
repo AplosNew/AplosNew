@@ -250,7 +250,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         , Description: null
         , Remarks: null
     };
-   
+
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
     $scope.partyUrl = "";
@@ -343,8 +343,8 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 else {
                     var tempreqQty = Math.round($filter("sumByKey")($filter("filter")($scope.requisitionListByPo, { PODetailId: podetail.PODetailsID, MaterialMasterId: podetail.MaterialMasterId, 'ArticleId': podetail.ArticleId }), "TransactionQty") * 1000 + Number.EPSILON) / 1000;
 
-                    if (podetail.TransactionQty!= tempreqQty) {
-                        ShowResult("Please input Requsition Qty of Row Id : " + podetail.PODetailsID + " Material "  + podetail.UserName , 'failure');
+                    if (podetail.TransactionQty != tempreqQty) {
+                        ShowResult("Please input Requsition Qty of Row Id : " + podetail.PODetailsID + " Material " + podetail.UserName, 'failure');
                         return true;
                         break;
                     } else {
@@ -358,15 +358,15 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     }
 
     $scope.AutoBinAllocation = function (podetail) {
-        $scope.RowLength = $filter("filter")($scope.binMasterPOList, { 'PODetailId': podetail.PODetailsID});
+        $scope.RowLength = $filter("filter")($scope.binMasterPOList, { 'PODetailId': podetail.PODetailsID });
         if ($scope.RowLength.length == 1 && $scope.RowLength[0].Qty == 0) {
             for (var b = 0; b < $scope.binMasterPOList.where('PODetailId' == podetail.PODetailsID); b++) {
                 $scope.binMasterPOList[b].Qty = podetail.TransactionQty;
                 $scope.binMasterList.push($scope.binMasterPOList[b]);
             }
         }
-        else  {
-            $scope.totalBinQty = Math.round($filter("sumByKey")($filter("filter")($scope.binMasterPOList, { PODetailId: podetail.PODetailsID, 'MaterialMasterId' : podetail.MaterialMasterId, 'ArticleId': podetail.ArticleId }), "Qty") * 1000 + Number.EPSILON) / 1000;
+        else {
+            $scope.totalBinQty = Math.round($filter("sumByKey")($filter("filter")($scope.binMasterPOList, { PODetailId: podetail.PODetailsID, 'MaterialMasterId': podetail.MaterialMasterId, 'ArticleId': podetail.ArticleId }), "Qty") * 1000 + Number.EPSILON) / 1000;
             if ($scope.totalBinQty != podetail.TransactionQty) {
                 ShowResult("Please allocate Bin Qty ", 'failure');
                 return true;
@@ -454,15 +454,18 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 if ($scope.requisitionListByPo.length > 0) {
                     $scope.ReqAllocation($scope.inventoryMaterialListPO[i]);
                     //Bin Allocation
-                    $scope.BinRowLength = $filter("filter")($scope.binMasterPOList, { 'PODetailId': $scope.inventoryMaterialListPO[i].PODetailsID });
-                    if ($scope.BinRowLength.length > 0) {
-                        if ($scope.BinRowLength.length == 1 && $scope.BinRowLength[0].Qty == 0) {
-                            for (var b = 0; b < $scope.BinRowLength.where('PODetailId' == $scope.inventoryMaterialListPO[i].PODetailsID); b++) {
-                                $scope.BinRowLength[b].Qty = $scope.inventoryMaterialListPO[i].TransactionQty;
-                                $scope.binMasterList.push($scope.BinRowLength[b]);
+                    if ($scope.binMasterPOList.length > 0) {
+                        $scope.BinRowLength = $filter("filter")($scope.binMasterPOList, { 'PODetailId': $scope.inventoryMaterialListPO[i].PODetailsID });
+                        if ($scope.BinRowLength.length > 0) {
+                            if ($scope.BinRowLength.length == 1 && $scope.BinRowLength[0].Qty == 0) {
+                                for (var b = 0; b < $scope.BinRowLength.where('PODetailId' == $scope.inventoryMaterialListPO[i].PODetailsID); b++) {
+                                    $scope.BinRowLength[b].Qty = $scope.inventoryMaterialListPO[i].TransactionQty;
+                                    $scope.binMasterList.push($scope.BinRowLength[b]);
+                                }
                             }
                         }
                     }
+
                     $scope.RowLength = $filter("filter")($scope.requisitionListByPoForSave, { PODetailId: $scope.inventoryMaterialListPO[i].PODetailsID, MaterialMasterId: $scope.inventoryMaterialListPO[i].MaterialMasterId, ArticleId: $scope.inventoryMaterialListPO[i].ArticleId });
 
                     if ($scope.RowLength.length > 0) {
@@ -474,12 +477,14 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     }
                 }
                 else {
-                     //Bin Allocation
-                    $scope.BinRowLength = $filter("filter")($scope.binMasterPOList, { 'PODetailsID': $scope.inventoryMaterialListPO[i].PODetailsID });
-                    if ($scope.BinRowLength.length > 0) {
-                        if ($scope.BinRowLength.length == 1 && $scope.BinRowLength[0].Qty == 0) {
+                    //Bin Allocation
+                    if ($scope.binMasterPOList.length > 0) {
+                        $scope.BinRowLength = $filter("filter")($scope.binMasterPOList, { 'PODetailsID': $scope.inventoryMaterialListPO[i].PODetailsID });
+                        if ($scope.BinRowLength.length > 0) {
+                            if ($scope.BinRowLength.length == 1 && $scope.BinRowLength[0].Qty == 0) {
                                 $scope.BinRowLength[0].Qty = $scope.inventoryMaterialListPO[i].TransactionQty;
                                 $scope.binMasterList.push($scope.BinRowLength[0]);
+                            }
                         }
                     }
                     $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
@@ -804,27 +809,27 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     };
 
     $scope.closePartyPopUp = function (x) {
-            var party = x.data;
-            $scope.productNew.PartyCode = party.Code;
-            $scope.productNew.PartyName = party.UserName;
-            $scope.productNew.PartyId = party.Id;
-            $scope.productNew.PaymentTermId = party.PaymentTermId;
-            $scope.productNew.CurrencyId = party.CurrencyId;
-            $scope.IsBaseOnDueDateEnable = false;
-            $scope.productNew.BaseOnDueDate = null;
-            $scope.productNew.BaseNoOfDays = null;
-            $scope.productNew.MatureDate = null;
+        var party = x.data;
+        $scope.productNew.PartyCode = party.Code;
+        $scope.productNew.PartyName = party.UserName;
+        $scope.productNew.PartyId = party.Id;
+        $scope.productNew.PaymentTermId = party.PaymentTermId;
+        $scope.productNew.CurrencyId = party.CurrencyId;
+        $scope.IsBaseOnDueDateEnable = false;
+        $scope.productNew.BaseOnDueDate = null;
+        $scope.productNew.BaseNoOfDays = null;
+        $scope.productNew.MatureDate = null;
 
-            $scope.productNew.TaxApplicable = party.TaxApplicable;
-            $scope.productNew.IsTaxApplicableChangeable = party.IsTaxApplicableChangeable;
-            if (party.TaxApplicable === 'Mandatory')
-                $scope.productNew.IsTaxApplicable = true;
-            else
-                $scope.productNew.IsTaxApplicable = false;
+        $scope.productNew.TaxApplicable = party.TaxApplicable;
+        $scope.productNew.IsTaxApplicableChangeable = party.IsTaxApplicableChangeable;
+        if (party.TaxApplicable === 'Mandatory')
+            $scope.productNew.IsTaxApplicable = true;
+        else
+            $scope.productNew.IsTaxApplicable = false;
 
-            if (!baseService.isUndefinedOrNull($scope.productNew.DocDate))
-                $scope.changePaymentTerm();
-            getPartyPlantList();
+        if (!baseService.isUndefinedOrNull($scope.productNew.DocDate))
+            $scope.changePaymentTerm();
+        getPartyPlantList();
         $scope.hidePartyPopUp();
     };
 
@@ -1791,7 +1796,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             getPartyPlantList();
             //getPartyPlantEditList();
             GetInventoryMaterialListByPO(id1, $scope.AcceptanceId);
-            
+
             getServiceChargeListPO(id1);
             $scope.productNew.PO = $scope.status;
             if ($scope.loadAcceptanceDetailList[0].IsNonCreditable === 'Yes') {
@@ -1808,9 +1813,9 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
     $scope.requisitionDetailList = [];
     $scope.tempPoDetailId = null;
-    $scope.ViewRequisitionDetail = function (poDatailId,poqty,materialmasterIdId,articleId) {
+    $scope.ViewRequisitionDetail = function (poDatailId, poqty, materialmasterIdId, articleId) {
         $scope.requisitionDetailList = [];
-        $scope.requisitionDetailList = $filter("filter")($scope.requisitionListByPo, { 'PODetailId': poDatailId, 'MaterialMasterId': materialmasterIdId, 'ArticleId': articleId});
+        $scope.requisitionDetailList = $filter("filter")($scope.requisitionListByPo, { 'PODetailId': poDatailId, 'MaterialMasterId': materialmasterIdId, 'ArticleId': articleId });
         $scope.tempPoDetailId = poDatailId;
         $scope.tempPoqty = poqty;
         $scope.tempMaterialId = materialmasterIdId;
@@ -1821,7 +1826,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     $scope.CloseRequisitionPopUP = function () {
 
 
-        var qty = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.requisitionListByPo, { 'PODetailId': $scope.tempPoDetailId, 'MaterialMasterId': $scope.tempMaterialId, 'ArticleId': $scope.tempArticleId})), "TransactionQty") * 1000 + Number.EPSILON) / 1000;
+        var qty = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.requisitionListByPo, { 'PODetailId': $scope.tempPoDetailId, 'MaterialMasterId': $scope.tempMaterialId, 'ArticleId': $scope.tempArticleId })), "TransactionQty") * 1000 + Number.EPSILON) / 1000;
 
         if ($scope.tempPoqty != qty) {
             ShowResult('Requisition Allocation Qty is not equal with GRN Qty?', 'failure', 'ListOfRequisitionPopUP');
@@ -1832,7 +1837,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             $scope.tempMaterialId = null;
             $scope.tempArticleId = null;
         }
-     
+
     }
 
     $scope.requisitionListByPo = [];
@@ -2146,7 +2151,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 $scope.GetPOMaterialTaxData();
             });
     }
-   
+
 
     $scope.binMasterList = [];
     $scope.GetbinAllocationPopUp = function (data) {
@@ -2585,7 +2590,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                                 $scope.inventoryMaterialListPO[i].ServiceTax = (TotalServiceTaxAmount / TotalTrnAmount) * $scope.inventoryMaterialListPO[i].TrnAmount;
                             }
 
-                            $scope.inventoryMaterialListPO[i].Balance = (($scope.inventoryMaterialListPO[i].POQty  + $scope.inventoryMaterialListPO[i].ToleranceQty) - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
+                            $scope.inventoryMaterialListPO[i].Balance = (($scope.inventoryMaterialListPO[i].POQty + $scope.inventoryMaterialListPO[i].ToleranceQty) - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
                             //$scope.inventoryMaterialListPO[i].ShortageQty = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
                             $scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - ($scope.inventoryMaterialListPO[i].ShortageQty + $scope.inventoryMaterialListPO[i].RejectionQty));
                             //$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].RejectionQty);
@@ -4357,7 +4362,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     }
 
     $scope.closeReceiveTaxPopUp1 = function () {
-       
+
         if ($scope.ActionForEdit === 'Update') {
             $scope.chargesList[$scope.ServiceAddindex].TotalTaxAmount = $filter("sumByKey")($filter("filter")($scope.ServiceTaxList), "TaxAmount");
             var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesList), 'Amount');
@@ -4544,4 +4549,29 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
     };
 
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.fileName = "Bin Wise GRN Report.xlsx";
+    $scope.XlsDownloadBinWiseGRNReport = function (x) {
+
+        //$http.get('Materials/DetentionLogout/XlsGetClosedDetentionReport?from=' + $scope.ModalNewClosedDetention.From + '&to=' + $scope.ModalNewClosedDetention.To + '&departmentId=' + $scope.ModalNewClosedDetention.DepartmentId + '&detentiontypeId=' + $scope.ModalNewClosedDetention.DetentionTypeId)
+        $http({
+            method: 'POST',
+            url: 'Products/GoodsReceiveNote/XlsBinWiseGRNReport?grnId=' + x.data.Id,
+            dataType: 'JSON',
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
 }

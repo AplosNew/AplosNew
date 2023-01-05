@@ -2785,7 +2785,7 @@ namespace Aplos.Areas.Products.Controllers
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				var sql = @"select E.SystemId As Value, E.SystemId+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='GatePassApproveBySecurity'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='GatePassApproveBySecurity' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
 				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
 			}

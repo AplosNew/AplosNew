@@ -249,6 +249,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         }).then(function (response) {
             $scope.salesOrderList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
+                $scope.salesVM.InvoicingPartyPlantId = $scope.salesOrderList[i].InvoicingPartyPlantId;
                 getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
             }
         });

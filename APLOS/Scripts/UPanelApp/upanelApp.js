@@ -556,6 +556,7 @@ upanelApp.controller('fixedAssetDisposePostController', fixedAssetDisposePostCon
 upanelApp.controller('FixedAssetsRegisterReportController', FixedAssetsRegisterReportController);
 upanelApp.controller('FixedAssetsRegisterDisposedReportController', FixedAssetsRegisterDisposedReportController);
 upanelApp.controller('goodsReceiveNoteController', goodsReceiveNoteController);
+upanelApp.controller('AllBinWiseGRNController', AllBinWiseGRNController);
 upanelApp.controller('gratuityReportController', gratuityReportController);
 upanelApp.controller('gratuityPolicyController', gratuityPolicyController);
 upanelApp.controller('GRNByPOController', GRNByPOController);
@@ -1130,6 +1131,7 @@ upanelApp.controller("LandedcostreportController", LandedcostreportController)
 upanelApp.controller("OutPassRegisterController", OutPassRegisterController)
 upanelApp.controller("masterOrderSalesAdditionalController", masterOrderSalesAdditionalController)
 upanelApp.controller("ScanDataController", ScanDataController)
+upanelApp.controller("ProductionReportController", ProductionReportController)
 
 
 upanelApp.config(AccessControllerConfig);

@@ -9,14 +9,23 @@ function InventoryrequisitionapprovedbyController($window, cboService, $scope, $
     $scope.path1 = 'Products/Requisition/';
     $scope.detailUpdate = 'Products/Requisition/UpdateApprovedQty';
 
-    $scope.AllTabPrint = function (z) {        //debugger;        var FromCheckedUI = 'FromCheckedUI';        var x = "#" + z;        var gridObj = $(x).data("ejGrid");        var data = gridObj.getSelectedRecords()[0];        $http({
+    $scope.AllTabPrint = function (z) {
+        //debugger;
+        var FromCheckedUI = 'FromCheckedUI';
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+
+        $http({
             method: 'GET',
             url: 'Products/Requisition/GetFiscalYear?formattedDate=' + data.RequisitionDate1,
         }).then(function successCallback(response) {
             $scope.startDate = response.data[0].StartDate;
             $scope.endDate = response.data[0].EndDate;
             location.href = "Products/Requisition/RequisitionReportby?RequisitionId=" + data.Id + '&startDate=' + $scope.startDate + '&endDate=' + $scope.endDate + '&PreparedBy=' + data.PreparedBy + '&FromCheckedUI=' + FromCheckedUI;
-        });            };
+        });
+        
+    };
 
     //EndRegion Old code
 
@@ -719,7 +728,9 @@ function InventoryrequisitionapprovedbyController($window, cboService, $scope, $
 
 
 
-    // #endregion    $scope.MaterialLastPOPrice = function (x) {
+    // #endregion
+
+    $scope.MaterialLastPOPrice = function (x) {
         $scope.GetLastPurchaseQtyGrid(x);
     };
 
@@ -732,9 +743,28 @@ function InventoryrequisitionapprovedbyController($window, cboService, $scope, $
     $scope.GetLastPurchaseQtyList = [];
     $scope.GetLastPurchaseQtyGrid = function (x) {
 
-        try {            $http({                method: 'POST',                url: 'Products/InventoryCheckApproved/GetMaterialLastPOQty',                data: { 'materialMasterId': x.MaterialMasterId, 'Id': x.ArticleId, 'Sku1': x.FirstCharacteristicsId, 'Sku2': x.SecondCharacteristicsId, 'Sku3': x.ThirdCharacteristicsId },                dataType: 'JSON'            }).then(function successCallback(response) {                if (response.data.Error == true) {                    ShowResult(response.data.Message, 'failure');                }                else {                    $scope.GetLastPurchaseQtyList = response.data;
+        try {
+
+            $http({
+                method: 'POST',
+                url: 'Products/InventoryCheckApproved/GetMaterialLastPOQty',
+                data: { 'materialMasterId': x.MaterialMasterId, 'Id': x.ArticleId, 'Sku1': x.FirstCharacteristicsId, 'Sku2': x.SecondCharacteristicsId, 'Sku3': x.ThirdCharacteristicsId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.GetLastPurchaseQtyList = response.data;
                     var eDialog = $("#dialogListMaterialLastPOPrice").data("ejDialog");
-                    eDialog.open();                }            }, function errorCallback(response) {                ShowResult(response.status.Message, 'failure');            });        } catch (e) {            ShowResult(e, 'failure');        }
+                    eDialog.open();
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
 
     };
 
