@@ -1832,7 +1832,7 @@ Order by P.Sequence";
 									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
-                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND S.PlantId='" + plantId + "' AND S.VoucherId<>'' AND S.SourceType='MasterOrderSales' AND S.IsAdditionalInfoApplicable=1" +
+                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND S.PlantId='" + plantId + "' AND S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') AND S.IsAdditionalInfoApplicable=1" +
                                     ") AS TEMP WHERE " + strkey + " order by PostingDate DESC";
                 return _sqlRepository.GetDataCollection(sql);
             }
