@@ -12,7 +12,7 @@ function GateentryTokenController(accountService, addressService, $window, facto
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
 
-    $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.deleteUrl = $scope.path + 'DeleteGateEntry/';
     $scope.deleteUrl1 = $scope.path + 'CancelGateEntry/';
     $scope.detailSaveUrl = $scope.path + 'detailcreate';
     $scope.detailDeleteUrl = $scope.path + 'DetailDelete/';

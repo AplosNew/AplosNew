@@ -46,6 +46,7 @@ namespace Library.MaterialManagement.Inventory
         void POClose(string PoId, string PoValue);
         void POUnClose(string PoId, string PoValue);
         void DeleteReq(string id);
+        void DeleteGateEntry(string id);
         void DeleteGatePass(string id);
         void CancelGateEntry(string id);
         void Insert(GateEntry entity, string PlantWiseGateId);
@@ -73,14 +74,6 @@ namespace Library.MaterialManagement.Inventory
 
         //void Delete(string id);
         void DeleteMaterialTax(string id); 
-
-        //void GRNApproved(IEnumerable<PurchaseOrder> entities);
-
-        void PaymentHold(IEnumerable<PurchaseOrder> entities);
-
-
-       // void GePurchaseOrderReport(string companyGroupId, string companyId, string plantId, string userId, string purchaseOrderId);
-        //void RequisitionReportby(string CompanyGroupId, string RequisitionId);
 
         IEnumerable<object> GetListByParty(string partyId, string PartyType); 
 
