@@ -1897,6 +1897,7 @@ Order by P.Sequence";
 								,SM.TransactionRate
 								,SM.TransactionQty
 								,SM.TransactionAmount
+								,SM.TransactionAmount*ISNULL(SA.ToCurrencyRate,1) BooksAmount
 								,SM.TaxAmount
 								,SM.NetAmount
 								,SM.NetAmount * SA.ToCurrencyRate NetBookValue
@@ -2126,6 +2127,7 @@ Order by P.Sequence";
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount
+								,ISs.Amount*ISNULL(ToCurrencyRate,1) BooksAmount
 								,ISs.TaxAmount
 								,0 NetAmount
 								,0 NetBookValue
@@ -2333,6 +2335,7 @@ Order by P.Sequence";
 								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
 								,IID.TransactionQty *IID.SalesRate TransactionAmount
+								,(IID.TransactionQty *IID.SalesRate)*ISNULL(II.ToCurrencyRate,1) BooksAmount
 								,SCr1.TaxAmount TaxAmount
 								,IID.[TotalSalesAmount] NetAmount
 								,IID.[BooksCurrencyTransactionAmount] NetBookValue
@@ -2505,6 +2508,7 @@ Order by P.Sequence";
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount
+								,ISs.Amount*ISNULL(ToCurrencyRate,1) BooksAmount
 								,0 TaxAmount
 								,ISs.Amount NetAmount
 								,ISs.Amount NetBookValue
@@ -2658,6 +2662,7 @@ Order by P.Sequence";
 								,SM.TransactionRate
 								,SM.TransactionQty
 								,SM.TransactionAmount
+								,SM.TransactionAmount*ISNULL(SA.ToCurrencyRate,1) BooksAmount
 								,SM.TaxAmount
 								,SM.NetAmount
 								,SM.NetAmount * SA.ToCurrencyRate NetBookValue
@@ -2882,6 +2887,7 @@ Order by P.Sequence";
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount
+								,ISs.Amount*ISNULL(ToCurrencyRate,1) BooksAmount
 								,ISs.TaxAmount
 								,0 NetAmount
 								,0 NetBookValue
@@ -3087,6 +3093,7 @@ Order by P.Sequence";
 								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
 								,IID.TransactionQty *IID.SalesRate TransactionAmount
+								,(IID.TransactionQty *IID.SalesRate)*ISNULL(II.ToCurrencyRate,1) BooksAmount
 								,SCr1.TaxAmount TaxAmount
 								,IID.[TotalSalesAmount] NetAmount
 								,IID.[BooksCurrencyTransactionAmount] NetBookValue
@@ -3258,6 +3265,7 @@ Order by P.Sequence";
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount
+								,ISs.Amount*ISNULL(ToCurrencyRate,1) BooksAmount
 								,0 TaxAmount
 								,ISs.Amount NetAmount
 								,ISs.Amount NetBookValue
@@ -3390,6 +3398,7 @@ Order by P.Sequence";
 									,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocDate
 									,SA.PartyId, P.UserName AS PartyName,p.Code	
 									,SMD.TransactionAmount
+									,SMD.TransactionAmount*ISNULL(SA.ToCurrencyRate,1) BooksAmount
 									,v.VoucherNo VoucherId
 									,CU.Code AS Currency
 									,''SOType
@@ -3620,6 +3629,7 @@ Order by P.Sequence";
 								,FORMAT(II.DocDate,'dd-MMM-yyyy') DocDate
 								,II.CustomerId PartyId, P.UserName AS PartyName,p.Code
 								,Sum(IID.Qty *IID.SalesRate) TransactionAmount
+								,Sum(IID.Qty *IID.SalesRate)*ISNULL(II.ToCurrencyRate,1) BooksAmount
 								--,sum(SCr1.TaxAmount) TaxAmount
 								--,0 NetAmount
 								,v.VoucherNo VoucherId
@@ -3780,6 +3790,7 @@ Order by P.Sequence";
 									--,SM.TransactionRate
 									--,SM.TransactionQty
 									,Sum(SMD.TransactionAmount) TransactionAmount
+									,Sum(SMD.TransactionAmount)*ISNULL(SA.ToCurrencyRate,1) BooksAmount
 									--,SM.TaxAmount
 									--,SM.NetAmount
 									,v.VoucherNo VoucherId
@@ -3946,6 +3957,7 @@ Order by P.Sequence";
 								--,sum(IID.PolicyRate) TransactionRate
 								--,Sum(IID.Qty) TransactionQty
 								,Sum(IID.Qty *IID.SalesRate) TransactionAmount
+								,Sum(IID.Qty *IID.SalesRate)*ISNULL(II.ToCurrencyRate,1) BooksAmount
 								--,sum(SCr1.TaxAmount) TaxAmount
 								--,0 NetAmount
 								,v.VoucherNo VoucherId
