@@ -83,8 +83,15 @@ namespace Aplos.Areas.Productions.Controllers
                 workbook = application.Workbooks.Create(2);
                 workbook.Worksheets[1].Name = "Data";
                 sheet = workbook.Worksheets[1];
-                DataTable dtOrder;
+                DataTable dtOrder, dtScanOrder;
                 det.GetFinishedGoodsPackingReportData(fromDate, toDate, PurposeId, out dtOrder);
+                det.GetFinishedGoodsPackingData(fromDate, toDate, PurposeId, out dtScanOrder);
+
+                //if (dtScanOrder.Rows.Count > 0)
+                //{
+                //    det.SaveScandataToBooking(dtScanOrder);
+                //}
+
                 int ROW = 6; int COL = 1;
 
                 #region columns

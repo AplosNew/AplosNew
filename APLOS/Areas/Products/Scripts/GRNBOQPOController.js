@@ -678,7 +678,6 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.CheckedByStatusForNoti = null;
         $scope.AcceptanceId = null;
         $scope.PostButton = false;
-        $scope.taxCodCboListWithhold = [];
         $scope.advanceTaxesList = [];
     }
     
@@ -1375,6 +1374,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             data.TransactionQty = '';
             ShowResult("Receive Qty can not greater than Balance Qty", 'failure', 'GRnBOQPoo');
         }
+        var gridObj = $("#GRnBOQPooGrid").data("ejGrid");
+        gridObj.refreshContent();
     }
     $scope.GriddataMaster = [];
     $scope.GetListForGRNBYPO = function (grnbypostatus) {
@@ -2476,4 +2477,11 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         } catch (e) {
         }
     };
+
+    
+    $scope.summaryUnassignRows = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionQty", dataMember: "TransactionQty", format: "{0:C2}" }],
+        showCaptionSummary: true,
+    }];
+   
 }
