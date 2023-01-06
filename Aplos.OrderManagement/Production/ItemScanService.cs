@@ -151,13 +151,7 @@ namespace Library.Service.EmployeeServices
             }
         }
 
-        private string GetPK()
-        {
-            string sID = string.Empty;
-            bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out sID);
-            return sID;
-        }
+      
 
         public string Create(string MId, IEnumerable<ItemScanChildData> DataToSave)
         {
@@ -832,7 +826,7 @@ namespace Library.Service.EmployeeServices
             }
         }//End Function
 
-
+       
     }
 
     public class ItemScanData

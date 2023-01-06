@@ -19858,10 +19858,6 @@ UNION ALL
 								,EI.EmployeeName CheckedBy
 								,PO.CheckedByStatus
 								,EI1.EmployeeName AuthorizedBy
-								--,AuthorizedByStatus=CASE WHEN PO.AuthorizedByStatus='Approval' 
-										--THEN 'Approved' 
-										--WHEN PO.CheckedByStatus='Pending'OR  PO.CheckedByStatus='Hold'OR PO.CheckedByStatus='' THEN ''   
-										--ELSE 'For Approving' END
                                  ,AuthorizedByStatus=CASE WHEN PO.AuthorizedByStatus='Approved'  THEN 'Approved' 
 									WHEN PO.CheckedByStatus='Checked'  ANd  PO.AuthorizedByStatus ='For Approval' THEN 'To be approved'  
 									WHEN PO.CheckedByStatus='Checked'  ANd  isnull(PO.AuthorizedByStatus,'')='' THEN 'To be approved'  
@@ -21522,194 +21518,7 @@ UNION ALL
 								GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
 
                     }
-                    //else if (Category == "Pending Inventory Issue" && days == "5")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >3  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=5 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >3  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=5  
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "10")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >5  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=10 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >5  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=10 
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "15")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >10  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=15 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >10  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=15 
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "20")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >15  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=20 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >15  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=20 
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "25")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >20  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=25 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >20  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=25 
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "30")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >25  ANd DATEDIFF(day,IRM.AddedDate,getdate())<=30 THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >25  AND  DATEDIFF(day,IRM.AddedDate,getdate()) <=30 
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "31")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >30   THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >30  
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-
-                    //}
-                    //else if (Category == "Pending Inventory Issue" && days == "32")
-                    //{
-                    //	sql = @"SELECT 'Pending Inventory Issue' Category		
-                    //			,IRM.CompanyId
-                    //				,CG.UserName CompanyGroup
-                    //				,C.UserName Company
-                    //				,P2.UserName PlantName
-                    //				,DaysCount=CASE WHEN DATEDIFF(day,IRM.AddedDate,getdate()) >0   THEN DATEDIFF(day,IRM.AddedDate,getdate()) ELSE 0 END
-                    //			,IRM.Id	
-                    //			,EI.EmployeeName PreparedBy
-                    //			,sum(isnull(IR.RequestedQty,0)) Qty
-                    //			,sum(isnull(0,0)) Rate
-                    //			,sum(isnull(0,0)) Amount
-                    //			FROM trn.IssueRequestMaster IRM
-                    //			LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
-                    //			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
-                    //				LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IRM.CompanyGroupId
-                    //				LEFT JOIN ORG.Company C ON C.Id=IRM.CompanyId
-                    //				LEFT JOIN ORG.Plant P2 ON p2.Id=IRM.PlantId
-                    //			Where DATEDIFF(day,IRM.AddedDate,getdate()) >0  
-                    //			AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-                    //			GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
-
-                    //}
+                    
                     #endregion
                     #region pending expense booking
                     else if (Category == "Pending Inventory Issue Posting" && days == "3")
@@ -27865,17 +27674,6 @@ UNION ALL
 		                        ,IR.ToCurrencyRate
 		                        ,ROUND((IM.TransactionQty * IM.TransactionRate), 2) AS TotalAmount
                                 ,BaseAmount
-		                        --,BaseAmount = CASE 
-			                       -- WHEN IR.IsNonCreditable = 1
-				                      --  THEN (
-						                    --    (ROUND((IM.TransactionQty * IM.TransactionRate), 2)) + (
-							                   --     SELECT SUM(TaxAmount)
-							                   --     FROM [TRN].[PurchaseOrderTax]
-							                   --     WHERE InventoryReceiveDetailId = IM.Id
-							                   --     )
-						                    --    )
-			                       -- ELSE IM.BaseAmount
-			                       -- E
 		                        ,BaseTaxAmount = (
 			                        SELECT SUM(TaxAmount)
 			                        FROM [TRN].[PurchaseOrderTax]
@@ -27898,15 +27696,6 @@ UNION ALL
 	                            ,IM.RefferenceNo
 								,ccc.MaterialDetail,IM.GRNRcvQty,Balance=(ROUND(IM.TransactionQty, 2)-IM.GRNRcvQty)
 	                        FROM [TRN].[PurchaseOrderDetail] AS IM
-	                        --JOIN MST.MaterialMaster AS MM ON IM.InventoryMaterialId = MM.Id
-	                        --LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-	                        --LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-	                        --LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-	                        --LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-	                        --LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-	                        --LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-	                        --LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-	                        --LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
 	                        JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IM.TransactionUoMId = TUoM.Id
 	                        JOIN [TRN].[PurchaseOrder] AS IR ON IM.InventoryReceiveId = IR.Id
 	                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
