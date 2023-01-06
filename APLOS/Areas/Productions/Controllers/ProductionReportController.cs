@@ -43,9 +43,9 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var workbook = ProductionReport(Date, Entity, ProcessId);
-                return Json(new { FileName = workbook, Error = false }, JsonRequestBehavior.AllowGet);
+                string fileName = "";
+                fileName = ProductionReport("Production Report",Date, Entity, ProcessId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -54,389 +54,448 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-        public string ProductionReport(string Date, string Entity, string ProcessId)
+        //public string ProductionReport(string SheetName, string Date, string Entity, string ProcessId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    ExcelEngine excelEngine = null;
+        //    IApplication application = null;
+        //    IWorkbook workbook = null;
+        //    IWorksheet sheet = null;
+        //    var filePath = "";
+        //    try
+        //    {
+
+        //        excelEngine = new ExcelEngine();
+        //        application = excelEngine.Excel;
+        //        workbook = application.Workbooks.Create(2);
+        //        workbook.Worksheets[1].Name = "Data";
+        //        sheet = workbook.Worksheets[1];
+        //        DataTable dtOrder;
+        //        GetReport(Date, Entity, ProcessId, out dtOrder);
+
+        //        int ROW = 6; int COL = 1;
+
+        //        #region columns
+        //        sheet[ROW, COL].Text = "Entity";
+        //        sheet[ROW, COL].ColumnWidth = 16;
+        //        int colEntity = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Work Centre";
+        //        sheet[ROW, COL].ColumnWidth = 16;
+        //        int colWorkCentre = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "PO Number";
+        //        sheet[ROW, COL].ColumnWidth = 16;
+        //        int colPONumber = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Lot No.";
+        //        sheet[ROW, COL].ColumnWidth = 16;
+        //        int colLotNo = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Product Code";
+        //        sheet[ROW, COL].ColumnWidth = 16;
+        //        int colProductCode = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Product";
+        //        sheet[ROW, COL].ColumnWidth = 22;
+        //        int colProduct = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Article";
+        //        sheet[ROW, COL].ColumnWidth = 12;
+        //        int colArticle = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "SOS";
+        //        sheet[ROW, COL].ColumnWidth = 12;
+        //        int colSOS = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Yesterday Production";
+        //        sheet[ROW, COL].ColumnWidth = 16;
+        //        int colYesterdayProduction = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "WIP";
+        //        sheet[ROW, COL].ColumnWidth = 16;
+        //        int colWIP = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Parameter";
+        //        sheet[ROW, COL].ColumnWidth = 25;
+        //        int colParameter = COL;
+                
+        //        #endregion columns
+
+        //        int endCol = COL;
+        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+        //        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+        //        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+        //        ROW++;
+
+        //        int startRow = ROW;
+
+        //        for (int i = 0; i < dtOrder.Rows.Count; i++)
+        //        {
+        //            sheet[ROW, colEntity].Text = dtOrder.Rows[i]["Entity"].ToString();
+        //            sheet[ROW, colWorkCentre].Text = dtOrder.Rows[i]["WorkCenter"].ToString();
+        //            sheet[ROW, colPONumber].Text = dtOrder.Rows[i]["PONo"].ToString();
+        //            sheet[ROW, colLotNo].Text = dtOrder.Rows[i]["LotNumber"].ToString();
+        //            sheet[ROW, colProductCode].Text = dtOrder.Rows[i]["ProductCode"].ToString();
+        //            sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
+        //            sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
+        //            sheet[ROW, colSOS].Text = dtOrder.Rows[i]["SONo"].ToString();
+        //            sheet[ROW, colYesterdayProduction].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["YesterdayProduction"].ToString());
+        //            sheet[ROW, colWIP].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["WIP"].ToString());
+        //            sheet[ROW, colParameter].Text = dtOrder.Rows[i]["Parameter"].ToString();
+
+
+
+        //            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+        //            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+        //            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+        //            ROW++;
+
+        //        }
+        //        IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+        //        table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+        //        sheet.UsedRange.WrapText = true;
+        //        sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+        //        sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+        //        sheet["A" + startRow.ToString()].FreezePanes();
+
+        //        ReportUtility reportUtility = new ReportUtility();
+        //        reportUtility.PlantHeader(ref sheet, endCol, "Production Report", identity.PlantId);
+        //        reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+        //        sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+        //        sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+        //        sheet.UsedRange.WrapText = true;
+        //        sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+        //        sheet.IsGridLinesVisible = false;
+
+        //        sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+        //        //#endregion ******************Report Header******************
+
+        //        sheet.PageSetup.TopMargin = 0.2;
+        //        sheet.PageSetup.BottomMargin = 0.8;
+        //        //sheet.PageSetup.PrintTitleRows = "$1:$6";
+        //        sheet.PageSetup.LeftMargin = 0.2;
+        //        sheet.PageSetup.RightMargin = 0.2;
+        //        sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+        //        sheet.PageSetup.FitToPagesTall = 0;
+        //        sheet.PageSetup.FitToPagesWide = 1;
+        //        sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+        //        sheet.PageSetup.CenterHorizontally = true;
+
+
+
+        //        #region Pivot
+
+        //        string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "ProductionReport" + identity.UserId + ".xlsx";
+
+        //        workbook.SaveAs(fPath);
+        //        workbook = application.Workbooks.Open(fPath);
+        //        try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+        //        workbook.Worksheets[0].Name = "Perametre Wise";
+
+        //        IWorksheet pivotSheet = workbook.Worksheets[0];
+        //        IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+        //        IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
+        //        pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
+        //        pivotTable.Fields[colWorkCentre - 1].Axis = PivotAxisTypes.Row;
+        //        pivotTable.Fields[colPONumber - 1].Axis = PivotAxisTypes.Row;
+        //        pivotTable.Fields[colLotNo - 1].Axis = PivotAxisTypes.Row;
+        //        pivotTable.Fields[colProductCode - 1].Axis = PivotAxisTypes.Row;
+        //        pivotTable.Fields[colProduct - 1].Axis = PivotAxisTypes.Row;
+        //        pivotTable.Fields[colArticle - 1].Axis = PivotAxisTypes.Row;
+        //        pivotTable.Fields[colSOS - 1].Axis = PivotAxisTypes.Row;
+        //        pivotTable.Fields[colYesterdayProduction - 1].Axis = PivotAxisTypes.Row;
+        //        pivotTable.Fields[colWIP - 1].Axis = PivotAxisTypes.Row;
+        //        pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Row;
+
+
+
+        //        IPivotField field = pivotTable.Fields[colParameter - 1];
+        //        field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+        //        pivotTable.DataFields.Add(field, "Parameter", PivotSubtotalTypes.Sum);
+
+        //        for (int i = 0; i < pivotTable.Fields.Count; i++)
+        //        {
+        //            //if (/*i == colPlant - 1 ||*/ i == colEntity - 1 || i == colWorkCentre - 1)
+        //            //    continue;
+        //            pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+        //        }
+
+        //        pivotTable.ShowDrillIndicators = false;
+        //        pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+        //        pivotTable.Options.NullString = "";
+        //        pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+        //        sheet = workbook.Worksheets[0];
+        //        reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Report", identity.CompanyId, identity.CompanyName, "");
+
+        //        reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+        //        sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+        //        sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+        //        sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+        //        sheet.IsGridLinesVisible = false;
+        //        workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+
+
+        //        #endregion Buyer Summary
+        //        filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+        //        workbook.SaveAs(filePath);
+        //        workbook.Close();
+        //        excelEngine.Dispose();
+        //        return filePath;
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+        public string ProductionReport(string SheetName, string Date, string Entity, string ProcessId)
         {
-            #region Variable
-            ReportUtility oru = new ReportUtility();
-            string yot = string.Empty;//OTConsiderOn
-            string tot = string.Empty;//OTConsiderOn
-            DataView dvAttn = null;
-            DataSet dsFactory = null;
-            DataSet dslocal = null;
-            DataSet dsCmp = null;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
             IApplication application = null;
             IWorkbook workbook = null;
-            IWorksheet sheet1 = null;
-            int xlsRow = 1, xlsCol = 1;
-            int endXlsCol = 1;
-            string FactoryName = "";
-            string CmpName = "";
-            var report = new ReportUtility();
-            clsReport objRpt = null;
-
-            #endregion Variable
-
+            IWorksheet sheet = null;
+            var filePath = "";
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[1].Name = "Data";
+                sheet = workbook.Worksheets[1];
+                DataTable dtOrder;
+                GetReport(Date, Entity, ProcessId, out dtOrder);
+                int ROW = 6; int COL = 1;
 
-                #region DataSet
-                GetReport(Date, Entity, ProcessId, out dslocal);
-                objRpt = new clsReport();
-                dvAttn = new DataView();
-                dvAttn.Table = dslocal.Tables[0];
+                #region columns
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEntity = COL;
+                COL++;
 
-                objRpt.SelectedPlantWiseCompany(identity.PlantId.Trim(), out dsCmp);
+                sheet[ROW, COL].Text = "Work Centre";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colWorkCentre = COL;
+                COL++;
 
-                objRpt.SelectedPlant(identity.PlantId, out dsFactory);
+                sheet[ROW, COL].Text = "PO Number";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPONumber = COL;
+                COL++;
 
-                #endregion DataSet
+                sheet[ROW, COL].Text = "Lot No.";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colLotNo = COL;
+                COL++;
 
-                if (dvAttn.Count > 0)
+                sheet[ROW, COL].Text = "Product Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProductCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Product";
+                sheet[ROW, COL].ColumnWidth = 22;
+                int colProduct = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SOS";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colSOS = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Yesterday Production";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colYesterdayProduction = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "WIP";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colWIP = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Parameter";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colParameter = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < dtOrder.Rows.Count; i++)
                 {
-                    excelEngine = new ExcelEngine();
-                    application = excelEngine.Excel;
+                    sheet[ROW, colEntity].Text = dtOrder.Rows[i]["Entity"].ToString();
+                    sheet[ROW, colWorkCentre].Text = dtOrder.Rows[i]["WorkCenter"].ToString();
+                    sheet[ROW, colPONumber].Text = dtOrder.Rows[i]["PONo"].ToString();
+                    sheet[ROW, colLotNo].Text = dtOrder.Rows[i]["LotNumber"].ToString();
+                    sheet[ROW, colProductCode].Text = dtOrder.Rows[i]["ProductCode"].ToString();
+                    sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
+                    sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
+                    sheet[ROW, colSOS].Text = dtOrder.Rows[i]["SONo"].ToString();
+                    sheet[ROW, colYesterdayProduction].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["YesterdayProduction"].ToString());
+                    sheet[ROW, colWIP].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["WIP"].ToString());
+                    sheet[ROW, colParameter].Text = dtOrder.Rows[i]["Parameter"].ToString();
 
-                    workbook = application.Workbooks.Create(1);
-                    sheet1 = workbook.Worksheets[0];
-                    sheet1.IsGridLinesVisible = true;
-
-                    xlsRow = 7;
-                    int intRow = 0;
-
-                    int strCount = 0;
-                    #region ------------------Column Header------------------
-                    xlsCol = 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Entity";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
-                    sheet1.Range[xlsRow, xlsCol].Text = "Work Centre";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 4.70;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
-                    sheet1.Range[xlsRow, xlsCol].Text = "PO Number";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
-                    sheet1.Range[xlsRow, xlsCol].Text = "Lot No.";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
-                    sheet1.Range[xlsRow, xlsCol].Text = "Product Code";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
-                    sheet1.Range[xlsRow, xlsCol].Text = "Product";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
-                    sheet1.Range[xlsRow, xlsCol].Text = "Article";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
-                    sheet1.Range[xlsRow, xlsCol].Text = "SOS";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
-                    sheet1.Range[xlsRow, xlsCol].Text = "Yesterday Production";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
-                    sheet1.Range[xlsRow, xlsCol].Text = "WIP";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-
-                    sheet1.Range[xlsRow, xlsCol].Text = "Parameter";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.Gray;
-                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
-                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-
-                    endXlsCol = xlsCol;
-                    xlsCol = 1;
-                    xlsRow += 1;
-                    #endregion ------------------Column Header------------------
-                    //strCount = 0;
-                    for (int i = 0; i < dvAttn.Count; i++)
-                    {
-
-                        xlsCol = 1;
-                        #region ----------------------Data-----------------------
-
-                        strCount += 1;
-                       
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Entity"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["WorkCenter"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-
-
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["PONo"].ToString().ToUpper();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["LotNumber"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ProductCode"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Product"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Article"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["SONo"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["YesterdayProduction"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["WIP"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Parameter"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        
-                        xlsRow += 1;
-
-                        #region Line Setup
-                        sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                        sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].WrapText = true;
-                        #endregion
-
-
-                        #endregion ----------------------Data-----------------------
-
-                    }
-
-                    #region UsedRange Alignment
-                    sheet1.UsedRange.WrapText = true;
-                    sheet1.UsedRange.CellStyle.Font.Size = 8;
-                    sheet1.Range["A1"].CellStyle.Font.Size = 14;
-                    sheet1.Range["A2"].CellStyle.Font.Size = 10;
-                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
-                    #endregion UsedRange Alignment
-
-                    #region ******************Report Header******************
-                    try
-                    {
-                        string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), identity.CompanyId + ".jpg");  // IDCardEng.xlsx
-                        Image companyLogo = Image.FromFile(strPath);
-                        if (companyLogo != null)
-                        {
-                            double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
-                            int totalWidthPixel = (int)(totalWidth * 7.5);
-                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
-
-                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
-                            IPictureShape pic = null;
-
-                            pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
-
-
-                        }
-
-
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-
-                    xlsRow = 1;
-                    xlsCol = 1;
-
-                    FactoryName = string.Empty;
-
-                    string FactoryAddress = string.Empty;
-
-                    if (dsCmp.Tables[0].Rows.Count > 0)
-                    {
-                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
-                    }
-                    else
-                    {
-                        CmpName = "";
-                    }
-                    sheet1.Range[xlsRow, 3].Text = CmpName;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 30;
-                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    if (dsFactory.Tables[0].Rows.Count > 0)
-                    {
-                        FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
-                        //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
-                    }
-                    else
-                    {
-                        FactoryName = "";
-                    }
-                    sheet1.Range[xlsRow, 3].Text = FactoryName;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    if (dsFactory.Tables[0].Rows.Count > 0)
-                    {
-                        FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
-                    }
-                    else
-                    {
-                        FactoryAddress = "";
-                    }
-                    sheet1.Range[xlsRow, 3].Text = FactoryAddress;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 26;
-                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    sheet1.Range[xlsRow, 3].Text = "Production Order Rate Report";
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 11;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    sheet1.Range[xlsRow, 3].Text = "Date:- " + Date + "";
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 9;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    #endregion ******************Report Header******************
-
-                    #region Freeze Panes
-                    sheet1.IsDisplayZeros = false;
-                    sheet1.UsedRange["A8"].FreezePanes();
-                    sheet1.FirstVisibleColumn = 1;
-                    sheet1.FirstVisibleRow = 7;
-                    #endregion
-
-                    #region Page Setup
-
-                    sheet1.Name = "ProductionReport";
-                    sheet1.PageSetup.TopMargin = 0.5;
-                    sheet1.PageSetup.BottomMargin = 0.7;
-                    sheet1.PageSetup.PrintTitleRows = "$1:$5";
-                    sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
-                    sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.UserId + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
-                    sheet1.PageSetup.LeftMargin = 0.5;
-                    sheet1.PageSetup.RightMargin = 0.2;
-                    sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
-                    sheet1.PageSetup.FitToPagesTall = 0;
-                    sheet1.PageSetup.FitToPagesWide = 1;
-                    sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
-                    #endregion             
-
-                    workbook.Version = ExcelVersion.Excel97to2003;
-                    report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
-
-                    var filePath = "";
-                    var SheetName = "";
-                    //return workbook;
-                    workbook.Version = ExcelVersion.Excel97to2003;
-                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
-                    workbook.SaveAs(filePath);
-                    workbook.Close();
-                    excelEngine.Dispose();
-                    return filePath;
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
                 }
-                else
+                IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Production Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+                #region Pivot
+
+                string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "ProductionReport" + identity.UserId + ".xlsx";
+
+                workbook.SaveAs(fPath);
+                workbook = application.Workbooks.Open(fPath);
+                try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+                workbook.Worksheets[0].Name = "Report";
+
+                IWorksheet pivotSheet = workbook.Worksheets[0];
+                IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
+                pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colWorkCentre - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPONumber - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colLotNo - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductCode - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProduct - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colArticle - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colSOS - 1].Axis = PivotAxisTypes.Row;
+
+
+                IPivotField field = pivotTable.Fields[colYesterdayProduction - 1];
+                IPivotField fieldNW = pivotTable.Fields[colWIP - 1];
+                fieldNW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //IPivotField fieldGW = pivotTable.Fields[colGWeight - 1];
+                //fieldGW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.DataFields.Add(field, "YesterdayProduction", PivotSubtotalTypes.Count);
+                pivotTable.DataFields.Add(fieldNW, "WIP", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(fieldGW, "GWeight", PivotSubtotalTypes.Sum);
+
+                for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    throw new Exception("No Data found...");
+                    if (i == colLotNo || i == colProductCode)
+                    {
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                    }
+
+                    else
+                    {
+                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                    }
                 }
+
+                //  pivotTable.Fields[colWorkDate].Subtotals = PivotSubtotalTypes.Sum;
+
+
+                pivotTable.ShowDrillIndicators = false;
+                pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                pivotTable.Options.NullString = "";
+                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+                sheet = workbook.Worksheets[0];
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Production Report", identity.CompanyId, identity.CompanyName, "");
+
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+                workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
+
+
+                #endregion Buyer Summary
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-            finally
-            {
-
-            }
         }
 
-        public void GetReport(string Date, string Entity, string ProcessId, out DataSet dsRef)
+        public void GetReport(string Date, string Entity, string ProcessId, out DataTable dtOrder)
         {
             ConnectionManager.DAL.ConManager objCon;
             string strSql = string.Empty;
@@ -445,8 +504,8 @@ namespace Aplos.Areas.Productions.Controllers
                 string yd = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
 
                 strSql = @"select E.UserName Entity,WCM.UserName WorkCenter,PS.ProductionOrderId PONo,PS.LotNumber,PL.Code ProductCode,PM.UserName Product
-                                        ,MMA.StandardName Article,'' WIP,'' Parameter
-                                        ,YesterdayProduction=(select sum(Quantity) from TRN.ProductionSummary where ProductionDate between '"+ yd + "' and '"+ yd + "' and EntityId = '" + Entity +@"' and ProcessId = '" + ProcessId + @"')
+                                        ,MMA.StandardName Article,'' WIP,PSPV.UserName Parameter
+                                        ,YesterdayProduction=(select sum(Quantity) from TRN.ProductionSummary where ProductionDate between '" + yd + "' and '"+ yd + "' and EntityId = '" + Entity +@"' and ProcessId = '" + ProcessId + @"')
                                         ,SONo =STUFF((select distinct ','+XSO.Id from 
 							                                        trn.SalesOrder XSO 
                                                                     JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -461,13 +520,11 @@ namespace Aplos.Areas.Productions.Controllers
                                         left join [MST].[ProductMaster] PM on PM.Id=PD.ProductMasterId
                                         left join dbo.ProductLibrary PL on PL.Id=PS.ProductLibraryId
                                         left join MST.MaterialMasterArticle MMA on MMA.Id=PS.ArticleId							  
-									
+									    left join [dbo].[ProductionSummaryParameterValue] PSPV on PSPV.ProductionSummaryId=PS.Id
+
                                     WHERE PS.ProductionDate between '" + Date + @"' and '" + Date + @"' and PS.EntityId = '" + Entity + "' and PS.ProcessId = '" + ProcessId + "'";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.BeginTransaction();
-                objCon.getDataSet(strSql, out dsRef);
-                objCon.CommitTransaction();
+                dtOrder = _sqlRepository.GetDataTable(strSql);
             }
             catch (Exception ex)
             {

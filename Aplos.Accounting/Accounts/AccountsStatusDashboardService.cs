@@ -686,6 +686,14 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                worksheet[ROW, colDebitNoteAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colDebitNoteAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colDebitNoteAmount) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colDebitNoteAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colDebitNoteAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colNetBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colNetBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colNetBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
 
                 worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -1891,6 +1899,36 @@ group by Id) O60 ON O60.Id=IV.Id
                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @"
 										AND IR.PurchaseDocumentAcceptanceId IS NULL  and IV.PartyId in(" + vendorIdLoop + @")
                                         AND (IVD.NetAmount-ISNULL(IwV.SetOffBooksAmount,0))>0
+
+                                        UNION ALL
+				                        SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										                        ,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
+										                        ,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
+										                        ,C.Code CurrencyCode,0 BaseNoOfDays, ''  BaseOnDueDate, '' ActualDueDate, 0 Days,'' AgingInvoice,'' AgingSorting
+										                        , ISNULL(IVD.Amount,0) AS Gross,0  DebitNoteAmount,0 TaxAmount,
+                                                                SetOff=ISNULL(IwV.SetOffBooksAmount, 0) , ISNULL(IVD.Amount-isnull(IwV.SetOffBooksAmount,0),0) AS Balance
+                                        FROM [TRN].[AdjustmentNoteDetail] AS IVD
+                                        LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
+                                        LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                                        LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+				                        LEFT JOIN (SELECT iwd.AdjustmentNoteDetailId,iw.PartyId 
+                                        ,SUM(VDC.DrAmount) SetOffBooksAmount
+										FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+										JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+										LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+										LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+										    JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+										WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"'  )
+										GROUP BY iwd.AdjustmentNoteDetailId,iw.PartyId
+										)AS IwV ON IwV.AdjustmentNoteDetailId=IVD.Id AND VD.PartyId=IwV.PartyId
+                                        WHERE IV.Archive=0 AND   V.IsPark=0  AND IV.SourceType in ('VendorPayment','CreditNote')
+                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @"
+										AND IV.PartyId in(" + vendorIdLoop + @")
+                                        AND (IVD.Amount-ISNULL(IwV.SetOffBooksAmount,0))>0
 										) x
 										order by x.SortDocDate asc";
 
