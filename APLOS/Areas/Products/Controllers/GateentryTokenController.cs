@@ -220,12 +220,24 @@ namespace Aplos.Areas.Products.Controllers
 			_gateEntryService.Update(entity);
 			return Json(new { Message = AplosMessage.Updated });
 		}
+
 		[HttpPost, Authorize]
 		public ActionResult Delete(string id)
 		{
 			if (!string.IsNullOrEmpty(id))
 			{
 				_gateEntryService.DeleteReq(id);
+				return Json(new { Message = AplosMessage.Deleted });
+			}
+			else
+				throw new CustomException(Resources.IdNotFound);
+		}
+		[HttpPost]
+		public ActionResult DeleteGateEntry(string id)
+		{
+			if (!string.IsNullOrEmpty(id))
+			{
+				_gateEntryService.DeleteGateEntry(id);
 				return Json(new { Message = AplosMessage.Deleted });
 			}
 			else
