@@ -20506,7 +20506,11 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         }
 
         #endregion Accounting Integration With Third party
+
+       
     }
+
+
 
     public class ReportLeaveInfo
     {

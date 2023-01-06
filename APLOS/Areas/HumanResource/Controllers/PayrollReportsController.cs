@@ -127,6 +127,11 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
         {
             return View();
         }
+
+        public ActionResult SalaryNotDisbursed()
+        {
+            return View();
+        }
         #endregion -- Pages
 
         #region -- Operations
@@ -858,6 +863,276 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
         }
         #endregion -- Operations
 
+
+        // Written By Nitesh 2023-01-04
+        #region Salary Not Disbursed
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeSalaryNotDisbursedProcessedReportSalLogWiseNew(string year)
+        {
+            try
+            {
+
+                string fileName = "";
+                fileName = GetEmployeeSalaryNotDisbursedReport(year,"ContractTransactionSummaryReport");
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+               
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        // Written By Nitesh 2023-01-04
+        #region Salary Not Disbursed
+       
+        public string GetEmployeeSalaryNotDisbursedReport(string year, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+
+            try
+            {
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Salary Not Disbursed";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                GetNewEmployeeInfoDetailSalaryNotDisbursedLogWise(year, out data);
+
+                int ROW = 6; int COL = 1;
+
+                #region Columns
+
+
+                sheet[ROW, COL].Text = "Month Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMonthName = COL;
+                COL++;
+                
+                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColEC = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColEN = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "DOJ";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDOJ = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "DOS";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDOS = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Category";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColEcg = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDep = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Section";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColSec = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sub Section";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColSS = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Designation";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDesg = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Payment Mode";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColPM = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bank";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColBank = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bank Account No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColBAN = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "IFSC Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColIFSC = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Net Payable";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColNetPay = COL;
+                COL++;
+                // COL++;
+                #endregion Columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+                int startRow = ROW;
+                double[] arr = new double[3];
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+
+                    sheet[ROW, ColMonthName].Text = data.Rows[i]["MonthName"].ToString();
+                    sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
+                    sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColDOJ].DateTime = Convert.ToDateTime(data.Rows[i]["DOJ"].ToString());
+                    sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
+                    sheet[ROW, ColEcg].Text = data.Rows[i]["EmployeeCategory"].ToString();
+                    sheet[ROW, ColDep].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColSec].Text = data.Rows[i]["Section"].ToString();
+                    sheet[ROW, ColSS].Text = data.Rows[i]["SubSection"].ToString();
+                    sheet[ROW, ColDesg].Text = data.Rows[i]["Designation"].ToString();
+                    sheet[ROW, ColPM].Text = data.Rows[i]["PaymentMode"].ToString();
+                    sheet[ROW, ColBank].Text = data.Rows[i]["BankName"].ToString();
+                    sheet[ROW, ColBAN].Text = data.Rows[i]["BankAccNo"].ToString();
+                    sheet[ROW, ColIFSC].Text = data.Rows[i]["IFSCCode"].ToString();
+                    sheet[ROW, ColNetPay].Text = data.Rows[i]["NetPayable"].ToString();
+
+
+                    ROW++;
+                }
+
+
+
+                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Salary Not Disbursed Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = true;
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+        public void GetNewEmployeeInfoDetailSalaryNotDisbursedLogWise(string year, out DataTable data)
+        {
+            string strSQL;
+            try
+            {
+                strSQL = @"select 
+[MonthName]=CASE WHEN SPM.MonthNo=1 THEN 'Jan'   
+              WHEN  SPM.MonthNo=2 THEN 'Feb'
+			  WHEN  SPM.MonthNo=3 THEN 'Mar'
+			  WHEN  SPM.MonthNo=4 THEN 'Apr'
+			  WHEN  SPM.MonthNo=5 THEN 'May'
+			  WHEN  SPM.MonthNo=6 THEN 'Jun'
+			  WHEN  SPM.MonthNo=7 THEN 'Jul'
+			  WHEN  SPM.MonthNo=8 THEN 'Aug'
+			  WHEN  SPM.MonthNo=9 THEN 'Sep'
+			  WHEN  SPM.MonthNo=10 THEN 'Oct'
+			  WHEN  SPM.MonthNo=11 THEN 'Nov'
+			  WHEN  SPM.MonthNo=12 THEN 'Dec' ELSE '' END, SPM.YearNo
+,EI.EmployeeCode, EI.EmployeeName, FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(EI.DOS,'dd-MMM-yyyy') DOS, EC.UserName EmployeeCategory, DP.UserName Department, S.UserName Section, SS.UserName SubSection, D.UserName Designation, SPLD.PaymentMode, B.UserName BankName
+                        ,SPLD.IFSCCode, EBI.BankAccNo, SPC.DisbusmentAmount NetPayable
+                        from SalaryProcChild SPC
+                        LEFT JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID 
+                        LEFT JOIN SalaryLock SL ON SL.EmpSystemId = SPC.EmpInfoSystemID AND SL.YearNo = SPM.YearNo AND SPM.MonthNo = SL.MonthNo
+                        LEFT JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId = SPC.SlrProcMstSystemID and SPLD.EmpSystemId = SPC.EmpInfoSystemID
+                        LEFT JOIN MST.ManpowerBudget MPB on MPB.Id = SPLD.BudgetCode
+                        LEFT JOIN EmployeeInformation EI on EI.SystemId = SPC.EmpInfoSystemID
+						LEFT JOIN EmployeeBankInfo EBI ON EBI.EmpSystemID = EI.SystemId
+                        LEFT JOIN HKP.Bank B on B.Id = EBI.BankSystemID
+                        LEFT JOIN ORG.Position POS on POS.Id = MPB.PositionId
+                        LEFT JOIN ORG.Department DP on DP.Id = POS.DepartmentId
+                        LEFT JOIN ORG.Section S on S.Id = POS.SectionId
+                        LEFT JOIN ORG.SubSection SS on SS.ID = POS.SubSectionId
+                        LEFT JOIN HKP.Designation D on D.Id = SPLD.DesignationId
+                        LEFT JOIN HKP.LegalDesignation LD on LD.Id = SPLD.LegalDesignationId
+                        LEFT JOIN MST.DesignationMasterLegalDesignation DMLD on DMLD.LegalDesignationId = SPLD.LegalDesignationId
+                        LEFT JOIN MST.DesignationMaster DM ON DM.Id = DMLD.DesignationMasterId
+                        LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
+                        LEFT JOIN [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
+
+                        where SPC.SalaryHeadID = 'SHD202111' and SL.IsDisbursed = 0 and SPC.DisbusmentAmount > 0  order by EI.EmployeeCode DESC";
+
+              
+                    data = _sqlRepository.GetDataTable(strSQL);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }//End Function
+        #endregion
+        #endregion Salary Not Disbursed
 
     }
 }
