@@ -679,7 +679,7 @@
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                     <div ng-form="tabForm2">
                         <ul class="common-btn list-inline text-left">
-                            <li><button ng-click="serviceChargePopUp();" ng-show="productNew.Id!=null && inventoryMaterialList.length > 0 " class="btn"><i class="glyphicon glyphicon-plus"></i> Additional Charges</button></li>
+                            <li><button ng-click="serviceChargePopUp();" ng-show="productNew.Id!=null && MasterList.length > 0 " class="btn"><i class="glyphicon glyphicon-plus"></i> Additional Charges</button></li>
                         </ul>
                         <div class="table-responsive modal-table">
                             <table class="table table-striped">
@@ -1863,7 +1863,107 @@
         </div>
     </div>
 </div>
-
+<div class="modal fade site-modal in" id="serviceChargePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Charges Entry<button type="button" class="close" ng-click="closeServiceChargePopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" id="div_svc">
+                        <label class="col-sm-4 col-md-4 control-label">Service<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select name="Service" ng-model="serviceModel.ServiceMasterId" class="col-sm-3 form-control"
+                                        ng-options="item.Value as item.Text for item in serviceList" ng-change="changeService();">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="form-group" id="div_toSvcCRate">
+                            <label class="col-sm-4 control-label">To Currency Rate<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" n-decimals="4" ng-model="serviceModel.ToCurrencyRate" disabled class="form-control text-right" placeholder="0.00" />
+                            </div>
+                        </div>*@
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" id="div_svcRate">
+                        <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Amount<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                                <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="serviceModel.TransactionAmount" class="form-control text-right" placeholder="0.00"
+                                       ng-keyup="calculateSvcTaxCategory();manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');" />
+                            </div>
+                            <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
+                                <input type="text" ng-model="serviceModel.CurrencyName" class="form-control" disabled />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">If Percentage Applicable</label>
+                        <div class="col-sm-6">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="TaxOptionService" ng-model="productNew.TaxOptionService1" value="Yes" ng-click="TaxOptionService1('Yes');"> @*ng-hide="HSNCode !=null"*@
+                                    <span class="cr"><i class="cr-icon"></i></span>Yes
+                                </label>
+                                <label>
+                                    <input type="radio" name="TaxOptionService" ng-model="productNew.TaxOptionService1" value="No" ng-click="TaxOptionService1('No');">@*ng-hide="HSNCode !=null"*@
+                                    <span class="cr"><i class="cr-icon"></i></span>No
+                                </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-12 modal-table table-responsive" style="padding-top: 13px;" ng-show="taxCategoryList.length>0">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tax Category</th>
+                                <th>HSN Code</th>
+                                <th>Percentage</th>
+                                <th>Tax Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in taxCategoryList">
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.HSNCode}}</td>
+                                @*<td class="text-right">{{x.Percentage}}</td>
+                                    <td class="text-right">
+                                        <input type="text" n-decimals="{{currencyPrecision}}" ng-model="x.TaxAmount" ng-keyup="sumSvcTaxAmount();" class="form-control text-right" />
+                                    </td>*@
+                                <td class="text-right">
+                                    <input type="text" n-decimals="4" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForService1(x);" class="form-control text-right" ng-disabled="productNew.TaxOptionService1==='No'" />
+                                </td>
+                                <td class="text-right">
+                                    <input type="text" n-decimals="2" ng-model="x.TaxAmount" ng-keyup="checkRowValidationService1(x);" class="form-control text-right" ng-disabled="productNew.TaxOptionService1==='Yes'" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-right">Total Tax (BC)</td>
+                                @*<td class="text-right">{{serviceModel.TotalTaxAmount| setDecimal:currencyPrecision}}</td>*@
+                                <td class="text-right"><strong>{{taxCategoryList | sumByKey : 'TaxAmount'| setDecimal:2 }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="serviceSave()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{detailModel.Id.length>0?'Update':'Save'}}</button></li>
+                        <li><button ng-click="closeServiceChargePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
@@ -1919,6 +2019,7 @@
                 <div class="clearfix"></div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
+                        <li><button ng-show="productNew.Id" ng-click="MaterialTaxUpdate();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Update</button></li>
                         <li><button ng-click="closeReceiveTaxPopUpNew();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                     </ul>
                 </div>
@@ -1936,9 +2037,9 @@
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-lg-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GRnBOQPoo" ej-grid e-datasource="MasterListNewBOQ"
+                        <div style="color:black;" id="GRnBOQPooGrid" ej-grid e-datasource="MasterListNewBOQ"
                              e-templaterefresh="refreshTemplateMasterOrderOperation"
-                             e-recorddoubleclick=""
+                             e-recorddoubleclick="" e-summaryrows="summaryUnassignRows"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>
@@ -1985,13 +2086,15 @@
                             <input type="checkbox" ng-click="Change($event,$index,x)" ng-model="data.check" ng-disabled="data.TransactionQty===0 || data.TransactionQty==='' || data.TransactionQty===null">
                         </script>
                         <!--<script type="text/template" id="CurrentTextPOQtyBOQ">
-                            <input type="number" class="input form-control" ng-keyup="calculateAmounts(data)" form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80"--> @*ng-keyup="$parent.refreshQtyTemplete(this)"*@ <!--/>
-                        </script>-->
+        <input type="number" class="input form-control" ng-keyup="calculateAmounts(data)" form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80"-->
+                        @*ng-keyup="$parent.refreshQtyTemplete(this)"*@
+                        <!--/>
+    </script>-->
                         <script type="text/template" id="CurrentTextGRNRecvQty">
                             <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="popupcalculateAmounts(data);" width="200" ng-model="data.GRNRcvQty" ng-disabled="true">
                         </script>
                         <script type="text/template" id="CurrentTextTRNQty">
-                            <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="$parent.calculateAmounts(data);" width="200" ng-model="data.TransactionQty">
+                            <input type="text" n-decimals="2" class="form-control text-right" ng-blur="$parent.calculateAmounts(data);" width="200" ng-model="data.TransactionQty">
                         </script>
                         <script type="text/template" id="CurrentTextShortQty">
                             <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmounts(data,$index);" width="200" ng-model="data.ShortageQty" ng-disabled="false">

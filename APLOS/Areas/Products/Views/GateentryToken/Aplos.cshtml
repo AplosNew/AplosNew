@@ -366,7 +366,7 @@
     <div class="col-md-6 text-left" style="padding-top: 17px;">
         <ul class="common-btn list-inline text-right">
             <li> <button ng-click="Save();" class="btn" ng-disabled="disabledbtn" ng-hide="productNew.Id.length>0"><i class="glyphicon glyphicon-floppy-disk"></i> {{productNew.Id.length>0?'Update':'Save'}}</button></li>
-            @*<li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+            <li ng-show="productNew.Id"> <button  ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li> <button ng-click="Cancel();" class="btn"><i class="glyphicon glyphicon-remove"></i> Cancel</button></li>
             <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>

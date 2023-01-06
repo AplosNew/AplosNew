@@ -4339,7 +4339,7 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvSMBioDvAC[0]["FromDate"].ToString().Trim();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
 
                             xlsCol = 7;
                             xlsRow += 1;
@@ -4347,7 +4347,7 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvSMBioDvAC[0]["FromTime"].ToString().Trim();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
 
                             xlsCol = 7;
                             xlsRow += 1;
@@ -4355,7 +4355,7 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvSMBioDvAC[0]["ActualDate"].ToString().Trim();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
 
                             xlsCol = 7;
                             xlsRow += 1;
@@ -4363,7 +4363,7 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvSMBioDvAC[0]["ToTime"].ToString().Trim();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
 
                             xlsCol = 7;
                             xlsRow += 1;

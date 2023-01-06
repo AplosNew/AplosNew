@@ -220,14 +220,15 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
 						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
-						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,SUM(VDC.DrAmount) SetOffBooksAmount
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId 
+                        ,SUM(VDC.DrAmount) SetOffBooksAmount
 							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
 							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
 							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
 							LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
 							 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
 							WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' )
-							GROUP BY iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId
+							GROUP BY iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId
 							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 						WHERE VI.IsPark=0 --AND VD.PartyId='202017395'
 						GROUP BY IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,IwV.SetOffBooksAmount
@@ -283,7 +284,7 @@ namespace Library.Accounting.Accounts
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0 " + searchDateODue + @"
                             group by Id) O60 ON O60.Id=IV.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0  AND V.IsPark=0  AND IV.SourceType in ('InventoryPayable','ServicePayable')
+                WHERE IV.Archive=0  AND V.IsPark=0  AND IV.SourceType in ('InventoryPayable','ServicePayable')
                  AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL " + searchDate + @"
                  and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
@@ -684,6 +685,14 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colBooksBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksBalance) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colDebitNoteAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colDebitNoteAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colDebitNoteAmount) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colDebitNoteAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colDebitNoteAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colNetBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colNetBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colNetBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
                 worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
@@ -1856,14 +1865,15 @@ group by Id) O60 ON O60.Id=IV.Id
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                                         LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                                         LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-										LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,SUM(VDC.DrAmount) SetOffBooksAmount
+										LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId 
+                                        ,SUM(VDC.DrAmount) SetOffBooksAmount
 										FROM  [TRN].[InvoiceWriteOffDetail] iwd 
 										JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
 										LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
 										LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
 										 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
 										WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '"+toDate+@"' )
-										GROUP BY iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId
+										GROUP BY iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId
 										)AS IwV ON IwV.InvoiceDetailId=IVD.Id AND VD.PartyId=IwV.PartyId
                                                 LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
 								                LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
@@ -1889,6 +1899,36 @@ group by Id) O60 ON O60.Id=IV.Id
                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @"
 										AND IR.PurchaseDocumentAcceptanceId IS NULL  and IV.PartyId in(" + vendorIdLoop + @")
                                         AND (IVD.NetAmount-ISNULL(IwV.SetOffBooksAmount,0))>0
+
+                                        UNION ALL
+				                        SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										                        ,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
+										                        ,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
+										                        ,C.Code CurrencyCode,0 BaseNoOfDays, ''  BaseOnDueDate, '' ActualDueDate, 0 Days,'' AgingInvoice,'' AgingSorting
+										                        , ISNULL(IVD.Amount,0) AS Gross,0  DebitNoteAmount,0 TaxAmount,
+                                                                SetOff=ISNULL(IwV.SetOffBooksAmount, 0) , ISNULL(IVD.Amount-isnull(IwV.SetOffBooksAmount,0),0) AS Balance
+                                        FROM [TRN].[AdjustmentNoteDetail] AS IVD
+                                        LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
+                                        LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                                        LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+				                        LEFT JOIN (SELECT iwd.AdjustmentNoteDetailId,iw.PartyId 
+                                        ,SUM(VDC.DrAmount) SetOffBooksAmount
+										FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+										JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+										LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+										LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+										    JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+										WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"'  )
+										GROUP BY iwd.AdjustmentNoteDetailId,iw.PartyId
+										)AS IwV ON IwV.AdjustmentNoteDetailId=IVD.Id AND VD.PartyId=IwV.PartyId
+                                        WHERE IV.Archive=0 AND   V.IsPark=0  AND IV.SourceType in ('VendorPayment','CreditNote')
+                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @"
+										AND IV.PartyId in(" + vendorIdLoop + @")
+                                        AND (IVD.Amount-ISNULL(IwV.SetOffBooksAmount,0))>0
 										) x
 										order by x.SortDocDate asc";
 
@@ -21995,17 +22035,18 @@ group by Id) O60 ON O60.Id=IV.Id
         {
             try
             {
-                var sql = @"Select x.PartyCode,x.PartyName,x.PartyPlantName,round(sum(x.VendorAdvance),4) VendorAdvance,round(sum(x.Payable),4) Payable
+                var sql = @"Select x.PartyCode,x.PartyName,x.PartyPlantName,round(sum(x.VendorAdvance),4) VendorAdvance,round(sum(x.DebitNote),4) DebitNote,round(sum(x.Payable),4) Payable
 --,round(sum(x.ActualPayable),4) ActualPayable
 ,round(sum(x.CustomerAdvance),4) CustomerAdvance,round(sum(x.Receivable),4) Receivable
 --,round(sum(x.ActualReceivable),4) ActualReceivable
-,ToBePayment=Case when round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.Receivable)+sum(x.CustomerAdvance)),4)>0 then round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.Receivable)+sum(x.CustomerAdvance)),4)
+,ToBePayment=Case when round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.DebitNote)-sum(x.Receivable)+sum(x.CustomerAdvance)),4)>0 then round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.DebitNote)-sum(x.Receivable)+sum(x.CustomerAdvance)),4)
 	else 0 end
-	,ToBeReceived=Case when round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)-sum(x.CustomerAdvance)),4)>0 then round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)-sum(x.CustomerAdvance)),4)
+	,ToBeReceived=Case when round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)+sum(x.DebitNote)-sum(x.CustomerAdvance)),4)>0 then round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)+sum(x.DebitNote)-sum(x.CustomerAdvance)),4)
 	else 0 end
 from (
 SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
                 , 0 VendorAdvance
+				, 0 DebitNote
 				, ISNULL((IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate)-(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate),0) AS Payable
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualPayable
 				,0 CustomerAdvance,0 Receivable,0 ActualReceivable
@@ -22015,14 +22056,15 @@ SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
 						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
-						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId ,ISNULL(SUM(VDC.DrAmount),0) SetOffBooksAmount
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId 
+						,ISNULL(SUM(VDC.DrAmount),0) SetOffBooksAmount
 							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
 							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
 							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
 							LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
 							 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
 							WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' )
-							GROUP BY iwd.InvoiceDetailId,iw.PartyId,iw.PartyPlantId
+							GROUP BY iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId
 							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 						WHERE VI.IsPark=0 --AND VD.PartyId='202017395'
 						GROUP BY IDE.InvoiceId,VD.PartyId,VD.PartyPlantId,IwV.SetOffBooksAmount
@@ -22036,9 +22078,10 @@ SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"' AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )
                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                 
-                UNION 
+                UNION ALL
 				 SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
                 , ISNULL(A.Amount*A.CompanyCurrencyRate,0)- ISNULL(AWD.AdvanceSetOffAmount,0) VendorAdvance
+				, 0 DebitNote
 				, 0 Payable
 				, 0 ActualPayable
 				,0 CustomerAdvance,0 Receivable,0 ActualReceivable 
@@ -22055,10 +22098,28 @@ SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=A.EntityId
                 where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' 
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) and ISNULL(A.Amount*A.CompanyCurrencyRate,0)- ISNULL(AWD.AdvanceSetOffAmount,0)>0
+                
+                UNION ALL
+				 SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
+				  ,0 VendorAdvance
+                , ( ISNULL(AD.Amount,0)- ISNULL(AD.WrittenOffAmount,0)) DebitNote
+				, 0 Payable
+				, 0 ActualPayable
+				,0 CustomerAdvance,0 Receivable,0 ActualReceivable 
+				FROM [TRN].[AdjustmentNote] A
+				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
+				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
+                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+                LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
+                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=A.EntityId
+                where A.PlantId='" + plantId + @"' and A.SourceType='DebitNote' 
+				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) and A.IsWrittenOff=0 AND A.IsPark=0
 
-				UNION
+				UNION ALL
 				SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
                 ,0 VendorAdvance
+				,0 DebitNote
 				,0 Payable
 				,0 ActualPayable
 				, 0 CustomerAdvance
@@ -22090,9 +22151,11 @@ SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
 				WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','SalesInvoice')
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"' AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )
                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
-				UNION
+				
+                UNION ALL
 				 SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
-                , 0 VendorAdvance
+                ,0 VendorAdvance
+				,0 DebitNote
 				, 0 Payable
 				, 0 ActualPayable
 				,ISNULL(A.Amount*A.CompanyCurrencyRate,0)- ISNULL(AWD.AdvanceSetOffAmount,0) CustomerAdvance,0 Receivable,0 ActualReceivable 
@@ -22107,7 +22170,7 @@ SELECT P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=A.EntityId
-                where A.PlantId='" + plantId + @"' and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0 
+                where A.PlantId='" + plantId + @"' and A.SourceType='CustomerAdvance'  
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) 
 				and ISNULL(A.Amount*A.CompanyCurrencyRate,0)- ISNULL(AWD.AdvanceSetOffAmount,0)>0
                 ) x

@@ -151,13 +151,7 @@ namespace Library.Service.EmployeeServices
             }
         }
 
-        private string GetPK()
-        {
-            string sID = string.Empty;
-            bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out sID);
-            return sID;
-        }
+      
 
         public string Create(string MId, IEnumerable<ItemScanChildData> DataToSave)
         {
@@ -215,9 +209,7 @@ namespace Library.Service.EmployeeServices
                 var sqlx = @"select * from dbo.ItemScanChildHistory where 1=2";
                 con.OpenDataSetThroughAdapter(sqlx, out DataSet DsHistory, false, "1");
 
-                // For ProductionSummary
-                string sqlPS = @"SELECT * FROM TRN.ProductionSummary where 1=2";
-                con.OpenDataSetThroughAdapter(sqlPS, out DataSet dsProductionSummary, false, "1");
+
 
                 // Inventory Check
                 var _sql = @"select Inventorycheck,EntityId from mst.MaterialMovementMaster where Id ='" + LocId + "'";
@@ -388,54 +380,7 @@ namespace Library.Service.EmployeeServices
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, DsHistory);
 
-                #region ProductionSummary
-
-
-                if (!string.IsNullOrEmpty(processId))
-                {
-                    netWeight = 0;
-                    for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
-                    {
-                        netWeight += Convert.ToDecimal(dsMaster.Tables[0].Rows[j]["NetWeight"]);
-                        lotNo = dsMaster.Tables[0].Rows[j]["LotNo"].ToString();
-                        POId = dsMaster.Tables[0].Rows[j]["POId"].ToString();
-                    }
-                    DataSet dsScanChild;
-                    var sqlScanChild = @"select SUM(NetWeight)TotalQty,POId,LotNo from dbo.ItemScanChild where MasterId='" + MId + "' Group BY POId,LotNo";
-                    con.OpenDataSetThroughAdapter(sqlScanChild, out dsScanChild, false, "1");
-
-                    if (dsScanChild.Tables[0].Rows.Count > 0)
-                    {
-                        netWeight = Convert.ToDecimal(dsScanChild.Tables[0].Rows[0]["TotalQty"]);
-                        lotNo = dsScanChild.Tables[0].Rows[0]["LotNo"].ToString();
-                        POId = dsScanChild.Tables[0].Rows[0]["POId"].ToString();
-
-                        bplib.clsGenID objGenID = new bplib.clsGenID();
-                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
-                        DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
-                        drProductionSummary["Id"] = "PS" + sID;
-                        drProductionSummary["PlantId"] = PlantId;
-                        drProductionSummary["EntityId"] = entityId;
-                        drProductionSummary["ProcessId"] = processId;
-                        drProductionSummary["ProductionDate"] = WorkDate;
-                        drProductionSummary["Quantity"] = netWeight;
-                        drProductionSummary["ProductionOrderId"] = POId;
-                        drProductionSummary["ProductionShiftId"] = ShiftId;
-                        drProductionSummary["ProductionGrade"] = Grade;
-                        drProductionSummary["LotNumber"] = lotNo;
-
-                        drProductionSummary["AddedBy"] = User;
-                        drProductionSummary["AddedDate"] = DateTime.Now;
-                        drProductionSummary["AddedFromIP"] = "1";
-
-                        dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
-                    }
-
-                    _info.SaveDataSets(dsProductionSummary);
-
-                }
-               
-                #endregion
+                
 
                 if (inventory != "")
                 {
@@ -881,7 +826,7 @@ namespace Library.Service.EmployeeServices
             }
         }//End Function
 
-
+       
     }
 
     public class ItemScanData

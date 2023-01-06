@@ -188,7 +188,7 @@ namespace Library.HumanResource.Payroll.Allowance
                             ,Month('" + sFromDate + @"') MonthNo,YEAR('" + sFromDate + @"') YearNo
                             from (
                             select 
-                            d.Amount,d.chargeable,d.Date,d.EmployeeId EmpSystemId,d.Quantity
+                           distinct d.Time, d.Amount,d.chargeable,d.Date,d.EmployeeId EmpSystemId,d.Quantity
                             ,c.Category ServiceCategory,t.Service ServiceName,t.Form
                             ,h.SalaryHead,h.SalaryHeadID SalaryHeadId,r.Rate
                             ,Am=case when t.Form='Value' then d.Amount

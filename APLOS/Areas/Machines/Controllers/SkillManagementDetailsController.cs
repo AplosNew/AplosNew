@@ -213,7 +213,7 @@ APD.Remarks as Remark
  left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
  left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and EI.PositionID=SPC.PositionCodeId 
- left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id and APD.Id=(select top 1 Id from TRN.EmployeePlannedDetails MAPD where MAPD.PositionCodeId=SPC.Id and MAPD.EntityId=SPE.Id and APD.EmployeeId=EI.SystemId order by MAPD.ActualDate desc)
+ left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id and APD.Id=(select top 1 Id from TRN.EmployeePlannedDetails MAPD where MAPD.PositionCodeId=SPC.Id and MAPD.EntityId=SPE.Id and MAPD.EmployeeId=EI.SystemId order by MAPD.ActualDate desc)
  left Join Org.Entity E ON E.Id=SPE.EntityId
  left Join ORG.Position P ON P.Id=EI.PositionID
  left join org.Division DIV ON DIV.Id=EI.DivisionId
@@ -222,12 +222,12 @@ APD.Remarks as Remark
  left join Org.SubSection SS ON SS.Id=EI.SubSectionId
  left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
  left join HKP.Designation DEG ON DEG.Id=EI.GivenDesignationId
- where SM.IsActive=1 and EI.SystemId is not null and SPC.Id='" + PositionCodeId + "' and SPE.Id='" + EntityId + "' and SM.Id = '" + SMID + @"'
- and Case when isnull((SELECT TOP 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (SM.ScheduleDays +
-   (select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC)) end
-   between '" + FromDate + "' and '" + ToDate + "' and 1 = '" + Value + @"' 
- and(select count(Id) from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id and APD.PlannedDate is null
+ where SM.IsActive=1 and EI.SystemId is not null and SPC.Id='" + PositionCodeId + "' and SPE.Id='" + EntityId + "' and SM.Id = '" + SMID + @"'  and 1 = '" + Value + @"' and APD.Id is null
+ and (select count(Id) from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id and APD.PlannedDate is null
  and APD.ActualDate is null and APD.EntityId=SPE.Id) = 0";
+            //and Case when isnull((SELECT TOP 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC),'')= '' then GETDATE() else (SM.ScheduleDays +
+            //  (select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC)) end
+            //  between '" + FromDate + "' and '" + ToDate + "'
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -318,11 +318,12 @@ APD.Remarks
  left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
  left join HKP.Designation DEG ON DEG.Id=EI.GivenDesignationId
  where SM.IsActive=1 and SPC.Id is not null and SPE.Id='" + EntityId + "' and SM.Id='" + SMId + @"' 
- and Case when isnull((SELECT TOP 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC),'')= ''
- then GETDATE() else (SM.ScheduleDays + (select top 1 ActualDate from TRN.EmployeePlannedDetails APD where
- APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "' and SPC.Id = '" + PositionId + @"' and EI.SystemId = '" + EmployeeId + @"'
+ and SPC.Id = '" + PositionId + @"' and EI.SystemId = '" + EmployeeId + @"'
  and(select count(Id) from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id and APD.PlannedDate is null
  and APD.ActualDate is null and APD.EntityId=SPE.Id) = 0";
+ //           and Case when isnull((SELECT TOP 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC),'')= ''
+ //then GETDATE() else (SM.ScheduleDays + (select top 1 ActualDate from TRN.EmployeePlannedDetails APD where
+ //APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "'
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -364,11 +365,12 @@ APD.Remarks
  left join Org.SubSection SS ON SS.Id=EI.SubSectionId
  left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
  left join HKP.Designation DEG ON DEG.Id=EI.GivenDesignationId
- where SM.IsActive=1 and SPC.Id is not null and SPE.Id='" + EntityId + "' and SM.Id='" + SMId + @"' 
- and Case when isnull((SELECT TOP 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC),'')= ''
- then GETDATE() else (SM.ScheduleDays + (select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id
- ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + @"' and APD.Id = (select top 1 Id from TRN.EmployeePlannedDetails PD
+ where SM.IsActive=1 and SPC.Id is not null and SPE.Id='" + EntityId + "' and SM.Id='" + SMId + @"'
+and APD.Id = (select top 1 Id from TRN.EmployeePlannedDetails PD
  where PD.PositionCodeId = '" +PositionId+"' and PD.EmployeeId = '" + EmployeeId + "' and PD.EntityId='" + EntityId + "' order by PD.PlannedDate desc)";
+ //           and Case when isnull((SELECT TOP 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC),'')= ''
+ //then GETDATE() else (SM.ScheduleDays + (select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id
+ //ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + @"'
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -402,7 +404,7 @@ APD.FileName,'id' as test
  --left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
  left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id
- left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and EI.PositionID=SPC.PositionCodeId 
+ left join EmployeeInformation EI ON EI.EmployeeStatus='Active' and EI.PositionID=SPC.PositionCodeId and EI.SystemId=APD.EmployeeId
  --left Join Org.Entity E ON E.Id=SPE.EntityId
  left Join ORG.Position P ON P.Id=EI.PositionID
  left join org.Division DIV ON DIV.Id=EI.DivisionId
@@ -411,10 +413,10 @@ APD.FileName,'id' as test
  left join Org.SubSection SS ON SS.Id=EI.SubSectionId
  left join MST.ManpowerBudget EB ON EB.Id=EI.BudgetCode
  left join HKP.Designation DEG ON DEG.Id=EI.GivenDesignationId
- where SM.IsActive=1 and SPC.Id is not null and APD.Id='" + MaintenanceId + @"' and 
- Case when isnull((SELECT TOP 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC),'')= ''
- then GETDATE() else (SM.ScheduleDays + (select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id
- ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "'";
+ where SM.IsActive=1 and SPC.Id is not null and APD.Id='" + MaintenanceId + @"'";
+            //and Case when isnull((SELECT TOP 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id ORDER BY APD.Id DESC),'')= ''
+            //then GETDATE() else (SM.ScheduleDays + (select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.PositionCodeId = SPC.Id
+            //ORDER BY APD.Id DESC)) end between '" + FromDate + "' and '" + ToDate + "'
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -550,7 +552,7 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeSt
                             {
                                 bplib.clsGenID genid = new bplib.clsGenID();
                                 genid.GenID(TableName, out _Id);
-                                item["Id"] = "SRP" + _Id;
+                                item["Id"] = "SPD" + _Id;
                                 item["PlannedId"] = PId;
                                 AddNewRow(dsProdBooked.Tables[0], item);
                             }
