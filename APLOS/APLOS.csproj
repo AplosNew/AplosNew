@@ -2105,6 +2105,7 @@
     <Content Include="Areas\HumanResource\Scripts\MedicineReceiptController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicineMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicinePurposeController.js" />
+    <Content Include="Areas\HumanResource\Scripts\SalaryNotDisbursedController.js" />
     <Content Include="Areas\HumanResource\Scripts\SicknessTypeController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTCompensatoryAllocationController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTControlLimitReportController.js" />
@@ -4479,6 +4480,7 @@
     <Content Include="Areas\Materials\Views\WasteType\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\Shared\_IndependentCharacteristicsValuePopUp.cshtml" />
     <Content Include="Areas\Products\Views\GoodsReceiveNote\AllBinWiseGRN.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryNotDisbursed.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
