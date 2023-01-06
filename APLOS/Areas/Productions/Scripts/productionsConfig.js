@@ -326,5 +326,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionReport/Report',
             controller: 'ProductionReportController'
         })
+        .when('/packing-scan-data', {
+            templateUrl: 'Productions/PackingScanData/Aplos',
+            controller: 'PackingScanDataController'
+        })
+
         ;
 }
