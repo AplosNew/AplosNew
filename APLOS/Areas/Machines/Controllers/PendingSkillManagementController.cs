@@ -44,6 +44,7 @@ namespace Aplos.Areas.Machines.Controllers
         #endregion -- Pages
 
         #region -- Operations
+
         [Authorize, HttpGet]
         public ActionResult LoadMaintenanceStatusDetailsList(string ToDate,string FromDate,string Status)
         {
@@ -149,7 +150,7 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((SM.ScheduleDays+(select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))>0 then 1 else 0 end FutureDue,
 SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Department D where D.Id=SM.DepartmentId) as Department,SM.TrainingGroup,MPD.FileName,'Pid' as test,
-  Reverse(stuff(Reverse((select EmployeeName+',' from EmployeeInformation where SystemId in (select ResponsiblePersonId from TRN.ResponsiblePlannedDetails AP where AP.PlannedId=MPD.Id and AP.IsActive=1) for xml path(''))),1,1,'')) ActionableResponsiblePerson
+  Reverse(stuff(Reverse((select EmployeeName+',' from EmployeeInformation where SystemId in (select ResponsiblePersonId from TRN.SkillResponsiblePlannedDetails AP where AP.PlannedId=MPD.Id and AP.IsActive=1) for xml path(''))),1,1,'')) ActionableResponsiblePerson
  from TRN.SkillManagement SM
  left join MST.ManpowerBudget MB ON MB.id=SM.ResponsiblePersoneBgtCodeId
  left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
@@ -226,6 +227,55 @@ SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Dep
                 else
                 {
                     throw new CustomException("Please select atleast one actionable person and proceed!");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult createPerformance(List<Dictionary<string, object>> DataList, string PId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[SkillItemPerformanceDetails]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+                        if (dv.Count == 0)
+                        {
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID(TableName, out _Id);
+                                item["Id"] = "SIP" + _Id;
+                                item["PlannedId"] = PId;
+                                AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                                item["PlannedId"] = PId;
+                                DataRow drpb = dv[0].Row;
+                                EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                    return Json(new { Message = AplosMessage.Insert });
+                }
+                else
+                {
+                    throw new CustomException("Please select atleast one Item and proceed!");
                 }
             }
             catch (Exception ex)

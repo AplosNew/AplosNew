@@ -650,6 +650,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportNew',
                 controller: 'salaryProcessedReportControllerNew'
             })
+        .when('/salary-not-disbursed',
+            {
+                templateUrl: 'humanresource/PayrollReports/SalaryNotDisbursed',
+                controller: 'SalaryNotDisbursedController'
+            })
         .when('/salary-structure-and-Processed-report-new',
             {
                 templateUrl: 'humanresource/PayrollReports/SalaryStructureAndProcessedReportNew',

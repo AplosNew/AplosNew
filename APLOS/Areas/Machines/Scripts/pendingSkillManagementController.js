@@ -6,6 +6,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
     $scope.path = 'Machines/PendingSkillManagement/';
     $scope.savePlannedUrl = $scope.path + 'createPlanned';
     $scope.saveResponsibleUrl = $scope.path + 'createResponsible';
+    $scope.savePerformanceUrl = $scope.path + 'createPerformance';
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
     date.setDate(date.getDate() + 7);
     /*var firstDay = new Date(y, m, 1);*/
@@ -30,6 +31,21 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         });
     }
     $scope.GetFromDateList();
+
+ 
+    $scope.GetPerformancePointsList = function (PGroup) {
+        $http({
+            method: 'GET',
+            url: 'Machines/SkillManagementDetails/GetPerformancePointsList?PerformanceGroup=' + PGroup
+        }).then(function successCallback(response) {
+            for (var i = 0; i < $scope.ItemPerformanceList.length; i++) {
+                if ($scope.ItemPerformanceList[i].PerformanceGroupId == PGroup) {
+                    $scope.ItemPerformanceList[i].PerformancePointsList = response.data;
+                }
+            }
+        });
+    }
+    
 
     $scope.ActionablePersonList=[];
     $scope.GetActionablePersonList = function () {
@@ -92,7 +108,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
     }
 
     $scope.refreshTemplateResponsiblePerson = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllResponsiblePerson });
+        $("#RPheadchk").ejCheckBox({ "change": CheckBoxSelectAllResponsiblePerson });
     };
     function CheckBoxSelectAllResponsiblePerson(e) {
         var ChkOrUnchk = false;
@@ -114,6 +130,29 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         var gridObj = $("#GridResponsiblePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
+    $scope.refreshTemplateItemPerformance = function (args) {
+        $("#IPheadchk").ejCheckBox({ "change": CheckBoxSelectAllItemPerformance });
+    };
+    function CheckBoxSelectAllItemPerformance(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridItemPerformancePopUp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ItemPerformanceList.length; i++) {
+                $scope.ItemPerformanceList[i].IsActive = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].IsActive = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridItemPerformancePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
     $scope.PlannedId = null;
     $scope.ReponsiblePersonList = [];
     $scope.GetReponsiblePersonPopUp = function (data) {
@@ -131,12 +170,35 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         }
         )
     }
+    $scope.PerformanceGroup = null;
+    $scope.ItemPerformanceList = [];
+    $scope.GetItemPerformancePopUp = function (data) {
+        $scope.NewObject = data.data;
+        var PlannedId = data.data.PlannedId;
+        $scope.PlannedId = PlannedId;
+        $http({ 
 
+            method: 'Get',
+            url: 'Machines/SkillManagementDetails/LoadItemPerformanceList?Id=' + $scope.PlannedId + '&SMId=' + data.data.SMId
+        }).then(function successCallback(response) {
+            $scope.ItemPerformanceList = response.data;
+              for (var i = 0; i < $scope.ItemPerformanceList.length; i++) {
+                $scope.PerformanceGroup = response.data[i].PerformanceGroupId;
+                $scope.GetPerformancePointsList($scope.PerformanceGroup);
+            }
+            var gridObj = $("#GridItemPerformancePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#ItemPerformancePopup')).modal('show');
+        }
+        )
+    }
 
     $scope.closeResponsiblePersonPopUp = function () {
         angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
     }
 
+    $scope.closeItemPerformancePopUp = function () {
+        angular.element(document.querySelector('#ItemPerformancePopup')).modal('hide');
+    }
     $scope.SaveResponsiblePerson = function () {
         try {
 
@@ -153,6 +215,43 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
                 url: $scope.saveResponsibleUrl,
                 data: {
                     "DataList": $scope.SaveResponsibleList,
+                    "PId": $scope.PlannedId
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.SaveItemPerformance = function () {
+        try {
+
+            $scope.SaveItemPerformanceList = [];
+            for (var i = 0; i < $scope.ItemPerformanceList.length; i++) {
+                if ($scope.ItemPerformanceList[i].IsActive == true) {
+                    $scope.SaveItemPerformanceList.push($scope.ItemPerformanceList[i]);
+                }
+            }
+
+
+            $http({
+                method: 'POST',
+                url: $scope.savePerformanceUrl,
+                data: {
+                    "DataList": $scope.SaveItemPerformanceList,
                     "PId": $scope.PlannedId
                 },
                 dataType: 'JSON'
