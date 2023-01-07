@@ -867,13 +867,13 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
         // Written By Nitesh 2023-01-04
         #region Salary Not Disbursed
         [HttpPost, Authorize]
-        public ActionResult GetEmployeeSalaryNotDisbursedProcessedReportSalLogWiseNew(string year)
+        public ActionResult GetEmployeeSalaryNotDisbursedProcessedReportSalLogWiseNew(string empstatus)
         {
             try
             {
 
                 string fileName = "";
-                fileName = GetEmployeeSalaryNotDisbursedReport(year,"ContractTransactionSummaryReport");
+                fileName = GetEmployeeSalaryNotDisbursedReport(empstatus, "ContractTransactionSummaryReport");
 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
@@ -889,7 +889,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
         // Written By Nitesh 2023-01-04
         #region Salary Not Disbursed
        
-        public string GetEmployeeSalaryNotDisbursedReport(string year, string SheetName)
+        public string GetEmployeeSalaryNotDisbursedReport(string empstatus, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -906,7 +906,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 workbook.Worksheets[0].Name = "Salary Not Disbursed";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
-                GetNewEmployeeInfoDetailSalaryNotDisbursedLogWise(year, out data);
+                GetNewEmployeeInfoDetailSalaryNotDisbursedLogWise(empstatus, out data);
 
                 int ROW = 6; int COL = 1;
 
@@ -998,7 +998,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColNetPay = COL;
-                COL++;
+                //COL++;
                 // COL++;
                 #endregion Columns
 
@@ -1080,11 +1080,22 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
 
-        public void GetNewEmployeeInfoDetailSalaryNotDisbursedLogWise(string year, out DataTable data)
+        public void GetNewEmployeeInfoDetailSalaryNotDisbursedLogWise(string empstatus, out DataTable data)
         {
             string strSQL;
+            var sqlCondition = "";
             try
             {
+                
+                if (empstatus == "Active" || empstatus == "Separated")
+                {
+                    sqlCondition = "SH.HeadCategory = 'Net Payable' and SL.IsDisbursed = 0 and SPC.DisbusmentAmount > 0 and EI.EmployeeStatus = '" + empstatus + "' order by EI.EmployeeCode DESC";
+                }
+               
+                else
+                {
+                    sqlCondition = "SH.HeadCategory = 'Net Payable' and SL.IsDisbursed = 0 and SPC.DisbusmentAmount > 0 order by EI.EmployeeCode DESC";
+                }
                 strSQL = @"select 
 [MonthName]=CASE WHEN SPM.MonthNo=1 THEN 'Jan'   
               WHEN  SPM.MonthNo=2 THEN 'Feb'
@@ -1104,6 +1115,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                         LEFT JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID 
                         LEFT JOIN SalaryLock SL ON SL.EmpSystemId = SPC.EmpInfoSystemID AND SL.YearNo = SPM.YearNo AND SPM.MonthNo = SL.MonthNo
                         LEFT JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId = SPC.SlrProcMstSystemID and SPLD.EmpSystemId = SPC.EmpInfoSystemID
+                        LEFT JOIN SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
                         LEFT JOIN MST.ManpowerBudget MPB on MPB.Id = SPLD.BudgetCode
                         LEFT JOIN EmployeeInformation EI on EI.SystemId = SPC.EmpInfoSystemID
 						LEFT JOIN EmployeeBankInfo EBI ON EBI.EmpSystemID = EI.SystemId
@@ -1119,7 +1131,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                         LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
                         LEFT JOIN [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
 
-                        where SPC.SalaryHeadID = 'SHD202111' and SL.IsDisbursed = 0 and SPC.DisbusmentAmount > 0  order by EI.EmployeeCode DESC";
+                        where " + sqlCondition + "";
 
               
                     data = _sqlRepository.GetDataTable(strSQL);
