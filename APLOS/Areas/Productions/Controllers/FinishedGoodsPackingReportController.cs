@@ -102,6 +102,10 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     det.SaveScandataToBooking(fromDate, toDate, PurposeId, para);
                 }
+                else
+                {
+                    throw new CustomException("No Data found.");
+                }
 
                 int ROW = 6; int COL = 1;
 
