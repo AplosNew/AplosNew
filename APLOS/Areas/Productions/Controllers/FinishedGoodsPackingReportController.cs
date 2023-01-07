@@ -78,19 +78,34 @@ namespace Aplos.Areas.Productions.Controllers
             var filePath = "";
             try
             {
+                IdentityParameter para = new IdentityParameter
+                {
+                    CompanyGroupId = identity.CompanyGroupId,
+                    CompanyId = identity.CompanyId,
+                    PlantId = identity.PlantId,
+                    AddedBy = identity.Name,
+                    AddedDate = DateTime.Now,
+                    AddedFromIP = identity.IPAddress,
+                    UpdatedBy = identity.Name,
+                    UpdatedDate = DateTime.Now,
+                    UpdatedFromIP = identity.IPAddress
+                };
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(2);
                 workbook.Worksheets[1].Name = "Data";
                 sheet = workbook.Worksheets[1];
-                DataTable dtOrder, dtScanOrder;
+                DataTable dtOrder;
                 det.GetFinishedGoodsPackingReportData(fromDate, toDate, PurposeId, out dtOrder);
-                det.GetFinishedGoodsPackingData(fromDate, toDate, PurposeId, out dtScanOrder);
 
-                //if (dtScanOrder.Rows.Count > 0)
-                //{
-                //    det.SaveScandataToBooking(dtScanOrder);
-                //}
+                if (dtOrder.Rows.Count > 0)
+                {
+                    det.SaveScandataToBooking(fromDate, toDate, PurposeId, para);
+                }
+                else
+                {
+                    throw new CustomException("No Data found.");
+                }
 
                 int ROW = 6; int COL = 1;
 
