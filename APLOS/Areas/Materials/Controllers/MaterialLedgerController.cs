@@ -207,8 +207,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         [Authorize, HttpGet]
 		public ActionResult MaterialStockBalanceReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue,string Asset,string Inventory, string Country,string materialStorage) 
-	
-            {
+	            {
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			plantId = identity.PlantId;
 			var reportFileName = "Material Stock Balance" + fromDate + "To" + toDate + "";

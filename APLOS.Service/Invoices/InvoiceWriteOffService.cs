@@ -7475,7 +7475,12 @@ namespace Library.Service.Invoices
                 {
                     _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
+                //var bankCharges = _bankChargeRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().FirstOrDefault();
 
+                //if (bankCharges != null)
+                //{
+                //    _bankChargeRepository.Delete(bankCharges.Id);
+                //}
                 foreach (var item in voucherdetail)
                 {
                     var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
@@ -7540,8 +7545,10 @@ namespace Library.Service.Invoices
 
                     _invoiceService.UpdateInvoiceDetail(invoiceDetail);
                     _invoiceService.Update(invoice);
+                    
                     _invoiceWriteOffDetailRepository.Delete(item.Id);
                 }
+               
                 _invoiceWriteOffRepository.Delete(invoiceWriteOffId);
                 if (adjustmentNote != null)
                 {

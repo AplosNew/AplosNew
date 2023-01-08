@@ -58,6 +58,16 @@ namespace Aplos.Areas.Machines.Controllers
         #region -- Operations
 
         [Authorize, HttpGet]
+        public JsonResult GetPerformancePointsList(string PerformanceGroup)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,PerformancePoints as Text from TRN.SkillManagementLevel where PerformanceGroup='" + PerformanceGroup + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetFromDateList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -459,6 +469,21 @@ LEFT OUTER JOIN ORG.Section S ON S.Id = EI.SectionId
 LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeStatus='Active' and MTD.SMID='" + SMId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadItemPerformanceList(string Id, string SMId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"Select IPD.IsActive,IPD.Id,SMI.Id as ItemId,SMI.ItemName,SMI.PerformanceGroupId,isnull(IPD.PerformancePoints,'') as PerformancePoints,isnull(IPD.PerformanceComments,'') as PerformanceComments,SMI.Remarks,EPD.Id as PlannedId,null as PerformancePointsList from TRN.SkillManagementItem SMI
+--left join TRN.SkillManagementLevel SML ON SML.Id=SMI.PerformanceGroupId
+left join TRN.SkillManagement SM ON SM.Id=SMI.SMID
+left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
+left join TRN.EmployeePlannedDetails EPD ON EPD.PositionCodeId=SPC.Id 
+LEFT JOIN [TRN].[SkillItemPerformanceDetails] IPD ON  IPD.ItemId=SMI.Id and IPD.PlannedId='" + Id + @"'
+where EPD.Id='"+ Id + "' order by SMI.Id"; 
+
+ return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

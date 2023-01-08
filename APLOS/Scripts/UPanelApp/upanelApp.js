@@ -1133,6 +1133,8 @@ upanelApp.controller("OutPassRegisterController", OutPassRegisterController)
 upanelApp.controller("masterOrderSalesAdditionalController", masterOrderSalesAdditionalController)
 upanelApp.controller("ScanDataController", ScanDataController)
 upanelApp.controller("ProductionReportController", ProductionReportController)
+upanelApp.controller("SalaryNotDisbursedController", SalaryNotDisbursedController)
+upanelApp.controller("PackingScanDataController", PackingScanDataController)
 
 
 upanelApp.config(AccessControllerConfig);

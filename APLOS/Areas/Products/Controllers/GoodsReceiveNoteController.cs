@@ -989,7 +989,7 @@ namespace Aplos.Areas.Products.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_inventoryReveiveService.GetListForREqPOGRN(identity.PlantId, PoType, Status), JsonRequestBehavior.AllowGet);
         }
-
+        
         [Authorize, HttpGet]
         public JsonResult GetListOfPOGateEntry(string partyCode)
         {

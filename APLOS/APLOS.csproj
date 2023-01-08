@@ -814,6 +814,7 @@
     <Compile Include="Areas\Productions\Controllers\PrePackDefinitionController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProcessWisCapacityPlaningController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProcessWiseProductionBookingController.cs" />
+    <Compile Include="Areas\Productions\Controllers\PackingScanDataController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionGeneralReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\FinishedStockReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionReportController.cs" />
@@ -2107,6 +2108,7 @@
     <Content Include="Areas\HumanResource\Scripts\MedicineReceiptController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicineMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\MedicinePurposeController.js" />
+    <Content Include="Areas\HumanResource\Scripts\SalaryNotDisbursedController.js" />
     <Content Include="Areas\HumanResource\Scripts\SicknessTypeController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTCompensatoryAllocationController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTControlLimitReportController.js" />
@@ -2289,6 +2291,7 @@
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
     <Content Include="Areas\Productions\Scripts\ParameterController.js" />
     <Content Include="Areas\Productions\Scripts\ParameterMasterController.js" />
+    <Content Include="Areas\Productions\Scripts\PackingScanDataController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionReportController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionSummaryReportController.js" />
     <Content Include="Areas\Productions\Scripts\planningTypesNewController.js" />
@@ -4484,6 +4487,8 @@
     <Content Include="Areas\Products\Views\GoodsReceiveNote\AllBinWiseGRN.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionReport\Report.cshtml" />
     <Content Include="Areas\Accounts\Views\InventoryPayable\InventoryIssueReturnJournal.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryNotDisbursed.cshtml" />
+    <Content Include="Areas\Productions\Views\PackingScanData\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
