@@ -1744,6 +1744,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
+    <Content Include="Areas\Accounts\Scripts\inventoryIssueReturnJournalController.js" />
     <Content Include="Areas\Accounts\Scripts\parkedReportController.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
     <Content Include="Areas\Accounts\Scripts\employeeTotalAdvanceWriteOffController.js" />
@@ -4482,6 +4483,7 @@
     <Content Include="Areas\Materials\Views\Shared\_IndependentCharacteristicsValuePopUp.cshtml" />
     <Content Include="Areas\Products\Views\GoodsReceiveNote\AllBinWiseGRN.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionReport\Report.cshtml" />
+    <Content Include="Areas\Accounts\Views\InventoryPayable\InventoryIssueReturnJournal.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
