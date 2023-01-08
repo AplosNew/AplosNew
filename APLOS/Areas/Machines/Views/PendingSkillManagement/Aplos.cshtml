@@ -81,13 +81,7 @@
                 </div>
             </div>
             </div>
-            @*<div class="col-xs-12 col-sm-2 col-md-2">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li> <button ng-click="getFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
-                    </ul>
-                </div>
-            </div>*@
+            
             <div class="col-xs-12">
                 <div id="filters">
                 </div>
@@ -98,79 +92,91 @@
                 </div>
             </div>
             <div class="col-xs-12">
-                    <div id="GridPendingSkillManagement" ej-grid e-datasource="PendingSkillManagementList" e-recorddoubleclick="GetDetails"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBound"
-                         e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-type="string" e-field="SMId" e-headertext="Id" e-visible="false" e-width="100"></div>
-                            <div e-column e-type="string" e-field="PlannedDate" e-headertext="Planning Date" e-width="100"></div>
-                            <div e-column e-template="#Actual" e-headertext="Actual" e-width="80"></div>
-                            <div e-column e-template="#Responsible" e-headertext="Actionable Person" e-width="80"></div>
-                            <div e-column e-type="string" e-field="ActionableResponsiblePerson" e-headertext="Actionable Person" e-width="100"></div>
-                            <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
-                            <div e-column e-type="string" e-field="ScheduleName" e-headertext="Schedule Name" e-width="100"></div>
-                            <div e-column e-type="string" e-field="ScheduleCode" e-headertext="Schedule Code" e-width="100"></div>
-                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
-                            <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="150"></div>
-                            <div e-column e-type="string" e-field="EmpDepartment" e-headertext="Emp.Department" e-width="150"></div>
-                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="150"></div>
-                            <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="150"></div>
-                            <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="150"></div>
-                            <div e-column e-type="string" e-field="ResponsiblePersonBudgetCode" e-headertext="Responsible Person Bgt Code" e-width="100"></div>
-                            <div e-column e-type="string" e-field="ScheduleDays" e-headertext="Schedule Days" e-width="100"></div>
-                            <div e-column e-type="string" e-field="LastMaintenanceDate" e-headertext="Last Maintenance Date" e-width="100"></div>
-                            <div e-column e-type="string" e-field="CurrentMaintanceDate" e-headertext="Current Maintance Date" e-width="100"></div>
-                            <div e-column e-type="string" e-field="DueDays" e-headertext="Due Days" e-width="100"></div>
-                            <div e-column e-type="string" e-field="OverDue" e-headertext="Over Due" e-width="100"></div>
-                            <div e-column e-type="string" e-field="DueToday" e-headertext="Due Today" e-width="100"></div>
-                            <div e-column e-type="string" e-field="FutureDue" e-headertext="Future Due" e-width="100"></div>
-                            <div e-column e-type="string" e-field="StandardScheduleMinutes" e-headertext="Standard Schedule Minutes" e-width="100"></div>
-                            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
-                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="100"></div>
-                            <div e-column e-type="number" e-field="TrainingGroup" e-headertext="Maintenance Group" e-width="100"></div>
-                            <div e-column e-template="#PendingJobCart" e-headertext="Print" e-width="50"></div>
-                            <div e-column e-template="#AttachmentPending" e-headertext="Attachment" e-width="100"></div>
-                        </div>
-                        </div>
-                    <script type="text/template" id="Actual">
-                        <div class="form-group">
-                            <div class="col-sm-5 text-right" style="padding:0px;padding-left:6px">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li><button ng-click="$parent.GetEmployeePopUp(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </script>
-                    <script type="text/template" id="Responsible">
-                        <div class="form-group">
-                            <div class="col-sm-5 text-right" style="padding:0px;padding-left:5px">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li><button ng-click="$parent.GetReponsiblePersonPopUp(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </script>
-                    <script type="text/template" id="PendingJobCart">
-                        <div class="form-group">
-                            <div class="col-sm-5 text-center" style="padding:0px;padding-left:4px">
-                                <div class="common-btn">
-                                    <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/SkillManagementDetails/GetSkillManagementJobCardReportView?PlannedId={{data.PlannedId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </script>
-                    <script type="text/template" id="AttachmentPending">
-                        <div class="col-md-12">
-                            <div class="col-md-8 text-left" style="padding:0px;">
-                                <label class="col-sm-12 control-label text-left" ng-click="$parent.FileDownload(data,data.test)"><a href="{{$parent.dwonloadUrl}}" style="text-decoration:underline" download="{{data.FileName}}" target="_self">{{data.FileName}}</a></label>
-                            </div>
-                        </div>
-                    </script>
+                <div id="GridPendingSkillManagement" ej-grid e-datasource="PendingSkillManagementList" e-recorddoubleclick="GetDetails"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBound"
+                     e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="SMId" e-headertext="Id" e-visible="false" e-width="100"></div>
+                        <div e-column e-type="string" e-field="PlannedDate" e-headertext="Planning Date" e-width="100"></div>
+                        <div e-column e-template="#Actual" e-headertext="Actual" e-width="80"></div>
+                        <div e-column e-template="#Responsible" e-headertext="Actionable Person" e-width="80"></div>
+                        <div e-column e-template="#Performance" e-headertext="Performance Details" e-width="80"></div>
+                        <div e-column e-type="string" e-field="ActionableResponsiblePerson" e-headertext="Actionable Person" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ScheduleName" e-headertext="Schedule Name" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ScheduleCode" e-headertext="Schedule Code" e-width="100"></div>
+                        <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="150"></div>
+                        <div e-column e-type="string" e-field="EmpDepartment" e-headertext="Emp.Department" e-width="150"></div>
+                        <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="150"></div>
+                        <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="150"></div>
+                        <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="150"></div>
+                        <div e-column e-type="string" e-field="ResponsiblePersonBudgetCode" e-headertext="Responsible Person Bgt Code" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ScheduleDays" e-headertext="Schedule Days" e-width="100"></div>
+                        <div e-column e-type="string" e-field="LastMaintenanceDate" e-headertext="Last Maintenance Date" e-width="100"></div>
+                        <div e-column e-type="string" e-field="CurrentMaintanceDate" e-headertext="Current Maintance Date" e-width="100"></div>
+                        <div e-column e-type="string" e-field="DueDays" e-headertext="Due Days" e-width="100"></div>
+                        <div e-column e-type="string" e-field="OverDue" e-headertext="Over Due" e-width="100"></div>
+                        <div e-column e-type="string" e-field="DueToday" e-headertext="Due Today" e-width="100"></div>
+                        <div e-column e-type="string" e-field="FutureDue" e-headertext="Future Due" e-width="100"></div>
+                        <div e-column e-type="string" e-field="StandardScheduleMinutes" e-headertext="Standard Schedule Minutes" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                        <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="100"></div>
+                        <div e-column e-type="number" e-field="TrainingGroup" e-headertext="Maintenance Group" e-width="100"></div>
+                        <div e-column e-template="#PendingJobCart" e-headertext="Print" e-width="50"></div>
+                        <div e-column e-template="#AttachmentPending" e-headertext="Attachment" e-width="100"></div>
+                    </div>
                 </div>
+                <script type="text/template" id="Actual">
+                    <div class="form-group">
+                        <div class="col-sm-5 text-right" style="padding:0px;padding-left:6px">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="$parent.GetEmployeePopUp(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </script>
+                <script type="text/template" id="Responsible">
+                    <div class="form-group">
+                        <div class="col-sm-5 text-right" style="padding:0px;padding-left:5px">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="$parent.GetReponsiblePersonPopUp(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </script>
+                <script type="text/template" id="Performance">
+                    <div class="form-group">
+                        <div class="col-sm-5 text-right" style="padding:0px;padding-left:5px">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="$parent.GetItemPerformancePopUp(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </script>
+                <script type="text/template" id="PendingJobCart">
+                    <div class="form-group">
+                        <div class="col-sm-5 text-center" style="padding:0px;padding-left:4px">
+                            <div class="common-btn">
+                                <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/SkillManagementDetails/GetSkillManagementJobCardReportView?PlannedId={{data.PlannedId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </script>
+                <script type="text/template" id="AttachmentPending">
+                    <div class="col-md-12">
+                        <div class="col-md-8 text-left" style="padding:0px;">
+                            <label class="col-sm-12 control-label text-left" ng-click="$parent.FileDownload(data,data.test)"><a href="{{$parent.dwonloadUrl}}" style="text-decoration:underline" download="{{data.FileName}}" target="_self">{{data.FileName}}</a></label>
+                        </div>
+                    </div>
+                </script>
+            </div>
             </div>
         </div>
 
@@ -269,7 +275,7 @@
                                 <div style="color:black;" id="GridResponsiblePopUp" ej-grid e-datasource="ReponsiblePersonList"
                                      e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
                                      e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
-                                     e-recorddoubleclick="doubleEmployee" e-templaterefresh="refreshTemplateResponsiblePerson">
+                                     e-recorddoubleclick="" e-templaterefresh="refreshTemplateResponsiblePerson">
                                     <div e-columns>
                                         <div e-column e-headertext="All" e-headertemplateid="#headerTemplateResponsiblePerson" e-template="#checkboxTemplateResponsiblePerson" e-textalign="center" e-width="50"></div>
                                         <div e-column e-template="#ActualMinutes" e-headertext="Actual Minutes" e-width="50"></div>
@@ -286,7 +292,7 @@
                                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsActive" />
                                     </script>
                                     <script type="text/x-jsrender" id="headerTemplateResponsiblePerson">
-                                        <input type="checkbox" id="headchk" />
+                                        <input type="checkbox" id="RPheadchk" />
                                     </script>
                                     <script type="text/template" id="ActualMinutes">
                                         <div class="col-sm-12" style="padding:0px;">
@@ -308,6 +314,62 @@
                 </div>
             </div>
         </div>
-    @*</div>*@
+        <div class="modal fade site-modal in" id="ItemPerformancePopup" role="dialog" data-backdrop="static">
+            <div class="modal-dialog modal-lg modellgModify">
+                <div class="modal-content">
+                    <div class="modal-header">Item Performance List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                    <div class="modal-body form-elements form-horizontal">
+                        <div class="col-md-12">
+                            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                <p>Please Select an Item Performance</p>
+                                <div style="color:black;" id="GridItemPerformancePopUp" ej-grid e-datasource="ItemPerformanceList"
+                                     e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                                     e-recorddoubleclick="" e-templaterefresh="refreshTemplateItemPerformance">
+                                    <div e-columns>
+                                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateItemPerformance" e-template="#checkboxTemplateItemPerformance" e-textalign="center" e-width="50"></div>
+                                        <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                        <div e-column e-field="ItemName" e-headertext="Item Name" e-width="120"></div>
+                                        <div e-column e-field="PerformanceGroupId" e-headertext="Performance Group" e-width="120"></div>
+                                        @*<div e-column e-field="PerformanceDetails" e-headertext="Performance Details" e-width="120"></div>*@
+                                        <div e-column e-template="#PerformancePoints" e-headertext="Performance Points" e-width="120"></div>
+                                        <div e-column e-template="#PerformanceComments" e-headertext="Performance Comments" e-width="120"></div>
+                                        <div e-column e-field="Remarks" e-headertext="ItemRemarks" e-width="120"></div>
+                                    </div>
+                                    <script type="text/template" id="checkboxTemplateItemPerformance">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsActive" />
+                                    </script>
+                                    <script type="text/x-jsrender" id="headerTemplateItemPerformance">
+                                        <input type="checkbox" id="IPheadchk" />
+                                    </script>
+                                    <script type="text/template" id="PerformancePoints">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="data.PerformancePoints" name="Performance Points"
+                                                    ng-options="item.Value as item.Text for item in data.PerformancePointsList">
+                                            </select>
+                                        </div>
+                                    </script>
+                                    <script type="text/template" id="PerformanceComments">
+                                        <div class="col-sm-12" style="padding:0px;">
+                                            <input name="Performance Comments" ng-model="data.PerformanceComments" ng-click="" class="form-control">
+                                        </div>
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-center">
+                                <li>
+                                    <button ng-click="closeItemPerformancePopUp();" class="btn"><i class=""></i> Close</button>
+                                    <button ng-click="SaveItemPerformance();" class="btn"><i class=""></i> Save</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    
 
 

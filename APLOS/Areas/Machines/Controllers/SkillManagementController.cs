@@ -136,7 +136,7 @@ where P.Id='" + Pid + "'";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"select Id as Value,PerformanceGroup as Text from TRN.SkillManagementLevel SML where SML.SMID='" + ScheduleId + @"'";
+            var sql = @"select distinct PerformanceGroup as Value,PerformanceGroup as Text from TRN.SkillManagementLevel SML where SML.SMID='" + ScheduleId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -545,7 +545,7 @@ where P.Active=1 and E.Id in (select EntityId from [TRN].[SkillManagementEntity]
         public ActionResult LoadItemDetails(string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,(select PerformanceGroup from TRN.SkillManagementLevel where Id=PerformanceGroupId) as PerformanceGroup,
+            string sql = @"SELECT *,(select distinct PerformanceGroup from TRN.SkillManagementLevel where PerformanceGroup=PerformanceGroupId) as PerformanceGroup,
 (select EmployeeName from EmployeeInformation where SystemId=ByWhomId) as ByWhom
 FROM [TRN].[SkillManagementItem] where SMID ='" + ScheduleId + "' order by SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);

@@ -348,7 +348,7 @@ namespace Library.OrderManagement.Sales
 							, hasFirst=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId=SO.Id)
                             
 							,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
-							, isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),MMA.HSNCodeId,mo.InvoicingPartyPlantId
+							, isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),ISNULL(MM.HSNCodeId,MMA.HSNCodeId)HSNCodeId,ISNULL(HM.Code,HA.Code)HSNCode,mo.InvoicingPartyPlantId
 							,POLR.Qty,POLR.PlanQty,Balance=POLR.PlanQty-POLR.Qty,TransactionQty=POLR.Qty,TransactionAmount=POLR.Qty*SO.Rate
 							,BaseRate=SO.Rate,TransactionRate=SO.Rate,BaseQty=POLR.Qty,TransactionQty=POLR.Qty,BaseAmount=POLR.Qty*SO.Rate,POLR.Qty SalesQty,'' GoodsDescription
 							FROM [TRN].[SalesOrder] AS SO
@@ -356,6 +356,8 @@ namespace Library.OrderManagement.Sales
 							JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id
 							JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
 							LEFT JOIN [MST].[MaterialMasterArticle] AS MMA ON MOI.ArticleId = MMA.Id
+							LEFT JOIN HKP.HSNCode HM ON HM.Id=MM.HSNCodeId
+							LEFT JOIN HKP.HSNCode HA ON HA.Id=MMA.HSNCodeId
 							LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
 							LEFT JOIN dbo.EmployeeInformation AS EMP ON EMP.SystemId = SO.ResponsiblePersonId
 							LEFT JOIN [TRN].[FirstCharacteristics] AS FCH ON FCH.SalesOrderId=SO.Id
@@ -459,7 +461,7 @@ namespace Library.OrderManagement.Sales
            ,SM.TransactionQty SalesQty
                 ,SM.TransactionQty 
                 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
-	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
+	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount,ISNULL(MM.HSNCodeId,ART.HSNCodeId)HSNCodeId,ISNULL(HM.Code,HA.Code)HSNCode
             FROM TRN.SalesMaterial AS SM 
             LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
             LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
@@ -471,6 +473,8 @@ namespace Library.OrderManagement.Sales
             LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
             LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
             LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
+			LEFT JOIN HKP.HSNCode HM ON HM.Id=MM.HSNCodeId
+			LEFT JOIN HKP.HSNCode HA ON HA.Id=ART.HSNCodeId
             LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id=SM.FirstCharacteristicsId AND SM.SalesOrderId=FC.SalesOrderId
             LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id=SM.FirstCharacteristicsValueId
 			LEFT JOIN [HKP].[Characteristics] AS CH ON FC.CharacteristicsId=CH.Id

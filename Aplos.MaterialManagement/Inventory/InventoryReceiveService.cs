@@ -808,7 +808,7 @@ namespace Library.MaterialManagement.Inventory
                                         , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
                                           , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 	                                , pod.TransactionQty
-									,ToleranceQty=((pod.TransactionQty*ir.Tolerance)/100)
+									,ToleranceQty= case when pod.ToleranceQty<>0 then pod.ToleranceQty else ((pod.TransactionQty*ir.Tolerance)/100) end
 									,pod.GRNQty , pod.TransactionAmount, pod.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
@@ -834,6 +834,7 @@ namespace Library.MaterialManagement.Inventory
                                  
 								 LEFT JOIN (select pod.InventoryReceiveId,pod.CountryId,sum(pod.TransactionQty) TransactionQty
 										,sum(TransactionAmount) TransactionAmount,sum(BaseAmount) BaseAmount,sum(ird.GRNQty) GRNQty 
+                                        ,sum(pod.TransactionQty* isnull(pod.Tolerance,0)) ToleranceQty
 										FROM  [TRN].[PurchaseOrderDetail] pod
 										left join (select isnull(sum(ird.TransactionQty),0) GRNQty,ird.PODetailsId FROM TRN.InventoryReceiveDetail ird 
 											left join trn.InventoryReceive Ir on ir.Id=ird.InventoryReceiveId
@@ -852,7 +853,7 @@ namespace Library.MaterialManagement.Inventory
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
-                                AND IR.IsClosed= 0 and  (pod.TransactionQty+((pod.TransactionQty*ir.Tolerance)/100)) > ISNULL(pod.GRNQty,0) AND IR.PartyId='" + vendorId + @"'
+                                AND IR.IsClosed= 0 and   pod.TransactionQty+(case when pod.ToleranceQty<>0 then pod.ToleranceQty else ((pod.TransactionQty*ir.Tolerance)/100) end) > ISNULL(pod.GRNQty,0)  AND IR.PartyId='" + vendorId + @"'
                                          AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
 								UNION All

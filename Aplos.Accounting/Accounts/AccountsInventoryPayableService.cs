@@ -3805,7 +3805,30 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-        public GridModel GetIssueMaterialGL(GridParameter parameters, string issueId, string companyId)
+		public GridModel GetIssueReturnJournalList(GridParameter parameters, string plantId)
+		{
+			try
+			{
+				parameters.CmdText =
+						@"SELECT  V.VoucherNo,II.VoucherId,V.VoucherDate,IID.TotalAmount,IID.TransactionQty,II.Id IssueReturnNo,II.IssueDate,MS.UserName MaterialStorageName
+						,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.IssueType  [Types],V.IsPark
+                        FROM TRN.InventoryIssueReturn II 
+                        LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
+                        LEFT JOIN (SELECT II.VoucherId,II.IssueDate,II.Id,SUM(ID.Qty) TransactionQty,SUM(ID.TotalAmount) TotalAmount 
+                        FROM TRN.InventoryIssueReturnHistory ID JOIN TRN.InventoryIssueReturn II ON II.Id=ID.InventoryIssueReturnId
+						GROUP BY II.VoucherId,II.IssueDate,II.Id) AS IID ON IID.VoucherId=V.Id
+						LEFT JOIN HKP.MaterialStorage AS MS ON MS.Id=II.MaterialStorageId
+                        Where V.SourceType='" + SourceType.IssueJournal + @"' AND V.PlantId= '" + plantId + "'";
+				return _sqlRepository.GetGridData(parameters);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+		public GridModel GetIssueMaterialGL(GridParameter parameters, string issueId, string companyId)
         {
             try
             {

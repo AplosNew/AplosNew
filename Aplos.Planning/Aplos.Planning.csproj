@@ -123,6 +123,10 @@
       <Project>{7F2FCB85-B5BD-457E-AE20-8793D0C72F20}</Project>
       <Name>Aplos.Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Aplos.OrderManagement\Aplos.OrderManagement.csproj">
+      <Project>{9C0E1666-FDCB-445F-B987-8C535339D3BB}</Project>
+      <Name>Aplos.OrderManagement</Name>
+    </ProjectReference>
     <ProjectReference Include="..\APLOS.Service\Aplos.Service.csproj">
       <Project>{aa817a3e-2bf1-4f54-9008-2df78294c1c8}</Project>
       <Name>Aplos.Service</Name>
