@@ -209,6 +209,7 @@ upanelApp.controller("AssetIssueSlipBaseController", AssetIssueSlipBaseControlle
 upanelApp.controller("inventoryIssueController", inventoryIssueController);
 upanelApp.controller("inventoryIssueSlipBaseController", inventoryIssueSlipBaseController);
 upanelApp.controller("inventoryIssueJournalController", inventoryIssueJournalController);
+upanelApp.controller("inventoryIssueReturnJournalController", inventoryIssueReturnJournalController);
 upanelApp.controller("inventoryPayableController", inventoryPayableController);
 upanelApp.controller("inventoryReceiveController", inventoryReceiveController);
 upanelApp.controller("inventoryRejectPayableController", inventoryRejectPayableController);

@@ -1,5 +1,6 @@
 ﻿using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using Library.OrderManagement.Production;
 using Library.Service.Helpers;
 using OTSBD;
 using Syncfusion.XlsIO;
@@ -309,6 +310,27 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
         public string GetProcessWiseProduction(string PlantId, string EntityId, string date)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            PackingData det = new PackingData();
+            IdentityParameter para = new IdentityParameter
+            {
+                CompanyGroupId = identity.CompanyGroupId,
+                CompanyId = identity.CompanyId,
+                PlantId = identity.PlantId,
+                AddedBy = identity.Name,
+                AddedDate = DateTime.Now,
+                AddedFromIP = identity.IPAddress,
+                UpdatedBy = identity.Name,
+                UpdatedDate = DateTime.Now,
+                UpdatedFromIP = identity.IPAddress
+            };
+            var sqlProcess = @"SELECT Id PurposeId FROM HKP.MaterialMovementPurpose Where ProcessId=(Select Id from HKP.Process Where UserName='Packing')";
+            DataTable dtProcess = _sqlRepository.GetDataTable(sqlProcess);
+            if (dtProcess.Rows.Count>0)
+            {
+                string PurposeId = dtProcess.Rows[0]["PurposeId"].ToString();
+                det.SaveScandataToBooking(date, date, PurposeId, para); 
+            }
+
             if (string.IsNullOrEmpty(EntityId) || EntityId.ToUpper() == "NULL")
             {
                 return @"SELECT  p.Sequence, p.Id,p.UserName,ISNULL(k.Quantity,0) as Quantity  FROM HKP.Process P LEFT JOIN ( SELECT p.Id,isnull(SUM(ps.Quantity),0) AS Quantity
@@ -927,7 +949,7 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
                 dtPivot.Columns.Add("Total", typeof(double));
                 foreach (DataRow item in dtAllPeriod.Rows)
                     dtPivot.Columns.Add(item["UserName"].ToString(), typeof(double));
-             
+
 
                 string WCId = "";
                 DataRow dr = null;
@@ -971,7 +993,7 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
 
                     dtPivot.DefaultView.RowFilter = "EntityId='" + dtPivot.Rows[i]["EntityId"].ToString() + "'";
                     DataTable dtTemp = dtPivot.DefaultView.ToTable();
-                    
+
                     //dicData.Add(dtPivot.Rows[i]["Entity"].ToString(), Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtTemp));
 
                     info.Add(new EntityHourlyProductionInfo { GridId = "GridHourly" + dtPivot.Rows[i]["EntityId"].ToString(), EntityId = dtPivot.Rows[i]["EntityId"].ToString(), EntityName = dtPivot.Rows[i]["Entity"].ToString(), Data = Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtTemp) });

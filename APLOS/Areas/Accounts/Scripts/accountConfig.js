@@ -754,6 +754,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/inventoryPayable/InventoryIssueJournal",
             controller: "inventoryIssueJournalController"
         })
+        .when("/inventory-issue-return-journal", {
+            templateUrl: "Accounts/inventoryPayable/InventoryIssueReturnJournal",
+            controller: "inventoryIssueReturnJournalController"
+        })
         .when("/daily-transaction-report", {
             templateUrl: "Accounts/Voucher/DailyTransactionReportPage",
             controller: "dailyTransactionReportController"

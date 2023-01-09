@@ -51,6 +51,10 @@ namespace Aplos.Areas.Accounts.Controllers
             return View();
         }
 
+        public ActionResult InventoryIssueReturnJournal()
+        {
+            return View();
+        }
 
         #region GRN Payable
 
@@ -407,6 +411,14 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(accountsInventoryPayableService.GetIssueJournalList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetIssueReturnJournalList(GridParameter parameters)
+        {
+            AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsInventoryPayableService.GetIssueReturnJournalList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

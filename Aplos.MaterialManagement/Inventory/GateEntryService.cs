@@ -3165,6 +3165,7 @@ ORDER BY IR.ID DESC";
                     if (data.IsNull())
                         throw new CustomException(ServiceResources.RecordNoLonger);
                     _gatePassMasterRepository.Delete(data.Id);
+                    flag = false;
                     _unitOfWork.SaveChanges();
                 }
             }
@@ -3206,6 +3207,7 @@ ORDER BY IR.ID DESC";
                     if (data.IsNull())
                         throw new CustomException(ServiceResources.RecordNoLonger);
                     _gateEntryRepository.Delete(data.Id);
+                    flag = false;
                     _unitOfWork.SaveChanges();
                 }
             }
