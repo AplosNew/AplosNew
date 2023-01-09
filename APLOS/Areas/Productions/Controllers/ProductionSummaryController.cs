@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using Library.Model.Enums;
 using System.Drawing;
+using Library.Service.Systems;
 
 #endregion
 
@@ -28,15 +29,17 @@ namespace Aplos.Areas.Productions.Controllers
     public class ProductionSummaryController : BaseController
     {
         ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
+        private readonly IPKGeneratorService _pkGeneratorService;
         private readonly ISqlRepository _sqlRepository;
         #region Constructor
         /// <summary>   The ProductionSummaryService service. </summary>
         private readonly IProductionSummaryService _ProductionSummaryService;
 
-        public ProductionSummaryController(IProductionSummaryService ProductionSummaryService, ISqlRepository sqlRepository)
+        public ProductionSummaryController(IProductionSummaryService ProductionSummaryService, ISqlRepository sqlRepository, IPKGeneratorService pkGeneratorService)
         {
             _ProductionSummaryService = ProductionSummaryService;
             _sqlRepository = sqlRepository;
+            _pkGeneratorService = pkGeneratorService;
         }
         #endregion
 
@@ -371,7 +374,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             _ProductionSummaryService.SaveDetentionWC(DataList);
             return Json(new { Message = AplosMessage.Success });
         }
-        private void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
+        public void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -396,7 +399,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                         if (dv.Count == 0)
                         {
-                            item["Id"] = masterId + idc;
+                            string id = _pkGeneratorService.MakePK(masterId, idc, 3);
+                            item["Id"] = id;
                             item["ProductionSummaryId"] = masterId;
 
                             AddNewRow(dsMaster.Tables[0], item);
@@ -1319,7 +1323,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             var filePath = "";
             try
             {
-                
+
                 string Entity = "'" + EntityId.Replace(",", "','") + "'";//replaced with ""
                 string processId = "'" + ProcessId.Replace(",", "','") + "'";//replaced with ""
 
@@ -1660,7 +1664,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
 
                 #region Pivot
-              //  DataTable dtDistinctParameter = dtOrder.DefaultView.ToTable(true, "Parameter");
+                //  DataTable dtDistinctParameter = dtOrder.DefaultView.ToTable(true, "Parameter");
 
                 string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
 
@@ -1731,7 +1735,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             try
             {
                 string wp = "";
-                if (string.IsNullOrEmpty(ProcessId)|| ProcessId=="''")
+                if (string.IsNullOrEmpty(ProcessId) || ProcessId == "''")
                 {
                     wp = @"SELECT DISTINCT P.Id AS [Value] FROM HKP.EntityProcessTag AS EP
                             JOIN HKP.Process AS P ON EP.ProcessId = P.Id
@@ -2001,7 +2005,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPerametreWiseOrderReport(string fromDate, string toDate, string EntityId,string ProcessId)
+        public ActionResult GetPerametreWiseOrderReport(string fromDate, string toDate, string EntityId, string ProcessId)
         {
             try
             {
@@ -2027,7 +2031,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             var filePath = "";
             try
             {
-               
+
                 string Entity = "'" + EntityId.Replace(",", "','") + "'";//replaced with ""
 
                 excelEngine = new ExcelEngine();
@@ -2420,7 +2424,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
 
                 #region Pivot
-                
+
                 string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
 
                 workbook.SaveAs(fPath);
