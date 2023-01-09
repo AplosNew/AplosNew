@@ -181,28 +181,6 @@ function PackingScanDataController(cboService,commonMessage,$scope, $http, $loca
     $scope.ImportData = function () {
         try {
             $scope.$broadcast('show-errors-check-validity');
-            //if ($scope.ModelNewForm.$valid) {
-            //    var picData = new FormData();
-            //    if (!baseService.isUndefinedOrNull($scope.picdata)) {
-            //        $scope.PSDataNew.FileName = $scope.picdata.name;
-            //    }
-
-            //    if (baseService.isUndefinedOrNull($scope.PSDataNew.BankMasterId)) {
-            //        throw "Please Select Bank.";
-            //    }
-
-            //    if (baseService.isUndefinedOrNull($scope.PSDataNew.BankStatementNo)) {
-            //        throw "Please Select Bank StatementNo.";
-            //    }
-
-            //    if (baseService.isUndefinedOrNull($scope.PSDataNew.EmployeeId)) {
-            //        throw "Please Select By Whom.";
-            //    }
-            //    if (new Date($scope.PSDataNew.ToDate) < new Date($scope.PSDataNew.FromDate)) {
-            //        throw "To date must be below or equal to From Date!";
-            //    }
-
-
                 $http({
                     method: 'POST',
                     url: $scope.path + 'ImportData',
@@ -254,7 +232,7 @@ function PackingScanDataController(cboService,commonMessage,$scope, $http, $loca
         try {
             $.ajax({
                 type: "POST",
-                url: $scope.path + 'SaveBankReconciliationUploadData',
+                url: $scope.path + 'SavePackingScanUploadData',
                 data: {
                     'bankReconciliationUploadvm': $scope.PSDataNew
                     , 'bankReconciliationUploadedDataList': $scope.PackingScanUploadedData

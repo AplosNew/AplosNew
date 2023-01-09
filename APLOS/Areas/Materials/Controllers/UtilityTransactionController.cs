@@ -103,8 +103,8 @@ namespace Aplos.Areas.Materials.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
            
             string sql = @"Select TOP(1)* from (select LastReading=(select top(1) Reading from UtilityTransaction  order by Id desc)
-									, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction  order by Date desc)
-									, LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction  order by Date desc)
+									, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction Where UtilityMasterId='" + utilityMasterId +@"' order by Date desc)
+                                    , LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction Where UtilityMasterId = '" + utilityMasterId +@"' order by Date desc)
                                     from UtilityTransaction
                                     Where UtilityMasterId='" + utilityMasterId + "')A";
 
