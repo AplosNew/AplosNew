@@ -352,6 +352,24 @@ where P.Id='" + Pid + "'";
         }
 
         [Authorize, HttpPost]
+        public ActionResult GradingDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [TRN].[SkillManagementGrading] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpPost]
         public ActionResult GetBudgetCode()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -396,21 +414,19 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetEmployee()
+        public ActionResult GetByWhomeBudgetCode()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
-                                    , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
-                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
-                            FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
-                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            WHERE EI.EmployeeStatus='Active'";
+            string str = @"select MP.Id ManPowerBudgetId, MP.Code, E.UserName Entity, P.UserName Position,P.Activity,
+DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.UserName AS [LegalDesignation] from MST.ManpowerBudget MP
+                            left join ORG.Entity E on E.Id = MP.EntityId
+                            left join ORG.Position P on P.Id = MP.PositionId
+							left join EmployeeInformation EI on EI.BudgetCode=MP.Id and EI.EmployeeStatus='Active'
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            where MP.Active = 1 and EI.EmployeeStatus='Active'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -449,7 +465,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             string sql = @"SELECT *,
-(select EmployeeName from EmployeeInformation where SystemId=ByWhomId) as ByWhom
+(select Code from [MST].[ManpowerBudget] where Id=ByWhomId) as ByWhom
 FROM [TRN].[SkillManagementItem] where Id='" + ItemId + @"'";
             return Json(new { item = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
@@ -490,6 +506,15 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 left join TRN.TeamDefinition TD ON TD.Id=MTD.TeamDefinitionId
                             where MTD.Id ='" + TeamDefinitionId + "'";
             return Json(new { TeamDefinition = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadGradingEditData(string GradeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select PerformanceGroup,Grade1,Grade2,Grade3,Grade4 from [TRN].[SkillManagementGrading] where Id ='" + GradeId + "'";
+            return Json(new { Grade = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -546,7 +571,7 @@ where P.Active=1 and E.Id in (select EntityId from [TRN].[SkillManagementEntity]
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT *,(select distinct PerformanceGroup from TRN.SkillManagementLevel where PerformanceGroup=PerformanceGroupId) as PerformanceGroup,
-(select EmployeeName from EmployeeInformation where SystemId=ByWhomId) as ByWhom
+(select Code from [MST].[ManpowerBudget] where Id=ByWhomId) as ByWhom
 FROM [TRN].[SkillManagementItem] where SMID ='" + ScheduleId + "' order by SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -584,6 +609,14 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             string sql = @"select MTD.Id, MTD.SNO,TD.UserName TeamName from [TRN].[SkillManagementTeamDefinition] MTD
 left join TRN.TeamDefinition TD ON TD.Id=MTD.TeamDefinitionId
 where MTD.SMID ='" + ScheduleId + "' order by MTD.SNO";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadGradingDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select * from [TRN].[SkillManagementGrading] where SMID ='" + ScheduleId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -911,6 +944,55 @@ where MTD.SMID ='" + ScheduleId + "' order by MTD.SNO";
                 _info.SaveDataSets(dsSkillManagementTeamDefinition);
 
                 return Json(new { Error = false, Data = TeamDefinitionData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult createGrading(Dictionary<string, object> GradingData, string Pid)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementGrading] where Id<>'" + GradingData["Id"] + "'", out DataSet dsSkillManagementGradingValidation, false, "1");
+
+                DataSet dsSkillManagementGrading;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementGrading] where Id='" + GradingData["Id"] + "'", out dsSkillManagementGrading, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsSkillManagementGrading.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("SkillManagementGrading", out _Id);
+                    _Id = "SMG" + _Id;
+                    GradingData["Id"] = _Id;
+                    GradingData["SMID"] = Pid;
+                    AddNewRow(dsSkillManagementGrading.Tables[0], GradingData);
+                }
+                else
+                {
+                    _Id = GradingData["Id"].ToString();
+                    GradingData["SMID"] = Pid;
+                    EditRow(dsSkillManagementGrading.Tables[0].Rows[0], GradingData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsSkillManagementGrading);
+
+                return Json(new { Error = false, Data = GradingData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)

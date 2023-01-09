@@ -286,6 +286,79 @@ namespace Aplos.Controllers.ApopAPIHR
             return Processlist;
         }
 
-       
+        #region written by Aman
+        #region AllTaskList
+        public List<Tasks> GetMyCreationActive(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetMyCreationActive(out List<Tasks> activelists, UserId);
+            return activelists;
+        }
+
+        public List<Tasks> GetMyTaskActive(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetMyTaskActive(out List<Tasks> activelists, UserId);
+            return activelists;
+        }
+
+        public List<Tasks> GetTocheckActive(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTocheckActive(out List<Tasks> activelists, UserId);
+            return activelists;
+        }
+
+        public List<Tasks> GetTocrosscheckActive(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTocrosscheckActive(out List<Tasks> activelists, UserId);
+            return activelists;
+        }
+        public List<Tasks> GetToapprovedActive(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetToapprovedActive(out List<Tasks> activelists, UserId);
+            return activelists;
+        }
+
+
+        public List<Tasks> GetMyCreationClose(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetMyCreationClose(out List<Tasks> activelists, UserId);
+            return activelists;
+        }
+
+        public List<Tasks> GetMyTaskClose(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetMyTaskClose(out List<Tasks> activelists, UserId);
+            return activelists;
+        }
+
+        public List<Tasks> GetTocheckClose(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTocheckClose(out List<Tasks> activelists, UserId);
+            return activelists;
+        }
+
+        public List<Tasks> GetTocrosscheckClose(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTocrosscheckClose(out List<Tasks> activelists, UserId);
+            return activelists;
+        }
+        public List<Tasks> GetToapprovedClose(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetToapprovedClose(out List<Tasks> activelists, UserId);
+            return activelists;
+        }
+
+        #endregion AllTaskList
+        #endregion written by Aman
+
     }
 }
