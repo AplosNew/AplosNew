@@ -10,6 +10,7 @@ using Library.Data.Sql;
 using Library.Model.Banks;
 using Library.Model.Enums;
 using Library.Model.Vouchers;
+using Library.Security.Core;
 using Library.Service.Banks;
 using Library.Service.Helpers;
 using Library.ViewModel.Accounts;
@@ -299,7 +300,6 @@ namespace Aplos.Areas.Productions.Controllers
                         DataSet dsExcel = new DataSet();
                         dsExcel.Tables.Add(dt);
 
-
                         docFile = new FileInfo(path);
                         if (docFile.Exists)
                         {
@@ -505,6 +505,173 @@ namespace Aplos.Areas.Productions.Controllers
             return jsondata;
 
         }
+
+        //New 
+
+        [HttpPost, Authorize]
+        public JsonResult GetPurpose()
+        {
+            try
+            {
+                string sql = "";
+                    sql = @"select Id as PurposeId, UserName as Text from [HKP].[MaterialMovementPurpose]";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult GetMaterialMovementList(string purposeId)
+        {
+            try
+            {
+                string sql = "";
+                sql = @"select Id LocMasterId,FromLocation,ToLocation  from [MST].[MaterialMovementMaster]
+                        where PurposeId='" + purposeId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetShiftList()
+        {
+            string sql = @"SELECT distinct sd.SystemID [Value],sd.UserName [Text] FROM [dbo].[WorkCenterWiseShift] WCS
+                                        LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID = WCS.ShiftDefinationID
+                                        WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm)";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public Dictionary<string, object> Save(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableName = "dbo.ItemScan";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                bplib.clsGenID genid = new bplib.clsGenID();
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data Master update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        //public JsonResult Save(Dictionary<string, object> data)
+        //{
+        //    try
+        //    {
+        //        DataSet dsMaster;
+        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+        //        con.OpenDataSetThroughAdapter("select * from dbo.ItemScan where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+        //        string _Id = "";
+
+        //        #region data update
+        //        if (dsMaster.Tables[0].Rows.Count == 0)
+        //        {
+        //            bplib.clsGenID genid = new bplib.clsGenID();
+        //            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "dbo.ItemScan", out _Id);
+
+        //            data["Id"] = _Id;
+        //            AddNewRow(dsMaster.Tables[0], data);
+        //        }
+        //        else
+        //        {
+        //            _Id = data["Id"].ToString();
+        //            EditRow(dsMaster.Tables[0].Rows[0], data);
+        //        }
+        //        #endregion data update
+        //        clsStaticInfo _info = new clsStaticInfo();
+        //        _info.SaveDataSets(dsMaster);
+
+        //        return Json(new { Error = false, Message = AplosMessage.Insert });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { Error = true, Message = ex.Message });
+        //    }
+        //}
+
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+            dr.EndEdit();
+        }
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+
+            dt.Rows.Add(dr);
+        }
+
+        //New End
         #endregion Operation
     }
 }
