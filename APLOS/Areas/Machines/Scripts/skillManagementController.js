@@ -14,6 +14,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     $scope.saveUrlParameter = $scope.path + 'createParameter';
     $scope.saveUrlBudgetCode = $scope.path + 'createBudgetCode';
     $scope.saveUrlTeamDefinition = $scope.path + 'createTeamDefinition';
+    $scope.saveUrlGrading = $scope.path + 'createGrading';
     
     $scope.CriticalLevelLists = [
         {
@@ -108,6 +109,8 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         , ItemMinutes: null
         , ExceptionDays: null
         , ReportApplicable: true
+        , MaximumPoints: null
+        , MinimumPoints: null
     };
     $scope.ItemNew = Object.assign({}, $scope.Item);
 
@@ -126,7 +129,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         , PersonBudgetCodeId: null
         , PersonBudgetCode: null
         , Group: null
-        , MaintenanceSchedulingId: null
+        , SMID: null
     }
     $scope.PersonBudgetNew = Object.assign({}, $scope.PersonBudget);
 
@@ -135,9 +138,20 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         , SNO: null
         , TeamDefinitionId: null
         , TeamDefinition: null
-        , MaintenanceSchedulingId: null
+        , SMID: null
     }
     $scope.TeamDefinitionNew = Object.assign({}, $scope.TeamDefinition);
+
+    $scope.Grade = {
+        Id: null
+        , SMID: null
+        , PerformanceGroup: null
+        , Grade1: null
+        , Grade2: null
+        , Grade3: null
+        , Grade4: null
+    }
+    $scope.GradeNew = Object.assign({}, $scope.Grade);
 
     $scope.ProcessList = [];
     $scope.GetProcessList = function () {
@@ -193,6 +207,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
             $scope.LoadBudgetCodeDetails($scope.ScheduleMasterId);
             $scope.GeneratPersonBudgetSequenceNo($scope.ScheduleMasterId);
             $scope.LoadTeamDefinitionDetails($scope.ScheduleMasterId);
+            $scope.LoadGradingDetails($scope.ScheduleMasterId);
             $scope.GeneratTeamDefinitionSequenceNo($scope.ScheduleMasterId);
 
             if (!$rootScope.isCollapsed) {
@@ -437,6 +452,18 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         }
         )
     }
+
+    $scope.ScheduleGradingList = [];
+    $scope.LoadGradingDetails = function () {
+        $http({
+
+            method: 'Get',
+            url: 'Machines/SkillManagement/LoadGradingDetails?ScheduleId=' + $scope.scheduleNew.Id
+        }).then(function successCallback(response) {
+            $scope.ScheduleGradingList = response.data;
+        }
+        )
+    }
     
     $scope.selectBudgetCode = function () {
         $scope.getBudgetCode();
@@ -464,25 +491,25 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#BudgetCodePopUp')).modal('hide');
     }
 
-    $scope.selectEmployee = function () {
-        $scope.getEmployee();
+    $scope.selectByWhomeBudgetCode = function () {
+        $scope.ByWhomeBudgetCode();
         angular.element(document.querySelector('#ByWhomPop')).modal('show');
     }
 
-    $scope.EmployeeList = [];
-    $scope.getEmployee = function () {
+    $scope.ByWhomeBudgetCodeList = [];
+    $scope.ByWhomeBudgetCode = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetEmployee',
+            url: $scope.path + 'GetByWhomeBudgetCode',
             dataType: 'JSON'
         }).then(function succ(resp) {
-            $scope.EmployeeList = resp.data;
+            $scope.ByWhomeBudgetCodeList = resp.data;
         });
     }
 
-    $scope.doubleEmployee = function (e) {
-        $scope.ItemNew.ByWhomId = e.data.SystemId;
-        $scope.ItemNew.ByWhom = e.data.EmployeeName;
+    $scope.doubleByWhomeBudgetCode = function (e) {
+        $scope.ItemNew.ByWhomId = e.data.ManPowerBudgetId;
+        $scope.ItemNew.ByWhom = e.data.Code;
         angular.element(document.querySelector('#ByWhomPop')).modal('hide');
     }
 
@@ -611,7 +638,7 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadSkillLevelDetails($scope.scheduleNew.Id);
                     SkillLevelClearFields($scope.GeneratSkillLevelSequenceNo($scope.scheduleNew.Id));
-
+                    $scope.GetPerformanceGroupList($scope.ScheduleMasterId);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -687,6 +714,30 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
                 ShowResult(response.data.Message, 'success');
                 $scope.LoadTeamDefinitionDetails($scope.scheduleNew.Id);
                 TeamDefinitionClearFields($scope.GeneratTeamDefinitionSequenceNo($scope.scheduleNew.Id));
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.GradingSave = function () {
+        $http({
+            method: 'POST',
+            url:$scope.saveUrlGrading,
+            data: {
+                'GradingData': $scope.GradeNew,
+                'Pid': $scope.scheduleNew.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadGradingDetails($scope.scheduleNew.Id);
+                GradingClearFields();
 
             }
         }), function errorCallBack(response) {
@@ -829,6 +880,19 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
         }
         )
     }
+
+    $scope.GetGradingDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'Machines/SkillManagement/LoadGradingEditData?GradeId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.GradeNew = response.data.Grade[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
     $scope.Clear = function () {
         ScheduleClearFields();
     };
@@ -848,7 +912,9 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     $scope.TeamDefinitionClear = function () {
         TeamDefinitionClearFields($scope.GeneratTeamDefinitionSequenceNo($scope.scheduleNew.Id));
     };
-    
+    $scope.GradingClear = function () {
+        GradingClearFields();
+    };
     function ScheduleClearFields() {
         $scope.Action = "Save";
         $scope.scheduleNew = Object.assign({}, $scope.schedule);
@@ -882,6 +948,10 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
     function ParameterClearFields() {
         $scope.Action = "Save";
         $scope.ParameterNew = Object.assign({}, $scope.Parameter);
+    }
+    function GradingClearFields() {
+        $scope.Action = "Save";
+        $scope.GradeNew = Object.assign({}, $scope.Grade);
     }
 
     $scope.removeLevelModal = function (index, data) {
@@ -926,6 +996,17 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
             $scope.tempTeamId = data;
             $scope.message_confirmation = "Are you sure you want to delete?";
             angular.element(document.querySelector('#confirmRemoveTeamDefinition')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeGradingModal = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempGradeId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemoveGrading')).modal('show');
         }
         catch (e) {
             ShowResult(e, 'Error');
@@ -1003,6 +1084,25 @@ function skillManagementController(cboService, commonMessage, $scope, $rootScope
                 ShowResult(response.data.Message, 'success');
                 $scope.LoadTeamDefinitionDetails($scope.scheduleNew.Id);
                 TeamDefinitionClearFields($scope.GeneratTeamDefinitionSequenceNo($scope.scheduleNew.Id));
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+    $scope.removeGradeRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Machines/SkillManagement/GradingDelete?id=' + $scope.tempGradeId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadGradingDetails($scope.scheduleNew.Id);
+                GradingClearFields();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

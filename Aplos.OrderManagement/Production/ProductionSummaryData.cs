@@ -8,6 +8,7 @@ using Library.Service.Enums;
 using Library.Crosscutting.Security;
 using System.Threading;
 using Library.ViewModel.OrderManagements;
+using Library.Service.Systems;
 
 namespace Library.OrderManagement.Production
 {
@@ -15,11 +16,12 @@ namespace Library.OrderManagement.Production
     {
         SqlRepository _sqlRepository;
         ConnectionManager.clsConnectionManager ConManager;
-
+        
         public ProductionSummaryData()
         {
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
+            
         }
 
         public IEnumerable<object> GetPOCust(string POId)
@@ -1804,16 +1806,16 @@ namespace Library.OrderManagement.Production
                             FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.ProductionOrderId
                             ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"'";
 
-                 sql = @"SELECT PlannedQty=CASE WHEN PQ.Qty=0 THEN (CASE WHEN CEILING(SUM(PSP.Qty))=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE CEILING(SUM(PSP.Qty)) END) ELSE PQ.Qty END
-,((CASE WHEN PQ.Qty=0 THEN (CASE WHEN CEILING(SUM(PSP.Qty))=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE CEILING(SUM(PSP.Qty)) END) ELSE PQ.Qty END)-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
-, ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
-                            FROM trn.ProductionOrder AS PO
-                            LEFT JOIN TRN.ProductionOrderProcessSet PQ ON PQ.ProductionOrderID=PO.Id AND PQ.ProcessId='" + processId + @"'
-							LEFT JOIN ProductionOrderSchedulingParametersType1 PSP ON PSP.ProductionOrderID=PO.Id
-                            LEFT JOIN 
-                            (SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
-                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId
-                            ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
+//                 sql = @"SELECT PlannedQty=CASE WHEN PQ.Qty=0 THEN (CASE WHEN CEILING(SUM(PSP.Qty))=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE CEILING(SUM(PSP.Qty)) END) ELSE PQ.Qty END
+//,((CASE WHEN PQ.Qty=0 THEN (CASE WHEN CEILING(SUM(PSP.Qty))=0 THEN CEILING(SUM(PO.PlannedQty)) ELSE CEILING(SUM(PSP.Qty)) END) ELSE PQ.Qty END)-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
+//, ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
+//                            FROM trn.ProductionOrder AS PO
+//                            LEFT JOIN TRN.ProductionOrderProcessSet PQ ON PQ.ProductionOrderID=PO.Id AND PQ.ProcessId='" + processId + @"'
+//							LEFT JOIN ProductionOrderSchedulingParametersType1 PSP ON PSP.ProductionOrderID=PO.Id
+//                            LEFT JOIN 
+//                            (SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
+//                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId
+//                            ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -3475,6 +3477,8 @@ Where C.Sequence=2";
                 throw ex;
             }
         }
+
+      
     }
 
 

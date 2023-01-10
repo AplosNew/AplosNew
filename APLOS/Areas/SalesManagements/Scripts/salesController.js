@@ -107,6 +107,8 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         CompanyGroupId: null,
         CompanyId: null,
         PartyId: null,
+        EntityId: null,
+        ItemDescription: null,
         PartyName: null,
         CurrencyId: null,
         PartyType: "Customer",
@@ -559,13 +561,74 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
 
     function ClearFields() {
         $scope.Action = "Save";
+        $scope.salesVM = {
+            Id: null,
+            CompanyGroupId: null,
+            CompanyId: null,
+            PartyId: null,
+            EntityId:null,
+            ItemDescription: null,
+            PartyName: null,
+            CurrencyId: null,
+            PartyType: "Customer",
+            InvoiceDate: $filter("dateFiltering")(Date.now()),
+            VoucherDate: $filter("dateFiltering")(Date.now()),
+            PostingDate: $filter("dateFiltering")(Date.now()),
+            DocDate: $filter("dateFiltering")(Date.now()),
+            DocRefNo: null,
+            Amount: 0,
+            BankAmount: 0,
+            BaseOnDueDate: null,
+            BaseNoOfDays: null,
+            PaymentTermId: null,
+            Narration: null,
+            CompanyCurrencyRate: 1,
+            InvoicingPartyPlantId: null,
+            DeliveryPartyPlantId: null,
+            InvoicingByAddress: null,
+            DeliveryByAddress: null,
+            InvoicingState: null,
+            InvoicingGSTIN: null,
+            DeliveryState: null,
+            DeliveryGSTIN: null,
+            BLNumber: null,
+            LCNumber: null,
+            ComercialInvoiceNo: null,
+            EXPFromNo: null,
+            SourceType: 'Sales',
+            ContractId: null
+            , TaxOption: 'Yes'
+            , TaxOptionMat: 'Yes'
+            , TaxOptionService: 'Yes'
+            , TaxOptionServiceModify: 'Yes'
+            , TaxOptionAddiTax: 'Yes',
+            BooksCurrencyTransactionAmount: null,
+            BooksCurrencyTaxAmount: null,
+            BooksCurrencyBaseRate: null,
+            IsPark: 1
+        };
+
+        $scope.materialMaster = {
+            MaterialMasterId: null,
+            MaterialMasterName: null,
+            BaseUOMId: null,
+            BaseUoM: null,
+            OurStyleName: null,
+            MaterialGroupMasterName: null,
+            ProductMasterName: null,
+            IsOurStyleRequired: null,
+            IsProductMstRequired: null,
+            TransactionUoMId: null,
+            ArticleId: null,
+            ArticleName: null,
+            CountryId: null
+        };
         $scope.salesVM.Id = null;
         $scope.salesVM.CompanyGroupId = null;
         $scope.salesVM.CompanyId = null;
         $scope.salesVM.PartyId = null;
         $scope.salesVM.PartyName = null;
         $scope.salesVM.CurrencyId = null;
-        $scope.salesVM.PartyType = "Customer";
         $scope.salesVM.DocRefNo = null;
         $scope.salesVM.Amount = 0;
         $scope.salesVM.BankAmount = 0;

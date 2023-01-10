@@ -10,8 +10,11 @@ using Library.Data.Sql;
 using Library.Model.Banks;
 using Library.Model.Enums;
 using Library.Model.Vouchers;
+using Library.Security.Core;
 using Library.Service.Banks;
+using Library.Service.Enums;
 using Library.Service.Helpers;
+using Library.Service.Logs;
 using Library.ViewModel.Accounts;
 using Newtonsoft.Json;
 using Syncfusion.XlsIO;
@@ -299,7 +302,6 @@ namespace Aplos.Areas.Productions.Controllers
                         DataSet dsExcel = new DataSet();
                         dsExcel.Tables.Add(dt);
 
-
                         docFile = new FileInfo(path);
                         if (docFile.Exists)
                         {
@@ -362,14 +364,149 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        [HttpPost]
-        public ActionResult SaveBankReconciliationUploadData(BankReconciliationUpload bankReconciliationUploadvm, IEnumerable<BankReconciliationUploadedData> bankReconciliationUploadedDataList)
-        {
-            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
-            accountsCommonService.SaveBankReconciliationUploadData(bankReconciliationUploadvm, bankReconciliationUploadedDataList);
 
-            return Json(new { Message = AplosMessage.Insert });
-        }
+        //#region Packing Scan Data Upload
+        //[HttpPost]
+        //public ActionResult SavePackingScanUploadData(BankReconciliationUpload bankReconciliationUploadvm, IEnumerable<BankReconciliationUploadedData> bankReconciliationUploadedDataList)
+        //{
+        //    //AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+        //    SavePackingScanUpload(bankReconciliationUploadvm, bankReconciliationUploadedDataList);
+
+        //    return Json(new { Message = AplosMessage.Insert });
+        //}
+
+        //public void SavePackingScanUpload(BankReconciliationUpload bankReconciliationUploadvm, IEnumerable<BankReconciliationUploadedData> bankReconciliationUploadedDataList)
+        //{
+        //    try
+        //    {
+        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+        //        DataSet _BankReconciliationUploadedData = null;
+        //        DataSet _BankReconciliationUpload = null;
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        var bankReconciliationUpload = new BankReconciliationUpload
+        //        {
+        //            BankMasterId = bankReconciliationUploadvm.BankMasterId,
+        //            OpeningBlance = bankReconciliationUploadvm.OpeningBlance,
+        //            ClosingBalance = bankReconciliationUploadvm.ClosingBalance,
+        //            BankStatementNo = bankReconciliationUploadvm.BankStatementNo,
+        //            FromDate = bankReconciliationUploadvm.FromDate,
+        //            ToDate = bankReconciliationUploadvm.ToDate,
+        //            EmployeeId = bankReconciliationUploadvm.EmployeeId,
+        //            Remarks = bankReconciliationUploadvm.Remarks,
+        //            CompanyGroupId = identity.CompanyGroupId,
+        //            CompanyId = identity.CompanyId,
+        //            PlantId = identity.PlantId,
+
+        //        };
+
+        //        InsertPackingScanUpload(bankReconciliationUpload, ref _BankReconciliationUpload);
+
+        //        foreach (var item in bankReconciliationUploadedDataList)
+        //        {
+        //            var bankReconciliationUploadedData = new BankReconciliationUploadedData
+        //            {
+        //                BankReconciliationUploadId = bankReconciliationUpload.Id,
+        //                BankStatementDate = item.BankStatementDate,
+        //                BankRefNo = item.BankRefNo,
+        //                BankParticulars = item.BankParticulars,
+        //                DrAmount = item.DrAmount,
+        //                CrAmount = item.CrAmount,
+        //                Remarks = item.Remarks,
+        //                OwnRefNo = item.OwnRefNo,
+        //                CompanyGroupId = identity.CompanyGroupId,
+        //                CompanyId = identity.CompanyId,
+        //                PlantId = identity.PlantId,
+
+        //            };
+
+        //            InserBankReconciliationUploadedData(bankReconciliationUploadedData, ref _BankReconciliationUploadedData);
+        //        }
+
+        //        clsStaticInfo objApp = new clsStaticInfo();
+        //        objApp.SaveDataSets(_BankReconciliationUpload, _BankReconciliationUploadedData);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new CustomException(ex.Message, ex,
+        //            Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+        //            ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+        //    }
+        //}
+
+        //public void InsertPackingScanUpload(BankReconciliationUpload bankReconciliationUpload, ref DataSet dsData)
+        //{
+        //    bankReconciliationUpload.Id = GetAutoNumber(nameof(BankReconciliationUpload), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+        //    if (string.IsNullOrEmpty(bankReconciliationUpload.AddedBy))
+        //        AuditService.AddedLog(bankReconciliationUpload);
+        //    if (dsData == null || dsData.Tables.Count == 0)
+        //    {
+        //        ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+        //        con.getDataSet("Select * from [TRN].[BankReconciliationUpload] where 1=2", out dsData);
+        //    }
+        //    AddNewRow<BankReconciliationUpload>(dsData.Tables[0], bankReconciliationUpload);
+
+        //}
+        //public void InserBankReconciliationUploadedData(BankReconciliationUploadedData bankReconciliationUploadedData, ref DataSet dsData)
+        //{
+        //    bankReconciliationUploadedData.Id = GetAutoNumber(nameof(BankReconciliationUploadedData), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+        //    if (string.IsNullOrEmpty(bankReconciliationUploadedData.AddedBy))
+        //        AuditService.AddedLog(bankReconciliationUploadedData);
+        //    if (dsData == null || dsData.Tables.Count == 0)
+        //    {
+        //        ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+        //        con.getDataSet("Select * from [TRN].[BankReconciliationUploadedData] where 1=2", out dsData);
+        //    }
+        //    AddNewRow<BankReconciliationUploadedData>(dsData.Tables[0], bankReconciliationUploadedData);
+
+        //}
+        //public string GetAutoNumber(string fieldName, PKGeneratorEnum period, string companyGroupId, DateTime date)
+        //{
+        //    string prefix = null; var condition = "";
+        //    switch (period.ToString())
+        //    {
+        //        case "Auto":
+        //            prefix = MakePeriodAuto();
+        //            condition = $"WHERE FieldName='{fieldName}' AND [Period]='{prefix}' AND (CompanyGroupId IS NULL OR CompanyGroupId='{companyGroupId}') ";
+        //            break;
+
+        //        case "Yearly":
+        //            prefix = MakePeriodYearly(date);
+        //            condition = $"WHERE FieldName='{fieldName}' AND [Period]='{prefix}' AND (CompanyGroupId IS NULL OR CompanyGroupId='{companyGroupId}') ";
+        //            break;
+
+        //        case "Monthly":
+        //            prefix = MakePeriodMonthly(date);
+        //            condition = $"WHERE FieldName='{fieldName}' AND [Period]='{prefix}' AND (CompanyGroupId IS NULL OR CompanyGroupId='{companyGroupId}') ";
+        //            break;
+
+        //        case "Daily":
+        //            prefix = MakePeriodDaily(date);
+        //            condition += $"WHERE FieldName='{fieldName}' AND [Period]='{prefix}' AND (CompanyGroupId IS NULL OR CompanyGroupId='{companyGroupId}') ";
+        //            break;
+
+        //        default:
+        //            break;
+        //    }
+        //    var cId = companyGroupId == null ? "null" : (object)$"'{companyGroupId}'";
+        //    var sql = "DECLARE @lastNumber AS BIGINT=0; " +
+        //           $"SELECT @lastNumber=MaxNumber FROM [ACS].[PKGenerator] {condition} " +
+        //           "IF @lastNumber > 0  " +
+        //           "BEGIN  " +
+        //               $"UPDATE [ACS].[PKGenerator] SET UpdatedDate=GETDATE(), MaxNumber=@lastNumber + 1 {condition} " +
+        //           "END " +
+        //           "ELSE    " +
+        //               $"INSERT INTO [ACS].[PKGenerator](FieldName, [Period], CompanyGroupId, MaxNumber, UpdatedDate) VALUES('{fieldName}', '{prefix}', {cId}, 1, GETDATE()); " +
+        //           "SELECT @lastNumber + 1 AS MaxNumber";
+
+
+        //    var number = _sqlRepository.GetDataCollection(sql)[0]["MaxNumber"].ToString();
+        //    return period == PKGeneratorEnum.Auto ? number : prefix + number;
+        //}
+
+        //#endregion
+
         [HttpGet, Authorize]
         public JsonResult LoadBankReconciliationUploadedData(string bankMasterId)
         {
@@ -505,6 +642,138 @@ namespace Aplos.Areas.Productions.Controllers
             return jsondata;
 
         }
+
+        //New 
+
+        [HttpPost, Authorize]
+        public JsonResult GetPurpose()
+        {
+            try
+            {
+                string sql = "";
+                    sql = @"select Id as PurposeId, UserName as Text from [HKP].[MaterialMovementPurpose]";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult GetMaterialMovementList(string purposeId)
+        {
+            try
+            {
+                string sql = "";
+                sql = @"select Id LocMasterId,FromLocation,ToLocation  from [MST].[MaterialMovementMaster]
+                        where PurposeId='" + purposeId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetShiftList()
+        {
+            string sql = @"SELECT distinct sd.SystemID [Value],sd.UserName [Text] FROM [dbo].[WorkCenterWiseShift] WCS
+                                        LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID = WCS.ShiftDefinationID
+                                        WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm)";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public Dictionary<string, object> Save(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableName = "dbo.ItemScan";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                bplib.clsGenID genid = new bplib.clsGenID();
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data Master update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+            dr.EndEdit();
+        }
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+
+            dt.Rows.Add(dr);
+        }
+
+        //New End
         #endregion Operation
     }
 }
