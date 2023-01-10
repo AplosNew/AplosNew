@@ -35,24 +35,8 @@
                 <label class="col-sm-8 control-label"><b>{{modelNew.Id}}</b></label>
             </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label"><b>Employee :</b></label>
-                <label class="col-sm-8 control-label"><b>{{modelNew.EmployeeName}}</b></label>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label"><b>Entity :</b></label>
-                <label class="col-sm-8 control-label"><b>{{modelNew.EntityName}}</b></label>
-            </div>
-            <div class="form-group">
                 <label class="col-sm-4 control-label"><b>Order Ref No :</b></label>
                 <label class="col-sm-8 control-label"><b>{{modelNew.OrderRefNo}}</b></label>
-            </div>
-            <div class="form-group" ng-show="modelNew.IsOrderSpecificy">
-                <label class="col-sm-4 control-label"><b>Source No :</b></label>
-                <label class="col-sm-8 control-label"><b>{{modelNew.SourceNo}}</b></label>
-            </div>
-            <div class="form-group" ng-show="modelNew.IsOrderSpecificy">
-                <label class="col-sm-4 control-label"><b>Contract :</b></label>
-                <label class="col-sm-8 control-label"><b>{{modelNew.ContractId}}</b></label>
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -69,19 +53,6 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label"><b>Remarks :</b></label>
                 <label class="col-sm-8 control-label"><b>{{modelNew.Remarks}}</b></label>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label"><b> Type :</b></label>
-                <label class="col-sm-8 control-label"><b>{{modelNew.Types}}</b></label>
-            </div>
-
-            <div class="form-group" ng-show="modelNew.IsOrderSpecificy">
-                <label class="col-sm-4 control-label"><b> LC No :</b></label>
-                <label class="col-sm-8 control-label"><b>{{modelNew.LCRef}}</b></label>
-            </div>
-            <div class="form-group" ng-show="modelNew.IsOrderSpecificy">
-                <label class="col-sm-4 control-label"><b>Customer :</b></label>
-                <label class="col-sm-8 control-label"><b>{{modelNew.Customer}}</b></label>
             </div>
         </div>
 
@@ -129,8 +100,8 @@
                                         <th>Qty</th>
                                         <th>Rate</th>
                                         <th>Amount (TRN)</th>
-                                        <th>Budget</th>
-                                        <th>Activity</th>
+                                        @*<th>Budget</th>
+                                        <th>Activity</th>*@
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -146,7 +117,7 @@
                                         <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
                                         <td class="text-right">{{x.TransactionRate | number| setDecimal:2}}  {{x.CurrencyName}}</td>
                                         <td class="text-right">{{x.TrnAmount | number| setDecimal:2}}</td>
-                                        <td>
+                                        @*<td>
                                             <div class="input-group" style="margin-top: -7px;margin-bottom: -7px;">
                                                 <input type="text" ng-model="x.BudgetName" class="form-control" readonly>
                                                 <span class="input-group-btn">
@@ -156,7 +127,7 @@
                                                 </span>
                                             </div>
                                         </td>
-                                        <td>{{x.ActivityName}}</td>
+                                        <td>{{x.ActivityName}}</td>*@
                                     </tr>
                                     <tr>
                                         <td colspan="8" class="text-right"><strong>Total : </strong></td>
@@ -245,7 +216,7 @@
                     <th>Voucher No</th>
                     <th>Voucher Date</th>
                     <th>Storage Location</th>
-                    <th>Issue Date</th>
+                    <th>Issue Return Date</th>
                     <th>OrderRefNo</th>
                     <th>Types</th>
                     <th>Qty</th>
@@ -268,10 +239,10 @@
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                            <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
-                            <li><a class="btn btn-action"  ng-click="issueReportDownload(x)" ><i class="glyphicon glyphicon-print"></i></a></li>
-                            <li ><a ng-show="x.IsPark" class="btn btn-action" ng-click="confirmDelete(x.IssueNo,x.VoucherId);" href="" ><i class="glyphicon glyphicon-trash"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueReturnJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&inventoryIssueReturnId={{x.IssueReturnNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueReturnJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&inventoryIssueReturnId={{x.IssueReturnNo}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                            @*<li><a class="btn btn-action"  ng-click="issueReportDownload(x)" ><i class="glyphicon glyphicon-print"></i></a></li>*@
+                            <li ><a ng-show="x.IsPark" class="btn btn-action" ng-click="confirmDelete(x.IssueReturnNo,x.VoucherId);" href="" ><i class="glyphicon glyphicon-trash"></i></a></li>
                         </ul>
                     </td>
                 </tr>
@@ -315,19 +286,14 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Issue No</th>
+                                <th>Issue Return No</th>
                                 <th>Storage Location</th>
-                                <th>Issue Date</th>
-                                <th>Employee</th>
+                                <th>Issue Return Date</th>
                                 <th>Type</th>
-                                <th>PO No</th>
-
                                 <th>OrderRefNo</th>
                                 <th>Qty</th>
                                 <th>Amount</th>
-                                <th>Contract</th>
-                                <th>LC</th>
-                                <th>Customer</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -336,16 +302,11 @@
                                 <td>{{x.Id}}</td>
                                 <td>{{x.MaterialStorage}}</td>
                                 <td>{{x.IssueDate}}</td>
-                                <td>{{x.EmployeeName}}</td>
-                                <td>{{x.Types}}</td>
-                                <td>{{x.SourceNo}}</td>
+                                <td>{{x.IssueType}}</td>
                                 <td>{{x.OrderRefNo}}</td>
-
                                 <td>{{x.Qty}}</td>
                                 <td>{{x.Amount | number| setDecimal:2}}</td>
-                                <td>{{x.ContractId}}</td>
-                                <td>{{x.LCRef}}</td>
-                                <td>{{x.Customer}}</td>
+                                
                             </tr>
                         </tbody>
                     </table>
