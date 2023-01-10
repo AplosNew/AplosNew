@@ -22,6 +22,8 @@ namespace Library.Service.Invoices
         void InsertInventoryRejectPayable(string receiveId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList);
         void InsertIssueJournal(string issueId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList);
+        void InsertIssueReturnJournal(string issueId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+            , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList);
         void InsertGRNFixedAssetCapitalizeJournal(string issueId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
         void InsertIssueFixedAssetCapitalizeJournal(string issueId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<InventoryMaterialViewModel> invIssueDetailList);
@@ -57,5 +59,6 @@ namespace Library.Service.Invoices
         void DeleteTDSPostServicePayable(string invoiceWriteOffId, string voucherId, string serviceAckId);
         void DeleteTDSServicePayable(string additionalTaxId,string voucherId);
         void DeleteIssueJournal(string issueId, string voucherId);
+        void DeleteIssueReturnJournal(string issueId, string voucherId);
     }
 }

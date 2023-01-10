@@ -55,14 +55,14 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select distinct UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
+            string sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
 							            ,UT.Reading,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Reading
                                         ,UT.LastReading,FORMAT(UT.LastReadingDate,'dd-MMM-yyyy')LastReadingDate,CONVERT(varchar(5),UT.LastReadingTime,108) LastReadingTime
                                         ,UT.Remarks
 							            from dbo.UtilityTransaction UT
 										left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
-										left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId";
-
+										left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId
+                                        order by UT.Date Desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -101,18 +101,12 @@ namespace Aplos.Areas.Materials.Controllers
                 utilityTransactionId = "";
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            //   var sql = @"select LastReading=(select top(1) Reading from UtilityTransaction  order by Id desc)
-            //, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction  order by Id desc)
-            //, LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction  order by Id desc)
-            //                           from UtilityTransaction
-            //                           Where UtilityMasterId='" + utilityMasterId + @"' and Id='" + utilityTransactionId + @"'";
-
-            string sql = @"Select TOP(1)* from (
-select LastReading=(select top(1) Reading from UtilityTransaction  order by Id desc)
-									, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction  order by Id desc)
-									, LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction  order by Id desc)
+           
+            string sql = @"Select TOP(1)* from (select LastReading=(select top(1) Reading from UtilityTransaction  order by Id desc)
+									, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction Where UtilityMasterId='" + utilityMasterId +@"' order by Date desc)
+                                    , LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction Where UtilityMasterId = '" + utilityMasterId +@"' order by Date desc)
                                     from UtilityTransaction
-                                    Where UtilityMasterId='"+ utilityMasterId + "')A";
+                                    Where UtilityMasterId='" + utilityMasterId + "')A";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

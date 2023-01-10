@@ -1950,13 +1950,14 @@ where APD.Id='" + PlannedId + @"'";
                 strSql = @"select distinct SM.ScheduleCode,MI.Id,MI.SNO,
 ROW_NUMBER() OVER(ORDER BY MI.SNO ASC) as ItemSNO,MI.ItemName as [Item Name],MI.CriticalLevel,MI.Remarks as ItemRemarks,
 Reverse(stuff(Reverse((Select CheckPoints + '[ ],' from SkillItemParameterDetails where 
-ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,MI.ItemMinutes
+ItemId = (MI.Id) for xml PATH(''))),1,1,'')) as CheckPoints,MI.ItemMinutes,MI.PerformanceGroupId as ItemPGroup,MI.MaximumPoints,MI.MinimumPoints,
+Reverse(stuff(Reverse((Select PerformancePoints + ',' from TRN.SkillManagementLevel where 
+PerformanceGroup = MI.PerformanceGroupId for xml PATH(''))),1,1,'')) as SkillPoints,Reverse(stuff(Reverse((select top 2 EmployeeName + ',' from EmployeeInformation E where E.BudgetCode = MI.ByWhomId and EmployeeStatus='Active' order by DOJ for xml PATH(''))),1,1,'')) as AuditEmployee
 from TRN.SkillManagementItem MI
 left join TRN.SkillManagement SM ON SM.Id=MI.SMID
 left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id 
 left Join TRN.EmployeePlannedDetails APD ON APD.PositionCodeId=SPC.Id
 where APD.Id='" + PlannedId + @"'";
-
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();

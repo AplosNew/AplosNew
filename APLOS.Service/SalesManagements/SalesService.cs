@@ -874,7 +874,7 @@ namespace Library.Service.SalesManagements
 
         public void Delete(string id)
         {
-            string strSQL, strPSQL, strBSQL, strOSQL, strSSQL, strASQL, strPSSQL;
+            string strSQL, strPSQL, strBSQL, strOSQL, strSSQL, strASQL, strPSSQL, strUSC;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
@@ -887,6 +887,7 @@ namespace Library.Service.SalesManagements
                 strPSQL = "DELETE FROM TRN.SalesOrderItem WHERE SalesId='" + id + "'";
                 strBSQL = "DELETE FROM TRN.SalesMaterial WHERE SalesId='" + id + "'";
                 strPSSQL = "DELETE FROM dbo.PostSalesInvoice WHERE SalesId='" + id + "'";
+                //strUSC = "update dbo.ItemScanChild set SalesId=NULL Where SalesId='" + id + "'";
                 strSQL = "DELETE FROM TRN.Sales WHERE Id = '" + id + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -898,6 +899,7 @@ namespace Library.Service.SalesManagements
                 objCon.ExecuteNonQueryWrapper(strPSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strPSSQL, true, "1");
+                //objCon.ExecuteNonQueryWrapper(strUSC, true, "1");
                 objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
                 objCon.CommitTransaction();
             }

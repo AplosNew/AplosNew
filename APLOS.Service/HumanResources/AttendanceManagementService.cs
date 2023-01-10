@@ -4177,10 +4177,14 @@ namespace Library.Service.HumanResources
                             string strEmpCode = "";
                             int ItemSNO = 0;
                             int ItemName = 0;
-                            int ItemMinutes = 0;
                             int CriticalLevel = 0;
                             int CheckPoints = 0;
                             int ItemRemarks = 0;
+                            int ItemPGroup = 0;
+                            int ItemMaxPoints = 0;
+                            int ItemMinPoints = 0;
+                            int SkillPoints = 0;
+                            int ItemAuditEmp = 0;
 
                             #region ------------------Column Header------------------
 
@@ -4406,12 +4410,12 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, ItemName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ItemName].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            ItemMinutes = xlsCol;
+                            ItemPGroup = xlsCol;
                             xlsCol += 1;
-                            sheet1.Range[xlsRow, ItemMinutes].Text = "Item Minutes";
-                            sheet1.Range[xlsRow, ItemMinutes].ColumnWidth = 25;
-                            sheet1.Range[xlsRow, ItemMinutes].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet1.Range[xlsRow, ItemMinutes].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, ItemPGroup].Text = "Item PGroup";
+                            sheet1.Range[xlsRow, ItemPGroup].ColumnWidth = 25;
+                            sheet1.Range[xlsRow, ItemPGroup].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, ItemPGroup].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             CheckPoints = xlsCol;
                             xlsCol += 1;
@@ -4428,10 +4432,38 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, CriticalLevel].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             ItemRemarks = xlsCol;
+                            xlsCol += 1;
                             sheet1.Range[xlsRow, ItemRemarks].Text = "Item Remarks";
                             sheet1.Range[xlsRow, ItemRemarks].ColumnWidth = 30;
                             sheet1.Range[xlsRow, ItemRemarks].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ItemRemarks].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            ItemMaxPoints = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, ItemMaxPoints].Text = "Item MaxPoints";
+                            sheet1.Range[xlsRow, ItemMaxPoints].ColumnWidth = 30;
+                            sheet1.Range[xlsRow, ItemMaxPoints].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, ItemMaxPoints].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            ItemMinPoints = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, ItemMinPoints].Text = "Item MinPoints";
+                            sheet1.Range[xlsRow, ItemMinPoints].ColumnWidth = 30;
+                            sheet1.Range[xlsRow, ItemMinPoints].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, ItemMinPoints].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            SkillPoints = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, SkillPoints].Text = "Skill Points";
+                            sheet1.Range[xlsRow, SkillPoints].ColumnWidth = 30;
+                            sheet1.Range[xlsRow, SkillPoints].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, SkillPoints].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            ItemAuditEmp = xlsCol;
+                            sheet1.Range[xlsRow, ItemAuditEmp].Text = "Item AuditEmp";
+                            sheet1.Range[xlsRow, ItemAuditEmp].ColumnWidth = 30;
+                            sheet1.Range[xlsRow, ItemAuditEmp].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, ItemAuditEmp].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -4453,10 +4485,10 @@ namespace Library.Service.HumanResources
                                     sheet1.Range[xlsRow, ItemSNO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, ItemSNO].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, ItemMinutes].Text = dvSMBioDvACitem[i]["ItemMinutes"].ToString();
-                                    sheet1.Range[xlsRow, ItemMinutes].RowHeight = 20;
-                                    sheet1.Range[xlsRow, ItemMinutes].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, ItemMinutes].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, ItemPGroup].Text = dvSMBioDvACitem[i]["ItemPGroup"].ToString();
+                                    sheet1.Range[xlsRow, ItemPGroup].RowHeight = 20;
+                                    sheet1.Range[xlsRow, ItemPGroup].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, ItemPGroup].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, ItemName].Text = dvSMBioDvACitem[i]["Item Name"].ToString();
                                     sheet1.Range[xlsRow, ItemName].RowHeight = 20;
@@ -4477,6 +4509,26 @@ namespace Library.Service.HumanResources
                                     sheet1.Range[xlsRow, ItemRemarks].RowHeight = 20;
                                     sheet1.Range[xlsRow, ItemRemarks].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, ItemRemarks].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, ItemMaxPoints].Text = dvSMBioDvACitem[i]["MaximumPoints"].ToString().Trim();
+                                    sheet1.Range[xlsRow, ItemMaxPoints].RowHeight = 20;
+                                    sheet1.Range[xlsRow, ItemMaxPoints].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, ItemMaxPoints].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, ItemMinPoints].Text = dvSMBioDvACitem[i]["MinimumPoints"].ToString().Trim();
+                                    sheet1.Range[xlsRow, ItemMinPoints].RowHeight = 20;
+                                    sheet1.Range[xlsRow, ItemMinPoints].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, ItemMinPoints].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, SkillPoints].Text = dvSMBioDvACitem[i]["SkillPoints"].ToString().Trim();
+                                    sheet1.Range[xlsRow, SkillPoints].RowHeight = 20;
+                                    sheet1.Range[xlsRow, SkillPoints].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, SkillPoints].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, ItemAuditEmp].Text = dvSMBioDvACitem[i]["AuditEmployee"].ToString().Trim();
+                                    sheet1.Range[xlsRow, ItemAuditEmp].RowHeight = 20;
+                                    sheet1.Range[xlsRow, ItemAuditEmp].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, ItemAuditEmp].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
                                     sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);

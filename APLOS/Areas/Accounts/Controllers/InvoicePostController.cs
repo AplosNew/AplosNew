@@ -240,6 +240,56 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Deleted });
         }
         #endregion
+
+        #region Issue Journal
+
+
+
+        [Authorize, HttpPost]
+        public JsonResult IssueReturnJournal(string issueId, string voucherTypeId, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+            , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var voucherVM = new VoucherViewModel
+            {
+                CompanyGroupId = identity.CompanyGroupId,
+                CompanyId = identity.CompanyId,
+                PlantId = identity.PlantId,
+                VoucherTypeId = voucherTypeId,
+                PostingDate = DateTime.Now
+            };
+
+            foreach (var item in voucherDetailVMList)
+            {
+                if (item.GLGeneralInfoId == null)
+                    throw new CustomException("GL is Not Mapped !");
+                if (item.BudgetMasterId == null)
+                    throw new CustomException("Budget is Not Mapped !");
+                if (item.ActivityId == null)
+                    throw new CustomException("Activity is Not Mapped!");
+
+            }
+            foreach (var issDetail in invIssueDetailList)
+            {
+                if (issDetail.BudgetMasterId == null)
+                    throw new CustomException("Budget is Not Mapped !");
+                if (issDetail.ActivityId == null)
+                    throw new CustomException("Activity is Not Mapped!");
+            }
+            if (voucherDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != voucherDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
+                throw new CustomException("Dr Cr Amount not equal");
+            _inventoryPayableService.InsertIssueReturnJournal(issueId, voucherVM, voucherDetailVMList, invIssueDetailList, invIssueDetailGLList);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteIssueReturnJournal(string issueId, string voucherId)
+        {
+            _inventoryPayableService.DeleteIssueReturnJournal(issueId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+        #endregion
+
         #region Shortage
 
 
