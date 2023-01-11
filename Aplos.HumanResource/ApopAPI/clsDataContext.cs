@@ -2609,7 +2609,7 @@ INNER JOIN AttdnProcessData apd ON apd.EmpSystemID=en.EmpInfoSystemID
             {
 
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
-tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy'),format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
+tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
 left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
 'CreatedBy' and tm.CurrentStatus <> 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
 
@@ -2655,7 +2655,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
             {
 
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
-tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy'),format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
+tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
 left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
 'AssignTo' and tm.CurrentStatus <> 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
 
@@ -2701,7 +2701,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
             {
 
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
-tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy'),format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
+tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
 left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
 'CheckBy' and tm.CurrentStatus <> 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
 
@@ -2747,7 +2747,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
             {
 
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
-tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy'),format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
+tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
 left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
 'CrossCheckBy' and tm.CurrentStatus <> 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
 
@@ -2793,7 +2793,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
             {
 
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
-tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy'),format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
+tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
 left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
 'ApproveBy' and tm.CurrentStatus <> 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
 
@@ -2841,7 +2841,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
             {
 
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
-tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy'),format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
+tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
 left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
 'CreatedBy' and tm.CurrentStatus = 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
 
@@ -2887,7 +2887,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
             {
 
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
-tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy'),format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
+tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
 left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
 'AssignTo' and tm.CurrentStatus = 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
 
@@ -2933,7 +2933,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
             {
 
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
-tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy'),format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
+tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
 left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
 'CheckBy' and tm.CurrentStatus = 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
 
@@ -2979,7 +2979,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
             {
 
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
-tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy'),format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
+tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
 left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
 'CrossCheckBy' and tm.CurrentStatus = 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
 
@@ -3025,7 +3025,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
             {
 
                 strSQL = @"select Tm.Id, AuthorizationType, tm.TaskDescription,tm.TaskDetailDescription, 
-tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy'),format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
+tm.CurrentStatus, ResponsiblePersonId,format(ta.AddedDate, 'dd-MM-yy')AddedDate,format(ta.DueDate,'dd-MM-yy') as DueDate,format(ta.CommitmentDate,'dd-MM-yy') as CommitmentDate from dbo.TaskManagerMaster As tm
 left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.AuthorizationType = 
 'ApproveBy' and tm.CurrentStatus = 'Closed' and ta.ResponsiblePersonId = '" + UserId + "'";
 

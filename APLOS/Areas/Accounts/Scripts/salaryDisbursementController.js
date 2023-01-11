@@ -386,7 +386,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
 
             if (baseService.arrayLength($scope.SalaryUnDisburseList) > 0) {
                 angular.forEach($scope.SalaryUnDisburseList, function (a) {
-
+                   
                     if (a.CheckBoxSelect) {
                         var ob = {};
                         ob.Id = null;
@@ -398,10 +398,10 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
                         ob.Lock = a.Lock;
                         ob.CheckBoxSelect = a.CheckBoxSelect;
                         $scope.SalaryUndisbursedTemp.push(ob);
-                       // EmployeeListSalaryUndisbursedNew = {};
+                        // EmployeeListSalaryUndisbursedNew = {};
+                       
                     }
-
-
+                   
                 });
             }
 
@@ -420,7 +420,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.GetEmployeeInformation();
-                    var gridObj = $("#empInfoGrid").data("ejGrid");
+                    var gridObj = $("#empInfoGridSalaryUnDisbursed").data("ejGrid");
                     gridObj.refreshContent();
                 }
             }), function errorCallBack(response) {
