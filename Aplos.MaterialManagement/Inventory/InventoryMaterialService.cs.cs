@@ -1000,8 +1000,94 @@ namespace Library.MaterialManagement.Inventory
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
-		
-		public GridModel GetPayableShortageMaterial(GridParameter parameters, string inveReveiveId)
+        public GridModel GetIssueReturnMaterial(GridParameter parameters, string issueId, string companyId)
+        {
+            try
+            {
+                parameters.CmdText = @"DECLARE  @issueId varchar(10)='" + issueId + "', @companyId varchar(10)='" + companyId + @"'
+                                SELECT IR.Id InventoryIssueId,IRD.Id InventoryIssueDetailId,IR.CompanyGroupId
+                                ,IR.CompanyId
+                                ,Plant.GSTIN 
+								,IR.Id PONumber                                 
+                                ,REPLACE(Convert(VARCHAR(11), IR.IssueDate, 106), ' ', '-') AS PODate
+		                        ,IOM.MaterialMasterId
+		                        ,IR.AddedBy
+		                        ,IR.AddedDate
+		                        ,IR.UpdatedBy
+		                        ,IR.UpdatedDate
+	                          ,MM.UserName 
+	                          ,MM.MaterialGroupMasterId
+	                          ,MGM.UserName MaterialGroupMasterName
+	                          ,IOM.ArticleId
+	                          ,MMA.StandardName 
+	                          ,FC.Id FirstCharId
+	                          ,FC.UserName FirstChar
+                              ,IOM.FirstCharacteristicsValueId
+	                          ,FCV.UserName AS FirstCharacteristicsValue
+                              ,IOM.SecondCharacteristicsValueId
+	                          ,SCV.UserName AS SecondCharacteristicsValue
+	                          ,IOM.ThirdCharacteristicsValueId
+	                          ,TCV.UserName AS ThirdCharacteristicsValue
+	                          ,SC.Id SecondCharId
+	                          ,SC.UserName SecondChar
+	                          ,TC.Id ThirdCharId
+	                          ,TC.UserName ThirdChar
+	                          ,ROUND(IRDH.Qty, 2) TransactionQty
+	                          ,ROUND(IRDH.Rate, 2) TransactionRate
+	                          ,ROUND((IRDH.TotalAmount), 2) AS TrnAmount
+	                          ,IRD.BaseUOMId
+	                          ,TUoM.UserName AS TransactionUoM
+							
+                         ,GLGeneralInfoId=CASE WHEN IRD.BudgetMasterId<>'' THEN BMI.GLGeneralInfoId ELSE  MGGL.ExpenseGLId END
+                        ,GLGeneralInfoCode=CASE WHEN IRD.BudgetMasterId<>'' THEN IRD.BudgetMasterId ELSE GL.AccountCode END
+                        ,GLGeneralInfoName=CASE WHEN IRD.BudgetMasterId<>'' THEN GLI.UserName ELSE GL.UserName END
+                        ,GLName=CASE WHEN IRD.BudgetMasterId<>'' THEN GLI.AccountCode +'-'+ GLI.UserName ELSE GL.AccountCode +'-'+ GL.UserName END
+                        ,BudgetMasterId=CASE WHEN IRD.BudgetMasterId<>'' THEN IRD.BudgetMasterId ELSE MGGL.ExpenseBudgetMasterId END
+                        ,BudgetCode=CASE WHEN IRD.BudgetMasterId<>'' THEN BI.Code ELSE B.Code END
+                        ,BudgetName=CASE WHEN IRD.BudgetMasterId<>'' THEN BI.UserName ELSE B.UserName END
+                        ,ActivityId=CASE WHEN IRD.ActivityId<>'' THEN IRD.ActivityId ELSE MGGL.ExpenseActivityId END
+                        ,ActivityCode=CASE WHEN IRD.ActivityId<>'' THEN AI.Code ELSE A.Code END
+                        ,ActivityName=CASE WHEN IRD.ActivityId<>'' THEN AI.UserName ELSE A.UserName END
+                        ,IRD.BudgetMasterId IssueBudgetMasterId,IRD.ActivityId IssueActivityId
+                        ,MGGL.ExpenseBudgetMasterId,MGGL.ExpenseActivityId
+                              FROM TRN.InventoryIssueReturn IR
+                         LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
+                         LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+                         LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
+						  LEFT JOIN trn.InventoryIssueReturnHistory IRDH ON IR.Id = IRDH.InventoryIssueReturnId						                                   
+                         LEFT JOIN trn.InventoryIssueDetail IRD ON IRD.Id = IRDH.InventoryIssueDetailId						                                   
+                         LEFT JOIN trn.InventoryMaterial AS IOM ON IRDH.InventoryMaterialId = IOM.Id
+                         INNER JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
+                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
+                         LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId
+                         LEFT JOIN HKP.Characteristics AS FC ON IOM.FirstCharacteristicsId = FC.Id
+                         LEFT JOIN HKP.Characteristics AS SC ON IOM.SecondCharacteristicsId = SC.Id
+                         LEFT JOIN HKP.Characteristics AS TC ON IOM.ThirdCharacteristicsId = TC.Id
+                         LEFT JOIN HKP.CharacteristicsValue AS FCV ON IOM.FirstCharacteristicsValueId = FCV.Id
+                         LEFT JOIN HKP.CharacteristicsValue AS SCV ON IOM.SecondCharacteristicsValueId = SCV.Id
+                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IOM.ThirdCharacteristicsValueId = TCV.Id
+                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
+						 LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+		                        AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+                        LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGGL.ExpenseGLId=GL.Id
+                        LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.ExpenseBudgetMasterId= BM.Id
+                        LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+                        LEFT JOIN [HKP].[Activity] AS A ON MGGL.ExpenseActivityId= A.Id
+                        LEFT JOIN[MST].[BudgetMaster] AS BMI ON IRD.BudgetMasterId= BMI.Id
+                        LEFT JOIN [HKP].[Budget] AS BI ON BMI.BudgetId= BI.Id
+                        LEFT JOIN [HKP].[GLGeneralInfo] AS GLI ON BMI.GLGeneralInfoId=GLI.Id
+                        LEFT JOIN [HKP].[Activity] AS AI ON IRD.ActivityId= AI.Id
+                         WHERE IR.Id=@issueId";
+                return _sqlRepository.GetDifferentGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public GridModel GetPayableShortageMaterial(GridParameter parameters, string inveReveiveId)
 		{
 			try
 			{

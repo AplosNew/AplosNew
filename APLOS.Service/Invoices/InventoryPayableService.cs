@@ -70,6 +70,7 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<PurchaseReturn> _purchaseReturnRepository;
         private readonly IRepositoryAsync<EmployeeSubsequentTransaction> _employeeSubsequentTransactionRepository;
         private readonly IRepositoryAsync<InventoryReceiveTax> _inventoryReceiveTaxRepository;
+        private readonly IRepositoryAsync<InventoryIssueReturn> _InventoryIssueReturnRepository;
 
         public InventoryPayableService(
             IInvoiceService invoiceService
@@ -104,6 +105,7 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<PurchaseReturn> purchaseReturnRepository
              , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
             , IRepositoryAsync<InventoryReceiveTax> inventoryReceiveTaxRepository
+            , IRepositoryAsync<InventoryIssueReturn> InventoryIssueReturnRepository
 
             ) //: base( unitOfWork, pkGeneratorService)
         {
@@ -139,6 +141,7 @@ namespace Library.Service.Invoices
             _purchaseReturnRepository = purchaseReturnRepository;
             _employeeSubsequentTransactionRepository = employeeSubsequentTransactionRepository;
             _inventoryReceiveTaxRepository = inventoryReceiveTaxRepository;
+            _InventoryIssueReturnRepository = InventoryIssueReturnRepository;
         }
 
         #endregion Constructor
@@ -3063,6 +3066,194 @@ namespace Library.Service.Invoices
                 inventoryIssue.Status = null;
                 AuditService.UpdatedLog(inventoryIssue);
                 _inventoryIssueService.UpdateInventoryIssue(inventoryIssue);
+                _voucherService.DeleteVoucher(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        #endregion
+        #region Issue Journal
+        public void InsertIssueReturnJournal(string issueId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+          , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList)
+        {
+            var flag = false;
+            try
+            {
+                var issueData = _InventoryIssueReturnRepository.Find(issueId);
+                voucherVM.PostingDate = issueData.IssueDate;
+                voucherVM.EntityId = issueData.EntityId;
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+
+                if (issueData.CurrencyId == companyCurrencyId)
+                {
+                    voucherVM.CompanyCurrencyRate = 1;
+                }
+                // INSERT INTO Voucher TABLE
+                var voucher = new Voucher
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    EntityId = voucherVM.EntityId,
+                    CurrencyId = companyCurrencyId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    VoucherDate = DateTime.Now,
+                    DocDate = voucherVM.PostingDate,
+                    DocRefNo = issueData.Id,
+                    Narration = issueData.Remarks ?? "N/A",
+                    PostingDate = voucherVM.PostingDate,
+                    SourceType = SourceType.IssueReturnJournal.ToString(),
+                    VoucherTypeId = voucherVM.VoucherTypeId
+                };
+                _voucherService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix);
+                //svoucher.PostedBy = voucher.AddedBy;
+                var currentVoucherDetaiRecord = 0;
+                foreach (var voucherDetailVM in voucherDetailVMList)
+                {
+                    if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                        throw new CustomException("Without GL can not post.");
+                    if (voucherDetailVM.TrnType == "Dr")
+                    {
+                        // in libility side Dr.
+                        var voucherDr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            DrAmount = voucherDetailVM.Amount,
+                            DocRefNo = voucherVM.DocRefNo,
+                            Narration = voucherDetailVM.Narration
+                        };
+                        currentVoucherDetaiRecord++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord);
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            DrAmount = voucherDr.DrAmount
+                        });
+                        
+
+                    }
+                    else if (voucherDetailVM.TrnType == "Cr")
+                    {
+                        // INSERT INTO VoucherDetail
+                        var voucherCr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            CurrencyId = voucher.CurrencyId,
+                            DrAmount = 0,
+                            CrAmount = voucherDetailVM.Amount,
+                            CostCenterId = voucherDetailVM.CostCenterId
+                        };
+                        currentVoucherDetaiRecord++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherCr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherCr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            CrAmount = voucherCr.CrAmount
+                        });
+                        
+                    }
+                }
+
+                // Update Inventory Received
+                issueData.VoucherId = voucher.Id;
+                issueData.Status = "Posting";
+                issueData.ModelState = ModelState.Modified;
+                AuditService.UpdatedLog(issueData);
+                _InventoryIssueReturnRepository.Update(issueData);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        public void DeleteIssueReturnJournal(string issueId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
+                var inventoryIssue = _InventoryIssueReturnRepository.Find(issueId);
+                if (inventoryIssue.CapitalizeVoucherId != null)
+                    throw new CustomException("Delete Capitalize Voucher first ! ");
+
+                
+
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                }
+                foreach (var item in voucherdetail)
+                {
+                    var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
+                    if (glTransactionDetail != null)
+                    {
+                        _voucherService.DeleteGLTransactionDetail(item.Id);
+                    }
+                    _voucherService.DeleteVoucherDetail(item.Id);
+                }
+                
+                inventoryIssue.VoucherId = null;
+                inventoryIssue.Status = null;
+                AuditService.UpdatedLog(inventoryIssue);
+                _InventoryIssueReturnRepository.Update(inventoryIssue);
                 _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;

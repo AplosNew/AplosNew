@@ -61,7 +61,10 @@ namespace Library.Model.Inventory
         public string InventoryIssueReturnId { get; set; }
         public string InventoryMaterialId { get; set; }
         public string CostCenterId { get; set; }
-        public string StorageLocationId { get; set; }  
+        public string StorageLocationId { get; set; }
+        public string InventoryIssueId { get; set; }
+        public string InventoryIssueHistoryId { get; set; }
+        public string InventoryIssueDetailId { get; set; }
 
         /// <summary>
         /// Use only for Capitalize time.It may have Asset or Inventory.
