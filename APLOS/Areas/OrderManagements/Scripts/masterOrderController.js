@@ -4139,7 +4139,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.QBOQAction = 'Save';
     $scope.SaveQBOQ = function () {
-
+        var sbt = 0;
         try {
             if (baseService.isUndefinedOrNull($scope.qboqModel.MaterialMasterId)) {
                 throw 'Material is required.';
@@ -4156,9 +4156,14 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             if (baseService.isUndefinedOrNull($scope.qboqModel.GrossConsumption) || $scope.qboqModel.GrossConsumption < 0 || isNaN($scope.qboqModel.GrossConsumption)) {
                 throw "Gross Consumption should greater than 0.";
             }
-            //if ($scope.qboqModel.IsOutSource) {
-
-            //}
+            if (baseService.arrayLength($scope.qboqList) > 0) {
+                for (var i = 0; i < $scope.qboqList.length; i++) {
+                    sbt = sbt + $scope.qboqList[i].NetConsumptionPerUnit;
+                }
+                if (sbt > 1) {
+                    throw "Total of Net Consumption Per Unit can not exceed 1.";
+                }
+            }
             $scope.$broadcast('show-errors-check-validity');
             angular.copy($scope.qboqModel, $scope.qboq);
             if ($scope.QBOQForm.$valid) {
