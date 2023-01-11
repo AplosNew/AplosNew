@@ -16,6 +16,7 @@ using Library.Service.Enums;
 using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.ViewModel.Accounts;
+using Library.ViewModel.Productions;
 using Newtonsoft.Json;
 using Syncfusion.XlsIO;
 using System;
@@ -250,7 +251,7 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                List<BankReconciliationUploadedDataViewModel> data = new List<BankReconciliationUploadedDataViewModel>();
+                List<PackingScanDataUploadedDataViewModel> data = new List<PackingScanDataUploadedDataViewModel>();
 
                 var pre = form["modelNew"];
                 var file = Request.Files["file"];
@@ -313,19 +314,33 @@ namespace Aplos.Areas.Productions.Controllers
                         {
                             for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
                             {
-                                string drAmount = "0.0";
-                                string crAmount = "0.0";
-                                drAmount = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
-                                crAmount = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
-                                BankReconciliationUploadedDataViewModel vm = new BankReconciliationUploadedDataViewModel();
+                                string NetWeight = "0.0";
+                                string GWeight = "0.0";
+                                NetWeight = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                GWeight = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                PackingScanDataUploadedDataViewModel vm = new PackingScanDataUploadedDataViewModel();
 
-                                vm.DrAmount = Convert.ToDecimal(string.IsNullOrEmpty(drAmount) ? "0" : drAmount);
-                                vm.CrAmount = Convert.ToDecimal(string.IsNullOrEmpty(crAmount) ? "0" : crAmount);
-                                vm.BankStatementDate = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
-                                vm.BankRefNo = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-                                vm.BankParticulars = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
-                                vm.Remarks = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
-                                vm.OwnRefNo = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.MasterId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.ProductCode = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.POId = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.LotNo = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.RefNo = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.Cones = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.NetWeight = Convert.ToDecimal(string.IsNullOrEmpty(NetWeight) ? "0" : NetWeight);
+                                vm.GWeight = Convert.ToDecimal(string.IsNullOrEmpty(GWeight) ? "0" : GWeight);
+                                vm.PackedBy = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.Shade = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.Booked = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.PackingId = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.AddedBy = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.AddedDate = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.UpdatedBy = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.UpdatedDate = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.LocMasterId = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.IsDespatch = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.BookedDate = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.InventoryReceiveDetailId = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.SalesId = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
                                 data.Add(vm);
 
                             }
@@ -586,22 +601,22 @@ namespace Aplos.Areas.Productions.Controllers
             return jsondata;
 
         }
-        [HttpPost, Authorize]
-        public ActionResult SaveAdjustmentJournalBankReconciliationMap(BankReconciliationUploadedDataViewModel bankReconciliation, IEnumerable<BankReconciliationUploadedDataViewModel> bankReconciliationList)
-        {
-            AccountsPostInvoiceService accountsPostInvoiceService = new AccountsPostInvoiceService(_sqlRepository);
-            accountsPostInvoiceService.SaveAdjustmentJournalBankReconciliationMap(bankReconciliation, bankReconciliationList);
+        //[HttpPost, Authorize]
+        //public ActionResult SaveAdjustmentJournalBankReconciliationMap(PackingScanDataUploadedDataViewModel bankReconciliation, IEnumerable<PackingScanDataUploadedDataViewModel> bankReconciliationList)
+        //{
+        //    AccountsPostInvoiceService accountsPostInvoiceService = new AccountsPostInvoiceService(_sqlRepository);
+        //    accountsPostInvoiceService.SaveAdjustmentJournalBankReconciliationMap(bankReconciliation, bankReconciliationList);
 
-            return Json(new { Message = AplosMessage.Insert });
-        }
-        [HttpPost]
-        public ActionResult SaveBankReconciliationMap(BankReconciliation bankReconciliation, IEnumerable<BankReconciliationUploadedDataViewModel> bankReconciliationList)
-        {
-            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
-            accountsCommonService.SaveBankReconciliationMap(bankReconciliation, bankReconciliationList);
+        //    return Json(new { Message = AplosMessage.Insert });
+        //}
+        //[HttpPost]
+        //public ActionResult SaveBankReconciliationMap(BankReconciliation bankReconciliation, IEnumerable<PackingScanDataUploadedDataViewModel> bankReconciliationList)
+        //{
+        //    AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+        //    accountsCommonService.SaveBankReconciliationMap(bankReconciliation, bankReconciliationList);
 
-            return Json(new { Message = AplosMessage.Insert });
-        }
+        //    return Json(new { Message = AplosMessage.Insert });
+        //}
         [HttpPost, Authorize]
         public ActionResult GetBankDrReconciledList(string bankMasterId, DateTime fromDate, DateTime toDate)
         {
