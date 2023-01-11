@@ -1796,9 +1796,7 @@ namespace Library.OrderManagement.Production
                //            ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
 
 
-                sql = @"SELECT ISNULL(PQ.Qty,CEILING((ISNULL(PO.PlannedQty,0))))+ISNULL(PPS.Qty,0) PlannedQty
-                            ,(ISNULL(PQ.Qty,CEILING((ISNULL(PO.PlannedQty,0))))+ISNULL(PPS.Qty,0)-ISNULL(CEILING(PRS.TotalProductionQty),0)) RemainingQty
-                            , ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
+                sql = @"SELECT (PO.PlannedQty*PPS.Qty/100) PlannedQty,ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty,((PO.PlannedQty*PPS.Qty/100) -ISNULL(CEILING(PRS.TotalProductionQty),0))RemainingQty
                             FROM trn.ProductionOrder AS PO
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
 							LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID=PO.Id AND PPS.ProcessId='" + processId + @"'
