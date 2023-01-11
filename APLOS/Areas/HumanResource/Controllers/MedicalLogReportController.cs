@@ -199,6 +199,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColEntity= COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Added By", 20, ExcelHAlign.HAlignCenter);
+            int ColAddedBy = COL;
+           // COL++;
+
 
             ROW++;
             endCol = COL;
@@ -235,6 +239,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColGivenDesignation].Text = data.Rows[i]["GivenDesignation"].ToString();
                 //sheet[ROW, ColSkill].Text = data.Rows[i]["Skill"].ToString();
                 sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
 
                 ROW++;
 
@@ -259,7 +264,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return workbook;
         }
 
-        [Authorize, HttpPost]
+        [Authorize, HttpGet]
         public ActionResult XlsGetMedinceStockReport(string medicineId, string to)
         {
             try
@@ -353,7 +358,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColStockReceived].Number = clsStaticInfo.dbl(data.Rows[i]["Received Quantity"].ToString());
                 sheet[ROW, ColStockIssue].Number = clsStaticInfo.dbl(data.Rows[i]["IssueQty"].ToString());
                 sheet[ROW, ColExpDate].Text = data.Rows[i]["Expiry Date"].ToString();
-                sheet[ROW, ColClosedStock].Number = clsStaticInfo.dbl(data.Rows[i]["Closed Stock"].ToString());
+                sheet[ROW, ColClosedStock].Number = clsStaticInfo.dbl(data.Rows[i]["ClosingStock"].ToString());
                
                 ROW++;
 
