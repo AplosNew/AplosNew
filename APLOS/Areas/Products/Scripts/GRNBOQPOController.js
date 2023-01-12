@@ -1949,7 +1949,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.NewPOMaterialTaxList = [];
         try {
             for (var n = 0; n < baseService.arrayLength($scope.MasterListNewBOQ); n++) { // add
-                if ($scope.MasterListNewBOQ[n].check) {
+                if ($scope.MasterListNewBOQ[n].check && $scope.MasterListNewBOQ[n].TransactionQty>0) {
                     var nRow = {};
                     nRow = $scope.MasterListNewBOQ[n];
 
@@ -1983,7 +1983,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                             var taxAmountUpdate = 0;
                             if ($scope.POMaterialTaxList.length > 0) {
                                 for (var k = 0; k < $scope.POMaterialTaxList.length; k++) {
-                                    if ($scope.MasterListNewBOQ[n].InventoryReceiveDetailId == $scope.POMaterialTaxList[k].InventoryReceiveDetailId && $scope.MasterListNewBOQ[n].check) {
+                                    if ($scope.MasterListNewBOQ[n].InventoryReceiveDetailId == $scope.POMaterialTaxList[k].InventoryReceiveDetailId && $scope.MasterList[x].InventoryReceiveDetailId == $scope.POMaterialTaxList[k].InventoryReceiveDetailId
+                                        && $scope.MasterListNewBOQ[n].check) {
                                         for (var l = 0; l < $scope.NewPOMaterialTaxList.length; l++) {
                                             if ($scope.NewPOMaterialTaxList[l].InventoryReceiveDetailId == $scope.POMaterialTaxList[k].InventoryReceiveDetailId
                                                 && $scope.NewPOMaterialTaxList[l].TaxCategoryId == $scope.POMaterialTaxList[k].TaxCategoryId) {
@@ -2054,8 +2055,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
     $scope.getTaxCodeByTaxYearWithhold($scope.productNew.GRNDate);
     $scope.calculateTaxAmountForAdditionalTax = function (data) {
-        $scope.advanceTax.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "TrnAmount") * data / 100).toFixed(2);
-
+        $scope.advanceTax.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "TrnAmount") * data / 100).toFixed(2);
     };
     $scope.advanceTaxesList = [];
     $scope.additionalTax = function () {
@@ -2089,11 +2089,11 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.TotalSumAfterTCS = function () {
 
         if ($scope.Action === 'Save') {
-            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
 
         }
         else {
-            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
+            $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
 
         }
 
@@ -2110,12 +2110,10 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         })[0].Type;
         if ($scope.advanceTax.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.advanceTax.ValueOfFixed)) {//* $scope.advanceTax.ValueOfFixed / 100
             if ($scope.Action === 'Save') {
-                $scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "ServiceTax"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
-
+                $scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "ServiceTax"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
             }
             else {
-                $scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterListNewBOQ), "ServiceTax"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
-
+                $scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "ServiceTax"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
             }
         }
         $scope.TotalSumAfterTCS();
