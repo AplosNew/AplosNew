@@ -1804,8 +1804,8 @@ namespace Library.OrderManagement.Production
        //                     FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.ProductionOrderId
        //                     ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"'";
 
-                 sql = @"SELECT PlannedQty=CASE WHEN PQ.Qty=0 THEN PO.PlannedQty*PPS.Qty/100 ELSE PQ.Qty END
-,((CASE WHEN PQ.Qty = 0 THEN PO.PlannedQty* PPS.Qty/100 ELSE PQ.Qty END)-ISNULL(CEILING(PRS.TotalProductionQty), 0)) RemainingQty
+                 sql = @"SELECT PlannedQty=ISNULL(CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.PlannedQty*PPS.Qty/100 END,0)
+,ISNULL((CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.PlannedQty*PPS.Qty/100 END)-ISNULL(CEILING(PRS.TotalProductionQty), 0),0) RemainingQty
 , ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty
                              FROM trn.ProductionOrder AS PO
                              LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
