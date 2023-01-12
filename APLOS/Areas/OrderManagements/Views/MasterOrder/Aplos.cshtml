@@ -518,9 +518,9 @@
                                             <div class="select-style">
                                                 @*<select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
 
-                     <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
-                    <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
-                </select>*@
+                                                         <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
+                                                        <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
+                                                    </select>*@
                                                 <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId"
                                                         ng-options="item.Value as item.Text for item in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}"
                                                         ng-selected="x.ByDefault == item.ByDefault"></select>
@@ -2674,18 +2674,28 @@
                                         <li><button ng-click="removeLineItemBOQ(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                     </ul>
                                 </td>
-                                <td>{{x.Sequence}}</td>
+                                <td class="text-right">{{x.Sequence}}</td>
                                 <td>{{x.CostingItem}}</td>
                                 <td>{{x.MaterialMaster}}</td>
                                 <td>{{x.Article}}</td>
-                                <td>{{x.MaterialCostPerUnit}}</td>
-                                <td>{{x.NetConsumptionPerUnit}}</td>
-                                <td>{{x.ValueLossPercentage}}</td>
-                                <td>{{x.GrossConsumption}}</td>
+                                <td class="text-right">{{x.MaterialCostPerUnit | setDecimal:2 | number:2}}</td>
+                                <td class="text-right">{{x.NetConsumptionPerUnit | setDecimal:3 | number:3}}</td>
+                                <td>{{x.ValueLossPercentage | setDecimal:2 | number:2}}</td>
+                                <td class="text-right">{{x.GrossConsumption  | setDecimal:4 | number:4}}</td>
                                 <td>{{x.Code}}</td>
                                 <td>{{x.Process}}</td>
                                 <td>{{x.JobWorkType}}</td>
                                 <td>{{x.EntityOrVendorName}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" class="text-right">
+                                    <strong>Total : </strong>
+                                </td>
+                                <td></td>
+                                <td class="text-right">
+                                    <strong>{{qboqList | sumByKey : 'NetConsumptionPerUnit'| setDecimal:3 | number:3}}</strong>
+                                </td>
+                                <td  colspan="6"></td>
                             </tr>
                         </tbody>
                     </table>

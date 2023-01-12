@@ -860,7 +860,7 @@ Group By MR.PartyId, P.UserName, P.Code, MR.InvoiceNumber, MR.InvoiceDate, MR.Id
             {
                 var str = @"select ROW_NUMBER() OVER(ORDER BY MR.Id) SrNo, M.Id MedicineMasterId, M.StandardName UserName, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
 FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, MRC.Quantity, MRC.Rate, MRC.Amount, P.UserName PartyName,  P.Code PartyCode,
-MRC.Id MedicineReceiptChildId, MR.Id MedicineReceiptId, MR.PlantId, PL.StandardName PlantName
+MRC.Id MedicineReceiptChildId, MR.Id MedicineReceiptId, MR.PlantId, PL.StandardName PlantName, IsOpeningQty
 from TRN.MedicineReceiptChild MRC
 left join TRN.MedicineReceipt MR on MR.Id = MRC.MedicineReceiptId
 left join HKP.MedicineMaster M on M.Id = MRC.MedicineMasterId
@@ -1807,7 +1807,7 @@ from TRN.EmployeeSicknessMedicines ESM
 LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Quantity
+FOR XML PATH('')),1,1,'') Quantity, ML.AddedBy
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
@@ -1824,7 +1824,7 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.SystemId = '" + empSystemId + "' and EMP.EmployeeStatus = 'Active'" +
-    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName";
+    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName ,ML.AddedBy";
                 }
                 else
                 {
@@ -1853,7 +1853,7 @@ from TRN.EmployeeSicknessMedicines ESM
 LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Quantity
+FOR XML PATH('')),1,1,'') Quantity ,ML.AddedBy
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
@@ -1870,7 +1870,7 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus = 'Active'" +
-    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName";
+    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName ,ML.AddedBy";
                 }
 
 
@@ -1936,7 +1936,7 @@ from TRN.EmployeeSicknessMedicines ESM
 LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Quantity
+FOR XML PATH('')),1,1,'') Quantity, ML.AddedBy
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
@@ -1953,7 +1953,7 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.SystemId = '" + empSystemId + "' and EMP.EmployeeStatus = 'Active'" +
-    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName";
+    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName, ML.AddedBy";
                 }
                 else
                 {
@@ -1982,7 +1982,7 @@ from TRN.EmployeeSicknessMedicines ESM
 LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Quantity
+FOR XML PATH('')),1,1,'') Quantity, ML.AddedBy
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
@@ -1999,7 +1999,7 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus = 'Active'" +
-    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName";
+    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName, ML.AddedBy";
                 }
                 return _sqlRepository.GetDataTable(SQL);
             }
@@ -2020,7 +2020,9 @@ else 0 end - ESM.IssueQty
 from TRN.MedicineReceipt MR
 LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.MedicineReceiptId = MR.Id
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
-left join (select ISnull(SUM(Quantity),0)IssueQty, MedicineReceiptChildId from TRN.EmployeeSicknessMedicines GROUP BY MedicineReceiptChildId) ESM on ESM.MedicineReceiptChildId = MRC.Id";
+left join (select ISnull(SUM(Quantity),0)IssueQty, MedicineReceiptChildId 
+from TRN.EmployeeSicknessMedicines GROUP BY MedicineReceiptChildId) ESM on ESM.MedicineReceiptChildId = MRC.Id
+order by MRC.ExpiryDate";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch(Exception ex)
