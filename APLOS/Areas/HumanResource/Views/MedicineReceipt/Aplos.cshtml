@@ -96,6 +96,7 @@
                         <th>Quantity</th>
                         <th>Amount</th>
                         <th>Rate</th>
+                        <th>Is Opening Qty</th>
                         <th>Action</th>
 
                     </tr>
@@ -115,11 +116,15 @@
                         <td>
                             <input type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" ng-model="x.Amount" ng-keyup="calcAmount(x, $index)">
                         </td>
+
                         <td class="text-right">{{x.Rate | number:2 }}</td>
+                        <td>
+                            <input type="checkbox" ng-model="x.IsOpeningQty" />
+                        </td>
                         <td>
                             <ul class="list-inline action-list">
                                 <li>
-                                    <button ng-click="deleteSingleRow(x.EmployeeName, $index, 'userMedicineList', x.Id, 'ResponsiblePersonid')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                    <button ng-click="removeDetentiontRow(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                                 </li>
                             </ul>
                         </td>
@@ -141,7 +146,7 @@
                 <ul class="list-inline text-right">
                     <li> <button ng-click="SaveHeader();" id="savebtn" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
                     <li> <button ng-click="Update();" id="updatebtn" class="btn" tabindex="9" style="display:none"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>
-                    <li> <button ng-click="XlsMedicineReceipt();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
+                   @* <li> <button ng-click="XlsMedicineReceipt();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>*@
 
                 </ul>
             </div>
@@ -184,8 +189,9 @@
                  e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
                  e-detailsdatabound="detailgrid">
                 <div e-columns>
+                   
                     <div e-column e-headertext="Actions" e-width="60">
-                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.XlsMedicineReceipt(this);" style="margin: -6px;"></i></button>
                     </div>
                     <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>
                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>

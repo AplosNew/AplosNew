@@ -247,6 +247,12 @@ namespace Aplos.Areas.Products.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_inventoryIssueService.GetIssueList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryIssueReturnListForPosting(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryIssueService.GetInventoryIssueReturnListForPosting(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
 
         /// <summary>
         ///  use in inventory issue journel
@@ -271,6 +277,12 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult GetBudgetActivityInIssueMaterial(string materialGroupMasterId)
         {
             return Json(_inventoryDetailService.GetBudgetActivityInIssueMaterial(materialGroupMasterId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialIssueReturnList(GridParameter parameters, string issueId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryMaterialService.GetIssueReturnMaterial(parameters, issueId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -667,7 +679,7 @@ namespace Aplos.Areas.Products.Controllers
                 if (string.IsNullOrEmpty(MaterialStorageId))
                 {
 
-                    sql = @"select cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,c.Id As IssuedId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
+                    sql = @"select cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,b.InventoryIssueId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
                             ,IM.MaterialMasterId, MM.UserName AS MaterialMasterName, IM.ArticleId, AR.StandardName AS ArticleName
 		                    ,IM.FirstCharacteristicsId, CH1.UserName AS Sku1, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicsValue
 		                    ,IM.SecondCharacteristicsId, CH2.UserName AS Sku2, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicsValue
@@ -683,7 +695,7 @@ namespace Aplos.Areas.Products.Controllers
 		                    --,IRD.TransactionQty Rcvd, IRD.IssueQty IssueQty,PurchaseRerutnQty PurchaseRerutnQty
 		                    --, sum(a.qty) qty 
 		                    --,sum(IRD.TransactionQty) Rcvd, sum(IRD.IssueQty) IssueQty,sum(PurchaseRerutnQty) PurchaseRerutnQty
-                            ,c.MaterialStorageId,MS.UserName MaterialStorage,a.Id InventoryIssueHistoryId
+                            ,c.MaterialStorageId,MS.UserName MaterialStorage,a.Id InventoryIssueHistoryId,a.InventoryIssueDetailId
                     from trn.InventoryIssueHistory a
                     left join trn.InventoryIssueDetail b on b.id=a.InventoryIssueDetailId
                     left join trn.InventoryIssue c on c.id=b.InventoryIssueId
@@ -705,6 +717,7 @@ namespace Aplos.Areas.Products.Controllers
                     Where " + paramter + @"
                     --and a.InventoryReceiveDetailId='19304-1'
                     AND CC.Id='" + CostCenterId + @"' --AND a.MaterialStorageId='" + MaterialStorageId + @"' AND IssueDate Between '" + fromDate + @"' and '" + toDate + @"'
+                    AND Isnull(a.qty,0)-Isnull(a.IssueReturnQty,0)>0 AND Isnull(a.Rate,0)>0
                     --group by a.InventoryReceiveDetailId
                     --, IM.MaterialMasterId, MM.UserName , IM.ArticleId, AR.StandardName 
                     --, IM.FirstCharacteristicsId, CH1.UserName , IM.FirstCharacteristicsValueId, CHV1.UserName 
@@ -716,7 +729,7 @@ namespace Aplos.Areas.Products.Controllers
                 else
                 {
 
-                    sql = @"select cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,c.Id As IssuedId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
+                    sql = @"select cc.Id CostCenterId,cc.UserName CostCenterName, a.InventoryReceiveDetailId,IM.Id InventoryMaterialId,b.InventoryIssueId, REPLACE(CONVERT(CHAR(11), C.IssueDate, 106),' ','-') AS IssueDate,a.IssueRequestDetailId
                             ,IM.MaterialMasterId, MM.UserName AS MaterialMasterName, IM.ArticleId, AR.StandardName AS ArticleName
 		                    ,IM.FirstCharacteristicsId, CH1.UserName AS Sku1, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicsValue
 		                    ,IM.SecondCharacteristicsId, CH2.UserName AS Sku2, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicsValue
@@ -732,7 +745,7 @@ namespace Aplos.Areas.Products.Controllers
 		                    --,IRD.TransactionQty Rcvd, IRD.IssueQty IssueQty,PurchaseRerutnQty PurchaseRerutnQty
 		                    --, sum(a.qty) qty 
 		                    --,sum(IRD.TransactionQty) Rcvd, sum(IRD.IssueQty) IssueQty,sum(PurchaseRerutnQty) PurchaseRerutnQty
-                            ,c.MaterialStorageId,MS.UserName MaterialStorage,a.Id InventoryIssueHistoryId
+                            ,c.MaterialStorageId,MS.UserName MaterialStorage,a.Id InventoryIssueHistoryId,a.InventoryIssueDetailId
                     from trn.InventoryIssueHistory a
                     left join trn.InventoryIssueDetail b on b.id=a.InventoryIssueDetailId
                     left join trn.InventoryIssue c on c.id=b.InventoryIssueId
@@ -754,6 +767,7 @@ namespace Aplos.Areas.Products.Controllers
                     Where " + paramter + @"
                     --and a.InventoryReceiveDetailId='19304-1'
                     AND CC.Id='" + CostCenterId + @"' AND a.MaterialStorageId='" + MaterialStorageId + @"' AND IssueDate Between '" + fromDate + @"' and '" + toDate + @"'
+                    AND Isnull(a.qty,0)-Isnull(a.IssueReturnQty,0)>0 AND Isnull(a.Rate,0)>0
                     --group by a.InventoryReceiveDetailId
                     --, IM.MaterialMasterId, MM.UserName , IM.ArticleId, AR.StandardName 
                     --, IM.FirstCharacteristicsId, CH1.UserName , IM.FirstCharacteristicsValueId, CHV1.UserName 

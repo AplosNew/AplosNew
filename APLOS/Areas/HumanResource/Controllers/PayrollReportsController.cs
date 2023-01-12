@@ -1110,7 +1110,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 			  WHEN  SPM.MonthNo=11 THEN 'Nov'
 			  WHEN  SPM.MonthNo=12 THEN 'Dec' ELSE '' END, SPM.YearNo
 ,EI.EmployeeCode, EI.EmployeeName, FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(EI.DOS,'dd-MMM-yyyy') DOS, EC.UserName EmployeeCategory, DP.UserName Department, S.UserName Section, SS.UserName SubSection, D.UserName Designation, SPLD.PaymentMode, B.UserName BankName
-                        ,SPLD.IFSCCode, EBI.BankAccNo, SPC.DisbusmentAmount NetPayable
+                        ,EBI.IFSCCode, EBI.BankAccNo, SPC.DisbusmentAmount NetPayable
                         from SalaryProcChild SPC
                         LEFT JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID 
                         LEFT JOIN SalaryLock SL ON SL.EmpSystemId = SPC.EmpInfoSystemID AND SL.YearNo = SPM.YearNo AND SPM.MonthNo = SL.MonthNo

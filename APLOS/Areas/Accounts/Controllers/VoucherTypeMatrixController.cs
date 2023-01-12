@@ -177,6 +177,12 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.IssueJournal), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public JsonResult GetCboVoucherTypeIssueReturnJournalList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.IssueReturnJournal), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetCboVoucherTypeFixedAssetCapitalizeJournalList()

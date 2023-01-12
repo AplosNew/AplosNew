@@ -51,6 +51,10 @@ namespace Aplos.Areas.Accounts.Controllers
             return View();
         }
 
+        public ActionResult InventoryIssueReturnJournal()
+        {
+            return View();
+        }
 
         #region GRN Payable
 
@@ -410,13 +414,27 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetIssueReturnJournalList(GridParameter parameters)
+        {
+            AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsInventoryPayableService.GetIssueReturnJournalList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialIssueGLList(GridParameter parameters, string issueId)
         {
             AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(accountsInventoryPayableService.GetIssueMaterialGL(parameters, issueId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
-
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialIssueReturnGLList(GridParameter parameters, string issueId)
+        {
+            AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsInventoryPayableService.GetIssueReturnMaterialGL(parameters, issueId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public ActionResult IssueJournalReport(ReportFormat reportFormat, string inventoryIssueId)
         {
@@ -424,6 +442,25 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
             var reportFileName = "Inventory Issue Journal";
             var workbook = accountsInventoryPayableReportService.IssueJournal(reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, inventoryIssueId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult IssueReturnJournalReport(ReportFormat reportFormat, string inventoryIssueReturnId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
+            var reportFileName = "Inventory Issue Journal";
+            var workbook = accountsInventoryPayableReportService.IssueReturnJournalReport(reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, inventoryIssueReturnId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:

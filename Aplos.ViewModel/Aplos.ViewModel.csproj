@@ -89,6 +89,7 @@
     <Compile Include="Organizations\OrgStrunctureListViewModel.cs" />
     <Compile Include="Organizations\OrganoNode.cs" />
     <Compile Include="Organizations\OrganoViewModel.cs" />
+    <Compile Include="Productions\PackingScanDataUploadedDataViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SalesManagements\SalesMaterialViewModel.cs" />
     <Compile Include="SalesManagements\InventorySalesReturnDetailViewModel.cs" />
