@@ -4158,9 +4158,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }
             if (baseService.arrayLength($scope.qboqList) > 0) {
                 for (var i = 0; i < $scope.qboqList.length; i++) {
-                    sbt = sbt + $scope.qboqList[i].NetConsumptionPerUnit;
+                    if ($scope.qboqList[i].Id != $scope.qboqModel.Id) {
+                        sbt = sbt + $scope.qboqList[i].NetConsumptionPerUnit;
+                    }
                 }
-                if (sbt > 1) {
+
+                if (sbt + $scope.qboqModel.NetConsumptionPerUnit > 1) {
                     throw "Total of Net Consumption Per Unit can not exceed 1.";
                 }
             }

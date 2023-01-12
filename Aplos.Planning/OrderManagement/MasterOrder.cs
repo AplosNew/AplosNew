@@ -900,7 +900,7 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
                             LEFT JOIN ORG.Entity AS EWG ON B.EntityIdWithinGroup=EWG.Id
                             LEFT JOIN HKP.Party AS PRT ON B.VendorId=PRT.Id
                             LEFT JOIN HKP.Process AS PR ON B.ProcessId=PR.Id
-                            WHERE B.MasterOrderItemId='" + itemId + "'";
+                            WHERE B.MasterOrderItemId='" + itemId + "' Order By B.Sequence";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
