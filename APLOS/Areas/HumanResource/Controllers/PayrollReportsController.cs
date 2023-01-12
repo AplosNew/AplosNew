@@ -911,16 +911,17 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 int ROW = 6; int COL = 1;
 
                 #region Columns
+             
+                sheet[ROW, COL].Text = "Month Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMonthName = COL;
+                COL++;
 
                 sheet[ROW, COL].Text = "Year";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColYear = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Month Name";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColMonthName = COL;
-                COL++;
-                
+
                 sheet[ROW, COL].Text = "Employee Code";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColEC = COL;
