@@ -3,7 +3,7 @@ PackingScanDataController.$inject = ['cboService', 'commonMessage','$scope', '$h
 function PackingScanDataController(cboService,commonMessage,$scope, $http, $location, $rootScope, $window, $compile, baseService, fileReader, $controller, $filter) {
     $scope.path = 'Productions/PackingScanData/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
-    $rootScope.title = 'Bank Reconciliation Data Upload';
+    $rootScope.title = 'Packing Scan Data Upload';
     $controller("bankBaseController", { $scope: $scope, $http: $http });
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
     $scope.SaveDataList = []
@@ -61,16 +61,16 @@ function PackingScanDataController(cboService,commonMessage,$scope, $http, $loca
     ];
     //#Region start
 
-    $scope.entityList = [];
-    $scope.getAllEntities = function () {
-        $http({
-            method: 'POST',
-            url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
-        }).then(function successCallback(response) {
-            $scope.entityList = response.data;
-        });
-    }
-    $scope.getAllEntities();
+    //$scope.entityList = [];
+    //$scope.getAllEntities = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
+    //    }).then(function successCallback(response) {
+    //        $scope.entityList = response.data;
+    //    });
+    //}
+    //$scope.getAllEntities();
 
     $scope.purposeList = [];
     $scope.getPurpose = function () {
@@ -110,7 +110,7 @@ function PackingScanDataController(cboService,commonMessage,$scope, $http, $loca
     }
     $scope.GetShiftList();
 
-    $scope.Save = function () {
+    $scope.SavePCD = function () {
         try {
             $http({
                 method: 'POST',
@@ -123,7 +123,6 @@ function PackingScanDataController(cboService,commonMessage,$scope, $http, $loca
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.Clear();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -133,11 +132,86 @@ function PackingScanDataController(cboService,commonMessage,$scope, $http, $loca
         }
     };
 
-    $scope.Clear = function () {
-        $scope.PSDataNew = Object.assign({}, $scope.packingscan);
-        $scope.Action = 'Save';
+    //$scope.Clear = function () {
+    //    $scope.PSDataNew = Object.assign({}, $scope.packingscan);
+    //    $scope.Action = 'Save';
+    //};
+
+    $scope.GetSampleFile = function () {
+        var ReportFormat = 'Excel';
+        location.href = $scope.path + 'GetSampleFile?reportFormat=' + ReportFormat;
     };
 
+
+    $scope.packingData = {
+        Id: null,
+        MasterId: null,
+        ProductCode: null,
+        POId: null,
+        LotNo: null,
+        RefNo: null,
+        Cones: null,
+        NetWeight: null,
+        GWeight: null,
+        PackedBy: null,
+        Shade: null,
+        Booked: null,
+        PackingId: null,
+        AddedBy: null,
+        AddedDate: null,
+        UpdatedBy: null,
+        UpdatedDate: null,
+        LocMasterId: null,
+        IsDespatch: null,
+        BookedDate: null,
+        InventoryReceiveDetailId: null,
+        SalesId: null,
+        //ToDate: $filter("dateFiltering")(Date.now())
+    };
+    $scope.packingNew = Object.assign({}, $scope.packingData);
+
+    $scope.PackingScanUploadedData = [];
+    $scope.ImportData = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            var picData = new FormData();
+            if (!baseService.isUndefinedOrNull($scope.picdata)) {
+                $scope.packingNew.FileName = $scope.picdata.name;
+            }
+            $http({
+                method: 'POST',
+                url: $scope.path + 'ImportData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    picData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                        picData.append('file', data.file);
+                    }
+                    return picData;
+                },
+                data: {
+                    'modelNew': $scope.packingNew
+                    , 'file': $scope.picdata
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.ShowSaveBtn = false;
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    $scope.PackingScanUploadedData = [];
+                    $scope.PackingScanUploadedData = response.data;
+                    $scope.ShowSaveBtn = true;
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 
     //End
     $scope.LoadData = function () {
@@ -162,7 +236,7 @@ function PackingScanDataController(cboService,commonMessage,$scope, $http, $loca
     };
 
 
-    $scope.PackingScanUploadedData = [];
+    
     $scope.picdata = null;
     $scope.ShowSaveBtn = false;
     $("#uploadImage").change(function () {
@@ -178,43 +252,6 @@ function PackingScanDataController(cboService,commonMessage,$scope, $http, $loca
     };
     $scope.ShowSaveBtn = false;
 
-    $scope.ImportData = function () {
-        try {
-            $scope.$broadcast('show-errors-check-validity');
-                $http({
-                    method: 'POST',
-                    url: $scope.path + 'ImportData',
-                    headers: { 'Content-Type': undefined },
-                    transformRequest: function (data) {
-                        picData.append("modelNew", angular.toJson(data.modelNew));
-                        if (baseService.isUndefinedOrNull($scope.picdata) === false) {
-                            picData.append('file', data.file);
-                        }
-                        return picData;
-                    },
-                    data: {
-                        'modelNew': $scope.PSDataNew
-                        , 'file': $scope.picdata
-                    }
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        $scope.ShowSaveBtn = false;
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        $scope.PackingScanUploadedData = [];
-                        $scope.PackingScanUploadedData = response.data;
-                        $scope.ShowSaveBtn = true;
-                    }
-                }, function errorCallback(response) {
-
-                });
-                return true;
-            }
-            catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
 
     $scope.invalidDocDate = false;
     $scope.checkDocDate = function () {
@@ -234,8 +271,8 @@ function PackingScanDataController(cboService,commonMessage,$scope, $http, $loca
                 type: "POST",
                 url: $scope.path + 'SavePackingScanUploadData',
                 data: {
-                    'bankReconciliationUploadvm': $scope.PSDataNew
-                    , 'bankReconciliationUploadedDataList': $scope.PackingScanUploadedData
+                    'packingScanUploadvm': $scope.PSDataNew
+                    , 'packingScanUploadedDataList': $scope.PackingScanUploadedData
                 },
                 dataType: "json",
                 success: function (response) {
@@ -245,7 +282,7 @@ function PackingScanDataController(cboService,commonMessage,$scope, $http, $loca
                     }
                     else {
                         ShowResult(response.Message, 'success');
-                        $scope.LoadData();
+                        //$scope.LoadData();
                         $scope.PackingScanUploadedData = [];
                         $scope.PSDataNew = {};
                         $("#uploadImage").val(null);
@@ -259,10 +296,6 @@ function PackingScanDataController(cboService,commonMessage,$scope, $http, $loca
         }
     };
 
-    $scope.GetSampleFile = function () {
-        var ReportFormat = 'Excel';
-        location.href = $scope.path + 'GetSampleFile?reportFormat=' + ReportFormat;
-    };
     $scope.onClickReportDownloadExcel = function (data) {
         var reportFormat = "Excel";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
