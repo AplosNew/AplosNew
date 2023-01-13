@@ -409,7 +409,7 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))>0 then 1 else 0 end FutureDue,
 SM.StandardScheduleMinutes,Format(APD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,isnull(APD.[Status],1) as [Status],APD.Remarks,
 Format(APD.FromDate,'dd-MMM-yyyy') as FromDate,Format(APD.ActualDate,'dd-MMM-yyyy') as ActualDate,format(APD.FromTime,'hh:mm tt') as FromTime,format(APD.ToTime,'hh:mm tt') as	ToTime,APD.Minute as [Minute],APD.ActualRemark,
-APD.FileName,'id' as test
+APD.FileName,'id' as test,APD.Grade,APD.GradeRemark
  from TRN.SkillManagement SM
  --left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
  left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
@@ -475,7 +475,7 @@ LEFT OUTER JOIN ORG.SubSection SS ON SS.Id = EI.SubSectionId WHERE EI.EmployeeSt
         public ActionResult LoadItemPerformanceList(string Id, string SMId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"Select IPD.IsActive,IPD.Id,SMI.Id as ItemId,SMI.ItemName,SMI.PerformanceGroupId,isnull(IPD.PerformancePoints,'') as PerformancePoints,isnull(IPD.PerformanceComments,'') as PerformanceComments,SMI.Remarks,EPD.Id as PlannedId,null as PerformancePointsList from TRN.SkillManagementItem SMI
+            string str = @"Select IPD.IsActive,IPD.Id,SMI.Id as ItemId,SMI.ItemName,SMI.PerformanceGroupId,isnull(IPD.PerformancePoints,'') as PerformancePoints,isnull(IPD.PerformanceComments,'') as PerformanceComments,SMI.Remarks,EPD.Id as PlannedId,null as PerformancePointsList,SMI.MaximumPoints,SMI.MinimumPoints from TRN.SkillManagementItem SMI
 --left join TRN.SkillManagementLevel SML ON SML.Id=SMI.PerformanceGroupId
 left join TRN.SkillManagement SM ON SM.Id=SMI.SMID
 left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id
