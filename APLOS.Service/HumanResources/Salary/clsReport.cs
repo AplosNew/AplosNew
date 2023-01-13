@@ -1872,7 +1872,8 @@ SystemId in (select ResponsiblePersonId from [TRN].[SkillResponsiblePlannedDetai
 isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails where Id=APD.Id
  ORDER BY Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(MPD.ActualDate,'dd-MMM-yyyy') from TRN.EmployeePlannedDetails MPD where MPD.Id=APD.Id
-ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((SM.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate
+ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((SM.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
+APD.Grade,APD.GradeRemark
 from TRN.SkillManagement SM
 left join HKP.Process PRO ON PRO.Id=SM.ProcessId
 left join TRN.SkillManagementPositionCode SPC ON SPC.SMID=SM.Id

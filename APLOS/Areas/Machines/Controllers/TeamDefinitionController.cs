@@ -126,7 +126,7 @@ namespace Aplos.Areas.Machines.Controllers
         public ActionResult LoadTeamLeaderList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * ,(select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=TD.TeamLeaderId) as TeamLeader FROM [TRN].[TeamDefinition] TD";
+            string sql = @"SELECT * ,(select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=TD.TeamLeaderId) as TeamLeader FROM [TRN].[TeamDefinition] TD order by TD.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
