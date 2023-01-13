@@ -9873,8 +9873,8 @@ namespace Library.Accounting.Accounts
                             left join trn.InventoryReceive ir on ir.Id=i.InventoryReceiveId
                             left join dbo.EmployeeInformation ei on ei.SystemId=VD.EmployeeId
 							left join ORG.CostCenter CC ON CC.Id=VD.CostCenterId
-                            WHERE V.IsPark=0 and V.CompanyGroupId='CG20171' AND V.CompanyId ='C20171' AND V.PlantId='20171' and ACT.Id='Expense' and VD.DrAmount>0
-							AND V.PostingDate BETWEEN '10/1/2021 12:00:00 AM' AND '11/3/2021 12:00:00 AM'";
+                            WHERE V.IsPark=0 and V.CompanyGroupId='"+ companyGroupId + "' AND V.CompanyId ='"+ companyId + "' AND V.PlantId='"+ plantId + @"' and ACT.Id='Expense' and VD.DrAmount>0
+							AND V.PostingDate BETWEEN '"+ fromDate + "' AND '"+ toDate + "'";
 
 
             return _sqlRepository.GetDataTable(cmdText);

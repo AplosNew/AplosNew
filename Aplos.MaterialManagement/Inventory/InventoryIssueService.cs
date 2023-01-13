@@ -1813,6 +1813,9 @@ namespace Library.MaterialManagement.Inventory
                                 BaseUOMId = issue.BaseUOMId,
                                 TransactionUoMId = issue.TransactionUoMId,
                                 IssueRequestDetailId = issue.IssueRequestDetailId,
+                                InventoryIssueId = issue.InventoryIssueId,
+                                InventoryIssueHistoryId = issue.InventoryIssueHistoryId,
+                                InventoryIssueDetailId = issue.InventoryIssueDetailId,
 
                             };
                             AuditService.AddedLog(history);
@@ -2311,6 +2314,34 @@ namespace Library.MaterialManagement.Inventory
 	                                 , II.IssueDate, MS.UserName
 									 ,EI.EmployeeCode,EI.EmployeeName,II.Remarks,II.EntityId,E.UserName,II.IssueType
 									 , ii.OrderRefNo,II.[Types],II.JWContractId,JW.ContractId,LC.LCRef,P.Code,p.UserName";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public GridModel GetInventoryIssueReturnListForPosting(GridParameter parameters, string plantId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT E.UserName AS Entity ,isnull(II.IssueType,'') IssueType, II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
+	                                 ,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate, MS.UserName AS MaterialStorage
+									 --,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
+									 ,SUM(IID.Qty) Qty,
+									  SUM(IID.TotalAmount) Amount,
+									 II.Remarks,II.Id AS IssueId,II.OrderRefNo
+                                    FROM[TRN].[InventoryIssueReturn] AS II
+                                left JOIN [TRN].InventoryIssueReturnHistory AS IID ON IID.InventoryIssueReturnId= II.Id -- AND IID.IsAsset= 0
+                                left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
+                                left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
+                                Left JOIN [ORG].[Entity] E On E.id= II.EntityId
+                                WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' 
+                                GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
+	                                 ,II.IssueDate, MS.UserName
+									 ,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo ";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

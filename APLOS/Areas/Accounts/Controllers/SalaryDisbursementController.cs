@@ -11,6 +11,7 @@ using Library.Model.Enums;
 using Library.Model.Organizations;
 using Library.Service.Advances;
 using Library.Service.Employees;
+using Library.Service.Helpers;
 using Library.Service.SalaryDisbursement;
 using Library.ViewModel.Vouchers;
 using OTSBD;
@@ -18,6 +19,7 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Web.Mvc;
@@ -777,6 +779,511 @@ namespace Aplos.Areas.Accounts.Controllers
             return json;
         }
 
+        #region Salary UnDisbursed
+        [HttpPost, Authorize]
+        public ActionResult GetSalaryUnDisbursed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            bool sa = identity.IsSysAdmin;
+            bool ca = identity.IsControlAdmin;
+            string userId = identity.UserId;
+            string plantId = identity.PlantId;
+            string companyGroupId = identity.CompanyGroupId;
+            var wcPayrollGroup = "";
+            string wcEmpStatus = " Where (1=0 ";
+
+            if (sa == true || ca == true)
+            {
+                wcPayrollGroup = @"";
+            }
+            //else
+            //{
+            //    wcPayrollGroup = @"AND E.SystemId  IN (SELECT employeeid from MST.PayrollGroupMaster where PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"'))";
+            //}
+            if (salaryProcessId == "STRUCTURE")
+            {
+                wcEmpStatus = " Where (1=1 ";
+            }
+            else
+            {
+                wcEmpStatus = " Where (1=0 ";
+
+                if (isActive == true && isSeperated == true && isMaternity == true)
+                {
+                    wcEmpStatus = " Where (1=1 ";
+                }
+                else
+                {
+                    if (isActive == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='Regular'";
+                    }
+                    if (isSeperated == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='SEPARATED'";
+                    }
+                    if (isMaternity == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='MLV_PRE'";
+
+                    }
+                }
+            }
+
+            wcEmpStatus += ")";
+
+            string sql = @"select [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
+                                     isnull(e.SystemId,'') EmpSystemId
+									,ISNULL(e.EmployeeId,'')  EmployeeId 
+	                                ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsDisbursed <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
+									,SPM.MonthNo,SPM.YearNo ,sl.IsLocked AS Lock
+                                    ,ISNULL(e.EmployeeCode,'') EmployeeCode
+                                    ,ISNULL(e.EmployeeName,'') EmployeeName								
+                                    ,ISNULL(mpb.EntityId,'') EntityId
+									,ISNULL(mpb.PositionId,'') PositionId                                     
+                                    ,isnull(ISNULL(egdsg.UserName,ld.UserName),'') Designation                                       
+									,ISNULL(Department.UserName,'') Department 
+									,ISNULL(Division.UserName,'') Division 
+									,ISNULL(EmpC.UserName,'') EmployeeCategory
+									,ISNULL(Plant.UserName,'') Plant 
+									,ISNULL(Section.UserName,'') Section 
+									,ISNULL(SubSection.UserName,'') SubSection 
+									,ISNULL(Unit.UserName,'') Unit 
+                                    ,ISNULL(eL.UserName,'') Line
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOJ, 106), ' ', '-'),'') DOJ
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
+                                    , CASE WHEN MONTH(DOS) =  MONTH('" + effectiveDate + @"')  AND YEAR(DOS) = YEAR('" + effectiveDate + @"') then 'Separated' else 'Active' end CurrentMonthEmployeeStatus
+                                    ,ISNULL(e.EmployeeStatus,'') EmployeeStatus
+                                    , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
+									,ISNULL(PG.UserName,'') PayRollGroup
+                                    ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
+                                    ,ISNULL(jl.JobLocation, '') JobLocation
+									,ISNULL(e.PaymentMode,'') PaymentMode
+									,ISNULL(bb.UserName,'') BankName
+                                    ,ISNULL(v.VoucherNo,'' ) VoucherNo
+                                    ,ISNULL(sl.PayableVoucherId,'') PayableVoucherId
+                                    ,ISNULL(sl.DisbursementVoucherId,'') DisbursementVoucherId
+                                    ,ISNULL(v.VoucherNo,'') as PayableVoucherNo
+                                    ,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo
+                                    ,sl.IsDisbursed
+                                    ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
+                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    from SalaryProcessLogDetail s
+                                    JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
+                                    left join EmployeeInformation e on e.SystemId= s.EmpSystemId
+                                    LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=s.DesignationId
+                                    LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=s.LegalDesignationId
+                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
+                                    ,dg.UserName GivenDesignationGroup
+                                    FROM mst.DesignationMaster dm
+                                    LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
+                                    ) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
+                                    AND egdsgg.EmployeeCategoryId=s.EmployeeCategoryId
+                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=s.BudgetCode
+                                    LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                                    LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+                                    LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                                    LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
+                                    LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                                    LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId                                   
+                                    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId			                                       
+                                    LEFT JOIN ORG.Line AS eL ON eL.Id= mpb.LineId
+                                    Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
+                                    Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+                                    Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
+                                    left join [HKP].[Bank] bb on bb.Id = s.BankSystemID
+                                    Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') AND SL.MonthNo=Month('" + effectiveDate + @"')
+                                    LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
+                                    LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' and sl.islocked=1 and sl.IsDisbursed = 0  " + wcPayrollGroup + @" 
+                                    ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        #region Report
+        public void SalaryUndisbursedReportQry(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, out DataTable data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            bool sa = identity.IsSysAdmin;
+            bool ca = identity.IsControlAdmin;
+            string userId = identity.UserId;
+            string plantId = identity.PlantId;
+            string companyGroupId = identity.CompanyGroupId;
+            var wcPayrollGroup = "";
+            string wcEmpStatus = " Where (1=0 ";
+
+            if (sa == true || ca == true)
+            {
+                wcPayrollGroup = @"";
+            }
+            //else
+            //{
+            //    wcPayrollGroup = @"AND E.SystemId  IN (SELECT employeeid from MST.PayrollGroupMaster where PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"'))";
+            //}
+            if (salaryProcessId == "STRUCTURE")
+            {
+                wcEmpStatus = " Where (1=1 ";
+            }
+            else
+            {
+                wcEmpStatus = " Where (1=0 ";
+
+                if (isActive == true && isSeperated == true && isMaternity == true)
+                {
+                    wcEmpStatus = " Where (1=1 ";
+                }
+                else
+                {
+                    if (isActive == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='Regular'";
+                    }
+                    if (isSeperated == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='SEPARATED'";
+                    }
+                    if (isMaternity == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='MLV_PRE'";
+
+                    }
+                }
+            }
+
+            wcEmpStatus += ")";
+
+            string sql = @"select [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
+                                     isnull(e.SystemId,'') EmpSystemId
+									,ISNULL(e.EmployeeId,'')  EmployeeId 
+	                                ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsDisbursed <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
+									,SPM.MonthNo,SPM.YearNo ,sl.IsLocked AS Lock
+                                    ,ISNULL(e.EmployeeCode,'') EmployeeCode
+                                    ,ISNULL(e.EmployeeName,'') EmployeeName								
+                                    ,ISNULL(mpb.EntityId,'') EntityId
+									,ISNULL(mpb.PositionId,'') PositionId                                     
+                                    ,isnull(ISNULL(egdsg.UserName,ld.UserName),'') Designation                                       
+									,ISNULL(Department.UserName,'') Department 
+									,ISNULL(Division.UserName,'') Division 
+									,ISNULL(EmpC.UserName,'') EmployeeCategory
+									,ISNULL(Plant.UserName,'') Plant 
+									,ISNULL(Section.UserName,'') Section 
+									,ISNULL(SubSection.UserName,'') SubSection 
+									,ISNULL(Unit.UserName,'') Unit 
+                                    ,ISNULL(eL.UserName,'') Line
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOJ, 106), ' ', '-'),'') DOJ
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
+                                    , CASE WHEN MONTH(DOS) =  MONTH('" + effectiveDate + @"')  AND YEAR(DOS) = YEAR('" + effectiveDate + @"') then 'Separated' else 'Active' end CurrentMonthEmployeeStatus
+                                    ,ISNULL(e.EmployeeStatus,'') EmployeeStatus
+                                    , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
+									,ISNULL(PG.UserName,'') PayRollGroup
+                                    ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
+                                    ,ISNULL(jl.JobLocation, '') JobLocation
+									,ISNULL(e.PaymentMode,'') PaymentMode
+									,ISNULL(bb.UserName,'') BankName
+                                    ,ISNULL(v.VoucherNo,'' ) VoucherNo
+                                    ,ISNULL(sl.PayableVoucherId,'') PayableVoucherId
+                                    ,ISNULL(sl.DisbursementVoucherId,'') DisbursementVoucherId
+                                    ,ISNULL(v.VoucherNo,'') as PayableVoucherNo
+                                    ,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo
+                                    ,sl.IsDisbursed
+                                    ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
+                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    from SalaryProcessLogDetail s
+                                    JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
+                                    left join EmployeeInformation e on e.SystemId= s.EmpSystemId
+                                    LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=s.DesignationId
+                                    LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=s.LegalDesignationId
+                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
+                                    ,dg.UserName GivenDesignationGroup
+                                    FROM mst.DesignationMaster dm
+                                    LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
+                                    ) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
+                                    AND egdsgg.EmployeeCategoryId=s.EmployeeCategoryId
+                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=s.BudgetCode
+                                    LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                                    LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+                                    LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                                    LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
+                                    LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                                    LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId                                   
+                                    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId			                                       
+                                    LEFT JOIN ORG.Line AS eL ON eL.Id= mpb.LineId
+                                    Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
+                                    Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+                                    Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
+                                    left join [HKP].[Bank] bb on bb.Id = s.BankSystemID
+                                    Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') AND SL.MonthNo=Month('" + effectiveDate + @"')
+                                    LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
+                                    LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' and sl.islocked=1 and sl.IsDisbursed = 0  " + wcPayrollGroup + @" 
+                                    ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                             data = _sqlRepository.GetDataTable(sql);
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeSalaryUnDisbursed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            try
+            {
+
+                string fileName = "";
+                fileName = GeSalaryUndisburseXlsReport(effectiveDate, salaryProcessId, isActive, isSeperated, isMaternity, "Salary UnDisbursed");
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        public string GeSalaryUndisburseXlsReport(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+
+            try
+            {
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Salary Not Disbursed";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                SalaryUndisbursedReportQry(effectiveDate, salaryProcessId, isActive, isSeperated, isMaternity, out data);
+
+                int ROW = 6; int COL = 1;
+
+                #region Columns
+
+
+                //sheet[ROW, COL].Text = "Month Name";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColMonthName = COL;
+                //COL++;
+
+                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColEC = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColEN = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "DOJ";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDOJ = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "DOS";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDOS = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Category";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColEcg = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDep = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Section";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColSec = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sub Section";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColSS = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Designation";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDesg = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Payable Voucher No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColPblVhrNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Lock";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColLock = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Disbursement Voucher No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDVNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Disbursed";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColDisbursed = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Pay Roll Group";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColPayRollGrp = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Job Location";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColJobLocation = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Payment Mode";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColPM = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bank";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColBank = COL;
+                
+
+                //sheet[ROW, COL].Text = "Bank Account No";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColBAN = COL;
+                //COL++;
+
+                //sheet[ROW, COL].Text = "IFSC Code";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColIFSC = COL;
+                //COL++;
+
+                //sheet[ROW, COL].Text = "Net Payable";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColNetPay = COL;
+                
+                // COL++;
+                #endregion Columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+                int startRow = ROW;
+                double[] arr = new double[3];
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+
+                    //sheet[ROW, ColMonthName].Text = data.Rows[i]["MonthName"].ToString();
+                    sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
+                    sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColDOJ].DateTime = Convert.ToDateTime(data.Rows[i]["DOJ"].ToString());
+                    sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
+                    sheet[ROW, ColEcg].Text = data.Rows[i]["EmployeeCategory"].ToString();
+                    sheet[ROW, ColDep].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColSec].Text = data.Rows[i]["Section"].ToString();
+                    sheet[ROW, ColSS].Text = data.Rows[i]["SubSection"].ToString();
+                    sheet[ROW, ColDesg].Text = data.Rows[i]["Designation"].ToString();
+                    sheet[ROW, ColPblVhrNo].Text = data.Rows[i]["PayableVoucherNo"].ToString();
+                    sheet[ROW, ColLock].Text = data.Rows[i]["IsLock"].ToString();
+                    sheet[ROW, ColDVNo].Text = data.Rows[i]["DisbursementVoucherNo"].ToString();
+                    sheet[ROW, ColDisbursed].Text = data.Rows[i]["IsDisburse"].ToString();
+                    sheet[ROW, ColPayRollGrp].Text = data.Rows[i]["PayRollGroup"].ToString();
+                    sheet[ROW, ColJobLocation].Text = data.Rows[i]["JobLocation"].ToString();
+
+                    sheet[ROW, ColPM].Text = data.Rows[i]["PaymentMode"].ToString();
+                    sheet[ROW, ColBank].Text = data.Rows[i]["BankName"].ToString();
+                    //sheet[ROW, ColBAN].Text = data.Rows[i]["BankAccNo"].ToString();
+                    //sheet[ROW, ColIFSC].Text = data.Rows[i]["IFSCCode"].ToString();
+                    //sheet[ROW, ColNetPay].Text = data.Rows[i]["NetPayable"].ToString();
+
+
+                    ROW++;
+                }
+
+
+
+                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Salary Not Disbursed Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = true;
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion Report
+
+        #endregion Salary UnDisbursed
+
         [HttpPost]
         public ActionResult Save(List<SalaryLock> EmployeeList)
         {
@@ -888,6 +1395,120 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+
+        #region Save SalaryUnDisbursed 
+        [HttpPost]
+        public ActionResult SaveSalaryUnDisbursed(List<SalaryLock> EmployeeList)
+        {
+            try
+            {
+                SaveSalaryUnDisbursedLock(EmployeeList);
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public void SaveSalaryUnDisbursedLock(List<SalaryLock> EmployeeList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            try
+            {
+                string EmpIdLoop = "";
+                foreach (var item in EmployeeList)
+                {
+                    if (EmpIdLoop == "")
+                    {
+                        EmpIdLoop = "'" + item.EmpSystemId + "'"; ;
+                    }
+                    else
+                    {
+                        EmpIdLoop += ",'" + item.EmpSystemId + "'";
+
+                    }
+                }
+
+                string sql = "select * from SalaryLock where  MonthNo='" + EmployeeList[0].MonthNo + @"' and YearNo='" + EmployeeList[0].YearNo + @"' and EmpSystemId IN (" + EmpIdLoop + @")";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                DataView DvMaster = new DataView(dsMaster.Tables[0]);
+
+                dsMaster.Tables[0].DefaultView.RowFilter = "DisbursementVoucherId <> '' ";
+                while (dsMaster.Tables[0].DefaultView.Count > 0)
+                {
+                    for (int i = 0; i < EmployeeList.Count; i++)
+                    {
+                        if (EmployeeList[i].EmpSystemId == dsMaster.Tables[0].DefaultView[0]["EmpSystemId"].ToString() && EmployeeList[i].IsLocked == false)
+                        {
+                            throw new Exception("Accounting Disbursement already done for this Employee [" + EmployeeList[i].EmployeeCode + "]");
+                        }
+                    }
+                }
+
+                foreach (var item in EmployeeList)
+                {
+                    DvMaster.RowFilter = "EmpSystemId='" + item.EmpSystemId + @"'";
+
+                    if (DvMaster.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        string sID = string.Empty;
+                        bplib.clsGenID objGenID = new bplib.clsGenID();
+                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalaryLock", out sID);
+
+                        dr["Id"] = "SL" + sID;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["YearNo"] = item.YearNo;
+                        dr["MonthNo"] = item.MonthNo;
+                        dr["IsLocked"] = item.Lock;
+                        dr["IsDisbursed"] = item.CheckBoxSelect;
+                        dr["PayableVoucherId"] = item.PayableVoucherId;
+                        dr["DisbursementVoucherId"] = item.PayableVoucherId;
+
+                        //dr["DisbursedAddedBy"] = identity.Name;
+                        dr["AddedBy"] = identity.Name;
+                        //dr["DisbursedAddedDate"] = DateTime.Now;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = DvMaster[0].Row;
+                        dr.BeginEdit();
+
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["YearNo"] = item.YearNo;
+                        dr["MonthNo"] = item.MonthNo;
+                        dr["IsLocked"] = item.Lock;
+                        dr["IsDisbursed"] = item.CheckBoxSelect;
+                        dr["PayableVoucherId"] = item.PayableVoucherId;
+                        dr["DisbursementVoucherId"] = item.DisbursementVoucherId;
+
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+                    }
+                    DvMaster.RowFilter = null;
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion Save SalaryUnDisbursed 
         public class SalaryLock : BaseModel
         {
             #region Scalar Properties            

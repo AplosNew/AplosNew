@@ -21,6 +21,7 @@ namespace Library.MaterialManagement.Inventory
         GridModel Query1(GridParameter parameters, string inveReveiveId);
 		
         GridModel GetIssueMaterial(GridParameter parameters, string issueId,string companyId);
+        GridModel GetIssueReturnMaterial(GridParameter parameters, string issueId,string companyId);
         GridModel GetPayableRejectMaterial(GridParameter parameters, string inveReveiveId);
         GridModel GetPayableShortageMaterial(GridParameter parameters, string inveReveiveId);
         IEnumerable<object> GetVendorPayableGLBudgetActivity(string receiveId, string companyId, string plantId);

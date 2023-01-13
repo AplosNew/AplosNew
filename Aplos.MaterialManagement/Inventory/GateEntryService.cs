@@ -3167,6 +3167,7 @@ ORDER BY IR.ID DESC";
                     _gatePassMasterRepository.Delete(data.Id);
                     flag = false;
                     _unitOfWork.SaveChanges();
+                    _unitOfWork.Commit();
                 }
             }
             catch (CustomException)
@@ -3209,6 +3210,7 @@ ORDER BY IR.ID DESC";
                     _gateEntryRepository.Delete(data.Id);
                     flag = false;
                     _unitOfWork.SaveChanges();
+                    _unitOfWork.Commit();
                 }
             }
             catch (CustomException)

@@ -120,7 +120,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 
                 string _Id = "";
 
-                #region data Master update
+                    #region data Master update
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 bplib.clsGenID genid = new bplib.clsGenID();
                 if (dsMaster.Tables[0].Rows.Count == 0)

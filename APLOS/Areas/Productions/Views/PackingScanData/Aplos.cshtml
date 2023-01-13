@@ -69,121 +69,243 @@
 
     <div class="tab-content" id="tabpaneldiv">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet11(11), active: isSet11(11) }">
-
-            <div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
-                <div class="col-md-10">
-                    <input type="hidden" ng-model="EmployeeProfileFromExcel.EmployeeCode">
-                    <div class="inputBtnSection common-btn">
-                        <label class="fileUpload col-sm-4 ">
-                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
-                        </label>
-                        <input type="button" value="Import Data" class="btn btn-success"
-                               ng-click="ImportData()" />
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Scan Items</legend>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <!--<div class="form-group">
+                            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-disabled="IsGo" ng-model="PSDataNew.EntityId"-->
+                                            @*ng-change="loadProcessList(productionSummaryNew.EntityId)"*@
+                                            <!--name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>-->
+                        @*<div class="form-group">
+                            <label class="col-sm-4 control-label">From<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="PSDataNew.LocMasterId" name="From" ng-options="item.LocMasterId as item.FromLocation for item in materialMovementList">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>*@
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="PSDataNew.PurposeId" name="PurposeId" ng-change="getMaterialMovementList(PSDataNew.PurposeId)" ng-options="item.PurposeId as item.Text for item in purposeList">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="WorkDate" ng-model="PSDataNew.WorkDate" datepicker tabindex="3" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="PSDataNew.ShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Remarks" ng-model="PSDataNew.Remarks" class="form-control" required tabindex="1002" maxlength="50">
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="common-btn">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Material Movement<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="PSDataNew.LocMasterId" name="From" ng-options="item.LocMasterId as item.LocMasterId for item in materialMovementList">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        @*<div class="form-group">
+                            <label class="col-sm-4 control-label">To<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="PSDataNew.To" name="To" ng-options="item.LocMasterId as item.ToLocation for item in materialMovementList">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>*@
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Time<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input id="timepicker1" e-value="PSDataNew.Time" width="328" ej-timepicker name="Time" tabindex="4" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Grade<sup>*</sup></label>
+                            <div class="col-sm-8 show-message" style="padding-right:-1px;">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="PSDataNew.Grade" placeholder="Grade" name="Grade" ng-options="item.Value as item.Text for item in gradeList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--<div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
+                            <li> <button ng-click="SavePCD();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="1012"></i> {{Action}}</button></li>-->
+                            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash" tabindex="1013"></i> Delete</button></li>*@
+                            <!--<li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="1014"></i> Clear</button></li>
                         </ul>
-                    </div>
-                </div>
+                    </div>-->
+                </fieldset>
             </div>
 
-            <div class="row">
-                <div class="col-sm-12">
-                    <div id="GridWorkCenterProduct"
-                         ng-init="chkinit()"
-                         ej-grid e-datasource="BankReconciliationUploadedData"
-                         @*e-recorddoubleclick="selectSignleEmployee"
-                         e-rowdatabound="onrowdatabound"*@
-                         e-allowfiltering="true"
-                         e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowscrolling="true" @* e-minwidth="1100" e-minheight="500"*@
-                         e-pagesettings-pagesize="25"
-                         @*e-allowselection="true"*@
-                         e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-field="BankStatementDate" e-headertext="Date" e-width="80" e-format="{0:dd-MMM-yyyy}" type="date"></div>
-                            <div e-column e-field="BankRefNo" e-headertext="Bank Ref No" e-width="100"></div>
-                            <div e-column e-field="BankParticulars" e-headertext="Bank Particulars" e-width="100"></div>
-                            <div e-column e-field="DrAmount" e-headertext="DrAmount" e-width="80"></div>
-                            <div e-column e-field="CrAmount" e-headertext="CrAmount" e-width="80"></div>
-                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
-                            <div e-column e-field="OwnRefNo" e-headertext="Own RefNo" e-width="100"></div>
+                <div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
+                    <div class="col-md-10">
+                        <input type="hidden" ng-model="EmployeeProfileFromExcel.EmployeeCode">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                            </label>
+                            <input type="button" value="Import Data" class="btn btn-success"
+                                   ng-click="ImportData()" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-12 col-md-12 ">
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li ng-show="ShowSaveBtn"> <button ng-click="save();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet22(22), active: isSet22(22) }">
-
-            <div class="form-elements form-horizontal row" id="MainDivId">
-                <div class="col-md-10">
-
-                </div>
-                <div class="col-md-2">
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="LoadData();" class="btn"><i class="glyphicon glyphicon-download"></i> Load</button></li>
-
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div id="GridUploadedData"
-                         ng-init="chkinit()"
-                         ej-grid e-datasource="SaveDataList"
-                         @*e-recorddoubleclick="selectSignleEmployee"
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="GridWorkCenterProduct"
+                             ng-init="chkinit()"
+                             ej-grid e-datasource="PackingScanUploadedData"
+                             @*e-recorddoubleclick="selectSignleEmployee"
                          e-rowdatabound="onrowdatabound"*@
-                         e-allowfiltering="true"
-                         e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         @*e-allowscrolling="true" e-minwidth="1100" e-minheight="500"*@
-                         e-pagesettings-pagesize="25"
-                         @*e-allowselection="true"*@
-                         e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
-                            <div e-column e-field="BankName" e-headertext="Bank" e-width="80"></div>
-                            <div e-column e-field="FromDate" e-headertext="From Date" e-width="60"></div>
-                            <div e-column e-field="ToDate" e-headertext="To Date" e-width="60"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="60"></div>
-                            <div e-column e-field="OpeningBlance" e-headertext="Opening Balance" e-width="80"></div>
-                            <div e-column e-field="ClosingBalance" e-headertext="Closing Balance" e-width="80"></div>
-                            <div e-column e-field="BankStatementNo" e-headertext="Statement Ref No" e-width="100"></div>
-                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
-                            <div e-column e-headertext="Action" e-template="#ReportTemplate" e-width="100"></div>
+                             e-allowfiltering="true"
+                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowscrolling="true" @* e-minwidth="1100" e-minheight="500"*@
+                             e-pagesettings-pagesize="25"
+                             @*e-allowselection="true"*@
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                @*<div e-column e-field="Id" e-headertext="Id" e-width="100"></div>
+                                <div e-column e-field="MasterId" e-headertext="Master Id" e-width="100"></div>*@
+                                <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="100"></div>
+                                <div e-column e-field="POId" e-headertext="PO No" e-width="100"></div>
+                                <div e-column e-field="LotNo" e-headertext="Lot No" e-width="80"></div>
+                                <div e-column e-field="RefNo" e-headertext="Ref No" e-width="80"></div>
+                                <div e-column e-field="Cones" e-headertext="Cones" e-width="100"></div>
+                                <div e-column e-field="NetWeight" e-headertext="Net Weight" e-width="100"></div>
+                                <div e-column e-field="GWeight" e-headertext="GWeight" e-width="100"></div>
+                                <div e-column e-field="PackedBy" e-headertext="Packed By" e-width="100"></div>
+                                <div e-column e-field="Shade" e-headertext="Shade" e-width="100"></div>
+                                <div e-column e-field="Booked" e-headertext="Booked" e-width="100"></div>
+                                <div e-column e-field="PackingId" e-headertext="Packing Id" e-width="100"></div>
+                                <div e-column e-field="AddedBy" e-headertext="Added By" e-width="100"></div>
+                                <div e-column e-field="AddedDate" e-headertext="Added Date" e-width="100"></div>
+                                <div e-column e-field="UpdatedBy" e-headertext="Updated By" e-width="100"></div>
+                                <div e-column e-field="UpdatedDate" e-headertext="Updated Date" e-width="100"></div>
+                                <div e-column e-field="LocMasterId" e-headertext="LocMasterId" e-width="100"></div>
+                                <div e-column e-field="IsDespatch" e-headertext="Despatch" e-width="100"></div>
+                                <div e-column e-field="BookedDate" e-headertext="Booked Date" e-width="80" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                                <div e-column e-field="InventoryReceiveDetailId" e-headertext="Inventory Receive Detail Id" e-width="100"></div>
+                                <div e-column e-field="SalesId" e-headertext="Sales Id" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 ">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li ng-show="ShowSaveBtn"> <button ng-click="save();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-                <script id="ReportTemplate" type="text/template">
-                    <div class="common-btn">
-                        <ul class="common-btn list-inline text-center">
-                            <li>
-                                <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
-                                    <i class="fa fa-file-excel-o"></i>
-                                </button>
-                                <button ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
-                                    <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
-                                </button>
-                            </li>
-                        </ul>
+            </div>
+
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet22(22), active: isSet22(22) }">
+
+                <div class="form-elements form-horizontal row" id="MainDivId">
+                    <div class="col-md-10">
+
                     </div>
-                </script>
+                    <div class="col-md-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="LoadData();" class="btn"><i class="glyphicon glyphicon-download"></i> Load</button></li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="GridUploadedData"
+                             ng-init="chkinit()"
+                             ej-grid e-datasource="SaveDataList"
+                             @*e-recorddoubleclick="selectSignleEmployee"
+                         e-rowdatabound="onrowdatabound"*@
+                             e-allowfiltering="true"
+                             e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             @*e-allowscrolling="true" e-minwidth="1100" e-minheight="500"*@
+                             e-pagesettings-pagesize="25"
+                             @*e-allowselection="true"*@
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                                <div e-column e-field="BankName" e-headertext="Bank" e-width="80"></div>
+                                <div e-column e-field="FromDate" e-headertext="From Date" e-width="60"></div>
+                                <div e-column e-field="ToDate" e-headertext="To Date" e-width="60"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="60"></div>
+                                <div e-column e-field="OpeningBlance" e-headertext="Opening Balance" e-width="80"></div>
+                                <div e-column e-field="ClosingBalance" e-headertext="Closing Balance" e-width="80"></div>
+                                <div e-column e-field="BankStatementNo" e-headertext="Statement Ref No" e-width="100"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                                <div e-column e-headertext="Action" e-template="#ReportTemplate" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <script id="ReportTemplate" type="text/template">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-center">
+                                <li>
+                                    <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                                        <i class="fa fa-file-excel-o"></i>
+                                    </button>
+                                    <button ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                        <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
+                </div>
             </div>
         </div>
-    </div>
 </div>
 
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")

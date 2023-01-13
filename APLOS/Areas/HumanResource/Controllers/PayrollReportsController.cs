@@ -911,13 +911,17 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 int ROW = 6; int COL = 1;
 
                 #region Columns
-
-
+             
                 sheet[ROW, COL].Text = "Month Name";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColMonthName = COL;
                 COL++;
-                
+
+                sheet[ROW, COL].Text = "Year";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColYear = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Employee Code";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColEC = COL;
@@ -1017,6 +1021,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 {
 
                     sheet[ROW, ColMonthName].Text = data.Rows[i]["MonthName"].ToString();
+                    sheet[ROW, ColYear].Text = data.Rows[i]["YearNo"].ToString();
                     sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
                     sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
                     sheet[ROW, ColDOJ].DateTime = Convert.ToDateTime(data.Rows[i]["DOJ"].ToString());
@@ -1109,8 +1114,8 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 			  WHEN  SPM.MonthNo=10 THEN 'Oct'
 			  WHEN  SPM.MonthNo=11 THEN 'Nov'
 			  WHEN  SPM.MonthNo=12 THEN 'Dec' ELSE '' END, SPM.YearNo
-,EI.EmployeeCode, EI.EmployeeName, FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(EI.DOS,'dd-MMM-yyyy') DOS, EC.UserName EmployeeCategory, DP.UserName Department, S.UserName Section, SS.UserName SubSection, D.UserName Designation, SPLD.PaymentMode, B.UserName BankName
-                        ,SPLD.IFSCCode, EBI.BankAccNo, SPC.DisbusmentAmount NetPayable
+,EI.EmployeeCode, EI.EmployeeName, FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(EI.DOS,'dd-MMM-yyyy') DOS, EC.UserName EmployeeCategory, DP.UserName Department, S.UserName Section, SS.UserName SubSection, D.UserName Designation, EI.PaymentMode, B.UserName BankName
+                        ,EBI.IFSCCode, EBI.BankAccNo, SPC.DisbusmentAmount NetPayable
                         from SalaryProcChild SPC
                         LEFT JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID 
                         LEFT JOIN SalaryLock SL ON SL.EmpSystemId = SPC.EmpInfoSystemID AND SL.YearNo = SPM.YearNo AND SPM.MonthNo = SL.MonthNo

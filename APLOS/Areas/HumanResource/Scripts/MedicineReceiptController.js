@@ -319,9 +319,9 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     }
     //  #endregion Update
 
-    $scope.XlsMedicineReceipt = function () {
+    $scope.XlsMedicineReceipt = function (x) {
 
-        $http.get('HumanResource/MedicineReceipt/XlsMedicineReceipt?headerid=' + $scope.ModalNew.Id)
+        $http.get('HumanResource/MedicineReceipt/XlsMedicineReceipt?headerid=' + x.data.Id)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -352,7 +352,7 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
     $scope.removeDetentiontRow = function (e) {
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLogout/DetentionLogRespPerDelete?Id=' + $scope.tempDeptId,
+            url: 'Materials/DetentionLogout/DetentionLogRespPerDelete?Id=' + e.data.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {

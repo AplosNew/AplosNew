@@ -1609,7 +1609,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-                var str = @"select Username as Text , ld.Id as Value from 
+                var str = @"select ld.Username as Text , ld.Id as Value from 
                 leaveyeardefination ld left join 
                 LeaveYearDefinationPlantChild lpc on lpc.LeaveYearDefinationId=ld.Id
                 where lpc.plantid='"+PlantId+"'";
