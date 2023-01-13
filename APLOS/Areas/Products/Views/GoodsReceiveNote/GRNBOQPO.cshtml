@@ -546,9 +546,9 @@
                                     </tr>
                                     <tr ng-show="MasterList.length">
                                         <td></td>
-                                        <td colspan="9" class="text-right"><strong>Total : </strong></td>
+                                        <td colspan="10" class="text-right"><strong>Total : </strong></td>
                                         <td class="text-right" ng-show="GriddataSelected.length===0"><strong>{{MasterList | sumByKey : 'OriginalPOQty' }}</strong></td>
-                                        <td ng-show="GriddataSelected.length===0"></td>
+                                        @*<td ng-show="GriddataSelected.length===0"></td>*@
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'TotalPOQty' }}</strong></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'POQty' }}</strong></td>
                                         <td></td>
@@ -2046,18 +2046,17 @@
                                 <div e-column e-template="#checkBOQboxList" e-textalign="center" e-width="30"></div>
                                 <div e-column e-field="BOQDetailId" e-headertext="BOQDetailId" e-width="60"></div>
                                 <div e-column e-field="RefferenceNo" e-headertext="Style" e-width="80"></div>
-
                                 <div e-column e-field="UserName" e-headertext="Material" e-width="150"></div>
-                                <div e-column e-field="StandardName" e-headertext="Article" e-width="100"></div>
-                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="120"></div>
+                                <div e-column e-field="StandardName" e-headertext="Article" e-width="250"></div>
+                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="100"></div>
                                 <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="60"></div>
-                                <div e-column e-field="RMDescription" e-headertext="Description" e-width="120"></div>
-                                <div e-column e-field="POQty" e-headertext="PO Qty" e-width="80"></div>
-                                <div e-column e-field="ToleranceQty" e-headertext="Tolerance Qty" e-width="80"></div>
+                                <div e-column e-field="RMDescription" e-headertext="Description" e-width="100"></div>
+                                <div e-column e-field="POQty" e-headertext="PO Qty" e-width="60"></div>
+                                <div e-column e-field="ToleranceQty" e-headertext="Tolerance Qty" e-width="60"></div>
                                 <div e-column e-field="TotalPOQty" e-headertext="Total Qty" e-width="80"></div>
-                                <div e-column e-field="TransactionUoM" e-headertext="UOM" e-width="80"></div>
+                                <div e-column e-field="TransactionUoM" e-headertext="UOM" e-width="40"></div>
                                 @*<div e-column e-template="#CurrentTextPOQtyBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>*@
-                                <div e-column e-template="#CurrentTextGRNRecvQty" e-field="GRNRcvQty" e-textalign="right" e-headertext="GRNRcvQty" e-width="100"></div>
+                                <div e-column e-template="#CurrentTextGRNRecvQty" e-field="GRNRcvQty" e-textalign="right" e-headertext="GRNRcvQty" e-width="90"></div>
                                 <div e-column e-template="#CurrentTextTRNQty" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
                                 <div e-column e-field="Balance" e-headertext="Balance" e-width="80"></div>
                                 <div e-column e-field="POClosStatus" e-headertext="POClosStatus" e-width="80"></div>
