@@ -150,7 +150,8 @@ DateDiff(day,GETDATE(),Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-
  ORDER BY APD.Id DESC),'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((SM.ScheduleDays+(select top 1 ActualDate from TRN.EmployeePlannedDetails APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC)),'dd-MMM-yyyy')end))>0 then 1 else 0 end FutureDue,
 SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Department D where D.Id=SM.DepartmentId) as Department,SM.TrainingGroup,MPD.FileName,'Pid' as test,
-  Reverse(stuff(Reverse((select EmployeeName+',' from EmployeeInformation where SystemId in (select ResponsiblePersonId from TRN.SkillResponsiblePlannedDetails AP where AP.PlannedId=MPD.Id and AP.IsActive=1) for xml path(''))),1,1,'')) ActionableResponsiblePerson
+  Reverse(stuff(Reverse((select EmployeeName+',' from EmployeeInformation where SystemId in (select ResponsiblePersonId from TRN.SkillResponsiblePlannedDetails AP where AP.PlannedId=MPD.Id and AP.IsActive=1) for xml path(''))),1,1,'')) ActionableResponsiblePerson,
+Format(MPD.ActualDate,'dd-MMM-yyyy') as ActualDate
  from TRN.SkillManagement SM
  left join MST.ManpowerBudget MB ON MB.id=SM.ResponsiblePersoneBgtCodeId
  left join TRN.SkillManagementEntity SPE ON SPE.SMID=SM.Id
@@ -309,27 +310,27 @@ SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Dep
                         {
                             if (dv.Count == 0)
                             {
-                                DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
-                                DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
-                                TimeSpan t = ToDt.Subtract(FromDt);
-                                int N = t.Days;
-                                DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                DateTime NextDayDate = date2.AddDays(N);
-                                TimeSpan ts = date2 - date1;
-                                TimeSpan Nd = NextDayDate - date1;
-                                int minutes = (int)Nd.TotalMinutes;
+                                //DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                //DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                //TimeSpan t = ToDt.Subtract(FromDt);
+                                //int N = t.Days;
+                                //DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                //DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                //DateTime NextDayDate = date2.AddDays(N);
+                                //TimeSpan ts = date2 - date1;
+                                //TimeSpan Nd = NextDayDate - date1;
+                                //int minutes = (int)Nd.TotalMinutes;
 
-                                if (minutes >= 720 || minutes < 0)
-                                {
-                                    item["ToTime"] = NextDayDate;
-                                    item["Minute"] = Nd.TotalMinutes;
-                                }
-                                else
-                                {
-                                    item["ToTime"] = date2;
-                                    item["Minute"] = ts.TotalMinutes;
-                                }
+                                //if (minutes >= 720 || minutes < 0)
+                                //{
+                                //    item["ToTime"] = NextDayDate;
+                                //    item["Minute"] = Nd.TotalMinutes;
+                                //}
+                                //else
+                                //{
+                                //    item["ToTime"] = date2;
+                                //    item["Minute"] = ts.TotalMinutes;
+                                //}
 
                                 bplib.clsGenID genid = new bplib.clsGenID();
                                 genid.GenID(TableName, out _Id);
@@ -348,27 +349,27 @@ SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Dep
                                         if (ActualDate == DateTime.Today || ActualDate == LastDayDate)
                                         {
                                             DataRow drpb = dv[0].Row;
-                                            DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
-                                            DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
-                                            TimeSpan t = ToDt.Subtract(FromDt);
-                                            int N = t.Days;
-                                            DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                            DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                            DateTime NextDayDate = date2.AddDays(N);
-                                            TimeSpan ts = date2 - date1;
-                                            TimeSpan Nd = NextDayDate - date1;
-                                            int minutes = (int)Nd.TotalMinutes;
+                                            //DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                            //DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                            //TimeSpan t = ToDt.Subtract(FromDt);
+                                            //int N = t.Days;
+                                            //DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                            //DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                            //DateTime NextDayDate = date2.AddDays(N);
+                                            //TimeSpan ts = date2 - date1;
+                                            //TimeSpan Nd = NextDayDate - date1;
+                                            //int minutes = (int)Nd.TotalMinutes;
 
-                                            if (minutes >= 720 || minutes < 0)
-                                            {
-                                                item["ToTime"] = NextDayDate;
-                                                item["Minute"] = Nd.TotalMinutes;
-                                            }
-                                            else
-                                            {
-                                                item["ToTime"] = date2;
-                                                item["Minute"] = ts.TotalMinutes;
-                                            }
+                                            //if (minutes >= 720 || minutes < 0)
+                                            //{
+                                            //    item["ToTime"] = NextDayDate;
+                                            //    item["Minute"] = Nd.TotalMinutes;
+                                            //}
+                                            //else
+                                            //{
+                                            //    item["ToTime"] = date2;
+                                            //    item["Minute"] = ts.TotalMinutes;
+                                            //}
                                             EditRow(drpb, item);
                                         }
                                         else
@@ -385,27 +386,27 @@ SM.StandardScheduleMinutes,SM.Remarks,(select D.UserName Department from Org.Dep
                                         else
                                         {
                                             DataRow drpb = dv[0].Row;
-                                            DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
-                                            DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
-                                            TimeSpan t = ToDt.Subtract(FromDt);
-                                            int N = t.Days;
-                                            DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                            DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                            DateTime NextDayDate = date2.AddDays(N);
-                                            TimeSpan ts = date2 - date1;
-                                            TimeSpan Nd = NextDayDate - date1;
-                                            int minutes = (int)Nd.TotalMinutes;
+                                            //DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                                            //DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
+                                            //TimeSpan t = ToDt.Subtract(FromDt);
+                                            //int N = t.Days;
+                                            //DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                            //DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                            //DateTime NextDayDate = date2.AddDays(N);
+                                            //TimeSpan ts = date2 - date1;
+                                            //TimeSpan Nd = NextDayDate - date1;
+                                            //int minutes = (int)Nd.TotalMinutes;
 
-                                            if (minutes >= 720 || minutes < 0)
-                                            {
-                                                item["ToTime"] = NextDayDate;
-                                                item["Minute"] = Nd.TotalMinutes;
-                                            }
-                                            else
-                                            {
-                                                item["ToTime"] = date2;
-                                                item["Minute"] = ts.TotalMinutes;
-                                            }
+                                            //if (minutes >= 720 || minutes < 0)
+                                            //{
+                                            //    item["ToTime"] = NextDayDate;
+                                            //    item["Minute"] = Nd.TotalMinutes;
+                                            //}
+                                            //else
+                                            //{
+                                            //    item["ToTime"] = date2;
+                                            //    item["Minute"] = ts.TotalMinutes;
+                                            //}
                                             EditRow(drpb, item);
                                         }
                                     }

@@ -4336,19 +4336,19 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
-                            
+
                             xlsCol = 7;
                             xlsRow = 5;
-                            sheet1.Range[xlsRow, xlsCol].Text = "From Date";
-                            sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvSMBioDvAC[0]["FromDate"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].Text = "Grade";
+                            sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvSMBioDvAC[0]["Grade"].ToString().Trim();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
 
                             xlsCol = 7;
                             xlsRow += 1;
-                            sheet1.Range[xlsRow, xlsCol].Text = "From Time";
-                            sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvSMBioDvAC[0]["FromTime"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].Text = "Grade Remarks";
+                            sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvSMBioDvAC[0]["GradeRemark"].ToString().Trim();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
@@ -4361,13 +4361,13 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
 
-                            xlsCol = 7;
-                            xlsRow += 1;
-                            sheet1.Range[xlsRow, xlsCol].Text = "To Time";
-                            sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvSMBioDvAC[0]["ToTime"].ToString().Trim();
-                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+                            //xlsCol = 7;
+                            //xlsRow += 1;
+                            //sheet1.Range[xlsRow, xlsCol].Text = "To Time";
+                            //sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvSMBioDvAC[0]["ToTime"].ToString().Trim();
+                            //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
 
                             xlsCol = 7;
                             xlsRow += 1;
@@ -4377,7 +4377,7 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
 
-                            xlsCol = 7;
+                            xlsCol = 7; 
                             xlsRow += 1;
                             sheet1.Range[xlsRow, xlsCol].Text = "Actionable Person";
                             sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvSMBioDvAC[0]["ResponsiblePerson"].ToString().Trim();
