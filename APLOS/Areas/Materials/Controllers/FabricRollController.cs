@@ -37,7 +37,6 @@ namespace Aplos.Areas.Materials.Controllers
 
         private readonly IFabricRollMasterService _fabricRollMasterService;
         private SqlRepository _sqlRepository = new SqlRepository();
-        IPKGeneratorService _pkGeneratorService;
         FabricRollClass clsFabric = new FabricRollClass();
         public FabricRollController(IFabricRollMasterService fabricRollMasterService)
         {
@@ -49,12 +48,12 @@ namespace Aplos.Areas.Materials.Controllers
         #region Pages
 
 
-        public ActionResult Aplos()
+        public ActionResult Aplos_()
         {
             return View();
         }
 
-        public ActionResult Aplos1()
+        public ActionResult Aplos()
         {
             return View();
         }
@@ -82,7 +81,7 @@ namespace Aplos.Areas.Materials.Controllers
         {
             return Json(_fabricRollMasterService.InsertOrUpdateGraphIncrement(), JsonRequestBehavior.AllowGet);
         }
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult Create(IEnumerable<FabricRollMaster> entities)
         {
             _fabricRollMasterService.InsertOrUpdateGraph(entities);
@@ -190,7 +189,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         #region Upload Roll Data
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateRollFile(FormCollection form)
         {
             var pre = form["FabricRollFile"];
