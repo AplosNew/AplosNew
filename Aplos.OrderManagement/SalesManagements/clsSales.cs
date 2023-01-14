@@ -1888,7 +1888,7 @@ Order by P.Sequence";
 								, SA.ToCurrencyRate
 								, SA.DocRefNo
 								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocDate
-								,SA.PartyId,P.UserName AS PartyName,p.Code
+								,'' PartyType,SA.PartyId,P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
@@ -2118,7 +2118,7 @@ Order by P.Sequence";
 								, 0 ToCurrencyRate
 								, '' DocRefNo
 								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocDate
-								,IR.PartyId, P.UserName AS PartyName,p.Code
+								,'' PartyType,IR.PartyId, P.UserName AS PartyName,p.Code
 								,'' AS MaterialGroupMasterName
 								,SM.UserName MaterialMasterName
 								,'' AS MaterialMasterArticleName
@@ -2325,7 +2325,7 @@ Order by P.Sequence";
 								, II.DocRefNo
 								,II.CustomerId PartyId
 								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocDate
-								, P.UserName AS PartyName,p.Code
+								,'' PartyType, P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
@@ -2498,7 +2498,7 @@ Order by P.Sequence";
 								, 0 ToCurrencyRate
 								, '' DocRefNo
 								,FORMAT(IR.DocDate,'') DocDate
-								, P.UserName AS PartyName,p.Code
+								,'' PartyType, P.UserName AS PartyName,p.Code
 								,'' AS MaterialGroupMasterName
 								,SM.UserName MaterialMasterName
 								,'' AS MaterialMasterArticleName
@@ -2653,7 +2653,7 @@ Order by P.Sequence";
 								, SA.ToCurrencyRate
 								, SA.DocRefNo
 								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocDate
-								,SA.PartyId, P.UserName AS PartyName,p.Code
+								,'' PartyType,SA.PartyId, P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
@@ -2878,7 +2878,7 @@ Order by P.Sequence";
 								, 0 ToCurrencyRate
 								, '' DocRefNo
 								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocDate
-								,IR.PartyId, P.UserName AS PartyName,p.Code
+								,'' PartyType,IR.PartyId, P.UserName AS PartyName,p.Code
 								,'' AS MaterialGroupMasterName
 								,SM.UserName MaterialMasterName
 								,'' AS MaterialMasterArticleName
@@ -3083,7 +3083,7 @@ Order by P.Sequence";
 								,II.ToCurrencyRate
 								, II.DocRefNo
 								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocDate
-								,II.CustomerId PartyId, P.UserName AS PartyName,p.Code
+								,'' PartyType,II.CustomerId PartyId, P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
@@ -3255,7 +3255,7 @@ Order by P.Sequence";
 								, 0 ToCurrencyRate
 								, '' DocRefNo
 								,FORMAT(IR.DocDate,'') DocDate
-								, P.UserName AS PartyName,p.Code
+								,'' PartyType, P.UserName AS PartyName,p.Code
 								,'' AS MaterialGroupMasterName
 								,SM.UserName MaterialMasterName
 								,'' AS MaterialMasterArticleName
