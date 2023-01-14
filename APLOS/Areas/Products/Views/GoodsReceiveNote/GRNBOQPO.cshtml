@@ -517,7 +517,7 @@
                                         <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="500" ng-model="x.RejectionQty" ng-disabled=""></td>  @* x.enableid ng-keyup="calculateAmount(x);"*@
                                         <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.ApprovedQty" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
                                         <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.NetQty" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>
+                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x,$index);" ng-disabled="x.Id"></td>
                                         <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TrnAmount" ng-disabled="true"></td>
                                         <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountAfterDiscount(x)" ng-model="x.DiscountAmount" ng-disabled="false"></td>
                                         <td class="text-right" style="width:200px;"><input type="text" n-decimals="{{2}}" class="form-control text-right" width="200" ng-model="x.BaseTaxAmount" ng-disabled="true"></td>
@@ -546,7 +546,7 @@
                                     </tr>
                                     <tr ng-show="MasterList.length">
                                         <td></td>
-                                        <td colspan="10" class="text-right"><strong>Total : </strong></td>
+                                        <td colspan="11" class="text-right"><strong>Total : </strong></td>
                                         <td class="text-right" ng-show="GriddataSelected.length===0"><strong>{{MasterList | sumByKey : 'OriginalPOQty' }}</strong></td>
                                         @*<td ng-show="GriddataSelected.length===0"></td>*@
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'TotalPOQty' }}</strong></td>
@@ -2039,24 +2039,25 @@
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
                         <div style="color:black;" id="GRnBOQPooGrid" ej-grid e-datasource="MasterListNewBOQ"
                              e-templaterefresh="refreshTemplateMasterOrderOperation"
-                             e-recorddoubleclick="" e-summaryrows="summaryUnassignRows"
+                             e-recorddoubleclick="" e-summaryrows="summaryUnassignRows" e-allowResizing="true" 
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>
-                                <div e-column e-template="#checkBOQboxList" e-textalign="center" e-width="30"></div>
+                                @*<div e-column e-template="#checkBOQboxList" e-textalign="center" e-width="60"></div>*@
                                 <div e-column e-field="BOQDetailId" e-headertext="BOQDetailId" e-width="60"></div>
                                 <div e-column e-field="RefferenceNo" e-headertext="Style" e-width="80"></div>
-                                <div e-column e-field="UserName" e-headertext="Material" e-width="150"></div>
-                                <div e-column e-field="StandardName" e-headertext="Article" e-width="250"></div>
+                                <div e-column e-field="UserName" e-headertext="Material" e-width="120"></div>
+                                <div e-column e-field="StandardName" e-headertext="Article" e-width="200" ></div>
                                 <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="100"></div>
                                 <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="60"></div>
                                 <div e-column e-field="RMDescription" e-headertext="Description" e-width="100"></div>
+                                <div e-column e-field="POID" e-headertext="PO No." e-width="60"></div>
                                 <div e-column e-field="POQty" e-headertext="PO Qty" e-width="60"></div>
                                 <div e-column e-field="ToleranceQty" e-headertext="Tolerance Qty" e-width="60"></div>
-                                <div e-column e-field="TotalPOQty" e-headertext="Total Qty" e-width="80"></div>
+                                <div e-column e-field="TotalPOQty" e-headertext="Total Qty" e-width="60"></div>
                                 <div e-column e-field="TransactionUoM" e-headertext="UOM" e-width="40"></div>
                                 @*<div e-column e-template="#CurrentTextPOQtyBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>*@
-                                <div e-column e-template="#CurrentTextGRNRecvQty" e-field="GRNRcvQty" e-textalign="right" e-headertext="GRNRcvQty" e-width="90"></div>
+                                <div e-column e-template="#CurrentTextGRNRecvQty" e-field="GRNRcvQty" e-textalign="right" e-headertext="GRNRcvQty" e-width="80"></div>
                                 <div e-column e-template="#CurrentTextTRNQty" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
                                 <div e-column e-field="Balance" e-headertext="Balance" e-width="80"></div>
                                 <div e-column e-field="POClosStatus" e-headertext="POClosStatus" e-width="80"></div>
@@ -2081,9 +2082,10 @@
                             </div>
 
                         </div>
-                        <script type="text/template" id="checkBOQboxList">
-                            <input type="checkbox" ng-click="Change($event,$index,x)" ng-model="data.check" ng-disabled="data.TransactionQty===0 || data.TransactionQty==='' || data.TransactionQty===null">
-                        </script>
+                        <!--<script type="text/template" id="checkBOQboxList">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.check" e-enabled="data.TransactionQty===0 || data.TransactionQty==='' || data.TransactionQty===null"/>-->
+                            @*<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="data.check" ng-disabled="data.TransactionQty===0 || data.TransactionQty==='' || data.TransactionQty===null">*@
+                        <!--</script>-->
                         <!--<script type="text/template" id="CurrentTextPOQtyBOQ">
         <input type="number" class="input form-control" ng-keyup="calculateAmounts(data)" form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80"-->
                         @*ng-keyup="$parent.refreshQtyTemplete(this)"*@
