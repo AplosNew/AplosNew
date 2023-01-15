@@ -23,15 +23,11 @@
                                     <th>SO No</th>
                                     <th>Storage Location</th>
                                     <th>Balance Qty</th>
-                                    <th class="col-md-3" style="width:300px;">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                    <th></th>
-                                    <th></th>
-
+                                    <th class="col-md-3" colspan="3" style="width:300px;">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th>Lot No.</th>
                                     <th>TransferedFromGrnId</th>
                                     <th>Receive Qty</th>
-                                    @*<th>Base Qty</th>*@
                                     <th>Issue Qty</th>
-
                                     <th>Purchase Return Qty</th>
                                     <th>Issue Return Qty</th>
                                     <th>Adjustment Qty</th>
@@ -74,6 +70,7 @@
                                             <span class="input-group-addon">{{x.IssueTransactionUoM}}</span>
                                         </div>
                                     </td>
+                                    <td>{{x.LotNumber}}</td>
                                     <td>{{x.TransferedFromGrnId}}</td>
                                     <td>{{x.TransactionQty}} {{x.TUoM}}</td>
                                     @*<td>{{x.BaseQty}} {{x.BUoM}}</td>*@
