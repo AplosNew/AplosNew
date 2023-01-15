@@ -448,8 +448,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
         $scope.popUpDataList = [];
         $scope.popUpList = [];
-        $scope.popUpParameters.sort = 'Code';
-        $scope.popUpParameters.searchBy = 'Code';
+        $scope.budgetpopUpParameters.sort = 'Code';
+        $scope.budgetpopUpParameters.searchBy = 'Code';
         $scope.popUpUrl = 'employees/recruitment/getbudgetcodelist';
         baseService.setCurrentPage('dataList');
         $scope.getPopUpData = function (pageno) {
