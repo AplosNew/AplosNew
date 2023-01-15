@@ -762,9 +762,13 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/Voucher/DailyTransactionReportPage",
             controller: "dailyTransactionReportController"
         })
-        .when("/employee-advance-requisition", {
-            templateUrl: "Accounts/Views/EmployeeAdvanceRequisition",
-            controller: "employeeAdvanceRequisitionController"
+        //.when("/employee-advance-requisition", {
+        //    templateUrl: "Accounts/Views/EmployeeAdvanceRequisition",
+        //    controller: "employeeAdvanceRequisitionController"
+        //})
+        .when("/hr-employee-advance-requisition", {
+            templateUrl: "Accounts/Advance/HREmployeeAdvanceRequisition/",
+            controller: "employeeAdvanceRequisitionHRController"
         })
         .when("/standard-actual-budget", {
             templateUrl: "Accounts/BudgetMaster/FiscalYearBudget",
