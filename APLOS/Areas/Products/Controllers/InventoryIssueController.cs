@@ -2633,9 +2633,7 @@ namespace Aplos.Areas.Products.Controllers
                             	,ISNULL(boq.RMVendorSpec, '') VendorRefNo
                             	,ISNULL(boq.OwnReferenceNo, '') OwnReferenceNo
                             	,ISNULL(mo.PartyId,'')PartyId
-                            	,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo --Style
-                            	
-                            	
+                            	,v.UserName VendorName
                             FROM TRN.InventoryReceiveDetail IRD
 							JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
 							JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
@@ -2651,6 +2649,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN TRN.ProductionOrderDetail PROD ON PROD.SalesOrderId=SO.Id
                             JOIN TRN.POBOQMAP pomap ON pomap.BOQDetailId = boq.Id
                             LEFT JOIN HKP.Party P ON P.Id = mo.PartyId
+                            LEFT JOIN HKP.Party V ON V.Id = boq.VendorId
                             LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id = pomap.PODetailId
                             LEFT JOIN TRN.PurchaseOrder PO ON PO.Id = POD.InventoryReceiveId
 							WHERE IR.[Status]='Posting' AND IRD.MaterialStorageId='" + materialStorageId + "' and IR.PlantId='" + identity.PlantId + @"'

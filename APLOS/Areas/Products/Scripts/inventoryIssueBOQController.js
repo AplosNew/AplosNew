@@ -686,7 +686,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 
     function qtyValidation(list) {
         for (var i = 0; i < baseService.arrayLength(list); i++) {
-            if (list[i].Flag) {
+            if (list[i].RequisitionQty>0) {
                 if (parseFloat(list[i].RequisitionQty) > parseFloat(list[i].StockQty)) throw 'Requisition Qty can\'t greater than stock qty.';
             }
         }
@@ -695,7 +695,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
         var totalQty = 0;
         for (var i = 0; i < baseService.arrayLength(list); i++) {
             list[i].RequisitionQty = baseService.isUndefinedOrNull(list[i].RequisitionQty) === true ? 0 : parseFloat(list[i].RequisitionQty);
-            if (list[i].Flag) {
+            if (list[i].RequisitionQty>0) {
                 if (parseFloat(list[i].RequisitionQty) === 0)
                     throw 'Please input requisition qty', 'stockPopUp';
                 else {
@@ -1836,10 +1836,10 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
             }
             for (var t1 = 0; t1 < baseService.arrayLength($scope.materialStockList); t1++) {
 
-                if ($scope.materialStockList[t1].RequisitionQty > 0 && $scope.materialStockList[t1].Flag == 0) {
-                    ShowResult("select The given qty row", 'failure', 'stockboqPopUp');
-                    return false;
-                }
+                //if ($scope.materialStockList[t1].RequisitionQty > 0 && $scope.materialStockList[t1].Flag == 0) {
+                //    ShowResult("select The given qty row", 'failure', 'stockboqPopUp');
+                //    return false;
+                //}
                 if (baseService.isUndefinedOrNull($scope.materialStockList[t1].RequisitionQty) && $scope.materialStockList[t1].Flag == 1) {
                     ShowResult("Enter the qty for selected row ", 'failure', 'stockboqPopUp');
                     return false;
@@ -1868,7 +1868,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 
                 nRow.BaseQty = $scope.materialStockList[n].BaseQty;
                 nRow.BaseIssueQty = $scope.materialStockList[n].BaseIssueQty;
-                if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.Flag) {
+                if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.RequisitionQty>0) {
                     $scope.specificStockList.push(nRow);
                 }
                 else {
@@ -1885,7 +1885,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
             for (var L = 0; L < BOqList.length; L++) {
 
                 if ($scope.detailList.length == 0) {
-                    if (BOqList[L].Flag == true) {
+                    if (BOqList[L].RequisitionQty>0) {
 
                     $scope.detailList.push(BOqList[L]);
                     }
@@ -1901,7 +1901,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                                 $scope.detailList[j].FirstCharacteristicsValueId === getRowDr[0].FirstCharacteristicsValueId &&
                                     $scope.detailList[j].SecondCharacteristicsValueId === getRowDr[0].SecondCharacteristicsValueId &&
                                 $scope.detailList[j].ThirdCharacteristicsValueId === getRowDr[0].ThirdCharacteristicsValueId
-                                && $scope.detailList[j].IssueTransactionUoMId === getRowDr[0].IssueTransactionUoMId && $scope.detailList[j].Flag === getRowDr[0].Flag
+                                && $scope.detailList[j].IssueTransactionUoMId === getRowDr[0].IssueTransactionUoMId 
                             ) {
                                 var trnqty = parseFloat($scope.detailList[j].RequisitionQty.toFixed(4)) + parseFloat(BOqList[L].RequisitionQty.toFixed(4));
                                 $scope.detailList[j].RequisitionQty = parseFloat(trnqty.toFixed(4));
@@ -1909,7 +1909,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                             }
                         }
                     }
-                    else if (BOqList[L].Flag == true) {
+                    else if (BOqList[L].RequisitionQty>0) {
                         $scope.detailList.push(BOqList[L]);
                     }
                 }
@@ -1925,4 +1925,9 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
         angular.element(document.querySelector('#stockboqPopUp')).modal('hide');
     };
     //$scope.CostCenterLoadNew();
+
+    $scope.summaryUnassignRows = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "RequisitionQty", dataMember: "RequisitionQty", format: "{0:C2}" }],
+        showCaptionSummary: true,
+    }];
 }

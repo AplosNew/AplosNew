@@ -165,6 +165,7 @@
                 <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="80"></div>
                 <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Ref. No" e-width="80"></div>
                 <div e-column e-type="string" e-field="BuyerOrderReferenceNo" e-headertext="Style" e-width="80"></div>
+                <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="150"></div>
             </div>
         </div>
     </div>
@@ -741,7 +742,7 @@
            e-showoninit="false"
            e-target="#MainDivId"
            e-close="onDialogClose"
-           e-width="1020"
+           e-width="1070"
            e-minheight="470"
            e-open="enableBtn">
     <fieldset class="scheduler-border form-group form-elements">
@@ -750,16 +751,17 @@
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                  e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                 <div e-columns>
-                    <div e-column e-template="#select" e-headertext="Select" e-width="80"></div>
-                    <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="100"></div>
+                    <div e-column e-template="#select" e-headertext="Select" e-width="40"></div>
+                    <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="60"></div>
                     <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="200"></div>
-                    <div e-column e-type="string" e-field="ContractId" e-headertext="ContractId" e-width="150"></div>
-                    <div e-column e-type="string" e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="100"></div>
+                    <div e-column e-type="string" e-field="ContractId" e-headertext="ContractId" e-width="60"></div>
+                    <div e-column e-type="string" e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="60"></div>
                     <div e-column e-type="string" e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="80"></div>
                     @*<div e-column e-type="string" e-field="CustomerRefNo" e-headertext="Customer Ref. No" e-width="80"></div>
                     <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor Ref. No" e-width="80"></div>*@
                     <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Ref. No" e-width="80"></div>
                     <div e-column e-type="string" e-field="BuyerOrderReferenceNo" e-headertext="Style" e-width="80"></div>
+                    <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="150"></div>
                 </div>
             </div>
             <script type="text/template" id="select">
