@@ -80,6 +80,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         }
     }
 
+   
     $scope.ActionablePersonList = [];
     $scope.GetActionablePersonList = function () {
         $http({
@@ -282,14 +283,22 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
             ShowResult(ex, 'Info');
         }
     };
-
+   
     $scope.SaveItemPerformance = function () {
         try {
-
             $scope.SaveItemPerformanceList = [];
             for (var i = 0; i < $scope.ItemPerformanceList.length; i++) {
                 if ($scope.ItemPerformanceList[i].IsActive == true) {
-                    $scope.SaveItemPerformanceList.push($scope.ItemPerformanceList[i]);
+                    for (var j = 0; j <$scope.ItemPerformanceList[i].PerformancePointsList.length; j++) {
+                        if ($scope.ItemPerformanceList[i].PerformancePointsList[j].Value == $scope.ItemPerformanceList[i].PerformancePoints) {
+                            if (parseInt($scope.ItemPerformanceList[i].PerformancePointsList[j].Text) > $scope.ItemPerformanceList[i].MaximumPoints) {
+                                throw "Selected value is greater than maximum points is not allowed.";
+                            }
+                            else {
+                                $scope.SaveItemPerformanceList.push($scope.ItemPerformanceList[i]);
+                            }
+                        }
+                    }
                 }
             }
 

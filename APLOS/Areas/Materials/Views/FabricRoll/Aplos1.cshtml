@@ -57,8 +57,8 @@
                         <label class="col-sm-8 control-label">{{fabricRollMaster.PurchaseLCNo}}</label>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label"><span style="font-weight:bold">Party :</span></label>
-                        <label class="col-sm-10 control-label">{{fabricRollMaster.PartyName}}</label>
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Party :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.PartyName}}</label>
                     </div>
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Prepared by<sup>*</sup></label>
@@ -153,12 +153,12 @@
                          e-allowselection="false" e-templaterefresh="refreshTemplateemployee">
                         <div e-columns>
                             <div e-column e-headertext="" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                            <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material Master" e-width="100"></div>
-                            <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="100"></div>
+                            <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material Master" e-width="120"></div>
+                            <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="150"></div>
                             <div e-column e-type="string" e-field="SKUInfo" e-headertext="SKU Info." e-width="100"></div>
                             <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Transaction Qty" e-width="100"></div>
 
-                            <div e-column e-type="string" e-field="UoM" e-headertext="UoM" e-width="120"></div>
+                            <div e-column e-type="string" e-field="UOM" e-headertext="UoM" e-width="50"></div>
                             <div e-column e-type="number" e-field="SplitCount" e-textalign="right" e-format="{0:N2}" e-headertext="Split Count" e-width="80"></div>
                             <div e-column e-type="number" e-field="TotalDistributeQty" e-textalign="right" e-format="{0:N2}" e-headertext="Total Distribute Qty" e-width="100"></div>
                             <div e-column e-headertext="RollNo" e-template="#rollsNo" e-width="80"></div>
