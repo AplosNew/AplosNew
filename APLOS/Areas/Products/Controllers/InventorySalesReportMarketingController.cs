@@ -227,7 +227,15 @@ namespace Aplos.Areas.Products.Controllers
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
-					worksheet[ROW, COL].Text = "Customer Name";//7
+                    worksheet[ROW, COL].Text = "Customer Type";//7
+                    int colPartyType = COL;
+                    worksheet[ROW, COL].ColumnWidth = 30;
+                    worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    COL++;
+
+                    worksheet[ROW, COL].Text = "Customer Name";//7
 					int colPartyName = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
@@ -294,13 +302,7 @@ namespace Aplos.Areas.Products.Controllers
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Transaction Qty";//16
-					int colTransactionQty = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
+
 					worksheet[ROW, COL].Text = "Gross Weight";//17
 					int colGrossWeight = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
@@ -308,20 +310,30 @@ namespace Aplos.Areas.Products.Controllers
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					//worksheet[ROW, COL].Text = "Currency";//18
-					//int colCurrency = COL;
-					//worksheet[ROW, COL].ColumnWidth = 12;
-					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//COL++;
-					worksheet[ROW, COL].Text = "Transaction Rate";//18
+
+                    worksheet[ROW, COL].Text = "Transaction Rate";//18
 					int colTransactionRate = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
+
+					worksheet[ROW, COL].Text = "Transaction Qty";//16
+					int colTransactionQty = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+                    worksheet[ROW, COL].Text = "Currency";//18
+                    int colCurrency = COL;
+                    worksheet[ROW, COL].ColumnWidth = 12;
+                    worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    COL++;
 
 					worksheet[ROW, COL].Text = "Transaction Amount";//19
 					int colTransactionAmount = COL;
@@ -330,6 +342,14 @@ namespace Aplos.Areas.Products.Controllers
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
+
+                    worksheet[ROW, COL].Text = "Books Rate";//19
+                    int colBooksRate = COL;
+                    worksheet[ROW, COL].ColumnWidth = 20;
+                    worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    COL++;
 
                     worksheet[ROW, COL].Text = "Books Amount";//19
                     int colBooksAmount = COL;
@@ -498,7 +518,7 @@ namespace Aplos.Areas.Products.Controllers
 					COL++;
 					worksheet[ROW, COL].Text = "Agent Name";//39
 					int colAgentName = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].ColumnWidth = 25;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -572,6 +592,7 @@ namespace Aplos.Areas.Products.Controllers
                                 worksheet[ROW, colToCurrencyRate].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["ToCurrencyRate"].ToString());
                                 worksheet.Range[ROW, colToCurrencyRate].NumberFormat = NumberFormatFourDecimal;
                                
+                                worksheet[ROW, colPartyType].Text = dtInventorySalesReportList.Rows[i]["PartyType"].ToString();
                                 worksheet[ROW, colPartyName].Text = dtInventorySalesReportList.Rows[i]["PartyName"].ToString();
                                 
                                 worksheet[ROW, colMaterialGroupMasterName].Text = dtInventorySalesReportList.Rows[i]["MaterialGroupMasterName"].ToString();
@@ -585,8 +606,13 @@ namespace Aplos.Areas.Products.Controllers
                                 worksheet.Range[ROW, colTransactionQty].NumberFormat = NumberFormatTwoDecimal;
                                 worksheet[ROW, colTransactionAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TransactionAmount"].ToString());
                                 worksheet.Range[ROW, colTransactionAmount].NumberFormat = NumberFormatTwoDecimal;
+                               
+                                worksheet[ROW, colBooksRate].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BooksCurrencyBaseRate"].ToString());
+                                worksheet.Range[ROW, colBooksRate].NumberFormat = NumberFormatTwoDecimal;
+                               
                                 worksheet[ROW, colBooksAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BooksAmount"].ToString());
                                 worksheet.Range[ROW, colBooksAmount].NumberFormat = NumberFormatTwoDecimal;
+
                                 worksheet[ROW, colTaxAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TaxAmount"].ToString());
                                 worksheet.Range[ROW, colTaxAmount].NumberFormat = NumberFormatTwoDecimal;
 								worksheet[ROW, colContainer].Text = dtInventorySalesReportList.Rows[i]["ContainerNo"].ToString();
@@ -594,7 +620,7 @@ namespace Aplos.Areas.Products.Controllers
 								worksheet[ROW, colTransporterName].Text = dtInventorySalesReportList.Rows[i]["AgentName"].ToString();
 								worksheet[ROW, colTranspoterDocRefNo].Text = dtInventorySalesReportList.Rows[i]["TransportDocRefNo"].ToString();
 								worksheet[ROW, colTransporterDocRefDate].Text = dtInventorySalesReportList.Rows[i]["TransportDocDate"].ToString();
-								worksheet[ROW, colAgentName].Text = dtInventorySalesReportList.Rows[i]["TransporterName"].ToString();
+								worksheet[ROW, colAgentName].Text = dtInventorySalesReportList.Rows[i]["AgentName"].ToString();
 								worksheet[ROW, colAgentCommission].Text = dtInventorySalesReportList.Rows[i]["AgentCommission"].ToString();
 								worksheet[ROW, colGrossWeight].Text = dtInventorySalesReportList.Rows[i]["GrossWeights"].ToString();
 								worksheet[ROW, colLotNo].Text = dtInventorySalesReportList.Rows[i]["LOT"].ToString();
@@ -615,11 +641,9 @@ namespace Aplos.Areas.Products.Controllers
 
 								worksheet[ROW, colBags].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["Bags"].ToString());
 								worksheet.Range[ROW, colBags].NumberFormat = NumberFormatTwoDecimal;
-								worksheet[ROW, colVehicleNo].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TransportVehicleNo"].ToString());
-								worksheet.Range[ROW, colVehicleNo].NumberFormat = NumberFormatTwoDecimal;
-								worksheet[ROW, colDriverNo].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TransportDriverNo"].ToString());
-								worksheet.Range[ROW, colDriverNo].NumberFormat = NumberFormatTwoDecimal;
-
+								
+                                worksheet[ROW, colVehicleNo].Text = dtInventorySalesReportList.Rows[i]["TransportVehicleNo"].ToString();
+                                worksheet[ROW, colDriverNo].Text = dtInventorySalesReportList.Rows[i]["TransportDriverNo"].ToString();
 								
 
 								worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -782,6 +806,14 @@ namespace Aplos.Areas.Products.Controllers
 
                     worksheet[ROW, COL].Text = "Ttl. Taxable Amt.";
                     int colTransactionAmount = COL;
+                    worksheet[ROW, COL].ColumnWidth = 20;
+                    worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    COL++;
+
+                    worksheet[ROW, COL].Text = "Books Rate";
+                    int colBooksRate = COL;
                     worksheet[ROW, COL].ColumnWidth = 20;
                     worksheet[ROW, COL].CellStyle.Font.Bold = true;
                     worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -1153,6 +1185,9 @@ namespace Aplos.Areas.Products.Controllers
 
                                 worksheet[ROW, colTransactionAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TotalTaxableAmt"].ToString());
                                 worksheet.Range[ROW, colTransactionAmount].NumberFormat = NumberFormatTwoDecimal;
+
+                                worksheet[ROW, colBooksRate].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BooksCurrencyBaseRate"].ToString());
+                                worksheet.Range[ROW, colBooksRate].NumberFormat = NumberFormatTwoDecimal;
 
                                 worksheet[ROW, colBooksAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BooksAmount"].ToString());
                                 worksheet.Range[ROW, colBooksAmount].NumberFormat = NumberFormatTwoDecimal;

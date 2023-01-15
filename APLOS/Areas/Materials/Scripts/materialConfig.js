@@ -148,7 +148,7 @@ function MaterialConfig($routeProvider, $locationProvider) {
         })
 
         .when('/fabric-rolls', {
-            templateUrl: 'materials/FabricRoll/aplos1',
+            templateUrl: 'materials/FabricRoll/aplos',
             controller: 'FabricRollsController'
         })
 

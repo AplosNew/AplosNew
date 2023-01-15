@@ -1733,7 +1733,7 @@ UNION
 		                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                     LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                     WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0 AND IR.PlantId='" + plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
-					AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND ISNULL(IR.IsFOC,0)=0 AND IR.GRNType!='MaterialTransfer'
+					AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND IR.AuthorizedByStatus='Approved' AND ISNULL(IR.IsFOC,0)=0 AND IR.GRNType!='MaterialTransfer'
                     order by IR.GRNDate desc";
                 return _sqlRepository.GetDataCollection(sql);
             }

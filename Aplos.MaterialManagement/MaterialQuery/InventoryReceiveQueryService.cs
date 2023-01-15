@@ -5872,7 +5872,7 @@ namespace Aplos.MaterialManagement
                            ,0 ShortageQty
 						   ,0 RejectionQty
                            --,MRD.MaterialDetail
-                           ,null AS [check] ,IRD.Description MaterialDetail,'null' PurchaseDocAcceptanceDetailId,0 POClosStatus,C.UserName CountryName,C.Id CountryId ,MM.IsAsset,IRD.TotalTaxAmount,0 GrossAmount,0 DiscountAmount,'' QualityStatus
+                           ,null AS [check] ,IRD.Description MaterialDetail,'null' PurchaseDocAcceptanceDetailId,0 POClosStatus,C.UserName CountryName,C.Id CountryId ,MM.IsAsset,IRD.TotalTaxAmount,0 GrossAmount,0 DiscountAmount,'Approved' QualityStatus
 						,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo
                          FROM TRN.PurchaseOrderDetail AS IRD
                         LEFT JOIN(SELECT gd.PODetailsId,isnull(sum(gd.TransactionQty),0) GRNRcvQty FROM  TRN.InventoryReceiveDetail gd 

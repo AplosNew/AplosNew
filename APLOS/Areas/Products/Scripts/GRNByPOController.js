@@ -328,7 +328,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 else
                     $scope.IsBaseOnDueDateEnable = false;
         }
-        $scope.Action = 'Update';
+        $scope.Action = 'Save';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
     $scope.ReqAllocation = function (podetail) {
@@ -1685,6 +1685,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $scope.tempList = [];
         for (var j = 0; j < $scope.Griddata.length; j++) {
             if ($scope.Griddata[j].Active === true) {
+                $scope.Griddata[j].QualityStatus = 'Approved';
                 $scope.tempList.push($scope.Griddata[j]);
             }
         }
@@ -2955,7 +2956,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 else
                     $scope.IsBaseOnDueDateEnable = false;
         }
-        $scope.Action = 'Update';
+        $scope.Action = 'Save';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
 
@@ -2965,7 +2966,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
         ClearFields();
         $scope.productId = Id;
-        $scope.Action = 'Update';
+        $scope.Action = 'Save';
         $scope.ActionForEdit = 'Update';
         $scope.POId1 = x.data.POID;
         $scope.POID = x.data.POID;

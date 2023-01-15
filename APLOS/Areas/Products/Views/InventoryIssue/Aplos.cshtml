@@ -186,6 +186,7 @@
                     <th>SKU3</th>
                     <th>Country Name</th>
                     <th>Issue Qty</th>
+                    <th>Lot Number</th>
                     <th></th>
                 </tr>
             </thead>
@@ -199,6 +200,7 @@
                     <td>{{x.ThirdCharacteristicText}}</td>
                     <td>{{x.CountryName}}</td>
                     <td>{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
+                    <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right"  width="80" ng-model="x.LotNumber" ></td> 
                     <td class="text-right table-td">
                         <ul class="list-inline">
                             <li><button ng-show="x.Id==null" ng-click="getSpecificMaterialStock(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Specific GRN"><i class="glyphicon glyphicon-list"></i></button></li>

@@ -1888,7 +1888,7 @@ Order by P.Sequence";
 								, SA.ToCurrencyRate
 								, SA.DocRefNo
 								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocDate
-								,SA.PartyId,P.UserName AS PartyName,p.Code
+								,'' PartyType,SA.PartyId,P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
@@ -1896,11 +1896,11 @@ Order by P.Sequence";
 								,SCV.UserName SecondCharacteristicsValue
 								,TCV.UserName ThirdCharacteristicsValue
 								--,'' HSNCode
-								,SM.BaseRate
-								,SM.BaseUoMFactor
 								,SM.TransactionRate
 								,SM.TransactionQty
+								,CU.Code AS Currency
 								,SM.TransactionAmount
+								,SM.BooksCurrencyBaseRate
 								,SM.TransactionAmount*ISNULL(SA.ToCurrencyRate,1) BooksAmount
 								,SM.TaxAmount
 								,SM.NetAmount
@@ -1908,7 +1908,7 @@ Order by P.Sequence";
 								,v.VoucherNo VoucherDetailId
 								,BUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
-								,CU.Code AS Currency
+								
 								,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate
 								,DT.UserName DestinationName
 								,SO.SOType
@@ -2118,7 +2118,7 @@ Order by P.Sequence";
 								, 0 ToCurrencyRate
 								, '' DocRefNo
 								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocDate
-								,IR.PartyId, P.UserName AS PartyName,p.Code
+								,'' PartyType,IR.PartyId, P.UserName AS PartyName,p.Code
 								,'' AS MaterialGroupMasterName
 								,SM.UserName MaterialMasterName
 								,'' AS MaterialMasterArticleName
@@ -2126,11 +2126,11 @@ Order by P.Sequence";
 								,'' SecondCharacteristicsValue
 								,'' ThirdCharacteristicsValue
 								--, '' HSNCode
-								,0 BaseRate
-								,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
+								,''  Currency
 								,ISs.Amount TransactionAmount
+								,IRM.BooksCurrencyBaseRate
 								,ISs.Amount*ISNULL(ToCurrencyRate,1) BooksAmount
 								,ISs.TaxAmount
 								,0 NetAmount
@@ -2138,7 +2138,7 @@ Order by P.Sequence";
 								,'' VoucherDetailId
 								,''  BaseUoM
 								,''  TransactionUoM
-								,''  Currency
+								
 								,'' DeliveryDate
 								,'' DestinationName
 								,'' SOType
@@ -2325,7 +2325,7 @@ Order by P.Sequence";
 								, II.DocRefNo
 								,II.CustomerId PartyId
 								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocDate
-								, P.UserName AS PartyName,p.Code
+								,'' PartyType, P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
@@ -2333,12 +2333,11 @@ Order by P.Sequence";
 								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
 								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 								--, ISNULL(TAxInfo.HSCode,'') HSNCode
-
-								,IID.SalesRate BaseRate
-								,IRD.BaseUoMFactor 
 								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
+								,CU.Code AS Currency
 								,IID.TransactionQty *IID.SalesRate TransactionAmount
+								,0 BooksCurrencyBaseRate
 								,(IID.TransactionQty *IID.SalesRate)*ISNULL(II.ToCurrencyRate,1) BooksAmount
 								,SCr1.TaxAmount TaxAmount
 								,IID.[TotalSalesAmount] NetAmount
@@ -2346,7 +2345,7 @@ Order by P.Sequence";
 								,II.VoucherId VoucherDetailId
 								,TUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
-								,CU.Code AS Currency
+								
 								,'' DeliveryDate
 								,'' DestinationName
 								,'' SOType
@@ -2498,7 +2497,7 @@ Order by P.Sequence";
 								, 0 ToCurrencyRate
 								, '' DocRefNo
 								,FORMAT(IR.DocDate,'') DocDate
-								, P.UserName AS PartyName,p.Code
+								,'' PartyType, P.UserName AS PartyName,p.Code
 								,'' AS MaterialGroupMasterName
 								,SM.UserName MaterialMasterName
 								,'' AS MaterialMasterArticleName
@@ -2507,11 +2506,11 @@ Order by P.Sequence";
 								,'' ThirdCharacteristicsValue
 								--, '' HSNCode
 								,IR.CustomerId PartyId
-								,0 BaseRate
-								,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
+								,'' AS Currency
 								,ISs.Amount TransactionAmount
+								,0 BooksCurrencyBaseRate
 								,ISs.Amount*ISNULL(ToCurrencyRate,1) BooksAmount
 								,0 TaxAmount
 								,ISs.Amount NetAmount
@@ -2519,7 +2518,7 @@ Order by P.Sequence";
 								,'' VoucherDetailId
 								,'' AS BaseUoM
 								,'' AS TransactionUoM
-								,'' AS Currency
+								
 								,'' DeliveryDate
 								,'' DestinationName
 								,'' SOType
@@ -2636,7 +2635,7 @@ Order by P.Sequence";
 									WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
 									ELSE  SA.SourceType END SourceType
 								,SM.Id
-								,SM.SalesId
+								,SM.SalesId,SM.BooksCurrencyBaseRate
 								,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') SalesDate,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
 								,SM.SalesOrderId
 								,MO.Id MasterOrderId
@@ -2653,7 +2652,7 @@ Order by P.Sequence";
 								, SA.ToCurrencyRate
 								, SA.DocRefNo
 								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocDate
-								,SA.PartyId, P.UserName AS PartyName,p.Code
+								,'' PartyType,SA.PartyId, P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
@@ -2661,8 +2660,6 @@ Order by P.Sequence";
 								,SCV.UserName SecondCharacteristicsValue
 								,TCV.UserName ThirdCharacteristicsValue
 								--,'' HSNCode
-								,SM.BaseRate
-								,SM.BaseUoMFactor
 								,SM.TransactionRate
 								,SM.TransactionQty
 								,SM.TransactionAmount
@@ -2861,7 +2858,7 @@ Order by P.Sequence";
 								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
 								,IR.SourceType
 								,ISs.Id
-								,IR.Id SalesId
+								,IR.Id SalesId,IRM.BooksCurrencyBaseRate
 								,FORMAT(IR.EntryDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
 								,'' SalesOrderId
 								,'' MasterOrderId
@@ -2878,7 +2875,7 @@ Order by P.Sequence";
 								, 0 ToCurrencyRate
 								, '' DocRefNo
 								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocDate
-								,IR.PartyId, P.UserName AS PartyName,p.Code
+								,'' PartyType,IR.PartyId, P.UserName AS PartyName,p.Code
 								,'' AS MaterialGroupMasterName
 								,SM.UserName MaterialMasterName
 								,'' AS MaterialMasterArticleName
@@ -2886,8 +2883,6 @@ Order by P.Sequence";
 								,'' SecondCharacteristicsValue
 								,'' ThirdCharacteristicsValue
 								--, '' HSNCode
-								,0 BaseRate
-								,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount
@@ -3066,7 +3061,7 @@ Order by P.Sequence";
 								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
 								,'InventorySales' SourceType
 								,IID.Id
-								,II.Id SalesId
+								,II.Id SalesId,0 BooksCurrencyBaseRate
 								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') SalesDate,FORMAT(II.SalesDate, 'dd-MMM-yyyy') InvoiceDate
 								,'' SalesOrderId
 								,'' MasterOrderId
@@ -3083,7 +3078,7 @@ Order by P.Sequence";
 								,II.ToCurrencyRate
 								, II.DocRefNo
 								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocDate
-								,II.CustomerId PartyId, P.UserName AS PartyName,p.Code
+								,'' PartyType,II.CustomerId PartyId, P.UserName AS PartyName,p.Code
 								,MGM.UserName AS MaterialGroupMasterName
 								,MM.UserName MaterialMasterName
 								,ART.StandardName AS MaterialMasterArticleName
@@ -3091,9 +3086,6 @@ Order by P.Sequence";
 								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
 								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 								--, ISNULL(TAxInfo.HSCode,'') HSNCode
-							
-								,IID.SalesRate BaseRate
-								,IRD.BaseUoMFactor 
 								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
 								,IID.TransactionQty *IID.SalesRate TransactionAmount
@@ -3238,7 +3230,7 @@ Order by P.Sequence";
 								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
 								,'InventorySales' SourceType
 								,ISs.Id
-								,IR.Id SalesId
+								,IR.Id SalesId,0 BooksCurrencyBaseRate
 								,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
 								,'' SalesOrderId
 								,'' MasterOrderId
@@ -3255,7 +3247,7 @@ Order by P.Sequence";
 								, 0 ToCurrencyRate
 								, '' DocRefNo
 								,FORMAT(IR.DocDate,'') DocDate
-								, P.UserName AS PartyName,p.Code
+								,'' PartyType, P.UserName AS PartyName,p.Code
 								,'' AS MaterialGroupMasterName
 								,SM.UserName MaterialMasterName
 								,'' AS MaterialMasterArticleName
@@ -3264,8 +3256,6 @@ Order by P.Sequence";
 								,'' ThirdCharacteristicsValue
 								--, '' HSNCode
 								,IR.CustomerId PartyId
-								,0 BaseRate
-								,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount
@@ -3392,7 +3382,7 @@ Order by P.Sequence";
 									SELECT 
 									ROW_NUMBER() Over(Order by SA.Id) As[S.N]
 									,SA.Id SalesId
-									,SA.SourceType
+									,SA.SourceType,SMD.BooksCurrencyBaseRate
 									--SM.Id	
 									,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') SalesDate,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate						
 									,PPI.UserName AS BillTo
@@ -3496,7 +3486,7 @@ Order by P.Sequence";
 									,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
 									,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
 									,PL.Amount LCAmount,CON.ContractNo
-									,ML.LCRef MasterLcNo
+									,ML.LCRef MasterLcNo,SM.BooksCurrencyBaseRate
 
 									from TRN.SalesMaterial SM 
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
@@ -3556,7 +3546,7 @@ Order by P.Sequence";
 
 									--where SM.SalesId='MS2021596'
 									Group BY SM.SalesId,PL.Amount ,CON.ContractNo
-									,ML.LCRef 
+									,ML.LCRef ,SM.BooksCurrencyBaseRate
 
 									)SMD  ON SA.Id=SMD.SalesId
 
@@ -3606,7 +3596,7 @@ Order by P.Sequence";
 
 									,PTM.UserName ,SA.BaseOnDueDate,SA.BaseNoOfDays,SA.MatureDate,SA.EXPFromNo,SA.ComercialInvoiceNo
 									,CNfA.UserName,TA.UserName 
-
+									,SMD.BooksCurrencyBaseRate
 									,SMD.LCAmount,SMD.ContractNo
 									,SMD.MasterLcNo,PSI.TransportDocDate,SA.Narration
 									,SMD.CGST
@@ -3623,7 +3613,7 @@ Order by P.Sequence";
 
 								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
 								,II.Id SalesId
-								,'InventorySales' SourceType
+								,'InventorySales' SourceType,0 BooksCurrencyBaseRate
 								--,IID.Id						
 								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
 								,PPI.UserName AS BillTo
@@ -3775,7 +3765,7 @@ Order by P.Sequence";
 						sql = @"SELECT * FROM(
 									SELECT ROW_NUMBER() Over(Order by SA.Id) As[S.N]
 									,SA.Id SalesId
-									,SA.SourceType
+									,SA.SourceType,SMD.BooksCurrencyBaseRate
 									--SM.Id	
 									,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') SalesDate ,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
 									--,SMD.SalesOrderId
@@ -3850,7 +3840,7 @@ Order by P.Sequence";
 									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 									FROM TRN.Sales AS SA
-									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
+									LEFT JOIN (select Id, SalesId,SalesOrderId,BooksCurrencyBaseRate, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id,BooksCurrencyBaseRate)SMD  ON SA.Id=SMD.SalesId
 									--LEFT JOIN [TRN].[SalesOrder] AS SO ON SMD.SalesOrderId=SO.Id
 									--LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 									--LEFT JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
@@ -3929,13 +3919,13 @@ Order by P.Sequence";
 									LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
 									WHERE SA.PlantId='" + identity.PlantId + "' " +
 									"AND convert(Date,SA.InvoiceDate) <= '" + toDate + @"'-- and sm.SalesId='202110'
-									Group By SA.PartyId,p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code
+									Group By SA.PartyId,p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,SMD.BooksCurrencyBaseRate
 								UNION ALL
 								SELECT 
 
 								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
 								,II.Id SalesId
-								,'InventorySales' SourceType
+								,'InventorySales' SourceType,0 BooksCurrencyBaseRate
 								--,IID.Id						
 								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
 								--,'' SalesOrderId
