@@ -7887,8 +7887,22 @@ TNA.SONo, TNA.PRNo
 
         }
 
-        
-       
+        public ActionResult Snapshot2DataReportXls(string fromDate, string todate)
+        {
+            try
+            {
+                IWorkbook workbook = ProductionOrderReports.Snapshot2DataXls(fromDate, todate);
+                string strFileName = "Snapshot 2 Report.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+            return null;
+        }
+
         public DataTable getLadderPlanStatusQuery(string entityid, out DataTable ldPlan)
         {
             ldPlan = new DataTable();

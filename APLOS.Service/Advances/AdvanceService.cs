@@ -2983,12 +2983,12 @@ namespace Library.Service.Advances
                             EntityId = voucherVM.EntityId,
                             VoucherTypeId = voucherVM.VoucherTypeId,
                             AdvanceId = advance.Id,
-                            EmployeeId = advance.EmployeeId,
+                            EmployeeId = voucherVM.EmployeeId,
                             EmployeeTransactionTypeId = advance.EmployeeTransactionTypeId,
                             AdvanceWriteOffId = null,
                             EmployeePayableId = null,
-                            PartyType = advance.PartyType,
-                            CurrencyId = advance.CurrencyId,
+                            PartyType = voucherVM.PartyType,
+                            CurrencyId = voucherVM.CurrencyId,
                             Amount = voucherDetail.DrAmount,
                             VoucherDate = voucherVM.VoucherDate,
                             PostingDate = voucherVM.PostingDate,
@@ -3052,8 +3052,8 @@ namespace Library.Service.Advances
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
                             DrAmount = employeeSalaryAdvance.Amount,
-                            PartyType = voucherDetailVM.PartyType,
-                            EmployeeId = voucherDetailVM.EmployeeId,
+                            PartyType = voucherVM.PartyType,
+                            EmployeeId = voucherVM.EmployeeId,
                             PartyId = voucherDetailVM.PartyId,
                             PartyPlantId = voucherDetailVM.PartyPlantId,
                             AdvanceDetailId = voucherDetailVM.Id
@@ -3084,12 +3084,12 @@ namespace Library.Service.Advances
                             EntityId = voucherVM.EntityId,
                             VoucherTypeId = voucherVM.VoucherTypeId,
                             AdvanceId = advance.Id,
-                            EmployeeId = advance.EmployeeId,
+                            EmployeeId = voucherVM.EmployeeId,
                             EmployeeTransactionTypeId = advance.EmployeeTransactionTypeId,
                             AdvanceWriteOffId = null,
                             EmployeePayableId = null,
-                            PartyType = advance.PartyType,
-                            CurrencyId = advance.CurrencyId,
+                            PartyType = voucherVM.PartyType,
+                            CurrencyId = voucherVM.CurrencyId,
                             Amount = voucherDetail.DrAmount,
                             VoucherDate = voucherVM.VoucherDate,
                             PostingDate = voucherVM.PostingDate,
@@ -3200,9 +3200,13 @@ namespace Library.Service.Advances
                     }
                 }
                 _sqlRepository.GetDataCollection("update  [TRN].[EmployeeAdvanceRequisition] set IsPost=1  where SystemId='" + voucherVM.RequisitionId + "'");
-                _unitOfWork.SaveChanges();
+                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+                if (voucherVM.JournalType == AdvanceType.Salary.ToString() && advanceSalarySchedulelist == null)
+                {
+                    _sqlRepository.GetDataCollection("update  [dbo].[AdvanceReqSchedule] set EmployeeSalaryAdvanceId='" + NewemployeeSalaryAdvance.Id + "'  where RequisitionId='" + voucherVM.RequisitionId + "'");
+                }
                 return voucher.VoucherNo;
             }
             catch (CustomException)
