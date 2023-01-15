@@ -1779,6 +1779,11 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                 else
                     tempsql = " IM.CompanyGroupId = '" + entity.CompanyGroupId + "' AND IM.CompanyId = '" + entity.CompanyId + "' AND IM.PlantId = '" + entity.PlantId + @"' ";
 
+                if (!string.IsNullOrEmpty(entity.LotNumber))
+                {
+                    tempsql += " AND IRD.LotNumber='"+entity.LotNumber+@"'";
+                }
+                
                 if (string.IsNullOrEmpty(entity.SalesOrderId))
 				{
 					sql = @"select * from(
@@ -1818,7 +1823,7 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
 						--,0 TrasactopmUomQty
 						,'' IssueTransactionUoMId
-						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage
+						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage,IRD.LotNumber
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
@@ -1886,7 +1891,7 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
 						--,0 TrasactopmUomQty
 						,'' IssueTransactionUoMId
-						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage
+						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage,IRD.LotNumber
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
@@ -1951,7 +1956,7 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
 						--,0 TrasactopmUomQty
 						,'' IssueTransactionUoMId
-						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage
+						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage,IRD.LotNumber
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
@@ -2006,7 +2011,7 @@ SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IIH.Qty
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
 						--,0 TrasactopmUomQty
 						,'' IssueTransactionUoMId
-						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage
+						,'' IssueTransactionUoM,ird.MaterialStorageId,MS.UserName MaterialStorage,IRD.LotNumber
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId

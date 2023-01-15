@@ -716,6 +716,10 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         throw ("Enter GRN Date", 'failure');
                         return false;
                     }
+                    if (baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
+                        throw ("Please select Check By", 'failure');
+                        return false;
+                    }
                 }
 
                 $scope.$broadcast('show-errors-check-validity');
