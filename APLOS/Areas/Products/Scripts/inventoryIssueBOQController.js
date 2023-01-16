@@ -1886,7 +1886,6 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 
                 if ($scope.detailList.length == 0) {
                     if (BOqList[L].RequisitionQty>0) {
-
                     $scope.detailList.push(BOqList[L]);
                     }
                 }
