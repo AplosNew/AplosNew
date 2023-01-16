@@ -19,6 +19,95 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
+        #region HEADER
+        [HttpGet, Authorize]
+        public ActionResult GetResponsiblePerson()
+        {
+            try
+            {
+                return Json(pc.getResponsiblePerson(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #region Save
+        [HttpPost]
+        public ActionResult Save(Dictionary<string, object> datas)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = pc.Save(datas), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult CreateParameter(string headerid, Dictionary<string, object> parameter)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = pc.CreateParameter(headerid, parameter), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult CreateProductWithParameterSetup(string headerid, List<Dictionary<string, object>> models)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = pc.CreateProductWithParameterSetup(headerid, models), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult CreateWorkcenterWithParameterSetup(string headerid, List<Dictionary<string, object>> models)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = pc.CreateWorkcenterWithParameterSetup(headerid, models), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion  Save
+
+        #endregion HEADER
+
+        #region GetFun
+
+        [HttpGet, Authorize]
+        public ActionResult GetProduct()
+        {
+            return Json(pc.getProduct(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetMachine()
+        {
+            return Json(pc.getMachine(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetWorkcenter()
+        {
+            return Json(pc.getWorkcenter(), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetParameterMaster()
         {
@@ -34,21 +123,10 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(pc.GetList(), JsonRequestBehavior.AllowGet);
         }
-        #region SAVE
-        [HttpPost]
-        public ActionResult Save(Dictionary<string, object> data)
-        {
-            try
-            {
-                return Json(new { Error = false, Data = pc.Save(data), Message = AplosMessage.Success });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
 
-        #endregion SAVE
+        #endregion GetFun
+
+       
 
         #region Update
         [HttpPost]

@@ -45,8 +45,12 @@ namespace Library.Accounting.Accounts
             companyCurrencyId = companyParallelCurrency["CurrencyId"].ToString();
             companyCurrencyCode = companyParallelCurrency["CurrencyCode"].ToString();
         }
-        private Dictionary<string, object> GetCompanyCurrencyId(string companyId)        {            var cmdText = @"select cpc.CurrencyId,C.Code CurrencyCode from SCS.CompanyParallelCurrency cpc
-                            LEFT JOIN SCS.Currency C ON C.Id = CPC.CurrencyId where cpc.ParallelCurrencyType = '" + ParallelCurrencyType.CompanyCurrency.ToString() + "'";            return _sqlRepository.GetData(cmdText);        }
+        private Dictionary<string, object> GetCompanyCurrencyId(string companyId)
+        {
+            var cmdText = @"select cpc.CurrencyId,C.Code CurrencyCode from SCS.CompanyParallelCurrency cpc
+                            LEFT JOIN SCS.Currency C ON C.Id = CPC.CurrencyId where cpc.ParallelCurrencyType = '" + ParallelCurrencyType.CompanyCurrency.ToString() + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
         private bool GetPlantIsShowFCInWord(string plantId)
         {
             return bplib.clsWebLib.GetBoolData(_sqlRepository.GetDataCollection(@"SELECT IsShowFCInWord FROM ORG.Plant WHERE Id='" + plantId + "'")[0]["IsShowFCInWord"].ToString());
@@ -139,7 +143,11 @@ namespace Library.Accounting.Accounts
                 throw new CustomException("FiscalYear prefix not found!");
             return fiscalYearPrefix;
         }
-        private Dictionary<string, object> GetfiscalYearfind(string fiscalYearId)        {            var cmdText = @"select * from scs.FiscalYear where Id= '" + fiscalYearId + "'";            return _sqlRepository.GetData(cmdText);        }
+        private Dictionary<string, object> GetfiscalYearfind(string fiscalYearId)
+        {
+            var cmdText = @"select * from scs.FiscalYear where Id= '" + fiscalYearId + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
         private VoucherTypeNumber GetAuto(string voucherTypeConfigId, string registerName, string period)
         {
             List<VoucherTypeNumber> data = _sqlRepository.GetModelCollection<VoucherTypeNumber>(@"select * from scs.VoucherTypeNumber where VoucherTypeConfigId = '" + voucherTypeConfigId + "' and RegisterName = '" + registerName + "' and [Period] ='" + period + "'");
@@ -1263,9 +1271,18 @@ where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId +
 
         public List<Dictionary<string, object>> getVoucherData(string voucherId)
         {
-            var sql = @"SELECT VD.Id, DrAmount, CrAmount, CrAmount AS Amount, VD.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName                                , VD.BudgetMasterId, B.UserName AS BudgetName, VD.ActivityId, A.UserName AS ActivityName, P.Code AS PartyCode
-                                , P.UserName AS PartyName, VD.PartyType,E.UserName Entity,VD.VoucherId,V.SourceType                                FROM [TRN].[VoucherDetail] AS VD                                LEFT JOIN [TRN].[Voucher]  AS V ON V.Id=VD.VoucherId                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId                                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
-                                LEFT JOIN ORG.Entity AS e ON e.Id=VD.EntityId								WHERE VD.VoucherId='" + voucherId + @"' ORDER BY DrAmount DESC";
+            var sql = @"SELECT VD.Id, DrAmount, CrAmount, CrAmount AS Amount, VD.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                , VD.BudgetMasterId, B.UserName AS BudgetName, VD.ActivityId, A.UserName AS ActivityName, P.Code AS PartyCode
+                                , P.UserName AS PartyName, VD.PartyType,E.UserName Entity,VD.VoucherId,V.SourceType
+                                FROM [TRN].[VoucherDetail] AS VD
+                                LEFT JOIN [TRN].[Voucher]  AS V ON V.Id=VD.VoucherId
+                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+                                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                                LEFT JOIN ORG.Entity AS e ON e.Id=VD.EntityId
+								WHERE VD.VoucherId='" + voucherId + @"' ORDER BY DrAmount DESC";
             return _sqlRepository.GetDataCollection(sql);
 
         }
