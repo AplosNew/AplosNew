@@ -26,7 +26,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         CompanyGroupId: $window.companyGroupId,
         PlantId: $window.plantId,
         InventoryReceiveId: null,
-        GRNNo: null,
+        GRNId: null,
         PaidHours: null,
         EmployeeId: null,
         EmployeeCategoryId: null,
@@ -177,7 +177,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
     $scope.Go = function () {
         $scope.fabricRollMaster = Object.assign({}, $scope.obj);
-
+        $scope.fabricRollMaster.GRNId = $scope.fabricRollMaster.GRNNo;
         $scope.LoadMaterialSearchList();
         $scope.getSaveMaster($scope.fabricRollMaster.GRNNo);
     }
@@ -1072,6 +1072,9 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             //$scope.modeldata.Comment = $scope.fabricRollMaster.Comment;
 
             $scope.modeldata = Object.assign({}, $scope.fabricRollMaster);
+            if (baseService.isUndefinedOrNull($scope.modeldata.Id)) {
+                $scope.modeldata.Id = null;
+            }
 
             if (baseService.arrayLength($scope.grnDetailList) == 0) {
                 throw "Detail list is requird.";
