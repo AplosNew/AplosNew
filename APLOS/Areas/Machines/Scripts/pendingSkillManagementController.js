@@ -3,6 +3,7 @@ pendingSkillManagementController.$inject = ["cboService", "commonMessage", "$sco
 function pendingSkillManagementController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "PendingSkillManagement";
     $scope.Action = 'Save';
+    $scope.GradeLists = [];
     $scope.path = 'Machines/PendingSkillManagement/';
     $scope.savePlannedUrl = $scope.path + 'createPlanned';
     $scope.saveResponsibleUrl = $scope.path + 'createResponsible';
@@ -16,11 +17,30 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         ToDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
         Responsible: null,
         WorkCenter: null,
-        ActResponsiblePerson:null,
-        Status:'Pending',
+        ActResponsiblePerson: null,
+        Status: 'Pending',
         Asset: null
     };
     $scope.statusNew = Object.assign({}, $scope.status);
+
+    $scope.GradeLists = [
+        {
+            'Value': 1,
+            'Text': '1'
+        },
+        {
+            'Value': 2,
+            'Text': '2'
+        },
+        {
+            'Value': 3,
+            'Text': '3'
+        },
+        {
+            'Value': 4,
+            'Text': '4'
+        }
+    ];
 
     $scope.GetFromDateList = function () {
         $http({
@@ -32,7 +52,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
     }
     $scope.GetFromDateList();
 
- 
+
     $scope.GetPerformancePointsList = function (PGroup) {
         $http({
             method: 'GET',
@@ -45,9 +65,23 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
             }
         });
     }
-    
 
-    $scope.ActionablePersonList=[];
+    $scope.PerformancePointsValidation = function (Value) {
+        try {
+            for (var i = 0; i < Value.data.PerformancePointsList.length; i++) {
+                if (Value.data.PerformancePointsList[i].Value == Value.data.PerformancePoints) {
+                    if (parseInt(Value.data.PerformancePointsList[i].Text) > Value.data.MaximumPoints) {
+                        throw "Selected value is greater than maximum points is not allowed.";
+                    }
+                }
+            }
+        } catch (ex) {
+            ShowResult(ex,'failure');
+        }
+    }
+
+   
+    $scope.ActionablePersonList = [];
     $scope.GetActionablePersonList = function () {
         $http({
             method: 'GET',
@@ -57,7 +91,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         });
     }
     $scope.GetActionablePersonList();
-    
+
     $scope.PendingSkillManagementList = [];
     $scope.View = function () {
         try {
@@ -70,7 +104,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
             $http({
                 method: 'POST',
                 url: $scope.path + "LoadPendingSkillMangament",
-                data: { 'ActResponsiblePerson': $scope.statusNew.ActResponsiblePerson, 'todate': $scope.statusNew.ToDate, 'fromDate': $scope.statusNew.FromDate, 'Status' : $scope.statusNew.Status},
+                data: { 'ActResponsiblePerson': $scope.statusNew.ActResponsiblePerson, 'todate': $scope.statusNew.ToDate, 'fromDate': $scope.statusNew.FromDate, 'Status': $scope.statusNew.Status },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -90,22 +124,28 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
 
     $scope.rowDataBound = function rowDataBound(e) {
 
-        if (new Date(e.data.PlannedDate) < new Date($scope.statusNew.ToDate))
-        {
+        if (new Date(e.data.PlannedDate) < new Date($scope.statusNew.ToDate) && $scope.statusNew.Status == 'Pending') {
             e.row.css("background-color", '#FFA500');
         }
-        else if (new Date(e.data.PlannedDate) > new Date($scope.statusNew.ToDate))
-        {
-           
+        else if (new Date(e.data.PlannedDate) > new Date($scope.statusNew.ToDate) && $scope.statusNew.Status == 'Pending') {
+
             e.row.css("background-color", '#FFFFFF');
         }
+        else if (new Date(e.data.ActualDate) > new Date(e.data.PlannedDate) && $scope.statusNew.Status == 'Completed') {
 
-        else
-        {
+            e.row.css("background-color", '#FFC0CB');
+        }
+        else if (new Date(e.data.ActualDate) <= new Date(e.data.PlannedDate) && $scope.statusNew.Status == 'Completed') {
+
+            e.row.css("background-color", '#90EE90');
+        }
+        else {
             e.row.css("background-color", '#d1e5ff');
 
         }
     }
+
+
 
     $scope.refreshTemplateResponsiblePerson = function (args) {
         $("#RPheadchk").ejCheckBox({ "change": CheckBoxSelectAllResponsiblePerson });
@@ -166,7 +206,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         }).then(function successCallback(response) {
             $scope.ReponsiblePersonList = response.data;
             var gridObj = $("#GridResponsiblePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('show');
+            angular.element(document.querySelector('#ActualDetailsPopUp')).modal('show');
         }
         )
     }
@@ -176,28 +216,36 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         $scope.NewObject = data.data;
         var PlannedId = data.data.PlannedId;
         $scope.PlannedId = PlannedId;
-        $http({ 
+        $http({
 
             method: 'Get',
             url: 'Machines/SkillManagementDetails/LoadItemPerformanceList?Id=' + $scope.PlannedId + '&SMId=' + data.data.SMId
         }).then(function successCallback(response) {
             $scope.ItemPerformanceList = response.data;
-              for (var i = 0; i < $scope.ItemPerformanceList.length; i++) {
+            for (var i = 0; i < $scope.ItemPerformanceList.length; i++) {
                 $scope.PerformanceGroup = response.data[i].PerformanceGroupId;
                 $scope.GetPerformancePointsList($scope.PerformanceGroup);
             }
             var gridObj = $("#GridItemPerformancePopUp").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            angular.element(document.querySelector('#ItemPerformancePopup')).modal('show');
+            angular.element(document.querySelector('#ActualDetailsPopUp')).modal('show');
         }
         )
     }
 
-    $scope.closeResponsiblePersonPopUp = function () {
-        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    //$scope.closeResponsiblePersonPopUp = function () {
+    //    angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    //}
+
+    //$scope.closeItemPerformancePopUp = function () {
+    //    angular.element(document.querySelector('#ItemPerformancePopup')).modal('hide');
+    //}
+
+    $scope.closeActualResponsiblePersonPopUp = function () {
+        angular.element(document.querySelector('#ActualDetailsPopUp')).modal('hide');
     }
 
-    $scope.closeItemPerformancePopUp = function () {
-        angular.element(document.querySelector('#ItemPerformancePopup')).modal('hide');
+    $scope.closeActualPerformancePopUp = function () {
+        angular.element(document.querySelector('#ActualDetailsPopUp')).modal('hide');
     }
     $scope.SaveResponsiblePerson = function () {
         try {
@@ -235,14 +283,22 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
             ShowResult(ex, 'Info');
         }
     };
-
+   
     $scope.SaveItemPerformance = function () {
         try {
-
             $scope.SaveItemPerformanceList = [];
             for (var i = 0; i < $scope.ItemPerformanceList.length; i++) {
                 if ($scope.ItemPerformanceList[i].IsActive == true) {
-                    $scope.SaveItemPerformanceList.push($scope.ItemPerformanceList[i]);
+                    for (var j = 0; j <$scope.ItemPerformanceList[i].PerformancePointsList.length; j++) {
+                        if ($scope.ItemPerformanceList[i].PerformancePointsList[j].Value == $scope.ItemPerformanceList[i].PerformancePoints) {
+                            if (parseInt($scope.ItemPerformanceList[i].PerformancePointsList[j].Text) > $scope.ItemPerformanceList[i].MaximumPoints) {
+                                throw "Selected value is greater than maximum points is not allowed.";
+                            }
+                            else {
+                                $scope.SaveItemPerformanceList.push($scope.ItemPerformanceList[i]);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -322,9 +378,74 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
         }
         )
     }
-    $scope.closeEmployeePopUp = function () {
-        angular.element(document.querySelector('#EmployeePopUp')).modal('hide');
+    $scope.GetDetails = function (args) {
+        $scope.PlannedId = args.data.PlannedId;
+        $scope.NewObject = args.data;
+        $scope.EmpName = args.data.EmployeeName;
+        $scope.PositionCode = args.data.PositionCode;
+        $scope.Division = args.data.Division;
+        $scope.EmpDepartment = args.data.EmpDepartment;
+        $scope.BudgetCode = args.data.BudgetCode;
+        $scope.EmployeeId = args.data.EmployeeId;
+        $scope.Section = args.data.Section;
+        $scope.SubSection = args.data.SubSection;
+        $scope.Activity = args.data.Activity;
+        $scope.Designation = args.data.Designation;
+        $scope.GetItemPerformancePopUp(args);
+        $scope.GetReponsiblePersonPopUp(args);
+        $http({
+            method: 'Get',
+            url: 'Machines/SkillManagementDetails/LoadSkillManagementPendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.PlannedId
+        }).then(function successCallback(response) {
+            $scope.SkillManagementStatusPlannedDetailsList = response.data;
+            var gridObj = $("#GridActualEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#ActualDetailsPopUp')).modal('show');
+
+        }
+        )
     }
+
+    $scope.GetActualDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Machines/SkillManagementDetails/LoadSkillManagementPendingdScheduleList?ToDate=' + $scope.statusNew.ToDate + '&FromDate=' + $scope.statusNew.FromDate + '&MaintenanceId=' + $scope.PlannedId
+        }).then(function successCallback(response) {
+            $scope.SkillManagementStatusPlannedDetailsList = response.data;
+            var gridObj = $("#GridActualEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#ActualDetailsPopUp')).modal('show');
+        }
+        )
+    }
+
+    $scope.refreshTemplateActualEmployee = function (args) {
+        $("#Aheadchk").ejCheckBox({ "change": CheckBoxSelectAllActualEmployee });
+    };
+    function CheckBoxSelectAllActualEmployee(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridActualEmployee").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SkillManagementStatusPlannedDetailsList.length; i++) {
+                $scope.SkillManagementStatusPlannedDetailsList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridActualEmployee").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.closeActualDetailsPopUp = function () {
+        angular.element(document.querySelector('#ActualDetailsPopUp')).modal('hide');
+    }
+    //$scope.closeEmployeePopUp = function () {
+    //    angular.element(document.querySelector('#EmployeePopUp')).modal('hide');
+    //}
     $scope.SavePlannedDetails = function () {
         try {
 
@@ -350,7 +471,8 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetEmployeeDetails();
+                    //$scope.GetEmployeeDetails();
+                    $scope.GetActualDetails();
                     $scope.Action = 'Save';
                 }
 
@@ -388,7 +510,7 @@ function pendingSkillManagementController(cboService, commonMessage, $scope, $ro
             ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
 
-    $scope.FileDownload = function (data,test) {
+    $scope.FileDownload = function (data, test) {
         $scope.dwonloadUrl = null;
         var str = data.FileName;
         var extention = str.substr(str.indexOf('.'));

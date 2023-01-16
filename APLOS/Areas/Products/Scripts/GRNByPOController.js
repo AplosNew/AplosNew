@@ -328,7 +328,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 else
                     $scope.IsBaseOnDueDateEnable = false;
         }
-        $scope.Action = 'Update';
+        $scope.Action = 'Save';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
     $scope.ReqAllocation = function (podetail) {
@@ -1685,6 +1685,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $scope.tempList = [];
         for (var j = 0; j < $scope.Griddata.length; j++) {
             if ($scope.Griddata[j].Active === true) {
+                $scope.Griddata[j].QualityStatus = 'Approved';
                 $scope.tempList.push($scope.Griddata[j]);
             }
         }
@@ -2955,7 +2956,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 else
                     $scope.IsBaseOnDueDateEnable = false;
         }
-        $scope.Action = 'Update';
+        $scope.Action = 'Save';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
 
@@ -2965,7 +2966,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
         ClearFields();
         $scope.productId = Id;
-        $scope.Action = 'Update';
+        $scope.Action = 'Save';
         $scope.ActionForEdit = 'Update';
         $scope.POId1 = x.data.POID;
         $scope.POID = x.data.POID;
@@ -3910,7 +3911,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             return item.Id === $scope.advanceTax.TaxCodeId;
         })[0].Type;
         if ($scope.advanceTax.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.advanceTax.ValueOfFixed)) {//* $scope.advanceTax.ValueOfFixed / 100
-            if ($scope.Action === 'Save') {
+            if ($scope.inventoryMaterialListPO.length > 0) {
                 $scope.advanceTax.TaxAmount = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax"))) * $scope.advanceTax.ValueOfFixed) / 100).toFixed(2);
 
             }
@@ -3992,7 +3993,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
     };
     $scope.checkRowValidationSdditionalTax = function (data) {
-        if ($scope.Action === 'Save') {
+        if ($scope.inventoryMaterialListPO.length>0) {
             var netAmount = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax"))).toFixed(2);
 
             $scope.advanceTax.ValueOfFixed = ((data / netAmount).toFixed(4) * 100);
@@ -4006,7 +4007,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
     $scope.TotalSumAfterTCS = function () {
 
-        if ($scope.Action === 'Save') {
+        if ($scope.inventoryMaterialListPO.length>0) {
             $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
 
         }

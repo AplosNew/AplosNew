@@ -92,24 +92,23 @@ namespace Aplos.Areas.Machines.Controllers
                 Filter = " and MPD.ActualDate is null and MPD.PlannedDate is not null";
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select E.UserName as Entity,D.UserName Department,P.UserName as Process,WC.UserName WorkCenter,WC.Code WCCode,MA.AssetName,MA.AssetCode,MM.MachineMake Make,
-MM.MachineModel Model,MS.UserName ScheduleName,MS.ScheduleCode,Reverse(stuff(Reverse((Select EmployeeName + ',' from EmployeeInformation where 
-SystemId in (select ResponsiblePersonId from [TRN].[ResponsiblePlannedDetails] where PlannedId=MPD.Id and IsActive=1) for xml PATH(''))),1,1,'')) as ActionablePerson,MS.ScheduleDays,
-Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,isnull(Format(MPD.ActualDate,'dd-MMM-yyyy'),'') as ActualDate,DATEDIFF(Day,MPD.PlannedDate,MPD.ActualDate) DaysDifference,
+            string sql = @"select E.UserName Entity,D.UserName Department,P.UserName as Process,WC.UserName WorkCenter,WC.Code WCCode,MA.AssetName,MA.AssetCode,MA.AssetReference,MM.UserName MachineName,MM.MachineMake Make,
+MM.MachineModel Model,MS.UserName ScheduleName,MS.ScheduleCode,Reverse(stuff(Reverse((select EmployeeName+',' from EmployeeInformation where SystemId in (select ResponsiblePersonId from TRN.ResponsiblePlannedDetails AP where AP.PlannedId=MPD.Id and AP.IsActive=1) for xml path(''))),1,1,'')) ActionablePerson,
+MS.ScheduleDays,Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,isnull(Format(MPD.ActualDate,'dd-MMM-yyyy'),'') as ActualDate,DATEDIFF(Day,MPD.PlannedDate,MPD.ActualDate) DaysDifference,
 Case when isnull(MPD.ActualDate,'')='' then format(GETDATE(),'dd-MMM-yyyy') else format((MS.ScheduleDays+MPD.ActualDate),'dd-MMM-yyyy') end CMD,MPD.AddedBy PlannedBy,MPD.UpdatedBy CompletedBy,MPD.Remarks
-from HKP.Process P
-left join SCS.WorkCenterMaster WC ON WC.ProcessId=P.Id
-left join ORG.Entity E ON E.Id=WC.EntityId
-left join MachineMasterAsset MA ON MA.WorkCenterMasterId=WC.Id
-left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
-left join TRN.MaintenanceMachineAsset MMA ON MA.Id=MMA.AssetId
-left Join TRN.MaintenanceScheduling MS ON MMA.MaintenanceSchedulingId=MS.Id and MS.IsActive=1
-left Join ORG.Department D ON D.Id=MS.DepartmentId
-left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id
---and MPD.ActualDate is not null and MPD.PlannedDate is not null
+ from TRN.Maintenancescheduling MS
+ left join MST.ManpowerBudget MB ON MB.id=MS.ResponsiblePersoneBgtCodeId
+ left join TRN.MaintenanceMachineAsset MMA ON MMA.MaintenanceSchedulingId=MS.Id and MMA.IsActive=1
+ left join MachineMasterAsset MA ON MA.Id=MMA.AssetId
+ left join MST.MachineMaster MM  ON MM.Id=MA.MachineMasterId
+ left join ORG.Entity E ON E.Id=MMA.EntityId
+ left join SCS.WorkCenterMaster WC ON WC.Id=MMA.WorkCenterMasterId
+ left join HKP.Process P ON WC.ProcessId=P.Id
+ left Join ORG.Department D ON D.Id=MS.DepartmentId
+ left join TRN.MachineAssetPlannedDetails MPD ON MPD.AssetId=MMA.Id
 where
-P.Active=1 and MMA.Id is not null and
-Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.AssetId=MMA.Id
+MS.IsActive=1 and MMA.Id is not null and
+Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
  ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+MPD.ActualDate) end between '" + FromDate+"' and '"+ ToDate + "' " + Filter + @" ORDER by MPD.ActualDate DESC";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

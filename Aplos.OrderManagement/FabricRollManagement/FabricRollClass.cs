@@ -1,6 +1,7 @@
 ﻿using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Service.Helpers;
+using Library.Service.Systems;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System;
@@ -19,11 +20,10 @@ namespace Library.OrderManagement.FabricRollClass
         SqlRepository _sqlRepository;
         ConnectionManager.clsConnectionManager ConManager;
         private object clsGRNReports;
-
         public FabricRollClass()
         {
             _sqlRepository = new SqlRepository();
-            ConManager = new ConnectionManager.clsConnectionManager();
+            ConManager = new ConnectionManager.clsConnectionManager();            
         }
 
         enum colIndex
@@ -1649,8 +1649,8 @@ LEFT OUTER JOIN MaterialGridMaster mgm ON mgm.SystemID=mm.materialGridMasterSyst
 							LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
 							LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
                         WHERE BP.BusinessProcessName='FabricRollManagement'
-						) D ON D.InventoryReceiveId=IR.Id and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN')
-					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN') AND IR.AddedDate between '" + fromDate + @"' AND '" + toDate + @"') AS TEMP WHERE " + strkey;
+						) D ON D.InventoryReceiveId=IR.Id --and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ')
+					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ') AND IR.AddedDate between '" + fromDate + @"' AND '" + toDate + @"') AS TEMP WHERE " + strkey;
                 return _sqlRepository.GetDataCollection(_sql, null);
 
             }
@@ -1770,7 +1770,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
         {
             try
             {
-                string _sql = @"Select * from [BPDT].[FabricRollManagementChild] Where FabricRollManagementMasterId='" + FabricRollManagementMasterId + "'";
+                string _sql = @"Select * from [BPDT].[FabricRollManagementChild] Where FabricRollManagementMasterId='" + FabricRollManagementMasterId + "' Order By Sequence";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)
@@ -1887,6 +1887,123 @@ Where F.GRNId='" + GRNId + "'"; ;
             }
         }
 
+        public void SaveFabricRollManageData(Dictionary<string, object> data, List<Dictionary<string, object>> grnDetailList, out string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                DataSet dsMaster, dsDetail, dsGRNDetail, dsId;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [BPDT].[FabricRollManagementMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id, _detailId = "";
+                
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FabricRollManagementMaster", out _Id);
+
+                    data["Id"] = _Id;
+                    data["PlantId"] = identity.PlantId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    data["PlantId"] = identity.PlantId;
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM BPDT.FabricRollManagementChild WHERE FabricRollManagementMasterId ='" + masterId + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT COUNT(Id)Id FROM [BPDT].[FabricRollManagementChild] WHERE FabricRollManagementMasterId ='" + masterId + "'", out dsId, false, "1");
+               
+                int count =Convert.ToInt32(dsId.Tables[0].Rows[0]["Id"].ToString());
+
+             
+                foreach (var item in grnDetailList)
+                {
+                    
+                    DataView dv = new DataView(dsDetail.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        count++;
+
+                        item["Id"] = masterId+"-"+count;
+                        item["Sequence"] =count;
+                        item["FabricRollManagementMasterId"] = masterId;
+
+                        AddNewRow(dsDetail.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, item);
+                    }
+                }
+
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsDetail);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
     }
 }
 public class FabricRollFile

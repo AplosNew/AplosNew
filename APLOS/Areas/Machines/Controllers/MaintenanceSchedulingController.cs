@@ -521,9 +521,10 @@ left join TRN.TeamDefinition TD ON TD.Id=MTD.TeamDefinitionId
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT * ,(select MP.Code from MST.ManpowerBudget MP where MP.Id=MS.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
-(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,
-                            (select UserName from MST.MachineMaster where Id=MS.MachineMasterId) as MachineName
-                            FROM [Trn].[MaintenanceScheduling] MS";
+(select D.UserName Department from Org.Department D where D.Id=MS.DepartmentId) as Department,MM.UserName as MachineName,MM.MachineMake,MM.MachineModel
+                            FROM [Trn].[MaintenanceScheduling] MS
+							left join TRN.MaintenanceMachineGroup MG ON MG.MaintenanceSchedulingId=MS.Id
+							left join MST.MachineMaster MM ON MM.Id=MG.MachineMasterId where IsActive=1";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]

@@ -25,6 +25,7 @@ using Syncfusion.XlsIO;
 using OTSBD;
 using Library.Service.HumanResources.Profile;
 using Library.MaterialManagement.Material;
+using Library.Service.Systems;
 
 #endregion using
 
@@ -47,12 +48,12 @@ namespace Aplos.Areas.Materials.Controllers
         #region Pages
 
 
-        public ActionResult Aplos()
+        public ActionResult Aplos_()
         {
             return View();
         }
 
-        public ActionResult Aplos1()
+        public ActionResult Aplos()
         {
             return View();
         }
@@ -64,7 +65,7 @@ namespace Aplos.Areas.Materials.Controllers
         [HttpGet, Authorize]
         public JsonResult GetFromToDate()
         {
-            string sql = @"SELECT FORMAT(MIN(A.AddedDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(A.AddedDate),'dd-MMM-yyyy') ToDate FROM TRN.InventoryReceive A WHERE A.GRNType in('GRNBYPO','GRN' ,'EMPGRN')";
+            string sql = @"SELECT FORMAT(MIN(A.AddedDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(A.AddedDate),'dd-MMM-yyyy') ToDate FROM TRN.InventoryReceive A WHERE A.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ')";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -80,7 +81,7 @@ namespace Aplos.Areas.Materials.Controllers
         {
             return Json(_fabricRollMasterService.InsertOrUpdateGraphIncrement(), JsonRequestBehavior.AllowGet);
         }
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult Create(IEnumerable<FabricRollMaster> entities)
         {
             _fabricRollMasterService.InsertOrUpdateGraph(entities);
@@ -188,7 +189,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         #region Upload Roll Data
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateRollFile(FormCollection form)
         {
             var pre = form["FabricRollFile"];
@@ -796,6 +797,19 @@ namespace Aplos.Areas.Materials.Controllers
                 DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 18, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(Sequence,'')<>''";
                 dt = dt.DefaultView.ToTable();
+                //var pquom = "";
+                //var quomid = "";
+                //for (int i = 0; i < dt.Rows.Count; i++)
+                //{
+                //    if (pquom != dt.Rows[i]["QtyUoM"].ToString())
+                //    {
+                //        pquom = dt.Rows[i]["QtyUoM"].ToString();
+                //        var sqlProcess = @"select Id QtyUoMId from SCS.UnitOfMeasurement Where UserName='"+ pquom + "'";
+                //        DataTable dtProcess = _sqlRepository.GetDataTable(sqlProcess);
+                //        quomid = dtProcess.Rows[0]["QtyUoMId"].ToString();
+                //    }
+                //        Rows.Add(
+                //}
                 dsExcel = new DataSet();
                 dsExcel.Tables.Add(dt);
                 docFile = new FileInfo(path);
@@ -855,76 +869,12 @@ namespace Aplos.Areas.Materials.Controllers
         [HttpPost]
         public JsonResult CreateFabricRollManage(Dictionary<string, object> data, List<Dictionary<string, object>> grnDetailList)
         {
-            SaveFabricRollManageData(data, grnDetailList);
+            clsFabric.SaveFabricRollManageData(data, grnDetailList, out string masterId);
+            data["Id"] = masterId;
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 
-        private void SaveFabricRollManageData(Dictionary<string, object> data, List<Dictionary<string, object>> grnDetailList)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            try
-            {
-                DataSet dsMaster, dsDetail, dsGRNDetail;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM [BPDT].[FabricRollManagementMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id, _detailId = "";
-                string masterId = "";
-
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FabricRollManagementMaster", out _Id);
-
-                    data["Id"] = _Id;
-                    data["PlantId"] = identity.PlantId;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    data["PlantId"] = identity.PlantId;
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-
-                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-                con.OpenDataSetThroughAdapter("SELECT * FROM BPDT.FabricRollManagementChild WHERE FabricRollManagementMasterId ='" + masterId + "'", out dsDetail, false, "1");
-
-                ///con.OpenDataSetThroughAdapter("Select * FROM TRN.InventoryReceiveDetail IRD Where Id='2020539-1'", out dsGRNDetail, false, "1");
-
-                int count = 0;
-                foreach (var item in grnDetailList)
-                {
-                    count++;
-                    DataView dv = new DataView(dsDetail.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                    if (dv.Count == 0)
-                    {
-                        item["Id"] = masterId + "-" + count;
-                        item["FabricRollManagementMasterId"] = masterId;
-
-                        AddNewRow(dsDetail.Tables[0], item);
-                    }
-                    else
-                    {
-                        DataRow drmo = dv[0].Row;
-                        EditRow(drmo, item);
-                    }
-                }
-
-
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsDetail);
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
+       
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {

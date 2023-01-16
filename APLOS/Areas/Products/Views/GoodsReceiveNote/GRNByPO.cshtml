@@ -1090,7 +1090,7 @@
                                         @*<li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
                                         @*<li><button ng-click="PODetailsUpdatePOPUp(x.PODetailsID,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation to Requisition"><i class="glyphicon glyphicon-zoom-out"></i></button></li>*@
                                         @*<li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
-                                        <li><button ng-click="ViewRequisitionDetail(x.InventoryReceiveDetailId,x.TransactionQty,x.MaterialMasterId,x.ArticleId)" class="btn btn-action tooltip-here" ng-disabled="x.TransactionQty==0||x.TransactionQty==''" data-placement="top" id="MEdit" title="View Requisition Detail">View Requisition Detail</button></li>
+                                        <li><button ng-click="ViewRequisitionDetail(x.InventoryReceiveDetailId,x.TransactionQty,x.MaterialMasterId,x.ArticleId)" class="btn btn-action tooltip-here" ng-disabled="x.TransactionQty==0||x.TransactionQty==''" data-placement="top" id="MEdit" title="View Requisition Detail">View Req.</button></li>
                                     </ul>
                                 </td>
                                 <td>
@@ -1373,7 +1373,7 @@
                                         </td>
                                         <td id="td_TaxCodeAmount">
                                             <div class="show-message">
-                                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();checkRowValidationSdditionalTax(advanceTax.TaxAmount);" ng-disabled="productNew.TaxOptionAddiTax==='Yes'">
+                                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="checkRowValidationSdditionalTax(advanceTax.TaxAmount);" ng-disabled="productNew.TaxOptionAddiTax==='Yes'">
                                             </div>
                                         </td>
                                         <td class="text-right">

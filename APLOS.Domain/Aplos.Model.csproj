@@ -813,6 +813,8 @@
     <Compile Include="Payrolls\RetentionAllowanceMaster.cs" />
     <Compile Include="Payrolls\XLUploadMaster.cs" />
     <Compile Include="Payrolls\XLUploadDetail.cs" />
+    <Compile Include="Productions\PackingScanUploadedData.cs" />
+    <Compile Include="Productions\PackingScanUpload.cs" />
     <Compile Include="Productions\ProductionBookingPeriod.cs" />
     <Compile Include="Productions\ProductionBooking\ProductionSummaryDetail.cs" />
     <Compile Include="Productions\ProductionBooking\ProductionSummary.cs" />

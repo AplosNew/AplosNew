@@ -646,8 +646,9 @@ namespace Aplos.Areas.Products.Controllers
 
                 }
             }
-            DetailEdits(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
-            ServiceChargesCreateNewEdit(chargesListPO, POServiceTaxList, entity.Id);
+            _inventoryDetailService.UpdateGRNBYPOMaster(entity, GRNType);
+            //DetailEdits(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            //ServiceChargesCreateNewEdit(chargesListPO, POServiceTaxList, entity.Id);
 
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
@@ -1127,7 +1128,8 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult DetailEdits(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _inventoryDetailService.InsertOrUpdateGraphNewEdits(entity, entityMatAndImat, taxCategoryList, id, MaterialStorageId, GRNType);
+           _inventoryDetailService.InsertOrUpdateGraphNewEdits(entity, entityMatAndImat, taxCategoryList, id, MaterialStorageId, GRNType);
+           
             return Json(new { Message = AplosMessage.Success });
         }
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Edit))]

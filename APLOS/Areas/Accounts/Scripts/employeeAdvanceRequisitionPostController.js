@@ -416,6 +416,7 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         $scope.advanceDetailList = [];
         $scope.loanDetails = [];
         $scope.loanRepaymentSchedulelist = [];
+        $scope.getAdvanceReqScheduleList = [];
         $scope.clearEmployeePopUp();
         $scope.clearCashPopUp();
         $scope.clearBankPopUp();
@@ -640,10 +641,10 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
                 var schedule = new Object({
                     InstallmentNo: i,
                     InstallmentDate: new Date(idate),
-                    InstallmentAmount: payment,
-                    ProfitAmount: profit,
-                    PrincipalAmount: principal,
-                    Balance: actualAmount,
+                    InstallmentAmount: payment.toFixed(2),
+                    ProfitAmount: profit.toFixed(2),
+                    PrincipalAmount: principal.toFixed(2),
+                    Balance: actualAmount.toFixed(2),
                     ScheduleNo: 1
                 });
                 $scope.loanRepaymentSchedulelist.push(schedule);
@@ -693,7 +694,7 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         }
         else
         {
-            if (AdvanceType === 'Salary') {
+            if (AdvanceType === 'Salary' && $scope.getAdvanceReqScheduleList.length === 0) {
                 $scope.isVisibleInstallment = true;
             }
             else {
@@ -714,6 +715,9 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         $scope.advance.JournalType = data.AdvanceType;
         $scope.advance.ApprovedBy = data.ApprovedBy;
         $scope.advance.RequisitionRequiredDate = data.RequisitionRequiredDate;
+        if ($scope.advance.AdvanceType === 'Salary') {
+            $scope.getAdvanceReqScheduleListByRequisitionId();
+        }
         $scope.GetEmployeeTransactionType(data.AdvanceType);
         $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
         $scope.GetCurrencyExchangeRateList();
@@ -721,7 +725,15 @@ function employeeAdvanceRequisitionPostController(bankService, cboService, baseS
         angular.element(document.querySelector('#EmployeeAdvanceRequisitionPopUp')).modal('hide');
 
     };
-
+    $scope.getAdvanceReqScheduleList = [];
+    $scope.getAdvanceReqScheduleListByRequisitionId = function () {
+        $http({
+            method: 'GET',
+            url: "accounts/Advance/GetAdvanceReqScheduleListByRequisitionId?requisitionId=" + $scope.advance.RequisitionId
+        }).then(function successCallback(response) {
+            $scope.getAdvanceReqScheduleList = response.data;
+        });
+    };
     $scope.searchglemployeeReconGLByList = [
         {
             "name": "Account Group",

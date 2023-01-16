@@ -2322,14 +2322,17 @@ where dc.plantid= '" + plantId + @"'
             try
             {
 
-                string sql = @"select mbd.StructureAmount,mbd.WorkingDays,mbd.EarnedAmount,mbd.BonusAmount
+                string sql = @"Select A.StructureAmount,A.WorkingDays,A.EarnedAmount,SUM(A.BonusAmount)BonusAmount,A.[MonthName],TotalAmount=A.EarnedAmount+SUM(A.BonusAmount)
+                                from (
+                                select mbd.StructureAmount,mbd.WorkingDays,mbd.EarnedAmount,mbd.BonusAmount
 					            ,left( DateName( month , DateAdd( month , mbd.MonthNo , -1 )),3) [MonthName]
                                 ,mbd.TotalEarnedAmount TotalAmount
 					            from MaternityBenefitDetail mbd
                                 left join MaternityBenefitMaster mbm on mbm.Id=mbd.MaternityBenefitMasterId
                                 left join [ORG].[Plant] p on p.Id=mbm.PlantId
-                                 where EmpSystemId='" + SystemId + @"' and PlantId='" + plantId + @"' and mbm.LeaveTransactionId='" + LeaveTransactionId + @"'
-                                order by mbd.MonthNo ";
+                                where EmpSystemId='" + SystemId + @"' and PlantId='" + plantId + @"' and mbm.LeaveTransactionId='" + LeaveTransactionId + @"'								 
+								 ) A
+								 group by A.[MonthName],A.StructureAmount,A.WorkingDays,A.EarnedAmount";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception)
@@ -2390,13 +2393,16 @@ where dc.plantid= '" + plantId + @"'
                                     left join LeaveTransaction t on t.SystemID=mbm.LeaveTransactionId
                                     where ei.SystemId ='" + SystemId + @"' and EI.PlantId='" + plantId + @"' and mbm.LeaveTransactionId='" + LeaveTransactionId + @"'";
 
-                var cmdText2 = @"select mbd.StructureAmount,mbd.WorkingDays,mbd.EarnedAmount,mbd.BonusAmount
+                var cmdText2 = @"Select A.StructureAmount,A.WorkingDays,A.EarnedAmount,SUM(A.BonusAmount)BonusAmount,A.[MonthName],TotalAmount=A.EarnedAmount+SUM(A.BonusAmount) from (
+                                select mbd.StructureAmount,mbd.WorkingDays,mbd.EarnedAmount,mbd.BonusAmount
 					            ,left( DateName( month , DateAdd( month , mbd.MonthNo , -1 )),3) [MonthName]
                                 ,mbd.TotalEarnedAmount TotalAmount
 					            from MaternityBenefitDetail mbd
                                 left join MaternityBenefitMaster mbm on mbm.Id=mbd.MaternityBenefitMasterId
                                 left join [ORG].[Plant] p on p.Id=mbm.PlantId
-                                 where EmpSystemId='" + SystemId + @"' and PlantId='" + plantId + @"' and mbm.LeaveTransactionId='" + LeaveTransactionId + @"' ";
+                                where EmpSystemId='" + SystemId + @"' and PlantId='" + plantId + @"' and mbm.LeaveTransactionId='" + LeaveTransactionId + @"'								 
+								 ) A
+								 group by A.[MonthName],A.StructureAmount,A.WorkingDays,A.EarnedAmount";
 
                 #endregion
 

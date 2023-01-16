@@ -732,6 +732,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 			$scope.detailModel.EmployeeId = $scope.productNew.EmployeeId;
 			$scope.detailModel.CountryId = $scope.detailModel.CountryId;
 			$scope.detailModel.CountryName = $scope.detailModel.CountryName;
+			$scope.detailModel.LotNumber = '';
 			$scope.detailModel.IsSpecific = false;
 			$scope.detailModel.BaseUoMFactor = $.grep($scope.uoMList, function (item) { return item.Value === $scope.detailModel.TransactionUoMId; })[0].BaseUoMFactor;
 			$scope.detailModel.TransactionUoM = angular.element("#issueUoM :selected").text();

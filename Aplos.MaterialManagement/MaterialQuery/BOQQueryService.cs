@@ -502,6 +502,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	,IRD.TransactionUoMId
                             	,TUoM.UserName AS TransactionUoM
                             	,IRD.TransactionRate
+                            	,IRD.TransactionRate POTrnRate
                             	,CU.Code AS CurrencyName
                             	,IR.ToCurrencyRate
                             	,poboq.POBOQQty*IRD.TransactionRate TransactionAmount
