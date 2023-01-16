@@ -1649,8 +1649,8 @@ LEFT OUTER JOIN MaterialGridMaster mgm ON mgm.SystemID=mm.materialGridMasterSyst
 							LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
 							LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
                         WHERE BP.BusinessProcessName='FabricRollManagement'
-						) D ON D.InventoryReceiveId=IR.Id and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN')
-					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN') AND IR.AddedDate between '" + fromDate + @"' AND '" + toDate + @"') AS TEMP WHERE " + strkey;
+						) D ON D.InventoryReceiveId=IR.Id --and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ')
+					  and IR.GRNType in('GRNBYPO','GRN' ,'EMPGRN','GRNBYBOQ') AND IR.AddedDate between '" + fromDate + @"' AND '" + toDate + @"') AS TEMP WHERE " + strkey;
                 return _sqlRepository.GetDataCollection(_sql, null);
 
             }

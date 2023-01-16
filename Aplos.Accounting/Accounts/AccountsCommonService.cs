@@ -577,6 +577,19 @@ namespace Library.Accounting.Accounts
             AddNewRow<InvoiceDetail>(vDetailData.Tables[0], invoiceDetail);
             return invoiceDetail;
         }
+        public void InsertAdvanceReqSchedule( AdvanceReqSchedule financingSchedule, string requisitionId, ref DataSet dsData)
+        {
+            financingSchedule.Id = MakePK(requisitionId, financingSchedule.InstallmentNo, 3);
+            financingSchedule.RequisitionId = requisitionId;
+
+            AuditService.AddedLog(financingSchedule);
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [dbo].[AdvanceReqSchedule] where 1=2", out dsData);
+            }
+            AddNewRow<AdvanceReqSchedule>(dsData.Tables[0], financingSchedule);
+        }
 
         public IEnumerable<object> GetcustomerInvoiceList( string companyGroupId, string companyId, string plantId,string customerSelectedList, string fromDate, string toDate, string paymentStatus)
         {

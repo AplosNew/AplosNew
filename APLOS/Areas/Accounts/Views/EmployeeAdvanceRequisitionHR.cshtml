@@ -1,0 +1,446 @@
+﻿<togglable name="HR Employee Advance Requisition"></togglable>
+<div class="form-horizontal form-elements" ng-form="modelNewForm">
+    <div class="row">
+        <div class="col-xs-6 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">@Library.Model.Parties.PartyType.Employee.ToString()<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input tabindex="1" type="text" name="@Library.Model.Parties.PartyType.Employee.ToString()" ng-model="model.EmployeeName" class="form-control" readonly required>
+                        <span class="input-group-btn">
+                            <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker class="form-control" e-dataBound="model.RequisitionAddedDate" e-value="model.RequisitionAddedDate" disabled e-width="100%" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-value="model.Amount" e-width="100%" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Advance Type<sup>*</sup></label>
+                <div class="col-sm-8 radio">
+                    <label>
+                        <input ng-click="setVisible('General');ClearAdvanceReqSchedule()" type="radio" name="source" ng-model="model.AdvanceType" value="General">
+                        <span class="cr" tabindex="17"><i class="cr-icon"></i></span>General
+                    </label>
+                    <label>
+                        <input ng-click="setVisible('Salary')" type="radio" name="source" ng-model="model.AdvanceType" value="Salary">
+                        <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Salary
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Checked By<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input e-required id="ddlcheckedByList" ej-dropdownlist e-datasource="checkedByList" e-fields-value="Id" e-fields-text="Value" e-value="model.CheckedBy" e-width="100%" />
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Required Date<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input id="RequisitionRequiredDate" e-dateformat="dd-MMM-yyyy" ej-datepicker class="form-control" e-dataBound="model.RequisitionRequiredDate" e-value="model.RequisitionRequiredDate" e-width="100%" />
+
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="CurrencyId" class="form-control" ng-disabled="currencyList.length == 1" name="CurrencyTransaction" ng-model="model.CurrencyId" required>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in currencyList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <textarea class="form-control rounded-0" id="exampleFormControlTextarea1" ng-model="model.Remarks" maxlength="250"></textarea>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @*HR*@
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <fieldset class="scheduler-border" ng-show="isVisibleInstallment">
+            <legend class="scheduler-border">Advance Schedule</legend>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div id="div_DocDate" class="form-group" show-errors>
+                    <label class="col-sm-4 control-label" title="Repayment Start Date" tooltip>First Installment Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Repayment Start Date" ng-model="model.RepaymentStartDate" datepicker="LoadRepamentDetail()" class="form-control" tabindex="8">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Total Payments </label>
+                    <div class="col-sm-8 show-message">
+                        {{TotalPayments}}
+                    </div>
+                    <input type="text" maxlength="4" ng-show="false" name="Life Of Year" ng-keyup="totalInstallment();LoadRepamentDetail()" ng-model="model.LifeOfYear" class="form-control text-right" tabindex="10" autocomplete="off">
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Interest Rate<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" ng-keyup="LoadRepamentDetail()" maxlength="5" name="Interest Rate" ng-model="model.ProfitRate" class="form-control" tabindex="12" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+
+                    <label class="col-sm-4 control-label">Total Interest Paid</label>
+                    <div class="col-sm-8 show-message">
+                        {{TotalInterestPaid}}
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label" title="No. Of Installment Per Year" tooltip>Advance Loan Term (monthly)<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" maxlength="4" name="No. Of Installment Per Year" ng-keyup="totalInstallment();LoadRepamentDetail()" ng-model="model.NoOfInstallmentPerYear" class="form-control text-right" tabindex="11" autocomplete="off">
+                        <input type="text" maxlength="10" ng-show="false" name="Total No Of Installment" ng-model="model.TotalNoOfInstallment" class="form-control text-right" tabindex="9" disabled autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group">
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group">
+                </div>
+            </div>
+        </fieldset>
+
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 modal-table" id="loanDetails" ng-show="isVisibleInstallment">
+    </div>
+    <br />
+    <br />
+    @*HR*@
+
+    <div class="common-btn" style="padding-top: 10px;">
+        <ul class="common-btn list-inline text-right" style="padding: 20px;">
+            <li><button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk right"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Cancel();" class="btn" tabindex="10"><i class="glyphicon glyphicon-repeat"></i> Cancel</button></li>
+        </ul>
+    </div>
+</div>
+
+<div class="aplos-grid-toggle">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);getCheckedHoldData();" href="" aria-controls="Hold" role="tab" data-toggle="tab">Checked Hold</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);getCheckedRejectData();" href="" aria-controls="Reject" role="tab" data-toggle="tab">Checked Reject</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getCheckedData();" href="" aria-controls="Checked" role="tab" data-toggle="tab">Checked</a></li>
+                <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6);getApprovedHoldData();" href="" aria-controls="ApprovedHold" role="tab" data-toggle="tab">Approved Hold</a></li>
+                <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7);getApprovedRejectData();" href="" aria-controls="ApprovedReject" role="tab" data-toggle="tab">Approved Reject</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);getApprovedData();" href="" aria-controls="Approved" role="tab" data-toggle="tab">Approved(Not Posted)</a></li>
+                <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8);getPostedData();" href="" aria-controls="Posted" role="tab" data-toggle="tab">Posted</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div id="gridEmpAdvanceReqList" ej-grid e-datasource="EmpAdvanceReqList" e-recorddoubleclick="Get"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="RequisitionAddedDate" e-headertext="Added Date"></div>
+                                <div e-column e-field="RequisitionRequiredDate" e-headertext="Required Date"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount"></div>
+                                <div e-column e-field="AdvanceType" e-headertext="Advance Type"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee"></div>
+                                <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
+                                <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                                <div e-column e-headertext="PDF" e-commands="PdfPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                <div e-column e-headertext="Excel" e-commands="ExcelPrint" e-isunbound=true e-textalign="center" e-width="50"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Checked Data</span></legend>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div id="grid1" ej-grid e-datasource="CheckedDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="RequisitionAddedDate" e-headertext="Added Date"></div>
+                                <div e-column e-field="RequisitionRequiredDate" e-headertext="Required Date"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount"></div>
+                                <div e-column e-field="AdvanceType" e-headertext="Advance Type"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee"></div>
+                                <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
+                                <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
+                                <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Checked Hold Data</span></legend>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div id="grid2" ej-grid e-datasource="CheckedHoldDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="RequisitionAddedDate" e-headertext="Added Date"></div>
+                                <div e-column e-field="RequisitionRequiredDate" e-headertext="Required Date"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount"></div>
+                                <div e-column e-field="AdvanceType" e-headertext="Advance Type"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee"></div>
+                                <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
+                                <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
+                                <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Checked Reject Data</span></legend>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div id="grid3" ej-grid e-datasource="CheckedRejectDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="RequisitionAddedDate" e-headertext="Added Date"></div>
+                                <div e-column e-field="RequisitionRequiredDate" e-headertext="Required Date"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount"></div>
+                                <div e-column e-field="AdvanceType" e-headertext="Advance Type"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee"></div>
+                                <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
+                                <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
+                                <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Approved</span></legend>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div id="grid4" ej-grid e-datasource="ApprovedDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="RequisitionAddedDate" e-headertext="Added Date"></div>
+                                <div e-column e-field="RequisitionRequiredDate" e-headertext="Required Date"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount"></div>
+                                <div e-column e-field="AdvanceType" e-headertext="Advance Type"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee"></div>
+                                <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
+                                <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
+                                <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Approved Hold</span></legend>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div id="grid4" ej-grid e-datasource="ApprovedHoldDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="RequisitionAddedDate" e-headertext="Added Date"></div>
+                                <div e-column e-field="RequisitionRequiredDate" e-headertext="Required Date"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount"></div>
+                                <div e-column e-field="AdvanceType" e-headertext="Advance Type"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee"></div>
+                                <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
+                                <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
+                                <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(7), active: isSet(7) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Approved Reject</span></legend>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div id="grid4" ej-grid e-datasource="ApprovedRejectDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="RequisitionAddedDate" e-headertext="Added Date"></div>
+                                <div e-column e-field="RequisitionRequiredDate" e-headertext="Required Date"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount"></div>
+                                <div e-column e-field="AdvanceType" e-headertext="Advance Type"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee"></div>
+                                <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
+                                <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
+                                <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(8), active: isSet(8) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Posted</span></legend>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div id="grid4" ej-grid e-datasource="PostedDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="RequisitionAddedDate" e-headertext="Added Date"></div>
+                                <div e-column e-field="RequisitionRequiredDate" e-headertext="Required Date"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount"></div>
+                                <div e-column e-field="AdvanceType" e-headertext="Advance Type"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee"></div>
+                                <div e-column e-field="CheckedBy" e-headertext="Checked By"></div>
+                                <div e-column e-field="ApprovedBy" e-headertext="Approved By"></div>
+                                <div e-column e-field="ApprovalStatus" e-headertext="Status"></div>
+                                <div e-column e-field="VoucherNo" e-headertext="Voucher No"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+
+<confirm-modal></confirm-modal>
+
+<style>
+    .loaderr {
+        width: 300px;
+        height: 200px;
+        background-color: #0780BA;
+        color: #fff;
+        padding: 100px;
+        font-size: 25px;
+    }
+
+    .e-grid .e-headercelldiv {
+        font-weight: bold;
+        font-size: 10px;
+        display: block;
+        border: 0 none;
+        height: 29px;
+        line-height: 29px;
+        margin: -7px;
+        padding: 0 .7em;
+        text-align: left;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-family: "Arial Narrow";
+    }
+
+    .e-grid .e-rowcell {
+        border-width: 1px 0 0 1px;
+        padding: .7em;
+        line-height: 10px;
+        white-space: nowrap;
+        width: auto;
+        vertical-align: middle;
+    }
+
+    .e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .e-grid.e-wrap .e-columnheader .e-headercelldiv {
+        margin-bottom: 2px;
+        margin-top: 0;
+        font-size: 9px;
+    }
+
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-grid .e-headercell, .e-grid .e-headercell-hover {
+        height: 30px !important;
+    }
+
+    .e-grid .e-rowcell {
+        padding: 6px !important;
+    }
+
+    .e-pager, .e-grid .e-pagerstatusbar {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    e-grid .e-columnheader .wrap .e-headercelldiv {
+        height: Auto;
+    }
+
+    .e-grid .e-excelfilter .e-btncontainer input {
+        padding: .2em .4em .3em;
+    }
+
+    .e-grid.e-dlgcontainer .e-dlgBtns .e-clear {
+        padding: 3px;
+    }
+
+    .e-grid.e-dlgcontainer .e-dlgBtns .e-filter {
+        padding: 3px;
+    }
+
+    ::-ms-clear {
+        display: none;
+    }
+
+    .e-grid.filtered .e-filteredicon {
+        color: red;
+    }
+</style>

@@ -1706,7 +1706,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.employeeInformation.NumberOfKnownPerson = 1;
     };
 
-    $scope.NewEmpAddValidate = function () {
+    $scope.NewEmpAddValidate  = function () {
         if ($scope.IsEmployeeCodeOpenField == true && baseService.isUndefinedOrNull($scope.employeeNew.EmployeeCode)) {
             throw "Employee Code is required.";
         }
@@ -1757,6 +1757,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         if ($scope.IsTransportGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.TransportGroupId)) {
             throw "Transport Group is required.";
         }
+        CheckField($scope.employeeNew.EntryLevel, "EntryLevel");
     }
 
 
@@ -3838,7 +3839,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
             ResidenceGroupId: null,
             ExcludeOT: false,
             IsOutSider: false,
-            EmpCodeType: null
+            EmpCodeType: null,
+            EntryLevel:null
         };
         $scope.employeeNew = Object.assign({}, $scope.model);
         $scope.employeeInformation = Object.assign({}, $scope.model);
