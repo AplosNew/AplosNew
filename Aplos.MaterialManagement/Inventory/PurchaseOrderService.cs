@@ -5629,7 +5629,7 @@ namespace Library.MaterialManagement.Inventory
                     ,PO.IsApproved
                     ,PO.PartyType
                     ,PO.PartyId
-                    ,POD.RefferenceNo BuyerReferenceNo
+                    ,mo.BuyerReferenceNo
                     ,POD.RefferenceNo
                     , isnull(PO.DiscountAmount, 0) DiscountAmount
                     ,ISNULL(PO.DeliveryInstruction, '') DeliveryInstruction
@@ -5731,7 +5731,7 @@ namespace Library.MaterialManagement.Inventory
                     LEFT JOIN TRN.PurchaseOrderDetail POD ON PO.Id = POD.InventoryReceiveId
 
                     LEFT JOIN[dbo].[Contract] CNO ON CNO.Id = PO.ContractId
-                    LEFT JOIN trn.MasterOrder AS mo ON mo.Id = cno.MasterOrderId
+                    LEFT JOIN(select distinct ContractId,BuyerReferenceNo  from trn.MasterOrderItem) AS mo ON mo.ContractId = CNO.Id
 
                     LEFT JOIN[dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
                   -- LEFT JOIN[HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
