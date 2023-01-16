@@ -830,7 +830,7 @@
                                                     <select class="form-control" ng-model="employeeInformation.PaymentMode" ng-disabled="employeeInformation.IsApproved" name="PaymentMode">
                                                         <option value="">--Select--</option>
                                                         <option value="Bank">Bank</option>
-                                                        <option value="Check">Check</option>
+                                                        <option value="Cheque">Cheque</option>
                                                         <option value="Cash">Cash</option>
                                                         <option value="Transfer">Transfer</option>
                                                     </select>
@@ -2573,7 +2573,7 @@
                                     <select class="form-control" ng-model="employeeNew.PaymentMode" name="Payment Mode" required tabindex="12">
                                         <option value="">--Select--</option>
                                         <option value="Bank">Bank</option>
-                                        <option value="Check">Check</option>
+                                        <option value="Cheque">Cheque</option>
                                         <option value="Cash">Cash</option>
                                         <option value="Transfer">Transfer</option>
                                     </select>
@@ -2638,7 +2638,6 @@
                                 <input type="text" name="Date Of Confirmation" ng-model="employeeNew.DOC" ng-disabled="true" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="21" required>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Reference Employee<sup ng-show="IsReferenceRequired===true">*</sup></label>
                             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
@@ -2650,12 +2649,6 @@
                                 </span>
                             </div>
                         </div>
-                        @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Ref.1 Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="Name" ng-model="empReferenceInformation.Ref1Name" class="form-control" maxlength="150">
-                                </div>
-                            </div>*@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Approval Authority</label>
                             <div class="col-sm-8">
@@ -2667,12 +2660,22 @@
                                 </div>
                             </div>
                         </div>
-
-
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Transport Group<sup ng-show="IsTransportGroupMandatory===true">*</sup></label>
                             <div class="col-sm-8">
                                 <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="TransportGroupList" e-value="employeeNew.TransportGroupId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Entry Level<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="employeeNew.EntryLevel" name="EntryLevel">
+                                        <option value="">--Select--</option>
+                                        <option value="Bank">Trainee</option>
+                                        <option value="NonTrainee">Non-Trainee</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -498,6 +498,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     }
 
+    $scope.btndisable = true;
     $scope.Save = function () {
 
         if (baseService.isUndefinedOrNull($scope.fileNew.ResponsiblePersonId)) {
@@ -536,13 +537,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         angular.copy($scope.fileNew, $scope.file);
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.tab1.$valid) {
-
+            $scope.btndisable = true;
             if ($scope.ExchangeSaveExchangeRates($scope.fileNew.CurrencyId) == false) {
                 return;
             }
 
             if ($scope.Action === "Save") {
-
+                $scope.btndisable = true;
                 //if (baseService.arrayLength($scope.taskList) === 0) {
                 //    return ShowResult('Select Task.', 'failure');
                 //}
@@ -567,6 +568,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
+                        $scope.btndisable = false;
                         $scope.fileNew = response.data.MasterOrder;
                         $scope.ExchangeDisplayExchangeRates(response.data.MasterOrder.Id, response.data.MasterOrder.CurrencyId);//reloading currency exchange rates
                         $scope.getData();
@@ -591,6 +593,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 };
             }
             else if ($scope.Action === "Update") {
+
+                $scope.btndisable = true;
                 for (var i = 0; i < baseService.arrayLength($scope.itemList); i++) {
                     if (baseService.isUndefinedOrNull($scope.itemList[i].MaterialMasterId))
                         return ShowResult('Material master need in row number ' + (i + 1), 'failure');
@@ -619,7 +623,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     else {
                         ShowResult(response.data.Message, 'success');
 
-
+                        $scope.btndisable = false;
                         //$scope.GetResponsiblePersonList();
                         $scope.getMasterItemList();
                         $scope.getData();
@@ -643,6 +647,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     }
                 }, function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
+                    $scope.btndisable = false;
                 });
             }
         }
@@ -728,6 +733,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.ExchangeReset();
         $scope.enableJobOrOutSource = true;
         $scope.modelNew = Object.assign({}, $scope.model);
+        $scope.btndisable = false;
     }
 
     // #region

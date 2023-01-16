@@ -4195,7 +4195,7 @@
     <Content Include="Areas\HumanResource\Views\LeaveApplicationNew\LeaveDelete.cshtml" />
     <Content Include="Areas\Attendances\Views\OTLimitTransactionFromApp\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\LeaveDeleteSingleDayNew\Aplos.cshtml" />
-    <Content Include="Areas\Materials\Views\FabricRoll\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\FabricRoll\Aplos_.cshtml" />
     <Content Include="Areas\IE\Views\LineLayoutForProductionBulletin\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\WeekOffUpdates\EWeekUpdate.cshtml" />
     <Content Include="Areas\Employees\Views\CompensatoryOffNew\Aplos.cshtml" />
@@ -4280,7 +4280,7 @@
     <Content Include="Areas\Accounts\Views\InventorySale\_ApprovedSalesReturnDetailPopUp.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialLedger\ServicePORegister.cshtml" />
     <Content Include="Areas\Payrolls\Views\EmployeeIncomeTax\Aplos.cshtml" />
-    <Content Include="Areas\Materials\Views\FabricRoll\Aplos1.cshtml" />
+    <Content Include="Areas\Materials\Views\FabricRoll\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\StocksAgeingReport\Aplos.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\web.config" />
     <Content Include="Areas\MeetingManagement\Views\MeetingType\Aplos.cshtml" />
