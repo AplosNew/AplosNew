@@ -4489,6 +4489,10 @@
     <Content Include="Areas\Accounts\Views\InventoryPayable\InventoryIssueReturnJournal.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryNotDisbursed.cshtml" />
     <Content Include="Areas\Productions\Views\PackingScanData\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\_ResponsiblePerson.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\_Product.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\_Machine.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\_Workcenter.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
