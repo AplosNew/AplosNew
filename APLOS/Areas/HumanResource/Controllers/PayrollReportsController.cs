@@ -7,6 +7,7 @@ using Library.HumanResource.Payroll;
 using Library.HumanResource.Payroll.Report;
 using Library.HumanResource.Report.OT;
 using Library.Model.HumanResources;
+using Library.Security.Core;
 using Library.Service.Employees;
 using Library.Service.Helpers;
 using Library.Service.HumanResources;
@@ -1021,7 +1022,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 {
 
                     sheet[ROW, ColMonthName].Text = data.Rows[i]["MonthName"].ToString();
-                    sheet[ROW, ColYear].Text = data.Rows[i]["YearNo"].ToString();
+                    sheet[ROW, ColYear].Number = clsStaticInfo.dbl(data.Rows[i]["YearNo"].ToString());
                     sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
                     sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
                     sheet[ROW, ColDOJ].DateTime = Convert.ToDateTime(data.Rows[i]["DOJ"].ToString());
@@ -1035,7 +1036,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                     sheet[ROW, ColBank].Text = data.Rows[i]["BankName"].ToString();
                     sheet[ROW, ColBAN].Text = data.Rows[i]["BankAccNo"].ToString();
                     sheet[ROW, ColIFSC].Text = data.Rows[i]["IFSCCode"].ToString();
-                    sheet[ROW, ColNetPay].Text = data.Rows[i]["NetPayable"].ToString();
+                    sheet[ROW, ColNetPay].Number = clsStaticInfo.dbl(data.Rows[i]["NetPayable"].ToString());
 
 
                     ROW++;
