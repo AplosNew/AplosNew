@@ -592,7 +592,7 @@ namespace Library.OrderManagement.Sales
 ,p.TINNO BuyerGSTIN,P.UserName BuyerLegalName,''BuyerTradeName,ST.UserName BuyerPOS,am.Address1 BuyerAddr1
 ,am.Address2 BuyerAddr2,ST.UserName BuyerLocation,P.PINCode BuyerPinCode,ST.UserName BuyerState, am.Phone BuyerPhoneNumber,am.Email BuyerEmailId
 ,'' DispatchName,'' DispatchAddr1,''DispatchAddr2,''DispatchLocation,''DispatchPinCode,''DispatchState,''ShippingGSTIN,''ShippingLegalName,''ShippingTradeName
-,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,h.Code HSNcode   
+,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,ISNULL(ha.Code,h.Code) HSNcode   
 ,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,FORMAT(sm.TransactionRate,'N4') UnitPrice,FORMAT(sm.TransactionAmount,'N2') GrossAmount,'' Discount,''PreTaxValue
 ,FORMAT(sm.TransactionAmount,'N2') Taxablevalue,FORMAT(TAxInfo1.Percentage,'N2') GSTRate,FORMAT(TAxInfo1.Amount,'N4') IgstAmt,FORMAT(TAxInfo2.Amount,'N2') SgstAmt,FORMAT(TAxInfo3.Amount,'N2') CgstAmt,'' CessRate,''CessAmtAdval
 ,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,''OtherCharges,FORMAT(sm.NetAmount,'N2') ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
@@ -602,7 +602,8 @@ namespace Library.OrderManagement.Sales
 LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=s.Id 
 LEFT JOIN MST.MaterialMaster AS mm ON sm.MaterialMasterId=mm.Id
 LEFT JOIN MST.MaterialMasterArticle AS mma ON sm.ArticleId=mma.Id
-LEFT JOIN HKP.HSNCode AS h ON h.Id = mma.HSNCodeId
+LEFT JOIN HKP.HSNCode AS h ON h.Id = mm.HSNCodeId
+LEFT JOIN HKP.HSNCode AS ha ON h.Id = mma.HSNCodeId
 LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = sm.BaseUOMId
 LEFT JOIN hkp.Party P ON P.Id = S.PartyId
 LEFT JOIN MST.AddressMaster AS am ON am.Id = P.AddressMasterId
@@ -645,7 +646,7 @@ WHERE s.Id " + Ids + "";
 ,p.TINNO BuyerGSTIN,P.UserName BuyerLegalName,''BuyerTradeName,ST.UserName BuyerPOS,am.Address1 BuyerAddr1
 ,am.Address2 BuyerAddr2,ST.UserName BuyerLocation,P.PINCode BuyerPinCode,ST.UserName BuyerState, am.Phone BuyerPhoneNumber,am.Email BuyerEmailId
 ,'' DispatchName,'' DispatchAddr1,''DispatchAddr2,''DispatchLocation,''DispatchPinCode,''DispatchState,''ShippingGSTIN,''ShippingLegalName,''ShippingTradeName
-,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,h.Code HSNcode   
+,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,ISNULL(ha.Code,h.Code) HSNcode   
 ,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,CONVERT(numeric(10,2),sm.TransactionRate*s.ToCurrencyRate) UnitPrice,CONVERT(numeric(10,2),sm.TransactionAmount*s.ToCurrencyRate)GrossAmount,'' Discount,''PreTaxValue
 ,CONVERT(numeric(10,2),sm.TransactionAmount*s.ToCurrencyRate)Taxablevalue,CONVERT(numeric(10,2),TAxInfo1.Percentage) GSTRate,CONVERT(numeric(10,2),TAxInfo1.Amount*s.ToCurrencyRate) IgstAmt,CONVERT(numeric(10,2),TAxInfo2.Amount*s.ToCurrencyRate) SgstAmt,CONVERT(numeric(10,2),TAxInfo3.Amount*s.ToCurrencyRate) CgstAmt,'' CessRate,''CessAmtAdval
 ,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,''OtherCharges,CONVERT(numeric(10,2),sm.NetAmount*s.ToCurrencyRate) ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
@@ -655,7 +656,8 @@ WHERE s.Id " + Ids + "";
 LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=s.Id 
 LEFT JOIN MST.MaterialMaster AS mm ON sm.MaterialMasterId=mm.Id
 LEFT JOIN MST.MaterialMasterArticle AS mma ON sm.ArticleId=mma.Id
-LEFT JOIN HKP.HSNCode AS h ON h.Id = mma.HSNCodeId
+LEFT JOIN HKP.HSNCode AS h ON h.Id = mm.HSNCodeId
+LEFT JOIN HKP.HSNCode AS ha ON ha.Id = mma.HSNCodeId
 LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = sm.BaseUOMId
 LEFT JOIN hkp.Party P ON P.Id = S.PartyId
 LEFT JOIN MST.AddressMaster AS am ON am.Id = P.AddressMasterId
@@ -1871,7 +1873,7 @@ Order by P.Sequence";
 									WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
 									ELSE  SA.SourceType END SourceType
 								,SM.Id
-								,SM.SalesId,SM.BooksCurrencyBaseRate
+								,SM.SalesId
 								,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') SalesDate,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
 								,SM.SalesOrderId
 								,MO.Id MasterOrderId
@@ -1896,11 +1898,11 @@ Order by P.Sequence";
 								,SCV.UserName SecondCharacteristicsValue
 								,TCV.UserName ThirdCharacteristicsValue
 								--,'' HSNCode
-								,SM.BaseRate
-								,SM.BaseUoMFactor
 								,SM.TransactionRate
 								,SM.TransactionQty
+								,CU.Code AS Currency
 								,SM.TransactionAmount
+								,SM.BooksCurrencyBaseRate
 								,SM.TransactionAmount*ISNULL(SA.ToCurrencyRate,1) BooksAmount
 								,SM.TaxAmount
 								,SM.NetAmount
@@ -1908,7 +1910,7 @@ Order by P.Sequence";
 								,v.VoucherNo VoucherDetailId
 								,BUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
-								,CU.Code AS Currency
+								
 								,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate
 								,DT.UserName DestinationName
 								,SO.SOType
@@ -2101,7 +2103,7 @@ Order by P.Sequence";
 								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
 								,IR.SourceType
 								,ISs.Id
-								,IR.Id SalesId,IRM.BooksCurrencyBaseRate
+								,IR.Id SalesId
 								,FORMAT(IR.EntryDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
 								,'' SalesOrderId
 								,'' MasterOrderId
@@ -2126,11 +2128,11 @@ Order by P.Sequence";
 								,'' SecondCharacteristicsValue
 								,'' ThirdCharacteristicsValue
 								--, '' HSNCode
-								,0 BaseRate
-								,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
+								,''  Currency
 								,ISs.Amount TransactionAmount
+								,IRM.BooksCurrencyBaseRate
 								,ISs.Amount*ISNULL(ToCurrencyRate,1) BooksAmount
 								,ISs.TaxAmount
 								,0 NetAmount
@@ -2138,7 +2140,7 @@ Order by P.Sequence";
 								,'' VoucherDetailId
 								,''  BaseUoM
 								,''  TransactionUoM
-								,''  Currency
+								
 								,'' DeliveryDate
 								,'' DestinationName
 								,'' SOType
@@ -2307,7 +2309,7 @@ Order by P.Sequence";
 								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
 								,'InventorySales' SourceType
 								,IID.Id
-								,II.Id SalesId,0 BooksCurrencyBaseRate
+								,II.Id SalesId
 								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') SalesDate,FORMAT(II.SalesDate, 'dd-MMM-yyyy') InvoiceDate
 								,'' SalesOrderId
 								,'' MasterOrderId
@@ -2333,12 +2335,11 @@ Order by P.Sequence";
 								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
 								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 								--, ISNULL(TAxInfo.HSCode,'') HSNCode
-
-								,IID.SalesRate BaseRate
-								,IRD.BaseUoMFactor 
 								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
+								,CU.Code AS Currency
 								,IID.TransactionQty *IID.SalesRate TransactionAmount
+								,0 BooksCurrencyBaseRate
 								,(IID.TransactionQty *IID.SalesRate)*ISNULL(II.ToCurrencyRate,1) BooksAmount
 								,SCr1.TaxAmount TaxAmount
 								,IID.[TotalSalesAmount] NetAmount
@@ -2346,7 +2347,7 @@ Order by P.Sequence";
 								,II.VoucherId VoucherDetailId
 								,TUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
-								,CU.Code AS Currency
+								
 								,'' DeliveryDate
 								,'' DestinationName
 								,'' SOType
@@ -2481,7 +2482,7 @@ Order by P.Sequence";
 								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
 								,'InventorySales' SourceType
 								,ISs.Id
-								,IR.Id SalesId,0 BooksCurrencyBaseRate
+								,IR.Id SalesId
 								,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
 								,'' SalesOrderId
 								,'' MasterOrderId
@@ -2507,11 +2508,11 @@ Order by P.Sequence";
 								,'' ThirdCharacteristicsValue
 								--, '' HSNCode
 								,IR.CustomerId PartyId
-								,0 BaseRate
-								,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
+								,'' AS Currency
 								,ISs.Amount TransactionAmount
+								,0 BooksCurrencyBaseRate
 								,ISs.Amount*ISNULL(ToCurrencyRate,1) BooksAmount
 								,0 TaxAmount
 								,ISs.Amount NetAmount
@@ -2519,7 +2520,7 @@ Order by P.Sequence";
 								,'' VoucherDetailId
 								,'' AS BaseUoM
 								,'' AS TransactionUoM
-								,'' AS Currency
+								
 								,'' DeliveryDate
 								,'' DestinationName
 								,'' SOType
@@ -2661,8 +2662,6 @@ Order by P.Sequence";
 								,SCV.UserName SecondCharacteristicsValue
 								,TCV.UserName ThirdCharacteristicsValue
 								--,'' HSNCode
-								,SM.BaseRate
-								,SM.BaseUoMFactor
 								,SM.TransactionRate
 								,SM.TransactionQty
 								,SM.TransactionAmount
@@ -2886,8 +2885,6 @@ Order by P.Sequence";
 								,'' SecondCharacteristicsValue
 								,'' ThirdCharacteristicsValue
 								--, '' HSNCode
-								,0 BaseRate
-								,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount
@@ -3091,9 +3088,6 @@ Order by P.Sequence";
 								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
 								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 								--, ISNULL(TAxInfo.HSCode,'') HSNCode
-							
-								,IID.SalesRate BaseRate
-								,IRD.BaseUoMFactor 
 								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
 								,IID.TransactionQty *IID.SalesRate TransactionAmount
@@ -3264,8 +3258,6 @@ Order by P.Sequence";
 								,'' ThirdCharacteristicsValue
 								--, '' HSNCode
 								,IR.CustomerId PartyId
-								,0 BaseRate
-								,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount

@@ -1196,6 +1196,197 @@ ORDER BY po.Id
 
         }
 
+        public IWorkbook Snapshot2DataXls(string fromDate, string todate)
+        {
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            try
+            {               
+                if (bplib.clsWebLib.IsDateOK(fromDate) == false)
+                    throw new Exception("Plase select from date");
+
+                if (bplib.clsWebLib.IsDateOK(todate) == false)
+                    throw new Exception("Plase select to date");
+
+                if (Convert.ToDateTime(fromDate) > Convert.ToDateTime(todate))
+                    throw new Exception("To date cannot be earlier than from date");
+
+                DataTable dtOrderMaster;
+
+                getSnapshot2SQL(fromDate, todate, out dtOrderMaster);
+
+                if (dtOrderMaster.Rows.Count == 0)
+                    throw new Exception("No data found");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[0].Name = "Snapshot 2";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 1; int COL = 1;
+                sheet[ROW, 1].Text = "Snapshot 2 Report";
+                sheet[ROW, 1].CellStyle.Font.Size = 16;
+                sheet[ROW, 1].RowHeight = 22;
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, 10].Merge();
+                ROW++;
+                sheet[ROW, 1].Text = "From [" + fromDate + "] to [" + todate + "]";
+                sheet[ROW, 1].CellStyle.Font.Size = 14;
+                sheet[ROW, 1].RowHeight = 20;
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, 10].Merge();
+                ROW++;
+                
+                ROW += 1;
+                #region columns
+
+                sheet[ROW, COL].Text = "Snapshot Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSnapshotName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Snapshot Description";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colSnapshotDesc = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Snapshot Taken By";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colSnapshotTakenBy = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colEntity = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Work Center";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colWorkCenter = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Process";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colProcess = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Production Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductionDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Quantity";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colQuantity = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Production Hours";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductionHours = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Actual Target";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colActualTarget = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Actual Production";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colActualProduction = COL;
+                                              
+                #endregion columns
+                int endCol = COL;
+
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(150, 250, 150);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < dtOrderMaster.Rows.Count; i++)
+                {
+                    sheet[ROW, colSnapshotName].Text = dtOrderMaster.Rows[i]["SnapshotName"].ToString();
+                    sheet[ROW, colSnapshotDesc].Text = dtOrderMaster.Rows[i]["SnapshotDesc"].ToString();
+                    sheet[ROW, colSnapshotTakenBy].Text = dtOrderMaster.Rows[i]["SnapshotTakenBy"].ToString();
+                    sheet[ROW, colEntity].Text = dtOrderMaster.Rows[i]["Entity"].ToString();
+
+                    sheet[ROW, colWorkCenter].Text = dtOrderMaster.Rows[i]["WorkCenter"].ToString();
+                    sheet[ROW, colProcess].Text = dtOrderMaster.Rows[i]["Process"].ToString();
+                    sheet[ROW, colProductionDate].Text = dtOrderMaster.Rows[i]["ProductionDate"].ToString();
+
+                    sheet[ROW, colQuantity].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["Quantity"].ToString());
+                    sheet[ROW, colProductionHours].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["ProductionHours"].ToString());
+                    sheet[ROW, colActualTarget].Text = dtOrderMaster.Rows[i]["ActualTarget"].ToString();
+                    sheet[ROW, colActualProduction].Text = dtOrderMaster.Rows[i]["ActualProduction"].ToString();
+
+                    
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet.UsedRange.NumberFormat = "#,##0;[Red](#,##0)";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                //sheet.UsedRange["A3"].FreezePanes();
+                sheet.Range[6, 1].FreezePanes();
+                sheet.IsDisplayZeros = false;
+             
+                //#endregion ******************Report Header******************
+
+                //IWorksheet sheet2 = workbook.Worksheets[1];
+                //sheet2.Name = "Reference Data";
+                //sheet2.ImportDataTable(dt, true, 1, 1);
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+                workbook.Version = ExcelVersion.Excel2016;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+            return workbook;
+
+        }
+        private void getSnapshot2SQL(string fromDate, string todate, out DataTable dtOrderMaster)
+        {
+            string sql = @"select S2M.SnapshotName,S2M.SnapshotDesc,S2M.SnapshotTakenBy,E.UserName Entity,W.UserName WorkCenter,P.UserName Process,FORMAT                                                       (S2.ProductionDate,'dd-MMM-yyyy') ProductionDate,S2.Quantity
+                                                    ,S2.ProductionHours,S2.ActualTarget,S2.ActualProduction
+                                                    from [dbo].[ProductionPlanningSnapshot2Type1] S2
+                                                    LEFT JOIN [SCS].[WorkCenterMaster] W ON W.Id=S2.WorkCenterMasterId
+                                                    LEFT JOIN MST.MaterialMaster M ON M.Id=S2.MaterialMasterId
+                                                    LEFT JOIN ORG.Entity E ON E.Id=S2.EntityId
+                                                    LEFT JOIN HKP.Process P ON P.Id=S2.ProcessId
+                                                    LEFT JOIN ProductionPlanningSnapshot2MasterType1 S2M ON S2M.Id=S2.ProductionPlanningSnapshot2MasterType1Id
+                                                    Where FORMAT(S2.ProductionDate,'dd-MMM-yyyy') between '"+ fromDate + "' AND '"+ todate + "'";
+
+            dtOrderMaster = _sqlRepository.GetDataTable(sql);
+        }
+
+
         private class ProductionQtyDistributionSO
         {
 

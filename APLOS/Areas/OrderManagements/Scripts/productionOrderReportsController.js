@@ -286,6 +286,17 @@ function productionOrderReportsController(cboService, commonMessage, $scope, $ro
 
         }
     }
+
+    $scope.Snapshot2Data = function () {
+
+        try {
+            var file_src = 'OrderManagements/productionOrderReports/Snapshot2DataReportXls?fromDate='+ $scope.FromDate + "&toDate=" + $scope.ToDate;
+            $rootScope.report(file_src);
+        } catch (e) {
+
+        }
+    }
+
     $scope.getos5 = function () {
 
         try {

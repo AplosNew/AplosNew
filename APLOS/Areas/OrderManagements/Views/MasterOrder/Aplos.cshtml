@@ -81,7 +81,6 @@
                     </li>
                 </ul>
             </div>
-
             <div class="tab-content" id="AplosCurrencyContainer">
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                     <div class="row" ng-form="tab1">
@@ -373,67 +372,13 @@
 
                             </ul>
                             <ul class="list-inline text-right">
-                                <li>
-                                    <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button>
-                                </li>
-                                <li>
-                                    <button ng-click="removeMaster();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
-                                </li>
-                                @*
-                                    <li>
-                                    <button data-toggle="modal" data-target="#confirmMasterPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-                                <li>
-                                    <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
-                                </li>
+                                <li><button ng-click="Save();" ng-disabled="btndisable"  class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li><button ng-click="removeMaster();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
-
                     </div>
                 </div>
-                @*
-                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                                        <div class="row" ng-form="tab2">
-                                            <div class="col-md-12">
-                                                <div class="common-btn">
-                                                    <ul class="list-inline">
-                                                        <li>
-                    <button ng-click="popUp(false);" class="btn"><i class="glyphicon glyphicon-plus"></i> Responsible Person</button></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-12 table-responsive modal-table">
-                                                <table class="table table-striped">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Department</th>
-                                                            <th>Respnsible Person (Our)</th>
-                                                            <th>Respnsible Person (Party)</th>
-                                                            <th class="col-sm-1">Action</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr ng-repeat="x in personList">
-                                                            <td>{{x.Department}}</td>
-                                                            <td>{{x.EmployeeCode}}-{{x.EmployeeName}}</td>
-                                                            <td>
-                                                                <div class="select-style">
-                                                                    <select name="Entity" class="form-control" ng-model="fx.PartyRespnsiblePerson" ng-options="item.Value as item.Text for item in personCboList">
-                                                                        <option value=""></option>
-                                                                    </select>
-                                                                </div>
-                                                            </td>
-                                                            <td class="text-right">
-                                                                <ul class="list-inline action-list">
-                                                                    <li>
-                    <button ng-click="removeRowModal(x.Department, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-                                                                </ul>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>*@
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                     <div class="row" ng-form="tab3">
                         <div class="col-md-12 table-responsive modal-table">
@@ -688,36 +633,17 @@
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li>
-                                    <button ng-click="getTaskList();" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i> View Task List</button>
-                                </li>
-                                <li>
-                                    <button ng-click="PrintTaskList();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Task List</button>
-                                </li>
-                                <li>
-                                    <button ng-click="PrintMatrix();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Master Order (Matrix)</button>
-                                </li>
-                                <li>
-                                    <button ng-click="PrintLinear();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Master Order (Linear)</button>
-                                </li>
-
+                                <li><button ng-click="getTaskList();" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i> View Task List</button></li>
+                                <li><button ng-click="PrintTaskList();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Task List</button></li>
+                                <li><button ng-click="PrintMatrix();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Master Order (Matrix)</button></li>
+                                <li><button ng-click="PrintLinear();" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i> Master Order (Linear)</button></li>
                             </ul>
                             <ul class="list-inline text-right">
-                                <li>
-                                    <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button>
-                                </li>
-                                <li>
-                                    <button ng-click="removeMaster();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
-                                </li>
-                                @*
-                                    <li>
-                                    <button data-toggle="modal" data-target="#confirmMasterPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-                                <li>
-                                    <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
-                                </li>
+                                <li><button ng-click="Save();" ng-disabled="btndisable" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li><button ng-click="removeMaster();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
-
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
@@ -829,7 +755,6 @@
                 </div>
             </div>
             <confirm-archive-generic modalid="confirmPackingDetailPopUp" title="Confirmation" message={{message_PackingDetailconfirmation}} data-ng-click-right-button="DeletePackingDetail();"></confirm-archive-generic>
-
         </div>
     </div>
     <div class="aplos-grid-toggle">
@@ -931,9 +856,6 @@
         </dir-pagination-controls>
     </div>
 </div>
-
-@*@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")*@
-@*@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")*@
 <ej-dialog id="dialogExchangeCurrency" title="Exchange Rate" e-enablemodal="true" e-position-y="0" e-target="#AplosCurrencyContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="400px" e-open="enableBtn">
     @Html.Partial("~/Areas/OrderManagements/Views/CurrencyExchange/Aplos.cshtml")
 </ej-dialog>
@@ -995,7 +917,6 @@
         </div>
     </div>
 </div>
-
 <!-- #region modal tbl -->
 <div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -1053,10 +974,8 @@
     </div>
 </div>
 <!-- #endregion -->
-
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmMasterPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
-
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 <div class="modal fade site-modal in" id="articleValuePoUp" role="dialog" data-backdrop="static">
@@ -1096,7 +1015,6 @@
     </div>
 </div>
 <confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow();"></confirm-archive-generic>
-
 <div class="modal fade site-modal in" id="TaskListPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
@@ -2695,7 +2613,7 @@
                                 <td class="text-right">
                                     <strong>{{qboqList | sumByKey : 'NetConsumptionPerUnit'| setDecimal:3 | number:3}}</strong>
                                 </td>
-                                <td  colspan="6"></td>
+                                <td colspan="6"></td>
                             </tr>
                         </tbody>
                     </table>

@@ -1,0 +1,38 @@
+﻿<div class="modal fade site-modal in" id="ProductPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> Product List <button type="button" class="close" ng-click="closeProductPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+
+                        <div style="color:black;" ej-grid e-datasource="ProductList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-headertext="Apply" e-template="#EmpcheckboxTemplate" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                                <div e-column e-field="Product" e-headertext="Product" e-width="50"></div>
+                                <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="50"></div>
+                                <div e-column e-field="ProductSubCategory" e-headertext="Product Sub Category" e-width="50"></div>
+
+                            </div>
+                        </div>
+
+                        <script type="text/template" id="EmpcheckboxTemplate">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
+                        </script>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="CreateProductWithParameterSetup();" class="btn"> Add</button></li>
+                    <li><button ng-click="closeProductPopUp();" class="btn"> Close</button></li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</div>
+

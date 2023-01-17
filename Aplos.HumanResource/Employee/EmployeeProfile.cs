@@ -1304,10 +1304,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                 drLocal["PreviouslyWorkedHere"] = false;
                 drLocal["AnyRelativeWorkedHere"] = false;
                 drLocal["NumberOfKnownPerson"] = 0;
-
-
-
-                //drLocal["Ref1Name"] = data.Ref1Name;
+                drLocal["EntryLevel"] = data.EntryLevel;
                 //drLocal["Ref1CellPhnNo"] = data.Ref1CellPhnNo;
                 drLocal["DOCIsDay"] = data.DOCIsDay;
                 drLocal["DOCDay"] = data.DOCDay;

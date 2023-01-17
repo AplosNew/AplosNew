@@ -193,9 +193,22 @@ namespace Aplos.Areas.Productions.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "FG Current Stock", 12, ExcelHAlign.HAlignRight);
             int ColAll = COL;
             COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Order Status", 12, ExcelHAlign.HAlignLeft);
             int ColOrderStatus = COL;
+            COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "LC Number", 12, ExcelHAlign.HAlignLeft);
+            int ColLCNumber = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "LC Shipment Date", 12, ExcelHAlign.HAlignLeft);
+            int ColLCShipmentDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "LC Expiry Date", 12, ExcelHAlign.HAlignLeft);
+            int ColLCExpiryDate = COL;
+            
 
             endCol = COL;
             sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
@@ -239,7 +252,15 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColProdC].Text = data.Rows[i]["ProductCode"].ToString();
                 sheet[ROW, ColPR].Text = data.Rows[i]["ProductionOrderId"].ToString();
                 sheet[ROW, ColQty].Number = clsStaticInfo.dbl(data.Rows[i]["SOQty"].ToString());
-                sheet[ROW, ColEFD].Text = data.Rows[i]["ExFactoryDate"].ToString();
+                if (data.Rows[i]["ExFactoryDate"].ToString() == "")
+                {
+                    sheet[ROW, ColEFD].Text = "";
+                }
+                else {
+                    sheet[ROW, ColEFD].DateTime = bplib.clsWebLib.DateData_DBToApp(data.Rows[i]["ExFactoryDate"].ToString().Trim(), bplib.clsWebLib.DB_DATE_FORMAT);
+                    //data.Rows[i]["ExFactoryDate"].ToString();
+                }
+                
                 sheet[ROW, ColComm].Text = data.Rows[i]["CommitmentDate"].ToString();
                 sheet[ROW, ColSOCat].Text = data.Rows[i]["SOCategory"].ToString();
                 sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rates"].ToString());
@@ -249,6 +270,21 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColAll].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedStock"].ToString());
                 sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
                 sheet[ROW, ColOrderStatus].Text = data.Rows[i]["OrderStatus"].ToString();
+                sheet[ROW, ColLCNumber].Text = data.Rows[i]["LC Number"].ToString();
+                //sheet[ROW, ColLCShipmentDate].DateTime = Convert.ToDateTime(data.Rows[i]["LCShipmentDate"].ToString());
+                if (data.Rows[i]["LCShipmentDate"].ToString() == ""){
+                    sheet[ROW, ColLCShipmentDate].Text = "";
+                }
+                else {
+                    sheet[ROW, ColLCShipmentDate].DateTime = bplib.clsWebLib.DateData_DBToApp(data.Rows[i]["LCShipmentDate"].ToString().Trim(), bplib.clsWebLib.DB_DATE_FORMAT);
+                }
+                if (data.Rows[i]["LC Expiry Date"].ToString() == "") {
+                    sheet[ROW, ColLCExpiryDate].Text = "";
+                }
+                else {
+                    sheet[ROW, ColLCExpiryDate].DateTime = bplib.clsWebLib.DateData_DBToApp(data.Rows[i]["LC Expiry Date"].ToString().Trim(), bplib.clsWebLib.DB_DATE_FORMAT);
+                }
+                    //Convert.ToDateTime(data.Rows[i]["LC Expiry Date"].ToString());
 
                 ROW++;
 
@@ -278,6 +314,50 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 string orderStatusIds = "'" + orderStatusId.Replace(",", "','") + "'";//replaced with ""
+                #region Commneted
+                //var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,moi.ContractId, moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
+                //            format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
+                //            (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
+
+                //             (Select Stuff((
+                //                                        Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+                //                                        from dbo.ProductLibraryAttribute pla
+                //                                        where pla.ProductLibraryId = moi.ProductLibraryId
+                //                                        for XML PATH('')
+                //                                        ) , 1, 2, '')) as ProdDetails,
+
+                //            (Select sum(NetWeight) 
+                //            from dbo.ItemScanChild sc
+                //            left join dbo.ItemScan s on s.Id = sc.MasterId 
+                //            left join dbo.ProductLibrary pl on pl.Code = sc.ProductCode
+                //            left join MST.MaterialMovementMaster MMM ON MMM.Id = SC.LocMasterId
+                //            where pl.Id = moi.ProductLibraryId 
+                //            and s.WorkDate <= GetDate()
+                //            and sc.Booked = 0 and  (MMM.PurposeId <> 'MP7' AND MMM.PurposeId <> 'MP8' AND MMM.PurposeId <> 'MP9' AND MMM.PurposeId <> 'MP12')) as AllotedStock
+                //            , so.Rate as Rates, mor.ExchangeRate,E.EmployeeName ResponsiblePerson,OS.UserName OrderStatus
+                //            from trn.SalesOrder so
+                //            left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
+                //            left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
+                //            left join mst.MaterialMasterArticle mma on mma.Id = moi.ArticleId
+                //            left join hkp.OrderCategory oc on oc.Id = so.OrderCategoryId
+                //            left outer join [HKP].[OrderStatus] OS on OS.id=so.OrderStatusId
+                //            left join dbo.ProductLibrary pl on pl.ID = moi.ProductLibraryId
+                //            left join MasterOrderExchangeRates mor on mor.TransactionId = mo.Id
+                //            left join
+                //            (
+                //            Select SalesOrderId , SUM(isnull(sm.TransactionQty , 0)) as DispatchQty
+                //            from trn.SalesMaterial sm
+                //            group by SalesOrderId
+                //            ) as sm on sm.SalesOrderId = so.Id
+                //            left join hkp.Party p on p.Id = mo.PartyId
+                //            LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer'
+                //             LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
+                //             left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
+                //             left join dbo.EmployeeInformation E ON e.SystemId=so.ResponsiblePersonId
+                //            where os.Id IN(" + orderStatusIds + @")
+                //            order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc";
+                #endregion Commneted
+
                 var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,moi.ContractId, moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
                             format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
                             (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
@@ -298,8 +378,13 @@ namespace Aplos.Areas.Productions.Controllers
                             and s.WorkDate <= GetDate()
                             and sc.Booked = 0 and  (MMM.PurposeId <> 'MP7' AND MMM.PurposeId <> 'MP8' AND MMM.PurposeId <> 'MP9' AND MMM.PurposeId <> 'MP12')) as AllotedStock
                             , so.Rate as Rates, mor.ExchangeRate,E.EmployeeName ResponsiblePerson,OS.UserName OrderStatus
+,MLC.LCRef [LC Number], ISNULL(REPLACE(CONVERT(VARCHAR(11), MLC.LCShipmentDate, 106), ' ', '-'),'') LCShipmentDate, ISNULL(REPLACE(CONVERT(VARCHAR(11), MLC.ExpiryDate, 106), ' ', '-'),'') [LC Expiry Date]
                             from trn.SalesOrder so
                             left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
+
+                            left join Contract C on C.Id = moi.ContractId
+							left join MasterLC MLC on MLC.Id = C.MasterLCId
+
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
                             left join mst.MaterialMasterArticle mma on mma.Id = moi.ArticleId
                             left join hkp.OrderCategory oc on oc.Id = so.OrderCategoryId
@@ -319,6 +404,7 @@ namespace Aplos.Areas.Productions.Controllers
                              left join dbo.EmployeeInformation E ON e.SystemId=so.ResponsiblePersonId
                             where os.Id IN(" + orderStatusIds + @")
                             order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc";
+               
 
                 return _sqlRepository.GetDataTable(str);
             }

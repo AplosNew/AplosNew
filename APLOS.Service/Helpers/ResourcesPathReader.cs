@@ -138,6 +138,17 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+		public static string GetFabricRollsFilePath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/FabricRollFile/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 
 
 		public static string GetMOIDocumentPath()

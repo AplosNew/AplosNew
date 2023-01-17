@@ -26,7 +26,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         CompanyGroupId: $window.companyGroupId,
         PlantId: $window.plantId,
         InventoryReceiveId: null,
-        GRNNo: null,
+        GRNId: null,
         PaidHours: null,
         EmployeeId: null,
         EmployeeCategoryId: null,
@@ -43,6 +43,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         , VendorRefNo: null
         , PurchaseLCNo: null
         , PINo: null
+        , InvoiceNo: null
         , LCDate: null
         , OpeningBank: null
     };
@@ -177,7 +178,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
     $scope.Go = function () {
         $scope.fabricRollMaster = Object.assign({}, $scope.obj);
-
+        $scope.fabricRollMaster.GRNId = $scope.fabricRollMaster.GRNNo;
         $scope.LoadMaterialSearchList();
         $scope.getSaveMaster($scope.fabricRollMaster.GRNNo);
     }
@@ -1072,6 +1073,9 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             //$scope.modeldata.Comment = $scope.fabricRollMaster.Comment;
 
             $scope.modeldata = Object.assign({}, $scope.fabricRollMaster);
+            if (baseService.isUndefinedOrNull($scope.modeldata.Id)) {
+                $scope.modeldata.Id = null;
+            }
 
             if (baseService.arrayLength($scope.grnDetailList) == 0) {
                 throw "Detail list is requird.";
@@ -1103,14 +1107,14 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     };
 
-    //#region Meeting Points Picture upload
+    //#region FabricRollFile upload
 
     $scope.onBeginPBUpload = function (args) {
         try {
-            if (angular.isUndefinedOrNull($scope.ModelNew.Id))
-                throw 'Please select/save the Meeting Points first'
+            if (angular.isUndefinedOrNull($scope.fabricRollMaster.Id))
+                throw 'Please select/save the Fabric Roll first'
 
-            args.data = $scope.ModelNew.Id;
+            args.data = $scope.fabricRollMaster.Id;
         } catch (e) {
 
             args.cancel = true;
@@ -1118,12 +1122,12 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
 
     }
-    $scope.uploadPBUrl = "MeetingManagement/MeetingPoints/SaveMeetingPointsDefault";
+    $scope.uploadPBUrl = "Materials/FabricRoll/SaveFabricRollFileDefault";
 
     $scope.getFileList = function () {
         $http({
-            method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
-            data: { Id: $scope.ModelNew.Id }
+            method: 'POST', url: 'Materials/FabricRoll/GetFileInfo', dataType: 'JSON',
+            data: { Id: $scope.fabricRollMaster.Id }
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
                 ShowResult('error', 'failure');
@@ -1131,8 +1135,8 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             else {
                 var str = response.data[0].PicFileName;
                 var extention = str.substr(str.indexOf('.'));
-                $scope.PicFileName = virtualPath.MeetingPointsTemplateImage + '/' + $scope.ModelNew.Id + extention;
-                $scope.getData();
+                $scope.PicFileName = virtualPath.FabricRollFile + '/' + $scope.fabricRollMaster.Id + extention;
+                //$scope.getData();
             }
         }, function errorCallback(response) {
             ShowResult('Failed', 'failure');
@@ -1144,10 +1148,10 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
     }
     $scope.errorPBPicUpload = function (e) {
-        if (angular.isUndefinedOrNull($scope.ModelNew.Id))
-            ShowResult('Please select/save the Meeting Points first', 'Error');
-        else
-            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+        if (angular.isUndefinedOrNull($scope.fabricRollMaster.Id))
+            ShowResult('Please select/save GRN No first', 'Error');
+        //else
+        //    ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
 
     //#endregion Meeting Points Picture upload

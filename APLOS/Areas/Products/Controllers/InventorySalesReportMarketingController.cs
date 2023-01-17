@@ -302,13 +302,7 @@ namespace Aplos.Areas.Products.Controllers
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Transaction Qty";//16
-					int colTransactionQty = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
+
 					worksheet[ROW, COL].Text = "Gross Weight";//17
 					int colGrossWeight = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
@@ -316,20 +310,30 @@ namespace Aplos.Areas.Products.Controllers
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					//worksheet[ROW, COL].Text = "Currency";//18
-					//int colCurrency = COL;
-					//worksheet[ROW, COL].ColumnWidth = 12;
-					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//COL++;
-					worksheet[ROW, COL].Text = "Transaction Rate";//18
+
+                    worksheet[ROW, COL].Text = "Transaction Rate";//18
 					int colTransactionRate = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
+
+					worksheet[ROW, COL].Text = "Transaction Qty";//16
+					int colTransactionQty = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+                    worksheet[ROW, COL].Text = "Currency";//18
+                    int colCurrency = COL;
+                    worksheet[ROW, COL].ColumnWidth = 12;
+                    worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                    worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    COL++;
 
 					worksheet[ROW, COL].Text = "Transaction Amount";//19
 					int colTransactionAmount = COL;
@@ -629,8 +633,8 @@ namespace Aplos.Areas.Products.Controllers
 
 								worksheet[ROW, colNetAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["NetAmount"].ToString());
 								worksheet.Range[ROW, colNetAmount].NumberFormat = NumberFormatTwoDecimal;
-								//worksheet[ROW, colCurrency].Text = dtInventorySalesReportList.Rows[i]["Currency"].ToString();
-								worksheet[ROW, colDestinationName].Text = dtInventorySalesReportList.Rows[i]["DestinationName"].ToString();
+                                worksheet[ROW, colCurrency].Text = dtInventorySalesReportList.Rows[i]["Currency"].ToString();
+                                worksheet[ROW, colDestinationName].Text = dtInventorySalesReportList.Rows[i]["DestinationName"].ToString();
 
 								worksheet[ROW, colBuyRef].Text = dtInventorySalesReportList.Rows[i]["BuyerRefNo"].ToString();
 								worksheet[ROW, colProdDetail].Text = dtInventorySalesReportList.Rows[i]["PordDertails"].ToString();

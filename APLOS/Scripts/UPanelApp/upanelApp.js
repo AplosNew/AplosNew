@@ -119,7 +119,8 @@ upanelApp.controller("documentExcelReportController", documentExcelReportControl
 upanelApp.controller("dynamicSalaryTopSheetController", dynamicSalaryTopSheetController);
 upanelApp.controller("employeeAdvanceController", employeeAdvanceController);
 upanelApp.controller("employeeAdvanceOpeningBalanceController", employeeAdvanceOpeningBalanceController);
-upanelApp.controller("employeeAdvanceRequisitionController", employeeAdvanceRequisitionController);
+//upanelApp.controller("employeeAdvanceRequisitionController", employeeAdvanceRequisitionController);
+upanelApp.controller("employeeAdvanceRequisitionHRController", employeeAdvanceRequisitionHRController);
 upanelApp.controller("employeeAdvanceRequisitionPostController", employeeAdvanceRequisitionPostController);
 upanelApp.controller("employeeAdvanceWriteOffController", employeeAdvanceWriteOffController);
 upanelApp.controller("employeeTotalAdvanceWriteOffController", employeeTotalAdvanceWriteOffController);

@@ -1746,6 +1746,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
+    <Content Include="Areas\Accounts\Scripts\employeeAdvanceRequisitionHRController.js" />
     <Content Include="Areas\Accounts\Scripts\inventoryIssueReturnJournalController.js" />
     <Content Include="Areas\Accounts\Scripts\parkedReportController.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
@@ -4196,7 +4197,7 @@
     <Content Include="Areas\HumanResource\Views\LeaveApplicationNew\LeaveDelete.cshtml" />
     <Content Include="Areas\Attendances\Views\OTLimitTransactionFromApp\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\LeaveDeleteSingleDayNew\Aplos.cshtml" />
-    <Content Include="Areas\Materials\Views\FabricRoll\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\FabricRoll\Aplos_.cshtml" />
     <Content Include="Areas\IE\Views\LineLayoutForProductionBulletin\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\WeekOffUpdates\EWeekUpdate.cshtml" />
     <Content Include="Areas\Employees\Views\CompensatoryOffNew\Aplos.cshtml" />
@@ -4281,7 +4282,7 @@
     <Content Include="Areas\Accounts\Views\InventorySale\_ApprovedSalesReturnDetailPopUp.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialLedger\ServicePORegister.cshtml" />
     <Content Include="Areas\Payrolls\Views\EmployeeIncomeTax\Aplos.cshtml" />
-    <Content Include="Areas\Materials\Views\FabricRoll\Aplos1.cshtml" />
+    <Content Include="Areas\Materials\Views\FabricRoll\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\StocksAgeingReport\Aplos.cshtml" />
     <Content Include="Areas\MeetingManagement\Views\web.config" />
     <Content Include="Areas\MeetingManagement\Views\MeetingType\Aplos.cshtml" />
@@ -4491,6 +4492,11 @@
     <Content Include="Areas\Accounts\Views\InventoryPayable\InventoryIssueReturnJournal.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryNotDisbursed.cshtml" />
     <Content Include="Areas\Productions\Views\PackingScanData\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\EmployeeAdvanceRequisitionHR.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\_ResponsiblePerson.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\_Product.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\_Machine.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\_Workcenter.cshtml" />
     <Content Include="Areas\Machines\Views\PositionWiseDesignation\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

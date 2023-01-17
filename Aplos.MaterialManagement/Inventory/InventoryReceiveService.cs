@@ -2715,14 +2715,16 @@ namespace Library.MaterialManagement.Inventory
 									LEFT JOIN DBO.[Contract] C on C.Id=xpo.ContractId
 									where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							
-							,BuyerReferenceNo=STUFF((select distinct ','+MO.BuyerReferenceNo from
-									trn.PurchaseOrderDetail POD
-									LEFT JOIN TRN.PurchaseOrder xpo on xpo.Id=POD.InventoryReceiveId
-									LEFT JOIN (select * from TRN.InventoryReceiveDetail) IRD on IRD.InventoryReceiveId=IR.Id
-									LEFT JOIN DBO.[Contract] C on C.Id=xpo.ContractId
-									LEFT JOIN trn.MasterOrder MO on MO.Id=C.MasterOrderId
-									where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                            ,Status =case when ir.Status ='Posting' then 'Posted' else 'To be Posted' end
+							
+                            ,BuyerReferenceNo=STUFF((select distinct ','+MO.BuyerReferenceNo from
+                                    trn.PurchaseOrderDetail POD
+                                    LEFT JOIN TRN.PurchaseOrder xpo on xpo.Id=POD.InventoryReceiveId
+                                    LEFT JOIN (select PODetailsId from TRN.InventoryReceiveDetail) IRD on IRD.PODetailsId=POD.Id
+                                    LEFT JOIN DBO.[Contract] C on C.Id=xpo.ContractId
+                                    LEFT JOIN trn.MasterOrder MO on MO.Id=C.MasterOrderId
+                                    where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,Status =case when ir.Status ='Posting' then 'Posted' else 'To be Posted' end
+
 
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId

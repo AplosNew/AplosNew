@@ -992,6 +992,11 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/EmployeeAdvanceRequisition.cshtml");
         }
+        [HttpGet, Authorize]
+        public ActionResult HREmployeeAdvanceRequisition()
+        {
+            return View("~/Areas/Accounts/Views/EmployeeAdvanceRequisitionHR.cshtml");
+        }
 
         [HttpGet, Authorize]
         public ActionResult EmployeeAdvanceRequisitionEdit()
@@ -1058,6 +1063,75 @@ namespace Aplos.Areas.Accounts.Controllers
             }
 
         }
+
+        [HttpPost, Authorize]
+        public ActionResult HREmployeeAdvanceRequisitionSave(Dictionary<string, object> EmpAdvanceReqList, IEnumerable<AdvanceReqSchedule> advanceSalarySchedulelist)
+        {
+            try
+            {
+                if (EmpAdvanceReqList["AdvanceType"].ToString() == "Salary" && advanceSalarySchedulelist == null)
+                    throw new CustomException("Please input Advance Schedule!");
+
+                AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet _dsAdvanceReqScheduleData = null;
+                con.OpenDataSetThroughAdapter("select * from [TRN].[EmployeeAdvanceRequisition] where SystemId='" + EmpAdvanceReqList["SystemId"] + "'", out DataSet dsEmpAdvanceReq, false, "1");
+
+                string _EmpAdvanceReqId = "";
+
+                #region task master
+                if (dsEmpAdvanceReq.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenIDYearly(DateTime.Now.ToShortDateString(), "Employee Advance Requisition Creation", out _EmpAdvanceReqId);
+                    _EmpAdvanceReqId = _EmpAdvanceReqId.Replace("-", "").Substring(2);
+
+
+                    EmpAdvanceReqList["SystemId"] = _EmpAdvanceReqId;
+                    if (EmpAdvanceReqList["EmpSystemId"].ToString() == EmpAdvanceReqList["CheckedBy"].ToString())
+                        throw new CustomException("Checked By can not same person!");
+
+                    AddNewRow(dsEmpAdvanceReq.Tables[0], EmpAdvanceReqList);
+                }
+                else
+                {
+                    _EmpAdvanceReqId = EmpAdvanceReqList["SystemId"].ToString();
+                    EditRow(dsEmpAdvanceReq.Tables[0].Rows[0], EmpAdvanceReqList);
+                }
+                if (advanceSalarySchedulelist != null)
+                {
+                    foreach (var item in advanceSalarySchedulelist)
+                    {
+                        var advanceReqSchedule = new AdvanceReqSchedule
+                        {
+                            InstallmentAmount = item.InstallmentAmount,
+                            InstallmentDate = item.InstallmentDate,
+                            InstallmentNo = item.InstallmentNo,
+                            PrincipalAmount = item.PrincipalAmount,
+                            ProfitAmount = item.ProfitAmount,
+                            ScheduleNo = item.ScheduleNo,
+                            Balance = item.Balance,
+                            YearNo = item.InstallmentDate.Year,
+                            MonthNo = item.InstallmentDate.Month
+                        };
+                        accountsCommonService.InsertAdvanceReqSchedule(advanceReqSchedule, EmpAdvanceReqList["SystemId"].ToString(), ref _dsAdvanceReqScheduleData);
+                    }
+                }
+                #endregion task master
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsEmpAdvanceReq, _dsAdvanceReqScheduleData);
+                return Json(new { Error = false, Id = _EmpAdvanceReqId, Message = "Data saved successfully" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1110,7 +1184,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
             dr.EndEdit();
         }
-
+        
         [HttpPost, Authorize]
         public ActionResult EmployeeAdvanceRequisitionCheck(Dictionary<string, object> EmpAdvanceReqList, string plants)
         {
@@ -1710,12 +1784,175 @@ namespace Aplos.Areas.Accounts.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
-                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy    FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy ,EAR.AddedDate    
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
                             LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
                             LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
                             LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
-                            WHERE EAR.EmpSystemId = '" + identity.EmployeeId + "' AND EAR.ApprovalStatus='" + ApprovalStatus.ApprovedRejected + "') AS TEMP WHERE " + strkey + " ORDER BY RequisitionAddedDate DESC";
+                            WHERE EAR.EmpSystemId = '" + identity.EmployeeId + "' AND EAR.ApprovalStatus='" + ApprovalStatus.ApprovedRejected + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult HREmployeeAdvanceRequisitionGetList(string column, string value)
+        {
+
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate,EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy ,EAR.AddedDate  
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
+                            LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
+                            LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
+                            WHERE EAR.ApprovalStatus='" + ApprovalStatus.ToBeChecked + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetHREmployeeCheckedDataList(string column, string value)
+        {
+
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy ,EAR.AddedDate    
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
+                            LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
+                            LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
+                            WHERE EAR.ApprovalStatus='" + ApprovalStatus.ToBeApproved + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetHREmployeeCheckedHoldDataList(string column, string value)
+        {
+
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy ,EAR.AddedDate    
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
+                            LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
+                            LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
+                            WHERE EAR.ApprovalStatus='" + ApprovalStatus.CheckedHolded + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetHREmployeeCheckedRejectDataList(string column, string value)
+        {
+
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy ,EAR.AddedDate    
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
+                            LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
+                            LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
+                            WHERE EAR.ApprovalStatus='" + ApprovalStatus.CheckedRejected + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetHREmployeeApprovedDataList(string column, string value)
+        {
+
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy ,EAR.AddedDate    
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
+                            LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
+                            LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
+                            WHERE EAR.ApprovalStatus='" + ApprovalStatus.Approved + "' AND EAR.IsPost=0) AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetHREmployeePostedDataList(string column, string value)
+        {
+
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy
+                            , 'Posted' ApprovalStatus, EEA. EmployeeName ApprovedBy,V.VoucherNo ,EAR.AddedDate    
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
+                            LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
+                            LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
+                            LEFT JOIN TRN.Advance A ON A.RequisitionId=EAR.SystemId
+							LEFT JOIN TRN.Voucher V ON V.Id=A.VoucherId
+                            WHERE EAR.ApprovalStatus='" + ApprovalStatus.Approved + "' AND EAR.IsPost=1) AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetHREmployeeApprovedHoldDataList(string column, string value)
+        {
+
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy ,EAR.AddedDate    
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
+                            LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
+                            LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
+                            WHERE EAR.ApprovalStatus='" + ApprovalStatus.ApprovedHolded + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetHREmployeeApprovedRejectDataList(string column, string value)
+        {
+
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy ,EAR.AddedDate    
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
+                            LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
+                            LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
+                            WHERE EAR.ApprovalStatus='" + ApprovalStatus.ApprovedRejected + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -1729,12 +1966,13 @@ namespace Aplos.Areas.Accounts.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
-                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy, EEA. EmployeeName ApprovedBy,EAR.ApprovalStatus   FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy, EEA. EmployeeName ApprovedBy,EAR.ApprovalStatus ,EAR.AddedDate   
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
                             LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
                             LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
                             LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
-                            WHERE EAR.CheckedBy = '" + identity.EmployeeId + "'  AND EAR.ApprovalStatus='" + ApprovalStatus.ToBeChecked + "') AS TEMP WHERE " + strkey + " ORDER BY RequisitionAddedDate DESC";
+                            WHERE EAR.CheckedBy = '" + identity.EmployeeId + "'  AND EAR.ApprovalStatus='" + ApprovalStatus.ToBeChecked + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -1928,11 +2166,23 @@ namespace Aplos.Areas.Accounts.Controllers
                             WHERE EAR.IsPost=0 AND EAR.ApprovalStatus='" + ApprovalStatus.Approved + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetAdvanceReqScheduleListByRequisitionId(string requisitionId)
+        {
+            string sql = @"SELECT a.Id,FORMAT(a.InstallmentDate, 'dd-MMM-yyyy') InstallmentDate
+                            	,a.InstallmentNo,a.InstallmentAmount,a.ProfitAmount
+                            	,a.PrincipalAmount,a.Balance,a.EmployeeSalaryAdvanceId
+                            	,a.YearNo,a.MonthNo,a.ScheduleNo,a.Arrear,a.RequisitionId
+                            FROM AdvanceReqSchedule a
+                            LEFT JOIN [TRN].[EmployeeAdvanceRequisition] e ON e.SystemId = a.RequisitionId
+                            WHERE A.RequisitionId = '" + requisitionId + "' ORDER BY a.InstallmentNo";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+         }
         #endregion
 
         #region EmployeeAdvanceRequisitionPost
 
-       
+
         public ActionResult EmployeeAdvanceRequisitionPost()
         {
             return View("~/Areas/Accounts/Views/EmployeeAdvanceRequisitionPost.cshtml");

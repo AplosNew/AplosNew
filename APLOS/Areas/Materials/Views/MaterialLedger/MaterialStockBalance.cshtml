@@ -235,30 +235,30 @@
                     <fieldset class="scheduler-border">
                         <legend class="scheduler-border">Others</legend>
                         @*<div class="form-group">
-                    <label class="col-sm-3 control-label"></label>
-                    <div class="col-sm-1">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-model="productNew.Country" value="Inventory">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-                    <label class="col-sm-4 control-label" style="padding-top:1px;">Origin/Country</label>
-                </div>
-                <div class="clearfix"></div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label"></label>
-                    <div class="col-sm-1">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-model="productNew.SKU" value="Inventory">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-                    <label class="col-sm-4 control-label" style="padding-top:1px;">SKU</label>
-                </div>*@
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-1">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="productNew.Country" value="Inventory">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <label class="col-sm-4 control-label" style="padding-top:1px;">Origin/Country</label>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-1">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="productNew.SKU" value="Inventory">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <label class="col-sm-4 control-label" style="padding-top:1px;">SKU</label>
+                            </div>*@
                         <div class="clearfix"></div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label"></label>
@@ -272,6 +272,20 @@
                             </div>
                             <label class="col-sm-4 control-label" style="padding-top:1px;">Storage</label>
                         </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-3 control-label">@Library.Model.Parties.PartyType.Vendor.ToString()<sup>*</sup></label>
+                            <div class="col-sm-9 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="@Library.Model.Parties.PartyType.Vendor.ToString()" ng-model="voucher.PartyName" class="form-control" readonly required>
+                                    <span class="input-group-btn">
+                                        @*<button ng-click="showPartyPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>*@
+                                        <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
                     </fieldset>
                 </div>
 
@@ -293,20 +307,20 @@
                     </div>
                 </div>
 
-                    <div class="clearfix"></div>
-                    <div class="clearfix"></div>
-                    <div class="form-group" ng-hide="true">
-                        <label class="col-sm-3 control-label"></label>
-                        <div class="col-sm-1">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-model="productNew.RcptIssue" ng-hide="productNew.AsOnDate==='AsOnDate'">
-                                    <span class="cr" ng-hide="productNew.AsOnDate==='AsOnDate'"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
-                            </div>
+                <div class="clearfix"></div>
+                <div class="clearfix"></div>
+                <div class="form-group" ng-hide="true">
+                    <label class="col-sm-3 control-label"></label>
+                    <div class="col-sm-1">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="productNew.RcptIssue" ng-hide="productNew.AsOnDate==='AsOnDate'">
+                                <span class="cr" ng-hide="productNew.AsOnDate==='AsOnDate'"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
                         </div>
-                        <label class="col-sm-4 control-label" ng-hide="productNew.AsOnDate==='AsOnDate'"> With Receipts & Issue</label>
                     </div>
+                    <label class="col-sm-4 control-label" ng-hide="productNew.AsOnDate==='AsOnDate'"> With Receipts & Issue</label>
+                </div>
 
             </fieldset>
         </div>
@@ -331,3 +345,4 @@
     </div>
 </div>
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")

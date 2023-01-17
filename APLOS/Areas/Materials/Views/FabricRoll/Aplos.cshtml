@@ -1,13 +1,49 @@
-﻿<togglable name="Fabric Roll"></togglable>
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>{{FormTitle}}</h3>
 <div class="form-elements form-horizontal" ng-form name="buyerNewForm">
-    <div class="modal-body">
-        <div class="row">
-            <div class="form-elements form-horizontal">
-
+    <div class="row">
+        <div class="form-elements form-horizontal" id="Main">
+            <div class="col-xs-12" ng-show="showfromto">
+                <div class="col-xs-5">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label" id="fDate">From Date<sup>*</sup></label>
+                        <div class="col-sm-8  show-message">
+                            <input type="text" name="From Date" ng-model="FromDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-5">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label" id="tDate">To Date<sup>*</sup></label>
+                        <div class="col-sm-8  show-message">
+                            <input type="text" name="To Date" ng-model="ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="3">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="clickGo();" class="btn"><i class="glyphicon glyphicon-send"></i> Go</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12" ng-show="showgrndiv">
+                <div class="col-xs-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="clickBack();" class="btn"><i class="glyphicon glyphicon-backward"></i> Back</button></li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">GRN No :</span></label>
-                        <label class="col-sm-8 control-label">{{fabricRollMaster.GRNNo}}</label>
+                        <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                            <input type="text" ng-model="fabricRollMaster.GRNNo" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="LoadGRNSearchList()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">PO No  :</span></label>
@@ -18,13 +54,25 @@
                         <label class="col-sm-8 control-label">{{fabricRollMaster.PurchaseLCNo}}</label>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label"><span style="font-weight:bold">Party :</span></label>
-                        <label class="col-sm-10 control-label">{{fabricRollMaster.PartyName}}</label>
-
-                        @*<label class="col-sm-2 control-label">&nbsp;</label>*@
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Vendor :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.PartyName}}</label>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Prepared by<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <span class="input-group-addon">{{fabricRollMaster.PreparedByCode}}</span>
+                                <input type="text" name="Vendor" ng-model="fabricRollMaster.PreparedByName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-click="getPopUpData('Preparedby')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button name="submit" ng-click="ClearEmpdata('Preparedby')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
+
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">GRN Date :</span></label>
                         <label class="col-sm-8 control-label">{{fabricRollMaster.GRNDate}}</label>
@@ -41,6 +89,19 @@
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">Opening Bank :</span></label>
                         <label class="col-sm-8 control-label">{{fabricRollMaster.OpeningBank}}</label>
                     </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Checked by<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <span class="input-group-addon">{{fabricRollMaster.CheckedByCode}}</span>
+                                <input type="text" name="Vendor" ng-model="fabricRollMaster.CheckedByName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-click="getPopUpData('Checkedby')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button name="submit" ng-click="ClearEmpdata('Checkedby')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
 
@@ -53,138 +114,230 @@
                         <label class="col-sm-8 control-label">{{fabricRollMaster.VendorRefNo}}</label>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Invoice No :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.InvoiceNo}}</label>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label"><span style="font-weight:bold">PI No :</span></label>
                         <label class="col-sm-8 control-label">{{fabricRollMaster.PINo}}</label>
                     </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div style="color:black;" id="drgtg" ej-grid e-datasource="MaterialGridList"
-                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
-                     e-allowselection="false">
-                    <div e-columns>
-                        <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material Master" e-width="100"></div>
-                        <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="100"></div>
-                        <div e-column e-type="string" e-field="SKUInfo" e-headertext="SKU Info." e-width="100"></div>
-                        <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Transaction Qty" e-width="100"></div>
-                        <div e-column e-type="string" e-field="UOM" e-headertext="UoM" e-width="50"></div>
-                        <div e-column e-type="number" e-field="SplitCount" e-textalign="right" e-format="{0:N2}" e-headertext="Split Count" e-width="80"></div>
-                        <div e-column e-type="number" e-field="TotalDistributeQty" e-textalign="right" e-format="{0:N2}" e-headertext="Total Distribute Qty" e-width="100"></div>
-                        <div e-column e-headertext=" Distribute " e-template="#distributeBTN" e-width="190"></div>
-
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Attachment :</span></label>
+                        <div class="col-sm-8">
+                            <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection="false" e-success="getFileList" e-extensionsallow=".xls,.xlsx"></div>
+                        </div>
                     </div>
-                    <script id="distributeBTN" type="text/template">
-                        <div class="common-btn">
-                            <ul class="common-btn list-inline text-center">
+                </div>
+                <div class="col-xs-12">
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><span style="font-weight:bold">Buyer PO No :</span></label>
+                            <label class="col-sm-10 control-label">{{fabricRollMaster.BuyerPONumber}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Remarks</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" rows="1" ng-model="fabricRollMaster.Remarks" tabindex="7" maxlength="250"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><span style="font-weight:bold">Style :</span></label>
+                            <label class="col-sm-10 control-label">{{fabricRollMaster.BuyerReferenceNo}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Comment</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" rows="1" ng-model="fabricRollMaster.Comment" tabindex="7" maxlength="250"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12" ng-show="MaterialGridList.length>0">
+                    <div style="color:black;" id="MaterialGrid" ej-grid e-datasource="MaterialGridList"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
+                         e-allowselection="false" e-templaterefresh="refreshTemplateemployee">
+                        <div e-columns>
+                            <div e-column e-headertext="" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-type="string" e-field="Id" e-headertext="RowDetailNo" e-width="50"></div>
+                            <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material Master" e-width="120"></div>
+                            <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="150"></div>
+                            <div e-column e-type="string" e-field="SKUInfo" e-headertext="SKU Info." e-width="100"></div>
+                            <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Transaction Qty" e-width="100"></div>
 
-                                <li>
-                                    <button ng-click="$parent.showFabricPop(data);" class="btn small tooltip-here " ng-disabled="data.SplitCount>0" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Edit">
-                                        <i class="glyphicon glyphicon-list" style="color:white;"></i>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button ng-click="$parent.showFabricPop(data);" class="btn small tooltip-here" ng-disabled="data.SplitCount<1" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Edit">
-                                        <i class="glyphicon glyphicon-edit" style="color: white;"></i>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button ng-click="$parent.getpdff(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Show">
-                                        <i class="glyphicon glyphicon-eye-open" style="color:orangered;"></i>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button ng-click="$parent.EditSingleFabricRoll(data);" class="btn small tooltip-here" ng-disabled="data.SplitCount<1" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Single Roll Edit">
-                                        <i class="glyphicon glyphicon-pencil" style="color:greenyellow;"></i>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button ng-click="$parent.RR(data);" class="btn small tooltip-here" @*ng-disabled="data.SplitCount<1"*@ style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Single Roll Edit">
-                                        <i class="glyphicon glyphicon-download-alt"></i>
-                                    </button>
-                                </li>
+                            <div e-column e-type="string" e-field="UOM" e-headertext="UoM" e-width="50"></div>
+                            <div e-column e-type="number" e-field="SplitCount" e-textalign="right" e-format="{0:N2}" e-headertext="Split Count" e-width="80"></div>
+                            <div e-column e-type="number" e-field="TotalDistributeQty" e-textalign="right" e-format="{0:N2}" e-headertext="Total Distribute Qty" e-width="100"></div>
+                            <div e-column e-headertext="RollNo" e-template="#rollsNo" e-width="80"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+
+                    <script type="text/template" id="rollsNo">
+                        <input type="text" only-numbers ng-model="data.RollNo" style="color:black;" class="form-control" />
+                    </script>
+
+                    <div class="col-md-10">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                            </label>
+                            <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
+                            @*<input type="button" class="btn btn-success" ng-click="ClearImportData()" />*@
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
                             </ul>
                         </div>
-                    </script>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12" ng-show="grnDetailList.length>0">
+                            <div id="GridWorkCenterProduct"
+                                 ng-init="chkinit()"
+                                 ej-grid e-datasource="grnDetailList"
+                                 e-allowfiltering="true"
+                                 e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-pagesettings-pagesize="25"
+                                 e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="30" e-primarykey="true"></div>
+                                    <div e-column e-field="GRNRowId" e-headertext="GRNRowId" e-width="80"></div>
+                                    <div e-column e-field="LotNo" e-headertext="LotNo" e-width="80"></div>
+                                    <div e-column e-field="Color" e-headertext="Color" e-width="80"></div>
+                                    <div e-column e-field="FabricType" e-headertext="FabricType" e-width="80"></div>
+                                    <div e-column e-field="FabricQuality" e-headertext="FabricQuality" e-width="80"></div>
+                                    <div e-column e-field="SupplierRollNo" e-headertext="SupplierRollNo" e-width="80"></div>
+                                    <div e-column e-field="OwnRollNo" e-headertext="OwnRollNo" e-width="80"></div>
+                                    <div e-column e-field="QtyUoM" e-headertext="Qty UoM" e-width="80"></div>
+                                    <div e-column e-field="SupplierQty" e-headertext="SupplierQty" e-width="80"></div>
+                                    <div e-column e-field="ActualQty" e-headertext="Actual Qty" e-width="80"></div>
+                                    <div e-column e-field="CutableWeight" e-headertext="CutableWeight" e-width="80"></div>
+                                    <div e-column e-field="OwnGSM" e-headertext="OwnGSM" e-width="80"></div>
+                                    <div e-column e-field="StdGSM" e-headertext="StdGSM" e-width="80"></div>
+                                    <div e-column e-field="GSMVariation" e-headertext="GSMVariation" e-width="80"></div>
+                                    <div e-column e-field="GSMVariationPer" e-headertext="GSMVariationPer" e-width="80"></div>
+                                    <div e-column e-field="Shade" e-headertext="Shade" e-width="80"></div>
+                                    <div e-column e-field="ShrinkageLengthWise" e-headertext="ShrinkageLengthWise" e-width="80"></div>
+                                    <div e-column e-field="ShrinkageWidthWise" e-headertext="ShrinkageWidthWise" e-width="80"></div>
+                                    <div e-column e-field="ShrinkageGroup" e-headertext="ShrinkageGroup" e-width="80"></div>
+                                    <div e-column e-field="Dia" e-headertext="Dia" e-width="80"></div>
+                                    <div e-column e-field="SupplierQualityGrade" e-headertext="SupplierQualityGrade" e-width="80"></div>
+                                    <div e-column e-field="QualityStatus" e-headertext="QualityStatus" e-width="80"></div>
+                                    <div e-column e-field="FTPReportNo" e-headertext="FTPReportNo" e-width="80"></div>
+                                    <div e-column e-field="FTPReceiveDate" e-headertext="FTPReceiveDate" e-width="80"></div>
+                                    <div e-column e-field="FTPStatus" e-headertext="FTPStatus" e-width="80"></div>
+                                    <div e-column e-field="DimensionalChange3rdWash" e-headertext="DimensionalChange3rdWash" e-width="80"></div>
+                                    <div e-column e-field="Spirality3rdWash" e-headertext="Spirality3rdWash" e-width="80"></div>
+                                    <div e-column e-field="PillingResistance" e-headertext="PillingResistance" e-width="80"></div>
+                                    <div e-column e-field="BurstingStrength" e-headertext="BurstingStrength" e-width="80"></div>
+                                    <div e-column e-field="Absorbency" e-headertext="Absorbency" e-width="80"></div>
+                                    <div e-column e-field="pHValue" e-headertext="pHValue" e-width="80"></div>
+                                    <div e-column e-field="Sewablity" e-headertext="Sewablity" e-width="80"></div>
+                                    <div e-column e-field="Handfeel" e-headertext="Handfeel" e-width="80"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 ">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveRollData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                                    <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+
+                                </ul>
+                                <ul class="list-inline text-left bold" style="color:green;font-size:larger;font-weight:bolder;">
+                                    <li>    <i>{{msg}}</i> </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="inputRollBtnSection common-btn">
-                    <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0">
-                        <input id="uploadRollData" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
-                    </label>
-                    <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="saveRollFile();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ej-dialog id="CreateNewPopUp" title="New/Old" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#Main"
+           e-close="onDialogClose" e-minwidth="450" e-minheight="80" e-open="enableBtn">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <div class="select-style">
+                        <select class="form-control" name="New/Old" ng-model="ModelNew.TargetOrSPT" required>
+                            <option value="New">New</option>
+                            <option value="Old">Old</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="Go();closePopup('CreateNewPopUp');" class="btn">Go</button></li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="table-responsive aplos-grid-toggle">
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="row text-right">
-                <div class="col-xs-12 col-sm-12 col-sm-12 ">
-                    <div class="search-form">
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-3 col-md-3">
-                                <div class="select-style">
-                                    <select ng-model="GRNsearchBy">
-                                        <option ng-repeat="option in searchGRNByList" value="{{option.value}}">{{option.name}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-7 col-md-7">
-                                <input type="text" class="form-control" placeholder="Search" ng-model="GRNsearch" ng-enter="LoadGRNSearchList()">
-                            </div>
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <button type="button" ng-click="LoadGRNSearchList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                            </div>
+</ej-dialog>
+
+<div class="modal fade site-modal in" id="grnListPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                GRN List <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body ">
+                <b>**Fabric roll management should be activated.</b>@*<i>**Only pending distribution is listed below.</i>*@
+                <div class="row">
+                    <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNGridList" e-recorddoubleclick="SelectOption"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="100"></div>
+                            <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="120"></div>
+                            <div e-column e-type="string" e-field="GRNType" e-headertext="GRN Type" e-width="100"></div>
+                            <div e-column e-type="string" e-field="GRNStatus" e-headertext="GRN Status" e-width="100"></div>
+                            <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="120"></div>
+                            <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-type="number" e-field="TransactionAmount" e-textalign="right" e-format="{0:N2}" e-headertext="Amount" e-width="100"></div>
+                            <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                            <div e-column e-type="string" e-field="POId" e-headertext="PO No." e-width="100"></div>
+                            <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="120"></div>
+                            <div e-column e-type="string" e-field="VendorRefNo" e-headertext="PO Vendor Ref No." e-width="100"></div>
+                            <div e-column e-type="string" e-field="PurchaseLCNo" e-headertext="Purchase LC No." e-width="100"></div>
+                            <div e-column e-type="string" e-field="LCANo" e-headertext="LC Ref No." e-width="100"></div>
+                            <div e-column e-type="date" e-field="LCDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LC Date" e-width="120"></div>
+                            <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="100"></div>
+                            <div e-column e-type="string" e-field="OpeningBank" e-headertext="OpeningBank" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="100"></div>
+                            <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
+                            <div e-column e-type="string" e-field="UDNo" e-headertext="UD" e-width="80"></div>
+                            <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
+                            <div e-column e-type="string" e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    @*<label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Fabric <span style="text-transform: lowercase;">roll management should be activated.</span></label>*@
-    @*<label class="control-label" style="color: blue; padding-left: 17px; font-size: 12px; margin-top: -6px;">Only<span style="text-transform: lowercase;">pending distribution is listed below. </span></label>*@
-    <b>**Fabric roll management should be activated.</b>
-    <i>**Only pending distribution is listed below.</i>
-    <div class="table-responsive aplos-grid-toggle">
-        <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNGridList" e-recorddoubleclick="Get"
-             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
-             e-allowselection="false">
-            <div e-columns>
-                <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="100"></div>
-                <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="120"></div>
-                <div e-column e-type="string" e-field="GRNType" e-headertext="GRN Type" e-width="100"></div>
-                <div e-column e-type="string" e-field="GRNStatus" e-headertext="GRN Status" e-width="100"></div>
 
-                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="120"></div>
-                <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Qty" e-width="80"></div>
-                <div e-column e-type="number" e-field="TransactionAmount" e-textalign="right" e-format="{0:N2}" e-headertext="Amount" e-width="100"></div>
-                <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
-                <div e-column e-type="string" e-field="POId" e-headertext="PO No." e-width="100"></div>
-                <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="120"></div>
-                <div e-column e-type="string" e-field="VendorRefNo" e-headertext="PO Vendor Ref No." e-width="100"></div>
-                <div e-column e-type="string" e-field="PurchaseLCNo" e-headertext="Purchase LC No." e-width="100"></div>
-                <div e-column e-type="string" e-field="LCANo" e-headertext="LC Ref No." e-width="100"></div>
-                <div e-column e-type="date" e-field="LCDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LC Date" e-width="120"></div>
-                <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="100"></div>
-                <div e-column e-type="string" e-field="OpeningBank" e-headertext="OpeningBank" e-width="100"></div>
-                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="100"></div>
-                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
-                <div e-column e-type="string" e-field="UDNo" e-headertext="UD" e-width="80"></div>
-                <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
-                <div e-column e-type="string" e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
+            </div>
+            <div class="modal-footer common-btn">
+                @*<button ng-click="closeGRNPopUp();" class="btn"><i class=""></i> Select</button>*@
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="grnPopUp" role="dialog" data-backdrop="static">
+<div class="modal site-modal" id="grnPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -230,7 +383,7 @@
                     <div class="col-xs-12 col-sm-12 col-md-12">
 
                         <div class="form-group">
-                            <label class="col-sm-10 control-label"><span style="font-weight:bold">Party :</span>{{fabricRollMaster.PartyName}}</label>
+                            <label class="col-sm-10 control-label"><span style="font-weight:bold">Vendor :</span>{{fabricRollMaster.PartyName}}</label>
                             <label class="col-sm-2 control-label">&nbsp;</label>
                         </div>
 
@@ -404,7 +557,7 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Roll No.<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="RollNo" ng-disabled="true" ng-model="GetFabricRollList[Index].RollNo" class="form-control" >
+                                <input type="text" name="RollNo" ng-disabled="true" ng-model="GetFabricRollList[Index].RollNo" class="form-control">
                             </div>
                         </div>
                         <div class="form-group">
@@ -423,16 +576,16 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Vendor Roll No.<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="VendorRollNo" ng-model="GetFabricRollList[Index].VendorRollNo" class="form-control"  maxlength="10">
+                                <input type="text" name="VendorRollNo" ng-model="GetFabricRollList[Index].VendorRollNo" class="form-control" maxlength="10">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Vendor Lot No.<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="VendorLotNo" ng-model="GetFabricRollList[Index].VendorLotNo" class="form-control"  maxlength="50">
+                                <input type="text" name="VendorLotNo" ng-model="GetFabricRollList[Index].VendorLotNo" class="form-control" maxlength="50">
                             </div>
                         </div>
-                      
+
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
@@ -444,8 +597,8 @@
                     </div>
                 </div>
                 @*<div class="modal-footer common-btn">
-                    <button ng-click="Update();" class="btn"><i class=""></i> Update</button>
-                </div>*@
+                        <button ng-click="Update();" class="btn"><i class=""></i> Update</button>
+                    </div>*@
             </div>
         </div>
     </div>
@@ -564,10 +717,10 @@
                                                 </button>
                                             </li>
                                             @*<li>
-                                        <button ng-click="" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                                            <i class="glyphicon glyphicon-edit" style="color:olive"></i>
-                                        </button>
-                                    </li>*@
+                                                    <button ng-click="" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                        <i class="glyphicon glyphicon-edit" style="color:olive"></i>
+                                                    </button>
+                                                </li>*@
                                         </ul>
 
                                     </div>
@@ -614,6 +767,37 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmRollDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
-
