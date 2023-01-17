@@ -16,8 +16,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.deleteUrl = $scope.path + 'deleteGRNBYPO/';
     $scope.detailSaveUrl = $scope.path + 'detailcreate';
     $scope.detailDeleteUrl = $scope.path + 'DetailDelete?receiveDetailId=';
-    $scope.sreviceSaveUrl = $scope.path + 'servicechargescreate';
     $scope.sreviceDeleteUrl = $scope.path + 'servicechargesdelete?serviceId=';
+    $scope.sreviceSaveUrl = $scope.path + 'servicechargescreate';
     $scope.updateUrlForSRValue = $scope.path + 'UpdateShortageRejectionValueMap';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
@@ -2395,7 +2395,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.delModal = function (id) {
         $scope.id = id;
         $scope.message = 'Are you sure want to permanently delete this?';
-        angular.element(document.querySelector('#removePopUp')).modal('show');
+        angular.element(document.querySelector('#removeServicePopUp')).modal('show');
     };
     $scope.serviceDelete = function () {
         try {

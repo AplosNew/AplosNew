@@ -580,8 +580,8 @@
                                 </tbody>
                             </table>
                         </div>
-                        
-<confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteGRNBOQDetail();"></confirm-archive-generic>
+
+                        <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteGRNBOQDetail();"></confirm-archive-generic>
 
 
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -1015,57 +1015,57 @@
                                  e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
                                  e-detailstemplate="detailTemp"
                                  e-detailsdatabound="detailgrid">
-                                    <div e-columns>
-                                        <div e-column e-headertext="Actions" e-width="50">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn">
-                                                <i class="glyphicon glyphicon-print" title="Print Report"
-                                                   ng-click="$parent.GetgrnBOQPOChecked('GriddataCheckedHR');" style="margin: -6px;"></i>
-                                            </button>
-                                        </div>
-                                        <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
-                                        <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
-                                        <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
-                                        <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
-                                        <div e-column e-field="Id" e-headertext="GRN No" e-width="150"></div>
-                                        <div e-column e-field="GRNDate1" e-headertext="GRN Date" e-width="150"></div>
-                                        <div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
-                                        @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
-                                        <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="RejectionValue" e-headertext="Rejection Value" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
-                                        @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
-                                        @*<div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
-                <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>*@
-                                        <div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
-                                        @*<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>*@
-                                        <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
-                                        <div e-column e-field="LCANo" e-headertext="LC Ref No" e-width="150"></div>
-                                        <div e-column e-field="CustomerName" e-headertext="Customer Name" e-width="80"></div>
-                                        <div e-column e-field="UDNo" e-headertext="UD" e-width="80"></div>
-                                        <div e-column e-field="OpeningBank" e-headertext="OpeningBank" e-width="80"></div>
-
-                                        <div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
-                                        <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>
-
-                                        <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
-                                        <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="150"></div>
-                                        <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="CheckedBy" e-headertext=" Checked By" e-width="150"></div>
-                                        <div e-column e-field="ApprovedBy" e-headertext=" To Be Approved By" e-width="150"></div>
-                                        <div e-column e-field="GRNType" e-headertext="GRNType" e-width="100"></div>
-                                        <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" textAlign='Right' e-width="150"></div>
+                                <div e-columns>
+                                    <div e-column e-headertext="Actions" e-width="50">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn">
+                                            <i class="glyphicon glyphicon-print" title="Print Report"
+                                               ng-click="$parent.GetgrnBOQPOChecked('GriddataCheckedHR');" style="margin: -6px;"></i>
+                                        </button>
                                     </div>
+                                    <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
+                                    <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
+                                    <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
+                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
+                                    <div e-column e-field="Id" e-headertext="GRN No" e-width="150"></div>
+                                    <div e-column e-field="GRNDate1" e-headertext="GRN Date" e-width="150"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
+                                    @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
+                                    <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="RejectionValue" e-headertext="Rejection Value" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
+                                    @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
+                                    @*<div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
+                                        <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>*@
+                                    <div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
+                                    @*<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>*@
+                                    <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
+                                    <div e-column e-field="LCANo" e-headertext="LC Ref No" e-width="150"></div>
+                                    <div e-column e-field="CustomerName" e-headertext="Customer Name" e-width="80"></div>
+                                    <div e-column e-field="UDNo" e-headertext="UD" e-width="80"></div>
+                                    <div e-column e-field="OpeningBank" e-headertext="OpeningBank" e-width="80"></div>
+
+                                    <div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
+                                    <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>
+
+                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
+                                    <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="150"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="CheckedBy" e-headertext=" Checked By" e-width="150"></div>
+                                    <div e-column e-field="ApprovedBy" e-headertext=" To Be Approved By" e-width="150"></div>
+                                    <div e-column e-field="GRNType" e-headertext="GRNType" e-width="100"></div>
+                                    <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" textAlign='Right' e-width="150"></div>
                                 </div>
                             </div>
+                        </div>
 
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
@@ -1320,8 +1320,8 @@
                                  e-detailsdatabound="detailgrid">
                                 <div e-columns>
                                     @*<div e-column e-headertext="Actions" e-width="50">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataApprovedHR');" style="margin: -6px;"></i></button>
-                                    </div>*@
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataApprovedHR');" style="margin: -6px;"></i></button>
+                                        </div>*@
                                     <div e-column e-headertext="Actions" e-width="50">
                                         <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.GetgrnBOQPO('GriddataApprovedHR');" style="margin: -6px;"></i></button>
                                     </div>
@@ -1607,8 +1607,8 @@
                                     </div>
 
                                     @*<div e-column e-headertext="Actions" e-width="50">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataPosted');" style="margin: -6px;"></i></button>
-                                    </div>*@
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataPosted');" style="margin: -6px;"></i></button>
+                                        </div>*@
                                     <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
                                     <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -2039,7 +2039,7 @@
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
                         <div style="color:black;" id="GRnBOQPooGrid" ej-grid e-datasource="MasterListNewBOQ"
                              e-templaterefresh="refreshTemplateMasterOrderOperation"
-                             e-recorddoubleclick="" e-summaryrows="summaryUnassignRows" e-allowResizing="true" 
+                             e-recorddoubleclick="" e-summaryrows="summaryUnassignRows" e-allowResizing="true"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>
@@ -2047,7 +2047,7 @@
                                 <div e-column e-field="BOQDetailId" e-headertext="BOQDetailId" e-width="60"></div>
                                 <div e-column e-field="RefferenceNo" e-headertext="Style" e-width="80"></div>
                                 <div e-column e-field="UserName" e-headertext="Material" e-width="120"></div>
-                                <div e-column e-field="StandardName" e-headertext="Article" e-width="200" ></div>
+                                <div e-column e-field="StandardName" e-headertext="Article" e-width="200"></div>
                                 <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="100"></div>
                                 <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="60"></div>
                                 <div e-column e-field="RMDescription" e-headertext="Description" e-width="100"></div>
@@ -2084,13 +2084,13 @@
                         </div>
                         <!--<script type="text/template" id="checkBOQboxList">
                             <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.check" e-enabled="data.TransactionQty===0 || data.TransactionQty==='' || data.TransactionQty===null"/>-->
-                            @*<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="data.check" ng-disabled="data.TransactionQty===0 || data.TransactionQty==='' || data.TransactionQty===null">*@
+                        @*<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="data.check" ng-disabled="data.TransactionQty===0 || data.TransactionQty==='' || data.TransactionQty===null">*@
                         <!--</script>-->
                         <!--<script type="text/template" id="CurrentTextPOQtyBOQ">
-        <input type="number" class="input form-control" ng-keyup="calculateAmounts(data)" form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80"-->
+                        <input type="number" class="input form-control" ng-keyup="calculateAmounts(data)" form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80"-->
                         @*ng-keyup="$parent.refreshQtyTemplete(this)"*@
                         <!--/>
-    </script>-->
+                        </script>-->
                         <script type="text/template" id="CurrentTextGRNRecvQty">
                             <input type="text" n-decimals="2" class="form-control text-right" ng-keyup="popupcalculateAmounts(data);" width="200" ng-model="data.GRNRcvQty" ng-disabled="true">
                         </script>
@@ -2118,3 +2118,4 @@
         </div>
     </div>
 </div>
+<confirm-archive-generic modalid="removeServicePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceDelete();"></confirm-archive-generic>

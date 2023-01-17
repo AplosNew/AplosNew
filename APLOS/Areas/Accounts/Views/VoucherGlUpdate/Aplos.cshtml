@@ -177,8 +177,8 @@
                         <td>{{x.IsPark?'Parked':'Posted'}}</td>
                         <td class="text-right">
                             <ul class="list-inline action-list">
-                                <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Pdf',x.Id,x.SourceType,x.InventoryIssueId)"><i class="fa fa-file-pdf-o"></i></a></li>
-                                <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Excel',x.Id,x.SourceType,x.InventoryIssueId)"><i class="fa fa-file-excel-o"></i></a></li>
+                                <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Pdf',x.Id,x.SourceType,x.InventoryIssueId,x.InventoryReceiveId)"><i class="fa fa-file-pdf-o"></i></a></li>
+                                <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Excel',x.Id,x.SourceType,x.InventoryIssueId,x.InventoryReceiveId)"><i class="fa fa-file-excel-o"></i></a></li>
                             </ul>
                         </td>
                     </tr>

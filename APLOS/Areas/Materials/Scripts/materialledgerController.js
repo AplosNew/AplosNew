@@ -12,6 +12,8 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
+    $scope.partyType = "Vendor";
+    $controller("partyBaseController", { $scope: $scope, $http: $http });
 	$scope.RowColor = "";
 	$scope.isAlternative = -1;
 	$scope.rowDataBound = function rowDataBound(e) {
@@ -2536,6 +2538,20 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
         }
 
         angular.element(document.querySelector('#searchcharactervaluepopup')).modal('hide');
+    };
+
+    $scope.voucher = {
+        PartyId : null,
+        PartyCode : null,
+        PartyName : null
+    }
+    $scope.closePartyPopUp = function (x) {
+       
+        $scope.voucher.PartyId = x.data.Id;
+        $scope.voucher.PartyCode = x.data.Code;
+        $scope.voucher.PartyName = x.data.UserName;
+        
+        $scope.hidePartyPopUp();
     };
 
      //#endregion

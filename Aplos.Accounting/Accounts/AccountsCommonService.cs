@@ -45,8 +45,12 @@ namespace Library.Accounting.Accounts
             companyCurrencyId = companyParallelCurrency["CurrencyId"].ToString();
             companyCurrencyCode = companyParallelCurrency["CurrencyCode"].ToString();
         }
-        private Dictionary<string, object> GetCompanyCurrencyId(string companyId)        {            var cmdText = @"select cpc.CurrencyId,C.Code CurrencyCode from SCS.CompanyParallelCurrency cpc
-                            LEFT JOIN SCS.Currency C ON C.Id = CPC.CurrencyId where cpc.ParallelCurrencyType = '" + ParallelCurrencyType.CompanyCurrency.ToString() + "'";            return _sqlRepository.GetData(cmdText);        }
+        private Dictionary<string, object> GetCompanyCurrencyId(string companyId)
+        {
+            var cmdText = @"select cpc.CurrencyId,C.Code CurrencyCode from SCS.CompanyParallelCurrency cpc
+                            LEFT JOIN SCS.Currency C ON C.Id = CPC.CurrencyId where cpc.ParallelCurrencyType = '" + ParallelCurrencyType.CompanyCurrency.ToString() + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
         private bool GetPlantIsShowFCInWord(string plantId)
         {
             return bplib.clsWebLib.GetBoolData(_sqlRepository.GetDataCollection(@"SELECT IsShowFCInWord FROM ORG.Plant WHERE Id='" + plantId + "'")[0]["IsShowFCInWord"].ToString());
@@ -139,7 +143,11 @@ namespace Library.Accounting.Accounts
                 throw new CustomException("FiscalYear prefix not found!");
             return fiscalYearPrefix;
         }
-        private Dictionary<string, object> GetfiscalYearfind(string fiscalYearId)        {            var cmdText = @"select * from scs.FiscalYear where Id= '" + fiscalYearId + "'";            return _sqlRepository.GetData(cmdText);        }
+        private Dictionary<string, object> GetfiscalYearfind(string fiscalYearId)
+        {
+            var cmdText = @"select * from scs.FiscalYear where Id= '" + fiscalYearId + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
         private VoucherTypeNumber GetAuto(string voucherTypeConfigId, string registerName, string period)
         {
             List<VoucherTypeNumber> data = _sqlRepository.GetModelCollection<VoucherTypeNumber>(@"select * from scs.VoucherTypeNumber where VoucherTypeConfigId = '" + voucherTypeConfigId + "' and RegisterName = '" + registerName + "' and [Period] ='" + period + "'");
@@ -806,7 +814,14 @@ namespace Library.Accounting.Accounts
                             rdBuilder.Append(builderSql);
                             _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                         }
-                       
+                        if (voucherDetailVM.SourceType == "InventoryPayable")
+                        {
+                            var rdBuilder = new System.Text.StringBuilder();
+                            var builderSql = @"UPDATE ID SET ID.PostDrGLGeneralInfoId='" + voucherDetailVM.GLGeneralInfoId + "' , ID.PostDrBudgetMasterId='" + voucherDetailVM.BudgetMasterId + "' , ID.PostDrActivityId='" + voucherDetailVM.ActivityId + "'  FROM TRN.InventoryReceiveDetail  ID INNER JOIN TRN.InventoryReceive I ON I.Id=ID.InventoryReceiveId WHERE I.VoucherId='" + voucherDetailVM.VoucherId + "' AND ID.PostDrGLGeneralInfoId='" + OldGLGeneralInfoId + "' AND ID.PostDrBudgetMasterId='" + OldBudgetMasterId + "' AND ID.PostDrActivityId='" + OldActivityId + "'";
+                            rdBuilder.Append(builderSql);
+                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                        }
+
                     }
                 }
 
@@ -1247,15 +1262,16 @@ V.Id,FORMAT (V.VoucherDate,'dd-MMM-yyyy') VoucherDate,FORMAT (V.PostingDate,'dd-
 , V.CurrencyId,FORMAT (V.DocDate,'dd-MMM-yyyy') DocDate, V.EntityId,
 C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,e.UserName Entity,V.SourceType
 ,CASE WHEN  II.IssueType='Capital' AND  II.CapitalizeVoucherId is not null THEN 'Yes' ELSE 'No' END Capitalize
-,II.Id InventoryIssueId
+,II.Id InventoryIssueId,IR.Id InventoryReceiveId
                                     FROM TRN.[Voucher] AS V
 									LEFT JOIN TRN.InventoryIssue AS II ON II.VoucherId = V.Id
+                                    LEFT JOIN TRN.InventoryReceive AS IR ON IR.VoucherId = V.Id
                                     LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
                                     LEFT JOIN SCS.VoucherType AS vt ON vt.Id=v.VoucherTypeId
                                     LEFT JOIN ORG.Entity AS e ON e.Id=v.EntityId
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
                                     ) AS VD ON VD.VoucherId=V.Id
-where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable','IssueJournal','JournalVoucher') ";
+where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable','IssueJournal','JournalVoucher','InventoryPayable') ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -1263,9 +1279,18 @@ where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId +
 
         public List<Dictionary<string, object>> getVoucherData(string voucherId)
         {
-            var sql = @"SELECT VD.Id, DrAmount, CrAmount, CrAmount AS Amount, VD.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName                                , VD.BudgetMasterId, B.UserName AS BudgetName, VD.ActivityId, A.UserName AS ActivityName, P.Code AS PartyCode
-                                , P.UserName AS PartyName, VD.PartyType,E.UserName Entity,VD.VoucherId,V.SourceType                                FROM [TRN].[VoucherDetail] AS VD                                LEFT JOIN [TRN].[Voucher]  AS V ON V.Id=VD.VoucherId                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId                                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
-                                LEFT JOIN ORG.Entity AS e ON e.Id=VD.EntityId								WHERE VD.VoucherId='" + voucherId + @"' ORDER BY DrAmount DESC";
+            var sql = @"SELECT VD.Id, DrAmount, CrAmount, CrAmount AS Amount, VD.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                , VD.BudgetMasterId, B.UserName AS BudgetName, VD.ActivityId, A.UserName AS ActivityName, P.Code AS PartyCode
+                                , P.UserName AS PartyName, VD.PartyType,E.UserName Entity,VD.VoucherId,V.SourceType
+                                FROM [TRN].[VoucherDetail] AS VD
+                                LEFT JOIN [TRN].[Voucher]  AS V ON V.Id=VD.VoucherId
+                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+                                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                                LEFT JOIN ORG.Entity AS e ON e.Id=VD.EntityId
+								WHERE VD.VoucherId='" + voucherId + @"' ORDER BY DrAmount DESC";
             return _sqlRepository.GetDataCollection(sql);
 
         }
