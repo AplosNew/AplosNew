@@ -498,7 +498,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     }
 
-    $scope.btndisable = true;
+    $scope.btndisable = false;
     $scope.Save = function () {
 
         if (baseService.isUndefinedOrNull($scope.fileNew.ResponsiblePersonId)) {
