@@ -219,7 +219,6 @@
                                     <div e-column e-field="SupplierQty" e-headertext="SupplierQty" e-width="80"></div>
                                     <div e-column e-field="ActualQty" e-headertext="Actual Qty" e-width="80"></div>
                                     <div e-column e-field="CutableWeight" e-headertext="CutableWeight" e-width="80"></div>
-                                    @*<div e-column e-field="Shrinkage" e-headertext="Shrinkage" e-width="80"></div>*@
                                     <div e-column e-field="OwnGSM" e-headertext="OwnGSM" e-width="80"></div>
                                     <div e-column e-field="StdGSM" e-headertext="StdGSM" e-width="80"></div>
                                     <div e-column e-field="GSMVariation" e-headertext="GSMVariation" e-width="80"></div>
@@ -298,7 +297,7 @@
                 GRN List <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body ">
-                <b>**Fabric roll management should be activated.</b><i>**Only pending distribution is listed below.</i>
+                <b>**Fabric roll management should be activated.</b>@*<i>**Only pending distribution is listed below.</i>*@
                 <div class="row">
                     <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNGridList" e-recorddoubleclick="SelectOption"
                          e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"

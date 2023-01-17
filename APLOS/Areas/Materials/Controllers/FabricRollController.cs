@@ -840,7 +840,7 @@ namespace Aplos.Areas.Materials.Controllers
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
                 //DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 18, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 34, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(Sequence,'')<>''";
                 dt = dt.DefaultView.ToTable();
                 //var pquom = "";
