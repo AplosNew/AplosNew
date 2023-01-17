@@ -124,9 +124,27 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(pc.GetList(), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetSavedProduct(string headerid)
+        {
+            return Json(pc.GetSavedProduct(headerid), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedWorkcenter(string headerid)
+        {
+            return Json(pc.GetSavedWorkcenter(headerid), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedParameterChild(string headerid)
+        {
+            return Json(pc.GetSavedParameterChild(headerid), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion GetFun
 
-       
+
 
         #region Update
         [HttpPost]
@@ -145,12 +163,39 @@ namespace Aplos.Areas.Productions.Controllers
         #endregion Update
 
         #region DELETE
-        public ActionResult Delete(string id)
+        public ActionResult RemoveProduct(string productid)
         {
             try
             {
 
-                string ret = pc.Delete(id);
+                string ret = pc.RemoveProduct(productid);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
+        public ActionResult RemoveWorkcenter(string workcenterid)
+        {
+            try
+            {
+
+                string ret = pc.RemoveProduct(workcenterid);
 
                 if (ret == "Success")
                 {

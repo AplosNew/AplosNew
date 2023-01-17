@@ -858,7 +858,7 @@ Group By MR.PartyId, P.UserName, P.Code, MR.InvoiceNumber, MR.InvoiceDate, MR.Id
         {
             try
             {
-                var str = @"select ROW_NUMBER() OVER(ORDER BY MR.Id) SrNo, M.Id MedicineMasterId, M.StandardName UserName, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
+                var str = @"select ROW_NUMBER() OVER(ORDER BY MR.Id) SrNo, MRC.Id , M.Id MedicineMasterId, M.StandardName UserName, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
 FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, MRC.Quantity, MRC.Rate, MRC.Amount, P.UserName PartyName,  P.Code PartyCode,
 MRC.Id MedicineReceiptChildId, MR.Id MedicineReceiptId, MR.PlantId, PL.StandardName PlantName, IsOpeningQty
 from TRN.MedicineReceiptChild MRC
@@ -1205,6 +1205,33 @@ order by MRC.ExpiryDate";
             }
         }
         #endregion SEARCH SAVED DATA IN GRID
+
+        #region Delete
+        public string RemoveParticular(string id)
+        {
+            try
+            {
+
+                string TableName = "TRN.MedicineReceiptChild";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion
 
     }
     #endregion Medicine Receipt

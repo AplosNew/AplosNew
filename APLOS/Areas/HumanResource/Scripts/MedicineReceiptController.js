@@ -389,4 +389,27 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             });
 
     };
+
+    //  #region Delete
+    $scope.RemoveParticularRow = function (x) {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'RemoveParticular?id=' + x.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    }
+
+   
+        //  #endregion Delete
 }

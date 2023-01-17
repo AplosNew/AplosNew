@@ -26,6 +26,8 @@ using OTSBD;
 using Library.Service.HumanResources.Profile;
 using Library.MaterialManagement.Material;
 using Library.Service.Systems;
+using System.Web;
+using Aplos.Helpers;
 
 #endregion using
 
@@ -368,7 +370,8 @@ namespace Aplos.Areas.Materials.Controllers
                 //sheet1[xlsRow, xlsCol].Text = clsStaticInfo.SetDate(fabricRollMaster["PODate"].ToString());
                 if (fabricRollMaster["PODate"] != null)
                 {
-                    clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["PODate"]).ToString("dd-MMM-yyyy"));
+                    //clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["PODate"]).ToString("dd-MMM-yyyy"));
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PODate"].ToString();
                 }
                 xlsCol += 1;
 
@@ -396,12 +399,14 @@ namespace Aplos.Areas.Materials.Controllers
 
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PI No");
-                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PINo"])))
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Invoice No"); xlsCol++;
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["InvoiceNo"])))
                 {
-                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PINo"].ToString();
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["InvoiceNo"].ToString();
                 }
-                xlsCol += 1;
+                //xlsCol += 1;
+
+               
 
                 xlsRow++; xlsCol = 1;
 
@@ -418,47 +423,56 @@ namespace Aplos.Areas.Materials.Controllers
                     sheet1[xlsRow, xlsCol].Text = fabricRollMaster["OpeningBank"].ToString();
                 }
                 xlsCol += 1;
-
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PI No");
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PINo"])))
+                {
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PINo"].ToString();
+                }
+                xlsCol += 1;
                 xlsRow = 6; xlsCol = 1;
                 int endXlsCol = 1;
 
                 #region ------------------Column Header------------------
 
-                int colSeq = 0; int colGRNRowId = 0; int colLotNo = 0; int colShade = 0; int colMarkarCode = 0; int colFabricGroup = 0; int colLength = 0;
-                int colWeight = 0; int colShrinkage = 0; int colQty = 0; int colQtyUoM = 0; int colActualQty = 0; int colInvoiceQty = 0;
-                int colSupplierRollNo = 0; int colOwnRollNo = 0; int colBuyerRollNo = 0; int colGrouping = 0; int colRemarks = 0;
+                int colSeq = 0; int colGRNRowId = 0; int colLotNo, colColor, colFabricType, colFabricQuality = 0; int colShade = 0; int colMarkarCode = 0; int colFabricGroup = 0; int colLength, colOwnGSM, colStdGSM, colGSMVariation,colGSMVariationPer, colShrinkageGroup, colDia, colQualityStatus, colFTPReportNo, colFTPReceiveDate,colFTPStatus = 0;
+                int colCutableWeight, colDimensionalChange3rdWash = 0; int colShrinkagewidth, colShrinkageLength = 0; int colQty = 0; int colQtyUoM = 0; int colActualQty = 0; int colSupplier = 0;
+                int colSupplierRollNo, colSupplierQualityGrade = 0; int colOwnRollNo = 0; int colBuyerRollNo = 0; int colGrouping = 0; int colRemarks = 0;
+                int colSpirality3rdWash, colPillingResistance, colBurstingStrength, colAbsorbency, colpHValue, colSewablity, colHandfeel = 0;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence");
-                colSeq = xlsCol;
-                //sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
-                xlsCol += 1;
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId");
-                colGRNRowId = xlsCol;
-                //sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
-                xlsCol += 1;
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LotNo");
-                colLotNo = xlsCol;
-                //sheet1.Range[xlsRow + 1, xlsCol, maxRow, xlsCol].NumberFormat = "@";
-                xlsCol += 1;
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); colShade = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MarkarCode"); colMarkarCode = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricGroup"); colFabricGroup = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Length"); colLength = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Weight"); colWeight = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shrinkage"); colShrinkage = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Qty"); colQty = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QtyUoM"); colQtyUoM = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActualQty"); colActualQty = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "InvoiceQty"); colInvoiceQty = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sequence");colSeq = xlsCol;xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId");colGRNRowId = xlsCol;xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Color"); colColor = xlsCol;xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LotNo");colLotNo = xlsCol;xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricType"); colFabricType = xlsCol;xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricQuality"); colFabricQuality = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierRollNo"); colSupplierRollNo = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnRollNo"); colOwnRollNo = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BuyerRollNo"); colBuyerRollNo = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Grouping"); colGrouping = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); colRemarks = xlsCol;
-
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QtyUoM"); colQtyUoM = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQty"); colSupplier = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActualQty"); colActualQty = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CutableWeight"); colCutableWeight = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnGSM"); colOwnGSM = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "StdGSM"); colStdGSM = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariation"); colGSMVariation = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariationPer",16); colGSMVariationPer = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); colShade = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageLengthWise",16); colShrinkageLength = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageWidthWise"); colShrinkagewidth = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageGroup"); colShrinkageGroup = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Dia"); colDia = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQualityGrade",14); colSupplierQualityGrade = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QualityStatus"); colQualityStatus = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReportNo"); colFTPReportNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReceiveDate"); colFTPReceiveDate = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPStatus"); colFTPStatus = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DimensionalChange3rdWash",11); colDimensionalChange3rdWash = xlsCol; xlsCol += 1;                
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Spirality3rdWash",16); colSpirality3rdWash = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PillingResistance",16); colPillingResistance = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BurstingStrength",16); colBurstingStrength = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Absorbency"); colAbsorbency = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "pHValue"); colpHValue = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sewablity"); colSewablity = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Handfeel"); colHandfeel = xlsCol; xlsCol += 1;
 
                 endXlsCol = xlsCol;
 
@@ -489,62 +503,78 @@ namespace Aplos.Areas.Materials.Controllers
 
                             grnId = item["Id"].ToString();
 
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.IsEmptyCellAllowed = true;
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.AllowType = ExcelDataType.Decimal;
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.FirstFormula = "0";
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Length";
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxTitle = "Number Error";
-
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.IsEmptyCellAllowed = true;
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.AllowType = ExcelDataType.Decimal;
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.FirstFormula = "0";
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Weight";
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.ErrorBoxTitle = "Number Error";
-
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.IsEmptyCellAllowed = true;
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.AllowType = ExcelDataType.Decimal;
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.FirstFormula = "0";
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Qty";
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.ErrorBoxTitle = "Number Error";
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Supplier Qty";
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.ErrorBoxTitle = "Number Error";
 
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.IsEmptyCellAllowed = true;
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.AllowType = ExcelDataType.Decimal;
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.FirstFormula = "0";
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for ActualQty";
+                            sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Actual Qty";
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorBoxTitle = "Number Error";
+                                                     
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Cutable Weight";
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorBoxTitle = "Number Error";
 
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.IsEmptyCellAllowed = true;
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.AllowType = ExcelDataType.Decimal;
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.FirstFormula = "0";
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for InvoiceQty";
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.ErrorBoxTitle = "Number Error";
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Own GSM";
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.ErrorBoxTitle = "Number Error";
 
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Std.GSM";
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.ErrorBoxTitle = "Number Error";
+
+                            sheet1.Range[xlsRow, colColor, xlsRow, colColor].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colLotNo, xlsRow, colLotNo].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colShade, xlsRow, colShade].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colMarkarCode, xlsRow, colMarkarCode].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colFabricGroup, xlsRow, colFabricGroup].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colShrinkage, xlsRow, colShrinkage].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colQtyUoM, xlsRow, colQtyUoM].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFabricType, xlsRow, colFabricType].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFabricQuality, xlsRow, colFabricQuality].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplierRollNo, xlsRow, colSupplierRollNo].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colOwnRollNo, xlsRow, colOwnRollNo].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colBuyerRollNo, xlsRow, colBuyerRollNo].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colGrouping, xlsRow, colGrouping].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colRemarks, xlsRow, colRemarks].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colQtyUoM, xlsRow, colQtyUoM].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colGSMVariation, xlsRow, colGSMVariation].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colGSMVariationPer, xlsRow, colGSMVariationPer].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShade, xlsRow, colShade].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShrinkageLength, xlsRow, colShrinkageLength].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShrinkagewidth, xlsRow, colShrinkagewidth].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShrinkageGroup, xlsRow, colShrinkageGroup].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colDia, xlsRow, colDia].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colSupplierQualityGrade, xlsRow, colSupplierQualityGrade].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colQualityStatus, xlsRow, colQualityStatus].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFTPReportNo, xlsRow, colFTPReportNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFTPReceiveDate, xlsRow, colFTPReceiveDate].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFTPStatus, xlsRow, colFTPStatus].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colDimensionalChange3rdWash, xlsRow, colDimensionalChange3rdWash].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colSpirality3rdWash, xlsRow, colSpirality3rdWash].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colPillingResistance, xlsRow, colPillingResistance].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colBurstingStrength, xlsRow, colBurstingStrength].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colAbsorbency, xlsRow, colAbsorbency].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colpHValue, xlsRow, colpHValue].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colSewablity, xlsRow, colSewablity].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colHandfeel, xlsRow, colHandfeel].CellStyle.Locked = false;
 
                             xlsRow++;
 
@@ -565,62 +595,78 @@ namespace Aplos.Areas.Materials.Controllers
 
                             grnId = item["Id"].ToString();
 
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.IsEmptyCellAllowed = true;
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.AllowType = ExcelDataType.Decimal;
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.FirstFormula = "0";
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Length";
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].DataValidation.ErrorBoxTitle = "Number Error";
-
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.IsEmptyCellAllowed = true;
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.AllowType = ExcelDataType.Decimal;
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.FirstFormula = "0";
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Weight";
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].DataValidation.ErrorBoxTitle = "Number Error";
-
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.IsEmptyCellAllowed = true;
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.AllowType = ExcelDataType.Decimal;
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.FirstFormula = "0";
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Qty";
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].DataValidation.ErrorBoxTitle = "Number Error";
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Supplier Qty";
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].DataValidation.ErrorBoxTitle = "Number Error";
 
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.IsEmptyCellAllowed = true;
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.AllowType = ExcelDataType.Decimal;
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.FirstFormula = "0";
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for ActualQty";
+                            sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Actual Qty";
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorBoxTitle = "Number Error";
 
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.IsEmptyCellAllowed = true;
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.AllowType = ExcelDataType.Decimal;
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.FirstFormula = "0";
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for InvoiceQty";
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].DataValidation.ErrorBoxTitle = "Number Error";
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Cutable Weight";
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorBoxTitle = "Number Error";
 
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Own GSM";
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.ErrorBoxTitle = "Number Error";
+
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Std.GSM";
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].DataValidation.ErrorBoxTitle = "Number Error";
+
+                            sheet1.Range[xlsRow, colColor, xlsRow, colColor].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colLotNo, xlsRow, colLotNo].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colShade, xlsRow, colShade].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colMarkarCode, xlsRow, colMarkarCode].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colFabricGroup, xlsRow, colFabricGroup].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colLength, xlsRow, colLength].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colWeight, xlsRow, colWeight].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colShrinkage, xlsRow, colShrinkage].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colQty, xlsRow, colQty].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colQtyUoM, xlsRow, colQtyUoM].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colInvoiceQty, xlsRow, colInvoiceQty].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFabricType, xlsRow, colFabricType].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFabricQuality, xlsRow, colFabricQuality].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplierRollNo, xlsRow, colSupplierRollNo].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colOwnRollNo, xlsRow, colOwnRollNo].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colBuyerRollNo, xlsRow, colBuyerRollNo].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colGrouping, xlsRow, colGrouping].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colRemarks, xlsRow, colRemarks].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colQtyUoM, xlsRow, colQtyUoM].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colGSMVariation, xlsRow, colGSMVariation].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colGSMVariationPer, xlsRow, colGSMVariationPer].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShade, xlsRow, colShade].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShrinkageLength, xlsRow, colShrinkageLength].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShrinkagewidth, xlsRow, colShrinkagewidth].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShrinkageGroup, xlsRow, colShrinkageGroup].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colDia, xlsRow, colDia].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colSupplierQualityGrade, xlsRow, colSupplierQualityGrade].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colQualityStatus, xlsRow, colQualityStatus].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFTPReportNo, xlsRow, colFTPReportNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFTPReceiveDate, xlsRow, colFTPReceiveDate].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFTPStatus, xlsRow, colFTPStatus].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colDimensionalChange3rdWash, xlsRow, colDimensionalChange3rdWash].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colSpirality3rdWash, xlsRow, colSpirality3rdWash].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colPillingResistance, xlsRow, colPillingResistance].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colBurstingStrength, xlsRow, colBurstingStrength].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colAbsorbency, xlsRow, colAbsorbency].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colpHValue, xlsRow, colpHValue].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colSewablity, xlsRow, colSewablity].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colHandfeel, xlsRow, colHandfeel].CellStyle.Locked = false;
 
                             xlsRow++;
                         }
@@ -794,7 +840,7 @@ namespace Aplos.Areas.Materials.Controllers
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
                 //DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 18, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 34, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(Sequence,'')<>''";
                 dt = dt.DefaultView.ToTable();
                 //var pquom = "";
@@ -925,6 +971,99 @@ namespace Aplos.Areas.Materials.Controllers
 
         #endregion
 
+        #region upload Production Bulletin picture
+        [HttpPost, Authorize]
+
+        public ActionResult SaveFabricRollFileDefault(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
+        {
+            try
+            {
+                UploadDefault_data = UploadDefault_data.Replace("\"", "");
+                if (string.IsNullOrEmpty(UploadDefault_data))
+                    throw new Exception("Save the Fabric Roll.");
+
+                foreach (var file in UploadDefault)
+                {
+
+                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    //var fileName = Path.GetFileName(AdditionalData.Rows[0]["Id"].ToString() + new FileInfo(file.FileName).Extension);
+                    var fileN = file.FileName;
+                    var destinationPath = Path.Combine(ResourcesPathReader.GetFabricRollsFilePath(), fileName);
+
+                    var directory = ResourcesPathReader.GetFabricRollsFilePath();
+                    var path = Path.Combine(directory);
+
+                    if (System.IO.Directory.Exists(ResourcesPathReader.GetFabricRollsFilePath()) == false)
+                    {
+                        try
+                        {
+                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetFabricRollsFilePath());
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
+
+
+                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                    string sql = "select * from [BPDT].[FabricRollManagementMaster] where id='" + UploadDefault_data + "'";
+                    DataSet dsLocal = null;
+                    connection.BeginTransaction();
+                    connection.getDataSet(sql, out dsLocal);
+                    connection.CommitTransaction();
+                    var FN = dsLocal.Tables[0].Rows[0]["Attachment"].ToString();
+                    if (fileN != FN)
+                        if (System.IO.File.Exists(path + UploadDefault_data + Path.GetExtension(FN)))
+                            System.IO.File.Delete(path + UploadDefault_data + Path.GetExtension(FN));
+                    if (dsLocal.Tables[0].Rows.Count > 0)
+                    {
+                        dsLocal.Tables[0].Rows[0].BeginEdit();
+
+                        dsLocal.Tables[0].Rows[0]["Attachment"] = fileN;
+
+                        dsLocal.Tables[0].Rows[0].EndEdit();
+
+                        file.SaveAs(destinationPath);
+                        clsStaticInfo info = new clsStaticInfo();
+                        info.SaveDataSets(dsLocal);
+
+
+
+                    }
+                }
+                return Content("");
+            }
+            catch (Exception ex)
+            {
+                HttpResponse Response = System.Web.HttpContext.Current.Response;
+                Response.Clear();
+                Response.ContentType = "application/json; charset=utf-8";
+                Response.StatusCode = 204;
+                Response.Status = "204 No Content";
+                Response.StatusDescription = ex.Message;
+                Response.End();
+
+                return Content("");
+            }
+
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetFileInfo(string Id)
+        {
+
+            try
+            {
+                return Json(_sqlRepository.GetDataCollection("SELECT Attachment FROM [BPDT].[FabricRollManagementMaster] WHERE Id ='" + Id + "' "), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        #endregion upload product picture
     }
 
 
@@ -934,23 +1073,37 @@ namespace Aplos.Areas.Materials.Controllers
         public string Sequence { get; set; }
         public string GRNRowId { get; set; }
         public string LotNo { get; set; }
-        public string Shade { get; set; }
-        public string MarkarCode { get; set; }
-        public string FabricGroup { get; set; }
-        public string Length { get; set; }
-
-        public string Weight { get; set; }
-        public string Shrinkage { get; set; }
-        public string Qty { get; set; }
-        public string QtyUoM { get; set; }
-        public string ActualQty { get; set; }
-        public string InvoiceQty { get; set; }
-
+        public string Color { get; set; }
+        public string FabricType { get; set; }
+        public string FabricQuality { get; set; }
         public string SupplierRollNo { get; set; }
         public string OwnRollNo { get; set; }
-        public string BuyerRollNo { get; set; }
-        public string Grouping { get; set; }
-        public string Remarks { get; set; }
+        public string QtyUoM { get; set; }
+        public string SupplierQty { get; set; }
+        public string ActualQty { get; set; }
+        public string CutableWeight { get; set; }
+        public string OwnGSM { get; set; }
+        public string StdGSM { get; set; }
+        public string GSMVariation { get; set; }
+        public string GSMVariationPer { get; set; }
+        public string Shade { get; set; }
+        public string ShrinkageLengthWise { get; set; }
+        public string ShrinkageWidthWise { get; set; }
+        public string ShrinkageGroup { get; set; }
+        public string Dia { get; set; }
+        public string SupplierQualityGrade { get; set; }
+        public string QualityStatus { get; set; }
+        public string FTPReportNo { get; set; }
+        public string FTPReceiveDate { get; set; }
+        public string FTPStatus { get; set; }
+        public string DimensionalChange3rdWash { get; set; }
+        public string Spirality3rdWash { get; set; }
+        public string PillingResistance { get; set; }
+        public string BurstingStrength { get; set; }
+        public string Absorbency { get; set; }
+        public string pHValue { get; set; }
+        public string Sewablity { get; set; }
+        public string Handfeel { get; set; }
 
     }
 }

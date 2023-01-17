@@ -396,5 +396,34 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         #endregion Excel Report
+
+        #region Delete
+        public ActionResult RemoveParticular(string id)
+        {
+            try
+            {
+
+                string ret = mr.RemoveParticular(id);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+        #endregion
     }
 }

@@ -157,7 +157,7 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         $scope.indexGL = index;
         baseService.setCurrentPage("cOAICodeList");
         $scope.GetCOAICodeListData = function (pageno) {
-            baseService.paginationBase("Accounts/GLItem/GetExpenseGLBudgetActivity", pageno, $scope.glListParameters)
+            baseService.paginationBase("Accounts/GLItem/GetVendorInvoiceGLBudgetList", pageno, $scope.glListParameters)
                 .then(function (result) {
                     $scope.cOAICodeList = result.Rows;
                     $scope.glListParameters.total_count = result.Total;
@@ -205,12 +205,15 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
 
     };
 
-    $scope.VendorInvoiceReport = function (reportFormat, Id, SourceType, InventoryIssueId) {
+    $scope.VendorInvoiceReport = function (reportFormat, Id, SourceType, InventoryIssueId, InventoryReceiveId) {
         if (SourceType == 'VendorInvoice') {
             $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');
         }
         else if (SourceType == 'IssueJournal') {
             $window.open('Accounts/InventoryPayable/IssueJournalReport?reportFormat=' + reportFormat + '&inventoryIssueId=' + InventoryIssueId, '_blank');
+        }
+        else if (SourceType == 'InventoryPayable') {
+            $window.open('Accounts/InventoryPayable/PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + InventoryReceiveId + '&employeeId=null&isReversCharge=false&isFoc=false&otherVendorId=null', '_blank');
         }
         else if (SourceType == 'JournalVoucher') {
             $window.open('Accounts/Voucher/GetJournalVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');
