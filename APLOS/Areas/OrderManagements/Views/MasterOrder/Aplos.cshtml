@@ -372,21 +372,11 @@
 
                             </ul>
                             <ul class="list-inline text-right">
-                                <li>
-                                    <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button>
-                                </li>
-                                <li>
-                                    <button ng-click="removeMaster();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
-                                </li>
-                                @*
-                                    <li>
-                                    <button data-toggle="modal" data-target="#confirmMasterPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-                                <li>
-                                    <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
-                                </li>
+                                <li><button ng-click="Save();" ng-disabled="btndisable"  class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li><button ng-click="removeMaster();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
-
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
