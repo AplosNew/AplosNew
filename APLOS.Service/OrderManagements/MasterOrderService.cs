@@ -3840,7 +3840,7 @@ namespace Library.Service.OrderManagements
                                 ,IR.CompanyId
 								,p.UserName Customer
 								,Addres.Address1 VendorAddress
-								,HSNC.Code HSNCode
+								,ISNULL(HSNC.Code,MHSN.Code) HSNCode
                                 ,Plant.GSTIN 
                                 ,DPARTYPL.GSTIN ShipGSTIN
                                 ,INVPARTYPL.GSTIN BillGSTIN
@@ -3920,9 +3920,10 @@ namespace Library.Service.OrderManagements
 						 LEFT JOIN HKP.Party P ON P.Id=IR.PartyId
 						 LEFT JOIN [MST].[AddressMaster] Addres ON Addres.Id= P.AddressMasterId
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = MOI.MaterialMasterId
-						 	LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+						 	LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID=MM.HSNCodeId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = MOI.ArticleId
+						 	LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MMA.HSNCodeId
 
                          LEFT JOIN TRN.FirstCharacteristics AS SFC ON SO.Id = SFC.SalesOrderId
 						  LEFT JOIN HKP.Characteristics AS FC ON FC.Id = SFC.CharacteristicsId

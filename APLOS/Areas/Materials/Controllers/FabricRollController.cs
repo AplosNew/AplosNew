@@ -370,7 +370,8 @@ namespace Aplos.Areas.Materials.Controllers
                 //sheet1[xlsRow, xlsCol].Text = clsStaticInfo.SetDate(fabricRollMaster["PODate"].ToString());
                 if (fabricRollMaster["PODate"] != null)
                 {
-                    clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["PODate"]).ToString("dd-MMM-yyyy"));
+                    //clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["PODate"]).ToString("dd-MMM-yyyy"));
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PODate"].ToString();
                 }
                 xlsCol += 1;
 
@@ -398,19 +399,14 @@ namespace Aplos.Areas.Materials.Controllers
 
                 xlsCol += 1;
 
-                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Invoice No");
-                //if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["InvoiceNo"])))
-                //{
-                //    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["InvoiceNo"].ToString();
-                //}
-                xlsCol += 1;
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PI No");
-                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PINo"])))
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Invoice No");
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["InvoiceNo"])))
                 {
-                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PINo"].ToString();
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["InvoiceNo"].ToString();
                 }
-                xlsCol += 1;
+                //xlsCol += 1;
+
+               
 
                 xlsRow++; xlsCol = 1;
 
@@ -427,7 +423,12 @@ namespace Aplos.Areas.Materials.Controllers
                     sheet1[xlsRow, xlsCol].Text = fabricRollMaster["OpeningBank"].ToString();
                 }
                 xlsCol += 1;
-
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PI No");
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PINo"])))
+                {
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PINo"].ToString();
+                }
+                xlsCol += 1;
                 xlsRow = 6; xlsCol = 1;
                 int endXlsCol = 1;
 
@@ -1073,23 +1074,37 @@ namespace Aplos.Areas.Materials.Controllers
         public string Sequence { get; set; }
         public string GRNRowId { get; set; }
         public string LotNo { get; set; }
-        public string Shade { get; set; }
-        public string MarkarCode { get; set; }
-        public string FabricGroup { get; set; }
-        public string Length { get; set; }
-
-        public string Weight { get; set; }
-        public string Shrinkage { get; set; }
-        public string Qty { get; set; }
-        public string QtyUoM { get; set; }
-        public string ActualQty { get; set; }
-        public string InvoiceQty { get; set; }
-
+        public string Color { get; set; }
+        public string FabricType { get; set; }
+        public string FabricQuality { get; set; }
         public string SupplierRollNo { get; set; }
         public string OwnRollNo { get; set; }
-        public string BuyerRollNo { get; set; }
-        public string Grouping { get; set; }
-        public string Remarks { get; set; }
+        public string QtyUoM { get; set; }
+        public string SupplierQty { get; set; }
+        public string ActualQty { get; set; }
+        public string CutableWeight { get; set; }
+        public string OwnGSM { get; set; }
+        public string StdGSM { get; set; }
+        public string GSMVariation { get; set; }
+        public string GSMVariationPer { get; set; }
+        public string Shade { get; set; }
+        public string ShrinkageLengthWise { get; set; }
+        public string ShrinkageWidthWise { get; set; }
+        public string ShrinkageGroup { get; set; }
+        public string Dia { get; set; }
+        public string SupplierQualityGrade { get; set; }
+        public string QualityStatus { get; set; }
+        public string FTPReportNo { get; set; }
+        public string FTPReceiveDate { get; set; }
+        public string FTPStatus { get; set; }
+        public string DimensionalChange3rdWash { get; set; }
+        public string Spirality3rdWash { get; set; }
+        public string PillingResistance { get; set; }
+        public string BurstingStrength { get; set; }
+        public string Absorbency { get; set; }
+        public string pHValue { get; set; }
+        public string Sewablity { get; set; }
+        public string Handfeel { get; set; }
 
     }
 }
