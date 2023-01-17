@@ -633,8 +633,8 @@ namespace Aplos.Areas.Products.Controllers
 
 								worksheet[ROW, colNetAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["NetAmount"].ToString());
 								worksheet.Range[ROW, colNetAmount].NumberFormat = NumberFormatTwoDecimal;
-								//worksheet[ROW, colCurrency].Text = dtInventorySalesReportList.Rows[i]["Currency"].ToString();
-								worksheet[ROW, colDestinationName].Text = dtInventorySalesReportList.Rows[i]["DestinationName"].ToString();
+                                worksheet[ROW, colCurrency].Text = dtInventorySalesReportList.Rows[i]["Currency"].ToString();
+                                worksheet[ROW, colDestinationName].Text = dtInventorySalesReportList.Rows[i]["DestinationName"].ToString();
 
 								worksheet[ROW, colBuyRef].Text = dtInventorySalesReportList.Rows[i]["BuyerRefNo"].ToString();
 								worksheet[ROW, colProdDetail].Text = dtInventorySalesReportList.Rows[i]["PordDertails"].ToString();

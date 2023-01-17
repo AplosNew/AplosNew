@@ -3955,7 +3955,7 @@ namespace Library.MaterialManagement.Reports
                                 ,IR.CompanyId
 								,p.UserName Customer
 								,Addres.Address1 VendorAddress
-								,HSNC.Code HSNCode
+								,ISNULL(HSNC.Code,MHSN.Code) HSNCode
                                 ,Plant.GSTIN 
                                 ,DPARTYPL.GSTIN ShipGSTIN
                                 ,INVPARTYPL.GSTIN BillGSTIN
@@ -4055,6 +4055,7 @@ namespace Library.MaterialManagement.Reports
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+						 	LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID=MM.HSNCodeId
 						 	LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
                          LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
@@ -4091,7 +4092,7 @@ namespace Library.MaterialManagement.Reports
 								,P.TINNO CustomerGSTNo
 								,p.VATResistrationNo as CustomerPANNo
 								,Addres.Address1 VendorAddress
-								,HSNC.Code HSNCode
+								,ISNULL(HSNC.Code,MHSN.Code) HSNCode
                                 ,Plant.GSTIN 
 								,Plant.VATResistrationNo as PlantPANNo
                                 ,DPARTYPL.GSTIN ShipGSTIN
@@ -4210,7 +4211,8 @@ namespace Library.MaterialManagement.Reports
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
-						 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MMA.HSNCodeId
+						 LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID=MM.HSNCodeId
+						 	LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
                          LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
                          LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
@@ -4283,171 +4285,7 @@ namespace Library.MaterialManagement.Reports
             string strSQL;
             try
             {
-                //          strSQL = @"SELECT IR.Id CustomerNo,IRD.Id SalesMaterialId
-                //		,IR.CompanyGroupId
-                //                          ,IR.CompanyId,CRNC.Code
-                //		,p.UserName Customer
-                //                          ,P.UserName Buyer
-                //		,ir.CurrencyId
-                //		,cmp.BaseCurrencyId
-                //		,P.TINNO CustomerGSTNo
-                //		,p.VATResistrationNo as CustomerPANNo
-                //		,Addres.Address1 VendorAddress
-                //		,HSNC.Code HSNCode
-                //                          ,Plant.GSTIN 
-                //		,Plant.VATResistrationNo as PlantPANNo
-                //                          ,DPARTYPL.GSTIN ShipGSTIN
-                //                          ,INVPARTYPL.GSTIN BillGSTIN
-                //		,IR.DocRefNo   
-                //                       ,IR.InvoiceNo
-                //                          ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS DocDate
-                //                          ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate
-                //                          ,REPLACE(Convert(VARCHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
-                //                          ,REPLACE(Convert(VARCHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
-                //                    ,IR.InvoicingPartyPlantId
-                //                    ,INVPARTYPL.UserName InvoiceParty
-                //                          ,INVPARTYPL.UserName InvoiceParty2
-                //                    ,IR.InvoicingByAddress as ConsigneeAddress
-                //                    ,IR.DeliveryByAddress
-                //                    ,DPARTYPL.UserName DeliveryParty
-                //                    ,IR.DeliveryPartyPlantId	
-                //                    ,IRD.MaterialMasterId
-                //		,PSI.PreCarriageBy
-                //		,PSI.PlaceOfReceiptByPreCarriage
-                //		,PSI.CNFContainerNo
-                //		,PSI.CNFVesselName
-                //		,PSI.CNFVesselTrackingNo 	
-                //                          ,LC.LcNo,LC.BenificiaryBank,LC.OpeningBank
-                //		,FORMAT(LC.LCDate,'dd-MMM-yyyy')LCDate
-                //                          ,LC.BenificiaryBankDescription
-                //                          ,LC.OpeningBankAddress
-                //		,D.UserName as FinalDestination
-                //		,PL.UserName as PortOfLanding
-                //		,PD.UserName as PortOfDischarge
-                //		,PoD.UserName as PortOfDelivery	                       
-                //                       ,CRNC.Code AS CurrencyName
-                //                       ,IR.ToCurrencyRate
-                //                    ,BASECRNC.Code AS BaseCurrencyName
-                //                    ,PayTerm.UserName PaymentTerm
-                //                     ,MM.UserName MaterialMaster
-                //                     ,MM.MaterialGroupMasterId
-                //                     ,MGM.UserName MaterialGroupMaster
-                //                     ,MMA.StandardName Article
-                //                     ,FC.UserName FirstChar
-                //                     ,FCV.UserName AS FirstCharacteristicsValue
-                //                     ,SCV.UserName AS SecondCharacteristicsValue
-                //                     ,TCV.UserName AS ThirdCharacteristicsValue
-                //                     ,SC.UserName SecondChar
-                //                     ,TC.UserName ThirdChar
-                //                     ,ROUND(IRD.TransactionQty, 2) POTransactionQty
-                //                     ,ROUND(IRD.TransactionRate, 4) TransactionRate
-                //                     ,ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) AS TrnAmount 
-                //                     ,IRD.BaseAmount
-                //                     ,IRD.TaxAmount AS BaseTaxAmount
-                //                     ,TaxAmount = (
-                //                        SELECT SUM(TaxAmount)
-                //                        FROM [TRN].[PurchaseOrderTax]
-                //                        WHERE InventoryReceiveDetailId = IRD.Id
-                //                        )
-                //                     ,ServiceTaxAmount = (
-                //                        SELECT SUM(TaxAmount)
-                //                        FROM [TRN].[SalesService]
-                //                        WHERE SalesId = IRD.Id
-                //                        )
-                //                     ,TUoM.UserName AS TransactionUoM
-                //	  ,PONumber=REPLACE(REPLACE(
-                //				STUFF((select distinct ', '+CPO.PONumber FROM 
-                //                                  TRN.SalesMaterial SM
-                //				JOIN TRN.SalesOrder SO ON SO.Id=SM.SalesOrderId
-                //				JOIN TRN.CustomerPO CPO ON CPO.id=SO.CustomerPOId
-                //                                  WHERE IR.Id=SM.SalesId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                //				,'&amp;','&'), 'amp;', '')
-                //	  ,OurOrderRefNo=REPLACE(REPLACE(
-                //				STUFF((select distinct ', '+MO.OwnReferenceNo FROM 
-                //                                  TRN.SalesOrderItem SOI
-                //				JOIN TRN.MasterOrder MO ON MO.Id=SOI.MasterOrderId
-                //                                  WHERE IR.Id=SOI.SalesId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                //				,'&amp;','&'), 'amp;', '')
-                //	,YourOrderRefNo=REPLACE(REPLACE(
-                //				STUFF((select distinct ', '+MO.BuyerReferenceNo FROM 
-                //                                  TRN.SalesOrderItem SOI
-                //				JOIN TRN.MasterOrder MO ON MO.Id=SOI.MasterOrderId
-                //                                  WHERE IR.Id=SOI.SalesId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                //				,'&amp;','&'), 'amp;', '')
-                //				,AddedDate=REPLACE(REPLACE(
-                //				STUFF((select distinct ', '+FORMAT(MO.AddedDate,'dd-MMM-yyyy') FROM 
-                //                                  TRN.SalesOrderItem SOI
-                //				JOIN TRN.MasterOrder MO ON MO.Id=SOI.MasterOrderId
-                //                                  WHERE IR.Id=SOI.SalesId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                //				,'&amp;','&'), 'amp;', '')
-                //                          ,IR.ComercialInvoiceNo,IR.BLNumber,FORMAT(IR.BLDate,'dd-MMM-yyyy')BLDate,
-                //		IR.EXPFromNo,FORMAT(IR.EXPDate,'dd-MMM-yyyy')EXPDate,IR.ItemDescription
-                //		,PSI.TransportVehicleNo,PSI.TransportDriverName,PPSI.UserName TransporterName,BM.AccountTitle,BM.AccountNumber
-                //		,BMA.Address1,PSI.TransportDocRefNo,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') CNFBLAWBDate
-                //		,B.UserName as Bank,BB.UserName as BankBranch
-                //		,IRD.BooksCurrencyTransactionAmount
-                //		,IRD.BooksCurrencyTaxAmount
-                //		,IRD.BooksCurrencyBaseRate, 
-                //(Select Stuff((
-                //Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
-                //from dbo.ProductLibraryAttribute pla
-                //where pla.ProductLibraryId = sp.ProductLibraryId
-                //for XML PATH('')
-                //) , 1, 2, '')) as ProdDetails
-
-                //                  FROM TRN.Sales IR
-                //                   LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
-                //                   LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
-                //                   LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
-
-                // LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId=IR.Id
-                //    LEFT JOIN MST.[Port] as PL on PL.Id= PSI.PortOfLoadingId
-                // LEFT JOIN MST.[Port] as PD on PD.Id= PSI.PortOfDischargeId
-                // LEFT JOIN MST.[Port] as PoD on PoD.Id= PSI.PortOfDelivaryId
-                // LEFT JOIN MST.Destination as D on D.Id= PSI.FinalDestinationId
-
-
-                //                   LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
-                //                   LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = cmp.BaseCurrencyId
-                //                   LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
-                //                   LEFT JOIN HKP.PartyPlant  INVPARTYPL ON INVPARTYPL.Id = IR.InvoicingPartyPlantId
-                //                   LEFT JOIN HKP.PartyPlant  DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId 
-                // LEFT JOIN HKP.Party P ON P.Id=IR.PartyId
-                // LEFT JOIN [MST].[AddressMaster] Addres ON Addres.Id= P.AddressMasterId
-                //                   LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
-                //                   LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
-                // LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
-                //                   LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
-                //                   LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
-                //                   LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
-                //                   LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
-                //                   LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
-                //                   LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId = FCV.Id
-                //                   LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = SCV.Id
-                //                   LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
-                //                   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
-                // LEFT JOIN HKP.Party PPSI ON PPSI.Id=PSI.TransportAgentId
-                // LEFT JOIN MST.BankMaster BM ON BM.Id=PSI.BankMasterId
-                // LEFT JOIN HKP.Bank B ON B.Id=BM.BankId
-                // LEFT JOIN HKP.BankBranch BB ON BB.BankId=BM.BankId And BB.Id=BM.BankBranchId
-                // LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id= BB.AddressMasterId
-                //                   LEFT JOIN (
-                // select distinct
-                // PLC.LCRef as LcNo,PLC.LCDate,PLC.BenificiaryBank,PLC.BenificiaryBankDescription 
-                // ,B.UserName OpeningBank,SOI.SalesId
-                // ,OA.Address1 OpeningBankAddress
-                // from trn.SalesOrderItem as SOI
-                // LEFT JOIN TRN.MasterOrderItem  MOI on MOI.Id=SOI.MasterOrderItemId
-                // LEFT JOIN dbo.[Contract]  C on c.Id = MOI.ContractId
-                // LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId=C.Id						
-                // LEFT JOIN  MST.BankMaster OB on OB.Id=PLC.OpeningBankMasterId
-                // LEFT JOIN  HKP.Bank B on B.Id=OB.BankId
-                // LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
-
-                // ) LC on LC.SalesId=IR.Id
-                //                      left join dbo.SalesPacking sp on sp.SalesId = IR.Id
-
-                //                    WHERE IR.Id ='" + SalesId + "'";
+               
 
                 strSQL = @"SELECT IR.Id CustomerNo, IRD.Id SalesMaterialId
                                  , IR.CompanyGroupId
@@ -4459,7 +4297,7 @@ namespace Library.MaterialManagement.Reports
 								,P.TINNO CustomerGSTNo
                                 , p.VATResistrationNo as CustomerPANNo
 								,Addres.Address1 VendorAddress
-                                , HSNC.Code HSNCode
+                                , ISNULL(HSNC.Code,MHSN.Code) HSNCode
                                  , Plant.GSTIN
 								,Plant.VATResistrationNo as PlantPANNo
                                 ,DPARTYPL.GSTIN ShipGSTIN
@@ -4590,6 +4428,7 @@ namespace Library.MaterialManagement.Reports
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+                         LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
                          LEFT JOIN[HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
                          LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
@@ -4647,7 +4486,7 @@ namespace Library.MaterialManagement.Reports
 	,P.TINNO CustomerGSTNo
 	,p.VATResistrationNo AS CustomerPANNo
 	,Addres.Address1 VendorAddress
-	,HSNC.Code HSNCode
+	,ISNULL(HSNC.Code,MHSN.Code) HSNCode
 	,Plant.GSTIN
 	,Plant.VATResistrationNo AS PlantPANNo
 	,DPARTYPL.GSTIN ShipGSTIN
@@ -4787,6 +4626,7 @@ LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
 LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
 LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
 LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
 LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
@@ -4832,7 +4672,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
 								,P.TINNO CustomerGSTNo
                                 , p.VATResistrationNo as CustomerPANNo
 								,Addres.Address1 VendorAddress
-                                , HSNC.Code HSNCode
+                                , ISNULL(HSNC.Code,MHSN.Code) HSNCode
                                  , Plant.GSTIN
 								,Plant.VATResistrationNo as PlantPANNo
                                 ,DPARTYPL.GSTIN ShipGSTIN
@@ -4961,9 +4801,10 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
-                         LEFT JOIN[HKP].[HSNCode] AS HSNC ON HSNC.ID = MM.HSNCodeId
+                         LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+                         LEFT JOIN[HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
                          LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
                          LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
