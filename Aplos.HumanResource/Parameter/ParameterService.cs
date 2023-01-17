@@ -296,35 +296,7 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
             _sqlRepository = new SqlRepository();
         }
 
-        #region HEADER
-        public IEnumerable<object> getResponsiblePerson()
-        {
-            try
-            {                
-                string str = @"select EMP.SystemId EmpSystemId, EMP.EmployeeCode, EMP.EmployeeName, FORMAT(EMP.DOJ, 'dd-MMM-yyyy') DOJ, EC.UserName EmployeeCategory, DP.UserName Department
-                               ,SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation, LDSG.UserName LegalDesignation, UN.UserName as Entity
-                                from EmployeeInformation EMP
-                                LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
-                                LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
-                                left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
-                                left join ORG.Entity UN on UN.Id = MBGT.EntityId
-                                left join ORG.Department DP on DP.ID = POS.DepartmentId
-                                left join ORG.Section SC on SC.Id = POS.SectionId
-                                left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
-                                LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
-                                LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
-                                LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
-                                left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
-                                left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
-                                where EMP.EmployeeStatus = 'Active'";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
+        #region HEADER        
         #region Save
         public Dictionary<string, object> Save(Dictionary<string, object> datas)
         {
@@ -388,7 +360,8 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableNameHead, out _Id);
 
-                    parameter["ParameterSetupId"] = headerid + '-' +_Id;
+                    parameter["Id"] = _Id;
+                    parameter["ParameterSetupId"] = headerid;
 
                     AddNewRow(dsMaster.Tables[0], parameter);
                 }
@@ -462,7 +435,7 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
         {
             try
             {
-                string TableName = "MST.ProductParameter";
+                string TableName = "[MST].[ParameterProduct]";
 
                 DataSet dsChild;
 
@@ -515,7 +488,7 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
         {
             try
             {
-                string TableName = "MST.WorkcenterParameter";
+                string TableName = "MST.ParameterWorkcenter";
 
                 DataSet dsChild;
 
@@ -568,6 +541,34 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
         #endregion  HEADER
 
         #region GET
+        public IEnumerable<object> getResponsiblePerson()
+        {
+            try
+            {
+                string str = @"select EMP.SystemId EmpSystemId, EMP.EmployeeCode, EMP.EmployeeName, FORMAT(EMP.DOJ, 'dd-MMM-yyyy') DOJ, EC.UserName EmployeeCategory, DP.UserName Department
+                               ,SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation, LDSG.UserName LegalDesignation, UN.UserName as Entity
+                                from EmployeeInformation EMP
+                                LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+                                LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                                left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                                left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                                left join ORG.Department DP on DP.ID = POS.DepartmentId
+                                left join ORG.Section SC on SC.Id = POS.SectionId
+                                left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                                LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+                                LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                                LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+                                left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                                left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
+                                where EMP.EmployeeStatus = 'Active'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> Get(string Id)
         {
             try
@@ -587,13 +588,10 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
         {
             try
             {
-                var sql = @"select PC.*, PM.UserName ParameterMaster, P.UserName Process, MM.UserName MachineMaster, UOM.UserName UOMName 
-from TRN.ParameterChild PC
-left join HKP.ParameterMaster PM on PM.Id = PC.ParameterId
-left join HKP.Process P on P.Id = PC.ProcessId
-left join MST.MachineMaster MM on MM.Id = PC.MachineMasterId
-left join SCS.UnitOfMeasurement UOM on UOM.Id = PC.UOMId
-order by Id DESC";
+                var sql = @"select PS.*, EI.EmployeeCode, EmployeeName, MBGT.Code BudgetCode from
+HKP.ParameterSetup PS
+left join EmployeeInformation EI on EI.SystemId = PS.EmpSystemId
+left join MST.ManpowerBudget MBGT on MBGT.Id = PS.BudgetCodeId";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -656,7 +654,119 @@ where WM.Active = 1";
 
         }
 
+        public IEnumerable<object> GetSavedProduct(string headerid)
+        {
+            try
+            {
+                var sql = @"SELECT PP.Id, ps.UserName [ParameterSetup], PM.UserName Product, PC.UserName Category, PSC.UserName [SubCategory] FROM MST.ParameterProduct PP
+LEFT JOIN HKP.ParameterSetup PS ON PS.Id = PP.ParameterSetupId
+LEFT JOIN MST.ProductMaster PM on PM.Id = PP.ProductMasterId
+LEFT JOIN HKP.ProductCategory PC on PM.ProductCategoryId = PC.Id
+LEFT JOIN HKP.ProductSubCategory PSC on PSC.Id = PM.ProductSubCategoryId
+where PS.Id = '"+ headerid + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public IEnumerable<object> GetSavedWorkcenter(string headerid)
+        {
+            try
+            {
+                var sql = @"select PW.Id, PS.UserName [ParameterSetup],WM.UserName Workcenter, WC.UserName Category, WSC.UserName [SubCategory] from MST.ParameterWorkcenter PW
+LEFT JOIN HKP.ParameterSetup PS ON PS.Id = PW.ParameterSetupId
+left join SCS.WorkCenterMaster WM on WM.Id = PW.WorkcenterId
+left join HKP.WorkCenterCategory WC on WC.Id = WM.WorkCenterCategoryId
+left join HKP.WorkCenterSubCategory WSC on WSC.Id = WM.WorkCenterSubcategoryId
+where PS.Id = '" + headerid + "'"; 
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public IEnumerable<object> GetSavedParameterChild(string headerid)
+        {
+            try
+            {
+                var sql = @"select PC.*, P.UserName Process, MM.UserName Machine,PM.UserName Parameter, PCG.UserName ProcessCategory, PC.CriticalLevel, PC.CheckinPeriod, PC.CheckinFrequency, PC.CheckinDays, PC.AuditingDays
+,UOM.UserName UOMName 
+from TRN.ParameterChild PC
+left join HKP.ParameterSetup PS on PS.Id = PC.ParameterSetupId
+left join HKP.Process P on P.Id = PC.ProcessId
+left join HKP.ParameterMaster PM on PM.Id = PC.ParameterId
+left join MST.MachineMaster MM on MM.Id = PC.MachineMasterId
+left join HKP.ProcessCategory PCG on PCG.Id = PC.ProcessCategory
+left join SCS.UnitOfMeasurement UOM ON UOM.Id = PC.UOMId
+where PS.Id = '" + headerid + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         #endregion GET
+
+        #region Delete
+        public string RemoveProduct(string productid)
+        {
+            try
+            {
+
+                string TableName = "MST.ParameterProduct";
+                if (string.IsNullOrEmpty(productid))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + productid + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
+        public string RemoveWorkcenter(string workcenterid)
+        {
+            try
+            {
+
+                string TableName = "MST.ParameterWorkcenter";
+                if (string.IsNullOrEmpty(workcenterid))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + workcenterid + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion Delete
 
         #region SEARCH SAVED DATA IN GRID 
         public IEnumerable<object> GetList(string column, string value)
@@ -681,8 +791,6 @@ where WM.Active = 1";
             }
         }
         #endregion SEARCH SAVED DATA IN GRID
-
-        
 
         #region Update
         public Dictionary<string, object> Update(Dictionary<string, object> data)
@@ -729,33 +837,6 @@ where WM.Active = 1";
             }
         }
         #endregion Update
-
-        #region DELETE
-        public string Delete(string id)
-        {
-            try
-            {
-
-                string TableName = "TRN.ParameterChild";
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                con.CommitTransaction();
-
-                return "Success";
-
-            }
-            catch (Exception ex)
-            {
-
-                return ex.Message;
-
-            }
-        }
-        #endregion DELETE
 
         #region CREATE AND EDIT DEFAULT COLUMN
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
