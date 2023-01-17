@@ -1111,7 +1111,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
     $scope.onBeginPBUpload = function (args) {
         try {
-            if (angular.isUndefinedOrNull($scope.ModelNew.Id))
+            if (angular.isUndefinedOrNull($scope.fabricRollMaster.Id))
                 throw 'Please select/save the Fabric Roll first'
 
             args.data = $scope.fabricRollMaster.Id;
@@ -1150,8 +1150,8 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.errorPBPicUpload = function (e) {
         if (angular.isUndefinedOrNull($scope.fabricRollMaster.Id))
             ShowResult('Please select/save GRN No first', 'Error');
-        else
-            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+        //else
+        //    ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
 
     //#endregion Meeting Points Picture upload

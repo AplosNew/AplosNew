@@ -399,7 +399,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                 xlsCol += 1;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Invoice No");
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Invoice No"); xlsCol++;
                 if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["InvoiceNo"])))
                 {
                     sheet1[xlsRow, xlsCol].Text = fabricRollMaster["InvoiceNo"].ToString();
@@ -454,21 +454,21 @@ namespace Aplos.Areas.Materials.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnGSM"); colOwnGSM = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "StdGSM"); colStdGSM = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariation"); colGSMVariation = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariationPer"); colGSMVariationPer = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariationPer",16); colGSMVariationPer = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); colShade = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageLengthWise"); colShrinkageLength = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageLengthWise",16); colShrinkageLength = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageWidthWise"); colShrinkagewidth = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageGroup"); colShrinkageGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Dia"); colDia = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQualityGrade"); colSupplierQualityGrade = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQualityGrade",14); colSupplierQualityGrade = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QualityStatus"); colQualityStatus = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReportNo"); colFTPReportNo = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReceiveDate"); colFTPReceiveDate = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPStatus"); colFTPStatus = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DimensionalChange3rdWash"); colDimensionalChange3rdWash = xlsCol; xlsCol += 1;                
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Spirality3rdWash"); colSpirality3rdWash = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PillingResistance"); colPillingResistance = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BurstingStrength"); colBurstingStrength = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DimensionalChange3rdWash",11); colDimensionalChange3rdWash = xlsCol; xlsCol += 1;                
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Spirality3rdWash",16); colSpirality3rdWash = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PillingResistance",16); colPillingResistance = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BurstingStrength",16); colBurstingStrength = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Absorbency"); colAbsorbency = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "pHValue"); colpHValue = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sewablity"); colSewablity = xlsCol; xlsCol += 1;
@@ -978,16 +978,15 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                UploadDefault_data = UploadDefault_data.Replace("\\", "");
-
-                DataTable AdditionalData = CustomJsonResult.ToDataTable(UploadDefault_data);
-
+                UploadDefault_data = UploadDefault_data.Replace("\"", "");
+                if (string.IsNullOrEmpty(UploadDefault_data))
+                    throw new Exception("Save the Fabric Roll.");
 
                 foreach (var file in UploadDefault)
                 {
 
-                    //var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
-                    var fileName = Path.GetFileName(AdditionalData.Rows[0]["Id"].ToString() + new FileInfo(file.FileName).Extension);
+                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    //var fileName = Path.GetFileName(AdditionalData.Rows[0]["Id"].ToString() + new FileInfo(file.FileName).Extension);
                     var fileN = file.FileName;
                     var destinationPath = Path.Combine(ResourcesPathReader.GetFabricRollsFilePath(), fileName);
 
@@ -1008,15 +1007,15 @@ namespace Aplos.Areas.Materials.Controllers
 
 
                     ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
-                    string sql = "select * from [BPDT].[FabricRollManagementMaster] where id='" + AdditionalData.Rows[0]["Id"].ToString() + "'";
+                    string sql = "select * from [BPDT].[FabricRollManagementMaster] where id='" + UploadDefault_data + "'";
                     DataSet dsLocal = null;
                     connection.BeginTransaction();
                     connection.getDataSet(sql, out dsLocal);
                     connection.CommitTransaction();
                     var FN = dsLocal.Tables[0].Rows[0]["Attachment"].ToString();
                     if (fileN != FN)
-                        if (System.IO.File.Exists(path + AdditionalData.Rows[0]["Id"].ToString() + Path.GetExtension(FN)))
-                            System.IO.File.Delete(path + AdditionalData.Rows[0]["Id"].ToString() + Path.GetExtension(FN));
+                        if (System.IO.File.Exists(path + UploadDefault_data + Path.GetExtension(FN)))
+                            System.IO.File.Delete(path + UploadDefault_data + Path.GetExtension(FN));
                     if (dsLocal.Tables[0].Rows.Count > 0)
                     {
                         dsLocal.Tables[0].Rows[0].BeginEdit();
