@@ -1518,7 +1518,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
         //ClearFields();
         $scope.productId = Id;
-        $scope.Action = 'Update';
+        //$scope.Action = 'Update';
         $scope.ActionForEdit = 'Update';
         $scope.POId1 = x.data.POID;
         $scope.POID = x.data.POID;

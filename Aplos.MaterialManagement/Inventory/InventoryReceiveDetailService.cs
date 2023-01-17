@@ -982,22 +982,29 @@ namespace Library.MaterialManagement.Inventory
                 _unitOfWork.BeginTransaction();
 
                 flag = true;
-                entity.Id = null;
                 entity.GRNType = GRNType;
-                _inventoryReceiveService.Insert(entity);
-                if (entity.PurchaseDocumentAcceptanceId != null)
+                if (entity.Id == null)
                 {
-                    var GRNAcceptance = new GRNAcceptanceMap
+                    _inventoryReceiveService.Insert(entity);
+                    if (entity.PurchaseDocumentAcceptanceId != null)
                     {
-                        Id = base.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
-                        GRNId = entity.Id,
-                        PurchaseDocumentAcceptanceId = entity.PurchaseDocumentAcceptanceId,
-                        //Qty = receiveDetail.TransactionQty
-                    };
-                    AuditService.AddedLog(GRNAcceptance);
-                    _GRNAcceptanceMapRepository.Insert(GRNAcceptance);
-
+                        var GRNAcceptance = new GRNAcceptanceMap
+                        {
+                            Id = base.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                            GRNId = entity.Id,
+                            PurchaseDocumentAcceptanceId = entity.PurchaseDocumentAcceptanceId,
+                            //Qty = receiveDetail.TransactionQty
+                        };
+                        AuditService.AddedLog(GRNAcceptance);
+                        _GRNAcceptanceMapRepository.Insert(GRNAcceptance);
+                    }
                 }
+                else
+                {
+                    AuditService.UpdatedLog(entity);
+                    _inventoryReceiveService.Update(entity);
+                }
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var currentId1 = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail]  WHERE InventoryReceiveId ='{entity.Id}'").First();
                 var Temppodetailid = "";
@@ -1505,22 +1512,30 @@ namespace Library.MaterialManagement.Inventory
                 _unitOfWork.BeginTransaction();
 
                 flag = true;
-                entity.Id = null;
                 entity.GRNType = GRNType;
-                _inventoryReceiveService.Insert(entity);
-                if (entity.PurchaseDocumentAcceptanceId != null)
+                if (string.IsNullOrEmpty(entity.Id))
                 {
-                    var GRNAcceptance = new GRNAcceptanceMap
+                    _inventoryReceiveService.Insert(entity);
+                    if (entity.PurchaseDocumentAcceptanceId != null)
                     {
-                        Id = base.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
-                        GRNId = entity.Id,
-                        PurchaseDocumentAcceptanceId = entity.PurchaseDocumentAcceptanceId,
-                        //Qty = receiveDetail.TransactionQty
-                    };
-                    AuditService.AddedLog(GRNAcceptance);
-                    _GRNAcceptanceMapRepository.Insert(GRNAcceptance);
+                        var GRNAcceptance = new GRNAcceptanceMap
+                        {
+                            Id = base.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                            GRNId = entity.Id,
+                            PurchaseDocumentAcceptanceId = entity.PurchaseDocumentAcceptanceId,
+                            //Qty = receiveDetail.TransactionQty
+                        };
+                        AuditService.AddedLog(GRNAcceptance);
+                        _GRNAcceptanceMapRepository.Insert(GRNAcceptance);
+
+                    }
+                }
+                else
+                {
+                    _inventoryReceiveService.Update(entity);
 
                 }
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var currentId1 = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail]  WHERE InventoryReceiveId ='{entity.Id}'").First();
                 var Temppodetailid = "";
@@ -1654,6 +1669,7 @@ namespace Library.MaterialManagement.Inventory
                             itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
                             itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
                             itemDetail.TotalTaxAmount = itemDetail.BaseTaxAmount;
+                            itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
                             itemDetail.TotalMaterialBooksCurrencyAmount = itemDetail.TrnAmount * itemDetail.ToCurrencyRate;
                             itemDetail.TrnCurrencyBaseRate = itemDetail.TotalMaterialTranAmount / itemDetail.BaseQty;
                             itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
@@ -8352,6 +8368,7 @@ namespace Library.MaterialManagement.Inventory
                     {
                         PODetailData.GRNRcvQty = Convert.ToDecimal(((PODetailData.GRNRcvQty - data.GRNQty)));
                         PODetailData.QtyStatus = PODetailData.TransactionQty == PODetailData.GRNRcvQty;
+                        AuditService.UpdatedLog(PODetailData);
                         _poDetailRepository.Update(PODetailData);
                     }
 
