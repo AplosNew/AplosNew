@@ -1424,7 +1424,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     $scope.serviceChargePopUp = function () {
         if ($scope.Action === 'Update') {
             $scope.productNew.TaxOptionService1 = 'Yes';
-            if (baseService.arrayLength($scope.inventoryMaterialList) === 0)
+            if ($scope.inventoryMaterialList.length==0)
                 return ShowResult('Without material charges not aplicable.');
             $scope.serviceModel = {
                 Id: null
@@ -1443,7 +1443,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             angular.element(document.querySelector('#serviceChargePopUp')).modal('show');
         }
         else {
-            if (baseService.arrayLength($scope.inventoryMaterialListPO) === 0)
+            if ($scope.inventoryMaterialList.length === 0)
                 return ShowResult('Without material charges not aplicable.');
             $scope.serviceModel = {
                 Id: null
