@@ -814,7 +814,14 @@ namespace Library.Accounting.Accounts
                             rdBuilder.Append(builderSql);
                             _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                         }
-                       
+                        if (voucherDetailVM.SourceType == "InventoryPayable")
+                        {
+                            var rdBuilder = new System.Text.StringBuilder();
+                            var builderSql = @"UPDATE ID SET ID.PostDrGLGeneralInfoId='" + voucherDetailVM.GLGeneralInfoId + "' , ID.PostDrBudgetMasterId='" + voucherDetailVM.BudgetMasterId + "' , ID.PostDrActivityId='" + voucherDetailVM.ActivityId + "'  FROM TRN.InventoryReceiveDetail  ID INNER JOIN TRN.InventoryReceive I ON I.Id=ID.InventoryReceiveId WHERE I.VoucherId='" + voucherDetailVM.VoucherId + "' AND ID.PostDrGLGeneralInfoId='" + OldGLGeneralInfoId + "' AND ID.PostDrBudgetMasterId='" + OldBudgetMasterId + "' AND ID.PostDrActivityId='" + OldActivityId + "'";
+                            rdBuilder.Append(builderSql);
+                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                        }
+
                     }
                 }
 
@@ -1255,15 +1262,16 @@ V.Id,FORMAT (V.VoucherDate,'dd-MMM-yyyy') VoucherDate,FORMAT (V.PostingDate,'dd-
 , V.CurrencyId,FORMAT (V.DocDate,'dd-MMM-yyyy') DocDate, V.EntityId,
 C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,e.UserName Entity,V.SourceType
 ,CASE WHEN  II.IssueType='Capital' AND  II.CapitalizeVoucherId is not null THEN 'Yes' ELSE 'No' END Capitalize
-,II.Id InventoryIssueId
+,II.Id InventoryIssueId,IR.Id InventoryReceiveId
                                     FROM TRN.[Voucher] AS V
 									LEFT JOIN TRN.InventoryIssue AS II ON II.VoucherId = V.Id
+                                    LEFT JOIN TRN.InventoryReceive AS IR ON IR.VoucherId = V.Id
                                     LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
                                     LEFT JOIN SCS.VoucherType AS vt ON vt.Id=v.VoucherTypeId
                                     LEFT JOIN ORG.Entity AS e ON e.Id=v.EntityId
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
                                     ) AS VD ON VD.VoucherId=V.Id
-where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable','IssueJournal','JournalVoucher') ";
+where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable','IssueJournal','JournalVoucher','InventoryPayable') ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
