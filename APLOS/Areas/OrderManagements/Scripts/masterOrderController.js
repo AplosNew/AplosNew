@@ -565,6 +565,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
+                        $scope.btndisable = false;
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
@@ -618,6 +619,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.btndisable = false;
                         ShowResult(response.data.Message, 'failure');
                     }
                     else {
@@ -646,8 +648,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
                     }
                 }, function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
                     $scope.btndisable = false;
+                    ShowResult(response.data.Message, 'failure');
                 });
             }
         }

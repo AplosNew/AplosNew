@@ -278,7 +278,7 @@ where P.Active = 1 and DM.EmployeeCategoryId='"+ EmployeeCategoryid + "'";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select distinct CAST (CASE WHEN PDGL.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,PDGL.Id,D.Id DesignationId,D.UserName Designation,
-LD.Id as LegalDesignationId,LD.UserName as LegalDesignation,DG.UserName as DesignationGroup,DG.Id as DesignationGroupId
+LD.Id as LegalDesignationId,LD.UserName as LegalDesignation,DG.UserName as DesignationGroup,DG.Id as DesignationGroupId,PDGL.SkillCategory
 from MST.DesignationMaster DM
 left Join hkp.Designation D ON D.Id=DM.DesignationId and D.Active=1
 left join MST.DesignationMasterLegalDesignation LMD ON LMD.DesignationMasterId=DM.Id
@@ -338,7 +338,7 @@ where DM.Active=1 and DM.DesignationGroupId in (select PDG.DesignationGroupId fr
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select distinct E.UserName as EmployeeCategory,D.UserName as Division,DEP.UserName as Department,S.UserName as Section,SS.UserName as SubSection,
-P.Activity,P.UserName as Process,P.Code as PositionCode,RP.EmployeeName as ResponsiblePerson,PWD.SkillCategory,PWD.CostReviewCategory,PWD.Remarks,
+P.Activity,P.UserName as Process,P.Code as PositionCode,RP.EmployeeName as ResponsiblePerson,PWD.PositionCategory,PWD.CostReviewCategory,PWD.Remarks,
 DG.UserName as DesignationGroup,DE.UserName as Designation,LD.UserName as LegalDesignation from 
 TRN.PositionWiseDesignation PWD
 LEFT OUTER JOIN hkp.EmployeeCategory E ON E.Id=PWD.EmployeeCategoryId
