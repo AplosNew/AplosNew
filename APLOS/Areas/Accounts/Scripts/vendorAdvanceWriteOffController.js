@@ -589,6 +589,27 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $window,$sco
                     data.WriteOff = data.Received;
                     data.Advilable = data.Balance;
                     data.DrAmount = data.Balance;
+
+                    if (data.CurrencyCode === $scope.advance.CurrencyCode) {
+                        if (data.CompanyCurrencyRate < $scope.advance.CompanyCurrencyRate) {
+                            data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advance.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
+                            data.ExchangeType = "ExchangeLoss";
+                        }
+                        else if (data.CompanyCurrencyRate > $scope.advance.CompanyCurrencyRate) {
+                            data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advance.CompanyCurrencyRate)).toFixed(2);
+                            data.ExchangeType = "ExchangeGain";
+                        }
+                        else {
+                            data.ExchangeAmount = 0;
+                            data.ExchangeType = null;
+                        }
+                    }
+
+                    else {
+                        data.ExchangeAmount = 0;
+                        data.ExchangeType = null;
+                    }
+
                     $scope.voucherDetailList.push(data);
                     if ($scope.voucherDetailList.length > 0)
                         $scope.isReadOnly = true;

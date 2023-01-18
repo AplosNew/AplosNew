@@ -102,6 +102,7 @@ namespace Library.Service.Finances
                     SourceType = voucherVM.SourceType,
                     PaymentSource = voucherVM.PaymentSource,
                     Amount = voucherVM.Amount,
+                    DownPaymentAmount = voucherVM.DownPaymentAmount,
                     LifeOfYear = voucherVM.LifeOfYear,
                     NoOfInstallmentPerYear = voucherVM.NoOfInstallmentPerYear,
                     TotalNoOfInstallment = voucherVM.TotalNoOfInstallment,
