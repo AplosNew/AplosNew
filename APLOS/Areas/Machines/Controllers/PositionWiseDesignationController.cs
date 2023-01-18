@@ -339,7 +339,7 @@ where DM.Active=1 and DM.DesignationGroupId in (select PDG.DesignationGroupId fr
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select distinct E.UserName as EmployeeCategory,D.UserName as Division,DEP.UserName as Department,S.UserName as Section,SS.UserName as SubSection,
 P.Activity,P.UserName as Process,P.Code as PositionCode,RP.EmployeeName as ResponsiblePerson,PWD.PositionCategory,PWD.CostReviewCategory,PWD.Remarks,
-DG.UserName as DesignationGroup,DE.UserName as Designation,LD.UserName as LegalDesignation from 
+DG.UserName as DesignationGroup,isnull(DE.UserName,'') as Designation,isnull(LD.UserName,'') as LegalDesignation,isnull(PWDGL.SkillCategory,'') as SkillCategory from 
 TRN.PositionWiseDesignation PWD
 LEFT OUTER JOIN hkp.EmployeeCategory E ON E.Id=PWD.EmployeeCategoryId
 LEFT OUTER JOIN org.Position P ON P.Id=PWD.PositionCodeId
