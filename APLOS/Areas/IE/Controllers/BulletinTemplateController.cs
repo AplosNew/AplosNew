@@ -3532,12 +3532,12 @@ namespace Aplos.Areas.IE.Controllers
 
         #region Thread Consumption
         [HttpGet, Authorize]
-        public ActionResult GetThreadConsumptionReport(ReportFormat reportFormat, string bulletinTemplateMasterId)
+        public ActionResult GetThreadConsumptionReport(ReportFormat reportFormat, string bulletinTemplateMasterId,string bulletinId)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var reportFileName = "Thread Consumption";
-            var workbook = GetThreadConsumptionReportWorkSheet(bulletinTemplateMasterId);
+            var workbook = GetThreadConsumptionReportWorkSheet(bulletinTemplateMasterId, bulletinId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -3551,7 +3551,7 @@ namespace Aplos.Areas.IE.Controllers
             }
         }
 
-        private IWorkbook GetThreadConsumptionReportWorkSheet(string bulletinTemplateMasterId)
+        private IWorkbook GetThreadConsumptionReportWorkSheet(string bulletinTemplateMasterId, string bulletinId)
         {
 
             var excelEngine = new ExcelEngine();
@@ -3567,7 +3567,7 @@ namespace Aplos.Areas.IE.Controllers
             int endCol = 1;
             int COL = 1;
 
-            DataTable dataHeader = clsb.GetBulletinTemplateDatabyId(bulletinTemplateMasterId);
+            DataTable dataHeader = clsb.GetBulletinTemplateDatabyId(bulletinId);
             DataTable data = clsb.GetThreadConsumptionData(bulletinTemplateMasterId);
             DataTable summaryData = clsb.GetThreadConsumptionSummaryData(bulletinTemplateMasterId);
 
