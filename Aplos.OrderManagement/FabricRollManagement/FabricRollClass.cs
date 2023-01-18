@@ -1647,7 +1647,7 @@ LEFT OUTER JOIN MaterialGridMaster mgm ON mgm.SystemID=mm.materialGridMasterSyst
 							  LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id = PDAMAP.POId
 							  LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
 							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate,PODate
+							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate,PODate
 							)PO ON PO.GRNId = IR.Id
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 							LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
