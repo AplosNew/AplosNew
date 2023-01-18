@@ -3,6 +3,7 @@ positionWiseDesignationController.$inject = ["cboService","commonMessage", "$sco
 function positionWiseDesignationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "PositionWiseDesignation";
     $scope.SkillCategoryList = [];
+    $scope.PositionCategoryList = [];
     $scope.CostReviewCategoryList = [];
     $scope.Action = 'Save';
     $scope.path = 'Machines/PositionWiseDesignation/';
@@ -11,6 +12,27 @@ function positionWiseDesignationController(cboService, commonMessage, $scope, $r
     $scope.saveUrlDesignation = $scope.path + 'createPositionWiseDesignation';
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
     $scope.downloadgriddataUrl = 'GridReports/Download';
+
+    $scope.PositionCategoryList = [
+        {
+            'Value': 'A',
+            'Text': 'A'
+        },
+        {
+            'Value': 'B',
+            'Text': 'B'
+        }
+        ,
+        {
+            'Value': 'C',
+            'Text': 'C'
+        }
+        ,
+        {
+            'Value': 'D',
+            'Text': 'D'
+        }
+    ];
 
     $scope.SkillCategoryList = [
         {
@@ -30,6 +52,11 @@ function positionWiseDesignationController(cboService, commonMessage, $scope, $r
         {
             'Value': 'D',
             'Text': 'D'
+        }
+        ,
+        {
+            'Value': 'E',
+            'Text': 'E'
         }
     ];
 
@@ -78,7 +105,7 @@ function positionWiseDesignationController(cboService, commonMessage, $scope, $r
         , ResponsiblePerson: null
         , PositionLevels: null
         , EmployeeCategoryId: null
-        , SkillCategory: null
+        , PositionCategory: null
         , CostReviewCategory: null
         , Remarks: null
         , IsActive: true
