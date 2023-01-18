@@ -1686,7 +1686,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     }
     $scope.TotalSumAfterTCSBOQ = function () {
 
-        if ($scope.Action === 'Save') {
+        if ($scope.inventoryMaterialListPO.length>0 ) {
             $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
         }
         else {
