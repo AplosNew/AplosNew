@@ -8260,11 +8260,14 @@ namespace Library.MaterialManagement.Inventory
                     ConnectionManager.DAL.ConManager objCon1;
                     DataSet dsMaster1 = null;
                     DataSet dsMaster2 = null;
+                    DataSet dsMaster3 = null;
                     string setOffsql = @"SELECT * from trn.GRNPORequisitionMap where InventoryReceiveDetailId = '" + receiveDetailId + "'";
                     string grnBinAllocationMapsql = @"SELECT * from trn.GRNBinAllocationMap where InventoryReceiveDetailId = '" + receiveDetailId + "'";
+                    string GRNRejectionDetailsMapsql = @"SELECT * from trn.GRNRejectionDetails where GRNDeailsId = '" + receiveDetailId + "'";
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
                     objCon1.OpenDataSetThroughAdapter(grnBinAllocationMapsql, out dsMaster2, false, "1");
+                    objCon1.OpenDataSetThroughAdapter(GRNRejectionDetailsMapsql, out dsMaster3, false, "1");
 
                     if (dsMaster1.Tables[0].Rows.Count > 0)
                     {
@@ -8279,6 +8282,14 @@ namespace Library.MaterialManagement.Inventory
                         var rdBuilder = new System.Text.StringBuilder();
                         var grnBinAllocationSql = @"DELETE trn.GRNBinAllocationMap where InventoryReceiveDetailId ='" + receiveDetailId + "'";
                         rdBuilder.Append(grnBinAllocationSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+
+                    if (dsMaster3.Tables[0].Rows.Count > 0)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var GRNRejectionDetailSql = @"DELETE trn.GRNRejectionDetails where GRNDeailsId ='" + receiveDetailId + "'";
+                        rdBuilder.Append(GRNRejectionDetailSql);
                         _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                     }
 
