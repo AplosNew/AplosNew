@@ -282,7 +282,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId,ISNULL(b.ItemRefNo,'') BOQItemRefNo
 						   ,ISNULL(CI.UserName,'') CostingItemName,ISNULL(b.SKUDesc,'')SKUDesc,ISNULL(b.RMDescription,'')RMDescription
 						   ,ISNULL(b.RMVendorSpec,'')RMVendorSpec,ISNULL(b.RMCustomerSpec,'')RMCustomerSpec
-
+                            ,0 TrnAmount,0 MaterialTranAmount
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId

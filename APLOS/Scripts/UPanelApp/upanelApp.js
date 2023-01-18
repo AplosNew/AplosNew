@@ -1136,7 +1136,7 @@ upanelApp.controller("ScanDataController", ScanDataController)
 upanelApp.controller("ProductionReportController", ProductionReportController)
 upanelApp.controller("SalaryNotDisbursedController", SalaryNotDisbursedController)
 upanelApp.controller("PackingScanDataController", PackingScanDataController)
-
+upanelApp.controller("positionWiseDesignationController", positionWiseDesignationController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

@@ -592,7 +592,7 @@ namespace Library.OrderManagement.Sales
 ,p.TINNO BuyerGSTIN,P.UserName BuyerLegalName,''BuyerTradeName,ST.UserName BuyerPOS,am.Address1 BuyerAddr1
 ,am.Address2 BuyerAddr2,ST.UserName BuyerLocation,P.PINCode BuyerPinCode,ST.UserName BuyerState, am.Phone BuyerPhoneNumber,am.Email BuyerEmailId
 ,'' DispatchName,'' DispatchAddr1,''DispatchAddr2,''DispatchLocation,''DispatchPinCode,''DispatchState,''ShippingGSTIN,''ShippingLegalName,''ShippingTradeName
-,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,h.Code HSNcode   
+,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,ISNULL(ha.Code,h.Code) HSNcode   
 ,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,FORMAT(sm.TransactionRate,'N4') UnitPrice,FORMAT(sm.TransactionAmount,'N2') GrossAmount,'' Discount,''PreTaxValue
 ,FORMAT(sm.TransactionAmount,'N2') Taxablevalue,FORMAT(TAxInfo1.Percentage,'N2') GSTRate,FORMAT(TAxInfo1.Amount,'N4') IgstAmt,FORMAT(TAxInfo2.Amount,'N2') SgstAmt,FORMAT(TAxInfo3.Amount,'N2') CgstAmt,'' CessRate,''CessAmtAdval
 ,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,''OtherCharges,FORMAT(sm.NetAmount,'N2') ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
@@ -602,7 +602,8 @@ namespace Library.OrderManagement.Sales
 LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=s.Id 
 LEFT JOIN MST.MaterialMaster AS mm ON sm.MaterialMasterId=mm.Id
 LEFT JOIN MST.MaterialMasterArticle AS mma ON sm.ArticleId=mma.Id
-LEFT JOIN HKP.HSNCode AS h ON h.Id = mma.HSNCodeId
+LEFT JOIN HKP.HSNCode AS h ON h.Id = mm.HSNCodeId
+LEFT JOIN HKP.HSNCode AS ha ON h.Id = mma.HSNCodeId
 LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = sm.BaseUOMId
 LEFT JOIN hkp.Party P ON P.Id = S.PartyId
 LEFT JOIN MST.AddressMaster AS am ON am.Id = P.AddressMasterId
@@ -645,7 +646,7 @@ WHERE s.Id " + Ids + "";
 ,p.TINNO BuyerGSTIN,P.UserName BuyerLegalName,''BuyerTradeName,ST.UserName BuyerPOS,am.Address1 BuyerAddr1
 ,am.Address2 BuyerAddr2,ST.UserName BuyerLocation,P.PINCode BuyerPinCode,ST.UserName BuyerState, am.Phone BuyerPhoneNumber,am.Email BuyerEmailId
 ,'' DispatchName,'' DispatchAddr1,''DispatchAddr2,''DispatchLocation,''DispatchPinCode,''DispatchState,''ShippingGSTIN,''ShippingLegalName,''ShippingTradeName
-,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,h.Code HSNcode   
+,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,ISNULL(ha.Code,h.Code) HSNcode   
 ,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,CONVERT(numeric(10,2),sm.TransactionRate*s.ToCurrencyRate) UnitPrice,CONVERT(numeric(10,2),sm.TransactionAmount*s.ToCurrencyRate)GrossAmount,'' Discount,''PreTaxValue
 ,CONVERT(numeric(10,2),sm.TransactionAmount*s.ToCurrencyRate)Taxablevalue,CONVERT(numeric(10,2),TAxInfo1.Percentage) GSTRate,CONVERT(numeric(10,2),TAxInfo1.Amount*s.ToCurrencyRate) IgstAmt,CONVERT(numeric(10,2),TAxInfo2.Amount*s.ToCurrencyRate) SgstAmt,CONVERT(numeric(10,2),TAxInfo3.Amount*s.ToCurrencyRate) CgstAmt,'' CessRate,''CessAmtAdval
 ,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,''OtherCharges,CONVERT(numeric(10,2),sm.NetAmount*s.ToCurrencyRate) ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
@@ -655,7 +656,8 @@ WHERE s.Id " + Ids + "";
 LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=s.Id 
 LEFT JOIN MST.MaterialMaster AS mm ON sm.MaterialMasterId=mm.Id
 LEFT JOIN MST.MaterialMasterArticle AS mma ON sm.ArticleId=mma.Id
-LEFT JOIN HKP.HSNCode AS h ON h.Id = mma.HSNCodeId
+LEFT JOIN HKP.HSNCode AS h ON h.Id = mm.HSNCodeId
+LEFT JOIN HKP.HSNCode AS ha ON ha.Id = mma.HSNCodeId
 LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = sm.BaseUOMId
 LEFT JOIN hkp.Party P ON P.Id = S.PartyId
 LEFT JOIN MST.AddressMaster AS am ON am.Id = P.AddressMasterId

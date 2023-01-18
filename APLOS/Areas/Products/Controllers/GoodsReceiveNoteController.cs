@@ -4838,7 +4838,7 @@ UNION ALL
                 entity.IsApproved = false;
                 entity.RequiredPosting = true;
             }
-            if (entityMatAndImat1 != null)
+            if (entityMatAndImat1.Count>0)
             {
                 foreach (var item in entityMatAndImat1)
                 {
@@ -4874,11 +4874,11 @@ UNION ALL
 
                 }
             }
-            bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
-            if (_returnRes == true)
-            {
-                throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
-            }
+            //bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
+            //if (_returnRes == true)
+            //{
+            //    throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
+            //}
 
             DetailCreateGRNBOQ(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, BOQAllocationSave);
             ServiceChargesCreateNewSaad(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);

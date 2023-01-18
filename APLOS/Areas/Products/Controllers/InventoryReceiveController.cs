@@ -1771,11 +1771,6 @@ namespace Aplos.Areas.Products.Controllers
 
                 }
             }
-            bool _returnRes = GetDocRef(entity.DocRefNo, entity.PartyId, entity.DocDate.ToString(), entity.Id);
-            if (_returnRes == true)
-            {
-                throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
-            }
 
             BOQDetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, entityMatAndImat);
             BOQServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
